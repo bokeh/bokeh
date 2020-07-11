@@ -62,7 +62,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class BaseServer(object):
+class BaseServer:
     ''' Explicitly coordinate the level Tornado components required to run a
     Bokeh server:
 

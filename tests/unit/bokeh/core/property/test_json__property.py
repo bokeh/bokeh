@@ -33,8 +33,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_JSON(object):
 
+class Test_JSON:
     def test_valid(self) -> None:
         prop = bcpj.JSON()
 

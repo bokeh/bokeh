@@ -393,8 +393,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
 
 
 # http://eyalarubas.com/python-subproc-nonblock.html
-class NBSR(object):
-
+class NBSR:
     def __init__(self, stream):
         '''
         stream: the stream to read from.

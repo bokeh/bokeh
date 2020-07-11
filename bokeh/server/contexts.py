@@ -130,7 +130,7 @@ class BokehSessionContext(SessionContext):
         return self._session
 
 
-class ApplicationContext(object):
+class ApplicationContext:
     ''' Server-side holder for ``bokeh.application.Application`` plus any associated data.
         This holds data that's global to all sessions, while ``ServerSession`` holds
         data specific to an "instance" of the application.
@@ -300,7 +300,7 @@ class ApplicationContext(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class _RequestProxy(object):
+class _RequestProxy:
     def __init__(self, request, cookies=None, headers=None):
         self._request = request
 

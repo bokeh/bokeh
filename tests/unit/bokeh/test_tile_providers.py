@@ -82,7 +82,7 @@ _ESRI_URLS = {
 # Test___all__ = verify_all(bt, ALL)
 
 @pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
-class Test_StamenProviders(object):
+class Test_StamenProviders:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
@@ -107,7 +107,7 @@ class Test_StamenProviders(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
-class Test_CartoProviders(object):
+class Test_CartoProviders:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
@@ -129,7 +129,7 @@ class Test_CartoProviders(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['OSM'])
-class Test_OsmProvider(object):
+class Test_OsmProvider:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
@@ -150,7 +150,7 @@ class Test_OsmProvider(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['WIKIMEDIA'])
-class Test_WikimediaProvider(object):
+class Test_WikimediaProvider:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
@@ -171,7 +171,7 @@ class Test_WikimediaProvider(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['ESRI_IMAGERY'])
-class Test_EsriProvider(object):
+class Test_EsriProvider:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
         assert isinstance(p, str)
@@ -192,9 +192,7 @@ class Test_EsriProvider(object):
         assert p1 is not p2
 
 
-
-class Test_GetProvider(object):
-
+class Test_GetProvider:
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
                                       'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
                                       'STAMEN_TONER_LABELS', 'OSM', 'WIKIMEDIA', 'ESRI_IMAGERY', ])

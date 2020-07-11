@@ -40,9 +40,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_Button(object):
 
+@pytest.mark.selenium
+class Test_Button:
     def test_displays_label(self, bokeh_model_page) -> None:
         button = Button(label="label", css_classes=["foo"])
 

@@ -96,8 +96,8 @@ def alt_click(driver, element):
     actions.key_up(Keys.META)
     actions.perform()
 
-class ButtonWrapper(object):
 
+class ButtonWrapper:
     def __init__(self, label, callback):
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
@@ -107,7 +107,7 @@ class ButtonWrapper(object):
         button = driver.find_element_by_css_selector(".%s .bk-btn" % self.ref)
         button.click()
 
-class element_to_start_resizing(object):
+class element_to_start_resizing:
     ''' An expectation for checking if an element has started resizing
     '''
 
@@ -123,7 +123,7 @@ class element_to_start_resizing(object):
             self.previous_width = current_width
             return False
 
-class element_to_finish_resizing(object):
+class element_to_finish_resizing:
     ''' An expectation for checking if an element has finished resizing
 
     '''

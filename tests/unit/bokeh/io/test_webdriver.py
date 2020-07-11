@@ -54,7 +54,7 @@ _driver_map = {
     "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
-class Test_webdriver_control(object):
+class Test_webdriver_control:
     def test_default(self) -> None:
         # other tests may have interacted with the global biw.webdriver_control,
         # so create a new instance only to check default values

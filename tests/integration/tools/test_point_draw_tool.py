@@ -76,8 +76,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PointDrawTool(object):
-
+class Test_PointDrawTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 

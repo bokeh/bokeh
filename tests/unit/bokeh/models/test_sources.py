@@ -40,8 +40,8 @@ import bokeh.models.sources as bms # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestColumnDataSource(object):
 
+class TestColumnDataSource:
     def test_basic(self) -> None:
         ds = bms.ColumnDataSource()
         assert isinstance(ds, bms.DataSource)

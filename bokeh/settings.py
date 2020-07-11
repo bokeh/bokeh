@@ -248,7 +248,7 @@ class _Unset: pass
 def is_dev():
     return convert_bool(os.environ.get("BOKEH_DEV", False))
 
-class PrioritizedSetting(object):
+class PrioritizedSetting:
     ''' Return a value for a global setting according to configuration precedence.
 
     The following methods are searched in order for the setting:
@@ -408,7 +408,7 @@ _config_user_locations = (
 
 _config_system_locations = ()
 
-class Settings(object):
+class Settings:
     '''
 
     '''

@@ -230,7 +230,7 @@ def accumulate_dict_from_superclasses(cls, propname):
         setattr(cls, cachename, d)
     return cls.__dict__[cachename]
 
-class HasProps(object, metaclass=MetaHasProps):
+class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
     '''

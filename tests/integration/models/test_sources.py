@@ -41,9 +41,9 @@ def is_cds_data_streamed(evt):
     return evt['kind'] == 'ColumnsStreamed'
 
 
-@pytest.mark.selenium
-class Test_ColumnDataSource(object):
 
+@pytest.mark.selenium
+class Test_ColumnDataSource:
     @flaky(max_runs=10)
     def test_client_source_patch_sends_patch_event(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}

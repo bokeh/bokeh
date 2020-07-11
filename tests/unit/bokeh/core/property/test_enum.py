@@ -34,8 +34,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Enum(object):
 
+class Test_Enum:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpe.Enum()

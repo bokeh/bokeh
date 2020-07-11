@@ -122,7 +122,7 @@ def test_auth_provider() -> None:
     bt = tornado.BokehTornado(applications={})
     assert isinstance(bt.auth_provider, NullAuth)
 
-    class FakeAuth(object):
+    class FakeAuth:
         get_user = "get_user"
         endpoints = []
     bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)

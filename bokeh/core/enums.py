@@ -142,7 +142,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Enumeration(object):
+class Enumeration:
     ''' Represent an enumerated collection of values.
 
     .. note::

@@ -54,9 +54,9 @@ def modify_doc(doc):
     input_box.on_change('value', cb)
     doc.add_root(column(input_box, plot))
 
-@pytest.mark.selenium
-class Test_AutocompleteInput(object):
 
+@pytest.mark.selenium
+class Test_AutocompleteInput:
     def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 

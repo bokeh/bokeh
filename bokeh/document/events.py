@@ -58,7 +58,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class DocumentChangedEvent(object):
+class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
     Bokeh Document.
 

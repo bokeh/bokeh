@@ -380,8 +380,8 @@ else
   doc.idle.connect(done);
 """
 
-class _TempFile(object):
 
+class _TempFile:
     _closed: bool = False
 
     fd: int

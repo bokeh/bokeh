@@ -64,9 +64,9 @@ def has_cds_data_patches(msgs):
 
     return False
 
-@pytest.mark.selenium
-class Test_DataTableSource(object):
 
+@pytest.mark.selenium
+class Test_DataTableSource:
     @flaky(max_runs=10)
     def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
         def modify_doc(doc):

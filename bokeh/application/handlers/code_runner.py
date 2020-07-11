@@ -46,7 +46,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class CodeRunner(object):
+class CodeRunner:
     ''' Compile and run Python source code.
 
     '''

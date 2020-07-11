@@ -34,7 +34,7 @@ point_events = set([v for v in globals().values()
 # General API
 #-----------------------------------------------------------------------------
 
-class EventCallback(object):
+class EventCallback:
     def __init__(self, attributes=[]):
         self.event_name = None
         self.attributes = attributes

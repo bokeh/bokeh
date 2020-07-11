@@ -38,7 +38,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Receiver(object):
+class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server
     message objects.
 

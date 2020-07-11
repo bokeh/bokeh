@@ -209,7 +209,7 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
         controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
                         new=NEW_PARAM[new])
 
-class ClientSession(object):
+class ClientSession:
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the

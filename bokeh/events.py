@@ -106,7 +106,7 @@ _CONCRETE_EVENT_CLASSES = {}
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(object):
+class Event:
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.

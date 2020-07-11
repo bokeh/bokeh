@@ -50,9 +50,9 @@ def modify_doc(doc):
     text_input.on_change('value', cb)
     doc.add_root(column(text_input, plot))
 
-@pytest.mark.selenium
-class Test_TextInput(object):
 
+@pytest.mark.selenium
+class Test_TextInput:
     def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = TextInput(css_classes=["foo"])
 

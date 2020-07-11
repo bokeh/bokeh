@@ -44,9 +44,9 @@ pytest_plugins = (
 
 items = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
 
-@pytest.mark.selenium
-class Test_Dropdown(object):
 
+@pytest.mark.selenium
+class Test_Dropdown:
     def test_displays_menu_items(self, bokeh_model_page) -> None:
         button = Dropdown(label="Dropdown button", menu=items, css_classes=["foo"])
 

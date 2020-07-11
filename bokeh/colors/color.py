@@ -30,7 +30,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Color(object):
+class Color:
     ''' A base class for representing color objects.
 
     '''

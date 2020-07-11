@@ -483,7 +483,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GridSpec(object):
+class GridSpec:
     """ Simplifies grid layout specification. """
 
     def __init__(self, nrows, ncols):

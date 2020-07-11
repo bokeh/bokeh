@@ -80,7 +80,7 @@ def test_build_single_handler_application_main_py(mock_warn) -> None:
 
 _SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
 
-class Test_set_single_plot_width_height(object):
+class Test_set_single_plot_width_height:
     def test_neither(self) -> None:
         p = figure(plot_width=200, plot_height=300)
         d = Document()

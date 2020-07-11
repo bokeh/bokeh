@@ -39,8 +39,7 @@ def get_prop_set(class_object):
     return class_properties
 
 
-class TestPanel(object):
-
+class TestPanel:
     def setup_method(self):
         from bokeh.models import Panel
         self.panelCls = Panel
@@ -58,8 +57,7 @@ class TestPanel(object):
         assert p1.child == None
 
 
-class TestTabs(object):
-
+class TestTabs:
     def setup_method(self):
         from bokeh.models import Tabs, Panel
         self.tabsCls = Tabs

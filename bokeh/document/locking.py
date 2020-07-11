@@ -72,7 +72,7 @@ UNSAFE_DOC_ATTR_USAGE_MSG = ("Only 'add_next_tick_callback' may be used safely w
                              "from that callback.")
 
 
-class UnlockedDocumentProxy(object):
+class UnlockedDocumentProxy:
     ''' Wrap a Document object so that only methods that can safely be used
     from unlocked callbacks or threads are exposed. Attempts to otherwise
     access or change the Document results in an exception.

@@ -34,8 +34,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Any(object):
 
+class Test_Any:
     def test_valid(self) -> None:
         prop = bcpa.Any()
         assert prop.is_valid(None)
@@ -60,8 +60,8 @@ class Test_Any(object):
         prop = bcpa.Any()
         assert not prop.has_ref
 
-class Test_AnyRef(object):
 
+class Test_AnyRef:
     def test_valid(self) -> None:
         prop = bcpa.AnyRef()
         assert prop.is_valid(None)

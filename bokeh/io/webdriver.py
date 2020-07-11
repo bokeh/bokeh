@@ -86,7 +86,7 @@ def _try_create_chromium_webdriver() -> Optional[WebDriver]:
     except Exception:
         return None
 
-class _WebdriverState(object):
+class _WebdriverState:
     '''
 
     '''

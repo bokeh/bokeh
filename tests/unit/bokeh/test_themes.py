@@ -53,8 +53,8 @@ attrs:
         another_string: "boo"
 """.encode('utf-8')
 
-class TestThemes(object):
 
+class TestThemes:
     def test_construct_empty_theme_from_file(self) -> None:
         # windows will throw permissions error with auto-delete
         with (tempfile.NamedTemporaryFile(delete=False)) as file:

@@ -21,7 +21,7 @@ import bokeh.client.states as bcs # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class MockConnection(object):
+class MockConnection:
     def __init__(self, to_pop=None): self._to_pop = to_pop
 
     async def _connect_async(self): return "_connect_async"
@@ -33,7 +33,7 @@ class MockConnection(object):
 
     async def _pop_message(self): return self._to_pop
 
-class MockMessage(object):
+class MockMessage:
     header = {'reqid': 'reqid'}
 
 #-----------------------------------------------------------------------------

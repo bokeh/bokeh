@@ -47,8 +47,8 @@ class HP(HasProps):
     foo = Int(default=10)
     bar = String()
 
-class TestBokehJSONEncoder(object):
 
+class TestBokehJSONEncoder:
     def setup_method(self, test_method):
         from bokeh.core.json_encoder import BokehJSONEncoder
         self.encoder = BokehJSONEncoder()
@@ -151,8 +151,8 @@ class TestBokehJSONEncoder(object):
         ts = pd.Timestamp('April 28, 1948')
         assert self.encoder.default(ts) == -684115200000
 
-class TestSerializeJson(object):
 
+class TestSerializeJson:
     def setup_method(self, test_method):
         from bokeh.core.json_encoder import serialize_json
         from json import loads

@@ -33,8 +33,8 @@ y = 2 + np.random.standard_normal(n)
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_axial_to_cartesian(object):
 
+class Test_axial_to_cartesian:
     def test_default_aspect_pointytop(self) -> None:
         q = np.array([0, 0, 0, 1, -1, 1, -1])
         r = np.array([0, 1, -1, 0, 1, -1, 0])
@@ -56,8 +56,8 @@ class Test_axial_to_cartesian(object):
         assert list(x) == [0.0, 0.0, 0.0, 1.5, -1.5, 1.5, -1.5]
         assert list(y) == [0, -sq3, sq3, -sq3/2, -sq3/2, sq3/2, sq3/2]
 
-class Test_cartesian_to_axial(object):
 
+class Test_cartesian_to_axial:
     def test_default_aspect_pointytop(self) -> None:
         x = np.array([0, -2, 2, -1.5, -1.5, 1.5, 1.5])
         y = np.array([0, 0, 0, 1.5, -1.5, 1.5, -1.5])
@@ -78,8 +78,8 @@ class Test_cartesian_to_axial(object):
             (0,0), (0,1), (0,-1), (1, 0), (-1, 1), (1, -1), (-1,0)
         ]
 
-class Test_hexbin(object):
 
+class Test_hexbin:
     # hexbin requires pandas
 
     def test_gaussian_pointytop(self, pd) -> None:

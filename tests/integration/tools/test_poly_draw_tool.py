@@ -81,8 +81,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PolyDrawTool(object):
-
+class Test_PolyDrawTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 

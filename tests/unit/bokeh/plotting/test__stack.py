@@ -29,8 +29,8 @@ import bokeh.plotting._stack as bps # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_single_stack(object):
 
+class Test_single_stack:
     def test_raises_when_spec_in_kwargs(self) -> None:
         with pytest.raises(ValueError) as e:
             bps.single_stack(['a', 'b'], 'foo', foo=10)
@@ -102,8 +102,8 @@ class Test_single_stack(object):
             assert kw['bar'] == "baz"
             assert kw['name'] == names[i]
 
-class Test_double_stack(object):
 
+class Test_double_stack:
     def test_raises_when_spec_in_kwargs(self) -> None:
         with pytest.raises(ValueError) as e:
             bps.double_stack(['a', 'b'], 'foo', 'bar', foo=10)

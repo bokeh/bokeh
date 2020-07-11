@@ -97,8 +97,8 @@ def directory(*apps_paths: Path) -> List[Routing]:
 
     return [ document(url, app) for url, app in build_single_handler_applications(paths).items() ]
 
-class RoutingConfiguration(object):
 
+class RoutingConfiguration:
     _http_urlpatterns: List[str] = []
     _websocket_urlpatterns: List[str] = []
 

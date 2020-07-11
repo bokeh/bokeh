@@ -28,8 +28,8 @@ import bokeh.colors.color as bcc # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Color(object):
 
+class Test_Color:
     def test_init(self) -> None:
         c = bcc.Color()
         assert c

@@ -68,8 +68,7 @@ def enter_value_in_spinner(driver, el, value, del_prev=True):
 
 
 @pytest.mark.selenium
-class Test_Spinner(object):
-
+class Test_Spinner:
     def test_display_number_input(self, bokeh_model_page) -> None:
         spinner = Spinner(css_classes=["foo"])
 

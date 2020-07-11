@@ -71,7 +71,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class PropertyDescriptorFactory(object):
+class PropertyDescriptorFactory:
     ''' Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"

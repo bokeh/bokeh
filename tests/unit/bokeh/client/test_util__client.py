@@ -29,8 +29,8 @@ import bokeh.client.util as bcu # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_server_url_for_websocket_url(object):
 
+class Test_server_url_for_websocket_url:
     def test_with_ws(self) -> None:
         assert bcu.server_url_for_websocket_url("ws://foo.com/ws") == "http://foo.com/"
 
@@ -47,8 +47,8 @@ class Test_server_url_for_websocket_url(object):
         with pytest.raises(ValueError):
             bcu.server_url_for_websocket_url("wss://foo.com/junk")
 
-class Test_websocket_url_for_server_url(object):
 
+class Test_websocket_url_for_server_url:
     def test_with_http(self) -> None:
         assert bcu.websocket_url_for_server_url("http://foo.com") == "ws://foo.com/ws"
         assert bcu.websocket_url_for_server_url("http://foo.com/") == "ws://foo.com/ws"

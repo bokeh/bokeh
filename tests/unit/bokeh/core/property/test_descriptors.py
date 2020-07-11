@@ -46,8 +46,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 
-class Test_PropertyDescriptor(object):
-
+class Test_PropertyDescriptor:
     def test___init__(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
         assert d.name == "foo"
@@ -58,7 +57,8 @@ class Test_PropertyDescriptor(object):
 
     def test_abstract(self) -> None:
         d = bcpd.PropertyDescriptor("foo")
-        class Foo(object): pass
+        class Foo:
+            pass
         f = Foo()
         with pytest.raises(NotImplementedError):
             d.__get__(f, f.__class__)
@@ -89,7 +89,9 @@ class Test_PropertyDescriptor(object):
 
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._internal_set')
     def test_set_from_json(self, mock_iset) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         d = bcpd.PropertyDescriptor("foo")
         d.set_from_json(f, "bar", 10)
@@ -97,7 +99,7 @@ class Test_PropertyDescriptor(object):
 
     def test_erializable_value(self) -> None:
         result = {}
-        class Foo(object):
+        class Foo:
             def serialize_value(self, val):
                 result['foo'] = val
         f = Foo()
@@ -119,10 +121,10 @@ class Test_PropertyDescriptor(object):
             d.add_prop_descriptor_to_class("bar", new_class_attrs, [], [], {})
         assert str(e.value).endswith("Two property generators both created bar.foo")
 
-class Test_BasicPropertyDescriptor(object):
 
+class Test_BasicPropertyDescriptor:
     def test___init__(self) -> None:
-        class Foo(object):
+        class Foo:
             '''doc'''
             pass
         f = Foo()
@@ -132,13 +134,17 @@ class Test_BasicPropertyDescriptor(object):
         assert d.__doc__ == f.__doc__
 
     def test___str__(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert str(d) == str(f)
 
     def test___get__improper(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(ValueError) as e:
@@ -146,7 +152,9 @@ class Test_BasicPropertyDescriptor(object):
         assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
     def test___set__improper(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         d = bcpd.BasicPropertyDescriptor("foo", f)
         with pytest.raises(RuntimeError) as e:
@@ -213,7 +221,7 @@ class Test_BasicPropertyDescriptor(object):
 
     def test_class_default(self) -> None:
         result = {}
-        class Foo(object):
+        class Foo:
             def themed_default(*args, **kw):
                 result['called'] = True
         f = Foo()
@@ -223,21 +231,27 @@ class Test_BasicPropertyDescriptor(object):
         assert result['called']
 
     def test_serialized(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         f.serialized = "stuff"
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert d.serialized == "stuff"
 
     def test_readonly(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         f.readonly = "stuff"
         d = bcpd.BasicPropertyDescriptor("foo", f)
         assert d.readonly == "stuff"
 
     def test_has_ref(self) -> None:
-        class Foo(object): pass
+        class Foo:
+            pass
+
         f = Foo()
         f.has_ref = "stuff"
         d = bcpd.BasicPropertyDescriptor("foo", f)
@@ -245,11 +259,13 @@ class Test_BasicPropertyDescriptor(object):
 
     @patch('bokeh.core.property.descriptors.BasicPropertyDescriptor._trigger')
     def test__trigger(self, mock_trigger) -> None:
-        class Foo(object):
+        class Foo:
             _property_values = dict(foo=10, bar=20)
-        class Match(object):
+
+        class Match:
             def matches(*args, **kw): return True
-        class NoMatch(object):
+
+        class NoMatch:
             def matches(*args, **kw): return False
         m = Match()
         nm = NoMatch()
@@ -262,10 +278,10 @@ class Test_BasicPropertyDescriptor(object):
         d2.trigger_if_changed(Foo, "junk")
         assert mock_trigger.called
 
-class Test_UnitSpecDescriptor(object):
 
+class Test_UnitSpecDescriptor:
     def test___init__(self) -> None:
-        class Foo(object):
+        class Foo:
             '''doc'''
             pass
         f = Foo()

@@ -88,8 +88,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PolyEditTool(object):
-
+class Test_PolyEditTool:
     def _test_selected_by_default(self, single_plot_page):
         plot = _make_plot()
 

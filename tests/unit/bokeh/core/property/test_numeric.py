@@ -40,8 +40,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Angle(object):
 
+class Test_Angle:
     def test_valid(self) -> None:
         prop = bcpn.Angle()
 
@@ -75,8 +75,8 @@ class Test_Angle(object):
         prop = bcpn.Angle()
         assert str(prop) == "Angle"
 
-class Test_Interval(object):
 
+class Test_Interval:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpn.Interval()
@@ -150,8 +150,8 @@ class Test_Interval(object):
         prop = bcpn.Interval(Float, 0.0, 1.0)
         assert str(prop) == "Interval(Float, 0.0, 1.0)"
 
-class Test_Size(object):
 
+class Test_Size:
     def test_valid(self) -> None:
         prop = bcpn.Size()
 
@@ -190,8 +190,8 @@ class Test_Size(object):
         prop = bcpn.Size()
         assert str(prop) == "Size"
 
-class Test_Percent(object):
 
+class Test_Percent:
     def test_valid(self) -> None:
         prop = bcpn.Percent()
 
@@ -229,8 +229,8 @@ class Test_Percent(object):
         prop = bcpn.Percent()
         assert str(prop) == "Percent"
 
-class Test_NonNegativeInt(object):
 
+class Test_NonNegativeInt:
     def test_valid(self) -> None:
         prop = bcpn.NonNegativeInt()
 
@@ -270,8 +270,8 @@ class Test_NonNegativeInt(object):
         prop = bcpn.NonNegativeInt()
         assert str(prop) == "NonNegativeInt"
 
-class Test_PositiveInt(object):
 
+class Test_PositiveInt:
     def test_valid(self) -> None:
         prop = bcpn.PositiveInt()
 

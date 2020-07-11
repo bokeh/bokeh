@@ -34,7 +34,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class AuthMixin(object):
+class AuthMixin:
     ''' This mixin adds the expected Tornado authorization hooks:
 
     * get_login_url

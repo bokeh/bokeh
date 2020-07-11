@@ -58,7 +58,7 @@ def test_show_doc_no_server(mock_notebook_content,
     d = Document()
     mock_notebook_content.return_value = ["notebook_script", "notebook_div", d]
 
-    class Obj(object):
+    class Obj:
         id = None
         def references(self): return []
 
@@ -73,8 +73,8 @@ def test_show_doc_no_server(mock_notebook_content,
     assert mock__publish_display_data.call_args[0] == expected_args
     assert mock__publish_display_data.call_args[1] == expected_kwargs
 
-class Test_push_notebook(object):
 
+class Test_push_notebook:
     @patch('bokeh.io.notebook.CommsHandle.comms', new_callable=PropertyMock)
     def test_no_events(self, mock_comms) -> None:
         mock_comms.return_value = MagicMock()

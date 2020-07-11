@@ -41,9 +41,9 @@ pytest_plugins = (
 
 LABELS = ["Option 1", "Option 2", "Option 3"]
 
-@pytest.mark.selenium
-class Test_RadioGroup(object):
 
+@pytest.mark.selenium
+class Test_RadioGroup:
     @pytest.mark.parametrize('inline', [True, False])
     def test_displays_options_list_of_string_labels_setting_inline(self, inline, bokeh_model_page) -> None:
         group = RadioGroup(labels=LABELS, css_classes=["foo"], inline=inline)

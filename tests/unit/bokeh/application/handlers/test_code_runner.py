@@ -35,8 +35,7 @@ import bokeh.application.handlers.code_runner as bahc # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class TestCodeRunner(object):
-
+class TestCodeRunner:
     # Public methods ----------------------------------------------------------
 
     def test_init(self) -> None:

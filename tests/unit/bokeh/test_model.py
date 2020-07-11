@@ -38,8 +38,8 @@ class SomeModel(Model):
     b = String("hello")
     c = List(Int, [1, 2, 3])
 
-class Test_js_on_change(object):
 
+class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:
         m = SomeModel()
         with pytest.raises(ValueError):
@@ -91,8 +91,8 @@ class Test_js_on_change(object):
         m.js_on_change('foo', cb, cb)
         assert m.js_property_callbacks == {"foo": [cb]}
 
-class Test_js_link(object):
 
+class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()

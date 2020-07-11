@@ -32,8 +32,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Override(object):
 
+class Test_Override:
     def test_create_default(self) -> None:
         o = bcpo.Override(default=10)
         assert o.default_overridden

@@ -51,7 +51,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Application(object):
+class Application:
     ''' An Application is a factory for Document instances.
 
     '''

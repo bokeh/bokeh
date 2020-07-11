@@ -36,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AuthProvider(object):
+class AuthProvider:
     ''' Abstract base class for implementing authorization hooks.
 
     Subclasses must supply one of: ``get_user`` or ``get_user_async``.

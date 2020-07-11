@@ -92,7 +92,7 @@ def current_time():
     '''
     return time.monotonic() * 1000
 
-class ServerSession(object):
+class ServerSession:
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
     '''

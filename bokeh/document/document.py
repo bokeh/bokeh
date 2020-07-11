@@ -88,7 +88,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Document(object):
+class Document:
     ''' The basic unit of serialization for Bokeh.
 
     Document instances collect Bokeh models (e.g. plots, layouts, widgets,

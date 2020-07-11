@@ -81,8 +81,7 @@ def large_plot(n):
     return col, objects
 
 
-class TestModelCls(object):
-
+class TestModelCls:
     def setup_method(self):
         from bokeh.model import Model
         self.model_cls = Model
@@ -116,8 +115,8 @@ class SomeModel(Model):
 class DeepModel(Model):
     child = Instance(Model)
 
-class TestCollectModels(object):
 
+class TestCollectModels:
     def test_references_large(self) -> None:
         root, objects = large_plot(10)
         assert set(root.references()) == objects
@@ -141,8 +140,8 @@ class SomeModelToJson(Model):
     foo = Int()
     bar = String()
 
-class TestModel(object):
 
+class TestModel:
     def setup_method(self):
         self.pObjectClass = SomeModel
         self.maxDiff = None
@@ -329,8 +328,8 @@ class TestModel(object):
         # non-default because it's unstable.
         assert 'child' in obj1.properties_with_values(include_defaults=False)
 
-class TestContainerMutation(object):
 
+class TestContainerMutation:
     def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
         result = dict(calls=[])
         def record_trigger(attr, old, new_):

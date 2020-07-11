@@ -111,7 +111,7 @@ def nodejs_compile(code, lang="javascript", file=None):
     else:
         return dict(error=obj)
 
-class Implementation(object):
+class Implementation:
     ''' Base class for representing Bokeh custom model implementations.
 
     '''
@@ -196,7 +196,7 @@ class FromFile(Implementation):
 #: recognized extensions that can be compiled
 exts = (".ts", ".js", ".css", ".less")
 
-class CustomModel(object):
+class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''

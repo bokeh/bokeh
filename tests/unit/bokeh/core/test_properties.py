@@ -112,8 +112,8 @@ ALL = (
 
 # TODO (bev) These tests should be moved to better places
 
-class Basictest(object):
 
+class Basictest:
     def test_simple_class(self) -> None:
         class Foo(HasProps):
             x = Int(12)

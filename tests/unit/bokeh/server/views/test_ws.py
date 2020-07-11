@@ -38,7 +38,7 @@ basicConfig()
 #-----------------------------------------------------------------------------
 
 async def test_send_message_raises(caplog) -> None:
-    class ExcMessage(object):
+    class ExcMessage:
         def send(self, handler):
             raise WebSocketClosedError()
     assert len(caplog.records) == 0

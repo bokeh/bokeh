@@ -55,8 +55,8 @@ import bokeh.document.document as document # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestDocumentHold(object):
 
+class TestDocumentHold:
     @pytest.mark.parametrize('policy', document.HoldPolicy)
     def test_hold(self, policy) -> None:
         d = document.Document()
@@ -115,12 +115,12 @@ class TestDocumentHold(object):
 
 extra = []
 
-class Test_Document_delete_modules(object):
 
+class Test_Document_delete_modules:
     def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
-        class FakeMod(object):
+        class FakeMod:
             __name__ = 'junkjunkjunk'
         mod = FakeMod()
         import sys
@@ -135,7 +135,7 @@ class Test_Document_delete_modules(object):
     def test_extra_referrer_error(self, caplog) -> None:
         d = document.Document()
         assert not d.roots
-        class FakeMod(object):
+        class FakeMod:
             __name__ = 'junkjunkjunk'
         mod = FakeMod()
         import sys
@@ -159,8 +159,8 @@ class Test_Document_delete_modules(object):
         assert 'junkjunkjunk' not in sys.modules
         assert d._modules is None
 
-class TestDocument(object):
 
+class TestDocument:
     def test_empty(self) -> None:
         d = document.Document()
         assert not d.roots

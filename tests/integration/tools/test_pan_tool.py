@@ -50,9 +50,9 @@ def _make_plot(dimensions="both"):
 
 _css = dict(both='pan', width='xpan', height='ypan')
 
-@pytest.mark.selenium
-class Test_PanTool(object):
 
+@pytest.mark.selenium
+class Test_PanTool:
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
     def test_selected_by_default(self, dim, single_plot_page) -> None:
         plot = _make_plot(dim)

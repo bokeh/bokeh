@@ -70,7 +70,7 @@ ALL = (
 
 def test_notify_owner() -> None:
     result = {}
-    class Foo(object):
+    class Foo:
         @bcpw.notify_owner
         def test(self): pass
 

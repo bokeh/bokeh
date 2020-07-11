@@ -10,8 +10,7 @@ import os
 import subprocess
 
 
-class TestBokehJS(object):
-
+class TestBokehJS:
     def test_bokehjs(self) -> None:
         os.chdir('bokehjs')
         proc = subprocess.Popen(["node", "make", "test"], stdout=subprocess.PIPE)

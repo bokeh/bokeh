@@ -30,7 +30,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class MultiValuedDict(object):
+class MultiValuedDict:
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
     Avoids storing empty collecctions.

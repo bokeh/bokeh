@@ -41,8 +41,8 @@ def process_request(request):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test_ServerRequestHandler(object):
 
+class Test_ServerRequestHandler:
     # Public methods ----------------------------------------------------------
 
     def test_request_bad_syntax(self) -> None:

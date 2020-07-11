@@ -25,9 +25,10 @@ import bokeh.document.events as bde # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class FakeEmptyDispatcher(object): pass
+class FakeEmptyDispatcher:
+    pass
 
-class FakeFullDispatcher(object):
+class FakeFullDispatcher:
     def __init__(self):
         self.called = []
 
@@ -40,7 +41,7 @@ class FakeFullDispatcher(object):
     def _session_callback_added(self, event):   self.called.append('_session_callback_added')
     def _session_callback_removed(self, event): self.called.append('_session_callback_removed')
 
-class FakeModel(object):
+class FakeModel:
     ref = "ref"
     data = "data"
     def references(self): return dict(ref1=1, ref2=2)
@@ -51,8 +52,8 @@ class FakeModel(object):
 
 # DocumentChangedEvent --------------------------------------------------------
 
-class TestDocumentChangedEvent(object):
 
+class TestDocumentChangedEvent:
     def test_init(self) -> None:
         e = bde.DocumentChangedEvent("doc")
         assert e.document == "doc"
@@ -88,8 +89,8 @@ class TestDocumentChangedEvent(object):
 
 # DocumentPatchedEvent --------------------------------------------------------
 
-class TestDocumentPatchedEvent(object):
 
+class TestDocumentPatchedEvent:
     def test_init(self) -> None:
         e = bde.DocumentPatchedEvent("doc", "setter", "invoker")
         assert e.document == "doc"
@@ -115,8 +116,8 @@ class TestDocumentPatchedEvent(object):
 
 # ModelChangedEvent -----------------------------------------------------------
 
-class TestModelChangedEvent(object):
 
+class TestModelChangedEvent:
     def test_init_defaults(self) -> None:
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew")
         assert e.document == "doc"
@@ -214,8 +215,8 @@ class TestModelChangedEvent(object):
 
 # ColumnDataChangedEvent ------------------------------------------------------
 
-class TestColumnDataChangedEvent(object):
 
+class TestColumnDataChangedEvent:
     def test_init(self) -> None:
         m = FakeModel()
         e = bde.ColumnDataChangedEvent("doc", m, [1,2], "setter", "invoker")
@@ -254,7 +255,7 @@ class TestColumnDataChangedEvent(object):
 
 # ColumnsStreamedEvent --------------------------------------------------------
 
-class TestColumnsStreamedEvent(object):
+class TestColumnsStreamedEvent:
 
     def test_init(self) -> None:
         m = FakeModel()
@@ -302,8 +303,8 @@ class TestColumnsStreamedEvent(object):
 
 # ColumnsPatchedEvent ---------------------------------------------------------
 
-class TestColumnsPatchedEvent(object):
 
+class TestColumnsPatchedEvent:
     def test_init(self) -> None:
         m = FakeModel()
         e = bde.ColumnsPatchedEvent("doc", m, [1, 2], "setter", "invoker")
@@ -340,8 +341,8 @@ class TestColumnsPatchedEvent(object):
 
 # TitleChangedEvent -----------------------------------------------------------
 
-class TestTitleChangedEvent(object):
 
+class TestTitleChangedEvent:
     def test_init(self) -> None:
         e = bde.TitleChangedEvent("doc", "title", "setter", "invoker")
         assert e.document == "doc"
@@ -395,8 +396,8 @@ class TestTitleChangedEvent(object):
 
 # RootAddedEvent --------------------------------------------------------------
 
-class TestRootAddedEvent(object):
 
+class TestRootAddedEvent:
     def test_init(self) -> None:
         m = FakeModel()
         e = bde.RootAddedEvent("doc", m, "setter", "invoker")
@@ -425,8 +426,8 @@ class TestRootAddedEvent(object):
 
 # RootRemovedEvent ------------------------------------------------------------
 
-class TestRootRemovedEvent(object):
 
+class TestRootRemovedEvent:
     def test_init(self) -> None:
         m = FakeModel()
         e = bde.RootRemovedEvent("doc", m, "setter", "invoker")
@@ -455,8 +456,8 @@ class TestRootRemovedEvent(object):
 
 # SessionCallbackAdded --------------------------------------------------------
 
-class TestSessionCallbackAdded(object):
 
+class TestSessionCallbackAdded:
     def test_init(self) -> None:
         e = bde.SessionCallbackAdded("doc", "callback")
         assert e.document == "doc"
@@ -478,8 +479,8 @@ class TestSessionCallbackAdded(object):
 
 # SessionCallbackRemoved ------------------------------------------------------
 
-class TestSessionCallbackRemoved(object):
 
+class TestSessionCallbackRemoved:
     def test_init(self) -> None:
         e = bde.SessionCallbackRemoved("doc", "callback")
         assert e.document == "doc"

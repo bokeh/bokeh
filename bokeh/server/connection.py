@@ -33,7 +33,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class ServerConnection(object):
+class ServerConnection:
     ''' Wraps a websocket connection to a client.
     '''
 

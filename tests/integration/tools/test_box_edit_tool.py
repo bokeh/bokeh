@@ -79,8 +79,7 @@ def _make_server_plot(expected, num_objects=0):
 
 
 @pytest.mark.selenium
-class Test_BoxEditTool(object):
-
+class Test_BoxEditTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
