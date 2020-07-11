@@ -111,7 +111,7 @@ def test_Less() -> None:
     assert obj.file == None
     assert obj.lang == "less"
 
-@patch('io.open')
+@patch("builtins.open")
 def test_FromFile(mock_open) -> None:
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
