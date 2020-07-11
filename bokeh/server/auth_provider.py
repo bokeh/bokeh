@@ -197,7 +197,7 @@ class AuthModule(AuthProvider):
 
         self._module = load_auth_module(module_path)
 
-        super(AuthModule, self).__init__()
+        super().__init__()
 
     @property
     def get_user(self):

@@ -508,7 +508,7 @@ class Rotate(PointEvent):
 
     def __init__(self, model, rotation=None, **kwargs):
         self.rotation = rotation
-        super(Rotate, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class RotateEnd(PointEvent):
     ''' Announce the end of a rotate event on a Bokeh plot.

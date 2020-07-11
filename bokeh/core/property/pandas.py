@@ -46,7 +46,7 @@ class PandasDataFrame(Property):
 
     '''
     def validate(self, value, detail=True):
-        super(PandasDataFrame, self).validate(value, detail)
+        super().validate(value, detail)
 
         if pd and isinstance(value, pd.DataFrame):
             return
@@ -63,7 +63,7 @@ class PandasGroupBy(Property):
 
     '''
     def validate(self, value, detail=True):
-        super(PandasGroupBy, self).validate(value, detail)
+        super().validate(value, detail)
 
         if pd and isinstance(value, pd.core.groupby.GroupBy):
             return
