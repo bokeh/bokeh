@@ -61,7 +61,7 @@ y_range = DataRange1d(start=EN[1]-dN , end=EN[1]+dN) # (m) Northing y_lo, y_hi
 plot = [0]*len(Vendors) # initialize list to store Vendor plots
 idx = 0
 for vendor_name in Vendors:
-    print("cnt={0}: Vendor={1}".format(idx,vendor_name))
+    print(f"cnt={idx}: Vendor={vendor_name}")
     tile_provider = get_provider(vendor_name)
 
     plot[idx] = figure( x_range=x_range, y_range=y_range,

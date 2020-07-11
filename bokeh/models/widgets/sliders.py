@@ -93,7 +93,7 @@ class AbstractSlider(Widget):
     def _check_missing_dimension(self):
         if hasattr(self, 'start') and hasattr(self, 'end'):
             if self.start == self.end:
-                return '{!s} with title {!s}'.format(self, self.title)
+                return f"{self!s} with title {self.title!s}"
 
 #-----------------------------------------------------------------------------
 # General API

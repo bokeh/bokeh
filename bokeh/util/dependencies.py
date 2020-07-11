@@ -53,7 +53,7 @@ def import_optional(mod_name: str) -> Optional[ModuleType]:
     except ImportError:
         pass
     except Exception:
-        msg = "Failed to import optional module `{}`".format(mod_name)
+        msg = f"Failed to import optional module `{mod_name}`"
         log.exception(msg)
 
     return None

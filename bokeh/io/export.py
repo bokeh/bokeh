@@ -155,7 +155,7 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
     for i, svg in enumerate(svgs):
         if i > 0:
             idx = filename.find(".svg")
-            filename = filename[:idx] + "_{}".format(i) + filename[idx:]
+            filename = filename[:idx] + f"_{i}" + filename[idx:]
 
         with open(filename, mode="w", encoding="utf-8") as f:
             f.write(svg)

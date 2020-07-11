@@ -226,9 +226,9 @@ class BaseTwinAxis:
 
     def verify_axis(self, axis_name):
         plot = Plot()
-        range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
-        range_obj['foo_range'] = self.get_range_instance()
-        assert range_obj['foo_range']
+        range_obj = getattr(plot, f"extra_{axis_name}_ranges")
+        range_obj["foo_range"] = self.get_range_instance()
+        assert range_obj["foo_range"]
 
     def test_x_range(self) -> None:
         self.verify_axis('x')

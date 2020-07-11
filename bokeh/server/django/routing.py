@@ -93,7 +93,7 @@ def directory(*apps_paths: Path) -> List[Routing]:
         if apps_path.exists():
             paths += [ entry for entry in apps_path.glob("*") if is_bokeh_app(entry) ]
         else:
-            log.warn("bokeh applications directory '{}' doesn't exist".format(apps_path))
+            log.warn(f"bokeh applications directory '{apps_path}' doesn't exist")
 
     return [ document(url, app) for url, app in build_single_handler_applications(paths).items() ]
 
