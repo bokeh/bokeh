@@ -181,8 +181,8 @@ The returned ``<script>`` will look something like:
 
     </script>
 
-Note that in Jupyter Notebooks, it is not possible to use components and show in
-the same notebook cell.
+Note that in Jupyter notebooks, it is not possible to use |components| and
+|show| in the same notebook cell.
 
 All of the data and plot or widget objects are contained in the ``docs_json``
 variable (contents omitted here for brevity). The resulting ``<div>`` will
@@ -227,7 +227,7 @@ For example, to use version ``1.4.0``, including widgets and tables support:
 .. note::
     You must provide the closing `</script>` tag. This is required by all
     browsers and the page will typically not render without it. You should also
-    always include the `crossorigin="anonymous"` attribute in the script.
+    always include the `crossorigin="anonymous"` attribute on the script tag.
 
 If you would like to include `Subresource Integrity`_ hashes to your explicit
 script tags by setting the `integrity` attribute, the necessary hashes can be

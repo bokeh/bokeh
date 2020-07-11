@@ -44,7 +44,7 @@ highlighted in a second plot (:ref:`userguide_data_linked_selection`).
 At the most basic level, a |ColumnDataSource| is simply a mapping between column
 names and lists of data. The |ColumnDataSource| takes a ``data`` parameter which is a dict,
 with string column names as keys and lists (or arrays) of data values as values. If one positional
-argument is passed into the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
+argument is passed to the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
 |ColumnDataSource| has been created, it can be passed into the ``source`` parameter of
 plotting methods which allows you to pass a column's name as a stand-in for the data values:
 

@@ -18,7 +18,7 @@ Custom extensions can be made and used with standard releases, and do not
 require setting up a development environment or building anything from source.
 They provide the easiest way to get involved in Bokeh development. By lowering
 the bar for extending Bokeh, users are afforded the ability to "try out" new
-features and functionalities (which might someday be candidates for adding to
+features and improved functionality (which might someday be candidates for adding to
 the core library) without having to wait on the core team.
 
 .. _userguide_extensions_structure:

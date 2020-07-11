@@ -74,7 +74,7 @@ Local or Individual Use
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 One way that you might want to use the Bokeh server is during exploratory
-data analysis, possibly in a Jupyter Notebook. Alternatively, you might
+data analysis, possibly in a Jupyter notebook. Alternatively, you might
 want to create a small app that you can run locally, or that you can send
 to colleagues to run locally. The Bokeh server is very useful and easy to
 use in this scenario. Both of the methods here below can be used effectively:
@@ -511,7 +511,7 @@ with JavaScript data and functions (e.g., BokehJS models).
 Python Callbacks with Jupyter Interactors
 '''''''''''''''''''''''''''''''''''''''''
 
-If you are working in the Jupyter Notebook, it is possible to use Jupyter
+If you are working in the Jupyter notebook, it is possible to use Jupyter
 interactors to quickly create simple GUI forms automatically. Updates to the
 widgets in the GUI can trigger python callback functions that execute in
 the Jupyter Python kernel. It is often useful to have these callbacks call
@@ -737,7 +737,7 @@ Embedding Bokeh Server as a Library
 -----------------------------------
 
 It can be useful to embed the Bokeh Server in a larger Tornado application, or the
-Jupyter Notebook, and use the already existing Tornado ``IOloop``. Here is the
+Jupyter notebook, and use the already existing Tornado ``IOloop``. Here is the
 basis of how to integrate Bokeh in such a scenario:
 
 .. code-block:: python
@@ -915,7 +915,7 @@ Again, replace *user* with your username on the gateway and *gateway.host*
 with the hostname/IP address of the gateway. You should now be able to access
 the Bokeh server from the local machine as if the Bokeh server were running
 on the local machine by navigating to ``localhost:5006`` on the local machine.
-You can even set up client connections from a Jupyter Notebook running on the
+You can even set up client connections from a Jupyter notebook running on the
 local machine.
 
 .. note::

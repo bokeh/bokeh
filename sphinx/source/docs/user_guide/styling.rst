@@ -95,7 +95,7 @@ Text Properties
 Visible property
 ~~~~~~~~~~~~~~~~
 
-Glyph renderers, axes, grids, and annotations all have a visible property that can be used to turn them on
+Glyph renderers, axes, grids, and annotations all have a ``visible`` property that can be used to turn them on
 and off.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_visible_property.py

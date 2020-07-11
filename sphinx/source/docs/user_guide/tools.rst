@@ -581,7 +581,7 @@ If no formatter is specified for a column name, the default ``"numeral"``
 formatter is assumed.
 
 Note that format specifications are also compatible with column names that
-have spaces. For example, ```@{adjusted close}{($ 0.00 a)}`` applies a format
+have spaces. For example, ``@{adjusted close}{($ 0.00 a)}`` applies a format
 to a column named "adjusted close".
 
 The example code below shows explicitly configuring a ``HoverTool`` with

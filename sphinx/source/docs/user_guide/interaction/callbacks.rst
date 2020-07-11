@@ -74,7 +74,7 @@ any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
 It should be mentioned that the first parameter to ``js_on_change`` is
 actually the name of a BokehJS event. The full format for a property
-change event is, e.g., "change:start", but Bokeh will automatically
+change event is, e.g., ``"change:start"``, but Bokeh will automatically
 convert any property name into one of these BokehJS change events for you.
 Additionally, some Bokeh models have additional specialized events. For
 example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
@@ -124,8 +124,8 @@ available event classes using the ``display_event`` function in order to
 generate the ``CustomJS`` objects. This function is used to update the ``Div``
 with the event name (always accessible from the ``event_name``
 attribute) as well as all the other applicable event attributes. The
-result is a plot that, when interacted with, displays the corresponding
-event on the right:
+result is a plot that displays the corresponding event on the right when the
+user interacts with it:
 
 .. bokeh-plot:: docs/user_guide/examples/js_events.py
     :source-position: above
@@ -201,7 +201,7 @@ CustomJS for Hover
 ''''''''''''''''''
 
 The ``HoverTool`` has a callback which comes with two pieces of built-in data: the
-`index` and the `geometry`. The `index` is the indices of any points that the
+``index`` and the ``geometry``. The ``index`` is the indices of any points that the
 hover tool is over.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py

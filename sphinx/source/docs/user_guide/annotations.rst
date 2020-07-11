@@ -225,8 +225,7 @@ Box Annotations
 
 A |BoxAnnotation| can be linked to either data or screen coordinates in order
 to emphasize specific plot regions. By default, box annotation dimensions (e.g.
-``left`` or ``top``) will extend the annotation to the edge of the
-plot area.
+``left`` or ``top``) will extend the annotation to the edge of the plot area.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
@@ -310,7 +309,7 @@ single point would be one common use for the Whisker annotation.
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
+.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 

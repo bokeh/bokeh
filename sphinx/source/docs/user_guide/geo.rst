@@ -67,11 +67,10 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     :source-position: above
 
 .. warning::
-    It is important to note that, behind the scenes, Bokeh converts the
-    GeoJSON coordinates into columns called `x` and `y` or `xs` and `ys`
-    (depending on whether the features are Points, Lines, MultiLines, Polygons,
-    or MultiPolygons). *Properties with clashing names will be overridden when
-    the GeoJSON is converted and should be avoided*.
+    Behind the scenes, Bokeh converts the GeoJSON coordinates into columns called
+    `x` and `y` or `xs` and `ys` (depending on whether the features are Points, 
+    Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
+    will be overridden when the GeoJSON is converted and should be avoided*.
 
 .. _GeoJSON: http://geojson.org
 .. _github: https://github.com/bokeh/bokeh

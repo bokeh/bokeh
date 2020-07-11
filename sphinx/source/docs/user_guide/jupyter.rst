@@ -11,7 +11,7 @@ Working in Notebooks
 `Jupyter`_ notebooks are computable documents often used for exploratory work,
 data analysis, teaching, and demonstration. A notebook is a series of *input
 cells* that can be individually executed to display their output immediately
-after the cell. In addition to  *Classic Notebooks*, there are also notebooks for
+after the cell. In addition to  *Classic* notebooks, there are also notebooks for
 the newer *JupyterLab* project. Bokeh can embed both standalone and Bokeh server
 content with either.
 
@@ -23,12 +23,12 @@ Standalone Output
 ~~~~~~~~~~~~~~~~~
 
 Standalone Bokeh content (i.e. that does not use a Bokeh server) can be embedded
-directly in classic Jupyter Notebooks as well as in JupyterLab.
+directly in classic Jupyter notebooks as well as in JupyterLab.
 
 Classic Notebook
 ++++++++++++++++
 
-To display Bokeh plots inline in a classic Jupyter Notebook, use the
+To display Bokeh plots inline in a classic Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. When |show| is called, the plot will be displayed inline in
@@ -75,7 +75,7 @@ It is also possible to embed full Bokeh server applications that can connect
 plot events and Bokeh's built-in widgets directly to Python callback code.
 See :ref:`userguide_server` for general information about Bokeh server
 applications, and the following notebook for a complete example of a Bokeh
-application embedded in a Jupyter Notebook:
+application embedded in a Jupyter notebook:
 
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 
@@ -157,7 +157,7 @@ is typically located under the "File" menu:
 Notebook Slides
 ~~~~~~~~~~~~~~~
 
-It is possible to use a Jupyter Notebook in conjunction with `Reveal.js`_
+It is possible to use a notebook in conjunction with `Reveal.js`_
 to generate slideshows from notebook cell content. It is also possible to
 include standalone (i.e. non-server) Bokeh plots in such sideshows, however,
 some steps must be followed to correctly display the output. Primarily: **the
@@ -230,7 +230,7 @@ following example notebooks:
 Jupyter Interactors
 ~~~~~~~~~~~~~~~~~~~
 
-It is possible to drive updates to Bokeh plots using Jupyter Notebook widgets,
+It is possible to drive updates to Bokeh plots using notebook widgets,
 known as `interactors`_. The key to doing this is the |push_notebook| function
 described above. Typically it is called in the update callback for the
 interactors, to update the plot from widget values. A screenshot of the
@@ -257,14 +257,14 @@ notebook is shown below:
 More Example Notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Many more examples using Jupyter Notebook can be found in the `bokeh-notebook`_
+Many more examples using notebook can be found in the `bokeh-notebook`_
 repository. First, clone the repository locally:
 
 .. code:: sh
 
     git clone https://github.com/bokeh/bokeh-notebooks.git
 
-Then, launch Jupyter Notebook in your web browser. Alternatively, live notebooks
+Then, launch the Jupyter notebooks in your web browser. Alternatively, live notebooks
 that can be run immediately online are hosted by `Binder`_.
 
 Additionally, there are some notebooks under `examples`_ in the main `Bokeh`_
@@ -366,7 +366,7 @@ To run this, assuming the code is saved under ``ipy_slider.py``, we issue
 application is available at http://localhost:5006/ipy_slider.
 
 From here, one can create more complex layouts and include advanced widgets,
-like `ipyleaflet`_, `ipyvolume`_, etc. More examples are available in Bokeh's
+like `ipyleaflet`_, `ipyvolume`_, etc. More examples are available in the Bokeh
 repository under ``examples/howto/ipywidgets``.
 
 .. _IPyWidgets: https://ipywidgets.readthedocs.io
