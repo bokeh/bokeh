@@ -21,7 +21,7 @@ source = ColumnDataSource({'x0': [], 'y0': [], 'x1': [], 'y1': []})
 sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source, )
 cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hover_alpha=1.0)
 
-# Add a hover tool, that sets the link data for a hovered circle
+# add a hover tool that sets the link data for a hovered circle
 code = """
 const links = %s
 const data = {'x0': [], 'y0': [], 'x1': [], 'y1': []}

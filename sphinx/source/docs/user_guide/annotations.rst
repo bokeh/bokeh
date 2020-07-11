@@ -37,7 +37,7 @@ properties as well as the title text and title alignment using ``.title``:
     :source-position: above
 
 Note that the alignment is measured along the direction of text. For
-example for titles on the left side of a plot "left" will be in the
+example, for titles on the left side of a plot, "left" will be in the
 lower corner.
 
 In addition to the default title, it is possible to create and add
@@ -54,8 +54,8 @@ the same space:
     :source-position: above
 
 If the plot size is large enough, this can result in a more compact plot.
-However if the plot size is not large enough, the title and toolbar may
-visually overlap in way that is not desirable.
+However, if the plot size is not large enough, the title and toolbar may
+visually overlap in a way that is not desirable.
 
 .. _userguide_plotting_legends:
 
@@ -63,19 +63,19 @@ Legends
 -------
 
 It is possible to create |Legend| annotations easily by specifying legend
-arguments to the glyph methods, when creating a plot.
+arguments to the glyph methods when creating a plot.
 
 Basic Legend Label
 ~~~~~~~~~~~~~~~~~~
 
-To provide a simple explicit label for a glypy, pass the ``legend_label``
+To provide a simple explicit label for a glyph, pass the ``legend_label``
 keyword argument:
 
 .. code-block:: python
 
     p.circle('x', 'y', legend_label="some label")
 
-If multiple glyphs are given the same label, they will all be combined in to a
+If multiple glyphs are given the same label, they will all be combined into a
 single legend item with that label.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
@@ -116,8 +116,8 @@ on a column that is only computed on the JavaScript side.
 
     p.circle('x', 'y', legend_field="colname", source=source)
 
-In this case the Python code does *not* see multiple items in ``Legend.items``.
-Instead there is only a single item that represents the grouping to perform in
+In this case, the Python code does *not* see multiple items in ``Legend.items``.
+Instead, there is only a single item that represents the grouping to perform in
 the browser.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
@@ -137,7 +137,7 @@ Other times, it may be useful to explicitly tell Bokeh which index into a
 ``ColumnDataSource`` should be used when drawing a legend item. In particular,
 if you want to draw multiple legend items for "multi" glyphs such as
 ``MultiLine`` or ``Patches``. This is accomplished by specifying an ``index``
-for the legend item as shown below.
+for the legend item, as shown below.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legends_multi_index.py
     :source-position: above
@@ -147,7 +147,7 @@ Interactive Legends
 
 It's also possible to configure legends to be interactive, so that clicking
 or tapping on legend entries affects the corresponding glyph visibility. See
-the :ref:`userguide_interaction_legends` section of the User's Guide for more
+the :ref:`userguide_interaction_legends` section of the User Guide for more
 information and examples.
 
 .. note::
@@ -181,7 +181,7 @@ Arrows
 to simply highlight plot regions. Arrows are compound annotations, meaning
 that their ``start`` and ``end`` attributes are themselves other |ArrowHead|
 annotations. By default, the |Arrow| annotation is one-sided with the ``end``
-set as an ``OpenHead``-type arrow head (an open-backed wedge style) and the
+set as an ``OpenHead``-type arrowhead (an open-backed wedge style) and the
 ``start`` property set to ``None``. Double-sided arrows can be created by
 setting both the ``start`` and ``end`` properties as appropriate |ArrowHead|
 subclass instances.
@@ -198,10 +198,10 @@ Arrows may also be configured to refer to additional non-default x- or
 y-ranges with the ``x_range`` and ``y_range`` properties, in the same way
 as :ref:`userguide_plotting_twin_axes`.
 
-Additionally any arrow head objects in ``start`` or ``end`` have a ``size``
-property to control how big the arrow head is, as well as both line and
-fill properties. The line properties control the outline of the arrow head,
-and the fill properties control the interior of the arrow head (if applicable).
+Additionally, any arrowhead objects in ``start`` or ``end`` have a ``size``
+property to control how big the arrowhead is, as well as both line and
+fill properties. The line properties control the outline of the arrowhead,
+and the fill properties control the interior of the arrowhead (if applicable).
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
@@ -211,7 +211,7 @@ and the fill properties control the interior of the arrow head (if applicable).
 Bands
 -----
 
-A |Band| will create a dimensionally-linked "stripe", either located in data
+A |Band| will create a dimensionally linked "stripe", either located in data
 or screen coordinates. One common use for the Band annotation is to indicate
 uncertainty related to a series of measurements.
 
@@ -225,8 +225,7 @@ Box Annotations
 
 A |BoxAnnotation| can be linked to either data or screen coordinates in order
 to emphasize specific plot regions. By default, box annotation dimensions (e.g.
-``left`` or ``top``) default will extend the annotation to the edge of the
-plot area.
+``left`` or ``top``) will extend the annotation to the edge of the plot area.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
@@ -242,7 +241,7 @@ regions.
 To create a single text label, use the |Label| annotation. This annotation
 is configured with a ``text`` property containing the text to be displayed,
 as well as ``x`` and ``y`` properties to set the position (in screen or data
-space units). Additionally a render mode ``"canvas"`` or ``"css"`` may be
+space units). Additionally, a render mode ``"canvas"`` or ``"css"`` may be
 specified. Finally, labels have ``text``, ``border_line``, and
 ``background_fill`` properties. These control the visual appearance of the
 text, as well as the border and background of the bounding box for the text:
@@ -255,10 +254,10 @@ text, as well as the border and background of the bounding box for the text:
 
 To create several labels at once, possibly to easily annotate another existing
 glyph, use the |LabelSet| annotation, which is configured with a data
-source, with the ``text`` and ``x`` and ``y`` positions are given as column
+source in which the ``text`` and ``x`` and ``y`` positions are given as column
 names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
 which specify a distance in screen space units to offset the label positions
-from ``x`` and ``y``. Finally the render level may be controlled with the
+from ``x`` and ``y``. Finally, the render level may be controlled with the
 ``level`` property, to place the label above or underneath other renderers:
 
 
@@ -299,7 +298,7 @@ and extend to the edge of the plot area.
 Whiskers
 --------
 
-A |Whisker| will create a dimensionally-linked "stem", either located in data
+A |Whisker| will create a dimensionally linked "stem", either located in data
 or screen coordinates. Indicating error or uncertainty for measurements at a
 single point would be one common use for the Whisker annotation.
 
