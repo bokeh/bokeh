@@ -5,7 +5,7 @@ set -x #echo on
 set +e
 
 pushd `python -c "import site; print(site.getsitepackages()[0])"`
-py.test distributed/dashboard
+pytest distributed/dashboard
 nosetests holoviews/tests/plotting/bokeh
 popd
 

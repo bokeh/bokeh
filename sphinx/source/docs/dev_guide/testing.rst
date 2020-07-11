@@ -35,7 +35,7 @@ level of the repository:
 
 .. code-block:: sh
 
-    py.test tests/unit
+    pytest tests/unit
 
 Note that this includes unit tests that require Selenium as well as appropriate
 web drivers (e.g. chromedriver and geckodriver) to be installed. To exclude
@@ -43,13 +43,13 @@ those unit tests, you can run the command:
 
 .. code-block:: sh
 
-    py.test -m "not selenium" tests/unit
+    pytest -m "not selenium" tests/unit
 
 To run just the BokehJS unit tests, execute:
 
 .. code-block:: sh
 
-    py.test tests/test_bokehjs.py
+    pytest tests/test_bokehjs.py
 
 Alternatively, you can also navigate to the `bokehjs` subdirectory of the
 source checkout and execute:
@@ -63,7 +63,7 @@ and integration tests) **from the top level directory** by executing:
 
 .. code-block:: sh
 
-    py.test
+    pytest
 
 To learn more about marking test functions and selecting/deselecting them for
 a run, please consult the pytest documentation for `custom markers`_. The list
@@ -79,7 +79,7 @@ To run any of the tests with coverage use the following:
 
 .. code-block:: sh
 
-  py.test --cov=bokeh
+  pytest --cov=bokeh
 
 To report on a subset of the Bokeh package, pass e.g. ``-cov=bokeh/models``.
 
@@ -90,9 +90,9 @@ To run any of the tests without standard output captured use:
 
 .. code-block:: sh
 
-  py.test -s
+  pytest -s
 
-See the `pytest`_ documentation for further information on ``py.test`` and
+See the `pytest`_ documentation for further information on ``pytest`` and
 its options.
 
 Examples tests
@@ -110,7 +110,7 @@ To run just the examples tests, run the command:
 
 .. code-block:: sh
 
-    py.test --report-path=examples.html test_examples.py
+    pytest --report-path=examples.html test_examples.py
 
 After the tests have run, you will be able to see the test report at
 ``examples.html``. Running locally, you can name the test report whatever
@@ -120,7 +120,7 @@ The examples tests can run slowly, to speed them up, you can parallelize them:
 
 .. code-block:: sh
 
-    py.test --report-path=examples.html -n 5 test_examples.py
+    pytest --report-path=examples.html -n 5 test_examples.py
 
 Where ``n`` is the number is the number of cores you want to use.
 
@@ -182,7 +182,7 @@ shot tests should follow the general guidelines:
 
 Once a new test is written, a base image for comparison is needed. To create
 a new base image, add ``--set-new-base-screenshot`` to your the standard
-``py.test`` command to run the test. This will generate an image with the name
+``pytest`` command to run the test. This will generate an image with the name
 ``base__<name_of_your_test>.png`` in the appropriate directory. Use ``git``
 to check this image into the repository, and then all future screen shot tests
 will be compared against this base image.

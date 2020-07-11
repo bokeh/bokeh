@@ -166,7 +166,7 @@ on git hooks, see `this tutorial`_.
 
         #!/bin/bash
 
-        py.test tests/codebase
+        pytest tests/codebase
         exit $?
 
 ``pre-push``
