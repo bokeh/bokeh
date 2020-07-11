@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import hashlib
-import io
 import json
 import os
 import re
@@ -180,7 +179,7 @@ class FromFile(Implementation):
 
     '''
     def __init__(self, path):
-        with io.open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
 
@@ -497,7 +496,7 @@ def _bundle_models(custom_models):
     exports = []
     modules = []
 
-    with io.open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
+    with open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
         bokeh = json.loads(f.read())
 
     known_modules = set()

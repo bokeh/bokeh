@@ -16,7 +16,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import subprocess
 from os import pardir
 from os.path import abspath, basename, join, relpath, split, splitext
@@ -120,7 +119,7 @@ def collect_errors():
         if path.startswith(exclude_dirs):
             continue
 
-        with io.open(path, 'r', encoding='utf-8') as file:
+        with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
     return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]

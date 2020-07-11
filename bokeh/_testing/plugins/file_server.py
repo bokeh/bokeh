@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from io import open
 from urllib.request import URLopener
 
 # External imports
@@ -58,13 +57,12 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """GET method handler."""
         try:
-            path = self.path[1:].split('?')[0]
-            html = open(os.path.join(HTML_ROOT, path), 'r', encoding='latin-1')
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(html.read().encode('utf-8'))
-            html.close()
+            path = self.path[1:].split("?")[0]
+            with open(os.path.join(HTML_ROOT, path), encoding="latin-1") as f:
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(f.read().encode("utf-8"))
         except OSError:
             self.send_error(404, 'File Not Found: %s' % path)
 

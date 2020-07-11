@@ -157,7 +157,7 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
             idx = filename.find(".svg")
             filename = filename[:idx] + "_{}".format(i) + filename[idx:]
 
-        with io.open(filename, mode="w", encoding="utf-8") as f:
+        with open(filename, mode="w", encoding="utf-8") as f:
             f.write(svg)
 
         filenames.append(filename)
@@ -195,7 +195,7 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[
 
     with _tmp_html() as tmp:
         html = get_layout_html(obj, resources=resources, width=width, height=height)
-        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+        with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
@@ -219,7 +219,7 @@ def get_svgs(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" =
 
     with _tmp_html() as tmp:
         html = get_layout_html(obj, resources=resources, width=width, height=height)
-        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+        with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()

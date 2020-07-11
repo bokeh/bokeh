@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 from os.path import abspath
 from warnings import warn
 
@@ -148,7 +147,7 @@ def _save_helper(obj, filename, resources, title, template, theme=None):
     from ..embed import file_html
     html = file_html(obj, resources, title=title, template=template, theme=theme)
 
-    with io.open(filename, mode="w", encoding="utf-8") as f:
+    with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)
 
 #-----------------------------------------------------------------------------

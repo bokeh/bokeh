@@ -1,6 +1,5 @@
 # Standard library imports
 import inspect
-import io
 import os
 import sys
 import warnings
@@ -77,7 +76,7 @@ def output_defaults_module(filename, defaults):
 
     output = serialize_json(defaults, indent=2)
 
-    with io.open(dest, "w", encoding="utf-8") as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(output)
 
     print("Wrote %s with %d models" % (filename, len(defaults)))
