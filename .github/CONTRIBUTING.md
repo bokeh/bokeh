@@ -58,7 +58,7 @@ and let everybody know that you intend to work on it.
 
 4. Commit your changes and push them to GitHub.
 
-5. Create a pull request against the origin's `master` branch. The PR must have a meaningful title
+5. Create a pull request against the default base branch. The PR must have a meaningful title
    and a message explaining what was achieved, what remains to be done, maybe an example, etc.
 
 6. We don't accept code contributions without tests. If there are valid reasons for not including a
@@ -80,6 +80,8 @@ and let everybody know that you intend to work on it.
 
 * **DO** keep the discussions focused. When a new or related topic comes up it's often better to
   create new issue than to side track the discussion.
+
+* **DO** have a look at [BEP-1](https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management) to see how we manage issues and pull requests in bokeh.
 
 * **DON'T** surprise us with big pull requests. Instead, file an issue and start a discussion so we
   can agree on a direction before you invest a large amount of time.
