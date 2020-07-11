@@ -36,6 +36,10 @@ describe("datarange1d module", () => {
       expect(r.is_reversed).to.be.false
     })
 
+    it("should be valid", () => {
+      expect(r.is_valid).to.be.true
+    })
+
     it("should have follow = null", () => {
       expect(r.follow).to.be.null
     })
@@ -78,6 +82,14 @@ describe("datarange1d module", () => {
 
     it("should be reversed", () => {
       expect(r.is_reversed).to.be.true
+    })
+  })
+
+  describe("explicit bounds=(NaN, NaN) creation", () => {
+    const r = new DataRange1d({start: NaN, end: NaN})
+
+    it("should be invalid", () => {
+      expect(r.is_valid).to.be.false
     })
   })
 
