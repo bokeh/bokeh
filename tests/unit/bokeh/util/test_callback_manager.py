@@ -320,7 +320,7 @@ class TestEventCallbackManager:
     def test_on_change_unicode_event_name(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
-        m.on_event(u'foo', _good_event)
+        m.on_event("foo", _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 

@@ -226,9 +226,9 @@ class Test_PointDrawTool:
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003') # Backspace
-        time.sleep(0.4) # hammerJS click timeout
+        time.sleep(0.4)  # hammerJS click timeout
+        page.send_keys("\ue003")  # Backspace
+        time.sleep(0.4)  # hammerJS click timeout
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

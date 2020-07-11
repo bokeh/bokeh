@@ -309,14 +309,16 @@ class TestColumnDataSource:
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
     def test__df_index_name_with_named_multi_index(self, pd) -> None:
-        data = io.StringIO(u'''
+        data = io.StringIO(
+            """
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
 Apple,Green,9,$0.99
 Pear,Red,25,$2.59
 Pear,Green,26,$2.79
 Lime,Green,99,$0.39
-''')
+"""
+        )
         df = pd.read_csv(data).set_index(['Fruit', 'Color'])
         assert df.index.names == ['Fruit', 'Color']
         assert bms.ColumnDataSource._df_index_name(df) == "Fruit_Color"

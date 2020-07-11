@@ -359,10 +359,9 @@ class TestDocument:
     def test_is_single_string_selector(self) -> None:
         d = document.Document()
         # this is an implementation detail but just ensuring it works
-        assert d._is_single_string_selector(dict(foo='c'), 'foo')
-        assert d._is_single_string_selector(dict(foo=u'c'), 'foo')
-        assert not d._is_single_string_selector(dict(foo='c', bar='d'), 'foo')
-        assert not d._is_single_string_selector(dict(foo=42), 'foo')
+        assert d._is_single_string_selector(dict(foo="c"), "foo")
+        assert not d._is_single_string_selector(dict(foo="c", bar="d"), "foo")
+        assert not d._is_single_string_selector(dict(foo=42), "foo")
 
     def test_all_models_with_multiple_references(self) -> None:
         d = document.Document()

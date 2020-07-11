@@ -137,7 +137,7 @@ class Test_BoxEditTool:
         page = single_plot_page(plot)
 
         # ensure double clicking added a box
-        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        page.drag_canvas_at_position(100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
         page.click_custom_action()
         expected = {"x": [1, 2, 1.0135135135135136],
@@ -182,7 +182,7 @@ class Test_BoxEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(150, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
         page.click_custom_action()
@@ -198,7 +198,7 @@ class Test_BoxEditTool:
         page = single_plot_page(plot)
 
         # ensure double clicking added a box
-        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        page.drag_canvas_at_position(100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
         page.click_custom_action()
 
@@ -263,7 +263,7 @@ class Test_BoxEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(150, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
         page.click_custom_action()

@@ -160,8 +160,8 @@ class Test_FreehandDrawTool:
         # ensure clicking adds a point
         page.drag_canvas_at_position(200, 200, 50, 50)
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003') # Backspace
+        time.sleep(0.4)  # hammerJS click timeout
+        page.send_keys("\ue003")  # Backspace
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

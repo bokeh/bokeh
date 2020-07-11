@@ -198,16 +198,21 @@ class TestSerializeJson:
         serialized = self.serialize({'vals' : df.vals,
                                      'idx' : df.index})
         deserialized = self.deserialize(serialized)
-        baseline = {u'vals': [978307200000,
-                              978393600000,
-                              978480000000,
-                              978566400000,
-                              978652800000],
-                    u'idx': [978307200000,
-                             978393600000,
-                             978480000000,
-                             978566400000,
-                             978652800000]
+        baseline = {
+            "vals": [
+                978307200000,
+                978393600000,
+                978480000000,
+                978566400000,
+                978652800000,
+            ],
+            "idx": [
+                978307200000,
+                978393600000,
+                978480000000,
+                978566400000,
+                978652800000,
+            ],
         }
         assert deserialized == baseline
 

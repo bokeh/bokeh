@@ -45,13 +45,13 @@ class ThemedModel(Model):
 class SubOfThemedModel(ThemedModel):
     another_string = String("world")
 
-FILE_CONTENTS = """
+FILE_CONTENTS = b"""
 attrs:
     ThemedModel:
         number: 57
     SubOfThemedModel:
         another_string: "boo"
-""".encode('utf-8')
+"""
 
 
 class TestThemes:
@@ -59,7 +59,7 @@ class TestThemes:
         # windows will throw permissions error with auto-delete
         with (tempfile.NamedTemporaryFile(delete=False)) as file:
             # create and apply empty theme with no exception thrown
-            file.file.write("".encode('utf-8'))
+            file.file.write(b"")
             file.file.flush()
             theme = Theme(filename=file.name)
             theme.apply_to_model(ThemedModel())

@@ -218,7 +218,7 @@ def enumeration(*values, **kwargs):
         "_quote": kwargs.get("quote", False),
     })
 
-    return type(str("Enumeration"), (Enumeration,), attrs)()
+    return type("Enumeration", (Enumeration,), attrs)()
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")

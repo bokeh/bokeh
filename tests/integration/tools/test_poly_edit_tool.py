@@ -174,7 +174,7 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.drag_canvas_at_position(250, 150, 70, 50)
         time.sleep(0.5)
         page.click_custom_action()
@@ -197,10 +197,10 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.click_canvas_at_position(298, 298)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Escape
+        page.send_keys("\ue003")  # Escape
         page.click_custom_action()
 
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
@@ -240,7 +240,7 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.drag_canvas_at_position(250, 150, 70, 50)
         time.sleep(0.5)
 
@@ -262,10 +262,10 @@ class Test_PolyEditTool:
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.click_canvas_at_position(298, 298)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}
