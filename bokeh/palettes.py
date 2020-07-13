@@ -116,6 +116,7 @@ This module contains the following sets of palettes:
 * All `ColorBrewer`_ palettes
 * Categorical `D3`_ palettes
 * The `Matplotlib`_ palettes Magma, Inferno, Plasma, and Viridis
+* A 'Bokeh'_ palette comprised of the Bokeh shutter logo colors
 * Palettes designed for color-deficient usability
 
 Additionally, you can also use any of the 256-color perceptually uniform
@@ -166,6 +167,13 @@ Brewer Palettes
 Bokeh includes all the `ColorBrewer`_ palettes, shown below:
 
 .. bokeh-palette-group:: brewer
+
+Bokeh Palette
+~~~~~~~~~~~~~~~
+
+Bokeh's own palette, comprised of the shutter logo colors:
+
+.. bokeh-palette-group:: bokeh
 
 Usability Palettes
 ~~~~~~~~~~~~~~~~~~
@@ -1090,6 +1098,14 @@ Colorblind5 = Colorblind8[:5]
 Colorblind4 = Colorblind8[:4]
 Colorblind3 = Colorblind8[:3]
 
+# Bokeh palette created from colors of shutter logo
+BokehPalette7 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#892889')
+BokehPalette6 = BokehPalette7[:6]
+BokehPalette5 = BokehPalette7[:5]
+BokehPalette4 = BokehPalette7[:4]
+BokehPalette3 = BokehPalette7[:3]
+
+
 YlGn     = { 3: YlGn3,     4: YlGn4,     5: YlGn5,     6: YlGn6,     7: YlGn7,     8: YlGn8,     9: YlGn9 }
 YlGnBu   = { 3: YlGnBu3,   4: YlGnBu4,   5: YlGnBu5,   6: YlGnBu6,   7: YlGnBu7,   8: YlGnBu8,   9: YlGnBu9 }
 GnBu     = { 3: GnBu3,     4: GnBu4,     5: GnBu5,     6: GnBu6,     7: GnBu7,     8: GnBu8,     9: GnBu9 }
@@ -1146,6 +1162,7 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 13: Category20c_13, 14: Category20c_14, 15: Category20c_15, 16: Category20c_16, 17: Category20c_17,
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
+BokehPalette = { 3: BokehPalette3, 4: BokehPalette4, 5: BokehPalette5, 6: BokehPalette6, 7: BokehPalette7 }
 
 brewer = {
     "YlGn"     : YlGn,
@@ -1183,6 +1200,10 @@ brewer = {
     "Set1"     : Set1,
     "Set2"     : Set2,
     "Set3"     : Set3,
+}
+
+bokeh = {
+    "Bokeh": BokehPalette
 }
 
 d3 = {
