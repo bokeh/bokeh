@@ -37,7 +37,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const hist = bin_counts(data, eq_bin_edges)
 
     const eq_bin_centers = new Array(nbins)
-    for (let i = 0, length = eq_bin_edges.length; i < (length-1); i++) {
+    for (let i = 0, length = eq_bin_edges.length; i < length-1; i++) {
       const left = eq_bin_edges[i]
       const right = eq_bin_edges[i+1]
       eq_bin_centers[i] = (left+right)/2
@@ -54,10 +54,10 @@ export class EqHistColorMapper extends ScanningColorMapper {
     let iterations = 0
     let guess = n*2
     while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
-      let ratio = guess/finite_bins
+      const ratio = guess/finite_bins
       if (ratio > 1000) {
         // Abort if distribution is extremely skewed
-        break;
+        break
       }
       guess = Math.round(Math.max(n*ratio, n))
 
@@ -73,13 +73,13 @@ export class EqHistColorMapper extends ScanningColorMapper {
     }
     if (finite_bins == 0) {
       binning = [low, high]
-      for (let j = 0; j < (n-1); j++)
+      for (let j = 0; j < n-1; j++)
         binning.push(high)
     } else {
-      binning = binning.slice(binning.length-n-1)
+      binning = binning.slice(binning.length - n - 1)
       if (finite_bins != n)
         logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
-	}
-	return {min: low, max: high, binning}
+    }
+    return {min: low, max: high, binning}
   }
 }

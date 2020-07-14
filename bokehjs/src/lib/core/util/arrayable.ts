@@ -326,12 +326,12 @@ export function interpolate(points: Arrayable<number>, x_values: Arrayable<numbe
       continue
     }
 
-    let index = left_edge_index(point, x_values)
+    const index = left_edge_index(point, x_values)
     if (index == -1)
       results[i] = y_values[0]
     else if (index == x_values.length)
       results[i] = y_values[y_values.length-1]
-    else if ((index == x_values.length-1) || (x_values[index] == point)) {
+    else if (index == x_values.length-1 || x_values[index] == point) {
       results[i] = y_values[index]
     } else {
       const x0 = x_values[index]
@@ -372,7 +372,7 @@ export function left_edge_index(point: number, intervals: Arrayable<number>): nu
   return leftEdgeIndex
 }
 
-export function norm(array: Arrayable<number>, start: number, end:number): Arrayable<number> {
+export function norm(array: Arrayable<number>, start: number, end: number): Arrayable<number> {
   const span = end - start
   return map(array, (x) => (x - start) / span)
 }

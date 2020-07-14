@@ -26,7 +26,7 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     if (d > edges.binning[edges.binning.length-1])
       return high_color
 
-	const key = left_edge_index(d, edges.binning)
+    const key = left_edge_index(d, edges.binning)
     return palette[key]
   }
 }

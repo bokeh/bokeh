@@ -45,15 +45,15 @@ export class LogColorMapper extends ContinuousColorMapper {
     else if (d < scan_data.min)
       return low_color
 
-     // Get the key
-     const log = Math.log(d) - Math.log(scan_data.min)  // subtract the low offset
-     let key = Math.floor(log * scan_data.scale)
+    // Get the key
+    const log = Math.log(d) - Math.log(scan_data.min)  // subtract the low offset
+    let key = Math.floor(log * scan_data.scale)
 
-     // Deal with upper bound
-     if (key > max_key) {
-       key = max_key
-     }
+    // Deal with upper bound
+    if (key > max_key) {
+      key = max_key
+    }
 
-     return palette[key]
+    return palette[key]
   }
 }

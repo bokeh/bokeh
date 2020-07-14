@@ -45,7 +45,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
     const {domain} = this
     if (domain != null) {
-      for (const [renderer,] of domain) {
+      for (const [renderer] of domain) {
         this.connect(renderer.view.change, () => this.update_data())
         this.connect(renderer.data_source.selected.change, () => this.update_data())
       }
