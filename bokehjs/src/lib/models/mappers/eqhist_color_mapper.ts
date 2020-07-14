@@ -1,8 +1,9 @@
 import {ScanningColorMapper} from "./scanning_color_mapper"
 import {Arrayable} from "core/types"
-import {min, max, bin_counts, interpolate, map} from "core/util/arrayable"
-import {linspace, cumsum} from "core/util/array"
+import {min, max, bin_counts, map, interpolate} from "core/util/arrayable"
+import {linspace, range, cumsum, uniq} from "core/util/array"
 import * as p from "core/properties"
+import {logger} from "core/logging"
 
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -30,31 +31,55 @@ export class EqHistColorMapper extends ScanningColorMapper {
   protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
-    const span = high - low
 
-    // Compute bin edges and histogram counts
     const nbins = this.bins
-    const bin_edges = linspace(low, high, nbins+1)
-    const hist = bin_counts(data, bin_edges)
+    const eq_bin_edges = linspace(low, high, nbins+1)
+    const hist = bin_counts(data, eq_bin_edges)
 
-    // Compute bin centers
-    const bin_centers = new Array(nbins)
-    for (let i = 0; i < nbins; i++) {
-      bin_centers[i] = (bin_edges[i] + bin_edges[i + 1])/2
+    const eq_bin_centers = new Array(nbins)
+    for (let i = 0, length = eq_bin_edges.length; i < (length-1); i++) {
+      const left = eq_bin_edges[i]
+      const right = eq_bin_edges[i+1]
+      eq_bin_centers[i] = (left+right)/2
     }
-    //const lower_edges = bin_edges.slice(0, -1)
-    //const upper_edges = bin_edges.slice(1, undefined)
-    //const bin_centers = map(range(0, bin_edges.length-1), (i) => (lower_edges[i] + upper_edges[i])/2)
 
     // CDFs
     const cdf = cumsum(hist)
     const cdf_max = cdf[cdf.length - 1]
     const norm_cdf = map(cdf, (x) => x / cdf_max)
 
-    // Interpolate
-    const palette_range = linspace(low, high, n + 1)
-    const norm_interpolated = interpolate(palette_range, bin_centers, norm_cdf)
-    const result = map(norm_interpolated, (x) => low + x*span)
-    return {min: low, max: high, binning: result}
+    // Iteratively find as many finite bins as there are colors
+    let finite_bins = n-1
+    let binning: number[] = []
+    let iterations = 0
+    let guess = n*2
+    while ((finite_bins != n) && (iterations < 4) && (finite_bins != 0)) {
+      let ratio = guess/finite_bins
+      if (ratio > 1000) {
+        // Abort if distribution is extremely skewed
+        break;
+      }
+      guess = Math.round(Math.max(n*ratio, n))
+
+      // Interpolate
+      const palette_edges = range(0, guess)
+      const palette_cdf = map(norm_cdf, (x) => x*(guess-1))
+      binning = (interpolate(palette_edges, palette_cdf, eq_bin_centers) as number[])
+
+      // Evaluate binning
+      const uniq_bins = uniq(binning)
+      finite_bins = uniq_bins.length-1
+      iterations++
+    }
+    if (finite_bins == 0) {
+      binning = [low, high]
+      for (let j = 0; j < (n-1); j++)
+        binning.push(high)
+    } else {
+      binning = binning.slice(binning.length-n-1)
+      if (finite_bins != n)
+        logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
+	}
+	return {min: low, max: high, binning}
   }
 }
