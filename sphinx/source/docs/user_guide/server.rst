@@ -1019,6 +1019,16 @@ whatever user account is running the Nginx server process. Alternatively, you
 can copy the resources to a global static directory during your deployment
 process.
 
+In order to communicate cookies and headers across processes Bokeh may include
+this information in a JWT token, which is sent across the Websocket. In certain
+cases this token can grow very large and nginx may drop the request. Therefore
+you may have to override the default for the nginx `large_client_header_buffers`
+setting:
+
+.. code-block:: nginx
+
+    large_client_header_buffers 4 24k;
+
 Apache
 ''''''
 
