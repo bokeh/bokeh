@@ -146,7 +146,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   _update_masked_indices(): Indices {
-    let masked = this.glyph.mask_data()
+    const masked = this.glyph.mask_data()
     this.model.view.masked = masked
     return masked
   }

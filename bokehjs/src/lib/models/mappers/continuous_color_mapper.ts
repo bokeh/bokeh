@@ -75,16 +75,16 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
         let array = renderer.data_source.get_column(field)!
-        array = map(renderer.view.indices, (i) => array[i])
+        array = renderer.view.indices.select(array)
 
         const masked = renderer.view.masked
         const selected = renderer.data_source.selected.indices
 
         let subset: number[] | undefined
         if (masked != null && selected.length > 0)
-          subset = intersection(masked, selected)
+          subset = intersection([...masked], selected)
         else if (masked != null)
-          subset = masked
+          subset = [...masked]
         else if (selected.length > 0)
           subset = selected
 
