@@ -5,7 +5,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 import {Grid as SlickGrid, DataProvider} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
-import {isString} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
@@ -108,13 +108,16 @@ export class TableDataProvider implements DataProvider<Item> {
     const records = this.getRecords()
     const old_index = this.index.slice()
 
-    this.index.sort(function(i1, i2) {
+    this.index.sort(function(i0, i1) {
       for (const [field, sign] of cols) {
-        const value1 = records[old_index.indexOf(i1)][field]
-        const value2 = records[old_index.indexOf(i2)][field]
-        const result = value1 == value2 ? 0 : value1 > value2 ? sign : -sign
-        if (result != 0)
-          return result
+        const v0 = records[old_index.indexOf(i0)][field]
+        const v1 = records[old_index.indexOf(i1)][field]
+        if (v0 === v1)
+          continue
+        if (isNumber(v0) && isNumber(v1))
+          return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
+        else
+          return `${v0}` > `${v1}` ? sign : -sign
       }
       return 0
     })
