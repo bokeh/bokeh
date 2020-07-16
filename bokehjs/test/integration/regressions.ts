@@ -265,4 +265,20 @@ describe("Bug", () => {
       await display(row([p0, p1, p2, p3]), [4*200+50, 250])
     })
   })
+
+  describe("in issue #10305", () => {
+    it("disallows to render lines with NaNs using SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend})
+        const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
+        p.line({x: range(y.length), y})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]), [2*300+50, 250])
+    })
+  })
 })

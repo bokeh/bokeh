@@ -574,6 +574,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     *  scales the current element
     */
   scale(x: number, y?: number): void {
+    if (!isFinite(x) || (y != null && !isFinite(y)))
+      return
     this.__addTransform(`scale(${x},${y ?? x})`)
   }
 
@@ -581,6 +583,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * rotates the current element
     */
   rotate(angle: number): void {
+    if (!isFinite(angle))
+      return
     const degrees = (angle * 180 / Math.PI)
     const [cx, cy] = [0, 0]
     this.__addTransform(`rotate(${degrees},${cx},${cy})`)
@@ -590,6 +594,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * translates the current element
     */
   translate(x: number, y: number): void {
+    if (!isFinite(x + y))
+      return
     this.__addTransform(`translate(${x},${y})`)
   }
 
@@ -597,6 +603,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * applies a transform to the current element
     */
   transform(a: number, b: number, c: number, d: number, e: number, f: number): void {
+    if (!isFinite(a + b + c + d + e + f))
+      return
     this.__addTransform(`matrix(${a},${b},${c},${d},${e},${f})`)
   }
 
@@ -640,6 +648,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * if the currentPathElement is not empty create a new path element
     */
   moveTo(x: number, y: number): void {
+    if (!isFinite(x + y))
+      return
+
     if (this.__currentElement.nodeName !== "path") {
       this.beginPath()
     }
@@ -662,6 +673,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Adds a line to command
     */
   lineTo(x: number, y: number): void {
+    if (!isFinite(x + y))
+      return
+
     this.__currentPosition = {x, y}
     if (this.__currentDefaultPath.indexOf('M') > -1) {
       this.__addPathCommand(`L ${x} ${y}`)
@@ -674,6 +688,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Add a bezier command
     */
   bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void {
+    if (!isFinite(cp1x + cp1y + cp2x + cp2y + x + y))
+      return
     this.__currentPosition = {x, y}
     this.__addPathCommand(`C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${x} ${y}`)
   }
@@ -682,6 +698,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Adds a quadratic curve to command
     */
   quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void {
+    if (!isFinite(cpx + cpy + x + y))
+      return
     this.__currentPosition = {x, y}
     this.__addPathCommand(`Q ${cpx} ${cpy} ${x} ${y}`)
   }
@@ -692,6 +710,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * @see http://www.w3.org/TR/2015/WD-2dcontext-20150514/#dom-context-2d-arcto
     */
   arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void {
+    if (!isFinite(x1 + y1 + x2 + y2 + radius))
+      return
     // Let the point (x0, y0) be the last point in the subpath.
     if (this.__currentPosition == null)
       return
@@ -806,6 +826,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     *  Adds a rectangle to the path.
     */
   rect(x: number, y: number, width: number, height: number): void {
+    if (!isFinite(x + y + width + height))
+      return
     if (this.__currentElement.nodeName !== "path") {
       this.beginPath()
     }
@@ -821,6 +843,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * adds a rectangle element
     */
   fillRect(x: number, y: number, width: number, height: number): void {
+    if (!isFinite(x + y + width + height))
+      return
     const rect = this.__createElement("rect", {x, y, width, height}, true)
     const parent = this.__closestGroupOrSvg()
     parent.appendChild(rect)
@@ -836,6 +860,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * @param height
     */
   strokeRect(x: number, y: number, width: number, height: number): void {
+    if (!isFinite(x + y + width + height))
+      return
     const rect = this.__createElement("rect", {x, y, width, height}, true)
     const parent = this.__closestGroupOrSvg()
     parent.appendChild(rect)
@@ -870,6 +896,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * "Clears" a canvas by just drawing a white rectangle in the current group.
     */
   clearRect(x: number, y: number, width: number, height: number): void {
+    if (!isFinite(x + y + width + height))
+      return
     if (x === 0 && y === 0 && width === this.width && height === this.height) {
       this.__clearCanvas()
       return
@@ -884,12 +912,14 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Returns a canvas gradient object that has a reference to it's parent def
     */
   createLinearGradient(x1: number, y1: number, x2: number, y2: number): CanvasGradient {
+    if (!isFinite(x1 + y1 + x2 + y2))
+      throw new Error("The provided double value is non-finite")
     const grad = this.__createElement("linearGradient", {
       id: randomString(this.__ids),
-      x1: x1+"px",
-      x2: x2+"px",
-      y1: y1+"px",
-      y2: y2+"px",
+      x1: `${x1}px`,
+      x2: `${x2}px`,
+      y1: `${y1}px`,
+      y2: `${y2}px`,
       gradientUnits: "userSpaceOnUse",
     }, false)
     this.__defs.appendChild(grad)
@@ -901,6 +931,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Returns a canvas gradient object that has a reference to it's parent def
     */
   createRadialGradient(x0: number, y0: number, _r0: number, x1: number, y1: number, r1: number): CanvasGradient {
+    if (!isFinite(x0 + y0 + _r0 + x1 + y1 + r1))
+      throw new Error("The provided double value is non-finite")
     const grad = this.__createElement("radialGradient", {
       id: randomString(this.__ids),
       cx: x1+"px",
@@ -983,6 +1015,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Creates a text element
     */
   fillText(text: string, x: number, y: number): void {
+    if (text == null || !isFinite(x + y))
+      return
     this.__applyText(text, x, y, "fill")
   }
 
@@ -990,6 +1024,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Strokes text
     */
   strokeText(text: string, x: number, y: number): void {
+    if (text == null || !isFinite(x + y))
+      return
     this.__applyText(text, x, y, "stroke")
   }
 
@@ -1002,6 +1038,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   }
 
   arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterClockwise: boolean = false): void {
+    if (!isFinite(x + y + radius + startAngle + endAngle))
+      return
     // in canvas no circle is drawn if no angle is provided.
     if (startAngle === endAngle) {
       return
@@ -1079,6 +1117,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     let sw: number, sh: number
     if (args.length == 2) {
       [dx, dy] = args
+      if (!isFinite(dx + dy))
+        return
       sx = 0
       sy = 0
       sw = image.width as number
@@ -1087,12 +1127,16 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       dh = sh
     } else if (args.length == 4) {
       [dx, dy, dw, dh] = args
+      if (!isFinite(dx + dy + dw + dh))
+        return
       sx = 0
       sy = 0
       sw = image.width as number
       sh = image.height as number
     } else if (args.length === 8) {
       [sx, sy, sw, sh, dx, dy, dw, dh] = args
+      if (!isFinite(sx + sy + sw + sh + dx + dy + dw + dh))
+        return
     } else {
       throw new Error(`Inavlid number of arguments passed to drawImage: ${arguments.length}`)
     }
