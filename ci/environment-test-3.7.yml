@@ -28,7 +28,7 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort >=4.3.21
+  - isort <5.0
   - mock
   - mypy
   - nbconvert >=5.4
