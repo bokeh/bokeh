@@ -80,8 +80,8 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _map_data(): [Arrayable<number>, Arrayable<number>] {
-    const xscale = this.scope.x_scale
-    const yscale = this.scope.y_scale
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
 

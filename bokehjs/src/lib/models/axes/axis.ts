@@ -99,7 +99,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [xs, ys]     = this.rule_coords
-    const [sxs, sys]   = this.scope.map_to_screen(xs, ys)
+    const [sxs, sys]   = this.coordinates.map_to_screen(xs, ys)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -182,7 +182,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [x, y]       = coords
-    const [sxs, sys]   = this.scope.map_to_screen(x, y)
+    const [sxs, sys]   = this.coordinates.map_to_screen(x, y)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -217,7 +217,7 @@ export class AxisView extends GuideRendererView {
       ;[xoff, yoff] = [0, 0]
     } else {
       const [dxs, dys] = coords
-      ;[sxs, sys] = this.scope.map_to_screen(dxs, dys)
+      ;[sxs, sys] = this.coordinates.map_to_screen(dxs, dys)
       ;[xoff, yoff] = this.offsets
     }
 
@@ -372,7 +372,7 @@ export class AxisView extends GuideRendererView {
   get ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
-    const {ranges} = this.scope
+    const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
 
