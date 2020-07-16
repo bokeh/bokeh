@@ -26,8 +26,8 @@ export class SlopeView extends AnnotationView {
 
     const {frame} = this.plot_view
 
-    const xscale = this.scope.x_scale
-    const yscale = this.scope.y_scale
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
     const sy_start = frame.bbox.top
     const sy_end = sy_start + frame.bbox.height

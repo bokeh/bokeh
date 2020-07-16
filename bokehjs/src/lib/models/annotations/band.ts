@@ -48,8 +48,8 @@ export class BandView extends AnnotationView {
     const {frame} = this.plot_view
     const dim = this.model.dimension
 
-    const xscale = this.scope.x_scale
-    const yscale = this.scope.y_scale
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
     const limit_scale = dim == "height" ? yscale : xscale
     const base_scale  = dim == "height" ? xscale : yscale

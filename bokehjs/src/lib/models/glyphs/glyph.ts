@@ -227,8 +227,8 @@ export abstract class GlyphView extends View {
 
   protected _hit_rect_against_index(geometry: geometry.RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
+    const [x0, x1] = this.renderer.coordinates.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.coordinates.y_scale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
@@ -236,7 +236,7 @@ export abstract class GlyphView extends View {
   protected _project_data(): void {}
 
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
-    const {x_range, y_range} = this.renderer.scope
+    const {x_range, y_range} = this.renderer.coordinates
 
     this._data_size = source.get_length() ?? 1
 
@@ -314,7 +314,7 @@ export abstract class GlyphView extends View {
   map_data(): void {
     const self = this as any
 
-    const {x_scale, y_scale} = this.renderer.scope
+    const {x_scale, y_scale} = this.renderer.coordinates
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
         const scale = prop.dimension == "x" ? x_scale : y_scale

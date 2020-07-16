@@ -8,11 +8,11 @@ export abstract class DataRendererView extends RendererView {
   visuals: DataRenderer.Visuals
 
   get xscale(): Scale {
-    return this.scope.x_scale
+    return this.coordinates.x_scale
   }
 
   get yscale(): Scale {
-    return this.scope.y_scale
+    return this.coordinates.y_scale
   }
 }
 

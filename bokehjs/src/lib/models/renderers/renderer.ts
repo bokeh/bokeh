@@ -15,29 +15,29 @@ export abstract class RendererView extends View {
 
   parent: PlotView
 
-  private _scope: CoordinateTransform
-  get scope(): CoordinateTransform {
-    return this._scope
+  private _coordinates: CoordinateTransform
+  get coordinates(): CoordinateTransform {
+    return this._coordinates
   }
 
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this.model)
-    this._initialize_scope()
+    this._initialize_coordinates()
   }
 
   connect_signals(): void {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
-    this.on_change([x_range_name, y_range_name], () => this._initialize_scope())
+    this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
   }
 
-  protected _initialize_scope(): void {
+  protected _initialize_coordinates(): void {
     const {x_range_name, y_range_name} = this.model
     const {frame} = this.plot_view
     const x_scale = frame.x_scales.get(x_range_name)!
     const y_scale = frame.y_scales.get(y_range_name)!
-    this._scope = new CoordinateTransform(x_scale, y_scale)
+    this._coordinates = new CoordinateTransform(x_scale, y_scale)
   }
 
   get plot_view(): PlotView {

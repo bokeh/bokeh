@@ -35,8 +35,8 @@ export class LatexLabelView extends LabelView {
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
 
-    let sx = this.model.x_units == "data" ? this.scope.x_scale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? this.scope.y_scale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(this.model.x) : panel.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(this.model.y) : panel.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
