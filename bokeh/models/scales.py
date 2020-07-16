@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from .transforms import Transform
-from ..core.properties import Array, Float
 
 #-----------------------------------------------------------------------------
 # Globals and constants

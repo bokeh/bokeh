@@ -2,8 +2,6 @@ import {ColorMapper} from "./color_mapper"
 import {Arrayable, Color} from "core/types"
 import * as p from "core/properties"
 
-//import {ColumnDataSource} from "../sources/column_data_source"
-//import {CDSView} from "../sources/cds_view"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {map, intersection} from "core/util/array"
 import {isNumber, isArray} from "core/util/types"
@@ -16,7 +14,6 @@ export namespace ContinuousColorMapper {
     low: p.Property<number>
     high_color: p.Property<Color>
     low_color: p.Property<Color>
-    //domain: p.Property<[ColumnDataSource, string[], CDSView?][] | null>
     domain: p.Property<[GlyphRenderer, string | string[]][] | null>
   }
 }

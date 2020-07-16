@@ -42,8 +42,6 @@ from ..core.properties import (
     Tuple,
 )
 from .transforms import Transform
-#from .sources import ColumnDataSource, CDSView
-#from .renderers import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -197,7 +195,6 @@ class ContinuousColorMapper(ColorMapper):
 
     '''
 
-    #domain = List(Tuple(Instance(ColumnDataSource), List(String), Instance(CDSView)), default=[])
     domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[])
 
     low = Float(help="""
