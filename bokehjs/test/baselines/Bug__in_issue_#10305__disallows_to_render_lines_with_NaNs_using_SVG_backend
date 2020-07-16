@@ -1,0 +1,7 @@
+Row bbox=[0, 0, 600, 200]
+  Plot bbox=[0, 0, 300, 200]
+    LinearAxis bbox=[25, 175, 270, 25]
+    LinearAxis bbox=[0, 5, 25, 170]
+  Plot bbox=[300, 0, 300, 200]
+    LinearAxis bbox=[25, 175, 270, 25]
+    LinearAxis bbox=[0, 5, 25, 170]
