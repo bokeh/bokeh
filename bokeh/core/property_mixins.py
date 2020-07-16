@@ -118,7 +118,7 @@ Acceptable values are:
 - a 3-tuple of integers (r,g,b) between 0 and 255
 - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
 
-.. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
+.. _CSS colors: https://www.w3schools.com/colors/colors_names.asp
 
 """
 
