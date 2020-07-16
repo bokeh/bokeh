@@ -32,7 +32,6 @@ __all__ = (
     'LinearScale',
     'LogScale',
     'Scale',
-    'LerpScale'
 )
 
 #-----------------------------------------------------------------------------
@@ -89,12 +88,6 @@ class LogScale(ContinuousScale):
 class CategoricalScale(Scale):
     ''' Represent a scale transformation between a categorical source range and
     continuous target range.
-
-    '''
-    pass
-
-class LerpScale(Scale):
-    '''
 
     '''
     pass
