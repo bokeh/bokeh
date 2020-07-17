@@ -32,8 +32,7 @@ export class InfoPaneView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.content.change, () => this.render())
-    this.connect(this.model.properties.x.change, () => this.render())
-    this.connect(this.model.properties.y.change, () => this.render())
+    this.connect(this.model.properties.position.change, () => this.render())
   }
 
   styles(): string[] {
@@ -65,8 +64,8 @@ export class InfoPaneView extends AnnotationView {
       return sdim
     }
 
-    this.x = _calc_dim(this.model.x, this.model.position_units, xscale, frame.xview, frame.bbox.left)
-    this.y = _calc_dim(this.model.y, this.model.position_units, yscale, frame.yview, frame.bbox.top)
+    this.x = _calc_dim(this.model.position[0], this.model.position_units, xscale, frame.xview, frame.bbox.left)
+    this.y = _calc_dim(this.model.position[1], this.model.position_units, yscale, frame.yview, frame.bbox.top)
 
     return([this.x, this.y])
   }
@@ -76,7 +75,7 @@ export class InfoPaneView extends AnnotationView {
     undisplay(this.el)
 
     const {content} = this.model
-    if (content.length == 0)
+    if (content == null)
       return
 
     const {frame} = this.plot_view
@@ -84,18 +83,11 @@ export class InfoPaneView extends AnnotationView {
 
     if (this.model.inner_only && !frame.bbox.contains(x, y)){
     } else {
-      for (const part of content) {
-        const pane = div({}, part)
-        this.el.appendChild(pane)
-      }
+      const pane = div({}, content)
+      this.el.appendChild(pane)
     }
 
     const {anchor} = this.model
-    this.el.classList.remove(bk_right)
-    this.el.classList.remove(bk_left)
-    this.el.classList.remove(bk_above)
-    this.el.classList.remove(bk_below)
-
     let arrow_size: number = 10 // XXX: keep in sync with less
     if(this.model.show_arrow == false)
       arrow_size = 0
@@ -151,10 +143,9 @@ export namespace InfoPane {
     anchor: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
-    x: p.Property<number>
-    y: p.Property<number>
+    position: p.Property<number[]>
     position_units: p.Property<SpatialUnits>
-    content: p.Property<[HTMLElement][]>
+    content: p.Property<string | HTMLElement>
   }
 }
 
@@ -176,10 +167,9 @@ export class InfoPane extends Annotation {
       anchor:         [ p.TooltipAttachment, 'horizontal'],
       inner_only:     [ p.Boolean,           true        ],
       show_arrow:     [ p.Boolean,           true        ],
-      x:              [ p.Number,             0          ],
-      y:              [ p.Number,             0          ],
+      position:       [ p.Array,             [0,0]       ],
       position_units: [ p.SpatialUnits,      'data'      ],
-      content:        [ p.Array,             []          ],
+      content:        [ p.Any,                           ],
     })
 
     this.override({
@@ -188,6 +178,6 @@ export class InfoPane extends Annotation {
   }
 
   clear(): void {
-    this.content = []
+    this.content = ""
   }
 }

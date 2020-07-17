@@ -1110,22 +1110,18 @@ class InfoPane(Annotation):
     in the horizontal or vertical dimension.
     """)
 
-    x = Either(Auto, NumberSpec(), default=0, help="""
-    Initial value of the anchor position for pane to apply to the x-coordinate.
-    """)
-
-    y = Either(Auto, NumberSpec(), default=0, help="""
-    Initial value of the anchor position for pane to apply to the y-coordinate.
-    """)
+    position = Either(Tuple(Auto, Auto), Tuple(NumberSpec(), NumberSpec()), default = (0, 0), help="""
+     Initial tuple for the values of the anchor position for pane to apply to the x and y-coordinates.
+     """)
 
     position_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the start_x and start_y attributes. Interpreted as "data
     space" units by default.
     """)
 
-    content = List(String(help="""
-    The string or list of strings to be displayed in the pane.
-    """))
+    content = Either(Auto, String, help="""
+    The string or HTML element to be displayed in the pane.
+    """)
 
     inner_only = Bool(default=True, help="""
     Whether to display outside a central plot frame area.
