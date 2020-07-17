@@ -1119,7 +1119,7 @@ class InfoPane(Annotation):
     space" units by default.
     """)
 
-    content = Either(Auto, String, help="""
+    content = Either(Auto, String, default = None, help="""
     The string or HTML element to be displayed in the pane.
     """)
 
