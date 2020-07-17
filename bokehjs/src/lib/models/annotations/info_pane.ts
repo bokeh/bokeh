@@ -49,8 +49,8 @@ export class InfoPaneView extends AnnotationView {
   protected _map_data(): [number, number] {
 
     const {frame} = this.plot_view
-    const xscale = this.scope.x_scale
-    const yscale = this.scope.y_scale
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
     const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
       let sdim
