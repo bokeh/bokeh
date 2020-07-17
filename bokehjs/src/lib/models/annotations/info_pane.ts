@@ -167,7 +167,7 @@ export class InfoPane extends Annotation {
       anchor:         [ p.TooltipAttachment, 'horizontal'],
       inner_only:     [ p.Boolean,           true        ],
       show_arrow:     [ p.Boolean,           true        ],
-      position:       [ p.Array,             [0,0]       ],
+      position:       [ p.Array,             [0, 0]      ],
       position_units: [ p.SpatialUnits,      'data'      ],
       content:        [ p.Any                            ],
     })
