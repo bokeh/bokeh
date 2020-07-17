@@ -83,8 +83,8 @@ export abstract class Interpolator extends Transform {
     // The following sorting code is referenced from:
     // http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
     const list: {x: number, y: number}[] = []
-    for (const j in tsx) {
-      list.push({x: tsx[j], y: tsy[j]})
+    for (let i = 0; i < tsx.length; i++) {
+      list.push({x: tsx[i], y: tsy[i]})
     }
 
     if (descending)
