@@ -29,7 +29,7 @@ import {
   AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
   MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
-  Rect, Scatter, Segment, Step, Text, VArea, VBar, Wedge,
+  Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -138,6 +138,7 @@ export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
 export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
 export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
 export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
+export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
@@ -491,6 +492,15 @@ export class Figure extends Plot {
     args?: Partial<SegmentArgs>): TypedGlyphRenderer<Segment>
   segment(...args: unknown[]): TypedGlyphRenderer<Segment> {
     return this._glyph(Segment, "x0,y0,x1,y1", args)
+  }
+
+  spline(args: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
+  spline(
+    x: SplineArgs["x"],
+    y: SplineArgs["y"],
+    args?: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
+  spline(...args: unknown[]): TypedGlyphRenderer<Spline> {
+    return this._glyph(Spline, "x,y", args)
   }
 
   step(args: Partial<StepArgs>): TypedGlyphRenderer<Step>
