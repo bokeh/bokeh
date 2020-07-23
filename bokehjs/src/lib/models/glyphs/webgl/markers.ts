@@ -1,5 +1,5 @@
 import {Program, VertexBuffer, IndexBuffer} from "./utils"
-import {BaseGLGlyph, Transform, attach_float, attach_color} from "./base"
+import {BaseGLGlyph, Transform} from "./base"
 import {vertex_shader} from "./markers.vert"
 import {fragment_shader} from "./markers.frag"
 import {MarkerView} from "../../markers/marker"
@@ -7,6 +7,82 @@ import {CircleView} from "../circle"
 import {Class} from "core/class"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
+import {Arrayable} from "core/types"
+import {color2rgba, encode_rgba, decode_rgba, RGBA} from "core/util/color"
+
+export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number, visual: any, name: string): void {
+  // Attach a float attribute to the program. Use singleton value if we can,
+  // otherwise use VBO to apply array.
+  if (!visual.doit) {
+    vbo.used = false
+    prog.set_attribute(att_name, 'float', [0])
+  } else if (visual[name].is_value) {
+    vbo.used = false
+    prog.set_attribute(att_name, 'float', [visual[name].value()])
+  } else {
+    vbo.used = true
+    const a = new Float32Array(visual.get_array(name))
+    vbo.set_size(n*4)
+    vbo.set_data(0, a)
+    prog.set_attribute(att_name, 'float', vbo)
+  }
+}
+
+export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number, visual: any, prefix: string): void {
+  // Attach the color attribute to the program. If there's just one color,
+  // then use this single color for all vertices (no VBO). Otherwise we
+  // create an array and upload that to the VBO, which we attahce to the prog.
+  let rgba: RGBA
+  const m = 4
+  const colorname = prefix + '_color'
+  const alphaname = prefix + '_alpha'
+
+  if (!visual.doit) {
+    // Don't draw (draw transparent)
+    vbo.used = false
+    prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
+  } else if (visual[colorname].is_value && visual[alphaname].is_value) {
+    // Nice and simple; both color and alpha are singular values
+    vbo.used = false
+    rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
+    prog.set_attribute(att_name, 'vec4', rgba)
+  } else {
+    // Use vbo; we need an array for both the color and the alpha
+    vbo.used = true
+
+    let colors: Arrayable<number>
+    if (visual[colorname].is_value) {
+      const val = encode_rgba(color2rgba(visual[colorname].value()))
+      const array = new Uint32Array(n)
+      array.fill(val)
+      colors = array
+    } else
+      colors = visual.get_array(colorname)
+
+    let alphas: Arrayable<number>
+    if (visual[alphaname].is_value) {
+      const val = visual[alphaname].value()
+      const array = new Float32Array(n)
+      array.fill(val)
+      alphas = array
+    } else
+      alphas = visual.get_array(alphaname)
+
+    // Create array of rgbs
+    const a = new Float32Array(n*m)
+    for (let i = 0, end = n; i < end; i++) {
+      const rgba = decode_rgba(colors[i])
+      if (rgba[3] == 1.0)
+        rgba[3] = alphas[i]
+      a.set(rgba, i*m)
+    }
+    // Attach vbo
+    vbo.set_size(n*m*4)
+    vbo.set_data(0, a)
+    prog.set_attribute(att_name, 'vec4', vbo)
+  }
+}
+
 
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
