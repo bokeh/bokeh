@@ -98,7 +98,7 @@ const caps: {[key: string]: number} = {
   butt: 5, '|': 5,
 }
 
-export class LineGLGlyph extends BaseGLGlyph {
+export class LineGL extends BaseGLGlyph {
   readonly glyph: LineView
 
   protected prog: Program

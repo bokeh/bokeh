@@ -86,7 +86,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
 
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
-export abstract class MarkerGLGlyph extends BaseGLGlyph {
+export abstract class MarkerGL extends BaseGLGlyph {
   readonly glyph: MarkerView | CircleView
 
   protected abstract get _marker_code(): string
@@ -268,8 +268,8 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
   }
 }
 
-function mk_marker(code: string): Class<MarkerGLGlyph> {
-  return class extends MarkerGLGlyph {
+function mk_marker(code: string): Class<MarkerGL> {
+  return class extends MarkerGL {
     protected get _marker_code(): string {
       return code
     }
@@ -278,17 +278,17 @@ function mk_marker(code: string): Class<MarkerGLGlyph> {
 
 import * as glsl from "./markers.frag"
 
-export const CircleGLGlyph           = mk_marker(glsl.circle)
-export const SquareGLGlyph           = mk_marker(glsl.square)
-export const DiamondGLGlyph          = mk_marker(glsl.diamond)
-export const TriangleGLGlyph         = mk_marker(glsl.triangle)
-export const InvertedTriangleGLGlyph = mk_marker(glsl.invertedtriangle)
-export const HexGLGlyph              = mk_marker(glsl.hex)
-export const CrossGLGlyph            = mk_marker(glsl.cross)
-export const CircleCrossGLGlyph      = mk_marker(glsl.circlecross)
-export const SquareCrossGLGlyph      = mk_marker(glsl.squarecross)
-export const DiamondCrossGLGlyph     = mk_marker(glsl.diamondcross)
-export const XGLGlyph                = mk_marker(glsl.x)
-export const CircleXGLGlyph          = mk_marker(glsl.circlex)
-export const SquareXGLGlyph          = mk_marker(glsl.squarex)
-export const AsteriskGLGlyph         = mk_marker(glsl.asterisk)
+export const CircleGL = mk_marker(glsl.circle)
+export const SquareGL = mk_marker(glsl.square)
+export const DiamondGL = mk_marker(glsl.diamond)
+export const TriangleGL = mk_marker(glsl.triangle)
+export const InvertedTriangleGL = mk_marker(glsl.invertedtriangle)
+export const HexGL = mk_marker(glsl.hex)
+export const CrossGL = mk_marker(glsl.cross)
+export const CircleCrossGL = mk_marker(glsl.circlecross)
+export const SquareCrossGL = mk_marker(glsl.squarecross)
+export const DiamondCrossGL = mk_marker(glsl.diamondcross)
+export const XGL = mk_marker(glsl.x)
+export const CircleXGL = mk_marker(glsl.circlex)
+export const SquareXGL = mk_marker(glsl.squarex)
+export const AsteriskGL = mk_marker(glsl.asterisk)
