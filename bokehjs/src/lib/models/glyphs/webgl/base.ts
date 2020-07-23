@@ -82,19 +82,13 @@ export type Transform = {
   sy: number
 }
 
-export function is_singular(visual: any, propname: string): boolean {
-  // This touches the internals of the visual, so we limit use in this function
-  // See renderer.ts:cache_select() for similar code
-  return visual[propname].spec.value !== undefined
-}
-
 export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number, visual: any, name: string): void {
   // Attach a float attribute to the program. Use singleton value if we can,
   // otherwise use VBO to apply array.
   if (!visual.doit) {
     vbo.used = false
     prog.set_attribute(att_name, 'float', [0])
-  } else if (is_singular(visual, name)) {
+  } else if (visual[name].is_value) {
     vbo.used = false
     prog.set_attribute(att_name, 'float', [visual[name].value()])
   } else {
@@ -119,8 +113,8 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
     // Don't draw (draw transparent)
     vbo.used = false
     prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
-  } else if (is_singular(visual, colorname) && is_singular(visual, alphaname)) {
-    // Nice and simple; both color and alpha are singular
+  } else if (visual[colorname].is_value && visual[alphaname].is_value) {
+    // Nice and simple; both color and alpha are singular values
     vbo.used = false
     rgba = color2rgba(visual[colorname].value(), visual[alphaname].value())
     prog.set_attribute(att_name, 'vec4', rgba)
@@ -129,7 +123,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
     vbo.used = true
 
     let colors: Arrayable<number>
-    if (is_singular(visual, colorname)) {
+    if (visual[colorname].is_value) {
       const val = encode_rgba(color2rgba(visual[colorname].value()))
       const array = new Uint32Array(n)
       array.fill(val)
@@ -138,7 +132,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
       colors = visual.get_array(colorname)
 
     let alphas: Arrayable<number>
-    if (is_singular(visual, alphaname)) {
+    if (visual[alphaname].is_value) {
       const val = visual[alphaname].value()
       const array = new Float32Array(n)
       array.fill(val)
