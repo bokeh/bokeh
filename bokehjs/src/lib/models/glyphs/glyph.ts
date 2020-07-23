@@ -67,19 +67,6 @@ export abstract class GlyphView extends View {
     this.visuals = new visuals.Visuals(this.model)
   }
 
-  async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      // needed becase there is currently a circular dependency
-      const webgl_module = await import("./webgl/index")
-      const Cls = (webgl_module as any)[`${this.model.type}GL`]
-      if (Cls != null)
-        this.glglyph = new Cls(webgl.gl, this)
-    }
-  }
-
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     this.visuals.warm_cache(source, indices)
 

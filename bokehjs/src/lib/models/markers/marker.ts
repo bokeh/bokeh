@@ -10,6 +10,8 @@ import * as p from "core/properties"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {Class} from "core/class"
+
 
 export interface MarkerData extends XYGlyphData {
   _size: Arrayable<number>
@@ -25,9 +27,19 @@ export abstract class MarkerView extends XYGlyphView {
   visuals: Marker.Visuals
 
   /** @internal */
+  glglyph_cls?: Class<MarkerGL>
   glglyph?: MarkerGL
 
   protected _render_one: RenderOne
+
+  initialize(): void {
+    super.initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && this.glglyph_cls != null) {
+        this.glglyph = new this.glglyph_cls(webgl.gl, this)
+    }
+  }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
     for (const i of indices) {
