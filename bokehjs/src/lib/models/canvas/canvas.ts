@@ -258,7 +258,7 @@ export class CanvasView extends DOMView {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
-      logger.debug('drawing with WebGL')
+      logger.debug('Blitting WebGL canvas')
       ctx.restore()
       ctx.drawImage(webgl.canvas, 0, 0)
       // Set back hidpi transform

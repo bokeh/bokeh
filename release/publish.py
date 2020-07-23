@@ -53,7 +53,7 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
             buckets.append(conn.get_bucket(bucket_name))
 
         content_type = "application/javascript"
-        for name in ("bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"):
+        for name in ("bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"):
             for suffix in ("js", "min.js", "legacy.js", "legacy.min.js"):
                 local_path = f"bokehjs/build/js/{name}.{suffix}"
                 cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"

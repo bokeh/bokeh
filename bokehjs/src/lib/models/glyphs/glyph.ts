@@ -72,22 +72,11 @@ export abstract class GlyphView extends View {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      let webgl_module: typeof import("./webgl/index") | null = null
-      try {
-        webgl_module = await import("./webgl/index")
-      } catch (e) {
-        // TODO: this exposes the underyling module system
-        if (e.code === 'MODULE_NOT_FOUND')
-          logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
-        else
-          throw e
-      }
-
-      if (webgl_module != null) {
-        const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
-        if (Cls != null)
-          this.glglyph = new Cls(webgl.gl, this)
-      }
+      // needed becase there is currently a circular dependency
+      const webgl_module = await import("./webgl/index")
+      const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
+      if (Cls != null)
+        this.glglyph = new Cls(webgl.gl, this)
     }
   }
 

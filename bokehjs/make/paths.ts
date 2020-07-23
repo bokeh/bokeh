@@ -32,10 +32,6 @@ export const lib = {
     main: join(build_dir.lib, "main.js"),
     output: join(build_dir.js, "bokeh.js"),
   },
-  gl: {
-    main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
-    output: join(build_dir.js, "bokeh-gl.js"),
-  },
   api: {
     main: join(build_dir.lib, "api/main.js"),
     output: join(build_dir.js, "bokeh-api.js"),
@@ -54,10 +50,6 @@ export const lib_legacy = {
   bokehjs: {
     main: join(build_dir.lib, "legacy.js"),
     output: join(build_dir.js, "bokeh.legacy.js"),
-  },
-  gl: {
-    main: join(build_dir.lib, "models/glyphs/webgl/main.js"),
-    output: join(build_dir.js, "bokeh-gl.legacy.js"),
   },
   api: {
     main: join(build_dir.lib, "api/main.js"),
