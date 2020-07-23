@@ -82,24 +82,6 @@ export type Transform = {
   sy: number
 }
 
-export function line_width(width: number): number {
-  // Increase small values to make it more similar to canvas
-  if (width < 2) {
-    width = Math.sqrt(width*2)
-  }
-  return width
-}
-
-export function fill_array_with_vec(n: number, m: number, val: Arrayable<number>): Float32Array {
-  const a = new Float32Array(n*m)
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < m; j++) {
-      a[i*m + j] = val[j]
-    }
-  }
-  return a
-}
-
 export function is_singular(visual: any, propname: string): boolean {
   // This touches the internals of the visual, so we limit use in this function
   // See renderer.ts:cache_select() for similar code
