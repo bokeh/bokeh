@@ -1,6 +1,7 @@
 // This is based on https://github.com/pimterry/loglevel
 
 import {isString} from "./util/types"
+import {entries} from "./util/object"
 
 const _loggers: {[key: string]: Logger} = {}
 
@@ -68,9 +69,7 @@ export class Logger {
 
     const logger_name = `[${this._name}]`
 
-    for (const name in Logger.log_levels) {
-      const log_level = Logger.log_levels[name]
-
+    for (const [name, log_level] of entries(Logger.log_levels)) {
       if (log_level.level < this._log_level.level || this._log_level.level === Logger.OFF.level)
         (this as any)[name] = function() {}
       else

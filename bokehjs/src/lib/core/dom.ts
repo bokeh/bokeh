@@ -1,4 +1,5 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
+import {entries} from "./util/object"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
@@ -10,9 +11,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
     const element = document.createElement(tag)
     element.classList.add("bk")
 
-    for (const attr in attrs) {
-      let value = attrs[attr]
-
+    for (let [attr, value] of entries(attrs)) {
       if (value == null || isBoolean(value) && !value)
         continue
 
@@ -30,15 +29,15 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
       }
 
       if (attr === "style" && isPlainObject(value)) {
-        for (const prop in value) {
-          (element.style as any)[prop] = value[prop]
+        for (const [prop, data] of entries(value)) {
+          (element.style as any)[prop] = data
         }
         continue
       }
 
       if (attr === "data" && isPlainObject(value)) {
-        for (const key in value) {
-          element.dataset[key] = value[key] as string | undefined // XXX: attrs needs a better type
+        for (const [key, data] of entries(value)) {
+          element.dataset[key] = data as string | undefined // XXX: attrs needs a better type
         }
         continue
       }

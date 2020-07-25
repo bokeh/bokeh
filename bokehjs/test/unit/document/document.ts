@@ -2,7 +2,7 @@ import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {assert} from "@bokehjs/core/util/assert"
-import {values} from "@bokehjs/core/util/object"
+import {values, entries} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -933,8 +933,7 @@ describe("Document", () => {
     const patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
     // document should have the values we set above
-    for (const key in serialized_values) {
-      const value = (serialized_values as any)[key] // XXX: own
+    for (const [key, value] of entries(serialized_values)) {
       expect(root1.property(key).get_value()).to.be.equal(value)
     }
 
