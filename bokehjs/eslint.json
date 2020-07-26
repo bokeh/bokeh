@@ -66,6 +66,7 @@
       "named": "never",
       "asyncArrow": "always"
     }],
-    "space-in-parens": ["error", "never"]
+    "space-in-parens": ["error", "never"],
+    "guard-for-in": ["error"]
   }
 }

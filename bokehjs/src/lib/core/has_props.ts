@@ -9,7 +9,7 @@ import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {entries, clone, extend} from "./util/object"
+import {values, entries, clone, extend} from "./util/object"
 import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -434,8 +434,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   *[Symbol.iterator](): PropertyGenerator {
-    for (const name in this.properties) {
-      yield this.properties[name]
+    for (const prop of values(this.properties)) {
+      yield prop
     }
   }
 
@@ -470,9 +470,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       return ref_array
     } else if (isPlainObject(value)) {
       const ref_obj: Attrs = {}
-      for (const subkey in value) {
-        if (value.hasOwnProperty(subkey))
-          ref_obj[subkey] = HasProps._value_to_json(value[subkey])
+      for (const [subkey, subvalue] of entries(value)) {
+        ref_obj[subkey] = HasProps._value_to_json(subvalue)
       }
       return ref_obj
     } else
@@ -504,11 +503,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       for (const elem of v)
         HasProps._json_record_references(doc, elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._json_record_references(doc, elem, refs, {recursive})
-        }
+      for (const elem of values(v)) {
+        HasProps._json_record_references(doc, elem, refs, {recursive})
       }
     }
   }
@@ -531,11 +527,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       for (const elem of v)
         HasProps._value_record_references(elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._value_record_references(elem, refs, {recursive})
-        }
+      for (const elem of values(v)) {
+        HasProps._value_record_references(elem, refs, {recursive})
       }
     }
   }
