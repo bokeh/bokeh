@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
-import type {LineGL} from "./webgl/line"
+import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
@@ -20,6 +20,15 @@ export class LineView extends XYGlyphView {
 
   /** @internal */
   glglyph?: LineGL
+
+  initialize(): void {
+    super.initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null) {
+        this.glglyph = new LineGL(webgl.gl, this)
+    }
+  }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
     let drawing = false
