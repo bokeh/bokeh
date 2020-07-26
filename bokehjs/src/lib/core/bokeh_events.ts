@@ -13,7 +13,6 @@ function event(event_name: string) {
 }
 
 export abstract class BokehEvent {
-
   /* prototype */ event_name: string
 
   to_json(): EventJSON {
@@ -21,9 +20,7 @@ export abstract class BokehEvent {
     return {event_name, event_values: this._to_json()}
   }
 
-  protected _to_json(): JSON {
-    return {}
-  }
+  protected abstract _to_json(): JSON
 }
 
 export abstract class ModelEvent extends BokehEvent {
@@ -36,7 +33,11 @@ export abstract class ModelEvent extends BokehEvent {
 }
 
 @event("document_ready")
-export class DocumentReady extends BokehEvent {}
+export class DocumentReady extends BokehEvent {
+  protected _to_json(): JSON {
+    return {}
+  }
+}
 
 @event("button_click")
 export class ButtonClick extends ModelEvent {}
