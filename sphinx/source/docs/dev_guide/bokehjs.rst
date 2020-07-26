@@ -126,7 +126,7 @@ test suites with ``node make test:suite_name``. Known tests suites are:
 * ``node make test:unit``
 * ``node make test:integration``
 
-The last to can be run with ``node make test:lib``. Unit and integration tests are
+The last two can be run with ``node make test:lib``. Unit and integration tests are
 run in a web browser (see requirements), which is started automatically with the
 right settings to guarantee consistent test results.
 
