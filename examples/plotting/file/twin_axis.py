@@ -11,8 +11,8 @@ p = figure(x_range=(-6.5, 6.5), y_range=(-1.1, 1.1), min_border=80)
 p.background_fill_color = "#fafafa"
 
 p.circle(x, y, color="crimson", size=8)
-p.yaxis.axis_label = "red circles"
-p.yaxis.axis_label_text_color ="crimson"
+p.y_axis.axis_label = "red circles"
+p.y_axis.axis_label_text_color ="crimson"
 
 p.extra_y_ranges['foo'] = Range1d(0, 100)
 p.circle(x, y2, color="navy", size=8, y_range_name="foo")

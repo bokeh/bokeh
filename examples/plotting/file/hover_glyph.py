@@ -8,7 +8,7 @@ y = data.loc['2010-10-06']['glucose']
 # Basic plot setup
 p = figure(plot_width=800, plot_height=400, x_axis_type="datetime",
            tools="", toolbar_location=None, title='Hover over points')
-p.ygrid.grid_line_color = None
+p.y_grid.grid_line_color = None
 p.background_fill_color = "#fafafa"
 
 p.line(x, y, line_dash="4 4", line_width=1, color='gray')

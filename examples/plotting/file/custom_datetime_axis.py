@@ -11,10 +11,10 @@ dec = df.open > df.close
 p = figure(plot_width=1000, title="MSFT Candlestick with Custom X-Axis")
 
 # map dataframe indices to date strings and use as label overrides
-p.xaxis.major_label_overrides = {
+p.x_axis.major_label_overrides = {
     i: date.strftime('%b %d') for i, date in enumerate(pd.to_datetime(df["date"]))
 }
-p.xaxis.bounds = (0, df.index[-1])
+p.x_axis.bounds = (0, df.index[-1])
 p.x_range.range_padding = 0.05
 
 p.segment(df.index, df.high, df.index, df.low, color="black")

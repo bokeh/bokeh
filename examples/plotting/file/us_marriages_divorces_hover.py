@@ -23,9 +23,9 @@ p = figure(tools=TOOLS, plot_width=800, plot_height=500,
 
 # Customize the chart
 p.hover.mode = 'vline'
-p.xaxis.ticker = SingleIntervalTicker(interval=10, num_minor_ticks=0)
-p.yaxis.formatter = NumeralTickFormatter(format='0.0a')
-p.yaxis.axis_label = '# per 1,000 people'
+p.x_axis.ticker = SingleIntervalTicker(interval=10, num_minor_ticks=0)
+p.y_axis.formatter = NumeralTickFormatter(format='0.0a')
+p.y_axis.axis_label = '# per 1,000 people'
 p.title.text = '144 years of marriage and divorce in the U.S.'
 
 # Plot the data

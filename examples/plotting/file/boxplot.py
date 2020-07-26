@@ -58,10 +58,10 @@ p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
 if not out.empty:
     p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
 
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = "white"
+p.x_grid.grid_line_color = None
+p.y_grid.grid_line_color = "white"
 p.grid.grid_line_width = 2
-p.xaxis.major_label_text_font_size="16px"
+p.x_axis.major_label_text_font_size="16px"
 
 output_file("boxplot.html", title="boxplot.py example")
 

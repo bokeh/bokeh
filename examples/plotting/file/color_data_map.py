@@ -22,7 +22,7 @@ def make_plot(mapper_type, palette):
     p.circle(x='x', y='y', alpha=0.8, source=source, size=6,
              fill_color=transform('x', mapper), line_color=None)
 
-    color_bar = ColorBar(color_mapper=mapper, ticker=p.xaxis.ticker, formatter=p.xaxis.formatter,
+    color_bar = ColorBar(color_mapper=mapper, ticker=p.x_axis.ticker, formatter=p.x_axis.formatter,
                          location=(0,0), orientation='horizontal', padding=0)
 
     p.add_layout(color_bar, 'below')

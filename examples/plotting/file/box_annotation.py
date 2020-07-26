@@ -8,9 +8,9 @@ data = data.loc['2010-10-04':'2010-10-04']
 
 p = figure(x_axis_type="datetime", tools=TOOLS, title="Glocose Readings, Oct 4th (Red = Outside Range)")
 p.background_fill_color = "#efefef"
-p.xgrid.grid_line_color=None
-p.xaxis.axis_label = 'Time'
-p.yaxis.axis_label = 'Value'
+p.x_grid.grid_line_color=None
+p.x_axis.axis_label = 'Time'
+p.y_axis.axis_label = 'Value'
 
 p.line(data.index, data.glucose, line_color='grey')
 p.circle(data.index, data.glucose, color='grey', size=1)

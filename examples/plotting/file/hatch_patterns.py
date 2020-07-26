@@ -14,7 +14,7 @@ p = figure(y_range=pats, plot_height=900, plot_width=600, title="Built-in Hatch 
 r = p.hbar(y=pats, left=lefts, right=10, height=0.9, fill_color="#fafafa", line_color="grey",
        hatch_pattern=pats, hatch_scale=scales, hatch_color="black", hatch_weight=0.5, hatch_alpha=0.5)
 
-p.ygrid.grid_line_color = None
+p.y_grid.grid_line_color = None
 p.x_range.end = 10
 
 show(p)

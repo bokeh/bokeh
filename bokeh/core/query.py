@@ -130,7 +130,7 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
         >>> from bokeh.models import Axis
         >>> p = figure()
 
-        >>> match(p.xaxis[0], {'type': Axis})
+        >>> match(p.x_axis[0], {'type': Axis})
         True
 
         >>> match(p.title, {'type': Axis})

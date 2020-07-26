@@ -41,8 +41,8 @@ gray_theme = Theme(json={'attrs':{'Plot':{'background_fill_color':'#eeeeee'}}})
 
 def make_plot(x, y):
     p = figure(title = "Iris Morphology", sizing_mode="fixed", plot_width=400, plot_height=400)
-    p.xaxis.axis_label = x
-    p.yaxis.axis_label = y
+    p.x_axis.axis_label = x
+    p.y_axis.axis_label = y
     p.circle(flowers[x], flowers[y], color=colors, fill_alpha=0.2, size=10)
     return p
 

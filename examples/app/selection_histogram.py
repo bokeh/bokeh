@@ -52,8 +52,8 @@ LINE_ARGS = dict(color="#3A5785", line_color=None)
 
 ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range,
             y_range=(-hmax, hmax), min_border=10, min_border_left=50, y_axis_location="right")
-ph.xgrid.grid_line_color = None
-ph.yaxis.major_label_orientation = np.pi/4
+ph.x_grid.grid_line_color = None
+ph.y_axis.major_label_orientation = np.pi/4
 ph.background_fill_color = "#fafafa"
 
 ph.quad(bottom=0, left=hedges[:-1], right=hedges[1:], top=hhist, color="white", line_color="#3A5785")
@@ -67,8 +67,8 @@ vmax = max(vhist)*1.1
 
 pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height, x_range=(-vmax, vmax),
             y_range=p.y_range, min_border=10, y_axis_location="right")
-pv.ygrid.grid_line_color = None
-pv.xaxis.major_label_orientation = np.pi/4
+pv.y_grid.grid_line_color = None
+pv.x_axis.major_label_orientation = np.pi/4
 pv.background_fill_color = "#fafafa"
 
 pv.quad(left=0, bottom=vedges[:-1], top=vedges[1:], right=vhist, color="white", line_color="#3A5785")

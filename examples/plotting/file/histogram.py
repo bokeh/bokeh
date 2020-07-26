@@ -15,8 +15,8 @@ def make_plot(title, hist, edges, x, pdf, cdf):
     p.y_range.start = 0
     p.legend.location = "center_right"
     p.legend.background_fill_color = "#fefefe"
-    p.xaxis.axis_label = 'x'
-    p.yaxis.axis_label = 'Pr(x)'
+    p.x_axis.axis_label = 'x'
+    p.y_axis.axis_label = 'Pr(x)'
     p.grid.grid_line_color="white"
     return p
 

@@ -15,8 +15,8 @@ plot_figure = figure(title='Range Slider',plot_height=450, plot_width=600,
 
 plot_figure.scatter('divorcep1000', 'marriagep1000', size=5, source=source)
 
-plot_figure.xaxis.axis_label='Divorces Per 1000'
-plot_figure.yaxis.axis_label='Marriages Per 1000'
+plot_figure.x_axis.axis_label = 'Divorces Per 1000'
+plot_figure.y_axis.axis_label = 'Marriages Per 1000'
 
 range_slider = RangeSlider(start=1867, end=2011, value=(1867,2011), step=1, title="Filter Year")
 

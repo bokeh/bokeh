@@ -29,14 +29,14 @@ circle = Circle(
 )
 plot.add_glyph(source, circle)
 
-xaxis = LinearAxis(axis_label="petal length", major_tick_in=0)
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis(axis_label="petal length", major_tick_in=0)
+plot.add_layout(x_axis, 'below')
 
-yaxis = LinearAxis(axis_label="petal width", major_tick_in=0)
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis(axis_label="petal width", major_tick_in=0)
+plot.add_layout(y_axis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

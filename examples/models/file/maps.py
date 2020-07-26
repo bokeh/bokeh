@@ -41,15 +41,15 @@ box_select = BoxSelectTool()
 
 plot.add_tools(pan, wheel_zoom, box_select)
 
-xformatter = MercatorTickFormatter(dimension="lon")
-xticker = MercatorTicker(dimension="lon")
-xaxis = LinearAxis(formatter=xformatter, ticker=xticker)
-plot.add_layout(xaxis, 'below')
+x_formatter = MercatorTickFormatter(dimension="lon")
+x_ticker = MercatorTicker(dimension="lon")
+x_axis = LinearAxis(formatter=x_formatter, ticker=x_ticker)
+plot.add_layout(x_axis, 'below')
 
-yformatter = MercatorTickFormatter(dimension="lat")
-yticker = MercatorTicker(dimension="lat")
-yaxis = LinearAxis(formatter=yformatter, ticker=yticker)
-plot.add_layout(yaxis, 'left')
+y_formatter = MercatorTickFormatter(dimension="lat")
+y_ticker = MercatorTicker(dimension="lat")
+y_axis = LinearAxis(formatter=y_formatter, ticker=y_ticker)
+plot.add_layout(y_axis, 'left')
 
 doc = Document()
 doc.add_root(plot)

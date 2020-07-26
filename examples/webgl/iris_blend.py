@@ -19,8 +19,8 @@ colormap2 = {'setosa': '#0f0', 'versicolor': '#0f0', 'virginica': '#f00'}
 colors2 = [colormap2[x] for x in flowers['species']]
 
 p = figure(title = "Iris Morphology", output_backend="webgl")
-p.xaxis.axis_label = 'Petal Length'
-p.yaxis.axis_label = 'Petal Width'
+p.x_axis.axis_label = 'Petal Length'
+p.y_axis.axis_label = 'Petal Width'
 
 p.diamond(flowers["petal_length"], flowers["petal_width"],
           color=colors1, line_alpha=0.5, fill_alpha=0.2, size=25, legend_label='diamonds')

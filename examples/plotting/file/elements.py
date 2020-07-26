@@ -25,8 +25,8 @@ TOOLS = "hover,pan,wheel_zoom,box_zoom,reset,save"
 p = figure(tools=TOOLS, toolbar_location="above", plot_width=1200, title=TITLE)
 p.toolbar.logo = "grey"
 p.background_fill_color = "#dddddd"
-p.xaxis.axis_label = "atomic weight (amu)"
-p.yaxis.axis_label = "density (g/cm^3)"
+p.x_axis.axis_label = "atomic weight (amu)"
+p.y_axis.axis_label = "density (g/cm^3)"
 p.grid.grid_line_color = "white"
 p.hover.tooltips = [
     ("name", "@name"),

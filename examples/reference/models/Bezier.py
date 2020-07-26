@@ -25,14 +25,14 @@ plot = Plot(
 glyph = Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#d95f02", line_width=2)
 plot.add_glyph(source, glyph)
 
-xaxis = LinearAxis()
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis()
+plot.add_layout(x_axis, 'below')
 
-yaxis = LinearAxis()
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis()
+plot.add_layout(y_axis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 curdoc().add_root(plot)
 

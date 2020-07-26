@@ -23,14 +23,14 @@ plot = Plot(
 glyph = Quadratic(x0="x", y0="y", x1="xp02", y1="y", cx="xp01", cy="yp01", line_color="#4daf4a", line_width=3)
 plot.add_glyph(source, glyph)
 
-xaxis = LinearAxis()
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis()
+plot.add_layout(x_axis, 'below')
 
-yaxis = LinearAxis()
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis()
+plot.add_layout(y_axis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 curdoc().add_root(plot)
 

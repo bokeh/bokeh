@@ -6,14 +6,14 @@ p = figure(plot_width=400, plot_height=400)
 p.circle([1,2,3,4,5], [2,5,8,2,7], size=10)
 
 # change just some things about the x-axis
-p.xaxis.axis_label = "Temp"
-p.xaxis.axis_line_width = 3
-p.xaxis.axis_line_color = "red"
+p.x_axis.axis_label = "Temp"
+p.x_axis.axis_line_width = 3
+p.x_axis.axis_line_color = "red"
 
 # change just some things about the y-axis
-p.yaxis.axis_label = "Pressure"
-p.yaxis.major_label_text_color = "orange"
-p.yaxis.major_label_orientation = "vertical"
+p.y_axis.axis_label = "Pressure"
+p.y_axis.major_label_text_color = "orange"
+p.y_axis.major_label_orientation = "vertical"
 
 # change things on all axes
 p.axis.minor_tick_in = -3

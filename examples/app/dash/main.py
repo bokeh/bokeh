@@ -23,7 +23,7 @@ p = figure(plot_height=110, tools="", toolbar_location=None, #name="line",
            x_axis_type="datetime", x_range=(dates[1500], dates[2500]), sizing_mode="scale_width")
 
 p.line('date', 'close', source=source, line_width=2, alpha=0.7)
-p.yaxis.axis_label = 'Traffic'
+p.y_axis.axis_label = 'Traffic'
 p.background_fill_color="#f5f5f5"
 p.grid.grid_line_color="white"
 
@@ -36,7 +36,7 @@ range_rool.overlay.fill_color = "navy"
 range_rool.overlay.fill_alpha = 0.2
 
 select.line('date', 'close', source=source)
-select.ygrid.grid_line_color = None
+select.y_grid.grid_line_color = None
 select.add_tools(range_rool)
 select.toolbar.active_multi = range_rool
 select.background_fill_color="#f5f5f5"
@@ -80,7 +80,7 @@ values = (35, 22, 13, 26, 4)
 platform = figure(plot_height=350, toolbar_location=None, outline_line_color=None, sizing_mode="scale_both", name="platform",
                   y_range=list(reversed(plats)), x_axis_location="above")
 platform.x_range.start = 0
-platform.ygrid.grid_line_color = None
+platform.y_grid.grid_line_color = None
 platform.axis.minor_tick_line_color = None
 platform.outline_line_color = None
 

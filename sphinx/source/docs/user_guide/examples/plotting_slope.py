@@ -22,7 +22,7 @@ slope = Slope(gradient=gradient, y_intercept=y_intercept,
 
 p.add_layout(slope)
 
-p.yaxis.axis_label = 'y'
-p.xaxis.axis_label = 'x'
+p.y_axis.axis_label = 'y'
+p.x_axis.axis_label = 'x'
 
 show(p)

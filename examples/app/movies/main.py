@@ -86,8 +86,8 @@ def update():
     x_name = axis_map[x_axis.value]
     y_name = axis_map[y_axis.value]
 
-    p.xaxis.axis_label = x_axis.value
-    p.yaxis.axis_label = y_axis.value
+    p.x_axis.axis_label = x_axis.value
+    p.y_axis.axis_label = y_axis.value
     p.title.text = "%d movies selected" % len(df)
     source.data = dict(
         x=df[x_name],

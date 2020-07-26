@@ -7,16 +7,16 @@ p = figure(plot_height=250, plot_width=600, x_range=(0, 10), tools="", toolbar_l
 p.line(x=[0,1,2,3,4,5,6,7,8,9,10],
        y=[1,3,4,3,1,2,6,5,2,3,4])
 
-p.ygrid.grid_line_color = None
+p.y_grid.grid_line_color = None
 
 ticks = [0, 2, 4, 6, 8, 10]
-p.xaxis[0].ticker = ticks
-p.xgrid[0].ticker = ticks
+p.x_axis[0].ticker = ticks
+p.x_grid[0].ticker = ticks
 
-p.xgrid.band_hatch_pattern = "/"
-p.xgrid.band_hatch_alpha = 0.6
-p.xgrid.band_hatch_color = "lightgrey"
-p.xgrid.band_hatch_weight = 0.5
-p.xgrid.band_hatch_scale = 10
+p.x_grid.band_hatch_pattern = "/"
+p.x_grid.band_hatch_alpha = 0.6
+p.x_grid.band_hatch_color = "lightgrey"
+p.x_grid.band_hatch_weight = 0.5
+p.x_grid.band_hatch_scale = 10
 
 show(p)

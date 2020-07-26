@@ -8,15 +8,15 @@ from bokeh.util.browser import view
 
 plot = Plot(x_range=Range1d(-10, 10), y_range=Range1d(-10, 10), plot_width=600, plot_height=600, toolbar_sticky=False)
 
-xaxis = LinearAxis()
-yaxis = LinearAxis()
-xgrid = Grid(dimension=0, ticker=xaxis.ticker)
-ygrid = Grid(dimension=1, ticker=yaxis.ticker)
+x_axis = LinearAxis()
+y_axis = LinearAxis()
+x_grid = Grid(dimension=0, ticker=x_axis.ticker)
+y_grid = Grid(dimension=1, ticker=y_axis.ticker)
 
-plot.add_layout(xaxis, "below")
-plot.add_layout(yaxis, "left")
-plot.add_layout(xgrid)
-plot.add_layout(ygrid)
+plot.add_layout(x_axis, "below")
+plot.add_layout(y_axis, "left")
+plot.add_layout(x_grid)
+plot.add_layout(y_grid)
 
 def fds(x, y, e, n):
     d = [

@@ -45,15 +45,15 @@ def large_plot(n):
         xdr = DataRange1d()
         ydr = DataRange1d()
         plot = Plot(x_range=xdr, y_range=ydr)
-        xaxis = LinearAxis()
-        plot.add_layout(xaxis, "below")
-        yaxis = LinearAxis()
-        plot.add_layout(yaxis, "left")
-        xgrid = Grid(dimension=0)
-        plot.add_layout(xgrid, "center")
-        ygrid = Grid(dimension=1)
-        plot.add_layout(ygrid, "center")
-        tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
+        x_axis = LinearAxis()
+        plot.add_layout(x_axis, "below")
+        y_axis = LinearAxis()
+        plot.add_layout(y_axis, "left")
+        x_grid = Grid(dimension=0)
+        plot.add_layout(x_grid, "center")
+        y_grid = Grid(dimension=1)
+        plot.add_layout(y_grid, "center")
+        tickers = [x_axis.ticker, x_axis.formatter, y_axis.ticker, y_axis.formatter]
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)
         plot.renderers.append(renderer)
@@ -70,8 +70,8 @@ def large_plot(n):
         col.children.append(plot)
         objects |= set([
             xdr, ydr,
-            xaxis, yaxis,
-            xgrid, ygrid,
+            x_axis, y_axis,
+            x_grid, y_grid,
             renderer, renderer.view, glyph,
             source, source.selected, source.selection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,

@@ -27,6 +27,6 @@ daylight_savings_end = Span(location=end_date,
 p.add_layout(daylight_savings_end)
 
 p.title.text = "2013 Sunrise and Sunset times in Warsaw"
-p.yaxis.axis_label = 'Time of Day'
+p.y_axis.axis_label = 'Time of Day'
 
 show(p)

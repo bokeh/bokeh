@@ -9,13 +9,13 @@ p = figure(x_range=aligns, y_range=baselines, plot_width=800, plot_height=600,
            title="Variations of multi-line text", toolbar_location=None)
 
 p.background_fill_color = "lightgrey"
-p.xaxis.axis_label = "align"
-p.yaxis.axis_label = "baseline"
+p.x_axis.axis_label = "align"
+p.y_axis.axis_label = "baseline"
 p.axis.major_label_text_font_size = "18px"
 p.axis.major_label_text_font_style = "bold italic"
 
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = None
+p.x_grid.grid_line_color = None
+p.y_grid.grid_line_color = None
 
 texts = [
 

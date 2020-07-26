@@ -18,9 +18,9 @@ p.vbar(x='cyl', top='mpg_mean', width=1, source=group,
        line_color=cyl_cmap, fill_color=cyl_cmap)
 
 p.y_range.start = 0
-p.xgrid.grid_line_color = None
-p.xaxis.axis_label = "some stuff"
-p.xaxis.major_label_orientation = 1.2
+p.x_grid.grid_line_color = None
+p.x_axis.axis_label = "some stuff"
+p.x_axis.major_label_orientation = 1.2
 p.outline_line_color = None
 
 show(p)

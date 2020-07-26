@@ -6,8 +6,8 @@ SPECIES = ['setosa', 'versicolor', 'virginica']
 MARKERS = ['hex', 'circle_x', 'triangle']
 
 p = figure(title = "Iris Morphology")
-p.xaxis.axis_label = 'Petal Length'
-p.yaxis.axis_label = 'Sepal Width'
+p.x_axis.axis_label = 'Petal Length'
+p.y_axis.axis_label = 'Sepal Width'
 
 p.scatter("petal_length", "sepal_width", source=flowers, legend_field="species", fill_alpha=0.4, size=12,
           marker=factor_mark('species', MARKERS, SPECIES),

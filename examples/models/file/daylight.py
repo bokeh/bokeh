@@ -76,12 +76,12 @@ xticker = FixedTicker(ticks=[
     mktime(dt.datetime.combine(summer_start, min_time).timetuple()) * 1000,
     mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000
 ])
-xaxis = DatetimeAxis(formatter=xformatter, ticker=xticker)
-plot.add_layout(xaxis, 'below')
+x_axis = DatetimeAxis(formatter=xformatter, ticker=xticker)
+plot.add_layout(x_axis, 'below')
 
-yaxis = DatetimeAxis()
-yaxis.formatter.hours = ['%H:%M']
-plot.add_layout(yaxis, 'left')
+y_axis = DatetimeAxis()
+y_axis.formatter.hours = ['%H:%M']
+plot.add_layout(y_axis, 'left')
 
 legend = Legend(items=[
     LegendItem(label=value('sunset'), renderers=[sunset_line_renderer]),

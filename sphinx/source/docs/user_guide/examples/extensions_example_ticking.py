@@ -29,6 +29,6 @@ class MyFormatter(TickFormatter):
 p = figure()
 p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4], size=20)
 
-p.xaxis.formatter = MyFormatter()
+p.x_axis.formatter = MyFormatter()
 
 show(p)

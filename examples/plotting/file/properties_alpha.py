@@ -11,9 +11,9 @@ cats = ['None', 'Alpha', 'RGB', 'RGBA', 'Alpha+RGB', 'Alpha+RGBA']
 p = figure(x_range=cats, y_range=cats,
            title="Fill and Line Color Combinations")
 
-p.xaxis.axis_label = "Fill Options"
-p.xaxis.major_label_orientation = pi/4
-p.yaxis.axis_label = "Line Options"
+p.x_axis.axis_label = "Fill Options"
+p.x_axis.major_label_orientation = pi/4
+p.y_axis.axis_label = "Line Options"
 p.grid.grid_line_color = None
 p.toolbar_location = None
 

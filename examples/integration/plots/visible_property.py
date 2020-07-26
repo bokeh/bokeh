@@ -6,8 +6,8 @@ plot = figure(toolbar_location=None)
 l1 = plot.line([1, 2, 3], [1, 2, 3])
 l2 = plot.line([1, 2, 3], [2, 4, 6])
 
-plot.xaxis.visible = False
-plot.ygrid.visible = False
+plot.x_axis.visible = False
+plot.y_grid.visible = False
 l1.visible = False
 l2.visible = True
 

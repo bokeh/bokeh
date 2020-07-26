@@ -35,9 +35,9 @@ plot = Plot(title=None, plot_width=1000, plot_height=300)
 
 # Set up x & y axis
 plot.add_layout(LinearAxis(), 'below')
-yaxis = LinearAxis()
-plot.add_layout(yaxis, 'left')
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+y_axis = LinearAxis()
+plot.add_layout(y_axis, 'left')
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 # Add Glyphs
 cty_glyph = Circle(x="index", y="cty", fill_color="#396285", size=8, fill_alpha=0.5, line_alpha=0.5)

@@ -14,7 +14,7 @@ p = figure(plot_height=300, plot_width=800, tools="xpan", toolbar_location=None,
            background_fill_color="#efefef", x_range=(dates[1500], dates[2500]))
 
 p.line('date', 'close', source=source)
-p.yaxis.axis_label = 'Price'
+p.y_axis.axis_label = 'Price'
 
 select = figure(title="Drag the middle and edges of the selection box to change the range above",
                 plot_height=130, plot_width=800, y_range=p.y_range,
@@ -26,7 +26,7 @@ range_tool.overlay.fill_color = "navy"
 range_tool.overlay.fill_alpha = 0.2
 
 select.line('date', 'close', source=source)
-select.ygrid.grid_line_color = None
+select.y_grid.grid_line_color = None
 select.add_tools(range_tool)
 select.toolbar.active_multi = range_tool
 

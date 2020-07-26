@@ -28,7 +28,7 @@ p.vbar(x=dodge('fruits',  0.25, range=p.x_range), top='2017', width=0.2, source=
        color="#e84d60", legend_label="2017")
 
 p.x_range.range_padding = 0.1
-p.xgrid.grid_line_color = None
+p.x_grid.grid_line_color = None
 p.legend.location = "top_left"
 p.legend.orientation = "horizontal"
 

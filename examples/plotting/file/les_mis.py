@@ -51,7 +51,7 @@ p.axis.axis_line_color = None
 p.axis.major_tick_line_color = None
 p.axis.major_label_text_font_size = "7px"
 p.axis.major_label_standoff = 0
-p.xaxis.major_label_orientation = np.pi/3
+p.x_axis.major_label_orientation = np.pi/3
 
 p.rect('xname', 'yname', 0.9, 0.9, source=data,
        color='colors', alpha='alphas', line_color=None,

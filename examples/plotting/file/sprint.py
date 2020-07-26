@@ -66,14 +66,14 @@ plot = figure(
 plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
 plot.title.text_font_size = "19px"
 
-plot.xaxis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
-plot.xaxis.axis_line_color = None
-plot.xaxis.major_tick_line_color = None
-plot.xgrid.grid_line_dash = "dashed"
+plot.x_axis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
+plot.x_axis.axis_line_color = None
+plot.x_axis.major_tick_line_color = None
+plot.x_grid.grid_line_dash = "dashed"
 
-yticker = FixedTicker(ticks=[1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012])
-yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
-plot.add_layout(yaxis, "right")
+y_ticker = FixedTicker(ticks=[1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012])
+y_axis = LinearAxis(ticker=y_ticker, major_tick_in=-5, major_tick_out=10)
+plot.add_layout(y_axis, "right")
 
 medal = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen"),
     fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5, source=source, level="overlay")

@@ -26,16 +26,16 @@ def checkbox_button_click(attr,old,new):
     ## Get first checkbox value and show x-axis label
 
     if len(active_checkbox)!=0 and (0 in active_checkbox):
-        plot_figure.xaxis.axis_label='X-Axis'
+        plot_figure.x_axis.axis_label='X-Axis'
     else:
-        plot_figure.xaxis.axis_label = None
+        plot_figure.x_axis.axis_label = None
 
     ## Get second checkbox value and show y-axis label
 
     if len(active_checkbox)!=0 and (1 in active_checkbox):
-        plot_figure.yaxis.axis_label='Y-Axis'
+        plot_figure.y_axis.axis_label='Y-Axis'
     else:
-        plot_figure.yaxis.axis_label = None
+        plot_figure.y_axis.axis_label = None
 
 checkbox_button.on_change('active',checkbox_button_click)
 

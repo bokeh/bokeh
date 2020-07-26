@@ -12,10 +12,10 @@ for ycoeff in coeffs:
     row = []
     for xcoeff in coeffs:
         fig = figure(plot_height=200, plot_width=200)
-        fig.xaxis.formatter.use_scientific = False
-        fig.yaxis.formatter.use_scientific = False
-        fig.xaxis.major_label_orientation = "vertical"
-        fig.yaxis.major_label_orientation = "horizontal"
+        fig.x_axis.formatter.use_scientific = False
+        fig.y_axis.formatter.use_scientific = False
+        fig.x_axis.major_label_orientation = "vertical"
+        fig.y_axis.major_label_orientation = "horizontal"
         fig.scatter(V*xcoeff, V*ycoeff)
         row.append(fig)
     figs.append(row)

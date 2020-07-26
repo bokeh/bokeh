@@ -93,14 +93,14 @@ def altitude_profile(data):
     plot.title.text = "%s - Altitude Profile" % name
     plot.y_range.range_padding = 0
 
-    xaxis = LinearAxis(axis_label="Distance (km)")
-    plot.add_layout(xaxis, 'below')
+    x_axis = LinearAxis(axis_label="Distance (km)")
+    plot.add_layout(x_axis, 'below')
 
-    yaxis = LinearAxis(axis_label="Altitude (m)")
-    plot.add_layout(yaxis, 'left')
+    y_axis = LinearAxis(axis_label="Altitude (m)")
+    plot.add_layout(y_axis, 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))  # x grid
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))  # y grid
+    plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))  # x grid
+    plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))  # y grid
 
     plot.add_tools(PanTool(), WheelZoomTool(), ResetTool())
 

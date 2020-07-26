@@ -16,8 +16,8 @@ def make_figure(output_backend):
                output_backend=output_backend,
                title="Backend: %s" % output_backend)
 
-    p.xaxis.axis_label = 'Domain'
-    p.yaxis.axis_label = 'Values (log scale)'
+    p.x_axis.axis_label = 'Domain'
+    p.y_axis.axis_label = 'Values (log scale)'
 
     p.line(x, np.sqrt(x), line_color="tomato", line_dash="dotdash")
     p.line(x, x)

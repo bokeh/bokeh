@@ -40,15 +40,15 @@ def parallel_plot(df, color=None, palette=None):
         ticks=np.arange(ndims), minor_ticks=[])
     formatter_x_ticks = FuncTickFormatter(
         code="return columns[index]", args={"columns": df.columns})
-    p.xaxis.ticker = fixed_x_ticks
-    p.xaxis.formatter = formatter_x_ticks
+    p.x_axis.ticker = fixed_x_ticks
+    p.x_axis.formatter = formatter_x_ticks
 
-    p.yaxis.visible = False
+    p.y_axis.visible = False
     p.y_range.start = 0
     p.y_range.end = 1
     p.y_range.bounds = (-0.1, 1.1) # add a little padding around y axis
-    p.xgrid.visible = False
-    p.ygrid.visible = False
+    p.x_grid.visible = False
+    p.y_grid.visible = False
 
     # Create extra y axis for each dataframe column
     tickformatter = BasicTickFormatter(precision=1)

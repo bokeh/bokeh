@@ -20,8 +20,8 @@ p = figure(plot_height=250, x_axis_type="datetime", tools="", toolbar_location=N
            title="Hover Tooltip Formatting", sizing_mode="scale_width")
 p.background_fill_color="#f5f5f5"
 p.grid.grid_line_color="white"
-p.xaxis.axis_label = 'Date'
-p.yaxis.axis_label = 'Price'
+p.x_axis.axis_label = 'Date'
+p.y_axis.axis_label = 'Price'
 p.axis.axis_line_color = None
 
 p.line(x='date', y='adj close', line_width=2, color='#ebbd5b', source=source)

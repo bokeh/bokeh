@@ -20,10 +20,10 @@ plot.border_fill_color = None
 plot.add_glyph(Circle(x=3, y=3, size=50, fill_color='#ffffff'))
 plot.add_glyph(Circle(x=6, y=6, size=50, fill_color='#ffffff'))
 
-yaxis = LinearAxis(major_label_text_color='#ffffff', major_label_text_font_size="40px")
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis(major_label_text_color='#ffffff', major_label_text_font_size="40px")
+plot.add_layout(y_axis, 'left')
 
-xaxis = LinearAxis(major_label_text_color='#ffffff', major_label_text_font_size="40px")
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis(major_label_text_color='#ffffff', major_label_text_font_size="40px")
+plot.add_layout(x_axis, 'below')
 
 save(plot, template=template)

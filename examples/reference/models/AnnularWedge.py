@@ -17,14 +17,14 @@ plot = Plot(
 glyph = AnnularWedge(x="x", y="y", inner_radius=.2, outer_radius="r", start_angle=0.6, end_angle=4.1, fill_color="#8888ee")
 plot.add_glyph(source, glyph)
 
-xaxis = LinearAxis()
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis()
+plot.add_layout(x_axis, 'below')
 
-yaxis = LinearAxis()
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis()
+plot.add_layout(y_axis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 curdoc().add_root(plot)
 

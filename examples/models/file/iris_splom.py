@@ -39,22 +39,22 @@ def make_plot(xname, yname, xax=False, yax=False):
     xdr.renderers.append(r)
     ydr.renderers.append(r)
 
-    xticker = BasicTicker()
+    x_ticker = BasicTicker()
     if xax:
-        xaxis = LinearAxis()
-        xaxis.axis_label = xname
-        plot.add_layout(xaxis, 'below')
-        xticker = xaxis.ticker
-    plot.add_layout(Grid(dimension=0, ticker=xticker))
+        x_axis = LinearAxis()
+        x_axis.axis_label = xname
+        plot.add_layout(x_axis, 'below')
+        x_ticker = x_axis.ticker
+    plot.add_layout(Grid(dimension=0, ticker=x_ticker))
 
-    yticker = BasicTicker()
+    y_ticker = BasicTicker()
     if yax:
-        yaxis = LinearAxis()
-        yaxis.axis_label = yname
-        yaxis.major_label_orientation = 'vertical'
-        plot.add_layout(yaxis, 'left')
-        yticker = yaxis.ticker
-    plot.add_layout(Grid(dimension=1, ticker=yticker))
+        y_axis = LinearAxis()
+        y_axis.axis_label = yname
+        y_axis.major_label_orientation = 'vertical'
+        plot.add_layout(y_axis, 'left')
+        y_ticker = y_axis.ticker
+    plot.add_layout(Grid(dimension=1, ticker=y_ticker))
 
     plot.add_tools(PanTool(), WheelZoomTool())
 

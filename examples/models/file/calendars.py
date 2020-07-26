@@ -69,12 +69,12 @@ def make_calendar(year, month, firstweekday="Mon"):
     text = Text(x="days", y="weeks", text="month_days", text_align="center", text_baseline="middle")
     plot.add_glyph(source, text)
 
-    xaxis = CategoricalAxis()
-    xaxis.major_label_text_font_size = "11px"
-    xaxis.major_label_standoff = 0
-    xaxis.major_tick_line_color = None
-    xaxis.axis_line_color = None
-    plot.add_layout(xaxis, 'above')
+    x_axis = CategoricalAxis()
+    x_axis.major_label_text_font_size = "11px"
+    x_axis.major_label_standoff = 0
+    x_axis.major_tick_line_color = None
+    x_axis.axis_line_color = None
+    plot.add_layout(x_axis, 'above')
 
     hover_tool = HoverTool(renderers=[rect_renderer], tooltips=[("Holiday", "@month_holidays")])
     plot.tools.append(hover_tool)

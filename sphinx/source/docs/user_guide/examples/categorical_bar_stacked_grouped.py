@@ -29,8 +29,8 @@ p.vbar_stack(regions, x='x', width=0.9, alpha=0.5, color=["blue", "red"], source
 p.y_range.start = 0
 p.y_range.end = 18
 p.x_range.range_padding = 0.1
-p.xaxis.major_label_orientation = 1
-p.xgrid.grid_line_color = None
+p.x_axis.major_label_orientation = 1
+p.x_grid.grid_line_color = None
 p.legend.location = "top_center"
 p.legend.orientation = "horizontal"
 

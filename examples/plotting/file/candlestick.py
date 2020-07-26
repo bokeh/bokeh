@@ -15,7 +15,7 @@ w = 12*60*60*1000 # half day in ms
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 p = figure(x_axis_type="datetime", tools=TOOLS, plot_width=1000, title = "MSFT Candlestick")
-p.xaxis.major_label_orientation = pi/4
+p.x_axis.major_label_orientation = pi/4
 p.grid.grid_line_alpha=0.3
 
 p.segment(df.date, df.high, df.date, df.low, color="black")

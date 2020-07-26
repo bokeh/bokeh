@@ -168,7 +168,7 @@ class TestPlotValidation(object):
 
     def test_bad_extra_range_name(self) -> None:
         p = figure()
-        p.xaxis.x_range_name="junk"
+        p.x_axis.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
@@ -338,16 +338,16 @@ class Test_list_attr_splat(object):
 
     def test_get_set_single(self) -> None:
         p = figure()
-        assert len(p.xaxis) == 1
+        assert len(p.x_axis) == 1
 
         # check both ways to access
-        assert p.xaxis.formatter.power_limit_low != 100
-        assert p.xaxis[0].formatter.power_limit_low != 100
+        assert p.x_axis.formatter.power_limit_low != 100
+        assert p.x_axis[0].formatter.power_limit_low != 100
 
         p.axis.formatter.power_limit_low = 100
 
-        assert p.xaxis.formatter.power_limit_low == 100
-        assert p.xaxis[0].formatter.power_limit_low == 100
+        assert p.x_axis.formatter.power_limit_low == 100
+        assert p.x_axis[0].formatter.power_limit_low == 100
 
     def test_get_set_multi(self) -> None:
         p = figure()

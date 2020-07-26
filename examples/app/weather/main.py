@@ -40,8 +40,8 @@ def make_plot(source, title):
               color=Blues4[0], alpha=0.5, line_color="black", source=source, legend_label="Actual")
 
     # fixed attributes
-    plot.xaxis.axis_label = None
-    plot.yaxis.axis_label = "Temperature (F)"
+    plot.x_axis.axis_label = None
+    plot.y_axis.axis_label = "Temperature (F)"
     plot.axis.axis_label_text_font_style = "bold"
     plot.x_range = DataRange1d(range_padding=0.0)
     plot.grid.grid_line_alpha = 0.3

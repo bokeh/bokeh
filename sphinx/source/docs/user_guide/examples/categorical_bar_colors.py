@@ -15,7 +15,7 @@ p = figure(x_range=fruits, y_range=(0,9), plot_height=250, title="Fruit Counts",
 
 p.vbar(x='fruits', top='counts', width=0.9, color='color', legend_field="fruits", source=source)
 
-p.xgrid.grid_line_color = None
+p.x_grid.grid_line_color = None
 p.legend.orientation = "horizontal"
 p.legend.location = "top_center"
 

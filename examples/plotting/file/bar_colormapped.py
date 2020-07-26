@@ -15,7 +15,7 @@ p = figure(x_range=fruits, plot_height=350, toolbar_location=None, title="Fruit 
 p.vbar(x='fruits', top='counts', width=0.9, source=source, legend_field="fruits",
        line_color='white', fill_color=factor_cmap('fruits', palette=Spectral6, factors=fruits))
 
-p.xgrid.grid_line_color = None
+p.x_grid.grid_line_color = None
 p.y_range.start = 0
 p.y_range.end = 9
 p.legend.orientation = "horizontal"

@@ -25,7 +25,7 @@ p.vbar(x='x', top='counts', width=0.9, source=source)
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1
-p.xaxis.major_label_orientation = 1
-p.xgrid.grid_line_color = None
+p.x_axis.major_label_orientation = 1
+p.x_grid.grid_line_color = None
 
 show(p)

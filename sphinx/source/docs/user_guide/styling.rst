@@ -444,12 +444,12 @@ Axes
 In this section, you will learn how to change various visual properties
 of Bokeh plot axes.
 
-To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
+To set style attributes on Axis objects, use the |x_axis|, |y_axis|, and
 |axis| methods on |Plot| to first obtain a plot's Axis objects:
 
 .. code-block:: python
 
-    >>> p.xaxis
+    >>> p.x_axis
     [<bokeh.models.axes.LinearAxis at 0x106fa2390>]
 
 This returns a list of Axis objects (since there may be more than
@@ -459,7 +459,7 @@ the attributes will be applied to all the axes in the list:
 
 .. code-block:: python
 
-    p.xaxis.axis_label = "Temperature"
+    p.x_axis.axis_label = "Temperature"
 
 will change the value of ``axis_label`` for every x-axis (however
 many there may be).
@@ -522,10 +522,10 @@ explicitly, e.g.
     p = figure()
 
     # no additional tick locations will be displayed on the x-axis
-    p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+    p.x_axis.ticker = FixedTicker(ticks=[10, 20, 37.4])
 
 However, it is also possible to supply the list of ticks directly as a
-shortcut, e.g. ``p.xaxis.ticker = [10, 20, 37.4]``. The example below
+shortcut, e.g. ``p.x_axis.ticker = [10, 20, 37.4]``. The example below
 demonstrates this method.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_fixed_ticker.py
@@ -570,7 +570,7 @@ To control tick formatting at a finer-grained level, use one of the
 .. note::
     To replace a tick formatter on an Axis, you must set the ``formatter``
     property on an actual ``Axis`` object, not on a splattable list. This is
-    why ``p.yaxis[0].formatter``, etc. (with the subscript ``[0]``) is used.
+    why ``p.y_axis[0].formatter``, etc. (with the subscript ``[0]``) is used.
 
 ``NumeralTickFormatter``
 ''''''''''''''''''''''''
@@ -637,7 +637,7 @@ Grids
 In this section, you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
 
-Similar to the convenience methods for axes, there are |xgrid|, |ygrid|,
+Similar to the convenience methods for axes, there are |x_grid|, |y_grid|,
 and |grid| methods on |Plot| that can be used to obtain a plot's Grid
 objects:
 
@@ -656,8 +656,8 @@ for every element of the list:
     p.grid.line_dash = [4 2]
 
 .. note::
-    The ``xgrid`` property provides the grid objects that *intersect* the
-    x-axis (i.e., are vertical). Correspondingly, ``ygrid`` provides
+    The ``x_grid`` property provides the grid objects that *intersect* the
+    x-axis (i.e., are vertical). Correspondingly, ``y_grid`` provides
     the grid objects that intersect the y-axis (i.e., are horizontal).
 
 .. _userguide_styling_grid_lines:
@@ -949,8 +949,8 @@ You can see a complete example with output in the section
 
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
+.. |x_grid|  replace:: :class:`~bokeh.plotting.Figure.x_grid`
+.. |y_grid|  replace:: :class:`~bokeh.plotting.Figure.y_grid`
 .. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`
+.. |x_axis|  replace:: :class:`~bokeh.plotting.Figure.x_axis`
+.. |y_axis|  replace:: :class:`~bokeh.plotting.Figure.y_axis`

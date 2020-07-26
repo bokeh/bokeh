@@ -17,12 +17,12 @@ export namespace Stocks {
     })
 
     // Add axis and grid
-    const xaxis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: 'time'})
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: 'price'})
-    plot.add_layout(xaxis, "below")
-    plot.add_layout(yaxis, "left")
-    plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0}))
-    plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}))
+    const x_axis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: 'time'})
+    const y_axis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: 'price'})
+    plot.add_layout(x_axis, "below")
+    plot.add_layout(y_axis, "left")
+    plot.add_layout(new Bokeh.Grid({ticker: x_axis.ticker, dimension: 0}))
+    plot.add_layout(new Bokeh.Grid({ticker: y_axis.ticker, dimension: 1}))
 
     // Add a line for each entry in the source
     const colors = ['#aa0000', '#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa']

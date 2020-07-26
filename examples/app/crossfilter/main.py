@@ -36,11 +36,11 @@ def create_figure():
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
     p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,hover,reset', **kw)
-    p.xaxis.axis_label = x_title
-    p.yaxis.axis_label = y_title
+    p.x_axis.axis_label = x_title
+    p.y_axis.axis_label = y_title
 
     if x.value in discrete:
-        p.xaxis.major_label_orientation = pd.np.pi / 4
+        p.x_axis.major_label_orientation = pd.np.pi / 4
 
     sz = 9
     if size.value != 'None':

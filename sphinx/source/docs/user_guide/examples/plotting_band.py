@@ -32,9 +32,9 @@ band = Band(base='x', lower='lower', upper='upper', source=source, level='underl
 p.add_layout(band)
 
 p.title.text = "Rolling Standard Deviation"
-p.xgrid[0].grid_line_color=None
-p.ygrid[0].grid_line_alpha=0.5
-p.xaxis.axis_label = 'X'
-p.yaxis.axis_label = 'Y'
+p.x_grid[0].grid_line_color=None
+p.y_grid[0].grid_line_alpha=0.5
+p.x_axis.axis_label = 'X'
+p.y_axis.axis_label = 'Y'
 
 show(p)

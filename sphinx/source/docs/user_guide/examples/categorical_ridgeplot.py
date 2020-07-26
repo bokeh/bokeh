@@ -31,12 +31,12 @@ for i, cat in enumerate(reversed(cats)):
 p.outline_line_color = None
 p.background_fill_color = "#efefef"
 
-p.xaxis.ticker = FixedTicker(ticks=list(range(0, 101, 10)))
-p.xaxis.formatter = PrintfTickFormatter(format="%d%%")
+p.x_axis.ticker = FixedTicker(ticks=list(range(0, 101, 10)))
+p.x_axis.formatter = PrintfTickFormatter(format="%d%%")
 
-p.ygrid.grid_line_color = None
-p.xgrid.grid_line_color = "#dddddd"
-p.xgrid.ticker = p.xaxis[0].ticker
+p.y_grid.grid_line_color = None
+p.x_grid.grid_line_color = "#dddddd"
+p.x_grid.ticker = p.x_axis[0].ticker
 
 p.axis.minor_tick_line_color = None
 p.axis.major_tick_line_color = None

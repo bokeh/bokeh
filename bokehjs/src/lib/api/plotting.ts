@@ -148,17 +148,17 @@ export namespace Figure {
 export class Figure extends Plot {
   static __name__ = "Plot"
 
-  get xgrid(): Grid[] {
+  get x_grid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
   }
-  get ygrid(): Grid[] {
+  get y_grid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
   }
 
-  get xaxis(): Axis[] {
+  get x_axis(): Axis[] {
     return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)
   }
-  get yaxis(): Axis[] {
+  get y_axis(): Axis[] {
     return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
   }
 

@@ -10,8 +10,8 @@ p = figure(plot_width=800, plot_height=300, title="", tools="",
 
 p.line(x, y, color="navy", alpha=0.4, line_width=4)
 p.background_fill_color = "#efefef"
-p.xaxis.fixed_location = 0
-p.yaxis.fixed_location = 0
+p.x_axis.fixed_location = 0
+p.y_axis.fixed_location = 0
 
 output_file("fixed_axis.html", title="fixed_axis.py example")
 

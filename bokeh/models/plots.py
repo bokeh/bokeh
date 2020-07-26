@@ -171,14 +171,14 @@ class Plot(LayoutDOM):
         return _list_attr_splat(axis)
 
     @property
-    def xaxis(self):
+    def x_axis(self):
         ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
 
         '''
         return self._axis("above", "below")
 
     @property
-    def yaxis(self):
+    def y_axis(self):
         ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
 
         '''
@@ -189,7 +189,7 @@ class Plot(LayoutDOM):
         ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
 
         '''
-        return _list_attr_splat(self.xaxis + self.yaxis)
+        return _list_attr_splat(self.x_axis + self.y_axis)
 
     @property
     def legend(self):
@@ -213,14 +213,14 @@ class Plot(LayoutDOM):
         return _list_attr_splat(grid)
 
     @property
-    def xgrid(self):
+    def x_grid(self):
         ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
 
         '''
         return self._grid(0)
 
     @property
-    def ygrid(self):
+    def y_grid(self):
         ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
 
         '''
@@ -231,7 +231,7 @@ class Plot(LayoutDOM):
         ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
 
         '''
-        return _list_attr_splat(self.xgrid + self.ygrid)
+        return _list_attr_splat(self.x_grid + self.y_grid)
 
     @property
     def tools(self):

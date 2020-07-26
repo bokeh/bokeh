@@ -51,14 +51,14 @@ def make_plot(title, xname, yname):
                 background_fill_color='#efefef')
     plot.title.text = title
 
-    xaxis = LinearAxis(axis_line_color=None)
-    plot.add_layout(xaxis, 'below')
+    x_axis = LinearAxis(axis_line_color=None)
+    plot.add_layout(x_axis, 'below')
 
-    yaxis = LinearAxis(axis_line_color=None)
-    plot.add_layout(yaxis, 'left')
+    y_axis = LinearAxis(axis_line_color=None)
+    plot.add_layout(y_axis, 'left')
 
-    plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-    plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+    plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+    plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
     plot.add_glyph(lines_source, line)

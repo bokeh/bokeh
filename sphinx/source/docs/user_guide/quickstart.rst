@@ -447,7 +447,7 @@ of interest to look out for in this example:
 * setting the ``plot_width`` and ``plot_height`` arguments to |figure|
 * customizing plots and other objects by assigning values to their attributes
 * accessing guides and annotations with convenience |Figure| attributes:
-  |legend|, |grid|, |xgrid|, |ygrid|, |axis|, |xaxis|, |yaxis|
+  |legend|, |grid|, |x_grid|, |y_grid|, |axis|, |x_axis|, |y_axis|
 
 .. bokeh-plot::
     :source-position: above
@@ -479,10 +479,10 @@ of interest to look out for in this example:
     p.title.text = "AAPL One-Month Average"
     p.legend.location = "top_left"
     p.grid.grid_line_alpha = 0
-    p.xaxis.axis_label = 'Date'
-    p.yaxis.axis_label = 'Price'
-    p.ygrid.band_fill_color = "olive"
-    p.ygrid.band_fill_alpha = 0.1
+    p.x_axis.axis_label = 'Date'
+    p.y_axis.axis_label = 'Price'
+    p.y_grid.band_fill_color = "olive"
+    p.y_grid.band_fill_alpha = 0.1
 
     # show the results
     show(p)
@@ -578,11 +578,11 @@ Be sure to follow us on Twitter `@bokeh <Twitter_>`_!
 
 .. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
+.. |x_grid|  replace:: :class:`~bokeh.plotting.Figure.x_grid`
+.. |y_grid|  replace:: :class:`~bokeh.plotting.Figure.y_grid`
 .. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`
+.. |x_axis|  replace:: :class:`~bokeh.plotting.Figure.x_axis`
+.. |y_axis|  replace:: :class:`~bokeh.plotting.Figure.y_axis`
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`

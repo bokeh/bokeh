@@ -65,8 +65,8 @@ p = figure(plot_width=width, plot_height=height, title="",
     min_border=0, outline_line_color="black",
     background_fill_color="#f0e1d2")
 
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = None
+p.x_grid.grid_line_color = None
+p.y_grid.grid_line_color = None
 
 # annular wedges
 angles = np.pi/2 - big_angle/2 - df.index.to_series()*big_angle

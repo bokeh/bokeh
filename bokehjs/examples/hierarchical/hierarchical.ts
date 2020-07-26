@@ -25,8 +25,8 @@ export namespace Hierarchical {
                     plot_height: 250, toolbar_location: null, title: "Fruit Counts by Year"})
   p.vbar({x, top: counts, width: 0.9})
 
-  p.xaxis.map((axis) => axis.major_label_orientation = 1)
-  p.xgrid.map((grid) => grid.grid_line_color = null)
+  p.x_axis.map((axis) => axis.major_label_orientation = 1)
+  p.x_grid.map((grid) => grid.grid_line_color = null)
 
   p.y_range.start = 0
 

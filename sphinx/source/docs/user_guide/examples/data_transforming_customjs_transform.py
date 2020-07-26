@@ -13,11 +13,11 @@ def datetime(x):
 plot = figure(x_axis_type="datetime", title="Normalized Stock Closing Prices",
               plot_width=800, plot_height=350)
 plot.background_fill_color = "#f0f0f0"
-plot.xgrid.grid_line_color = None
-plot.ygrid.grid_line_color = "black"
-plot.ygrid.grid_line_alpha = 0.1
-plot.xaxis.axis_label = 'Date'
-plot.yaxis.axis_label = 'Normalized Price'
+plot.x_grid.grid_line_color = None
+plot.y_grid.grid_line_color = "black"
+plot.y_grid.grid_line_alpha = 0.1
+plot.x_axis.axis_label = 'Date'
+plot.y_axis.axis_label = 'Normalized Price'
 
 aapl_source = ColumnDataSource(data=dict(
     aapl_date=datetime(AAPL['date']),

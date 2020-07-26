@@ -32,8 +32,8 @@ def scatter():
     source = ColumnDataSource(flowers)
     source.data['colors'] = [colormap[x] for x in flowers['species']]
     s = figure(title = "Iris Morphology")
-    s.xaxis.axis_label = 'Petal Length'
-    s.yaxis.axis_label = 'Petal Width'
+    s.x_axis.axis_label = 'Petal Length'
+    s.y_axis.axis_label = 'Petal Width'
     s.circle("petal_length", "petal_width", color="colors", source=source,
              fill_alpha=0.2, size=10, legend_group="species")
     # Lets move the legend off-canvas!

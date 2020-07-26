@@ -11,8 +11,8 @@ colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y
 
 TOOLS="hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,undo,redo,reset,tap,save,box_select,poly_select,lasso_select"
 
-def mkplot(xaxis="below", yaxis="left"):
-    p = figure(width=300, height=300, tools=TOOLS, x_axis_location=xaxis, y_axis_location=yaxis)
+def mkplot(x_axis="below", y_axis="left"):
+    p = figure(width=300, height=300, tools=TOOLS, x_axis_location=x_axis, y_axis_location=y_axis)
     p.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
     return p
 

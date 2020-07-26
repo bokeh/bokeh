@@ -57,16 +57,16 @@ ydr = DataRange1d(range_padding=2, range_padding_units="absolute")
 plot = Plot(plot_width=1000, x_range=xdr, y_range=ydr, toolbar_location=None)
 plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
 
-xticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
-xaxis = LinearAxis(ticker=xticker, axis_label="Meters behind 2012 Bolt")
-plot.add_layout(xaxis, "below")
+x_ticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
+x_axis = LinearAxis(ticker=x_ticker, axis_label="Meters behind 2012 Bolt")
+plot.add_layout(x_axis, "below")
 
-xgrid = Grid(dimension=0, ticker=xaxis.ticker)
-plot.add_layout(xgrid)
+x_grid = Grid(dimension=0, ticker=x_axis.ticker)
+plot.add_layout(x_grid)
 
-yticker = SingleIntervalTicker(interval=12, num_minor_ticks=0)
-yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
-plot.add_layout(yaxis, "right")
+y_ticker = SingleIntervalTicker(interval=12, num_minor_ticks=0)
+y_axis = LinearAxis(ticker=y_ticker, major_tick_in=-5, major_tick_out=10)
+plot.add_layout(y_axis, "right")
 
 filters = [IndexFilter(list(sprint.query('Medal == "gold" and Year in [1988, 1968, 1936, 1896]').index))]
 

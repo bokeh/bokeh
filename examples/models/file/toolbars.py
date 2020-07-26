@@ -11,30 +11,30 @@ colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y
 
 TOOLS="hover,crosshair,pan,reset,box_select"
 
-def mkplot(toolbar, xaxis, yaxis):
-    p = figure(width=300, height=300, tools=TOOLS, toolbar_location=toolbar, x_axis_location=xaxis, y_axis_location=yaxis)
+def mkplot(toolbar, x_axis, y_axis):
+    p = figure(width=300, height=300, tools=TOOLS, toolbar_location=toolbar, x_axis_location=x_axis, y_axis_location=y_axis)
     p.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
     return p
 
-p_lbl = mkplot(toolbar="left",  xaxis="below", yaxis="left")
-p_lbr = mkplot(toolbar="left",  xaxis="below", yaxis="right")
-p_rbl = mkplot(toolbar="right", xaxis="below", yaxis="left")
-p_rbr = mkplot(toolbar="right", xaxis="below", yaxis="right")
+p_lbl = mkplot(toolbar="left",  x_axis="below", y_axis="left")
+p_lbr = mkplot(toolbar="left",  x_axis="below", y_axis="right")
+p_rbl = mkplot(toolbar="right", x_axis="below", y_axis="left")
+p_rbr = mkplot(toolbar="right", x_axis="below", y_axis="right")
 
-p_lal = mkplot(toolbar="left",  xaxis="above", yaxis="left")
-p_lar = mkplot(toolbar="left",  xaxis="above", yaxis="right")
-p_ral = mkplot(toolbar="right", xaxis="above", yaxis="left")
-p_rar = mkplot(toolbar="right", xaxis="above", yaxis="right")
+p_lal = mkplot(toolbar="left",  x_axis="above", y_axis="left")
+p_lar = mkplot(toolbar="left",  x_axis="above", y_axis="right")
+p_ral = mkplot(toolbar="right", x_axis="above", y_axis="left")
+p_rar = mkplot(toolbar="right", x_axis="above", y_axis="right")
 
-p_abl = mkplot(toolbar="above", xaxis="below", yaxis="left")
-p_aal = mkplot(toolbar="above", xaxis="above", yaxis="left")
-p_bbl = mkplot(toolbar="below", xaxis="below", yaxis="left")
-p_bal = mkplot(toolbar="below", xaxis="above", yaxis="left")
+p_abl = mkplot(toolbar="above", x_axis="below", y_axis="left")
+p_aal = mkplot(toolbar="above", x_axis="above", y_axis="left")
+p_bbl = mkplot(toolbar="below", x_axis="below", y_axis="left")
+p_bal = mkplot(toolbar="below", x_axis="above", y_axis="left")
 
-p_abr = mkplot(toolbar="above", xaxis="below", yaxis="right")
-p_aar = mkplot(toolbar="above", xaxis="above", yaxis="right")
-p_bbr = mkplot(toolbar="below", xaxis="below", yaxis="right")
-p_bar = mkplot(toolbar="below", xaxis="above", yaxis="right")
+p_abr = mkplot(toolbar="above", x_axis="below", y_axis="right")
+p_aar = mkplot(toolbar="above", x_axis="above", y_axis="right")
+p_bbr = mkplot(toolbar="below", x_axis="below", y_axis="right")
+p_bar = mkplot(toolbar="below", x_axis="above", y_axis="right")
 
 layout = column(
     row(p_lbl, p_lbr, p_lal, p_lar),

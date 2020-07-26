@@ -98,7 +98,7 @@ class Axis(GuideRenderer):
         from bokeh.plotting import figure
 
         p = figure()
-        p.xaxis.ticker = [10, 20, 37.4]
+        p.x_axis.ticker = [10, 20, 37.4]
 
     is equivalent to:
 
@@ -108,7 +108,7 @@ class Axis(GuideRenderer):
         from bokeh.models import FixedTicker
 
         p = figure()
-        p.xaxis.ticker = FixedTicker(ticks=[10, 20, 37.4])
+        p.x_axis.ticker = FixedTicker(ticks=[10, 20, 37.4])
 
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 

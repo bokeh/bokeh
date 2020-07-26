@@ -47,9 +47,9 @@ p.circle('atomic_mass', 'density', size=12, source=data, color='type_color',
 
 p.legend.glyph_width = 30
 p.legend.glyph_height = 30
-p.xaxis.axis_label= 'Atomic Mass'
-p.yaxis.axis_label= 'Density'
-p.xgrid.grid_line_color = None
+p.x_axis.axis_label= 'Atomic Mass'
+p.y_axis.axis_label= 'Density'
+p.x_grid.grid_line_color = None
 p.toolbar_location = None
 
 legend = p.legend[0]

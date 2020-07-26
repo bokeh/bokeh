@@ -22,14 +22,14 @@ plot.add_glyph(source, glyph2)
 glyph3 = Step(x="x", y="y3", line_width=3, line_color="#cab2d6", mode="after")
 plot.add_glyph(source, glyph3)
 
-xaxis = LinearAxis()
-plot.add_layout(xaxis, 'below')
+x_axis = LinearAxis()
+plot.add_layout(x_axis, 'below')
 
-yaxis = LinearAxis()
-plot.add_layout(yaxis, 'left')
+y_axis = LinearAxis()
+plot.add_layout(y_axis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
+plot.add_layout(Grid(dimension=0, ticker=x_axis.ticker))
+plot.add_layout(Grid(dimension=1, ticker=y_axis.ticker))
 
 curdoc().add_root(plot)
 

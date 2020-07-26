@@ -76,48 +76,48 @@ class TestFigure(object):
     def test_xaxis(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
-        assert len(p.xaxis) == 1
+        assert len(p.x_axis) == 1
 
-        expected = set(p.xaxis)
+        expected = set(p.x_axis)
 
         ax = LinearAxis()
         expected.add(ax)
         p.above.append(ax)
-        assert set(p.xaxis) == expected
+        assert set(p.x_axis) == expected
 
         ax2 = LinearAxis()
         expected.add(ax2)
         p.above.append(ax2)
-        assert set(p.xaxis) == expected
+        assert set(p.x_axis) == expected
 
         p.left.append(LinearAxis())
-        assert set(p.xaxis) == expected
+        assert set(p.x_axis) == expected
 
         p.right.append(LinearAxis())
-        assert set(p.xaxis) == expected
+        assert set(p.x_axis) == expected
 
     def test_yaxis(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
-        assert len(p.yaxis) == 1
+        assert len(p.y_axis) == 1
 
-        expected = set(p.yaxis)
+        expected = set(p.y_axis)
 
         ax = LinearAxis()
         expected.add(ax)
         p.right.append(ax)
-        assert set(p.yaxis) == expected
+        assert set(p.y_axis) == expected
 
         ax2 = LinearAxis()
         expected.add(ax2)
         p.right.append(ax2)
-        assert set(p.yaxis) == expected
+        assert set(p.y_axis) == expected
 
         p.above.append(LinearAxis())
-        assert set(p.yaxis) == expected
+        assert set(p.y_axis) == expected
 
         p.below.append(LinearAxis())
-        assert set(p.yaxis) == expected
+        assert set(p.y_axis) == expected
 
     def test_axis(self) -> None:
         p = bpf.figure()
@@ -157,23 +157,23 @@ class TestFigure(object):
 
     def test_grid_tickers(self) -> None:
         p = bpf.figure()
-        assert p.xgrid[0].axis == p.xaxis[0]
-        assert p.xgrid[0].ticker is None
+        assert p.x_grid[0].axis == p.x_axis[0]
+        assert p.x_grid[0].ticker is None
 
-        assert p.ygrid[0].axis == p.yaxis[0]
-        assert p.ygrid[0].ticker is None
+        assert p.y_grid[0].axis == p.y_axis[0]
+        assert p.y_grid[0].ticker is None
 
     def test_xgrid(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
-        assert len(p.xgrid) == 1
-        assert p.xgrid[0].dimension == 0
+        assert len(p.x_grid) == 1
+        assert p.x_grid[0].dimension == 0
 
     def test_ygrid(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
-        assert len(p.ygrid) == 1
-        assert p.ygrid[0].dimension == 1
+        assert len(p.y_grid) == 1
+        assert p.y_grid[0].dimension == 1
 
     def test_grid(self) -> None:
         p = bpf.figure()

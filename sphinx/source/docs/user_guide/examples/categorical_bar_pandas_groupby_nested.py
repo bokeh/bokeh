@@ -21,9 +21,9 @@ p.vbar(x='cyl_mfr', top='mpg_mean', width=1, source=group,
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.05
-p.xgrid.grid_line_color = None
-p.xaxis.axis_label = "Manufacturer grouped by # Cylinders"
-p.xaxis.major_label_orientation = 1.2
+p.x_grid.grid_line_color = None
+p.x_axis.axis_label = "Manufacturer grouped by # Cylinders"
+p.x_axis.major_label_orientation = 1.2
 p.outline_line_color = None
 
 show(p)

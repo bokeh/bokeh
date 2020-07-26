@@ -15,8 +15,8 @@ p = figure(plot_width=800, plot_height=300, y_range=DAYS, x_axis_type='datetime'
 
 p.circle(x='time', y=jitter('day', width=0.6, range=p.y_range),  source=source, alpha=0.3)
 
-p.xaxis[0].formatter.days = ['%Hh']
+p.x_axis[0].formatter.days = ['%Hh']
 p.x_range.range_padding = 0
-p.ygrid.grid_line_color = None
+p.y_grid.grid_line_color = None
 
 show(p)

@@ -15,7 +15,7 @@ x = list(zip(fruits, offsets))
 
 p.vbar(x=x, top=[5, 3, 4, 2, 4, 6], width=0.5)
 
-p.xgrid.grid_line_color = None
+p.x_grid.grid_line_color = None
 p.y_range.start = 0
 
 show(p)

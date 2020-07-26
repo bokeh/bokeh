@@ -53,8 +53,8 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
 
     # create new figure
     p = figure(title=title, plot_width=800, plot_height=300, x_range=[-2, 9], y_range=y_range)
-    p.xgrid.bounds = (-2, 2)
-    p.xaxis.bounds = (-2, 2)
+    p.x_grid.bounds = (-2, 2)
+    p.x_axis.bounds = (-2, 2)
 
     _sources = []
     cx, cy = 0, 0
@@ -128,8 +128,8 @@ def update_centric_sources(sources, foos, newx, ind, cfoos):
 
 def create_centric_plot(foos, title='', r = 1, y_range=(-2, 2), period = pi/2, cfoos=None):
     p = figure(title=title, plot_width=800, plot_height=300, x_range=[-2, 9], y_range=y_range)
-    p.xgrid.bounds = (-2, 2)
-    p.xaxis.bounds = (-2, 2)
+    p.x_grid.bounds = (-2, 2)
+    p.x_axis.bounds = (-2, 2)
 
     _sources = []
     for i, foo in enumerate(foos):

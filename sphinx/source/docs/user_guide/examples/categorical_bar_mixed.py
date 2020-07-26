@@ -22,7 +22,7 @@ p.line(x=["Q1", "Q2", "Q3", "Q4"], y=[12, 9, 13, 14], color="red", line_width=2)
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1
-p.xaxis.major_label_orientation = 1
-p.xgrid.grid_line_color = None
+p.x_axis.major_label_orientation = 1
+p.x_grid.grid_line_color = None
 
 show(p)
