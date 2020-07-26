@@ -37,7 +37,7 @@ export abstract class MarkerView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null && this.glglyph_cls != null) {
-        this.glglyph = new this.glglyph_cls(webgl.gl, this)
+      this.glglyph = new this.glglyph_cls(webgl.gl, this)
     }
   }
 

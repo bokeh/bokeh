@@ -26,7 +26,7 @@ export class LineView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-        this.glglyph = new LineGL(webgl.gl, this)
+      this.glglyph = new LineGL(webgl.gl, this)
     }
   }
 

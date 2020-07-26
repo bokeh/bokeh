@@ -37,7 +37,7 @@ export class CircleView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-        this.glglyph = new CircleGL(webgl.gl, this)
+      this.glglyph = new CircleGL(webgl.gl, this)
     }
   }
 
