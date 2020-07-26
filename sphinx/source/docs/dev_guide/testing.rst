@@ -59,7 +59,7 @@ source checkout and execute:
     node make test
 
 You can run all available tests (python and JS unit tests, as well as example
-and integration tests) **from the top level directory** by executing:
+and integration tests) **from the top-level directory** by executing:
 
 .. code-block:: sh
 
@@ -75,7 +75,7 @@ of currently defined test markers is below:
 Code Coverage
 ~~~~~~~~~~~~~
 
-To run any of the tests with coverage use the following:
+To run any of the tests with coverage, use the following:
 
 .. code-block:: sh
 
@@ -95,7 +95,7 @@ To run any of the tests without standard output captured use:
 See the `pytest`_ documentation for further information on ``pytest`` and
 its options.
 
-Examples tests
+Examples Tests
 ~~~~~~~~~~~~~~
 
 The ``examples`` tests run a selection of the Bokeh examples and generate
@@ -122,13 +122,13 @@ The examples tests can run slowly, to speed them up, you can parallelize them:
 
     pytest --report-path=examples.html -n 5 test_examples.py
 
-Where ``n`` is the number is the number of cores you want to use.
+Where ``n`` is the number of cores you want to use.
 
 In addition, the examples tests generate a log file, examples.log which you
 can view at ``examples.log`` in the same directory that you the tests
 were run from.
 
-Integration tests
+Integration Tests
 ~~~~~~~~~~~~~~~~~
 
 Writing Tests
@@ -171,10 +171,10 @@ appropriate entry in the directory ``index`` file should be added.
 Integration Tests
 ~~~~~~~~~~~~~~~~~
 
-To add a new screen shot integration test, first make sure you can run
-existing screen shot tests, for example
-:bokeh-tree:`tests/integration/annotations/test_whisker.py`. New screen
-shot tests should follow the general guidelines:
+To add a new screenshot integration test, first make sure you can run
+existing screenshot tests, for example
+:bokeh-tree:`tests/integration/annotations/test_whisker.py`. New screenshot
+tests should follow these general guidelines:
 
 * Be as simple as possible (only include things under test and nothing extra)
 
@@ -184,7 +184,7 @@ Once a new test is written, a base image for comparison is needed. To create
 a new base image, add ``--set-new-base-screenshot`` to your the standard
 ``pytest`` command to run the test. This will generate an image with the name
 ``base__<name_of_your_test>.png`` in the appropriate directory. Use ``git``
-to check this image into the repository, and then all future screen shot tests
+to check this image into the repository, and then all future screenshot tests
 will be compared against this base image.
 
 Continuous Integration
