@@ -67,7 +67,7 @@ There is a wide variety of property types, ranging from primitive types such as:
 * :class:`~bokeh.core.properties.Complex`
 * :class:`~bokeh.core.properties.String`
 
-as well as container-like properties, that take other Properties as parameters:
+as well as container-like properties, that take other properties as parameters:
 
 * :class:`~bokeh.core.properties.List` --- for a list of one type of objects: ``List(Int)``
 * :class:`~bokeh.core.properties.Dict` --- for a mapping between two type: ``Dict(String, Double)``
