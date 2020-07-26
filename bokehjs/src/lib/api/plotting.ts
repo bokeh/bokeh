@@ -162,6 +162,21 @@ export class Figure extends Plot {
     return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
   }
 
+  // for backwards compatibility (deprecate for 3.0?)
+  get xgrid(): Grid[] {
+    return this.x_grid
+  }
+  get ygrid(): Grid[] {
+    return this.y_grid
+  }
+
+  get xaxis(): Axis[] {
+    return this.x_axis
+  }
+  get yaxis(): Axis[] {
+    return this.y_axis
+  }
+
   get legend(): Legend {
     const legends = this.panels.filter((r): r is Legend => r instanceof Legend)
 

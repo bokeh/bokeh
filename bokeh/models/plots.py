@@ -233,6 +233,13 @@ class Plot(LayoutDOM):
         '''
         return _list_attr_splat(self.x_grid + self.y_grid)
 
+    # for backwards compatibility (deprecate for 3.0?)
+    xaxis = x_axis
+    yaxis = y_axis
+
+    xgrid = x_grid
+    ygrid = y_grid
+
     @property
     def tools(self):
         return self.toolbar.tools
