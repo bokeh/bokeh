@@ -6,7 +6,7 @@ import * as path from "path"
 
 const build_dir = path.normalize(`${__dirname}/../..`) // build/test/codebase -> build
 
-const LIMITS: {[key: string]: number} = {
+const LIMITS = new Map([
   // es2017
   "js/bokeh.min.js":          725,
   "js/bokeh-widgets.min.js":  300,
@@ -20,9 +20,8 @@ const LIMITS: {[key: string]: number} = {
 }
 
 describe(`bokehjs/build/*/*.min.js file sizes`, () => {
-  for (const filename in LIMITS) {
+  for (const [filename, limit] of LIMITS) {
     const stats = fs.statSync(path.join(build_dir, filename))
-    const limit = LIMITS[filename]
 
     describe(`${filename} file size`, () => {
       it(`should be ${Math.round(stats.size/1024)} kB < ${limit} kB`, () => {

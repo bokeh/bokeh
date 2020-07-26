@@ -7,7 +7,7 @@ import all_defaults from "../.generated_defaults/defaults.json"
 
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference} from "@bokehjs/core/util/array"
-import {keys} from "@bokehjs/core/util/object"
+import {keys, values, entries} from "@bokehjs/core/util/object"
 import {isEqual} from "@bokehjs/core/util/eq"
 
 import {Models} from "@bokehjs/base"
@@ -47,9 +47,8 @@ function deep_value_to_serializable(_key: string, value: any, _optional_parent_o
     return ref_array
   } else if (isPlainObject(value)) {
     const ref_obj: {[key: string]: any} = {}
-    for (const subkey in value) {
-      if (value.hasOwnProperty(subkey))
-        ref_obj[subkey] = deep_value_to_serializable(subkey, value[subkey], value)
+    for (const [subkey, subvalue] of entries(value)) {
+      ref_obj[subkey] = deep_value_to_serializable(subkey, subvalue, value)
     }
     return ref_obj
   } else
@@ -62,9 +61,8 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
   const different: string[] = []
   const python_missing: string[] = []
   const bokehjs_missing: string[] = []
-  for (const k in bokehjs_defaults) {
-    const js_v = bokehjs_defaults[k]
 
+  for (const [k, js_v] of entries(bokehjs_defaults)) {
     // special case for graph renderer node_renderer
     if (name === "GraphRenderer" && k === "node_renderer")
       continue
@@ -145,9 +143,8 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
     }
   }
 
-  for (const k in python_defaults) {
+  for (const [k, v] of entries(python_defaults)) {
     if (!(k in bokehjs_defaults)) {
-      const v = python_defaults[k]
       bokehjs_missing.push(`${name}.${k}: python defaults to ${safe_stringify(v)} but bokehjs has no such property`)
     }
   }
@@ -176,8 +173,8 @@ function strip_ids(value: any): void {
     if ('id' in value) {
       delete value.id
     }
-    for (const k in value) {
-      strip_ids(value[k])
+    for (const v of values(value)) {
+      strip_ids(v)
     }
   }
 }

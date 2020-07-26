@@ -10,7 +10,7 @@ import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {some, every, includes} from "../core/util/array"
-import {clone} from "../core/util/object"
+import {clone, keys, entries} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {enumerate} from "core/util/iterator"
@@ -631,14 +631,13 @@ export class Figure extends Plot {
 
     const result: Attrs = {}
     const traits = new Set()
-    for (const pname in cls.prototype._props) {
+    for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
         if (props.hasOwnProperty(prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype._props.hasOwnProperty(trait)
-                 && props.hasOwnProperty(prefix+trait)) {
+        } else if (!cls.prototype._props.hasOwnProperty(trait) && props.hasOwnProperty(prefix+trait)) {
           result[pname] = props[prefix+trait]
         } else if (override_defaults.hasOwnProperty(trait)) {
           result[pname] = override_defaults[trait]
@@ -672,8 +671,7 @@ export class Figure extends Plot {
   }
 
   _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
-    for (const name in attrs) {
-      const value = attrs[name]
+    for (const [name, value] of entries(attrs)) {
       const prop = cls.prototype._props[name]
 
       if (prop != null) {

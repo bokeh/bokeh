@@ -2,6 +2,7 @@ import {WebDataSource} from "./web_data_source"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {entries} from "core/util/object"
 
 export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -71,8 +72,7 @@ export class AjaxDataSource extends WebDataSource {
     xhr.setRequestHeader("Content-Type", this.content_type)
 
     const http_headers = this.http_headers
-    for (const name in http_headers) {
-      const value = http_headers[name]
+    for (const [name, value] of entries(http_headers)) {
       xhr.setRequestHeader(name, value)
     }
 

@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
+import {keys} from "@bokehjs/core/util/object"
 
 import {HasProps} from  "@bokehjs/core/has_props"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -458,7 +459,7 @@ describe("properties module", () => {
       })
 
       it("should return undefined on svg color input", () => {
-        for (const color in svg_colors) {
+        for (const color of keys(svg_colors)) {
           expect(prop.valid(color)).to.be.true
         }
       })

@@ -6,6 +6,7 @@ import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
+import {values} from "core/util/object"
 import {isString} from "core/util/types"
 import {Model} from "model"
 import {Tool} from "./tool"
@@ -136,8 +137,8 @@ export class ToolbarBaseView extends DOMView {
     }
 
     const {gestures} = this.model
-    for (const et in gestures) {
-      bars.push(gestures[et as EventType].tools.map(el))
+    for (const gesture of values(gestures)) {
+      bars.push(gesture.tools.map(el))
     }
 
     bars.push(this.model.actions.map(el))

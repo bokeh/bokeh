@@ -1,6 +1,7 @@
 import * as p from "core/properties"
 import {Location} from "core/enums"
 import {includes, sort_by} from "core/util/array"
+import {keys, values, entries} from "core/util/object"
 
 import {Tool} from "./tool"
 import {ButtonTool} from "./button_tool"
@@ -64,8 +65,7 @@ export class ProxyToolbar extends ToolbarBase {
     this._proxied_tools.push(...new_help_tools)
     this.help = new_help_tools
 
-    for (const event_type in this.gestures) {
-      const gesture = this.gestures[event_type as GestureType]
+    for (const [event_type, gesture] of entries(this.gestures)) {
       if (!(event_type in gestures)) {
         gestures[event_type] = {}
       }
@@ -98,11 +98,11 @@ export class ProxyToolbar extends ToolbarBase {
       return proxy
     }
 
-    for (const event_type in gestures) {
+    for (const event_type of keys(gestures)) {
       const gesture = this.gestures[event_type as GestureType]
       gesture.tools = []
 
-      for (const tool_type in gestures[event_type]) {
+      for (const tool_type of keys(gestures[event_type])) {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
@@ -122,9 +122,7 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     this.actions = []
-    for (const tool_type in actions) {
-      const tools = actions[tool_type]
-
+    for (const [tool_type, tools] of entries(actions)) {
       if (tool_type == 'CustomAction') {
         for (const tool of tools)
           this.actions.push(make_proxy([tool]) as any)
@@ -134,15 +132,12 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     this.inspectors = []
-    for (const tool_type in inspectors) {
-      const tools = inspectors[tool_type]
-
+    for (const tools of values(inspectors)) {
       if (tools.length > 0)
         this.inspectors.push(make_proxy(tools, true) as any) // XXX
     }
 
-    for (const et in this.gestures) {
-      const gesture = this.gestures[et as GestureType]
+    for (const [et, gesture] of entries(this.gestures)) {
       if (gesture.tools.length == 0)
         continue
 
