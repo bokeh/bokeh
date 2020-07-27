@@ -25,7 +25,7 @@ import datetime as dt
 from urllib.parse import urlparse
 
 # External imports
-from tornado import locks
+from tornado import locks, web
 from tornado.websocket import WebSocketClosedError, WebSocketHandler
 
 # Bokeh imports
@@ -38,6 +38,7 @@ from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
 from ..protocol_handler import ProtocolHandler
+from .auth_mixin import AuthMixin
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -55,7 +56,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class WSHandler(WebSocketHandler):
+class WSHandler(AuthMixin, WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
@@ -108,6 +109,7 @@ class WSHandler(WebSocketHandler):
                       origin, origin_host, origin_host, allowed_hosts)
             return False
 
+    @web.authenticated
     def open(self):
         ''' Initialize a connection to a client.
 
