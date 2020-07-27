@@ -25,6 +25,7 @@ from subprocess import PIPE, Popen
 
 # If this list changes, then bokehjs/LICENSE should be updated accordingly
 LICENSES = [
+    '0BSD',
     'Apache-2.0',
     'AFLv2.1',
     'BSD-2-Clause',
