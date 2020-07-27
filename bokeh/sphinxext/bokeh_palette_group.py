@@ -82,17 +82,18 @@ class BokehPaletteGroupDirective(Directive):
         node['group'] = self.arguments[0]
         return [node]
 
+
 # NOTE: This extension now *assumes* both Bootstrap and JQuery are present
 # (which is now the case for the Bokeh docs theme).
 def html_visit_bokeh_palette_group(self, node):
-    self.body.append('<div class="container-fluid"><div class="row">"')
+    self.body.append('<div class="container-fluid"><div class="row">')
     group = getattr(bp, node['group'], None)
     if not isinstance(group, dict):
         raise SphinxError("invalid palette group name %r" % node['group'])
     names = sorted(group)
     for name in names:
         palettes = group[name]
-        # arbitrary cuttoff here, idea is to not show large (e.g 256 length) palettes
+        # arbitrary cutoff here, idea is to not show large (e.g 256 length) palettes
         numbers = [x for x in sorted(palettes) if x < 30]
         html = PALETTE_GROUP_DETAIL.render(name=name, numbers=numbers, palettes=palettes)
         self.body.append(html)

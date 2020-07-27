@@ -9,7 +9,7 @@ edit documentation locally, as well as describes conventions that the project
 adheres to.
 
 Helping with documentation is one of the most valuable ways to contribute to a
-project. It's also a good way to to get started and introduce yourself as a new
+project. It's also a good way to get started and introduce yourself as a new
 contributor. The most likely way for typos or other small documentation errors
 to be resolved is for the person who notices the problem to immediately submit
 a Pull Request to with a correction. *This is always appreciated!* In
@@ -24,11 +24,11 @@ of Bokeh on JavaScript, no other output formats are supported by the official
 build configuration. This section describes how to use Sphinx to build the
 Bokeh documentation from source.
 
-Install requirements
+Install Requirements
 ~~~~~~~~~~~~~~~~~~~~
 
-In order to build the docs from source, you should have followed the
-instructions in :ref:`devguide_setup`.
+In order to build the docs from source, it is recommended that you first
+follow the instructions in :ref:`devguide_setup`.
 
 Some of the Bokeh examples in the documentation rely on sample data that is
 not included in the Bokeh GitHub repository or released packages, due to
@@ -55,7 +55,7 @@ subdirectory of the Bokeh source tree.
     cd sphinx
 
 Sphinx uses the ``make`` tool to control the build process. The most common
-targets or the Bokeh makefile are:
+targets of the Bokeh makefile are:
 
 ``clean``
     Remove all previously built documentation output. All outputs will
@@ -63,15 +63,15 @@ targets or the Bokeh makefile are:
 
 ``html``
     Build any HTML output that is not built, or needs re-building (e.g.
-    because the input source file has changed since the last build)
+    because the input source file has changed since the last build).
 
 ``serve``
-    Start a server to serve the docs open a web browser to display. Note
-    that due to the JavaScript files involved, starting a real server is
+    Start a server to serve the docs and open a web browser to display them.
+    Note that due to the JavaScript files involved, starting a real server is
     necessary to view many portions of the docs fully.
 
-For example, clean the docs build directory, run the follow command at the
-command line:
+For example, to clean the docs build directory, run the following command at
+the command line:
 
 .. code-block:: sh
 
@@ -79,7 +79,7 @@ command line:
 
 Multiple targets may be combined in a single `make` invocation. For instance,
 executing the following command will clean the docs build, generate all HTML
-docs from scratch, then open a browser to display the results:
+docs from scratch, and then open a browser to display the results:
 
 .. code-block:: sh
 
@@ -217,7 +217,7 @@ key points and sections. The following outlines the headings hierarchy:
     Top level
     =========
 
-    This will add a "Top Level" entry in the navigation sidebar
+    This will add a "Top Level" entry in the navigation sidebar.
 
     Second level
     ------------
@@ -237,7 +237,7 @@ Release Notes
 ~~~~~~~~~~~~~
 
 Each release should add a new file under ``sphinx/source/docs/releases`` that
-briefly describes the changes in the release including any migration notes.
+briefly describes the changes in the release, including any migration notes.
 The filename should be ``<version>.rst``, for example
 :bokeh-tree:`sphinx/source/docs/releases/0.12.7.rst`. The
 Sphinx build will automatically add this content to the list of all releases.

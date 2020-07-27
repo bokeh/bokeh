@@ -111,6 +111,9 @@ ${comment(license)}
 
       return mod.exports;
     }
+    require.resolve = function(name) {
+      return ""
+    }
 
     var main = require(entry);
     main.require = require;
@@ -218,6 +221,9 @@ export function default_prelude(options?: {global?: string}): string {
       }
 
       return mod.exports;
+    }
+    require.resolve = function(name) {
+      return ""
     }
 
     var main = require(entry);

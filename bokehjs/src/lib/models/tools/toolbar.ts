@@ -1,12 +1,13 @@
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {sort_by, includes, intersection} from "core/util/array"
+import {values, entries} from "core/util/object"
 
 import {Tool} from "./tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 
-import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
+import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 
 // XXX: add appropriate base classes to get rid of this
 export type Drag = Tool
@@ -113,21 +114,18 @@ export class Toolbar extends ToolbarBase {
     }
 
     // Connecting signals has to be done before changing the active state of the tools.
-    for (const et in this.gestures) {
-      const gesture = this.gestures[et as GestureType]
-
+    for (const gesture of values(this.gestures)) {
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
         this.connect(tool.properties.active.change, () => this._active_change(tool))
       }
     }
 
-    for (const et in this.gestures) {
+    for (const [et, gesture] of entries(this.gestures)) {
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
         if (active_tool == 'auto') {
-          const gesture = this.gestures[et as GestureType]
           if (gesture.tools.length != 0 && _supports_auto(et)) {
             _activate_gesture(gesture.tools[0])
           }

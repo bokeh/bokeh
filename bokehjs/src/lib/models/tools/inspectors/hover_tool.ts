@@ -215,8 +215,8 @@ export class HoverToolView extends InspectToolView {
     const ds = selection_manager.source
 
     const {sx, sy} = geometry
-    const xscale = renderer_view.scope.x_scale
-    const yscale = renderer_view.scope.y_scale
+    const xscale = renderer_view.coordinates.x_scale
+    const yscale = renderer_view.coordinates.y_scale
     const x = xscale.invert(sx)
     const y = yscale.invert(sy)
 
@@ -371,8 +371,8 @@ export class HoverToolView extends InspectToolView {
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     for (const r of this.computed_renderers) {
       const rv = this.plot_view.renderer_views.get(r)!
-      const x = rv.scope.x_scale.invert(geometry.sx)
-      const y = rv.scope.y_scale.invert(geometry.sy)
+      const x = rv.coordinates.x_scale.invert(geometry.sx)
+      const y = rv.coordinates.y_scale.invert(geometry.sy)
 
       const index = (r as any).data_source.inspected
       const g = {x, y, ...geometry}

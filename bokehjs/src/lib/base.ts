@@ -1,4 +1,5 @@
 import {isObject} from "./core/util/types"
+import {values} from "./core/util/object"
 import {HasProps} from "./core/has_props"
 
 export const overrides: {[key: string]: typeof HasProps} = {}
@@ -38,9 +39,7 @@ Models.register_models = (models, force = false, errorFn?) => {
   if (models == null)
     return
 
-  for (const name in models) {
-    const model = models[name]
-
+  for (const model of values(models)) {
     if (is_HasProps(model)) {
       const qualified = model.__qualified__
       if (force || !_all_models.has(qualified))

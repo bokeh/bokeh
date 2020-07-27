@@ -50,8 +50,8 @@ export abstract class EditToolView extends GestureToolView {
       return null
     }
     const renderer_view = this.plot_view.renderer_views.get(renderer)!
-    const x = renderer_view.scope.x_scale.invert(sx)
-    const y = renderer_view.scope.y_scale.invert(sy)
+    const x = renderer_view.coordinates.x_scale.invert(sx)
+    const y = renderer_view.coordinates.y_scale.invert(sy)
     return [x, y]
   }
 

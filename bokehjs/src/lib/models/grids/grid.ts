@@ -37,8 +37,8 @@ export class GridView extends GuideRendererView {
       if (i % 2 != 1)
         continue
 
-      const [sx0, sy0] = this.scope.map_to_screen(xs[i],   ys[i])
-      const [sx1, sy1] = this.scope.map_to_screen(xs[i+1], ys[i+1])
+      const [sx0, sy0] = this.coordinates.map_to_screen(xs[i],   ys[i])
+      const [sx1, sy1] = this.coordinates.map_to_screen(xs[i+1], ys[i+1])
 
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
@@ -66,7 +66,7 @@ export class GridView extends GuideRendererView {
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
-      const [sx, sy] = this.scope.map_to_screen(xs[i], ys[i])
+      const [sx, sy] = this.coordinates.map_to_screen(xs[i], ys[i])
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for (let i = 1; i < sx.length; i++)
@@ -79,7 +79,7 @@ export class GridView extends GuideRendererView {
   ranges(): [Range, Range] {
     const i = this.model.dimension
     const j = (i + 1) % 2
-    const {ranges} = this.scope
+    const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
 

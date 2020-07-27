@@ -97,7 +97,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
     with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    bundle = bundle_for_objs_and_resources(None, resources)
+    bundle = bundle_for_objs_and_resources(models, resources)
     bundle.add(Script(script_for_render_items(docs_json, [render_item])))
 
     (_, elementid) = list(render_item.roots.to_json().items())[0]

@@ -22,7 +22,7 @@ export class StepInterpolator extends Interpolator {
 
   static init_StepInterpolator(): void {
     this.define<StepInterpolator.Props>({
-      mode: [ p.StepMode, "after"],
+      mode: [ p.StepMode, "after" ],
     })
   }
 

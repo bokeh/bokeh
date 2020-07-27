@@ -3,7 +3,7 @@
 Language Bindings
 =================
 
-Because the input accepted by BokehJS is an object graph, represented by
+Because the input accepted by BokehJS is an object graph represented by
 declarative bits of JSON, any language that can generate the right JSON
 can generate Bokeh plots in the browser.
 
@@ -14,7 +14,7 @@ Since the low-level object interface in Python mirrors the JSON schema
 exactly, the best, most authoritative source of information for anyone
 writing bindings for Bokeh are the reference guide sections for the
 :ref:`bokeh.core.properties` and :ref:`bokeh.models`. In
-particular, the models reference has a JSON prototype for every models
+particular, the models reference has a JSON prototype for every model
 in the Bokeh object system.
 
 Additionally, there is a very low-traffic ``bokeh-dev`` mailing list

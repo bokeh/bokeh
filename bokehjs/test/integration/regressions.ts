@@ -2,15 +2,15 @@ import {display, fig, row, column} from "./utils"
 
 import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation,
-  DataRange1d, FactorRange,
+  Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
-  CategoricalAxis,
+  LinearAxis, CategoricalAxis,
 } from "@bokehjs/models"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Color} from "@bokehjs/core/types"
-import {Anchor, OutputBackend} from "@bokehjs/core/enums"
+import {Anchor, Location, OutputBackend} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
@@ -52,7 +52,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9703", () => {
-    it.allowing(7)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
+    it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
       const svg = `\
@@ -245,6 +245,40 @@ describe("Bug", () => {
       const l0 = make_layout("canvas")
       const l1 = make_layout("webgl")
       await display(column([l0, l1]), [650, 450])
+    })
+  })
+
+  describe("in issue #10195", () => {
+    it("makes extra axes render with invalid data ranges", async () => {
+      function make_plot(axis_location: Location) {
+        const p = fig([200, 200])
+        p.extra_y_ranges = {yrangename: new Range1d({start: 0, end: 1})}
+        p.add_layout(new LinearAxis({y_range_name: "yrangename"}), axis_location)
+        return p
+      }
+
+      const p0 = make_plot("above")
+      const p1 = make_plot("below")
+      const p2 = make_plot("left")
+      const p3 = make_plot("right")
+
+      await display(row([p0, p1, p2, p3]), [4*200+50, 250])
+    })
+  })
+
+  describe("in issue #10305", () => {
+    it("disallows to render lines with NaNs using SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend})
+        const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
+        p.line({x: range(y.length), y})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]), [2*300+50, 250])
     })
   })
 })

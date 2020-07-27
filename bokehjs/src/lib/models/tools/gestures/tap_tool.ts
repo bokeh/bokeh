@@ -28,8 +28,8 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.select(r_views, geometry, final, mode)
 
         if (did_hit && callback != null) {
-          const x = r_views[0].scope.x_scale.invert(geometry.sx)
-          const y = r_views[0].scope.y_scale.invert(geometry.sy)
+          const x = r_views[0].coordinates.x_scale.invert(geometry.sx)
+          const y = r_views[0].coordinates.y_scale.invert(geometry.sy)
           const data = {geometries: {...geometry, x, y}, source: sm.source}
           callback.execute(this.model, data)
         }
@@ -44,8 +44,8 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.inspect(rv, geometry)
 
         if (did_hit && callback != null) {
-          const x = rv.scope.x_scale.invert(geometry.sx)
-          const y = rv.scope.y_scale.invert(geometry.sy)
+          const x = rv.coordinates.x_scale.invert(geometry.sx)
+          const y = rv.coordinates.y_scale.invert(geometry.sy)
           const data = {geometries: {...geometry, x, y}, source: sm.source}
           callback.execute(this.model, data)
         }

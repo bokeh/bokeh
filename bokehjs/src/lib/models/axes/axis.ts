@@ -12,7 +12,7 @@ import {Size} from "core/layout"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
-import {isString, isArray, isNumber} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
@@ -42,13 +42,21 @@ export class AxisView extends GuideRendererView {
     return this.layout
   }
 
+  get is_renderable(): boolean {
+    const [range, cross_range] = this.ranges
+    return range.is_valid && cross_range.is_valid
+  }
+
   protected _render(): void {
+    if (!this.is_renderable)
+      return
+
     const extents = {
       tick: this._tick_extent(),
       tick_label: this._tick_label_extents(),
       axis_label: this._axis_label_extent(),
     }
-    const tick_coords = this.tick_coords
+    const {tick_coords} = this
 
     const ctx = this.layer.ctx
     ctx.save()
@@ -69,7 +77,7 @@ export class AxisView extends GuideRendererView {
   }
 
   get_size(): Size {
-    if (this.model.visible && this.model.fixed_location == null) {
+    if (this.model.visible && this.model.fixed_location == null && this.is_renderable) {
       const size = this._get_size()
       return {width: 0 /* max */, height: Math.round(size)}
     } else
@@ -91,7 +99,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [xs, ys]     = this.rule_coords
-    const [sxs, sys]   = this.scope.map_to_screen(xs, ys)
+    const [sxs, sys]   = this.coordinates.map_to_screen(xs, ys)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -174,7 +182,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [x, y]       = coords
-    const [sxs, sys]   = this.scope.map_to_screen(x, y)
+    const [sxs, sys]   = this.coordinates.map_to_screen(x, y)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -209,7 +217,7 @@ export class AxisView extends GuideRendererView {
       ;[xoff, yoff] = [0, 0]
     } else {
       const [dxs, dys] = coords
-      ;[sxs, sys] = this.scope.map_to_screen(dxs, dys)
+      ;[sxs, sys] = this.coordinates.map_to_screen(dxs, dys)
       ;[xoff, yoff] = this.offsets
     }
 
@@ -364,19 +372,19 @@ export class AxisView extends GuideRendererView {
   get ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
-    const {ranges} = this.scope
+    const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
 
   get computed_bounds(): [number, number] {
     const [range] = this.ranges
 
-    const user_bounds = this.model.bounds // XXX: ? 'auto'
-    const range_bounds: [number, number] = [range.min, range.max]
+    const user_bounds = this.model.bounds
+    const range_bounds = [range.min, range.max]
 
-    if (user_bounds == 'auto')
+    if (user_bounds == "auto")
       return [range.min, range.max]
-    else if (isArray(user_bounds)) {
+    else {
       let start: number
       let end: number
 
@@ -392,8 +400,7 @@ export class AxisView extends GuideRendererView {
       }
 
       return [start, end]
-    } else
-      throw new Error(`user bounds '${user_bounds}' not understood`)
+    }
   }
 
   get rule_coords(): Coords {
