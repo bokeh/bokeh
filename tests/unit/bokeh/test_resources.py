@@ -117,11 +117,8 @@ class TestJSResources:
         monkeypatch.setattr(resources, "__version__", "1.4.0")
         r = resources.JSResources()
         assert r.mode == "cdn"
-        min_hashes = {
-            v
-            for k, v in resources.get_sri_hashes_for_version("1.4.0").items()
-            if k.endswith(".min.js") and "api" not in k
-        }
+        hashes = resources.get_sri_hashes_for_version("1.4.0")
+        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
         assert set(r.hashes.values()) == min_hashes
 
     @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])

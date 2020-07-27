@@ -153,23 +153,23 @@ class TestModel:
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert {
+        assert testObject.properties() == {
             "name",
             "tags",
             "js_property_callbacks",
             "js_event_callbacks",
             "subscribed_events",
             "some",
-        } == testObject.properties()
-        assert dict(
+        }
+        assert testObject.properties_with_values(include_defaults=True) == dict(
             name=None,
             tags=[],
             js_property_callbacks={},
             js_event_callbacks={},
             subscribed_events=[],
             some=None,
-        ) == testObject.properties_with_values(include_defaults=True)
-        assert dict() == testObject.properties_with_values(include_defaults=False)
+        )
+        assert testObject.properties_with_values(include_defaults=False) == {}
 
     def test_struct(self) -> None:
         testObject = self.pObjectClass(id='test_id')

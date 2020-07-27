@@ -57,12 +57,12 @@ def test_autoload_template_has_changed() -> None:
     created as part of https://github.com/bokeh/bokeh/issues/7125.
     """
     with open(join(TOP_PATH, "_templates/autoload_nb_js.js"), mode="rb") as f:
-        assert pinned_template_sha256 == compute_sha256(
-            _crlf_cr_2_lf_bin(f.read())
-        ), """It seems that the template autoload_nb_js.js has changed.
-        If this is voluntary and that proper testing of plots insertion
-        in notebooks has been completed successfully, update this test
-        with the new file SHA256 signature."""
+        current_template_sha256 = compute_sha256(_crlf_cr_2_lf_bin(f.read()))
+        assert pinned_template_sha256 == current_template_sha256, """\
+            It seems that the template autoload_nb_js.js has changed.
+            If this is voluntary and that proper testing of plots insertion
+            in notebooks has been completed successfully, update this test
+            with the new file SHA256 signature."""
 
 #-----------------------------------------------------------------------------
 # Private API

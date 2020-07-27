@@ -364,15 +364,9 @@ class ClientSession:
         if not self.connected:
             if self.error_reason is ErrorReason.HTTP_ERROR:
                 if self.error_code == 404:
-                    raise OSError(
-                        f"Check your application path! The given Path is not valid: {self.url}"
-                    )
-                raise OSError(
-                    f"We received an HTTP-Error. Disconnected with error code: {self.error_id}, given message: {self.error_message}"
-                )
-            raise OSError(
-                "We failed to connect to the server (to start the server, try the 'bokeh serve' command)"
-            )
+                    raise OSError(f"Check your application path! The given Path is not valid: {self.url}")
+                raise OSError(f"We received an HTTP-Error. Disconnected with error code: {self.error_id}, given message: {self.error_message}")
+            raise OSError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
     def pull(self):
         ''' Pull the server's state and set it as session.document.

@@ -237,38 +237,20 @@ class Basictest:
         assert {"num", "container", "child"} == b.properties(with_bases=False)
 
         m = Mixin()
-        assert {"mixin_child"} == m.properties_with_refs()
-        assert {"mixin_container"} == m.properties_containers()
-        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties()
-        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties(with_bases=True)
-        assert {"mixin_num", "mixin_container", "mixin_child"} == m.properties(with_bases=False)
+        assert m.properties_with_refs() == {"mixin_child"}
+        assert m.properties_containers() == {"mixin_container"}
+        assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
+        assert m.properties(with_bases=True) == {"mixin_num", "mixin_container", "mixin_child"}
+        assert m.properties(with_bases=False) == {"mixin_num", "mixin_container", "mixin_child"}
 
         s = Sub()
-        assert {"child", "sub_child", "mixin_child"} == s.properties_with_refs()
-        assert {"container", "sub_container", "mixin_container"} == s.properties_containers()
-        assert {
-            "num",
-            "container",
-            "child",
-            "mixin_num",
-            "mixin_container",
-            "mixin_child",
-            "sub_num",
-            "sub_container",
-            "sub_child",
-        } == s.properties()
-        assert {
-            "num",
-            "container",
-            "child",
-            "mixin_num",
-            "mixin_container",
-            "mixin_child",
-            "sub_num",
-            "sub_container",
-            "sub_child",
-        } == s.properties(with_bases=True)
-        assert {"sub_num", "sub_container", "sub_child"} == s.properties(with_bases=False)
+        assert s.properties_with_refs() == {"child", "sub_child", "mixin_child"}
+        assert s.properties_containers() == {"container", "sub_container", "mixin_container"}
+        assert s.properties() == \
+            {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
+        assert s.properties(with_bases=True) == \
+            {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
+        assert s.properties(with_bases=False) == {"sub_num", "sub_container", "sub_child"}
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
