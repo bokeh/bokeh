@@ -180,7 +180,7 @@ class DocumentReady(DocumentEvent):
     event_name = 'document_ready'
 
 
-class ModelEvent(object):
+class ModelEvent(Event):
     ''' Base class for all Bokeh Model events.
 
     This base class is not typically useful to instantiate on its own.
