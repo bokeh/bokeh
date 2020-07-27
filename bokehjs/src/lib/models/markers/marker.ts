@@ -12,7 +12,6 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Class} from "core/class"
 
-
 export interface MarkerData extends XYGlyphData {
   _size: Arrayable<number>
   _angle: Arrayable<number>
