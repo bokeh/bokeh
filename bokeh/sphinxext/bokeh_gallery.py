@@ -90,7 +90,7 @@ def config_inited_handler(app, config):
     spec = json.load(open(gallery_file))
     details = spec['details']
 
-    names = set(x['name'] for x in details)
+    names = {x["name"] for x in details}
     if len(names) < len(details):
         raise SphinxError("gallery file %r has duplicate names" % gallery_file)
 

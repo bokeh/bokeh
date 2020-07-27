@@ -55,8 +55,8 @@ ALL = (
 
 Test___all__ = verify_all(bt, ALL)
 
-class Test_cumsum(object):
 
+class Test_cumsum:
     def test_basic(object) -> None:
         s = bt.cumsum("foo")
         assert isinstance(s, dict)
@@ -74,8 +74,7 @@ class Test_cumsum(object):
         assert s['expr'].include_zero == True
 
 
-class Test_dodge(object):
-
+class Test_dodge:
     def test_basic(self) -> None:
         t = bt.dodge("foo", 0.5)
         assert isinstance(t, dict)
@@ -96,8 +95,8 @@ class Test_dodge(object):
         assert t['transform'].range is r
         assert t['transform'].range.factors == ["a"]
 
-class Test_factor_cmap(object):
 
+class Test_factor_cmap:
     def test_basic(self) -> None:
         t = bt.factor_cmap("foo", ["red", "green"], ["foo", "bar"], start=1, end=2, nan_color="pink")
         assert isinstance(t, dict)
@@ -122,8 +121,8 @@ class Test_factor_cmap(object):
         assert t['transform'].end is None
         assert t['transform'].nan_color == "gray"
 
-class Test_factor_hatch(object):
 
+class Test_factor_hatch:
     def test_basic(self) -> None:
         t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, dict)
@@ -147,8 +146,7 @@ class Test_factor_hatch(object):
         assert t['transform'].end is None
 
 
-class Test_factor_mark(object):
-
+class Test_factor_mark:
     def test_basic(self) -> None:
         t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, dict)
@@ -171,8 +169,8 @@ class Test_factor_mark(object):
         assert t['transform'].start == 0
         assert t['transform'].end is None
 
-class Test_jitter(object):
 
+class Test_jitter:
     def test_basic(self) -> None:
         t = bt.jitter("foo", width=0.5, mean=0.1, distribution="normal")
         assert isinstance(t, dict)
@@ -208,8 +206,8 @@ class Test_jitter(object):
         assert t['transform'].range is r
         assert t['transform'].range.factors == ["a"]
 
-class Test_linear_cmap(object):
 
+class Test_linear_cmap:
     def test_basic(self) -> None:
         t = bt.linear_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
@@ -236,8 +234,8 @@ class Test_linear_cmap(object):
         assert t['transform'].high_color is None
         assert t['transform'].nan_color == "gray"
 
-class Test_log_cmap(object):
 
+class Test_log_cmap:
     def test_basic(self) -> None:
         t = bt.log_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
         assert isinstance(t, dict)
@@ -264,8 +262,8 @@ class Test_log_cmap(object):
         assert t['transform'].high_color is None
         assert t['transform'].nan_color == "gray"
 
-class Test_stack(object):
 
+class Test_stack:
     def test_basic(object) -> None:
         s = bt.stack("foo", "junk")
         assert isinstance(s, dict)
@@ -273,8 +271,8 @@ class Test_stack(object):
         assert isinstance(s['expr'], Stack)
         assert s['expr'].fields == ('foo', 'junk')
 
-class Test_transform(object):
 
+class Test_transform:
     def test_basic(object) -> None:
         t = bt.transform("foo", "junk")
         assert t == dict(field="foo", transform="junk")

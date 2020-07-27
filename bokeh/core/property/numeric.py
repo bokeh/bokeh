@@ -53,7 +53,7 @@ class PositiveInt(Int):
     """ Accept positive integers. """
 
     def validate(self, value, detail=True):
-        super(PositiveInt, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or value > 0):
             raise ValueError("expected positive integer, got %r" % (value))

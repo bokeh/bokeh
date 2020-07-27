@@ -41,8 +41,8 @@ class SomeModelInTestFunction(Model):
     foo = Int(2)
     child = Instance(Model)
 
-class Test_FunctionHandler(object):
 
+class Test_FunctionHandler:
     # Public methods ----------------------------------------------------------
 
     def test_empty_func(self) -> None:

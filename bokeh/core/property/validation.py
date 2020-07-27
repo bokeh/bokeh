@@ -40,7 +40,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class validate(object):
+class validate:
     ''' Control validation of bokeh properties
 
     This can be used as a context manager, or as a normal callable

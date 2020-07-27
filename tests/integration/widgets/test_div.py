@@ -34,9 +34,9 @@ Your <a href="https://en.wikipedia.org/wiki/HTML">HTML</a>-supported text is ini
 remaining div arguments are <b>width</b> and <b>height</b>. For this example, those values
 are <i>200</i> and <i>100</i> respectively."""
 
-@pytest.mark.selenium
-class Test_Div(object):
 
+@pytest.mark.selenium
+class Test_Div:
     def test_displays_div_as_html(self, bokeh_model_page) -> None:
         div = Div(text=text, css_classes=["foo"])
 

@@ -102,7 +102,7 @@ def external_data_dir(create: bool = False) -> str:
     try:
         config = yaml.safe_load(open(join(bokeh_dir, 'config')))
         data_dir = expanduser(config['sampledata_dir'])
-    except (IOError, TypeError):
+    except (OSError, TypeError):
         pass
 
     if not exists(data_dir):

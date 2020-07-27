@@ -49,8 +49,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TestDashPattern(object):
 
+class TestDashPattern:
     def test_valid_named(self) -> None:
         class Foo(HasProps):
             pat = bcpv.DashPattern()
@@ -153,8 +153,8 @@ class TestDashPattern(object):
 
 css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
 
-class Test_FontSize(object):
 
+class Test_FontSize:
     def test_valid(self) -> None:
         prop = bcpv.FontSize()
 
@@ -214,7 +214,7 @@ class Test_FontSize(object):
         assert str(prop) == "FontSize"
 
 
-class Test_Image(object):
+class Test_Image:
     def test_default_creation(self) -> None:
         bcpv.Image()
 
@@ -300,8 +300,8 @@ class Test_Image(object):
         prop = bcpv.Image()
         assert str(prop) == "Image"
 
-class Test_MinMaxBounds(object):
 
+class Test_MinMaxBounds:
     def test_valid_no_datetime(self) -> None:
         prop = bcpv.MinMaxBounds(accept_datetime=False)
 
@@ -339,8 +339,7 @@ class Test_MinMaxBounds(object):
         assert str(prop).startswith("MinMaxBounds(")
 
 
-class Test_MarkerType(object):
-
+class Test_MarkerType:
     def test_valid(self) -> None:
         prop = bcpv.MarkerType()
 

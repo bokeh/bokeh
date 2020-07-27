@@ -38,7 +38,7 @@ def large_plot(n):
     from bokeh.models import Column, Line
 
     col = Column()
-    objects = set([col])
+    objects = {col}
 
     for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -81,8 +81,7 @@ def large_plot(n):
     return col, objects
 
 
-class TestModelCls(object):
-
+class TestModelCls:
     def setup_method(self):
         from bokeh.model import Model
         self.model_cls = Model
@@ -116,15 +115,15 @@ class SomeModel(Model):
 class DeepModel(Model):
     child = Instance(Model)
 
-class TestCollectModels(object):
 
+class TestCollectModels:
     def test_references_large(self) -> None:
         root, objects = large_plot(10)
         assert set(root.references()) == objects
 
     def test_references_deep(self) -> None:
         root = DeepModel()
-        objects = set([root])
+        objects = {root}
         parent = root
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
@@ -141,8 +140,8 @@ class SomeModelToJson(Model):
     foo = Int()
     bar = String()
 
-class TestModel(object):
 
+class TestModel:
     def setup_method(self):
         self.pObjectClass = SomeModel
         self.maxDiff = None
@@ -154,10 +153,23 @@ class TestModel(object):
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks", "some"]) == testObject.properties()
-        assert dict(name=None, tags=[], js_property_callbacks={}, js_event_callbacks={}, subscribed_events=[], some=None) == \
-            testObject.properties_with_values(include_defaults=True)
-        assert dict() == testObject.properties_with_values(include_defaults=False)
+        assert testObject.properties() == {
+            "name",
+            "tags",
+            "js_property_callbacks",
+            "js_event_callbacks",
+            "subscribed_events",
+            "some",
+        }
+        assert testObject.properties_with_values(include_defaults=True) == dict(
+            name=None,
+            tags=[],
+            js_property_callbacks={},
+            js_event_callbacks={},
+            subscribed_events=[],
+            some=None,
+        )
+        assert testObject.properties_with_values(include_defaults=False) == {}
 
     def test_struct(self) -> None:
         testObject = self.pObjectClass(id='test_id')
@@ -218,7 +230,7 @@ class TestModel(object):
         u1, u2, u3, u4, u5 = U(a=1), U(a=2), U(a=3), U(a=4), U(a=5)
         v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
 
-        assert v.references() == set([v, u1, u2, u3, u4, u5])
+        assert v.references() == {v, u1, u2, u3, u4, u5}
 
     def test_to_json(self) -> None:
         child_obj = SomeModelToJson(foo=57, bar="hello")
@@ -329,8 +341,8 @@ class TestModel(object):
         # non-default because it's unstable.
         assert 'child' in obj1.properties_with_values(include_defaults=False)
 
-class TestContainerMutation(object):
 
+class TestContainerMutation:
     def _check_mutation(self, obj, attr, mutator, expected_event_old, expected_event_new):
         result = dict(calls=[])
         def record_trigger(attr, old, new_):

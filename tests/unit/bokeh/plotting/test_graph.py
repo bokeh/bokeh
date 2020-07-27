@@ -41,8 +41,9 @@ def test_from_networkx_method() -> None:
     assert renderer.edge_renderer.data_source.data["end"] == [1,2,3]
 
     gl = renderer.layout_provider.graph_layout
-    assert set(gl.keys()) == set([0,1,2,3])
-    assert_allclose(gl[0], np.array([1., 0.]), atol=1e-7)
+    assert set(gl.keys()) == {0, 1, 2, 3}
+    assert_allclose(gl[0], np.array([1.0, 0.0]), atol=1e-7)
+
 
 def test_from_networkx_method_with_kwargs() -> None:
     G=nx.Graph()
@@ -52,8 +53,9 @@ def test_from_networkx_method_with_kwargs() -> None:
     renderer = bpg.from_networkx(G, nx.circular_layout, scale=2)
 
     gl = renderer.layout_provider.graph_layout
-    assert set(gl.keys()) == set([0,1,2,3])
-    assert_allclose(gl[0], np.array([2., 0.]), atol=1e-7)
+    assert set(gl.keys()) == {0, 1, 2, 3}
+    assert_allclose(gl[0], np.array([2.0, 0.0]), atol=1e-7)
+
 
 def test_from_networkx_with_scalar_attributes() -> None:
     G = nx.Graph()
@@ -156,7 +158,7 @@ def test_from_networkx_fixed_layout() -> None:
     assert renderer.edge_renderer.data_source.data["end"] == [1, 2]
 
     gl = renderer.layout_provider.graph_layout
-    assert set(gl.keys()) == set([0, 1, 2])
+    assert set(gl.keys()) == {0, 1, 2}
     assert renderer.layout_provider.graph_layout[0] == fixed_layout[0]
     assert renderer.layout_provider.graph_layout[1] == fixed_layout[1]
     assert renderer.layout_provider.graph_layout[2] == fixed_layout[2]
@@ -172,7 +174,7 @@ def test_from_networkx_with_missing_layout() -> None:
     with pytest.warns(UserWarning):
         renderer = bpg.from_networkx(G, missing_fixed_layout)
         gl = renderer.layout_provider.graph_layout
-        assert set(gl.keys()) == set([0, 1])
+        assert set(gl.keys()) == {0, 1}
         assert renderer.layout_provider.graph_layout[0] == missing_fixed_layout[0]
         assert renderer.layout_provider.graph_layout[1] == missing_fixed_layout[1]
 

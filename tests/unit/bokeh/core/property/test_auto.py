@@ -33,8 +33,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Auto(object):
 
+class Test_Auto:
     def test_valid(self) -> None:
         prop = bcpa.Auto()
         assert prop.is_valid(None)

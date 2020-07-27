@@ -36,8 +36,8 @@ from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Range1d(object):
 
+class Test_Range1d:
     def test_basic(self) -> None:
         r = Range1d()
         check_properties_existence(r, [
@@ -113,8 +113,8 @@ class Test_Range1d(object):
         with pytest.raises(ValueError):
             Range1d(1, 2, bounds=(0, 1, 2))
 
-class Test_DataRange1d(object):
 
+class Test_DataRange1d:
     def test_basic(self) -> None:
         r = DataRange1d()
         check_properties_existence(r, [
@@ -178,8 +178,7 @@ class Test_DataRange1d(object):
             Range1d(1, 2, bounds="21")
 
 
-class Test_FactorRange(object):
-
+class Test_FactorRange:
     def test_basic(self) -> None:
         r = FactorRange()
         check_properties_existence(r, [

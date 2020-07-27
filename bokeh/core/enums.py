@@ -142,7 +142,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Enumeration(object):
+class Enumeration:
     ''' Represent an enumerated collection of values.
 
     .. note::
@@ -218,7 +218,7 @@ def enumeration(*values, **kwargs):
         "_quote": kwargs.get("quote", False),
     })
 
-    return type(str("Enumeration"), (Enumeration,), attrs)()
+    return type("Enumeration", (Enumeration,), attrs)()
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")

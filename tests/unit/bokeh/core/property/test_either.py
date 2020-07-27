@@ -34,8 +34,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Either(object):
 
+class Test_Either:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpe.Either()

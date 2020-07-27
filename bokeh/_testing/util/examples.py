@@ -53,7 +53,7 @@ JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 # General API
 #-----------------------------------------------------------------------------
 
-class Flags(object):
+class Flags:
     js       = 1 << 0
     file     = 1 << 1
     server   = 1 << 2
@@ -63,8 +63,8 @@ class Flags(object):
     xfail    = 1 << 6  # test is expected to fail, which doesn't fail the test suite
     no_js    = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
 
-class Example(object):
 
+class Example:
     def __init__(self, path, flags, examples_dir):
         self.path = normpath(path)
         self.flags = flags

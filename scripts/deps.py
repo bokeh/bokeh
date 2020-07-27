@@ -40,7 +40,7 @@ if 'python' in spec: spec.remove('python')
 
 # add double quotes to specs for windows, fixes #9065
 if "windows" in platform.platform().lower():
-    spec = ['"{}"'.format(s) for s in spec]
+    spec = [f'"{s}"' for s in spec]
 
 deps = ""
 deps += " ".join(s for s in spec)

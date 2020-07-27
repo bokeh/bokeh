@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import hashlib
-import io
 import json
 import os
 import re
@@ -111,7 +110,7 @@ def nodejs_compile(code, lang="javascript", file=None):
     else:
         return dict(error=obj)
 
-class Implementation(object):
+class Implementation:
     ''' Base class for representing Bokeh custom model implementations.
 
     '''
@@ -180,7 +179,7 @@ class FromFile(Implementation):
 
     '''
     def __init__(self, path):
-        with io.open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
 
@@ -196,7 +195,7 @@ class FromFile(Implementation):
 #: recognized extensions that can be compiled
 exts = (".ts", ".js", ".css", ".less")
 
-class CustomModel(object):
+class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
@@ -497,7 +496,7 @@ def _bundle_models(custom_models):
     exports = []
     modules = []
 
-    with io.open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
+    with open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
         bokeh = json.loads(f.read())
 
     known_modules = set()
@@ -558,7 +557,7 @@ def _bundle_models(custom_models):
         return resolved
 
     def resolve_deps(deps, root):
-        custom_modules = set(model.module for model in custom_models.values())
+        custom_modules = {model.module for model in custom_models.values()}
         missing = set(deps) - known_modules - custom_modules
         return resolve_modules(missing, root)
 

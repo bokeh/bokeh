@@ -34,8 +34,8 @@ import bokeh.server.contexts as bsc # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestBokehServerContext(object):
 
+class TestBokehServerContext:
     def test_init(self) -> None:
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         c = bsc.BokehServerContext(ac)
@@ -45,10 +45,10 @@ class TestBokehServerContext(object):
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         ac._sessions = dict(foo=1, bar=2)
         c = bsc.BokehServerContext(ac)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == {1, 2}
 
-class TestBokehSessionContext(object):
 
+class TestBokehSessionContext:
     def test_init(self) -> None:
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         sc = bsc.BokehServerContext(ac)
@@ -59,7 +59,7 @@ class TestBokehSessionContext(object):
         assert c.logout_url is None
 
     def test_destroyed(self) -> None:
-        class FakeSession(object):
+        class FakeSession:
             destroyed = False
         ac = bsc.ApplicationContext("app", io_loop="ioloop")
         sc = bsc.BokehServerContext(ac)
@@ -79,8 +79,8 @@ class TestBokehSessionContext(object):
         assert not c.destroyed
         assert c.logout_url == "/logout"
 
-class TestApplicationContext(object):
 
+class TestApplicationContext:
     def test_init(self) -> None:
         c = bsc.ApplicationContext("app", io_loop="ioloop")
         assert c.io_loop == "ioloop"
@@ -95,7 +95,7 @@ class TestApplicationContext(object):
     def test_sessions(self) -> None:
         c = bsc.ApplicationContext("app", io_loop="ioloop")
         c._sessions = dict(foo=1, bar=2)
-        assert set(c.sessions) == set([1,2])
+        assert set(c.sessions) == {1, 2}
 
     def test_get_session_success(self) -> None:
         c = bsc.ApplicationContext("app", io_loop="ioloop")

@@ -49,7 +49,7 @@ __all__ = (
 # immutable object, because we share it among sessions and we
 # don't monitor it for changes. If you make this mutable by adding
 # any kind of setter, you could have to refactor some other code.
-class Theme(object):
+class Theme:
     ''' Provide new default values for Bokeh models.
 
     Bokeh Model properties all have some built-in default value. If a property

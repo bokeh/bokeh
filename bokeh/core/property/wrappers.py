@@ -125,7 +125,7 @@ def notify_owner(func):
     wrapper.__doc__ = "Container method ``%s`` instrumented to notify property owners" % func.__name__
     return wrapper
 
-class PropertyValueContainer(object):
+class PropertyValueContainer:
     ''' A base class for property container classes that support change
     notifications on mutating operations.
 

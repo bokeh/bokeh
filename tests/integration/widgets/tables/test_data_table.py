@@ -28,9 +28,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_CellEditor_Base(object):
 
+@pytest.mark.selenium
+class Test_CellEditor_Base:
     def setup_method(self):
         source = ColumnDataSource({'values': self.values})
         column = TableColumn(field='values', title='values', editor=self.editor())
@@ -39,9 +39,9 @@ class Test_CellEditor_Base(object):
         # this is triggered on selection changes
         source.selected.js_on_change('indices', CustomJS(args=dict(s=source), code=RECORD("values", "s.data.values")))
 
-@pytest.mark.selenium
-class Test_DataTable(object):
 
+@pytest.mark.selenium
+class Test_DataTable:
     def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page) -> None:
 
         source = ColumnDataSource({'values': [1, 2]})

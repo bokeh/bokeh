@@ -28,8 +28,8 @@ import bokeh.colors.hsl as bch # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_HSL(object):
 
+class Test_HSL:
     def test_init(self) -> None:
         c = bch.HSL(10, 0.2, 0.3)
         assert c

@@ -62,8 +62,7 @@ def enter_value_in_color_picker(driver, el, color):
 
 
 @pytest.mark.selenium
-class Test_ColorPicker(object):
-
+class Test_ColorPicker:
     def test_display_color_input(self, bokeh_model_page) -> None:
         colorpicker = ColorPicker(css_classes=["foo"])
 

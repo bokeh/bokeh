@@ -51,9 +51,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_RangeSlider(object):
 
+@pytest.mark.selenium
+class Test_RangeSlider:
     def test_display(self, bokeh_model_page) -> None:
         slider = RangeSlider(start=0, end=10, value=(1, 5), css_classes=["foo"], width=300)
 

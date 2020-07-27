@@ -80,8 +80,8 @@ PAGE = Template("""
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_autoload_static(object):
 
+class Test_autoload_static:
     def test_return_type(self, test_plot) -> None:
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
@@ -103,8 +103,8 @@ class Test_autoload_static(object):
         assert "bokeh-widgets" in js
         assert len(scripts) == 1
         attrs = scripts[0].attrs
-        assert set(attrs) == set(['src', 'id'])
-        assert attrs['src'] == 'some/path'
+        assert set(attrs) == {"src", "id"}
+        assert attrs["src"] == "some/path"
 
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
@@ -213,8 +213,8 @@ class Test_autoload_static(object):
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
 
-class Test_components(object):
 
+class Test_components:
     def test_return_type(self) -> None:
         plot1 = figure()
         plot1.circle([], [])
@@ -280,10 +280,10 @@ class Test_components(object):
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
-        assert div.attrs['class'] == ['bk-root']
-        assert div.attrs['id'] == 'ID'
-        assert div.attrs['data-root-id'] == test_plot.id
+        assert set(div.attrs) == {"class", "id", "data-root-id"}
+        assert div.attrs["class"] == ["bk-root"]
+        assert div.attrs["id"] == "ID"
+        assert div.attrs["data-root-id"] == test_plot.id
         assert div.string is None
 
     def test_script_is_utf8_encoded(self, test_plot) -> None:
@@ -309,8 +309,8 @@ class Test_components(object):
         #self.maxDiff = None
         #assert rawscript.strip() == script_content.strip()
 
-class Test_file_html(object):
 
+class Test_file_html:
     def test_return_type(self, test_plot) -> None:
 
         class fake_template:
@@ -396,8 +396,8 @@ class Test_file_html(object):
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
 
-class Test_json_item(object):
 
+class Test_json_item:
     def test_with_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         assert out['target_id'] == "foo"
@@ -439,7 +439,7 @@ class Test_json_item(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__title_from_models(object):
+class Test__title_from_models:
     pass
 
 #-----------------------------------------------------------------------------

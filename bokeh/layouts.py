@@ -391,7 +391,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                     return Grid(0, 0, [])
 
                 nrows = lcm(*[ child.nrows for child in children ])
-                ncols = sum([ child.ncols for child in children ])
+                ncols = sum(child.ncols for child in children)
 
                 items = []
                 offset = 0
@@ -409,7 +409,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 if not children:
                     return Grid(0, 0, [])
 
-                nrows = sum([ child.nrows for child in children ])
+                nrows = sum(child.nrows for child in children)
                 ncols = lcm(*[ child.ncols for child in children ])
 
                 items = []
@@ -483,7 +483,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GridSpec(object):
+class GridSpec:
     """ Simplifies grid layout specification. """
 
     def __init__(self, nrows, ncols):

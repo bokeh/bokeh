@@ -747,7 +747,7 @@ class _list_attr_splat(list):
             raise AttributeError("Trying to access %r attribute on a 'splattable' list, but list items have no %r attribute" % (attr, attr))
 
     def __dir__(self):
-        if len(set(type(x) for x in self)) == 1:
+        if len({type(x) for x in self}) == 1:
             return dir(self[0])
         else:
             return dir(self)

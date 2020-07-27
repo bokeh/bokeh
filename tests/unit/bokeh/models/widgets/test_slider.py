@@ -37,8 +37,8 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-class TestDateRangeSlider(object):
 
+class TestDateRangeSlider:
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0)
         end = datetime(2017, 8, 10, 0, 0)
@@ -91,8 +91,8 @@ class TestDateRangeSlider(object):
                 value=(convert_date_to_datetime(start), end))
         assert s.value_as_date == (start, end)
 
-class TestDateSlider(object):
 
+class TestDateSlider:
     def test_value_as_datetime_when_set_as_datetime(self) -> None:
         start = datetime(2017, 8, 9, 0, 0)
         end = datetime(2017, 8, 10, 0, 0)
@@ -123,8 +123,8 @@ class TestDateSlider(object):
             value=convert_date_to_datetime(end))
         assert s.value_as_date == end
 
-class TestRangeSlider(object):
 
+class TestRangeSlider:
     def test_rangeslider_equal_start_end_exception(self) -> None:
         start = 0
         end = 0

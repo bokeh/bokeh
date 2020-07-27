@@ -122,7 +122,7 @@ def test_auth_provider() -> None:
     bt = tornado.BokehTornado(applications={})
     assert isinstance(bt.auth_provider, NullAuth)
 
-    class FakeAuth(object):
+    class FakeAuth:
         get_user = "get_user"
         endpoints = []
     bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)
@@ -136,19 +136,19 @@ def test_websocket_max_message_size_bytes() -> None:
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
-        assert server._tornado.websocket_origins == set(["localhost:%s" % unused_tcp_port])
+        assert server._tornado.websocket_origins == {"localhost:%s" % unused_tcp_port}
 
     # OK this is a bit of a confusing mess. The user-facing arg for server is
     # "allow_websocket_origin" which gets converted to "extra_websocket_origins"
     # for BokehTornado, which is exposed as a property "websocket_origins"...
     with ManagedServerLoop(application, allow_websocket_origin=["foo"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:80"])
+        assert server._tornado.websocket_origins == {"foo:80"}
 
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:8080"])
+        assert server._tornado.websocket_origins == {"foo:8080"}
 
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080", "bar"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:8080", "bar:80"])
+        assert server._tornado.websocket_origins == {"foo:8080", "bar:80"}
 
 def test_default_app_paths() -> None:
     app = Application()

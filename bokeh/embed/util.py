@@ -52,7 +52,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class FromCurdoc(object):
+class FromCurdoc:
     ''' This class merely provides a non-None default value for ``theme``
     arguments, since ``None`` itself is a meaningful value for users to pass.
 
@@ -119,8 +119,8 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     def finish(): pass
 
-    docs = set(x.document for x in objs)
-    if None in docs: docs.remove(None)
+    docs = {x.document for x in objs}
+    docs.discard(None)
 
     if always_new:
         def finish(): # NOQA
@@ -163,8 +163,8 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     finish()
 
-class RenderItem(object):
 
+class RenderItem:
     def __init__(self, docid=None, token=None, elementid=None, roots=None, use_for_title=None):
         if (docid is None and token is None) or (docid is not None and token is not None):
             raise ValueError("either docid or sessionid must be provided")
@@ -206,8 +206,8 @@ class RenderItem(object):
         else:
             return self.to_json() == other.to_json()
 
-class RenderRoot(object):
 
+class RenderRoot:
     def __init__(self, elementid, id, name=None, tags=None):
         self.elementid = elementid
         self.id = id
@@ -220,8 +220,8 @@ class RenderRoot(object):
         else:
             return self.elementid == other.elementid
 
-class RenderRoots(object):
 
+class RenderRoots:
     def __init__(self, roots):
         self._roots = roots
 

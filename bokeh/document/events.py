@@ -58,7 +58,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class DocumentChangedEvent(object):
+class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
     Bokeh Document.
 
@@ -151,12 +151,12 @@ class MessageSentEvent(DocumentPatchedEvent):
     """ """
 
     def __init__(self, document, msg_type: str, msg_data: Union[Any, bytes], setter=None, callback_invoker=None):
-        super(MessageSentEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.msg_type = msg_type
         self.msg_data = msg_data
 
     def dispatch(self, receiver):
-        super(MessageSentEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, "_document_message_sent"):
             receiver._document_message_sent(self)
 

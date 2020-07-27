@@ -66,7 +66,7 @@ class Static(Subcommand):
         logging.getLogger('bokeh').setLevel(log_level)
 
         if args.use_config is not None:
-            log.info("Using override config file: {}".format(args.use_config))
+            log.info(f"Using override config file: {args.use_config}")
             settings.load_config(args.use_config)
 
         # protect this import inside a function so that "bokeh info" can work

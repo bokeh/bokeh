@@ -31,8 +31,8 @@ import bokeh.io.state as bis # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_State(object):
 
+class Test_State:
     def test_creation(self) -> None:
         s = bis.State()
         assert isinstance(s.document, Document)

@@ -66,7 +66,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Handler(object):
+class Handler:
     ''' Provide a mechanism for Bokeh applications to build up new Bokeh
     Documents.
 

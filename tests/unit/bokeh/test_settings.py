@@ -68,8 +68,8 @@ _expected_settings = (
     'xsrf_cookies',
 )
 
-class TestSettings(object):
 
+class TestSettings:
     def test_standard_settings(self) -> None:
         settings = [k for k,v in bs.settings.__class__.__dict__.items() if isinstance(v, bs.PrioritizedSetting)]
         assert set(settings) == set(_expected_settings)
@@ -96,7 +96,7 @@ class TestSettings(object):
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
-        default_typed = set(_expected_settings) - set([
+        default_typed = set(_expected_settings) - {
             'ignore_filename',
             'legacy',
             'minified',
@@ -106,7 +106,7 @@ class TestSettings(object):
             'py_log_level',
             'allowed_ws_origin',
             'xsrf_cookies',
-        ])
+        }
         for name in default_typed:
             ps = getattr(bs.settings, name)
             assert ps.convert_type == "String"
@@ -115,7 +115,7 @@ class TestSettings(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class TestConverters(object):
+class TestConverters:
     @pytest.mark.parametrize("value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True])
     def test_convert_bool(self, value) -> None:
         assert bs.convert_bool(value)
@@ -157,7 +157,7 @@ class TestConverters(object):
         with pytest.raises(ValueError):
             bs.convert_logging("junk")
 
-class TestPrioritizedSetting(object):
+class TestPrioritizedSetting:
     def test_env_var_property(self) -> None:
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO")
         assert ps.env_var == "BOKEH_FOO"
@@ -243,7 +243,7 @@ class TestPrioritizedSetting(object):
         assert ps("50") == 50
 
     def test_precedence(self) -> None:
-        class FakeSettings(object):
+        class FakeSettings:
             config_override = {}
             config_user = {}
             config_system = {}
@@ -294,7 +294,7 @@ class TestPrioritizedSetting(object):
         del os.environ["BOKEH_FOO"]
 
     def test_descriptors(self) -> None:
-        class FakeSettings(object):
+        class FakeSettings:
             foo = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO")
             bar = bs.PrioritizedSetting("bar", env_var="BOKEH_BAR", default=10)
 

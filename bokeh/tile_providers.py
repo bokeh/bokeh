@@ -248,7 +248,7 @@ class _TileProvidersModule(types.ModuleType):
 # Code
 #-----------------------------------------------------------------------------
 
-_mod = _TileProvidersModule(str('bokeh.tile_providers'))
+_mod = _TileProvidersModule("bokeh.tile_providers")
 _mod.__doc__ = __doc__
 _mod.__all__ = (
     'CARTODBPOSITRON',

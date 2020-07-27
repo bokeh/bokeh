@@ -209,7 +209,7 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
         controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
                         new=NEW_PARAM[new])
 
-class ClientSession(object):
+class ClientSession:
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the
@@ -364,10 +364,9 @@ class ClientSession(object):
         if not self.connected:
             if self.error_reason is ErrorReason.HTTP_ERROR:
                 if self.error_code == 404:
-                    raise IOError("Check your application path! The given Path is not valid: {}".format(self.url))
-                raise IOError("We received an HTTP-Error. Disconnected with error code: {}, given message: {}".format(self.error_id, self.error_message))
-            raise IOError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
-
+                    raise OSError(f"Check your application path! The given Path is not valid: {self.url}")
+                raise OSError(f"We received an HTTP-Error. Disconnected with error code: {self.error_id}, given message: {self.error_message}")
+            raise OSError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
     def pull(self):
         ''' Pull the server's state and set it as session.document.

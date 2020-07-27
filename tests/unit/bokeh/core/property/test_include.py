@@ -38,8 +38,8 @@ class IsDelegate(HasProps):
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Include(object):
 
+class Test_Include:
     def test_include_with_prefix(self) -> None:
 
         class IncludesDelegateWithPrefix(HasProps):

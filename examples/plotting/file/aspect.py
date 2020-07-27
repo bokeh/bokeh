@@ -12,7 +12,7 @@ def draw_test_figure(aspect_scale=1, width=300, height=300):
         plot_height=height,
         match_aspect=True,
         aspect_scale=aspect_scale,
-        title="Aspect scale = {0}".format(aspect_scale),
+        title=f"Aspect scale = {aspect_scale}",
         toolbar_location=None)
     p.circle([-1, +1, +1, -1], [-1, -1, +1, +1])
     return p

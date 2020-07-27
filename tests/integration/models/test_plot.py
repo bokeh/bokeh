@@ -33,9 +33,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_Plot(object):
 
+@pytest.mark.selenium
+class Test_Plot:
     @flaky(max_runs=10)
     def test_inner_dims_trigger_on_dynamic_add(self, bokeh_server_page) -> None:
 

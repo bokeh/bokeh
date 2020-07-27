@@ -84,7 +84,8 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
 
     old_customjs = None
     if exists(customjs):
-        old_customjs =  open(customjs, "r").read()
+        with open(customjs) as f:
+            old_customjs = f.read()
 
     with open(customjs, "w") as f:
         f.write(body)

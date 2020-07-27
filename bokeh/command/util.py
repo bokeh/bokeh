@@ -205,7 +205,7 @@ def report_server_init_errors(address: Optional[str] = None, port: Optional[int]
     '''
     try:
         yield
-    except EnvironmentError as e:
+    except OSError as e:
         if e.errno == errno.EADDRINUSE:
             log.critical("Cannot start Bokeh server, port %s is already in use", port)
         elif e.errno == errno.EADDRNOTAVAIL:

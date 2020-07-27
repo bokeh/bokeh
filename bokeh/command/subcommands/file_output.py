@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import argparse
-import io
 import sys
 from abc import abstractmethod
 from os.path import splitext
@@ -170,7 +169,7 @@ class FileOutputSubcommand(Subcommand):
             if filename == "-":
                 print(content)
             else:
-                with io.open(filename, "w", encoding="utf-8") as file:
+                with open(filename, "w", encoding="utf-8") as file:
                     file.write(content)
             self.after_write_file(args, filename, doc)
 
@@ -178,7 +177,7 @@ class FileOutputSubcommand(Subcommand):
             if filename == "-":
                 sys.stdout.buffer.write(content)
             else:
-                with io.open(filename, "wb") as f:
+                with open(filename, "wb") as f:
                     f.write(content)
             self.after_write_file(args, filename, doc)
 

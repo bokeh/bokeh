@@ -35,8 +35,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Instance(object):
 
+class Test_Instance:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpi.Instance()

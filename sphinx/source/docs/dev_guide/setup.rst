@@ -25,8 +25,8 @@ Git
 ~~~
 
 The Bokeh source code is stored in a `Git`_ source control repository.
-The first step to working on Bokeh is to install Git on to your system.
-There are different ways to do this depending on whether, you are using
+The first step to working on Bokeh is to install Git on your system.
+There are different ways to do this, depending on whether you are using
 Windows, OSX, or Linux.
 
 To install Git on any platform, refer to the `Installing Git`_ section of
@@ -64,9 +64,9 @@ source repository, issue the following command:
     Active @bokeh/dev contributors should clone the main source repository to
     make sure the complete CI testing automation runs successfully.
 
-New or casual contributors are required to clone their forks of the `bokeh source
-repository`_. To fork and clone Github repositories, refer to `Fork a repo`_
-section of `GitHub Help`_.
+    New or casual contributors are required to clone their forks of the `bokeh source
+    repository`_. To fork and clone Github repositories, refer to `Fork a repo`_
+    section of `GitHub Help`_.
 
 This will create a ``bokeh`` directory at your file system location. This
 ``bokeh`` directory is referred to as the *source checkout* for the remainder
@@ -98,22 +98,22 @@ Then, to activate the environment:
 Installing Node Packages
 ------------------------
 
-Building BokehJS also requires installing  JavaScript dependencies using
+Building BokehJS also requires installing JavaScript dependencies using
 the Node Package Manager. If you have followed the instructions above,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.
 
 Bokeh is typically updated to require the latest major revision of ``npm``
-in order to build. To install the lastest version globally, start from the
+in order to build. To install the latest version globally, start from the
 top level of the *source checkout* directory, and execute the following
-commands
+commands:
 
 .. code-block:: sh
 
     cd bokehjs
     npm install -g npm
 
-If you do not wish to install globally (i.e. with ``-g``) then all
+If you do not wish to install globally (i.e. with ``-g``), then all
 subsequent ``npm`` commands will need to be adjusted to use the local
 version installed under ``bokehjs/node_modules``.
 
@@ -127,11 +127,10 @@ to install all of BokehJS JavaScript dependencies:
 This command will install the necessary packages into the ``node_modules``
 subdirectory.
 
-----
-
-Typically, these instructions only need to be followed once, when you are
-first getting set up. Occasionally, however, dependencies may be added or
-changed, in which case these instructions will need to be followed again.
+.. note::
+    Typically, these instructions only need to be followed once, when you are
+    first getting set up. Occasionally, however, dependencies may be added or
+    changed, in which case these instructions will need to be followed again.
 
 .. _devguide_configuring_git:
 
@@ -216,7 +215,7 @@ You can replace ``vim`` with whatever your favorite editor command is.
 Building and Installing
 -----------------------
 
-Once you have all the required depencies installed, the simplest way to
+Once you have all the required dependencies installed, the simplest way to
 build and install Bokeh and BokehJS is to use the ``setup.py`` script at
 the top level of the *source checkout* directory.
 
@@ -302,9 +301,9 @@ You should see output similar to:
     npm version         :  6.14.5
 
 The next check that can be made is to run some of the examples. There are
-different ways in which bokeh can be used which suit a variety of use cases.
+different ways in which Bokeh can be used to suit a variety of use cases.
 
-To create an html file,
+To create an HTML file,
 
 .. code-block:: sh
 
@@ -319,11 +318,11 @@ which will create a file ``iris.html`` locally and open up a web browser.
 The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
 resources required by bokeh are found. By specifying ``inline`` we are using
 the version of BokehJS we just built to include the resources inline as part of
-the html file. The ``BOKEH_RESOURCES`` variable is required as the default
-behaviour is to use CDN resources.
+the HTML file. The ``BOKEH_RESOURCES`` variable is required as the default
+behavior is to use CDN resources.
 
 Another method of running bokeh is as a server. An example of this mode of
-operation can be run using the command
+operation can be run using the command:
 
 .. code-block:: sh
 

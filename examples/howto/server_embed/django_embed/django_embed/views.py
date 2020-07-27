@@ -33,7 +33,7 @@ def sea_surface_handler(doc: Document) -> None:
         if new == 0:
             data = df
         else:
-            data = df.rolling("{0}D".format(new)).mean()
+            data = df.rolling(f"{new}D").mean()
         source.data = dict(ColumnDataSource(data=data).data)
 
     slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")

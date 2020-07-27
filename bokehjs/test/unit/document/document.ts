@@ -432,6 +432,28 @@ describe("Document", () => {
     expect(d._all_models.size).to.be.equal(3)
   })
 
+  it("can notify on ready", () => {
+    const doc = new Document()
+
+    let signals = 0
+    doc.idle.connect(() => signals += 1)
+
+    const events: ev.DocumentEvent[] = []
+    doc.on_change((event) => events.push(event))
+
+    const root = new SomeModelWithChildren()
+    doc.add_root(root)
+    doc.notify_idle(root)
+
+    expect(signals).to.be.equal(1)
+    expect(events.length).to.be.equal(2) // [RootAdded, MessageSent]
+
+    const [, event] = events
+    assert(event instanceof ev.MessageSentEvent)
+    expect(event.msg_type).to.be.equal("bokeh_event")
+    expect(event.msg_data).to.be.equal({event_name: "document_ready", event_values: {}})
+  })
+
   it("can notify on changes", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)

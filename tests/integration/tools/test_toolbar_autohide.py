@@ -29,9 +29,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_Toobar_Autohide(object):
 
+@pytest.mark.selenium
+class Test_Toobar_Autohide:
     def test_toolbar_is_visible_by_default_and_stays_visible(self, single_plot_page) -> None:
         plot = figure(height=800, width=1000)
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)

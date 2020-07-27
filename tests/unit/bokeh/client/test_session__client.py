@@ -34,8 +34,8 @@ def test_DEFAULT_SESSION_ID() -> None:
 def test_DEFAULT_SERVER_WEBSOCKET_URL() -> None:
     assert bcs.DEFAULT_SERVER_WEBSOCKET_URL == "ws://localhost:5006/ws"
 
-class Test_ClientSession(object):
 
+class Test_ClientSession:
     def test_creation_defaults(self) -> None:
         s = bcs.ClientSession()
         assert s.connected == False

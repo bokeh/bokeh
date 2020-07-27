@@ -49,9 +49,9 @@ def _make_plot(tool):
     plot.toolbar_sticky = False
     return plot
 
-@pytest.mark.selenium
-class Test_BoxZoomTool(object):
 
+@pytest.mark.selenium
+class Test_BoxZoomTool:
     def test_deselected_by_default_with_pan_tool(self, single_plot_page) -> None:
         plot = _make_plot(BoxZoomTool())
         plot.add_tools(PanTool())

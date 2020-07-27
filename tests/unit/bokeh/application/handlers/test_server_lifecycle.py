@@ -44,8 +44,8 @@ def on_session_destroyed(session_context):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_ServerLifecycleHandler(object):
 
+class Test_ServerLifecycleHandler:
     # Public methods ----------------------------------------------------------
 
     async def test_empty_lifecycle(self) -> None:

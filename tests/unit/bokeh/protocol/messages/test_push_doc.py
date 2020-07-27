@@ -39,8 +39,8 @@ class SomeModelInTestPushDoc(Model):
     foo = Int(2)
     child = Instance(Model)
 
-class TestPushDocument(object):
 
+class TestPushDocument:
     def _sample_doc(self):
         doc = document.Document()
         another = AnotherModelInTestPushDoc()

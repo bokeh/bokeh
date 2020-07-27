@@ -18,7 +18,7 @@ from .ui import failed, passed, skipped
 UIResultFuncType = Callable[[str, Optional[Sequence[str]]], str]
 
 
-class ActionReturn(object):
+class ActionReturn:
     """
 
     """

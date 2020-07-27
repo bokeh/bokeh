@@ -55,8 +55,8 @@ class SomeModelInTestPatchDoc(Model):
     foo = Int(2)
     child = Instance(Model)
 
-class TestPatchDocument(object):
 
+class TestPatchDocument:
     def _sample_doc(self):
         doc = document.Document()
         another = AnotherModelInTestPatchDoc()
@@ -185,7 +185,7 @@ class TestPatchDocument(object):
         # value in local object would have been already mutated.
         assert buf[1] == np.array([11., 1., 2., 3]).tobytes()
 
-class _Event(object):
+class _Event:
     def __init__(self, refs, bufs):
         self.refs=refs
         self.bufs=bufs

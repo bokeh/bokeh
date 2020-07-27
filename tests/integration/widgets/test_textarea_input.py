@@ -62,8 +62,7 @@ def modify_doc(doc):
 
 
 @pytest.mark.selenium
-class Test_TextInput(object):
-
+class Test_TextInput:
     def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = TextAreaInput(css_classes=["foo"])
         page = bokeh_model_page(text_input)
