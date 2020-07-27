@@ -37,8 +37,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 
-class Test_Color(object):
-
+class Test_Color:
     def test_valid(self) -> None:
         prop = bcpc.Color()
         assert prop.is_valid(None)
@@ -118,8 +117,7 @@ class Test_Color(object):
         assert str(prop) == "Color"
 
 
-class Test_RGB(object):
-
+class Test_RGB:
     def test_valid(self) -> None:
         prop = bcpc.RGB()
         assert prop.is_valid(None)
@@ -171,8 +169,7 @@ class Test_RGB(object):
         assert str(prop) == "RGB"
 
 
-class Test_ColorHex(object):
-
+class Test_ColorHex:
     def test_transform(self) -> None:
         prop = bcpc.ColorHex()
         assert prop.transform('#ff0000') == "#ff0000"

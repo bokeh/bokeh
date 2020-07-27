@@ -46,8 +46,8 @@ def with_script_contents(contents, func):
         func(f.name)
     with_temporary_file(with_file_object)
 
-class Test_NotebookHandler(object):
 
+class Test_NotebookHandler:
     # Public methods ----------------------------------------------------------
 
     def test_runner_strips_line_magics(self, ipython) -> None:

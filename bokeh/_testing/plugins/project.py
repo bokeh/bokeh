@@ -154,8 +154,8 @@ def bokeh_app_info(request, driver):
 
     return func
 
-class _BokehPageMixin(object):
 
+class _BokehPageMixin:
     @property
     def results(self):
         WebDriverWait(self._driver, 10).until(EC.staleness_of(self.test_div))
@@ -216,8 +216,8 @@ class _BokehModelPage(_BokehPageMixin):
 
         self.init_results()
 
-class _CanvasMixin(object):
 
+class _CanvasMixin:
     def click_canvas_at_position(self, x, y):
         self.click_element_at_position(self.canvas, x, y)
 

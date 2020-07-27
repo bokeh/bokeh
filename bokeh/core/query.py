@@ -215,7 +215,7 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
 # Dev API
 #-----------------------------------------------------------------------------
 
-class _Operator(object):
+class _Operator:
     pass
 
 class OR(_Operator):

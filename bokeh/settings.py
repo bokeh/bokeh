@@ -176,7 +176,7 @@ def convert_bool(value):
     if val in ["no", "0", "off", "false", "False"]:
         return False
 
-    raise ValueError("Cannot convert {} to boolean value".format(value))
+    raise ValueError(f"Cannot convert {value} to boolean value")
 
 def convert_str_seq(value):
     ''' Convert a string to a lit of strings
@@ -197,7 +197,7 @@ def convert_str_seq(value):
     try:
         return value.split(",")
     except Exception:
-        raise ValueError("Cannot convert {} to list value".format(value))
+        raise ValueError(f"Cannot convert {value} to list value")
 
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
@@ -248,7 +248,7 @@ class _Unset: pass
 def is_dev():
     return convert_bool(os.environ.get("BOKEH_DEV", False))
 
-class PrioritizedSetting(object):
+class PrioritizedSetting:
     ''' Return a value for a global setting according to configuration precedence.
 
     The following methods are searched in order for the setting:
@@ -408,7 +408,7 @@ _config_user_locations = (
 
 _config_system_locations = ()
 
-class Settings(object):
+class Settings:
     '''
 
     '''
@@ -657,7 +657,7 @@ class Settings(object):
         try:
             self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
         except Exception:
-            raise RuntimeError("Could not load Bokeh config file: {}".format(location))
+            raise RuntimeError(f"Could not load Bokeh config file: {location}")
 
     def secret_key_bytes(self) -> Optional[bytes]:
         ''' Return the secret_key, converted to bytes and cached.

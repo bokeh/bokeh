@@ -52,7 +52,7 @@ class BrowserLike(Protocol):
     def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
         ...
 
-class DummyWebBrowser(object):
+class DummyWebBrowser:
     ''' A "no-op" web-browser controller.
 
     '''

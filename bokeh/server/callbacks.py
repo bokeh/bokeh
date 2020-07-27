@@ -38,7 +38,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class SessionCallback(object):
+class SessionCallback:
     ''' A base class for callback objects associated with Bokeh Documents
     and Sessions.
 
@@ -170,7 +170,7 @@ class TimeoutCallback(SessionCallback):
 # Private API
 #-----------------------------------------------------------------------------
 
-class _DocumentCallbackGroup(object):
+class _DocumentCallbackGroup:
     '''
 
     '''

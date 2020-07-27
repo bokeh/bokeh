@@ -76,8 +76,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PointDrawTool(object):
-
+class Test_PointDrawTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
@@ -227,9 +226,9 @@ class Test_PointDrawTool(object):
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003') # Backspace
-        time.sleep(0.4) # hammerJS click timeout
+        time.sleep(0.4)  # hammerJS click timeout
+        page.send_keys("\ue003")  # Backspace
+        time.sleep(0.4)  # hammerJS click timeout
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

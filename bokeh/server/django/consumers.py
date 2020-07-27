@@ -98,7 +98,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
     application_context: ApplicationContext
 
     def __init__(self, scope: Dict[str, Any]) -> None:
-        super(SessionConsumer, self).__init__(scope)
+        super().__init__(scope)
 
         kwargs = self.scope["url_route"]["kwargs"]
         self.application_context = kwargs["app_context"]
@@ -173,7 +173,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
     application_context: ApplicationContext
 
     def __init__(self, scope: Dict[str, Any]) -> None:
-        super(WSConsumer, self).__init__(scope)
+        super().__init__(scope)
 
         kwargs = self.scope['url_route']["kwargs"]
         self.application_context = kwargs["app_context"]

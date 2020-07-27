@@ -112,7 +112,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class PropertyDescriptor(object):
+class PropertyDescriptor:
     ''' Base class for a python descriptor that delegates access for a named
     attribute to a Bokeh |Property| instance.
 

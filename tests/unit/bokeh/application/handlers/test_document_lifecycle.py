@@ -27,7 +27,7 @@ import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class MockSessionContext(object):
+class MockSessionContext:
     def __init__(self, doc):
         self._document = doc
         self.status = None
@@ -45,8 +45,8 @@ class MockSessionContext(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test_DocumentLifecycleHandler(object):
 
+class Test_DocumentLifecycleHandler:
     # Public methods ----------------------------------------------------------
 
     def test_document_bad_on_session_destroyed_signature(self) -> None:

@@ -36,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AuthProvider(object):
+class AuthProvider:
     ''' Abstract base class for implementing authorization hooks.
 
     Subclasses must supply one of: ``get_user`` or ``get_user_async``.
@@ -197,7 +197,7 @@ class AuthModule(AuthProvider):
 
         self._module = load_auth_module(module_path)
 
-        super(AuthModule, self).__init__()
+        super().__init__()
 
     @property
     def get_user(self):

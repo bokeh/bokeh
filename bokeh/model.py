@@ -73,7 +73,7 @@ def collect_filtered_models(discard, *input_values):
 
     '''
 
-    ids = set([])
+    ids = set()
     collected = []
     queued = []
 

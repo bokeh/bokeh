@@ -49,30 +49,30 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ScriptRef(object):
 
+class ScriptRef:
     def __init__(self, url, type="text/javascript"):
         self.url = url
         self.type = type
 
-class Script(object):
 
+class Script:
     def __init__(self, content, type="text/javascript"):
         self.content = content
         self.type = type
 
-class StyleRef(object):
 
+class StyleRef:
     def __init__(self, url):
         self.url = url
 
-class Style(object):
 
+class Style:
     def __init__(self, content):
         self.content = content
 
-class Bundle(object):
 
+class Bundle:
     @classmethod
     def of(cls, js_files, js_raw, css_files, css_raw, hashes):
         return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw, hashes=hashes)

@@ -27,8 +27,8 @@ import bokeh.util.callback_manager as cbm # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class _GoodPropertyCallback(object):
 
+class _GoodPropertyCallback:
     def __init__(self):
         self.last_name = None
         self.last_old = None
@@ -48,8 +48,8 @@ class _GoodPropertyCallback(object):
     def just_fine(self, name, old, new, extra='default'):
         pass
 
-class _BadPropertyCallback(object):
 
+class _BadPropertyCallback:
     def __call__(self, x, y):
         pass
 
@@ -65,8 +65,8 @@ def _partially_good_property(w, x, y, z):
 def _just_fine_property(w, x, y, z='default'):
     pass
 
-class _GoodEventCallback(object):
 
+class _GoodEventCallback:
     def __init__(self):
         self.last_name = None
         self.last_old = None
@@ -81,8 +81,8 @@ class _GoodEventCallback(object):
     def partially_good(self, arg, event):
         pass
 
-class _BadEventCallback(object):
 
+class _BadEventCallback:
     def __call__(self):
         pass
 
@@ -102,8 +102,8 @@ def _partially_bad_event(event):
 # General API
 #-----------------------------------------------------------------------------
 
-class TestPropertyCallbackManager(object):
 
+class TestPropertyCallbackManager:
     def test_creation(self) -> None:
         m = cbm.PropertyCallbackManager()
         assert len(m._callbacks) == 0
@@ -265,8 +265,8 @@ class TestPropertyCallbackManager(object):
         assert good2.last_old == 42
         assert good2.last_new == 43
 
-class TestEventCallbackManager(object):
 
+class TestEventCallbackManager:
     def test_creation(self) -> None:
         m = cbm.EventCallbackManager()
         assert len(m._event_callbacks) == 0
@@ -320,7 +320,7 @@ class TestEventCallbackManager(object):
     def test_on_change_unicode_event_name(self) -> None:
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
-        m.on_event(u'foo', _good_event)
+        m.on_event("foo", _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
@@ -415,7 +415,7 @@ class TestEventCallbackManager(object):
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [cb]
 
-        class ev(object):
+        class ev:
             _model_id = 10
             event_name = "foo"
 

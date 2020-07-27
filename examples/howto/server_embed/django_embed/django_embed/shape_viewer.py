@@ -10,7 +10,7 @@ class Shape(param.Parameterized):
     radius = param.Number(default=1, bounds=(0, 1))
 
     def __init__(self, **params):
-        super(Shape, self).__init__(**params)
+        super().__init__(**params)
         self.figure = figure(x_range=(-1, 1), y_range=(-1, 1))
         self.renderer = self.figure.line(*self._get_coords())
 
@@ -25,7 +25,7 @@ class Circle(Shape):
     n = param.Integer(default=100, precedence=-1)
 
     def __init__(self, **params):
-        super(Circle, self).__init__(**params)
+        super().__init__(**params)
 
     def _get_coords(self):
         angles = np.linspace(0, 2*np.pi, self.n+1)

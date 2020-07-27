@@ -40,7 +40,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TmpDir(object):
+class TmpDir:
     '''
 
     '''
@@ -141,7 +141,7 @@ async def with_temporary_file_async(func, dir=None, suffix=''):
         f.close()
         os.remove(f.name)
 
-class WorkingDir(object):
+class WorkingDir:
     '''
 
     '''

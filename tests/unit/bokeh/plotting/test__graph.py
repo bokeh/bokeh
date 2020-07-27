@@ -32,8 +32,8 @@ import bokeh.plotting._graph as bpg # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_get_graph_kwargs(object):
 
+class Test_get_graph_kwargs:
     def test_convert_dataframes_to_sources(self, pd) -> None:
         node_source = pd.DataFrame(data=dict(foo=[]))
         edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))

@@ -50,9 +50,9 @@ def modify_doc(doc):
     select.on_change('value', cb)
     doc.add_root(column(select, plot))
 
-@pytest.mark.selenium
-class Test_Select(object):
 
+@pytest.mark.selenium
+class Test_Select:
     def test_displays_title(self, bokeh_model_page) -> None:
         select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"], title="title")
 

@@ -34,8 +34,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Regex(object):
 
+class Test_Regex:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpr.Regex()

@@ -50,8 +50,8 @@ import bokeh.plotting._plot as bpp # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class test_get_scale_factor_range(object):
 
+class test_get_scale_factor_range:
     def test_numeric_range_linear_axis() -> None:
         s = bpp.get_scale(Range1d(), "linear")
         assert isinstance(s, LinearScale)
@@ -70,8 +70,8 @@ class test_get_scale_factor_range(object):
         s = bpp.get_scale(FactorRange(), "auto")
         assert isinstance(s, CategoricalScale)
 
-class Test_get_range(object):
 
+class Test_get_range:
     def test_with_None(self) -> None:
         r = bpp.get_range(None)
         assert isinstance(r, DataRange1d)
@@ -140,8 +140,8 @@ class Test_get_range(object):
 
 _RANGES = [Range1d(), DataRange1d(), FactorRange()]
 
-class Test__get_axis_class(object):
 
+class Test__get_axis_class:
     @pytest.mark.parametrize('range', _RANGES)
     def test_axis_type_None(self, range) -> None:
         assert(bpp._get_axis_class(None, range, 0)) == (None, {})

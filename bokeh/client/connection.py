@@ -58,7 +58,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ClientConnection(object):
+class ClientConnection:
     ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
 
     '''

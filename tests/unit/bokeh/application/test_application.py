@@ -58,8 +58,8 @@ class RequestHandler(Handler):
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Application(object):
 
+class Test_Application:
     # Public methods ----------------------------------------------------------
 
     def test_empty(self) -> None:
@@ -206,16 +206,16 @@ class Test_Application(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_ServerContext(object):
 
+class Test_ServerContext:
     # Public methods ----------------------------------------------------------
 
     def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.ServerContext()
 
-class Test_SessionContext(object):
 
+class Test_SessionContext:
     def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.SessionContext()

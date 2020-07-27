@@ -1638,8 +1638,8 @@ class FigureOptions(Options):
 # Private API
 #-----------------------------------------------------------------------------
 
-_color_fields = set(["color", "fill_color", "line_color"])
-_alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
+_color_fields = {"color", "fill_color", "line_color"}
+_alpha_fields = {"alpha", "fill_alpha", "line_alpha"}
 
 #-----------------------------------------------------------------------------
 # Code

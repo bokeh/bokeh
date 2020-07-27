@@ -50,9 +50,9 @@ def modify_doc(doc):
     text_input.on_change('value', cb)
     doc.add_root(column(text_input, plot))
 
-@pytest.mark.selenium
-class Test_PasswordInput(object):
 
+@pytest.mark.selenium
+class Test_PasswordInput:
     def test_displays_password_input(self, bokeh_model_page) -> None:
         pw_input = PasswordInput(css_classes=["foo"])
 

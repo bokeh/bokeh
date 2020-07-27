@@ -47,7 +47,7 @@ __all__ = ()
 # Private API
 #-----------------------------------------------------------------------------
 
-class _AsyncPeriodic(object):
+class _AsyncPeriodic:
     """Like ioloop.PeriodicCallback except the 'func' can be async and
         return a Future, and we wait for func to finish each time
         before we call it again.  Plain ioloop.PeriodicCallback
@@ -100,7 +100,7 @@ class _AsyncPeriodic(object):
     def stop(self):
         self._stopped = True
 
-class _CallbackGroup(object):
+class _CallbackGroup:
     """ A collection of callbacks added to a Tornado IOLoop that we may
     want to remove as a group. """
 

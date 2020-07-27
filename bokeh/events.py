@@ -106,7 +106,7 @@ _CONCRETE_EVENT_CLASSES = {}
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(object):
+class Event:
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
@@ -508,7 +508,7 @@ class Rotate(PointEvent):
 
     def __init__(self, model, rotation=None, **kwargs):
         self.rotation = rotation
-        super(Rotate, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class RotateEnd(PointEvent):
     ''' Announce the end of a rotate event on a Bokeh plot.

@@ -39,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class WebSocketClientConnectionWrapper(object):
+class WebSocketClientConnectionWrapper:
     ''' Used for compatibility across Tornado versions and to add write_lock'''
 
     def __init__(self, socket):

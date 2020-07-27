@@ -35,8 +35,8 @@ def test_plot() -> None:
 # General API
 #-----------------------------------------------------------------------------
 
-class TestServerDocument(object):
 
+class TestServerDocument:
     def test_invalid_resources_param(self) -> None:
         with pytest.raises(ValueError):
             bes.server_document(url="http://localhost:8081/foo/bar/sliders", resources=123)
@@ -109,8 +109,8 @@ class TestServerDocument(object):
               ("http://localhost:8081/foo/bar/sliders", divid)
         assert request in script.string
 
-class TestServerSession(object):
 
+class TestServerSession:
     def test_return_type(self, test_plot) -> None:
         r = bes.server_session(test_plot, session_id='fakesession')
         assert isinstance(r, str)
@@ -179,8 +179,8 @@ class TestServerSession(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__clean_url(object):
 
+class Test__clean_url:
     def test_default(self) -> None:
         assert bes._clean_url("default") == bes.DEFAULT_SERVER_HTTP_URL.rstrip("/")
 
@@ -192,8 +192,8 @@ class Test__clean_url(object):
         assert bes._clean_url("http://foo/bar") == "http://foo/bar"
         assert bes._clean_url("http://foo/bar/") == "http://foo/bar"
 
-class Test__get_app_path(object):
 
+class Test__get_app_path:
     def test_arg(self) -> None:
         assert bes._get_app_path("foo") == "/foo"
         assert bes._get_app_path("http://foo") == "/"
@@ -201,8 +201,8 @@ class Test__get_app_path(object):
         assert bes._get_app_path("https://foo") == "/"
         assert bes._get_app_path("https://foo/bar") == "/bar"
 
-class Test__process_arguments(object):
 
+class Test__process_arguments:
     def test_None(self) -> None:
         assert bes._process_arguments(None) == ""
 
@@ -219,16 +219,16 @@ class Test__process_arguments(object):
         # order unspecified
         assert r == "&foo=10&bar=baz" or r == "&bar=baz&foo=10"
 
-class Test__process_app_path(object):
 
+class Test__process_app_path:
     def test_root(self) -> None:
         assert bes._process_app_path("/") == ""
 
     def test_arg(self) -> None:
         assert bes._process_app_path("/stuff") == "&bokeh-app-path=/stuff"
 
-class Test__process_relative_urls(object):
 
+class Test__process_relative_urls:
     def test_True(self) -> None:
         assert bes._process_relative_urls(True, "") == ""
         assert bes._process_relative_urls(True, "/stuff") == ""
@@ -236,8 +236,8 @@ class Test__process_relative_urls(object):
     def test_Flase(self) -> None:
         assert bes._process_relative_urls(False, "/stuff") == "&bokeh-absolute-url=/stuff"
 
-class Test__process_resources(object):
 
+class Test__process_resources:
     def test_bad_input(self) -> None:
         with pytest.raises(ValueError):
             bes._process_resources("foo")

@@ -61,7 +61,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class State(object):
+class State:
     ''' Manage state related to controlling Bokeh output.
 
     '''

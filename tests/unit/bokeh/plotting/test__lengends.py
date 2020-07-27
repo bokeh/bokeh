@@ -63,8 +63,8 @@ def test__find_legend_item() -> None:
     assert bpl._find_legend_item(dict(value="foo"), legend) is legend.items[0]
     assert bpl._find_legend_item(dict(field="bar"), legend) is legend.items[1]
 
-class Test__handle_legend_deprecated(object):
 
+class Test__handle_legend_deprecated:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {'junk': 10}, {'label': 'foo', 'junk': 10}, {'value': 'foo', 'junk': 10}])
     def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
@@ -110,8 +110,8 @@ class Test__handle_legend_deprecated(object):
         assert len(legend.items) == 2
         assert all("field" in item.label for item in legend.items)
 
-class Test__handle_legend_field(object):
 
+class Test__handle_legend_field:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
     def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
@@ -135,8 +135,8 @@ class Test__handle_legend_field(object):
         assert legend.items[1].label == dict(field="bar")
         assert legend.items[1].renderers == [renderer]
 
-class Test__handle_legend_group(object):
 
+class Test__handle_legend_group:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
     def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):
@@ -170,8 +170,8 @@ class Test__handle_legend_group(object):
         assert legend.items[3].renderers == [renderer]
         assert legend.items[3].index == 6
 
-class Test__handle_legend_label(object):
 
+class Test__handle_legend_label:
     @pytest.mark.parametrize('arg', [1, 2.7, None, False, [], {}])
     def test_bad_arg(self, arg) -> None:
         with pytest.raises(ValueError):

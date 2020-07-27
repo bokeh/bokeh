@@ -24,17 +24,14 @@ from bokeh import events # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-concrete_events = set([v for v in globals().values()
-                      if isinstance(v,type) and issubclass(v, events.Event) and v.event_name is not None])
-
-point_events = set([v for v in globals().values()
-                    if isinstance(v,type) and issubclass(v, events.PointEvent)])
+concrete_events = {v for v in globals().values() if isinstance(v, type) and issubclass(v, events.Event) and v.event_name is not None}
+point_events = {v for v in globals().values() if isinstance(v, type) and issubclass(v, events.PointEvent)}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class EventCallback(object):
+class EventCallback:
     def __init__(self, attributes=[]):
         self.event_name = None
         self.attributes = attributes

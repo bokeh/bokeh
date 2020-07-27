@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import re
 
 # Bokeh imports
@@ -110,7 +109,7 @@ class NotebookHandler(CodeHandler):
         preprocessors=[StripMagicsProcessor()]
         filename = kwargs['filename']
 
-        with io.open(filename, encoding="utf-8") as f:
+        with open(filename, encoding="utf-8") as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
 

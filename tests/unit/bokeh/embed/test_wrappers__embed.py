@@ -30,8 +30,8 @@ import bokeh.embed.wrappers as bew # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_wrap_in_onload(object):
 
+class Test_wrap_in_onload:
     def test_render(self) -> None:
         assert bew.wrap_in_onload("code\nmorecode") == """\
 (function() {
@@ -44,8 +44,8 @@ class Test_wrap_in_onload(object):
 })();\
 """
 
-class Test_wrap_in_safely(object):
 
+class Test_wrap_in_safely:
     def test_render(self) -> None:
         assert bew.wrap_in_safely("code\nmorecode") == """\
 Bokeh.safely(function() {
@@ -54,8 +54,8 @@ Bokeh.safely(function() {
 });\
 """
 
-class Test_wrap_in_script_tag(object):
 
+class Test_wrap_in_script_tag:
     def test_render(self) -> None:
         assert bew.wrap_in_script_tag("code\nmorecode") == """
 <script type="text/javascript">

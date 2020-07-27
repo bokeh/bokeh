@@ -43,7 +43,8 @@ def print_event(attributes=[]):
         cls_name = event.__class__.__name__
         attrs = ', '.join(['{attr}={val}'.format(attr=attr, val=event.__dict__[attr])
                        for attr in attributes])
-        print('{cls_name}({attrs})'.format(cls_name=cls_name, attrs=attrs))
+        print(f"{cls_name}({attrs})")
+
     return python_callback
 
 # Follows the color_scatter gallery example

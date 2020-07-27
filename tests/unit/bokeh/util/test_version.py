@@ -36,21 +36,21 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 # General API
 #-----------------------------------------------------------------------------
 
-class Test___version__(object):
 
+class Test___version__:
     def test_basic(self) -> None:
         assert isinstance(buv.__version__, str)
         assert buv.__version__ == get_versions()['version']
 
-class Test_base_version(object):
 
+class Test_base_version:
     def test_returns_helper(self) -> None:
         with mock.patch('bokeh.util.version._base_version_helper') as helper:
             buv.base_version()
             assert helper.called
 
-class Test_is_full_release(object):
 
+class Test_is_full_release:
     def test_actual(self) -> None:
         assert buv.is_full_release() == bool(VERSION_PAT.match(buv.__version__))
 
@@ -71,8 +71,8 @@ class Test_is_full_release(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__base_version_helper(object):
 
+class Test__base_version_helper:
     def test_release_version_unchanged(self) -> None:
         assert buv._base_version_helper("0.2.3") == "0.2.3"
         assert buv._base_version_helper("1.2.3") == "1.2.3"

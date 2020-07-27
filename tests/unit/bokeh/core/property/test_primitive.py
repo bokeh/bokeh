@@ -40,8 +40,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Bool(object):
 
+class Test_Bool:
     def test_valid(self) -> None:
         prop = bcpp.Bool()
 
@@ -103,8 +103,8 @@ class Test_Bool(object):
         prop = bcpp.Bool()
         assert str(prop) == "Bool"
 
-class Test_Complex(object):
 
+class Test_Complex:
     def test_valid(self) -> None:
         prop = bcpp.Complex()
 
@@ -168,8 +168,8 @@ class Test_Complex(object):
         prop = bcpp.Complex()
         assert str(prop) == "Complex"
 
-class Test_Float(object):
 
+class Test_Float:
     def test_valid(self) -> None:
         prop = bcpp.Float()
 
@@ -233,8 +233,8 @@ class Test_Float(object):
         prop = bcpp.Float()
         assert str(prop) == "Float"
 
-class Test_Int(object):
 
+class Test_Int:
     def test_valid(self) -> None:
         prop = bcpp.Int()
 
@@ -298,8 +298,8 @@ class Test_Int(object):
         prop = bcpp.Int()
         assert str(prop) == "Int"
 
-class Test_String(object):
 
+class Test_String:
     def test_valid(self) -> None:
         prop = bcpp.String()
 

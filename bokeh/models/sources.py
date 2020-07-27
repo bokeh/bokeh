@@ -169,7 +169,7 @@ class ColumnDataSource(ColumnarDataSource):
         PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
     ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
-    ).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+    ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warnings.warn(
                     "ColumnDataSource's columns must be of the same length. " +
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))

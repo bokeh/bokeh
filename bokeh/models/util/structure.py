@@ -172,7 +172,7 @@ class _BokehStructureGraph:
         K = nx.DiGraph()
         T = {}
         for m in M.references():
-            T[m.id] = set([y.id for y in m.references()])
+            T[m.id] = {y.id for y in m.references()}
 
         K.add_nodes_from(
             [(x, {"model": M.select_one({"id": x}).__class__.__name__}) for x in T]

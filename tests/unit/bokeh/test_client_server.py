@@ -73,8 +73,8 @@ class UnitsSpecModel(Model):
 
 logging.basicConfig(level=logging.DEBUG)
 
-class TestClientServer(object):
 
+class TestClientServer:
     def test_minimal_connect_and_disconnect(self, ManagedServerLoop) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:

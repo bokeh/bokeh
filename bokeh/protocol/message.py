@@ -79,7 +79,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Message(object):
+class Message:
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks

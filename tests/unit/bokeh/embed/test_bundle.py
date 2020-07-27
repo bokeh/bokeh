@@ -67,8 +67,8 @@ def test_widget() -> None:
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_bundle_for_objs_and_resources(object):
 
+class Test_bundle_for_objs_and_resources:
     def test_env_vars_precedence(self) -> None:
         b = beb.bundle_for_objs_and_resources([], INLINE)
         assert all('localhost' not in x for x in b.js_files)
@@ -132,8 +132,8 @@ class Test_bundle_custom_extensions:
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__any(object):
 
+class Test__any:
     def test_with_models(self, test_plot, test_table) -> None:
         from bokeh.models import Button
         assert beb._any([test_plot, test_table], lambda x: isinstance(x, object)) is True
@@ -148,8 +148,7 @@ class Test__any(object):
         assert beb._any([d], lambda x: isinstance(x, Button)) is False
 
 
-class Test__use_gl(object):
-
+class Test__use_gl:
     def test_without_gl(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_gl([test_plot]) is False
         assert beb._use_gl([test_plot, test_table]) is False
@@ -172,8 +171,8 @@ class Test__use_gl(object):
         d.add_root(test_glplot)
         assert beb._use_gl([d]) is True
 
-class Test__use_tables(object):
 
+class Test__use_tables:
     def test_without_tables(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_tables([test_plot]) is False
         assert beb._use_tables([test_plot, test_glplot]) is False
@@ -196,8 +195,8 @@ class Test__use_tables(object):
         d.add_root(test_glplot)
         assert beb._use_tables([d]) is True
 
-class Test__use_widgets(object):
 
+class Test__use_widgets:
     def test_without_widgets(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_widgets([test_plot]) is False
         assert beb._use_widgets([test_plot, test_glplot]) is False

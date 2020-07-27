@@ -51,9 +51,9 @@ def _make_plot():
     plot.toolbar_sticky = False
     return plot
 
-@pytest.mark.selenium
-class Test_RangeTool(object):
 
+@pytest.mark.selenium
+class Test_RangeTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 

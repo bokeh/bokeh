@@ -97,10 +97,16 @@ p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 # Note: must set ``render_mode="css"``
-latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=40, y=420, x_units='screen', y_units='screen',
-                   render_mode='css', text_font_size='21px',
-                   background_fill_alpha=0)
+latex = LatexLabel(
+    text="f = \\sum_{n=1}^\\infty\\frac{-e^{i\\pi}}{2^n}!",
+    x=40,
+    y=420,
+    x_units="screen",
+    y_units="screen",
+    render_mode="css",
+    text_font_size="21px",
+    background_fill_alpha=0,
+)
 
 p.add_layout(latex)
 

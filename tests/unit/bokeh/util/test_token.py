@@ -58,7 +58,7 @@ _MERSENNE_MSG = 'A secure pseudo-random number generator is not available on you
 # General API
 #-----------------------------------------------------------------------------
 
-class TestSessionId(object):
+class TestSessionId:
     def test_base64_roundtrip(self) -> None:
         for s in [ "", "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg",
                    "abcdefgh", "abcdefghi",
@@ -183,8 +183,8 @@ class TestSessionId(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__get_sysrandom(object):
 
+class Test__get_sysrandom:
     def test_default(self) -> None:
         import random
         try:

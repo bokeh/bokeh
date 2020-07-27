@@ -35,7 +35,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Override(object):
+class Override:
     ''' Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the

@@ -30,8 +30,8 @@ import bokeh.models.mappers as bmm # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_CategoricalColorMapper(object):
 
+class Test_CategoricalColorMapper:
     def test_basic(self) -> None:
         mapper = bmm.CategoricalColorMapper()
         check_properties_existence(mapper, [
@@ -64,8 +64,8 @@ class Test_CategoricalColorMapper(object):
         assert list(m.factors) == list(years)
         assert isinstance(m.factors, pd.Index)
 
-class Test_CategoricalPatternMapper(object):
 
+class Test_CategoricalPatternMapper:
     def test_basic(self) -> None:
         mapper = bmm.CategoricalPatternMapper()
         check_properties_existence(mapper, [
@@ -76,8 +76,8 @@ class Test_CategoricalPatternMapper(object):
             "default_value"],
         )
 
-class Test_CategoricalMarkerMapper(object):
 
+class Test_CategoricalMarkerMapper:
     def test_basic(self) -> None:
         mapper = bmm.CategoricalMarkerMapper()
         check_properties_existence(mapper, [
@@ -88,8 +88,8 @@ class Test_CategoricalMarkerMapper(object):
             "default_value"],
         )
 
-class Test_LinearColorMapper(object):
 
+class Test_LinearColorMapper:
     def test_basic(self) -> None:
         mapper = bmm.LinearColorMapper()
         check_properties_existence(mapper, [
@@ -101,8 +101,8 @@ class Test_LinearColorMapper(object):
             "nan_color"],
         )
 
-class Test_LogColorMapper(object):
 
+class Test_LogColorMapper:
     def test_basic(self) -> None:
         mapper = bmm.LogColorMapper()
         check_properties_existence(mapper, [

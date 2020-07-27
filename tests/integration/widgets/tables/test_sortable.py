@@ -27,9 +27,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_DataTableSortable(object):
 
+@pytest.mark.selenium
+class Test_DataTableSortable:
     def test_columns_sortable(self, bokeh_model_page) -> None:
         data = {'x': [1,2,3,4], 'y': [4, 3, 2, 1], 'd': ['foo', 'bar', 'baz', 'quux']}
         source = ColumnDataSource(data)

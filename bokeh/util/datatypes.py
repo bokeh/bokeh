@@ -30,7 +30,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class MultiValuedDict(object):
+class MultiValuedDict:
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
     Avoids storing empty collecctions.
@@ -62,7 +62,7 @@ class MultiValuedDict(object):
         elif isinstance(existing, set):
             existing.add(value)
         else:
-            self._dict[key] = set([existing, value])
+            self._dict[key] = {existing, value}
 
     def get_all(self, k):
         '''

@@ -202,7 +202,7 @@ def verify_sri_hashes():
     if bad:
         raise RuntimeError(f"SRI Hash mismatches in the package: {bad!r}")
 
-class BaseResources(object):
+class BaseResources:
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
@@ -588,7 +588,7 @@ class Resources(JSResources, CSSResources):
 # -----------------------------------------------------------------------------
 
 
-class _SessionCoordinates(object):
+class _SessionCoordinates:
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
 
     def __init__(self, **kwargs):

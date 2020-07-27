@@ -49,9 +49,8 @@ def run(loop):
         loop.start()
     except KeyboardInterrupt:
         print("Keyboard interrupt")
-        pass
 
-class LoopAndGroup(object):
+class LoopAndGroup:
     def __init__(self, quit_after=None):
         self.io_loop = IOLoop()
         self.io_loop.make_current()
@@ -72,8 +71,8 @@ class LoopAndGroup(object):
 # General API
 #-----------------------------------------------------------------------------
 
-class TestCallbackGroup(object):
 
+class TestCallbackGroup:
     @flaky(max_runs=10)
     def test_next_tick_runs(self) -> None:
         with (LoopAndGroup()) as ctx:

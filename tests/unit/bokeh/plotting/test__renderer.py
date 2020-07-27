@@ -36,8 +36,8 @@ import bokeh.plotting._renderer as bpr # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test__pop_visuals(object):
 
+class Test__pop_visuals:
     def test_basic_prop(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
         ca = bpr.pop_visuals(Circle, kwargs)

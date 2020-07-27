@@ -84,8 +84,8 @@ SPECS = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TestValidationControl(object):
 
+class TestValidationControl:
     def test_validate(self) -> None:
         assert validation_on()
         with bcpv.validate(False):
@@ -113,8 +113,8 @@ class TestValidationControl(object):
         f()
         assert validation_on()
 
-class TestValidateDetailDefault(object):
 
+class TestValidateDetailDefault:
     # test_Any unecessary (no validation)
 
     # TODO (bev) test_Image
@@ -258,8 +258,7 @@ class TestValidateDetailDefault(object):
         assert matches(str(e.value), r"expected an element of either String, .*, got {'bad': 'junk'}")
 
 @pytest.mark.parametrize('detail', [True, False])
-class TestValidateDetailExplicit(object):
-
+class TestValidateDetailExplicit:
     # test_Any unecessary (no validation)
 
     # TODO (bev) test_Image

@@ -40,7 +40,7 @@ def verify_all(module, ALL):
     '''
 
     '''
-    class Test___all__(object):
+    class Test___all__:
         def test___all__(self):
             if isinstance(module, str):
                 mod = importlib.import_module(module)

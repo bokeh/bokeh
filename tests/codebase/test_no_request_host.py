@@ -16,7 +16,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 from os.path import relpath
 from subprocess import check_output
 
@@ -61,7 +60,7 @@ def collect_errors():
         if not path.startswith("bokeh/server"):
             continue
 
-        with io.open(path, 'r', encoding='utf-8') as file:
+        with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
     return [ msg % (relpath(fname, TOP_PATH), line_no) for (msg, fname, line_no) in errors ]

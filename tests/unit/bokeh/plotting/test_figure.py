@@ -46,8 +46,8 @@ from bokeh.plotting import _figure as bpf # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestFigure(object):
 
+class TestFigure:
     def test_basic(self) -> None:
         p = bpf.figure()
         q = bpf.figure()
@@ -242,10 +242,10 @@ class TestFigure(object):
             p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
         m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
-        assert set(m.groups()) == set(["fill_color", "line_color"])
+        assert set(m.groups()) == {"fill_color", "line_color"}
 
-class TestMarkers(object):
 
+class TestMarkers:
     @pytest.mark.parametrize('marker', list(MarkerType))
     def test_mixed_inputs(self, marker) -> None:
         p = bpf.figure()
@@ -317,8 +317,8 @@ class TestMarkers(object):
         with pytest.raises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
-class Test_scatter(object):
 
+class Test_scatter:
     @pytest.mark.parametrize('marker', list(MarkerType))
     def test_marker_value(self, marker) -> None:
         p = bpf.figure()
@@ -339,8 +339,8 @@ class Test_scatter(object):
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
 
-class Test_hbar_stack(object):
 
+class Test_hbar_stack:
     def test_returns_renderers(self) -> None:
         fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
         years = ["2015", "2016", "2017"]
@@ -359,8 +359,8 @@ class Test_hbar_stack(object):
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
 
-class Test_vbar_stack(object):
 
+class Test_vbar_stack:
     def test_returns_renderers(self) -> None:
         fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
         years = ["2015", "2016", "2017"]

@@ -24,7 +24,7 @@ ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))((dev|rc)(\d+))?$")
 FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
-class Config(object):
+class Config:
     def __init__(self, version: str) -> None:
         m = ANY_VERSION.match(version)
         if not m:

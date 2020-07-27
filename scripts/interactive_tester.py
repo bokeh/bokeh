@@ -94,7 +94,7 @@ def get_session():
     try:
         with open(SESSION_FILE, 'r') as res_file:
             return json.load(res_file)
-    except IOError:
+    except OSError:
         return {}
 
 

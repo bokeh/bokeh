@@ -34,8 +34,8 @@ import bokeh.util.serialization as bus # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_make_id(object):
 
+class Test_make_id:
     def test_default(self) -> None:
         bus._simple_id = 999
         assert bus.make_id() == "1000"
@@ -55,7 +55,7 @@ class Test_make_id(object):
         assert isinstance(bus.make_id(), str)
         del os.environ["BOKEH_SIMPLE_IDS"]
 
-class Test_make_globally_unique_id(object):
+class Test_make_globally_unique_id:
     def test_basic(self) -> None:
         assert len(bus.make_globally_unique_id()) == 36
         assert isinstance(bus.make_globally_unique_id(), str)
@@ -330,7 +330,7 @@ def test_array_encoding_disabled_by_dtype() -> None:
     assert len(bus.BINARY_ARRAY_TYPES) > 0
 
     dt_ok = bus.BINARY_ARRAY_TYPES
-    dt_bad = set(np.dtype(x) for x in set(np.typeDict.values()) - set([np.void])) - dt_ok
+    dt_bad = {np.dtype(x) for x in set(np.typeDict.values()) - {np.void}} - dt_ok
 
     for dt in dt_ok:
         a = np.empty(shape=10, dtype=dt)
