@@ -51,9 +51,13 @@ def test_event_metaclass() -> None:
 def test_common_decode_json() -> None:
     for event_name, event_cls in events._CONCRETE_EVENT_CLASSES.items():
         if event_name is None: continue # Skip abstract base class
-        event = events.Event.decode_json({'event_name':event_cls.event_name,
-                                          'event_values':{'model': {'id': 'test-model-id'}}})
-        assert event._model_id == 'test-model-id'
+        event = events.Event.decode_json({
+            'event_name': event_cls.event_name,
+            'event_values': {'model': {'id': 'test-model-id'}},
+        })
+        assert isinstance(event, events.Event)
+        if isinstance(event, events.ModelEvent):
+            assert event._model_id == 'test-model-id'
 
 def test_pointevent_subclass_decode_json() -> None:
     event_values = dict(model_id='test-model-id', sx=3, sy=-2, x=10, y=100)
@@ -104,17 +108,17 @@ def test_pinchevent_decode_json() -> None:
 
 def test_event_constructor_button() -> None:
     model = Button()
-    event = events.Event(model)
+    event = events.ModelEvent(model)
     assert event._model_id == model.id
 
 def test_event_constructor_div() -> None:
     model = Div()
-    event = events.Event(model)
+    event = events.ModelEvent(model)
     assert event._model_id == model.id
 
 def test_event_constructor_plot() -> None:
     model = Plot()
-    event = events.Event(model)
+    event = events.ModelEvent(model)
     assert event._model_id == model.id
 
 def test_buttonclick_constructor_button() -> None:
