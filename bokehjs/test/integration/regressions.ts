@@ -52,7 +52,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9703", () => {
-    it.allowing(7)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
+    it.allowing(8)("disallows ImageURL glyph to set anchor and angle at the same time", async () => {
       const p = fig([300, 300], {x_range: [-1, 10], y_range: [-1, 10]})
 
       const svg = `\
