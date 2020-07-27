@@ -142,8 +142,6 @@ def get_sri_hashes_for_version(version):
                 'bokeh-1.4.0.min.js': 'mdMpUZqu5U0cV1pLU9Ap/3jthtPth7yWSJTu1ayRgk95qqjLewIkjntQDQDQA5cZ',
                 'bokeh-api-1.4.0.js': 'Y3kNQHt7YjwAfKNIzkiQukIOeEGKzUU3mbSrraUl1KVfrlwQ3ZAMI1Xrw5o3Yg5V',
                 'bokeh-api-1.4.0.min.js': '4oAJrx+zOFjxu9XLFp84gefY8oIEr75nyVh2/SLnyzzg9wR+mXXEi+xyy/HzfBLM',
-                'bokeh-gl-1.4.0.js': '/+5P6xEUbH87YpzmmpvP7veStj9hr1IBz+r/5oBPr9WwMIft5H4rEJCnyRJsgdRz',
-                'bokeh-gl-1.4.0.min.js': 'nGZaob7Ort3hHvecwVIYtti+WDUaCkU+19+OuqX4ZWzw4ZsDQC2XRbsLEJ1OhDal',
                 'bokeh-tables-1.4.0.js': 'I2iTMWMyfU/rzKXWJ2RHNGYfsXnyKQ3YjqQV2RvoJUJCyaGBrp0rZcWiTAwTc9t6',
                 'bokeh-tables-1.4.0.min.js': 'pj14Cq5ZSxsyqBh+pnL2wlBS3UX25Yz1gVxqWkFMCExcnkN3fl4mbOF8ZUKyh7yl',
                 'bokeh-widgets-1.4.0.js': 'scpWAebHEUz99AtveN4uJmVTHOKDmKWnzyYKdIhpXjrlvOwhIwEWUrvbIHqA0ke5',
@@ -427,7 +425,7 @@ class JSResources(BaseResources):
 
     """
 
-    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
 
     # Properties --------------------------------------------------------------
 

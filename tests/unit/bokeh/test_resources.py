@@ -107,7 +107,7 @@ class TestJSResources:
         assert r.mode == "inline"
         assert r.dev is False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 4
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert hasattr(r, "css_raw") is False
         assert r.messages == []
@@ -118,7 +118,7 @@ class TestJSResources:
         r = resources.JSResources()
         assert r.mode == "cdn"
         hashes = resources.get_sri_hashes_for_version("1.4.0")
-        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k}
+        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k and "gl" not in k}
         assert set(r.hashes.values()) == min_hashes
 
     @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
@@ -170,7 +170,7 @@ class TestResources:
         assert r.mode == "inline"
         assert r.dev == False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 4
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
         assert r.messages == []
@@ -213,7 +213,6 @@ class TestResources:
             "http://localhost:5006/static/js/bokeh.min.js",
             "http://localhost:5006/static/js/bokeh-widgets.min.js",
             "http://localhost:5006/static/js/bokeh-tables.min.js",
-            "http://localhost:5006/static/js/bokeh-gl.min.js",
         ]
 
     def test_server_root_url(self) -> None:
@@ -227,7 +226,6 @@ class TestResources:
             "http://foo/static/js/bokeh.min.js",
             "http://foo/static/js/bokeh-widgets.min.js",
             "http://foo/static/js/bokeh-tables.min.js",
-            "http://foo/static/js/bokeh-gl.min.js",
         ]
 
     def test_server_root_url_empty(self) -> None:
@@ -241,7 +239,6 @@ class TestResources:
             "static/js/bokeh.min.js",
             "static/js/bokeh-widgets.min.js",
             "static/js/bokeh-tables.min.js",
-            "static/js/bokeh-gl.min.js",
         ]
 
     def test_server_with_versioner(self) -> None:
@@ -254,7 +251,6 @@ class TestResources:
             "http://foo/static/js/bokeh.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
-            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
         ]
 
     def test_server_dev(self) -> None:

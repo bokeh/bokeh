@@ -53,6 +53,10 @@ export interface PropertyConstructor<T> {
 export abstract class Property<T = unknown> {
   __value__: T
 
+  get is_value(): boolean {
+    return this.spec.value !== undefined
+  }
+
   get syncable(): boolean {
     return !this.internal
   }
@@ -150,7 +154,7 @@ export abstract class Property<T = unknown> {
   // ----- property accessors
 
   value(do_spec_transform: boolean = true): any {
-    if (this.spec.value === undefined)
+    if (!this.is_value)
       throw new Error("attempted to retrieve property value for property without value specification")
     let ret = this.normalize([this.spec.value])[0]
     if (this.spec.transform != null && do_spec_transform)

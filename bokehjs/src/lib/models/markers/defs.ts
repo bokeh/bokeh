@@ -3,6 +3,7 @@ import {MarkerType} from "core/enums"
 import {Class} from "core/class"
 import {Line, Fill} from "core/visuals"
 import {Context2d} from "core/util/canvas"
+import * as glmarks from "../glyphs/webgl/markers"
 
 const SQ3 = Math.sqrt(3)
 
@@ -425,10 +426,11 @@ function y(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void 
   }
 }
 
-function _mk_model(type: string, f: RenderOne): Class<Marker> {
+function _mk_model(type: string, f: RenderOne, glglyph_cls?: Class<glmarks.MarkerGL>): Class<Marker> {
   const view = class extends MarkerView {
     static initClass(): void {
       this.prototype._render_one = f
+      this.prototype.glglyph_cls = glglyph_cls
     }
   }
   view.initClass()
@@ -447,31 +449,31 @@ function _mk_model(type: string, f: RenderOne): Class<Marker> {
 export type RenderOne = (ctx: Context2d, i: number, r: number, line: Line, fill: Fill) => void
 
 // markers are final, so no need to export views
-export const Asterisk         = _mk_model('Asterisk',         asterisk)
-export const CircleCross      = _mk_model('CircleCross',      circle_cross)
-export const CircleDot        = _mk_model('CircleDot',        circle_dot)
-export const CircleY          = _mk_model('CircleY',          circle_y)
-export const CircleX          = _mk_model('CircleX',          circle_x)
-export const Cross            = _mk_model('Cross',            cross)
-export const Dash             = _mk_model('Dash',             dash)
-export const Diamond          = _mk_model('Diamond',          diamond)
-export const DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
-export const DiamondDot       = _mk_model('DiamondDot',       diamond_dot)
-export const Dot              = _mk_model('Dot',              dot)
-export const Hex              = _mk_model('Hex',              hex)
-export const HexDot           = _mk_model('HexDot',           hex_dot)
-export const InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle)
-export const Plus             = _mk_model('Plus',             plus)
-export const Square           = _mk_model('Square',           square)
-export const SquareCross      = _mk_model('SquareCross',      square_cross)
-export const SquareDot        = _mk_model('SquareDot',        square_dot)
-export const SquarePin        = _mk_model('SquarePin',        square_pin)
-export const SquareX          = _mk_model('SquareX',          square_x)
-export const Triangle         = _mk_model('Triangle',         triangle)
-export const TriangleDot      = _mk_model('TriangleDot',      triangle_dot)
-export const TrianglePin      = _mk_model('TrianglePin',      triangle_pin)
-export const X                = _mk_model('X',                x)
-export const Y                = _mk_model('Y',                y)
+export const Asterisk = _mk_model('Asterisk', asterisk, glmarks.AsteriskGL)
+export const CircleCross = _mk_model('CircleCross', circle_cross, glmarks.CircleCrossGL)
+export const CircleDot = _mk_model('CircleDot', circle_dot)
+export const CircleY = _mk_model('CircleY', circle_y)
+export const CircleX = _mk_model('CircleX', circle_x, glmarks.CircleXGL)
+export const Cross = _mk_model('Cross', cross, glmarks.CrossGL)
+export const Dash = _mk_model('Dash', dash)
+export const Diamond = _mk_model('Diamond', diamond, glmarks.DiamondGL)
+export const DiamondCross = _mk_model('DiamondCross', diamond_cross, glmarks.DiamondCrossGL)
+export const DiamondDot = _mk_model('DiamondDot', diamond_dot)
+export const Dot = _mk_model('Dot', dot)
+export const Hex = _mk_model('Hex', hex, glmarks.HexGL)
+export const HexDot = _mk_model('HexDot', hex_dot)
+export const InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle, glmarks.InvertedTriangleGL)
+export const Plus = _mk_model('Plus', plus)
+export const Square = _mk_model('Square', square, glmarks.SquareGL)
+export const SquareCross = _mk_model('SquareCross', square_cross, glmarks.SquareCrossGL)
+export const SquareDot = _mk_model('SquareDot', square_dot)
+export const SquarePin = _mk_model('SquarePin', square_pin)
+export const SquareX = _mk_model('SquareX', square_x, glmarks.SquareXGL)
+export const Triangle = _mk_model('Triangle', triangle, glmarks.TriangleGL)
+export const TriangleDot = _mk_model('TriangleDot', triangle_dot)
+export const TrianglePin = _mk_model('TrianglePin', triangle_pin)
+export const X = _mk_model('X', x, glmarks.XGL)
+export const Y = _mk_model('Y', y)
 
 export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,
