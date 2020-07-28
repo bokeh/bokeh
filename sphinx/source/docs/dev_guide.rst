@@ -24,8 +24,8 @@ any questions.
 All changes, enhancements, and bugfixes should follow the guidelines defined in
 the `Bokeh Enhancement Proposals`_ (BEPs). BEPs are records of major
 developmental and structural decisions for the Bokeh project. This includes
-guidelines for the software development process, especially in 
-`BEP 1 (Information on Issues and PRs management)`_ and 
+guidelines for the software development process, especially in
+`BEP 1 (Information on Issues and PRs management)`_ and
 `BEP 6 (Branching and Milestones)`_.
 
 Everyone interacting in the Bokeh project's codebases, issue trackers, and
