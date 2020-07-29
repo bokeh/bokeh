@@ -19,6 +19,7 @@ import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
 import {equals, Equals, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
+import * as kinds from "./kinds"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -112,8 +113,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
-  static define<T>(obj: Partial<p.DefineOf<T>>): void {
-    for (const [name, prop] of entries(obj)) {
+  static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
       if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 

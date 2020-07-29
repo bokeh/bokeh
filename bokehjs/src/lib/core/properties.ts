@@ -169,9 +169,7 @@ export abstract class Property<T = unknown> {
 // Primitive Properties
 //
 
-export class PrimitiveProperty<T> extends Property<T> {
-
-}
+export class PrimitiveProperty<T> extends Property<T> {}
 
 export class Any extends Property<any> {}
 
