@@ -2,7 +2,8 @@ import {expect} from "assertions"
 
 import {Document} from "@bokehjs/document"
 import {Tool} from "@bokehjs/models/tools/tool"
-import {ZoomInTool, ZoomInToolView} from "@bokehjs/models/tools/actions/zoom_in_tool"
+import {ZoomInTool} from "@bokehjs/models/tools/actions/zoom_in_tool"
+import {ZoomBaseToolView} from "@bokehjs/models/tools/actions/zoom_base_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {build_view} from "@bokehjs/core/build_views"
@@ -40,7 +41,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool()
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomBaseToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
@@ -56,7 +57,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'width'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomBaseToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
@@ -72,7 +73,7 @@ describe("ZoomInTool", () => {
       const zoom_in_tool = new ZoomInTool({dimensions: 'height'})
       const plot_view = await mkplot(zoom_in_tool)
 
-      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomInToolView
+      const zoom_in_tool_view = plot_view.tool_views.get(zoom_in_tool)! as ZoomBaseToolView
 
       // perform the tool action
       zoom_in_tool_view.doit()
