@@ -3,6 +3,7 @@ import "es5-ext/object/entries/implement"
 import "es5-ext/number/is-integer/implement"
 import "es5-ext/string/#/repeat/implement"
 import "es5-ext/array/from/implement"
+import "es5-ext/array/#/fill/implement"
 import "es5-ext/math/log10/implement"
 import "es5-ext/math/log1p/implement"
 import "es6-set/implement"
@@ -22,6 +23,31 @@ if (typeof Object.values === "undefined") {
   Object.values = function(obj: {[key: string]: unknown}) {
     return Object.keys(obj).map((key) => obj[key])
   }
+}
+
+if (typeof Uint8Array.prototype.fill === "undefined") {
+  (Uint8Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Int8Array.prototype.fill === "undefined") {
+  (Int8Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Uint16Array.prototype.fill === "undefined") {
+  (Uint16Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Int16Array.prototype.fill === "undefined") {
+  (Int16Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Uint32Array.prototype.fill === "undefined") {
+  (Uint32Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Int32Array.prototype.fill === "undefined") {
+  (Int32Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Float32Array.prototype.fill === "undefined") {
+  (Float32Array.prototype as any).fill = Array.prototype.fill
+}
+if (typeof Float64Array.prototype.fill === "undefined") {
+  (Float64Array.prototype as any).fill = Array.prototype.fill
 }
 
 // fixes up a problem with some versions of IE11
