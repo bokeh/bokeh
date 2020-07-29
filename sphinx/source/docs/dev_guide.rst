@@ -21,11 +21,14 @@ you will find all the information you need in the following pages, linked below
 and in the sidebar to the left. If not, please `contact the developers`_ with
 any questions.
 
-The software development process for Bokeh is outlined in
-`Bokeh Enhancement Proposal 1`_. All changes, enhancements,
-and bugfixes should generally go through the process outlined there.
+All changes, enhancements, and bugfixes should follow the guidelines defined in
+the `Bokeh Enhancement Proposals`_ (BEPs). BEPs are records of major
+developmental and structural decisions for the Bokeh project. This includes
+guidelines for the software development process, especially in
+`BEP 1 (Issues and PRs management)`_ and
+`BEP 6 (Branching and Milestones)`_.
 
-Everyone interacting in the Bokeh project's codebases, issue trackers and
+Everyone interacting in the Bokeh project's codebases, issue trackers, and
 discussion forums is expected to follow the `Code of Conduct`_.
 
 ------
@@ -54,6 +57,8 @@ discussion forums is expected to follow the `Code of Conduct`_.
 :ref:`devguide_bokehjs`
     Information specific to developing BokehJS.
 
-.. _Bokeh Enhancement Proposal 1: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
+.. _Bokeh Enhancement Proposals: https://github.com/bokeh/bokeh/wiki
+.. _BEP 1 (Issues and PRs management): https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
+.. _BEP 6 (Branching and Milestones): https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-and-Milestones
 .. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
 .. _contact the developers: https://discourse.bokeh.org/c/development
