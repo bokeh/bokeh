@@ -250,7 +250,7 @@ export class DataTableView extends WidgetView {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
-      forceFitColumns: this.model.fit_columns,
+      forceFitColumns: this.model.fit_columns, // TODO: update to autosizeColsMode
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
       autoEdit: false,
