@@ -296,9 +296,9 @@ export class DataCubeView extends DataTableView {
       editable: this.model.editable,
       autoEdit: false,
       rowHeight: this.model.row_height,
-      frozenColumn: frozenColumn,
-      frozenRow: frozenRow,
-      frozenBottom: frozenBottom
+      frozenColumn,
+      frozenRow,
+      frozenBottom,
     }
 
     const columns = this.model.columns.map(column => column.toColumn())

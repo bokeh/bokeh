@@ -31,7 +31,7 @@ export const AutosizeModes = {
   ignore_viewport: "IGV",
   force_fit: "LFF",
   none: "NOA",
-  off: "LOF"
+  off: "LOF",
 }
 
 export class TableDataProvider implements DataProvider<Item> {
@@ -48,7 +48,7 @@ export class TableDataProvider implements DataProvider<Item> {
           return obj.getItem(Number(key))
         else
           return obj[(key as any)]
-      }
+      },
     })
   }
 
@@ -290,13 +290,13 @@ export class DataTableView extends WidgetView {
       autoEdit: this.model.auto_edit,
       autoHeight: false,
       rowHeight: this.model.row_height,
-      frozenColumn: frozenColumn,
-      frozenRow: frozenRow,
-      frozenBottom: frozenBottom
+      frozenColumn,
+      frozenRow,
+      frozenBottom,
     }
 
     if (this.model.autosize_mode === "fit_columns")
-      this.el.style.width = this.model.width + "px";
+      this.el.style.width = this.model.width + "px"
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
@@ -304,7 +304,7 @@ export class DataTableView extends WidgetView {
     this.grid.autosizeColumns()
 
     if (this.model.autosize_mode === "fit_viewport") {
-      let width = 0;
+      let width = 0
       for (const column of columns)
         width += (column as any).width
       this.model.width = Math.ceil(width)
