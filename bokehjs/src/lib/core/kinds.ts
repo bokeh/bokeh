@@ -2,8 +2,6 @@ import * as tp from "./util/types"
 import {Color as ColorType} from "./types"
 import {is_color} from "./util/color"
 
-import type {HasProps} from "./has_props"
-
 export abstract class Kind<T> {
   __type__: T
 
@@ -31,7 +29,7 @@ export namespace Kinds {
     }
   }
 
-  export class Instance<ObjType extends HasProps> extends Kind<ObjType> {
+  export class Ref<ObjType extends object> extends Kind<ObjType> {
     constructor(readonly obj_type: Constructor<ObjType>) {
       super()
     }
@@ -205,7 +203,7 @@ export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(it
 export const Struct = <V>(item_type: Kind<V>) => new Kinds.Struct(item_type)
 export const Dict = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Dict(key_type, item_type)
 export const Enum = <T extends string>(...values: T[]) => new Kinds.Enum(values)
-export const Instance = <ObjType extends HasProps>(obj_type: Constructor<ObjType>) => new Kinds.Instance<ObjType>(obj_type)
+export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
 
 export const Percent = new Kinds.Percent()
 export const Color = new Kinds.Color()

@@ -284,18 +284,20 @@ export abstract class AbstractSlider extends Control {
   }
 
   static init_AbstractSlider(): void {
-    this.define<AbstractSlider.Props>({
-      title:             [ p.String,               ""           ],
-      show_value:        [ p.Boolean,              true         ],
-      start:             [ p.Any                                ],
-      end:               [ p.Any                                ],
-      value:             [ p.Any                                ],
-      value_throttled:   [ p.Any                                ],
-      step:              [ p.Number,               1            ],
-      format:            [ p.Any                                ],
-      direction:         [ p.Any,                  "ltr"        ],
-      tooltips:          [ p.Boolean,              true         ],
-      bar_color:         [ p.Color,                "#e6e6e6"    ],
+    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref}) => {
+      return {
+        title:           [ String, "" ],
+        show_value:      [ Boolean, true ],
+        start:           [ Any ],
+        end:             [ Any ],
+        value:           [ Any ],
+        value_throttled: [ Any ],
+        step:            [ Number, 1 ],
+        format:          [ Or(String, Ref(TickFormatter)) ],
+        direction:       [ Enum("ltr", "rtl"), "ltr" ],
+        tooltips:        [ Boolean, true ],
+        bar_color:       [ Color, "#e6e6e6" ],
+      }
     })
   }
 
