@@ -14,8 +14,11 @@ import "es6-symbol/implement"
 import "es6-promise/auto"
 
 if (typeof Object.is === "undefined") {
-  Object.is = function(val1: any, val2: any): boolean {
-    return val1 === val2 ? val1 !== 0 || 1 / val1 === 1 / val2 : isNaN(val1) && isNaN(val2)
+  Object.is = function(a: any, b: any): boolean {
+    if (a === b)
+      return a !== 0 || 1/a === 1/b
+    else
+      return a !== a && b !== b
   }
 }
 
