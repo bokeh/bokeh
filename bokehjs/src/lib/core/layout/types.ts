@@ -1,4 +1,5 @@
 import {Align} from "../enums"
+import {Enum} from "../kinds"
 
 import {Size, Extents} from "../types"
 export {Size}
@@ -70,6 +71,7 @@ export type Margin = Extents
 export type SizeHint = Size & {inner?: Margin, align?: boolean}
 
 export type SizingPolicy = "fixed" | "fit" | "min" | "max"
+export const SizingPolicy = Enum("fixed", "fit", "min", "max")
 
 export type Sizing = number | "fit" | "min" | "max"
 

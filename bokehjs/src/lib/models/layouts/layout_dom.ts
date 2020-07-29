@@ -5,6 +5,7 @@ import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
+import {Boolean, Number, String, Null, Array, Tuple, Or, Auto, Color as TColor} from "core/kinds"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
@@ -397,22 +398,24 @@ export abstract class LayoutDOM extends Model {
 
   static init_LayoutDOM(): void {
     this.define<LayoutDOM.Props>({
-      width:         [ p.Number,     null         ],
-      height:        [ p.Number,     null         ],
-      min_width:     [ p.Number,     null         ],
-      min_height:    [ p.Number,     null         ],
-      max_width:     [ p.Number,     null         ],
-      max_height:    [ p.Number,     null         ],
-      margin:        [ p.Any,        [0, 0, 0, 0] ],
-      width_policy:  [ p.Any,        "auto"       ],
-      height_policy: [ p.Any,        "auto"       ],
-      aspect_ratio:  [ p.Any,        null         ],
-      sizing_mode:   [ p.SizingMode, null         ],
-      visible:       [ p.Boolean,    true         ],
-      disabled:      [ p.Boolean,    false        ],
-      align:         [ p.Any,        "start"      ],
-      background:    [ p.Color,      null         ],
-      css_classes:   [ p.Array,      []           ],
+      width:         [ Or(Number, Null), null ],
+      height:        [ Or(Number, Null), null ],
+      min_width:     [ Or(Number, Null), null ],
+      min_height:    [ Or(Number, Null), null ],
+      max_width:     [ Or(Number, Null), null ],
+      max_height:    [ Or(Number, Null), null ],
+      margin:        [ Or(Number,
+                          Tuple(Number, Number),
+                          Tuple(Number, Number, Number, Number)), [0, 0, 0, 0] ],
+      width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
+      height_policy: [ Or(SizingPolicy, Auto), "auto" ],
+      aspect_ratio:  [ Or(Number, Auto, Null), null ],
+      sizing_mode:   [ Or(SizingMode, Null), null ],
+      visible:       [ Boolean, true ],
+      disabled:      [ Boolean, false ],
+      align:         [ Or(Align, Tuple(Align, Align)), "start" ],
+      background:    [ Or(TColor, Null), null ],
+      css_classes:   [ Array(String), [] ],
     })
   }
 }
