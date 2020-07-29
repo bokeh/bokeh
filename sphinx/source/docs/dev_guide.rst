@@ -25,7 +25,7 @@ All changes, enhancements, and bugfixes should follow the guidelines defined in
 the `Bokeh Enhancement Proposals`_ (BEPs). BEPs are records of major
 developmental and structural decisions for the Bokeh project. This includes
 guidelines for the software development process, especially in
-`BEP 1 (Information on Issues and PRs management)`_ and
+`BEP 1 (Issues and PRs management)`_ and
 `BEP 6 (Branching and Milestones)`_.
 
 Everyone interacting in the Bokeh project's codebases, issue trackers, and
@@ -58,7 +58,7 @@ discussion forums is expected to follow the `Code of Conduct`_.
     Information specific to developing BokehJS.
 
 .. _Bokeh Enhancement Proposals: https://github.com/bokeh/bokeh/wiki
-.. _BEP 1 (Information on Issues and PRs management): https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
+.. _BEP 1 (Issues and PRs management): https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
 .. _BEP 6 (Branching and Milestones): https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-and-Milestones
 .. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
 .. _contact the developers: https://discourse.bokeh.org/c/development
