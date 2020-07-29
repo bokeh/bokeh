@@ -47,7 +47,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<Property, void>
+export type PropertyGenerator = Generator<Property, void, undefined>
 
 export abstract class HasProps extends Signalable() implements Equals, Printable {
   __view_type__: View
@@ -439,9 +439,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   *[Symbol.iterator](): PropertyGenerator {
-    for (const prop of values(this.properties)) {
-      yield prop
-    }
+    yield* values(this.properties)
   }
 
   *syncable_properties(): PropertyGenerator {

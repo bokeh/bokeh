@@ -131,6 +131,10 @@ export namespace Kinds {
     valid(value: unknown): value is T {
       return this.values.has(value as T)
     }
+
+    *[Symbol.iterator](): Generator<T, void, undefined> {
+      yield* this.values
+    }
   }
 
   export class Struct<ItemType> extends Kind<{[key: string]: ItemType}> {

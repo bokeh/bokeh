@@ -249,17 +249,17 @@ export abstract class EnumProperty<T extends string> extends Property<T> {
   }
 }
 
-export function Enum<T extends string>(values: T[]): PropertyConstructor<T> {
+export function Enum<T extends string>(values: Iterable<T>): PropertyConstructor<T> {
   return class extends EnumProperty<T> {
     get enum_values(): T[] {
-      return values
+      return [...values]
     }
   }
 }
 
 export class Direction extends EnumProperty<enums.Direction> {
   get enum_values(): enums.Direction[] {
-    return enums.Direction
+    return [...enums.Direction]
   }
 
   normalize(values: any): any {
@@ -274,6 +274,7 @@ export class Direction extends EnumProperty<enums.Direction> {
   }
 }
 
+/* TODO: remove this {{{ */
 export const Anchor = Enum(enums.Anchor)
 export const AngleUnits = Enum(enums.AngleUnits)
 export const BoxOrigin = Enum(enums.BoxOrigin)
@@ -321,6 +322,7 @@ export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
 export const TooltipAttachment = Enum(enums.TooltipAttachment)
 export const UpdateMode = Enum(enums.UpdateMode)
 export const VerticalAlign = Enum(enums.VerticalAlign)
+/* }}} */
 
 //
 // DataSpec properties
@@ -462,7 +464,7 @@ export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
-  get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
+  get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
@@ -474,7 +476,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits { return "data" as "data" }
-  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
+  get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {
