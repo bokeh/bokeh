@@ -9,11 +9,10 @@ import {isString} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
-import {LayoutItem} from "core/layout"
 
+import {WidgetView} from "../widget"
 import {TableWidget} from "./table_widget"
 import {TableColumn, ColumnType, Item} from "./table_column"
-import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
@@ -26,6 +25,15 @@ export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare const $: any
 
+export const AutosizeModes = {
+  fit_columns: "FCV",
+  fit_viewport: "FVC",
+  ignore_viewport: "IGV",
+  force_fit: "LFF",
+  none: "NOA",
+  off: "LOF"
+}
+
 export class TableDataProvider implements DataProvider<Item> {
 
   index: number[]
@@ -34,6 +42,14 @@ export class TableDataProvider implements DataProvider<Item> {
 
   constructor(source: ColumnDataSource, view: CDSView) {
     this.init(source, view)
+    return new Proxy(this, {
+      get: (obj: any, key: string | number) => {
+        if (typeof(key) === 'string' && (Number.isInteger(Number(key)))) // key is an index
+          return obj.getItem(Number(key))
+        else
+          return obj[(key as any)]
+      }
+    })
   }
 
   init(source: ColumnDataSource, view: CDSView): void {
@@ -78,6 +94,13 @@ export class TableDataProvider implements DataProvider<Item> {
 
   getRecords(): Item[] {
     return range(0, this.getLength()).map((i) => this.getItem(i))
+  }
+
+  slice(start: number, end: number | null, step?: number): Item[] {
+    start = start ?? 0
+    end = end ?? this.getLength()
+    step = step ?? 1
+    return range(start, end, step).map((i) => this.getItem(i))
   }
 
   sort(columns: any[]): void {
@@ -132,11 +155,6 @@ export class DataTableView extends WidgetView {
 
   styles(): string[] {
     return [...super.styles(), slickgrid_css, tables_css]
-  }
-
-  _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing(this.box_sizing())
   }
 
   update_position(): void {
@@ -247,18 +265,50 @@ export class DataTableView extends WidgetView {
       reorderable = false
     }
 
+    let frozenRow = -1
+    let frozenBottom = false
+    const frozenColumn = this.model.frozen_columns == null ? -1 : this.model.frozen_columns-1
+    if (this.model.frozen_rows != null) {
+      frozenBottom = this.model.frozen_rows < 0 ? true : false
+      frozenRow = Math.abs(this.model.frozen_rows)
+    }
+
+    let autosize: string
+    if (this.model.fit_columns === true)
+      autosize = AutosizeModes.force_fit
+    else if (this.model.fit_columns === false)
+      autosize = AutosizeModes.off
+    else
+      autosize = (AutosizeModes as any)[this.model.autosize_mode]
+
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
-      forceFitColumns: this.model.fit_columns, // TODO: update to autosizeColsMode
+      autosizeColsMode: autosize,
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
-      autoEdit: false,
+      autoEdit: this.model.auto_edit,
+      autoHeight: false,
       rowHeight: this.model.row_height,
+      frozenColumn: frozenColumn,
+      frozenRow: frozenRow,
+      frozenBottom: frozenBottom
     }
+
+    if (this.model.autosize_mode === "fit_columns")
+      this.el.style.width = this.model.width + "px";
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
+
+    this.grid.autosizeColumns()
+
+    if (this.model.autosize_mode === "fit_viewport") {
+      let width = 0;
+      for (const column of columns)
+        width += (column as any).width
+      this.model.width = Math.ceil(width)
+    }
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
       if (!this.model.sortable)
@@ -321,8 +371,12 @@ export namespace DataTable {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TableWidget.Props & {
+    autosize_mode: p.Property<string>
+    auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
-    fit_columns: p.Property<boolean>
+    fit_columns: p.Property<boolean | null>
+    frozen_columns: p.Property<number | null>
+    frozen_rows: p.Property<number | null>
     sortable: p.Property<boolean>
     reorderable: p.Property<boolean>
     editable: p.Property<boolean>
@@ -353,8 +407,12 @@ export class DataTable extends TableWidget {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>({
+      autosize_mode:       [ p.String,  "force_fit"  ],
+      auto_edit:           [ p.Boolean, false],
       columns:             [ p.Array,   []    ],
-      fit_columns:         [ p.Boolean, true  ],
+      fit_columns:         [ p.Boolean, null  ],
+      frozen_columns:      [ p.Int,     null  ],
+      frozen_rows:         [ p.Int,     null  ],
       sortable:            [ p.Boolean, true  ],
       reorderable:         [ p.Boolean, true  ],
       editable:            [ p.Boolean, false ],

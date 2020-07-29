@@ -232,6 +232,9 @@ Anchor = enumeration(
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
 
+#: Specify autosize mode for DataTable
+AutosizeMode = enumeration("fit_columns", "fit_viewport", "ignore_viewport", "force_fit", "none", "off")
+
 #: Specify a style for button widgets
 ButtonType = enumeration("default", "primary", "success", "warning", "danger")
 

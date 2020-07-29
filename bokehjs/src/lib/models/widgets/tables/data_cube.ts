@@ -1,7 +1,7 @@
 import * as p from 'core/properties'
 import {span} from 'core/dom'
 import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from '@bokeh/slickgrid'
-import {TableDataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
+import {TableDataProvider, DTINDEX_NAME, DataTableView, DataTable, AutosizeModes} from './data_table'
 import {Item} from "./table_column"
 import {ColumnDataSource} from '../../sources/column_data_source'
 import {CDSView} from '../../sources/cds_view'
@@ -272,14 +272,33 @@ export class DataCubeView extends DataTableView {
   protected data: DataCubeProvider
 
   render(): void {
+    let frozenRow = -1
+    let frozenBottom = false
+    const frozenColumn = this.model.frozen_columns == null ? -1 : this.model.frozen_columns
+    if (this.model.frozen_rows != null) {
+      frozenBottom = this.model.frozen_rows < 0 ? true : false
+      frozenRow = Math.abs(this.model.frozen_rows)
+    }
+
+    let autosize: string
+    if (this.model.fit_columns === true)
+      autosize = AutosizeModes.force_fit
+    else if (this.model.fit_columns === false)
+      autosize = AutosizeModes.off
+    else
+      autosize = (AutosizeModes as any)[this.model.autosize_mode]
+
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
-      forceFitColumns: this.model.fit_columns, // TODO: update to autosizeColsMode
+      autosizeColsMode: autosize,
       multiColumnSort: false,
       editable: this.model.editable,
       autoEdit: false,
       rowHeight: this.model.row_height,
+      frozenColumn: frozenColumn,
+      frozenRow: frozenRow,
+      frozenBottom: frozenBottom
     }
 
     const columns = this.model.columns.map(column => column.toColumn())

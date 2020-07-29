@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import (
+    AutosizeMode,
     DateFormat,
     FontStyle,
     NumeralLanguage,
@@ -627,15 +628,56 @@ class DataTable(TableWidget):
 
     '''
 
+    autosize_mode = Enum(AutosizeMode, default="off", help="""
+    Describes the column autosizing mode with one of the following options:
+
+    ``"fit_columns"``
+        Fit columns into the available area, potentially resulting in
+        squashed or unreadable columns.
+
+    ``"fit_viewport"``
+        Fit viewport size to the automatically computed column widths.
+
+    ``"ignore_viewport"``
+        Automatically compute column widths ignoring the viewport area.
+
+    ``"off"``
+        Disable autosizing behavior, equivalent to fit_columns=False
+        (legacy mode).
+
+    ``"force_fit"``
+        Whether columns should be fit to available width, equivalent
+        to setting fit_columns=True (legacy mode).
+
+    ``"none"``
+        Do not automatically compute column widths.
+    """)
+
+    auto_edit = Bool(False, help="""
+    When enabled editing mode is enabled after a single click on a
+    table cell.
+    """)
+
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
     """)
 
-    fit_columns = Bool(True, help="""
+    fit_columns = Bool(help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
     no enough space available. If set to ``True``, columns' width is
     understood as maximum width.
+    """)
+
+    frozen_columns = Int(help="""
+    Integer indicating the number of columns to freeze. If set the first N
+    columns will be frozen which prevents them from scrolling out of frame.
+    """)
+
+    frozen_rows = Int(help="""
+    Integer indicating the number of rows to freeze. If set the first N
+    rows will be frozen which prevents them from scrolling out of frame,
+    if set to a negative value last N rows will be frozen.
     """)
 
     sortable = Bool(True, help="""
