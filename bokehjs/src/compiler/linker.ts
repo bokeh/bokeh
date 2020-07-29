@@ -754,6 +754,7 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
       module: ts.ModuleKind.CommonJS,
       esModuleInterop: true,
       importHelpers: true,
+      downlevelIteration: true,
     },
     transformers,
   })

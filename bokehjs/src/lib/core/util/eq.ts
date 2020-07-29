@@ -59,7 +59,7 @@ export class Comparator {
     b_stack.push(b)
 
     const result = (() => {
-      if (equals in a && equals in b) {
+      if (a[equals] != null && b[equals] != null) {
         return a[equals](b, this)
       }
 
