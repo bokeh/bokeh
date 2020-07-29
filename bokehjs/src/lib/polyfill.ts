@@ -8,6 +8,7 @@ import "es5-ext/math/log1p/implement"
 import "es6-set/implement"
 import "es6-map/implement"
 import "es6-weak-map/implement"
+import "es6-symbol/implement"
 
 import "es6-promise/auto"
 
