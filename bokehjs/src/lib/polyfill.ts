@@ -26,28 +26,40 @@ if (typeof Object.values === "undefined") {
 }
 
 if (typeof Uint8Array.prototype.fill === "undefined") {
-  (Uint8Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Int8Array.prototype.fill === "undefined") {
-  (Int8Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Uint16Array.prototype.fill === "undefined") {
-  (Uint16Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Int16Array.prototype.fill === "undefined") {
-  (Int16Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Uint32Array.prototype.fill === "undefined") {
-  (Uint32Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Int32Array.prototype.fill === "undefined") {
-  (Int32Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Float32Array.prototype.fill === "undefined") {
-  (Float32Array.prototype as any).fill = Array.prototype.fill
-}
-if (typeof Float64Array.prototype.fill === "undefined") {
+  (Uint8Array.prototype as any).fill = Array.prototype.fill;
+  (Int8Array.prototype as any).fill = Array.prototype.fill;
+  (Uint16Array.prototype as any).fill = Array.prototype.fill;
+  (Int16Array.prototype as any).fill = Array.prototype.fill;
+  (Uint32Array.prototype as any).fill = Array.prototype.fill;
+  (Int32Array.prototype as any).fill = Array.prototype.fill;
+  (Float32Array.prototype as any).fill = Array.prototype.fill;
   (Float64Array.prototype as any).fill = Array.prototype.fill
+}
+
+if (typeof Array.prototype[Symbol.iterator] === "undefined") {
+  function iterator(this: Array<unknown>) {
+    let i = 0
+    const self = this
+    return {
+      next() {
+        const done = self.length <= i
+        const value = done ? undefined : self[i++]
+        return {value, done}
+      },
+    }
+  }
+  (function() {
+    arguments.constructor.prototype[Symbol.iterator] = iterator;
+    (Array.prototype as any)[Symbol.iterator] = iterator;
+    (Uint8Array.prototype as any)[Symbol.iterator] = iterator;
+    (Int8Array.prototype as any)[Symbol.iterator] = iterator;
+    (Uint16Array.prototype as any)[Symbol.iterator] = iterator;
+    (Int16Array.prototype as any)[Symbol.iterator] = iterator;
+    (Uint32Array.prototype as any)[Symbol.iterator] = iterator;
+    (Int32Array.prototype as any)[Symbol.iterator] = iterator;
+    (Float32Array.prototype as any)[Symbol.iterator] = iterator;
+    (Float64Array.prototype as any)[Symbol.iterator] = iterator
+  })()
 }
 
 // fixes up a problem with some versions of IE11
