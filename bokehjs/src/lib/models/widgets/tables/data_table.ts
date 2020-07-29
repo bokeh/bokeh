@@ -9,6 +9,7 @@ import {isString} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
+import {BoxSizing} from "core/layout"
 
 import {WidgetView} from "../widget"
 import {TableWidget} from "./table_widget"
@@ -134,6 +135,7 @@ export class DataTableView extends WidgetView {
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
+  protected _width: number | null
 
   connect_signals(): void {
     super.connect_signals()
@@ -160,6 +162,13 @@ export class DataTableView extends WidgetView {
   update_position(): void {
     super.update_position()
     this.grid.resizeCanvas()
+  }
+
+  box_sizing(): Partial<BoxSizing> {
+    const sizing = super.box_sizing()
+	if (this.model.autosize_mode === "fit_viewport" && sizing.width_policy !== "max" && this._width != null)
+      sizing.width = this._width
+	return sizing
   }
 
   updateGrid(): void {
@@ -231,6 +240,17 @@ export class DataTableView extends WidgetView {
     return super.css_classes().concat(bk_data_table)
   }
 
+  get autosize(): string {
+    let autosize: string
+    if (this.model.fit_columns === true)
+      autosize = AutosizeModes.force_fit
+    else if (this.model.fit_columns === false)
+      autosize = AutosizeModes.off
+    else
+      autosize = AutosizeModes[this.model.autosize_mode]
+	return autosize
+  }
+
   render(): void {
     let checkboxSelector
     let columns: ColumnType[] = this.model.columns.map((column) => {
@@ -273,18 +293,10 @@ export class DataTableView extends WidgetView {
       frozenRow = Math.abs(this.model.frozen_rows)
     }
 
-    let autosize: string
-    if (this.model.fit_columns === true)
-      autosize = AutosizeModes.force_fit
-    else if (this.model.fit_columns === false)
-      autosize = AutosizeModes.off
-    else
-      autosize = (AutosizeModes as any)[this.model.autosize_mode]
-
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
-      autosizeColsMode: autosize,
+      autosizeColsMode: this.autosize,
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
       autoEdit: this.model.auto_edit,
@@ -303,12 +315,10 @@ export class DataTableView extends WidgetView {
 
     this.grid.autosizeColumns()
 
-    if (this.model.autosize_mode === "fit_viewport") {
-      let width = 0
-      for (const column of columns)
-        width += (column as any).width
-      this.model.width = Math.ceil(width)
-    }
+    let width = 0
+    for (const column of columns)
+      width += (column as any).width
+    this._width = Math.ceil(width)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
       if (!this.model.sortable)
@@ -371,7 +381,7 @@ export namespace DataTable {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TableWidget.Props & {
-    autosize_mode: p.Property<string>
+    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "off" | "none" | "force_fit" | "ignore_viewport">
     auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
     fit_columns: p.Property<boolean | null>
@@ -407,8 +417,8 @@ export class DataTable extends TableWidget {
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>({
-      autosize_mode:       [ p.String,  "force_fit"  ],
-      auto_edit:           [ p.Boolean, false],
+      autosize_mode:       [ p.Any, "force_fit" ],
+      auto_edit:           [ p.Boolean, false ],
       columns:             [ p.Array,   []    ],
       fit_columns:         [ p.Boolean, null  ],
       frozen_columns:      [ p.Int,     null  ],
