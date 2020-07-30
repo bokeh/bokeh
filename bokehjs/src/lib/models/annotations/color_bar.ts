@@ -467,11 +467,11 @@ export class ColorBarView extends AnnotationView {
       return new LogScale(ranges)
     else if (color_mapper instanceof ScanningColorMapper) {
       const {binning} = color_mapper.metrics
-      // TODO: scan_result = this.model.color_mapper.scan(???)
       return new LinearInterpolationScale({...ranges, binning})
-    // TODO: Categorical*Mapper needs painters
-    } else
+    } else {
+      // TODO: Categorical*Mapper needs painters
       unreachable()
+    }
   }
 
   protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {

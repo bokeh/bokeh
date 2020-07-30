@@ -3,18 +3,18 @@ import {Arrayable, Color} from "core/types"
 import * as p from "core/properties"
 
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {map, intersection} from "core/util/array"
+import {map, intersection, is_empty} from "core/util/array"
 import {isNumber, isArray} from "core/util/types"
 
 export namespace ContinuousColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColorMapper.Props & {
-    high: p.Property<number>
-    low: p.Property<number>
-    high_color: p.Property<Color>
-    low_color: p.Property<Color>
-    domain: p.Property<[GlyphRenderer, string | string[]][] | null>
+    high: p.Property<number | null>
+    low: p.Property<number | null>
+    high_color: p.Property<Color | null>
+    low_color: p.Property<Color | null>
+    domain: p.Property<[GlyphRenderer, string | string[]][]>
   }
 }
 
@@ -28,47 +28,41 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   }
 
   static init_ContinuousColorMapper(): void {
-    this.define<ContinuousColorMapper.Props>({
-      high:       [ p.Number ],
-      low:        [ p.Number ],
-      high_color: [ p.Color  ],
-      low_color:  [ p.Color  ],
-      domain:     [ p.Any    ],
+    this.define<ContinuousColorMapper.Props>(({Number, String, Null, Ref, Color, Or, Tuple, Array}) => {
+      return {
+        high:       [ Or(Number, Null), null ],
+        low:        [ Or(Number, Null), null ],
+        high_color: [ Or(Color, Null), null ],
+        low_color:  [ Or(Color, Null), null ],
+        domain:     [ Array(Tuple(Ref(GlyphRenderer), Or(String, Array(String)))), [] ],
+      }
     })
   }
 
   connect_signals(): void {
     super.connect_signals()
 
-    const {domain} = this
-    if (domain != null) {
-      for (const [renderer] of domain) {
-        this.connect(renderer.view.change, () => this.update_data())
-        this.connect(renderer.data_source.selected.change, () => this.update_data())
-      }
+    for (const [renderer] of this.domain) {
+      this.connect(renderer.view.change, () => this.update_data())
+      this.connect(renderer.data_source.selected.change, () => this.update_data())
     }
   }
 
   update_data(): void {
     const {domain, palette} = this
-    if (domain == null) {
-      throw new Error("no")
-    } else {
-      const all_data = [...this._collect(domain)]
-      this._scan_data = this.scan(all_data, palette.length)
-      this.change.emit()
-    }
+    const all_data = [...this._collect(domain)]
+    this._scan_data = this.scan(all_data, palette.length)
+    this.change.emit()
   }
 
   get metrics(): {min: number, max: number} {
     if (this._scan_data == null) {
       this.update_data()
     }
-
     return this._scan_data!
   }
 
-  *_collect(domain: [GlyphRenderer, string | string[]][]) {
+  protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
         let array = renderer.data_source.get_column(field)!
@@ -115,7 +109,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       high_color = palette[palette.length-1]
 
     const {domain} = this
-    const all_data = domain != null ? [...this._collect(domain)] : data
+    const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
     this._scan_data = this.scan(all_data, palette.length)
 
     for (let i = 0, end = data.length; i < end; i++) {
