@@ -1,29 +1,27 @@
 import {NumericInputView, NumericInput} from "./numeric_input"
 
 import * as p from "core/properties"
-import {button, div, toggle_attribute} from "core/dom"
+import {button, div, toggle_attribute, Keys} from "core/dom"
 
 
-const {min, max, floor} = Math
+const {min, max, floor, abs} = Math
 
 function precision(num: number): number { // get number of digits
-  if (floor(num) !== num)
-    return num.toFixed(16).replace(/0+$/, '').split(".")[1].length
-  return 0
+  return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, '').split(".")[1].length : 0
 }
 
-// Inpisration from https://github.com/uNmAnNeR/ispinjs
+// Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class NumericSpinnerView extends NumericInputView {
   model: NumericSpinner
 
   protected wrapper_el: HTMLDivElement
-  protected inc_el: HTMLButtonElement
-  protected dec_el: HTMLButtonElement
+  protected btn_up_el: HTMLButtonElement
+  protected btn_down_el: HTMLButtonElement
   private _interval_handle: number;
 
   *buttons(): Generator<HTMLButtonElement> {
-    yield this.inc_el
-    yield this.dec_el
+    yield this.btn_up_el
+    yield this.btn_down_el
   }
 
   initialize(): void {
@@ -45,11 +43,11 @@ export class NumericSpinnerView extends NumericInputView {
     this.wrapper_el = div({class: "bk-spin-wrapper"})
     this.group_el.replaceChild(this.wrapper_el, this.input_el)
 
-    this.inc_el = button({class: "bk-spin-btn bk-spin-btn-inc"})
-    this.dec_el = button({class: "bk-spin-btn bk-spin-btn-dec"})
+    this.btn_up_el = button({class: "bk-spin-btn bk-spin-btn-up"})
+    this.btn_down_el = button({class: "bk-spin-btn bk-spin-btn-down"})
     this.wrapper_el.appendChild(this.input_el)
-    this.wrapper_el.appendChild(this.inc_el)
-    this.wrapper_el.appendChild(this.dec_el)
+    this.wrapper_el.appendChild(this.btn_up_el)
+    this.wrapper_el.appendChild(this.btn_down_el)
     for (const btn of this.buttons()) {
       toggle_attribute(btn, "disabled", this.model.disabled)
       btn.addEventListener("mousedown", (evt) => this._btn_mouse_down(evt))
@@ -65,18 +63,14 @@ export class NumericSpinnerView extends NumericInputView {
   }
 
   get precision(): number {
-    const {low, step} = this.model
-    return max(
-      ...[low, step]
-        .reduce<number[]>((prev, val) => {
-          if (val != null) prev.push(val)
-          return prev
-        }, [])
-        .map(precision)
-    )
+    const {low, high, step} = this.model
+    return max(...[low, high, step].map(abs).reduce<number[]>((prev, val) => {
+        if (val!=null) prev.push(val)
+        return prev
+      }, []).map(precision))
   }
 
-  _start_incrementation(sign: 1 | -1): void {
+  _start_incrementation(sign: 1|-1): void {
     clearInterval(this._interval_handle)
     const {step} = this.model
     this._interval_handle = setInterval(() => this.increment(sign * step), 100)
@@ -84,7 +78,7 @@ export class NumericSpinnerView extends NumericInputView {
 
   _btn_mouse_down(evt: MouseEvent): void {
     evt.preventDefault()
-    const sign = evt.currentTarget === this.inc_el ? 1 : -1
+    const sign = evt.currentTarget === (this.btn_up_el)? 1 : -1
     this.increment(sign * this.model.step)
     this.input_el.focus()
     //while mouse is down we increment at a certain rate
@@ -100,25 +94,25 @@ export class NumericSpinnerView extends NumericInputView {
   }
 
   _input_mouse_wheel(evt: WheelEvent): void {
-    if (document.activeElement !== this.input_el) return
-    evt.preventDefault()
-
-    const sign = evt.deltaY > 0 ? -1 : 1
-    this.increment(sign * this.model.step)
+    if (document.activeElement === this.input_el) {
+      evt.preventDefault()
+      const sign = (evt.deltaY>0)? -1 : 1
+      this.increment(sign * this.model.step)
+    }
   }
 
   _input_key_down(evt: KeyboardEvent) {
     switch (evt.keyCode) {
-      case 38: // arrow up
+      case Keys.Up:
         evt.preventDefault()
         return this.increment(this.model.step)
-      case 40: // arrow down
+      case Keys.Down:
         evt.preventDefault()
         return this.increment(-this.model.step)
-      case 33: // page up
+      case Keys.PageUp:
         evt.preventDefault()
         return this.increment(10 * this.model.step)
-      case 34: // page down
+      case Keys.PageDown:
         evt.preventDefault()
         return this.increment(-10 * this.model.step)
     }
@@ -132,12 +126,11 @@ export class NumericSpinnerView extends NumericInputView {
     const {low, high} = this.model
     if (this.model.value == null) {
       if (step > 0)
-        this.model.value =
-          low != null ? low : high != null ? min(0, high) : 0
+        this.model.value = (low!=null)? low : (high!=null)? min(0, high) : 0
       else if (step < 0)
-        this.model.value =
-          high != null ? high : low != null ? max(low, 0) : 0
-    } else this.model.value = this.adjust_to_precision(this.model.value + step)
+        this.model.value = (high!=null)? high : (low!=null)? max(low, 0) : 0
+    } else
+      this.model.value = this.adjust_to_precision(this.model.value + step)
   }
 }
 
