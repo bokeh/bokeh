@@ -35,7 +35,11 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is ObjType {
-      return value instanceof this.obj_type
+      // XXX: disable validation for now, because object graph
+      // initialization depends on this.
+      value
+      return true
+      //return value instanceof this.obj_type
     }
   }
 
