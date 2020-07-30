@@ -290,7 +290,7 @@ export class DataTableView extends WidgetView {
 
     let frozen_row = -1
     let frozen_bottom = false
-	const {frozen_rows, frozen_columns} = this.model
+    const {frozen_rows, frozen_columns} = this.model
     const frozen_column = frozen_columns == null ? -1 : frozen_columns-1
     if (frozen_rows != null) {
       frozen_bottom = frozen_rows < 0
