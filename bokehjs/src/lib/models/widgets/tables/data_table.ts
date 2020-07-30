@@ -288,12 +288,13 @@ export class DataTableView extends WidgetView {
       reorderable = false
     }
 
-    let frozenRow = -1
-    let frozenBottom = false
-    const frozenColumn = this.model.frozen_columns == null ? -1 : this.model.frozen_columns-1
-    if (this.model.frozen_rows != null) {
-      frozenBottom = this.model.frozen_rows < 0 ? true : false
-      frozenRow = Math.abs(this.model.frozen_rows)
+    let frozen_row = -1
+    let frozen_bottom = false
+	const {frozen_rows, frozen_columns} = this.model
+    const frozen_column = frozen_columns == null ? -1 : frozen_columns-1
+    if (frozen_rows != null) {
+      frozen_bottom = frozen_rows < 0
+      frozen_row = Math.abs(frozen_rows)
     }
 
     const options = {
@@ -305,9 +306,9 @@ export class DataTableView extends WidgetView {
       autoEdit: this.model.auto_edit,
       autoHeight: false,
       rowHeight: this.model.row_height,
-      frozenColumn,
-      frozenRow,
-      frozenBottom,
+      frozenColumn: frozen_column,
+      frozenRow: frozen_row,
+      frozenBottom: frozen_bottom,
     }
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
