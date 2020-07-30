@@ -31,11 +31,13 @@ from ...core.properties import (
     Float,
     Int,
     Interval,
+    Instance,
     List,
     PositiveInt,
     String,
     Tuple,
 )
+from ..formatters import TickFormatter
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -50,6 +52,7 @@ __all__ = (
     'InputWidget',
     'MultiChoice',
     'MultiSelect',
+    'NumericInput',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -161,6 +164,41 @@ class FileInput(Widget):
     """)
 
 
+class NumericInput(InputWidget):
+    ''' Numeric input widget.
+
+    '''
+
+    value = Either(Float, Int, help="""
+    Initial or entered value.
+
+    Change events are triggered whenever <enter> is pressed.
+    """)
+
+    low = Either(Float, Int, help="""
+    Optional lowest allowable value.
+    """)
+
+    high = Either(Float, Int, help="""
+    Optional highest allowable value.
+    """)
+
+    placeholder = String(default="", help="""
+    Placeholder for empty input field.
+    """)
+
+    mode = Enum("int", "float", help="""
+    Define the type of number which can be enter in the input
+    
+    example
+    mode int: 1, -1, 156
+    mode float: 1, -1.2, 1.1e-25
+    """)
+
+    format = Either(String, Instance(TickFormatter), help="""
+    """)
+
+
 class TextInput(InputWidget):
     ''' Single-line input widget.
 
@@ -229,6 +267,7 @@ class AutocompleteInput(TextInput):
     """)
 
     case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
+
 
 class Select(InputWidget):
     ''' Single-select widget.
