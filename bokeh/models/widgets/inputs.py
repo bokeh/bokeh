@@ -33,6 +33,7 @@ from ...core.properties import (
     Int,
     Interval,
     List,
+    Override,
     PositiveInt,
     String,
     Tuple,
@@ -53,6 +54,7 @@ __all__ = (
     'MultiChoice',
     'MultiSelect',
     'NumericInput',
+    'NumericSpinner',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -196,6 +198,18 @@ class NumericInput(InputWidget):
     """)
 
     format = Either(String, Instance(TickFormatter), help="""
+    """)
+
+
+class NumericSpinner(NumericInput):
+    ''' Numeric Spinner input widget.
+
+    '''
+
+    mode = Override(default="float")
+
+    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    The step added or subtracted to the current value
     """)
 
 

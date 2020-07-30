@@ -90,16 +90,23 @@ export class NumericInputView extends InputWidgetView {
       setInputFilter(this.input_el, (value) => float_regex.test(value))
   }
 
-  change_input(): void {
-    let value = (this.input_el.value!=="")? Number(this.input_el.value) : null
+  bound_value(value: number): number {
+    let output = value
     const {low, high} = this.model
-    if (value != null) {
-      value = (low != null)? Math.max(low, value): value
-      value = (high != null)? Math.min(high, value): value
-      if(!Number.isNaN(value)) this.model.value = value
-    } else {
-      this.model.value = null
-    }
+    output = (low != null)? Math.max(low, output): output
+    output = (high != null)? Math.min(high, output): output
+    return output
+  }
+
+  get value(): number | null {
+    let value = (this.input_el.value!=="")? Number(this.input_el.value) : null
+    if(value!=null) value = this.bound_value(value)
+    return value
+  }
+
+  change_input(): void {
+      if (this.value == null) this.model.value = null
+      else if (!Number.isNaN(this.value)) this.model.value = this.value
   }
 }
 
@@ -136,7 +143,7 @@ export class NumericInput extends InputWidget {
       mode:        [ p.Any,    "int" ],
       format:      [ p.Any           ],
       low:         [ p.Number,  null ],
-      high:         [ p.Number,  null ],
+      high:        [ p.Number,  null ],
     })
   }
 
