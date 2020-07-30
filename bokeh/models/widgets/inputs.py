@@ -29,9 +29,9 @@ from ...core.properties import (
     Either,
     Enum,
     Float,
+    Instance,
     Int,
     Interval,
-    Instance,
     List,
     PositiveInt,
     String,
@@ -189,7 +189,7 @@ class NumericInput(InputWidget):
 
     mode = Enum("int", "float", help="""
     Define the type of number which can be enter in the input
-    
+
     example
     mode int: 1, -1, 156
     mode float: 1, -1.2, 1.1e-25

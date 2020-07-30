@@ -84,9 +84,9 @@ export class NumericInputView extends InputWidgetView {
   }
 
   set_input_filter(): void {
-    if (this.model.mode == "int") 
+    if (this.model.mode == "int")
       setInputFilter(this.input_el, (value) => int_regex.test(value))
-    else if (this.model.mode == "float") 
+    else if (this.model.mode == "float")
       setInputFilter(this.input_el, (value) => float_regex.test(value))
   }
 
@@ -99,7 +99,7 @@ export class NumericInputView extends InputWidgetView {
       if(!Number.isNaN(value)) this.model.value = value
     } else {
       this.model.value = null
-    } 
+    }
   }
 }
 

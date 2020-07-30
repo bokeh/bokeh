@@ -105,7 +105,7 @@ class Test_NumericInput(object):
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
-    
+
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
@@ -182,7 +182,7 @@ class Test_NumericInput(object):
 
         el = page.driver.find_element_by_css_selector('.foo input')
         assert el.get_attribute('value') == "4"
-        
+
         enter_text_in_element(page.driver, el, "30", click=2)
         assert el.get_attribute('value') == "10"
 
@@ -195,7 +195,7 @@ class Test_NumericInput(object):
                           "0.1", "-0.1", "+0.1", "-.1", "+.1",
                           "1e-6", "1.e5", "-1e+3", "-1.e-5",
                           "a", ""]
-        
+
         expected_results = [0, 1, -1, 5, 1, -1, 1, -1, 1,
                             10, 10, -13, -15, -15, None]
 
@@ -211,17 +211,17 @@ class Test_NumericInput(object):
         for val, res in zip(values_to_enter, expected_results):
             el.clear()
             enter_text_in_element(page.driver, el, val)
-            
+
             results = page.results
             assert results['value'] == res
 
     def test_float_inputs(self, single_plot_page) -> None:
-        
+
         values_to_enter = ["0", "1", "-1", "+5",
                           "0.1", "-0.1", "+0.1", "-.1", "+.1",
                           "1e-6", "1.e5", "-1e+3", "-1.e-5",
                           "a", "1ea"]
-        
+
         expected_results = [0, 1, -1, 5, 0.1, -0.1, 0.1, -0.1, 0.1,
                             1e-6, 10, -1e3, -1e-5, -1e-5, None]
 
@@ -237,6 +237,6 @@ class Test_NumericInput(object):
         for val, res in zip(values_to_enter, expected_results):
             el.clear()
             enter_text_in_element(page.driver, el, val)
-            
+
             results = page.results
             assert results['value'] == res
