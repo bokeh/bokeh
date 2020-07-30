@@ -5,6 +5,7 @@ import {Arrayable, Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
+import * as k from "./kinds"
 import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
@@ -18,6 +19,7 @@ import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
 import {equals, Equals, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
+import * as kinds from "./kinds"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -46,7 +48,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<Property, void>
+export type PropertyGenerator = Generator<Property, void, undefined>
 
 export abstract class HasProps extends Signalable() implements Equals, Printable {
   __view_type__: View
@@ -111,8 +113,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
-  static define<T>(obj: Partial<p.DefineOf<T>>): void {
-    for (const [name, prop] of entries(obj)) {
+  static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
       if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
@@ -280,10 +282,14 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
-      if (type != null)
-        this.properties[name] = new type(this, name, default_value, get(name), options)
+      let property: p.Property<unknown>
+
+      if (type instanceof k.Kind)
+        property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
-        throw new Error(`undefined property type for ${this.type}.${name}`)
+        property = new type(this, name, k.Any, default_value, get(name), options)
+
+      this.properties[name] = property
     }
 
     // allowing us to defer initialization when loading many models
@@ -434,9 +440,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   *[Symbol.iterator](): PropertyGenerator {
-    for (const prop of values(this.properties)) {
-      yield prop
-    }
+    yield* values(this.properties)
   }
 
   *syncable_properties(): PropertyGenerator {
