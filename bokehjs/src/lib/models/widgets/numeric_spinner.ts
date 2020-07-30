@@ -10,8 +10,6 @@ function precision(num: number): number { // get number of digits
   return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, '').split(".")[1].length : 0
 }
 
-
-
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
 
@@ -87,6 +85,9 @@ export class NumericSpinnerView extends NumericInputView {
     }
     this.input_el.addEventListener("keydown", (evt) =>
       this._input_key_down(evt)
+    )
+    this.input_el.addEventListener("keyup", () => 
+      this.model.value_throttled = this.model.value
     )
     this.input_el.addEventListener("wheel", (evt) =>
       this._input_mouse_wheel(evt)
