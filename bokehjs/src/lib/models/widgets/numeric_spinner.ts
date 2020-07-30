@@ -10,6 +10,37 @@ function precision(num: number): number { // get number of digits
   return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, '').split(".")[1].length : 0
 }
 
+
+
+function debounce(func: () => void, wait: number, immediate: boolean = false) {
+  //func must works by side effects
+
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return function(this: any, ...args: any): void {
+    const context = this
+
+    const doLater = function() {
+      timeoutId = undefined;
+      if (!immediate) {
+        func.apply(context, args)
+      }
+    }
+
+    const shouldCallNow = immediate && timeoutId === undefined;
+
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId)
+    }
+
+    timeoutId = setTimeout(doLater, wait)
+
+    if (shouldCallNow) {
+      func.apply(context, args)
+    }
+  }
+}
+
 // Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class NumericSpinnerView extends NumericInputView {
   model: NumericSpinner
@@ -17,7 +48,7 @@ export class NumericSpinnerView extends NumericInputView {
   protected wrapper_el: HTMLDivElement
   protected btn_up_el: HTMLButtonElement
   protected btn_down_el: HTMLButtonElement
-  private _interval_handle: number;
+  private _interval_handle: ReturnType<typeof setInterval>;
 
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
@@ -54,12 +85,15 @@ export class NumericSpinnerView extends NumericInputView {
       btn.addEventListener("mouseup", () => this._btn_mouse_up())
       btn.addEventListener("mouseleave", () => this._btn_mouse_leave())
     }
-    this.input_el.addEventListener("wheel", (evt) =>
-      this._input_mouse_wheel(evt)
-    )
     this.input_el.addEventListener("keydown", (evt) =>
       this._input_key_down(evt)
     )
+    this.input_el.addEventListener("wheel", (evt) =>
+      this._input_mouse_wheel(evt)
+    )
+    this.input_el.addEventListener("wheel", debounce(() => {
+      this.model.value_throttled = this.model.value
+    }, 100, false))
   }
 
   get precision(): number {
@@ -76,6 +110,11 @@ export class NumericSpinnerView extends NumericInputView {
     this._interval_handle = setInterval(() => this.increment(sign * step), 100)
   }
 
+  _stop_incrementation(): void {
+    clearInterval(this._interval_handle)
+    this.model.value_throttled = this.model.value
+  }
+
   _btn_mouse_down(evt: MouseEvent): void {
     evt.preventDefault()
     const sign = evt.currentTarget === (this.btn_up_el)? 1 : -1
@@ -86,11 +125,11 @@ export class NumericSpinnerView extends NumericInputView {
   }
 
   _btn_mouse_up(): void {
-    clearInterval(this._interval_handle)
+    this._stop_incrementation()
   }
 
   _btn_mouse_leave(): void {
-    clearInterval(this._interval_handle)
+    this._stop_incrementation()
   }
 
   _input_mouse_wheel(evt: WheelEvent): void {
@@ -132,12 +171,18 @@ export class NumericSpinnerView extends NumericInputView {
     } else
       this.model.value = this.adjust_to_precision(this.model.value + step)
   }
+
+  change_input(): void {
+    super.change_input()
+    this.model.value_throttled = this.model.value
+  }
 }
 
 export namespace NumericSpinner {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = NumericInput.Props & {
+    value_throttled: p.Property<number | null>
     step: p.Property<number>
   }
 }
@@ -156,7 +201,8 @@ export class NumericSpinner extends NumericInput {
     this.prototype.default_view = NumericSpinnerView
 
     this.define<NumericSpinner.Props>({
-      step: [p.Number, 1],
+      value_throttled: [ p.Number, null ],
+      step:            [ p.Number,    1 ],
     })
 
     this.override({

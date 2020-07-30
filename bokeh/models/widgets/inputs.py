@@ -206,6 +206,10 @@ class NumericSpinner(NumericInput):
 
     '''
 
+    value_throttled = Either(Float, Int, help="""
+    value reported at the end of interactions
+    """)
+
     mode = Override(default="float")
 
     step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
