@@ -81,6 +81,7 @@ __all__ = (
     'Align',
     'Anchor',
     'AngleUnits',
+    'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
     'DashPattern',
@@ -233,7 +234,7 @@ Anchor = enumeration(
 AngleUnits = enumeration("deg", "rad")
 
 #: Specify autosize mode for DataTable
-AutosizeMode = enumeration("fit_columns", "fit_viewport", "ignore_viewport", "force_fit", "none", "off")
+AutosizeMode = enumeration("fit_columns", "fit_viewport", "force_fit", "none")
 
 #: Specify a style for button widgets
 ButtonType = enumeration("default", "primary", "success", "warning", "danger")

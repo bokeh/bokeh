@@ -29,10 +29,8 @@ declare const $: any
 export const AutosizeModes = {
   fit_columns: "FCV",
   fit_viewport: "FVC",
-  ignore_viewport: "IGV",
   force_fit: "LFF",
   none: "NOA",
-  off: "LOF",
 }
 
 export class TableDataProvider implements DataProvider<Item> {
@@ -43,14 +41,6 @@ export class TableDataProvider implements DataProvider<Item> {
 
   constructor(source: ColumnDataSource, view: CDSView) {
     this.init(source, view)
-    return new Proxy(this, {
-      get: (obj: any, key: string | number) => {
-        if (typeof(key) === 'string' && (Number.isInteger(Number(key)))) // key is an index
-          return obj.getItem(Number(key))
-        else
-          return obj[(key as any)]
-      },
-    })
   }
 
   init(source: ColumnDataSource, view: CDSView): void {
@@ -95,6 +85,10 @@ export class TableDataProvider implements DataProvider<Item> {
 
   getRecords(): Item[] {
     return range(0, this.getLength()).map((i) => this.getItem(i))
+  }
+
+  getItems(): Item[] {
+    return this.getRecords()
   }
 
   slice(start: number, end: number | null, step?: number): Item[] {
@@ -164,11 +158,20 @@ export class DataTableView extends WidgetView {
     this.grid.resizeCanvas()
   }
 
+  after_layout(): void {
+	super.after_layout()
+	const autosize = this.autosize
+	if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
+      this.grid.resizeCanvas()
+	  this.grid.autosizeColumns()
+	}
+  }
+
   box_sizing(): Partial<BoxSizing> {
     const sizing = super.box_sizing()
-	if (this.model.autosize_mode === "fit_viewport" && sizing.width_policy !== "max" && this._width != null)
+    if (this.model.autosize_mode === "fit_viewport" && this._width != null)
       sizing.width = this._width
-	return sizing
+    return sizing
   }
 
   updateGrid(): void {
@@ -245,10 +248,10 @@ export class DataTableView extends WidgetView {
     if (this.model.fit_columns === true)
       autosize = AutosizeModes.force_fit
     else if (this.model.fit_columns === false)
-      autosize = AutosizeModes.off
+      autosize = AutosizeModes.none
     else
       autosize = AutosizeModes[this.model.autosize_mode]
-	return autosize
+    return autosize
   }
 
   render(): void {
@@ -307,18 +310,16 @@ export class DataTableView extends WidgetView {
       frozenBottom,
     }
 
-    if (this.model.autosize_mode === "fit_columns")
-      this.el.style.width = this.model.width + "px"
-
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
-    this.grid.autosizeColumns()
-
-    let width = 0
-    for (const column of columns)
-      width += (column as any).width
-    this._width = Math.ceil(width)
+    if (this.autosize == AutosizeModes.fit_viewport) { 
+      this.grid.autosizeColumns()
+      let width = 0
+      for (const column of columns)
+		width += (column as any).width
+      this._width = Math.ceil(width)
+    }
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
       if (!this.model.sortable)
@@ -381,7 +382,7 @@ export namespace DataTable {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TableWidget.Props & {
-    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "off" | "none" | "force_fit" | "ignore_viewport">
+    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "none" | "force_fit">
     auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
     fit_columns: p.Property<boolean | null>

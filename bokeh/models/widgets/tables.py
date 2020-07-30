@@ -628,26 +628,24 @@ class DataTable(TableWidget):
 
     '''
 
-    autosize_mode = Enum(AutosizeMode, default="off", help="""
+    autosize_mode = Enum(AutosizeMode, default="force_fit", help="""
     Describes the column autosizing mode with one of the following options:
 
     ``"fit_columns"``
-        Fit columns into the available area, potentially resulting in
-        squashed or unreadable columns.
+        Compute columns widths based on cell contents but ensure the
+        table fits into the available viewport. This results in no
+        horizontal scrollbar showing up, but data can get unreadable
+        if there is not enough space available.
 
     ``"fit_viewport"``
-        Fit viewport size to the automatically computed column widths.
-
-    ``"ignore_viewport"``
-        Automatically compute column widths ignoring the viewport area.
-
-    ``"off"``
-        Disable autosizing behavior, equivalent to fit_columns=False
-        (legacy mode).
+        Adjust the viewport size after computing columns widths based
+        on cell contents.
 
     ``"force_fit"``
-        Whether columns should be fit to available width, equivalent
-        to setting fit_columns=True (legacy mode).
+        Fit columns into available space dividing the table width across
+        the columns equally (equivalent to `fit_columns=True`).
+        This results in no horizontal scrollbar showing up, but data
+        can get unreadable if there is not enough space available.
 
     ``"none"``
         Do not automatically compute column widths.
@@ -665,7 +663,7 @@ class DataTable(TableWidget):
     fit_columns = Bool(help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
-    no enough space available. If set to ``True``, columns' width is
+    not enough space available. If set to ``True``, columns' width is
     understood as maximum width.
     """)
 
