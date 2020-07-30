@@ -129,7 +129,7 @@ export class DataTableView extends WidgetView {
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
-  protected _width: number | null
+  protected _width: number | null = null
 
   connect_signals(): void {
     super.connect_signals()
