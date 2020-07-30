@@ -318,7 +318,7 @@ export class DataTableView extends WidgetView {
       this.grid.autosizeColumns()
       let width = 0
       for (const column of columns)
-        width += (column as any).width
+        width += column.width ?? 0
       this._width = Math.ceil(width)
     }
 
