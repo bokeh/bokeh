@@ -64,7 +64,7 @@ export class PolySelectToolView extends SelectToolView {
 
 }
 
-const DEFAULT_POLY_OVERLAY = () => {
+export const DEFAULT_POLY_OVERLAY = () => {
   return new PolyAnnotation({
     level: "overlay",
     xs_units: "screen",
