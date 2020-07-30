@@ -418,23 +418,25 @@ export class DataTable extends TableWidget {
   static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>({
-      autosize_mode:       [ p.Any, "force_fit" ],
-      auto_edit:           [ p.Boolean, false ],
-      columns:             [ p.Array,   []    ],
-      fit_columns:         [ p.Boolean, null  ],
-      frozen_columns:      [ p.Int,     null  ],
-      frozen_rows:         [ p.Int,     null  ],
-      sortable:            [ p.Boolean, true  ],
-      reorderable:         [ p.Boolean, true  ],
-      editable:            [ p.Boolean, false ],
-      selectable:          [ p.Any,     true  ], // boolean or "checkbox"
-      index_position:      [ p.Int,     0     ],
-      index_header:        [ p.String,  "#"   ],
-      index_width:         [ p.Int,     40    ],
-      scroll_to_selection: [ p.Boolean, true  ],
-      header_row:          [ p.Boolean, true  ],
-      row_height:          [ p.Int,     25    ],
+    this.define<DataTable.Props>(({Any, Array, Boolean, Int, Ref, String}) => {
+      return {
+        autosize_mode:       [ Any, "force_fit" ],
+        auto_edit:           [ Boolean, false ],
+        columns:             [ Array(Ref(TableColumn)), [] ],
+        fit_columns:         [ Boolean ],
+        frozen_columns:      [ Int ],
+        frozen_rows:         [ Int ],
+        sortable:            [ Boolean, true  ],
+        reorderable:         [ Boolean, true  ],
+        editable:            [ Boolean, false ],
+        selectable:          [ Any,     true  ], // boolean or "checkbox"
+        index_position:      [ Int,     0     ],
+        index_header:        [ String,  "#"   ],
+        index_width:         [ Int,     40    ],
+        scroll_to_selection: [ Boolean, true  ],
+        header_row:          [ Boolean, true  ],
+        row_height:          [ Int,     25    ],
+      }
     })
 
     this.override({
