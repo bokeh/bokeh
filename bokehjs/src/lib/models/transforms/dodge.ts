@@ -1,22 +1,17 @@
-import {Transform} from "./transform"
-import {Range} from "../ranges/range"
-import {Factor, FactorRange} from "../ranges/factor_range"
+import {RangeTransform} from "./range_transform"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
-import {isNumber, isArrayableOf} from "core/util/types"
 
 export namespace Dodge {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Transform.Props & {
+  export type Props = RangeTransform.Props & {
     value: p.Property<number>
-    range: p.Property<Range>
   }
 }
 
 export interface Dodge extends Dodge.Attrs {}
 
-export class Dodge extends Transform {
+export class Dodge extends RangeTransform {
   properties: Dodge.Props
 
   constructor(attrs?: Partial<Dodge.Attrs>) {
@@ -26,35 +21,7 @@ export class Dodge extends Transform {
   static init_Dodge(): void {
     this.define<Dodge.Props>({
       value: [ p.Number,  0 ],
-      range: [ p.Instance   ],
     })
-  }
-
-  // XXX: this is repeated in ./jitter.ts
-  v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
-    let xs: Arrayable<number>
-    if (this.range instanceof FactorRange)
-      xs = this.range.v_synthetic(xs0)
-    else if (isArrayableOf(xs0, isNumber))
-      xs = xs0
-    else
-      throw new Error("unexpected")
-
-    const result = new Float64Array(xs.length)
-    for (let i = 0; i < xs.length; i++) {
-      const x = xs[i]
-      result[i] = this._compute(x)
-    }
-    return result
-  }
-
-  compute(x: number | Factor): number {
-    if (this.range instanceof FactorRange)
-      return this._compute(this.range.synthetic(x))
-    else if (isNumber(x))
-      return this._compute(x)
-    else
-      throw new Error("unexpected")
   }
 
   protected _compute(x: number): number {
