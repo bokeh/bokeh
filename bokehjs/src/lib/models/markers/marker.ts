@@ -63,8 +63,7 @@ export abstract class MarkerView extends XYGlyphView {
   }
 
   protected _mask_data(): Indices {
-    // dilate the inner screen region by max_size and map back to data space for use in
-    // spatial query
+    // dilate the inner screen region by max_size and map back to data space for use in spatial query
     const hr = this.renderer.plot_view.frame.bbox.h_range
     const sx0 = hr.start - this.max_size
     const sx1 = hr.end + this.max_size
@@ -151,9 +150,8 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    // using objects like this seems a little wonky, since the keys are coerced to
-    // stings, but it works
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): any {
+    // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -166,7 +164,12 @@ export abstract class MarkerView extends XYGlyphView {
     const angle: number[] = new Array(len)
     angle[index] = 0 // don't attempt to match glyph angle
 
-    this._render(ctx, [index], {sx, sy, _size: size, _angle: angle} as any) // XXX
+    return {sx, sy, _size: size, _angle: angle}
+  }
+
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+    const args = this._get_legend_args({x0, x1, y0, y1}, index)
+    this._render(ctx, [index], args) // XXX
   }
 }
 
