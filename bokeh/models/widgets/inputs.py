@@ -224,7 +224,7 @@ class Spinner(NumericInput):
     Defines the time in ms between two changes when arrows or keys are pressed
     """)
 
-    wheel_wait = Either(Int, Float, default=200, help="""
+    wheel_wait = Either(Int, Float, default=100, help="""
     Defines the debounce time in ms before updating `value_throttled` when the
     mouse wheel is used to change the input
     """)
