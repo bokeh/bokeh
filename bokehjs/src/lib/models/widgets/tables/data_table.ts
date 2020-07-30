@@ -159,12 +159,12 @@ export class DataTableView extends WidgetView {
   }
 
   after_layout(): void {
-	super.after_layout()
-	const autosize = this.autosize
-	if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
+    super.after_layout()
+    const autosize = this.autosize
+    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
       this.grid.resizeCanvas()
-	  this.grid.autosizeColumns()
-	}
+      this.grid.autosizeColumns()
+    }
   }
 
   box_sizing(): Partial<BoxSizing> {
@@ -313,11 +313,11 @@ export class DataTableView extends WidgetView {
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
-    if (this.autosize == AutosizeModes.fit_viewport) { 
+    if (this.autosize == AutosizeModes.fit_viewport) {
       this.grid.autosizeColumns()
       let width = 0
       for (const column of columns)
-		width += (column as any).width
+        width += (column as any).width
       this._width = Math.ceil(width)
     }
 
