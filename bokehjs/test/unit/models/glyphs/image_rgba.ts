@@ -19,8 +19,8 @@ describe("ImageRGBA module", () => {
       const image_rgba_view = await create_glyph_view(image_rgba, data)
       image_rgba_view.map_data()
 
-      expect(image_rgba_view.sw).to.be.equal(new Float64Array([34]))
-      expect(image_rgba_view.sh).to.be.equal(new Float64Array([38]))
+      expect(image_rgba_view.sw).to.be.equal(new Float32Array([34]))
+      expect(image_rgba_view.sh).to.be.equal(new Float32Array([38]))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -36,8 +36,8 @@ describe("ImageRGBA module", () => {
       const image_rgba_view = await create_glyph_view(image_rgba, data)
       image_rgba_view.map_data()
 
-      expect(image_rgba_view.sw).to.be.equal(new Float64Array([1]))
-      expect(image_rgba_view.sh).to.be.equal(new Float64Array([2]))
+      expect(image_rgba_view.sw).to.be.equal(new Float32Array([1]))
+      expect(image_rgba_view.sh).to.be.equal(new Float32Array([2]))
     })
   })
 })

@@ -175,7 +175,7 @@ export class Any extends Property<any> {}
 
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
-    return isArray(value) || value instanceof Float64Array
+    return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
   }
 }
 

@@ -2,7 +2,7 @@ import {Transform} from "./transform"
 import {Range} from "../ranges/range"
 import {Factor, FactorRange} from "../ranges/factor_range"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
 
 export namespace RangeTransform {
@@ -37,7 +37,7 @@ export abstract class RangeTransform extends Transform {
     else
       throw new Error("unexpected")
 
-    const result = new Float64Array(xs.length)
+    const result = new NumberArray(xs.length)
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i]
       result[i] = this._compute(x)

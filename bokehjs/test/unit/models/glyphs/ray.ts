@@ -23,7 +23,7 @@ describe("Ray", () => {
         const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
         glyph_view.map_data()
 
-        expect(glyph_view.slength).to.be.equal(new Float64Array([20]))
+        expect(glyph_view.slength).to.be.equal(new Float32Array([20]))
       }
     })
 
@@ -35,7 +35,7 @@ describe("Ray", () => {
         const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
         glyph_view.map_data()
 
-        expect(glyph_view.slength).to.be.equal(new Float64Array([10]))
+        expect(glyph_view.slength).to.be.equal(new Float32Array([10]))
       }
     })
   })

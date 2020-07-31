@@ -36,11 +36,11 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float32Array([10, 14, 20]))
     })
 
-    it("should map to a Float64Array", () => {
-      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should map to a Float32Array", () => {
+      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float32Array)
     })
   })
 
@@ -58,11 +58,11 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new Float32Array([10, 14, 20]))
     })
 
-    it("should map to a Float64Array", () => {
-      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should map to a Float32Array", () => {
+      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float32Array)
     })
   })
 })

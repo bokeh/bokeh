@@ -44,7 +44,7 @@ export abstract class Interpolator extends Transform {
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    const result = new Float64Array(xs.length)
+    const result = new NumberArray(xs.length)
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i]
       result[i] = this.compute(x)
@@ -81,7 +81,7 @@ export abstract class Interpolator extends Transform {
       throw new Error("x and y must have at least two elements to support interpolation")
 
     const n = tsx.length
-    const index = new Float32Array(n)
+    const index = new NumberArray(n)
     for (let i = 0; i < n; i++) {
       index[i] = i
     }

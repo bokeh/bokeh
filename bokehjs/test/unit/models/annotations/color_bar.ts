@@ -245,7 +245,7 @@ describe("ColorBar module", () => {
         const tick_coords = view.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([100, 80, 60, 40, 20, 0]))
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float32Array([100, 80, 60, 40, 20, 0]))
         expect(tick_coords.labels.major).to.be.equal(['10', '12', '14', '16', '18', '20'])
       })
 
@@ -259,7 +259,7 @@ describe("ColorBar module", () => {
         const tick_coords = view.tick_info()
 
         expect(tick_coords.coords.major[1]).to.be.equal([0, 0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[0]).to.be.equal(new Float64Array([0, 20, 40, 60, 80, 100]))
+        expect(tick_coords.coords.major[0]).to.be.equal(new Float32Array([0, 20, 40, 60, 80, 100]))
         expect(tick_coords.labels.major).to.be.equal(['10', '12', '14', '16', '18', '20'])
       })
 
@@ -273,7 +273,7 @@ describe("ColorBar module", () => {
         const tick_coords = view.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([23.299000144533963, 13.264666955734583, 7.394958320545214, 3.2303337669352175, 0]))
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float32Array([23.29900360107422, 13.264663696289062, 7.39495849609375, 3.2303314208984375, 0]))
         expect(tick_coords.labels.major).to.be.equal(['200', '400', '600', '800', '1000'])
       })
 
@@ -287,7 +287,7 @@ describe("ColorBar module", () => {
         const tick_coords = view.tick_info()
 
         expect(tick_coords.coords.major[1]).to.be.equal([0, 0, 0, 0, 0])
-        expect(tick_coords.coords.major[0]).to.be.equal(new Float64Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
+        expect(tick_coords.coords.major[0]).to.be.equal(new Float32Array([76.70099985546604, 86.73533304426542, 92.60504167945479, 96.76966623306478, 100]))
         expect(tick_coords.labels.major).to.be.equal(['200', '400', '600', '800', '1000'])
       })
 
@@ -300,7 +300,7 @@ describe("ColorBar module", () => {
         const tick_coords = view.tick_info()
 
         expect(tick_coords.coords.major[0]).to.be.equal([])
-        expect(tick_coords.coords.major[1]).to.be.equal(new Float64Array([]))
+        expect(tick_coords.coords.major[1]).to.be.equal(new Float32Array([]))
         expect(tick_coords.labels.major).to.be.equal([])
       })
     })

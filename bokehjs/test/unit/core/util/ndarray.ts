@@ -42,7 +42,7 @@ describe("core/util/ndarray module", () => {
     expect(is_NDArray(a5)).to.be.false
     const a6 = new Float32Array([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(a6)).to.be.false
-    const a7 = new Float64Array([1, 2, 3, 4, 5, 6])
+    const a7 = new Float32Array([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(a7)).to.be.false
 
     expect(is_NDArray([1, 2, 3, 4, 5, 6])).to.be.false
@@ -305,7 +305,7 @@ describe("core/util/ndarray module", () => {
     expect(nd2.shape).to.be.equal([3, 2])
     expect(nd2.length).to.be.equal(6)
 
-    const a3 = new Float64Array(6)
+    const a3 = new Float32Array(6)
     const nd3 = new Float64NDArray(a3, [2, 3])
     expect(is_NDArray(nd3)).to.be.true
     expect(nd3.dtype).to.be.equal("float64")
@@ -323,7 +323,7 @@ describe("core/util/ndarray module", () => {
   it("should support ndarray() function", () => {
     const nd0 = ndarray([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(nd0)).to.be.true
-    expect(nd0.dtype).to.be.equal("float64")
+    expect(nd0.dtype).to.be.equal("float32")
     expect(nd0.shape).to.be.equal([6])
   })
 

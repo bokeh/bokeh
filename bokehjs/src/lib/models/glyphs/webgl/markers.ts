@@ -239,8 +239,8 @@ export abstract class MarkerGL extends BaseGLGlyph {
     this.vbo_s.set_size(n)
     // Upload data for x and y, apply a baked-in offset for float32 precision (issue #3795)
     // The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
-    const xx = new Float64Array(this.glyph._x)
-    const yy = new Float64Array(this.glyph._y)
+    const xx = new Float32Array(this.glyph._x)
+    const yy = new Float32Array(this.glyph._y)
     for (let i = 0, end = nvertices; i < end; i++) {
       xx[i] += this._baked_offset[0]
       yy[i] += this._baked_offset[1]

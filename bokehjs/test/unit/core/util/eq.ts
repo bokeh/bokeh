@@ -47,7 +47,7 @@ describe("core/util/eq module", () => {
       expect(is_equal([], new Int16Array())).to.be.false
       expect(is_equal([], new Int32Array())).to.be.false
       expect(is_equal([], new Float32Array())).to.be.false
-      expect(is_equal([], new Float64Array())).to.be.false
+      expect(is_equal([], new Float32Array())).to.be.false
     })
 
     it("that supports Map<K, V>", () => {
@@ -64,7 +64,7 @@ describe("core/util/eq module", () => {
       expect(is_equal(new Map(), new Int16Array())).to.be.false
       expect(is_equal(new Map(), new Int32Array())).to.be.false
       expect(is_equal(new Map(), new Float32Array())).to.be.false
-      expect(is_equal(new Map(), new Float64Array())).to.be.false
+      expect(is_equal(new Map(), new Float32Array())).to.be.false
 
       const m0 = new Map([[3, "b"], [7, "d"], [5, "c"], [1, "a"]])
       const m1 = new Map([[1, "a"], [3, "b"], [5, "c"], [7, "d"]])
@@ -91,7 +91,7 @@ describe("core/util/eq module", () => {
       expect(is_equal(new Set(), new Int16Array())).to.be.false
       expect(is_equal(new Set(), new Int32Array())).to.be.false
       expect(is_equal(new Set(), new Float32Array())).to.be.false
-      expect(is_equal(new Set(), new Float64Array())).to.be.false
+      expect(is_equal(new Set(), new Float32Array())).to.be.false
 
       const s0 = new Set([3, 7, 5, 1])
       const s1 = new Set([1, 3, 5, 7])
@@ -118,7 +118,7 @@ describe("core/util/eq module", () => {
       expect(is_equal({}, new Int16Array())).to.be.false
       expect(is_equal({}, new Int32Array())).to.be.false
       expect(is_equal({}, new Float32Array())).to.be.false
-      expect(is_equal({}, new Float64Array())).to.be.false
+      expect(is_equal({}, new Float32Array())).to.be.false
 
       const o0 = {3: "b", 7: "d", 5: "c", 1: "a"}
       const o1 = {1: "a", 3: "b", 5: "c", 7: "d"}

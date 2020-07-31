@@ -19,8 +19,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image, data)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.equal(new Float64Array([34]))
-      expect(image_view.sh).to.be.equal(new Float64Array([38]))
+      expect(image_view.sw).to.be.equal(new Float32Array([34]))
+      expect(image_view.sh).to.be.equal(new Float32Array([38]))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -36,8 +36,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image, data)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.equal(new Float64Array([1]))
-      expect(image_view.sh).to.be.equal(new Float64Array([2]))
+      expect(image_view.sw).to.be.equal(new Float32Array([1]))
+      expect(image_view.sh).to.be.equal(new Float32Array([2]))
     })
   })
 })
