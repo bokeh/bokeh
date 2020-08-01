@@ -94,6 +94,7 @@ class Test_LinearColorMapper:
         mapper = bmm.LinearColorMapper()
         check_properties_existence(mapper, [
             "palette",
+            "domain",
             "low",
             "high",
             "low_color",
@@ -107,6 +108,7 @@ class Test_LogColorMapper:
         mapper = bmm.LogColorMapper()
         check_properties_existence(mapper, [
             "palette",
+            "domain",
             "low",
             "high",
             "low_color",
