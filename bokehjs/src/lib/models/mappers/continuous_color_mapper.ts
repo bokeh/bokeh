@@ -42,10 +42,16 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const [renderer] of this.domain) {
-      this.connect(renderer.view.change, () => this.update_data())
-      this.connect(renderer.data_source.selected.change, () => this.update_data())
+    const connect_renderers = () => {
+      // TODO: if already connected this will bail. However, it won't remove old connections.
+      for (const [renderer] of this.domain) {
+        this.connect(renderer.view.change, () => this.update_data())
+        this.connect(renderer.data_source.selected.change, () => this.update_data())
+      }
     }
+
+    this.connect(this.properties.domain.change, () => connect_renderers())
+    connect_renderers()
   }
 
   update_data(): void {
