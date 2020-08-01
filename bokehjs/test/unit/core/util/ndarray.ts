@@ -305,7 +305,7 @@ describe("core/util/ndarray module", () => {
     expect(nd2.shape).to.be.equal([3, 2])
     expect(nd2.length).to.be.equal(6)
 
-    const a3 = new Float32Array(6)
+    const a3 = new Float64Array(6)
     const nd3 = new Float64NDArray(a3, [2, 3])
     expect(is_NDArray(nd3)).to.be.true
     expect(nd3.dtype).to.be.equal("float64")
