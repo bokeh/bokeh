@@ -495,9 +495,13 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     const n = colors.length
     const array = new ColorArray(n)
     for (let i = 0; i < n; i++) {
-      const color = colors[i] as types.Color | null
-      const rgba = color2rgba(color)
-      array[i] = encode_rgba(rgba)
+      const color = colors[i] as types.Color | number /* uint32 */ | null
+      if (isNumber(color))
+        array[i] = color
+      else {
+        const rgba = color2rgba(color)
+        array[i] = encode_rgba(rgba)
+      }
     }
     return array
   }
