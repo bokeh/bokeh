@@ -42,7 +42,7 @@ describe("core/util/ndarray module", () => {
     expect(is_NDArray(a5)).to.be.false
     const a6 = new Float32Array([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(a6)).to.be.false
-    const a7 = new Float32Array([1, 2, 3, 4, 5, 6])
+    const a7 = new Float64Array([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(a7)).to.be.false
 
     expect(is_NDArray([1, 2, 3, 4, 5, 6])).to.be.false
