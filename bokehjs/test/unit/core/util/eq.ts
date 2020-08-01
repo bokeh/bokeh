@@ -118,7 +118,7 @@ describe("core/util/eq module", () => {
       expect(is_equal({}, new Int16Array())).to.be.false
       expect(is_equal({}, new Int32Array())).to.be.false
       expect(is_equal({}, new Float32Array())).to.be.false
-      expect(is_equal({}, new Float32Array())).to.be.false
+      expect(is_equal({}, new Float64Array())).to.be.false
 
       const o0 = {3: "b", 7: "d", 5: "c", 1: "a"}
       const o1 = {1: "a", 3: "b", 5: "c", 7: "d"}
