@@ -81,7 +81,7 @@ export abstract class Interpolator extends Transform {
       throw new Error("x and y must have at least two elements to support interpolation")
 
     const n = tsx.length
-    const index = new NumberArray(n)
+    const index = new Uint32Array(n)
     for (let i = 0; i < n; i++) {
       index[i] = i
     }
