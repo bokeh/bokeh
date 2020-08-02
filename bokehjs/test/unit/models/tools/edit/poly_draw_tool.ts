@@ -228,13 +228,11 @@ describe("PolyDrawTool", (): void => {
 
       const new_xs = [0.044247787445783615, -0.13274335861206055, -0.30973451327433627]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
+      expect(testcase.data_source.data.xs).to.be.similar(xdata)
 
-      // TODO (bev) This is failing for exact fp comparision. But: the printed repr of the
-      // expected vs actual are *identical*. We should really be using epsilon comparisons.
-      //const new_ys = [0, 0.16949152946472168, 0.3389830508474576]
-      //const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      //expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      const new_ys = [0, 0.16949152946472168, 0.3389830508474576]
+      const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
+      expect(testcase.data_source.data.ys).to.be.similar(ydata)
     })
 
     it("should end draw patch on escape", async () => {
