@@ -14,11 +14,11 @@ describe("core/util/typed_array module", () => {
     })
 
     it("should concat Float64 arrays", () => {
-      const a = new Float32Array([1, 2])
-      const b = new Float32Array([3, 4])
+      const a = new Float64Array([1, 2])
+      const b = new Float64Array([3, 4])
       const r = typed_array.concat(a, b)
-      expect(r).to.be.instanceof(Float32Array)
-      expect(r).to.be.equal(new Float32Array([1, 2, 3, 4]))
+      expect(r).to.be.instanceof(Float64Array)
+      expect(r).to.be.equal(new Float64Array([1, 2, 3, 4]))
     })
 
     it("should concat Int32 arrays", () => {
