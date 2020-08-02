@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import {create_glyph_view} from "./glyph_utils"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("ImageURL module", () => {
 
@@ -51,8 +52,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal(new Float32Array([34]))
-      expect(image_url_view.sh).to.be.equal(new Float32Array([38]))
+      expect(image_url_view.sw).to.be.equal(new NumberArray([34]))
+      expect(image_url_view.sh).to.be.equal(new NumberArray([38]))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -69,8 +70,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal(new Float32Array([1]))
-      expect(image_url_view.sh).to.be.equal(new Float32Array([2]))
+      expect(image_url_view.sw).to.be.equal(new NumberArray([1]))
+      expect(image_url_view.sh).to.be.equal(new NumberArray([2]))
     })
 
     it("`_map_data` should map data to NaN if w and h are null, 'data' units", async () => {
@@ -85,8 +86,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal(Float32Array.of(NaN))
-      expect(image_url_view.sh).to.be.equal(Float32Array.of(NaN))
+      expect(image_url_view.sw).to.be.equal(NumberArray.of(NaN))
+      expect(image_url_view.sh).to.be.equal(NumberArray.of(NaN))
     })
 
     it("`_map_data` should map data to NaN if w and h are null, 'screen' units", async () => {
@@ -102,8 +103,8 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal(new Float32Array([NaN]))
-      expect(image_url_view.sh).to.be.equal(new Float32Array([NaN]))
+      expect(image_url_view.sw).to.be.equal(new NumberArray([NaN]))
+      expect(image_url_view.sh).to.be.equal(new NumberArray([NaN]))
     })
   })
 })
