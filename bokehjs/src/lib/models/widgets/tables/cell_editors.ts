@@ -199,6 +199,11 @@ export class TextEditorView extends CellEditorView {
   protected _createInput(): HTMLTextAreaElement {
     return textarea()
   }
+
+  renderEditor(): void {
+    this.inputEl.focus()
+    this.inputEl.select()
+  }
 }
 
 export namespace TextEditor {
@@ -287,7 +292,7 @@ export class CheckboxEditorView extends CellEditorView {
   inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
-    return input({type: "checkbox", value: "true"})
+    return input({type: "checkbox"})
   }
 
   renderEditor(): void {
