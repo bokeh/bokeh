@@ -87,7 +87,7 @@ describe("data_table module", () => {
         {__bkdt_internal_index__: 0, index: 0,  bar: 3.4},
         {__bkdt_internal_index__: 1, index: 1,  bar: 1.2},
         {__bkdt_internal_index__: 2, index: 2,  bar: 0},
-        {__bkdt_internal_index__: 3, index: 10, bar: -10}
+        {__bkdt_internal_index__: 3, index: 10, bar: -10},
       ])
     })
 

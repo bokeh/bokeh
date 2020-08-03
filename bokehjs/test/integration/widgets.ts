@@ -183,6 +183,6 @@ describe("Rows of widgets", () => {
     const columns = [index_col, bar_col]
     const table = new DataTable({source, columns, autosize_mode: "fit_columns", sizing_mode: "stretch_both"})
     const layout = row([table], {width: 400, height: 200})
-    await display(table, [400, 200])
+    await display(layout, [400, 200])
   })
 })
