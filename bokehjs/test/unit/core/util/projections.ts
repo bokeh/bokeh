@@ -68,33 +68,33 @@ describe("core/util/projections module", () => {
 
   describe("project_xy() function", () => {
     it("should handle NaNs and infinities", () => {
-      expect(project_xy([NaN], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([1], [NaN])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([NaN], [NaN])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([NaN], [1])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([1], [NaN])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([NaN], [NaN])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
 
-      expect(project_xy([Infinity], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([1], [Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([Infinity], [Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([Infinity], [1])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([1], [Infinity])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([Infinity], [Infinity])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
 
-      expect(project_xy([-Infinity], [1])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([1], [-Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
-      expect(project_xy([-Infinity], [-Infinity])).to.be.equal([new Float64Array([NaN]), new Float64Array([NaN])])
+      expect(project_xy([-Infinity], [1])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([1], [-Infinity])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
+      expect(project_xy([-Infinity], [-Infinity])).to.be.equal([new Float32Array([NaN]), new Float32Array([NaN])])
     })
   })
 
   describe("project_xsys() function", () => {
     it("should handle NaNs and infinities", () => {
-      expect(project_xsys([[NaN]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[1]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[NaN]], [[NaN]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[NaN]], [[1]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[1]], [[NaN]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[NaN]], [[NaN]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
 
-      expect(project_xsys([[Infinity]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[1]], [[Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[Infinity]], [[Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[Infinity]], [[1]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[1]], [[Infinity]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[Infinity]], [[Infinity]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
 
-      expect(project_xsys([[-Infinity]], [[1]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[1]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
-      expect(project_xsys([[-Infinity]], [[-Infinity]])).to.be.equal([[new Float64Array([NaN])], [new Float64Array([NaN])]])
+      expect(project_xsys([[-Infinity]], [[1]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[1]], [[-Infinity]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
+      expect(project_xsys([[-Infinity]], [[-Infinity]])).to.be.equal([[new Float32Array([NaN])], [new Float32Array([NaN])]])
     })
   })
 })

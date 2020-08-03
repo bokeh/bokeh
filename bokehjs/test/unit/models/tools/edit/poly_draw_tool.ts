@@ -3,6 +3,7 @@ import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
 import {build_view} from "@bokehjs/core/build_views"
+import {NumberArray} from '@bokehjs/core/types'
 
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -221,17 +222,18 @@ describe("PolyDrawTool", (): void => {
 
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
-      testcase.data_source.data.xs[2] = Float64Array.from(testcase.data_source.data.xs[2])
-      testcase.data_source.data.ys[2] = Float64Array.from(testcase.data_source.data.ys[2])
+      testcase.data_source.data.xs[2] = NumberArray.from(testcase.data_source.data.xs[2])
+      testcase.data_source.data.ys[2] = NumberArray.from(testcase.data_source.data.ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
 
-      const new_xs = [0.04424778761061947, -0.13274336283185842, -0.30973451327433627]
-      const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
+      const new_xs = [0.044247787445783615, -0.13274335861206055, -0.30973451327433627]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
+      expect(testcase.data_source.data.xs).to.be.similar(xdata)
+
+      const new_ys = [0, 0.16949152946472168, 0.3389830508474576]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data.ys).to.be.similar(ydata)
     })
 
     it("should end draw patch on escape", async () => {

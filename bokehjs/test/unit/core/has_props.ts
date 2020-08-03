@@ -117,7 +117,7 @@ describe("core/has_props module", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithNumberSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.equal({_foo: new Float64Array([1, 2, 3, 4])})
+      expect(data).to.be.equal({_foo: new Float32Array([1, 2, 3, 4])})
     })
 
     it("should collect shapes when they are present", () => {
@@ -133,7 +133,7 @@ describe("core/has_props module", () => {
       const obj = new SubclassWithDistanceSpec()
 
       const data0 = obj.materialize_dataspecs(r0)
-      expect(data0).to.be.equal({_foo: new Float64Array([1, 2, 3, 4, 2]), max_foo: 4})
+      expect(data0).to.be.equal({_foo: new Float32Array([1, 2, 3, 4, 2]), max_foo: 4})
 
       const array1 = ndarray([1, 2, 3, 4, 2], {shape: [2, 2]})
       const r1 = new ColumnDataSource({data: {colname: array1}})
@@ -145,7 +145,7 @@ describe("core/has_props module", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
       const obj = new SubclassWithOptionalSpec()
       const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.equal({_baz: new Float64Array([1, 2, 3, 4])})
+      expect(data).to.be.equal({_baz: new Float32Array([1, 2, 3, 4])})
     })
   })
 
@@ -195,7 +195,7 @@ describe("core/has_props module", () => {
     })
 
     it("should support typed arrays", () => {
-      expect(HasProps._value_to_json(new Float64Array([1, 2, 3]))).to.be.equal([1, 2, 3])
+      expect(HasProps._value_to_json(new Float32Array([1, 2, 3]))).to.be.equal([1, 2, 3])
     })
 
     it("should support arrays and typed arrays", () => {

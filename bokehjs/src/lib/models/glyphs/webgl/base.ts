@@ -50,8 +50,8 @@ export abstract class BaseGLGlyph {
     wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
     ;[dx, dy] = this.glyph.renderer.coordinates.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
     // Test how linear it is
-    if ((Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6) ||
-        (Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)) {
+    if ((Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-4) ||
+        (Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-4)) {
       logger.warn(`WebGL backend (${this.glyph.model.type}): falling back to canvas rendering`)
       return false
     }

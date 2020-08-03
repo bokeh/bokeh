@@ -4,6 +4,7 @@ import {
   FactorRange, map_one_level, map_two_levels,
   L1OffsetFactor, L2OffsetFactor, L3OffsetFactor,
 } from "@bokehjs/models/ranges/factor_range"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("factor_range module", () => {
 
@@ -599,31 +600,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: ['A', 'B', 'C'], factor_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new Float64Array([0.5, 1.6, 2.7]))
+        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new NumberArray([0.5, 1.6, 2.7]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: ['A', 'B', 'C'], factor_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new Float64Array([0.5, 1.6, 2.7]))
+        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new NumberArray([0.5, 1.6, 2.7]))
 
         r.factor_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.4)
-        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new Float64Array([0.5, 1.7, 2.9]))
+        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new NumberArray([0.5, 1.7, 2.9]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: ['A', 'B'], factor_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(2.1)
-        expect(r.v_synthetic(['A', 'B'])).to.be.equal(new Float64Array([0.5, 1.6]))
+        expect(r.v_synthetic(['A', 'B'])).to.be.equal(new NumberArray([0.5, 1.6]))
 
         r.factors = ['A', 'B', 'C']
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new Float64Array([0.5, 1.6, 2.7]))
+        expect(r.v_synthetic(['A', 'B', 'C'])).to.be.equal(new NumberArray([0.5, 1.6, 2.7]))
       })
     })
 
@@ -666,26 +667,26 @@ describe("factor_range module", () => {
 
       it("should return an Array", () => {
         const x0 = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x0).to.be.instanceof(Float64Array)
+        expect(x0).to.be.instanceof(NumberArray)
 
         const x1 = r.v_synthetic(["A", "B", "C", "A"])
-        expect(x1).to.be.instanceof(Float64Array)
+        expect(x1).to.be.instanceof(NumberArray)
 
         const x2 = r.v_synthetic([])
-        expect(x2).to.be.instanceof(Float64Array)
+        expect(x2).to.be.instanceof(NumberArray)
       })
 
       it("should return lists of numeric offsets as-is", () => {
         const x = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x).to.be.equal(new Float64Array([10, 10.2, -5.7, -5]))
+        expect(x).to.be.equal(new NumberArray([10, 10.2, -5.7, -5]))
       })
 
       it("should map simple factors to synthetic coords", () => {
-        expect(r.v_synthetic(["A", "B", "C", "A"])).to.be.equal(new Float64Array([0.5, 1.5, 2.5, 0.5]))
+        expect(r.v_synthetic(["A", "B", "C", "A"])).to.be.equal(new NumberArray([0.5, 1.5, 2.5, 0.5]))
       })
 
       it("should map simple factors with offsets to synthetic coords", () => {
-        expect(r.v_synthetic([["A", 0.1], ["B", -0.2], ["C"], ["A", 0]])).to.be.equal(new Float64Array([0.6, 1.3, 2.5, 0.5]))
+        expect(r.v_synthetic([["A", 0.1], ["B", -0.2], ["C"], ["A", 0]])).to.be.equal(new NumberArray([0.6, 1.3, 2.5, 0.5]))
       })
 
       it("should not modify inputs", () => {
@@ -695,8 +696,8 @@ describe("factor_range module", () => {
       })
 
       it("should map unknown factors to NaN", () => {
-        expect(r.v_synthetic(["A", "JUNK", "C", "A"])).to.be.equal(new Float64Array([0.5, NaN, 2.5, 0.5]))
-        expect(r.v_synthetic([["A", 0.1], ["JUNK", -0.2], ["C"], ["A", 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5, 0.5]))
+        expect(r.v_synthetic(["A", "JUNK", "C", "A"])).to.be.equal(new NumberArray([0.5, NaN, 2.5, 0.5]))
+        expect(r.v_synthetic([["A", 0.1], ["JUNK", -0.2], ["C"], ["A", 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5, 0.5]))
       })
     })
   })
@@ -846,31 +847,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.factor_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.7, 2.7]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.7, 2.7]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], factor_padding: 0.1, group_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.factors = [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']]
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(4.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6, 3.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6, 3.6]))
       })
     })
 
@@ -880,31 +881,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
 
         r.group_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.5, 2.7]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.5, 2.7]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
 
         r.factors = [['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']]
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(4.2)
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6, 3.7]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6, 3.7]))
       })
     })
 
@@ -963,36 +964,36 @@ describe("factor_range module", () => {
 
       it("should return an Array", () => {
         const x0 = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x0).to.be.instanceof(Float64Array)
+        expect(x0).to.be.instanceof(NumberArray)
 
         const x1 = r.v_synthetic(["A", "C", "A"])
-        expect(x1).to.be.instanceof(Float64Array)
+        expect(x1).to.be.instanceof(NumberArray)
 
         const x2 = r.v_synthetic([])
-        expect(x2).to.be.instanceof(Float64Array)
+        expect(x2).to.be.instanceof(NumberArray)
       })
 
       it("should return lists of numeric offsets as-is", () => {
         const x = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x).to.be.equal(new Float64Array([10, 10.2, -5.7, -5]))
+        expect(x).to.be.equal(new NumberArray([10, 10.2, -5.7, -5]))
       })
 
       it("should map dual factors to synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, 1.5, 2.5]))
+        expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, 1.5, 2.5]))
       })
 
       it("should map dual factors with offsets to synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1', 0.1], ['A', '2', -0.2], ['C', '1', 0]])).to.be.equal(new Float64Array([0.6, 1.3, 2.5]))
+        expect(r.v_synthetic([['A', '1', 0.1], ['A', '2', -0.2], ['C', '1', 0]])).to.be.equal(new NumberArray([0.6, 1.3, 2.5]))
       })
 
       it("should map first-level factors to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A'], ['C']])).to.be.equal(new Float64Array([1, 2.5]))
+        expect(r.v_synthetic([['A'], ['C']])).to.be.equal(new NumberArray([1, 2.5]))
 
-        expect(r.v_synthetic(['A', 'C'])).to.be.equal(new Float64Array([1, 2.5]))
+        expect(r.v_synthetic(['A', 'C'])).to.be.equal(new NumberArray([1, 2.5]))
       })
 
       it("should map first-level factors with offsets to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A', 0.1], ['C', -0.2], ['C', 0]])).to.be.equal(new Float64Array([1.1, 2.3, 2.5]))
+        expect(r.v_synthetic([['A', 0.1], ['C', -0.2], ['C', 0]])).to.be.equal(new NumberArray([1.1, 2.3, 2.5]))
       })
 
       it("should not modify inputs", () => {
@@ -1002,12 +1003,12 @@ describe("factor_range module", () => {
       })
 
       it("should map unknown factors to NaN", () => {
-        expect(r.v_synthetic([['A'], ['JUNK']])).to.be.equal(new Float64Array([1, NaN]))
-        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.be.equal(new Float64Array([1.1, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1'], ['JUNK', '2'], ['C', '1']])).to.be.equal(new Float64Array([0.5, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1'], ['A', 'JUNK'], ['C', '1']])).to.be.equal(new Float64Array([0.5, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 0.1], ['JUNK', '2', -0.2], ['C', '1', 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 0.1], ['A', 'JUNK', -0.2], ['C', '1', 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5]))
+        expect(r.v_synthetic([['A'], ['JUNK']])).to.be.equal(new NumberArray([1, NaN]))
+        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.be.equal(new NumberArray([1.1, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1'], ['JUNK', '2'], ['C', '1']])).to.be.equal(new NumberArray([0.5, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1'], ['A', 'JUNK'], ['C', '1']])).to.be.equal(new NumberArray([0.5, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 0.1], ['JUNK', '2', -0.2], ['C', '1', 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 0.1], ['A', 'JUNK', -0.2], ['C', '1', 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5]))
       })
     })
   })
@@ -1168,31 +1169,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.factor_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.7, 2.7]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.7, 2.7]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], factor_padding: 0.1, group_padding: 0, subgroup_padding: 0})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.factors = [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo'], ['D', '2', 'foo']]
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(4.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6, 3.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6, 3.6]))
       })
     })
 
@@ -1202,31 +1203,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.subgroup_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.7, 2.7]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.7, 2.7]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, group_padding: 0, subgroup_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6]))
 
         r.factors = [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']]
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(4.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new Float64Array([0.5, 1.6, 2.6, 3.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new NumberArray([0.5, 1.6, 2.6, 3.6]))
       })
     })
 
@@ -1236,31 +1237,31 @@ describe("factor_range module", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
       })
 
       it("should update range when changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
 
         r.group_padding = 0.2
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.2)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.7]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.7]))
       })
 
       it("should update start/end when factors changed", () => {
         const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']], factor_padding: 0, subgroup_padding: 0, group_padding: 0.1})
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(3.1)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6]))
 
         r.factors = [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']]
         expect(r.start).to.be.equal(0)
         expect(r.end).to.be.equal(4.2)
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.6, 3.7]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.6, 3.7]))
       })
     })
 
@@ -1333,44 +1334,44 @@ describe("factor_range module", () => {
 
       it("should return an Array", () => {
         const x0 = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x0).to.be.instanceof(Float64Array)
+        expect(x0).to.be.instanceof(NumberArray)
 
         const x1 = r.v_synthetic(["A", "C", "A"])
-        expect(x1).to.be.instanceof(Float64Array)
+        expect(x1).to.be.instanceof(NumberArray)
 
         const x2 = r.v_synthetic([])
-        expect(x2).to.be.instanceof(Float64Array)
+        expect(x2).to.be.instanceof(NumberArray)
       })
 
       it("should return lists of numeric offsets as-is", () => {
         const x = r.v_synthetic([10, 10.2, -5.7, -5])
-        expect(x).to.be.equal(new Float64Array([10, 10.2, -5.7, -5]))
+        expect(x).to.be.equal(new NumberArray([10, 10.2, -5.7, -5]))
       })
 
       it("should map triple factors to synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, 1.5, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, 1.5, 2.5]))
       })
 
       it("should map triple factors with offsets to synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', '1', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new Float64Array([0.6, 1.3, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', '1', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new NumberArray([0.6, 1.3, 2.5]))
       })
 
       it("should map first-level factors to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A'], ['C']])).to.be.equal(new Float64Array([1, 2.5]))
+        expect(r.v_synthetic([['A'], ['C']])).to.be.equal(new NumberArray([1, 2.5]))
 
-        expect(r.v_synthetic(['A', 'C'])).to.be.equal(new Float64Array([1, 2.5]))
+        expect(r.v_synthetic(['A', 'C'])).to.be.equal(new NumberArray([1, 2.5]))
       })
 
       it("should map first-level factors with offsets to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A', 0.1], ['C', -0.2], ['C', 0]])).to.be.equal(new Float64Array([1.1, 2.3, 2.5]))
+        expect(r.v_synthetic([['A', 0.1], ['C', -0.2], ['C', 0]])).to.be.equal(new NumberArray([1.1, 2.3, 2.5]))
       })
 
       it("should map second-level factors to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1']])).to.be.equal(new Float64Array([1]))
+        expect(r.v_synthetic([['A', '1']])).to.be.equal(new NumberArray([1]))
       })
 
       it("should map second-level factors with offsets to average group synthetic coords", () => {
-        expect(r.v_synthetic([['A', '1', 0.1]])).to.be.equal(new Float64Array(new Float64Array([1.1])))
+        expect(r.v_synthetic([['A', '1', 0.1]])).to.be.equal(new NumberArray(new NumberArray([1.1])))
       })
 
       it("should not modify inputs", () => {
@@ -1380,19 +1381,19 @@ describe("factor_range module", () => {
       })
 
       it("should map unknown factors to NaN", () => {
-        expect(r.v_synthetic([['A', '1', 'foo'], ['JUNK', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', 'JUNK', 'bar'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'JUNK'], ['C', '1', 'foo']])).to.be.equal(new Float64Array([0.5, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['JUNK', '1', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', 'JUNK', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5]))
-        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', '1', 'JUNK', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new Float64Array([0.6, NaN, 2.5]))
-        expect(r.v_synthetic([['A'], ['JUNK']])).to.be.equal(new Float64Array([1, NaN]))
-        expect(r.v_synthetic(['A', 'JUNK'])).to.be.equal(new Float64Array([1, NaN]))
-        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.be.equal(new Float64Array([1.1, NaN, 2.5]))
-        expect(r.v_synthetic([['JUNK', '1']])).to.be.equal(new Float64Array([NaN]))
-        expect(r.v_synthetic([['A', 'JUNK']])).to.be.equal(new Float64Array([NaN]))
-        expect(r.v_synthetic([['JUNK', '1', 0.1]])).to.be.equal(new Float64Array([NaN]))
-        expect(r.v_synthetic([['A', 'JUNK', 0.1]])).to.be.equal(new Float64Array([NaN]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['JUNK', '1', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', 'JUNK', 'bar'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo'], ['A', '1', 'JUNK'], ['C', '1', 'foo']])).to.be.equal(new NumberArray([0.5, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['JUNK', '1', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', 'JUNK', 'bar', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5]))
+        expect(r.v_synthetic([['A', '1', 'foo', 0.1], ['A', '1', 'JUNK', -0.2], ['C', '1', 'foo', 0]])).to.be.equal(new NumberArray([0.6, NaN, 2.5]))
+        expect(r.v_synthetic([['A'], ['JUNK']])).to.be.equal(new NumberArray([1, NaN]))
+        expect(r.v_synthetic(['A', 'JUNK'])).to.be.equal(new NumberArray([1, NaN]))
+        expect(r.v_synthetic([['A', 0.1], ['JUNK', -0.2], ['C', 0]])).to.be.equal(new NumberArray([1.1, NaN, 2.5]))
+        expect(r.v_synthetic([['JUNK', '1']])).to.be.equal(new NumberArray([NaN]))
+        expect(r.v_synthetic([['A', 'JUNK']])).to.be.equal(new NumberArray([NaN]))
+        expect(r.v_synthetic([['JUNK', '1', 0.1]])).to.be.equal(new NumberArray([NaN]))
+        expect(r.v_synthetic([['A', 'JUNK', 0.1]])).to.be.equal(new NumberArray([NaN]))
       })
     })
   })

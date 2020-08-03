@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("categorical_scale module", () => {
 
@@ -27,16 +28,16 @@ describe("categorical_scale module", () => {
 
     describe("forward vector mapping", () => {
 
-      it("should return a Float64Array", () => {
+      it("should return a NumberArray", () => {
         const scale = mkscale()
         const values = scale.v_compute(factors)
-        expect(values).to.be.instanceof(Float64Array)
+        expect(values).to.be.instanceof(NumberArray)
       })
 
       it("should map factors evenly", () => {
         const scale = mkscale()
         const values = scale.v_compute(factors)
-        expect(values).to.be.equal(new Float64Array([30, 50, 70]))
+        expect(values).to.be.equal(new NumberArray([30, 50, 70]))
       })
     })
 
@@ -56,16 +57,16 @@ describe("categorical_scale module", () => {
     describe("inverse vector mapping", () => {
       const rvalues = [18, 20, 26, 28, 30, 32, 34, 38, 40, 42]
 
-      it("should return a Float64Arrayy", () => {
+      it("should return a NumberArray", () => {
         const scale = mkscale()
         const values = scale.v_invert(rvalues)
-        expect(values).to.be.instanceof(Float64Array)
+        expect(values).to.be.instanceof(NumberArray)
       })
 
       it("should map factors evenly", () => {
         const scale = mkscale()
         const values = scale.v_invert(rvalues)
-        expect(values).to.be.equal(new Float64Array([-0.1, 0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 1.1]))
+        expect(values).to.be.equal(new NumberArray([-0.1, 0, 0.3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 1.1]))
       })
     })
 
@@ -87,7 +88,7 @@ describe("categorical_scale module", () => {
         scale.source_range.factors = new_factors
 
         const values = scale.v_compute(new_factors)
-        expect(values).to.be.equal(new Float64Array([27.5, 42.5, 57.5, 72.5]))
+        expect(values).to.be.equal(new NumberArray([27.5, 42.5, 57.5, 72.5]))
       })
 
       it("should cause updated inverse mapped values", () => {
@@ -116,7 +117,7 @@ describe("categorical_scale module", () => {
         scale.source_range.factors = new_factors
 
         const values = scale.v_invert([20, 27.5, 35, 42.5, 50, 57.5, 65, 72.5, 80])
-        expect(values).to.be.equal(new Float64Array([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]))
+        expect(values).to.be.equal(new NumberArray([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]))
       })
     })
 
@@ -160,17 +161,17 @@ describe("categorical_scale module", () => {
         const values0 = scale.v_compute([
           ['foo', -0.6], ['foo', -0.5], ['foo', -0.2], ['foo', -0.1], ['foo', 0.0], ['foo', 0.1], ['foo', 0.2], ['foo', 0.5], ['foo', 0.6],
         ])
-        expect(values0).to.be.equal(new Float64Array([18, 20, 26, 28, 30, 32, 34, 40, 42]))
+        expect(values0).to.be.equal(new NumberArray([18, 20, 26, 28, 30, 32, 34, 40, 42]))
 
         const values1 = scale.v_compute([
           ['bar', -0.6], ['bar', -0.5], ['bar', -0.2], ['bar', -0.1], ['bar', 0.0], ['bar', 0.1], ['bar', 0.2], ['bar', 0.5], ['bar', 0.6],
         ])
-        expect(values1).to.be.equal(new Float64Array([38, 40, 46, 48, 50, 52, 54, 60, 62]))
+        expect(values1).to.be.equal(new NumberArray([38, 40, 46, 48, 50, 52, 54, 60, 62]))
 
         const values2 = scale.v_compute([
           ['baz', -0.6], ['baz', -0.5], ['baz', -0.2], ['baz', -0.1], ['baz', 0.0], ['baz', 0.1], ['baz', 0.2], ['baz', 0.5], ['baz', 0.6],
         ])
-        expect(values2).to.be.equal(new Float64Array([58, 60, 66, 68, 70, 72, 74, 80, 82]))
+        expect(values2).to.be.equal(new NumberArray([58, 60, 66, 68, 70, 72, 74, 80, 82]))
       })
     })
   })

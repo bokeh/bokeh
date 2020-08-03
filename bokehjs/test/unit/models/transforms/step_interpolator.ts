@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {StepInterpolator} from "@bokehjs/models/transforms/step_interpolator"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {StepMode} from "@bokehjs/core/enums"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("step_interpolator_transform module", () => {
 
@@ -31,11 +32,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 20, 30]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
 
@@ -52,11 +53,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 10, 20]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
 
@@ -73,11 +74,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 10, 20]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
   })
@@ -106,11 +107,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 20, 30]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 20, 30]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
 
@@ -127,11 +128,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 10, 20]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
 
@@ -148,11 +149,11 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should linearly interpolate a vector of points", () => {
-        expect(transform.v_compute([0, 2, 6])).to.be.equal(new Float64Array([10, 10, 20]))
+        expect(transform.v_compute([0, 2, 6])).to.be.equal(new NumberArray([10, 10, 20]))
       })
 
-      it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      it("should map to a NumberArray", () => {
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
       })
     })
   })

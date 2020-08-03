@@ -4,8 +4,8 @@ export type Color = string
 
 export {TypedArray} from "./util/ndarray"
 
-export type NumberArray = Float64Array
-export const NumberArray = Float64Array
+export type NumberArray = Float32Array
+export const NumberArray = Float32Array
 
 export type ColorArray = Uint32Array
 export const ColorArray = Uint32Array

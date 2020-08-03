@@ -12,7 +12,6 @@ export namespace Jitter {
     mean: p.Property<number>
     width: p.Property<number>
     distribution: p.Property<Distribution>
-    previous_values: p.Property<Arrayable<number>>
   }
 }
 
@@ -20,6 +19,8 @@ export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends RangeTransform {
   properties: Jitter.Props
+
+  previous_values: Arrayable<number>
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
@@ -30,10 +31,6 @@ export class Jitter extends RangeTransform {
       mean:         [ p.Number, 0        ],
       width:        [ p.Number, 1        ],
       distribution: [ p.Distribution, 'uniform'],
-    })
-
-    this.internal({
-      previous_values: [ p.Array ],
     })
   }
 
