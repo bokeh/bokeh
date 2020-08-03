@@ -160,11 +160,7 @@ export class DataTableView extends WidgetView {
 
   after_layout(): void {
     super.after_layout()
-    const autosize = this.autosize
-    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
-      this.grid.resizeCanvas()
-      this.grid.autosizeColumns()
-    }
+    this.updateLayout(true, false)
   }
 
   box_sizing(): Partial<BoxSizing> {
@@ -172,6 +168,20 @@ export class DataTableView extends WidgetView {
     if (this.model.autosize_mode === "fit_viewport" && this._width != null)
       sizing.width = this._width
     return sizing
+  }
+
+  updateLayout(initialized: boolean, rerender: boolean): void {
+    const autosize = this.autosize
+    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
+      if (!initialized)
+        this.grid.resizeCanvas()
+      this.grid.autosizeColumns()
+    } else if (initialized && rerender) {
+      if (autosize === AutosizeModes.fit_viewport)
+        this.invalidate_layout()
+      else
+        this.grid.invalidate()
+    }
   }
 
   updateGrid(): void {
@@ -195,9 +205,7 @@ export class DataTableView extends WidgetView {
 
       this.data.sort(sorters)
     }
-
-    this.grid.invalidate()
-    this.grid.render()
+    this.updateLayout(true, true)
   }
 
   updateSelection(): void {
@@ -311,6 +319,8 @@ export class DataTableView extends WidgetView {
       frozenBottom: frozen_bottom,
     }
 
+    const initialized = this.grid != null
+
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
@@ -367,8 +377,10 @@ export class DataTableView extends WidgetView {
       if (!this.model.header_row) {
         this._hide_header()
       }
-
     }
+
+    if (initialized)
+      this.updateLayout(initialized, false)
   }
 
   _hide_header(): void {
