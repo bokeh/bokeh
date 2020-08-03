@@ -33,7 +33,9 @@ from ..core.properties import (
     Enum,
     Float,
     HatchPatternType,
+    Instance,
     Int,
+    List,
     MarkerType,
     Seq,
     String,
@@ -55,6 +57,7 @@ __all__ = (
     'ContinuousColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
+    'EqHistColorMapper'
 )
 
 #-----------------------------------------------------------------------------
@@ -192,14 +195,19 @@ class ContinuousColorMapper(ColorMapper):
 
     '''
 
-    low = Float(help="""
-    The minimum value of the range to map into the palette. Values below
-    this are clamped to ``low``.
+    domain = List(Tuple(Instance("bokeh.models.renderers.GlyphRenderer"), Either(String, List(String))), default=[], help="""
+    A collection of glyph renderers to pool data from for establishing data metrics.
+    If empty, mapped data will be used instead.
     """)
 
-    high = Float(help="""
+    low = Float(default=None, help="""
+    The minimum value of the range to map into the palette. Values below
+    this are clamped to ``low``. If ``None``, the value is inferred from data.
+    """)
+
+    high = Float(default=None, help="""
     The maximum value of the range to map into the palette. Values above
-    this are clamped to ``high``.
+    this are clamped to ``high``. If ``None``, the value is inferred from data.
     """)
 
     low_color = Color(default=None, help="""
@@ -245,6 +253,10 @@ class LogColorMapper(ContinuousColorMapper):
         non-negative.
 
     '''
+
+class EqHistColorMapper(ContinuousColorMapper):
+    bins = Int(default=256*256, help="Number of histogram bins")
+
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -17,6 +17,10 @@ export class LinearScale extends ContinuousScale {
     super(attrs)
   }
 
+  static init_LinearScale(): void {
+    this.internal({scan_result: [ p.Any ]})
+  }
+
   compute(x: number): number {
     return this._linear_compute(x)
   }

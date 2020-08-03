@@ -145,8 +145,10 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.glyph.transformchange, () => this.set_data())
   }
 
-  have_selection_glyphs(): boolean {
-    return this.selection_glyph != null && this.nonselection_glyph != null
+  _update_masked_indices(): Indices {
+    const masked = this.glyph.mask_data()
+    this.model.view.masked = masked
+    return masked
   }
 
   // in case of partial updates like patching, the list of indices that actually
@@ -155,8 +157,8 @@ export class GlyphRendererView extends DataRendererView {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
+    const {all_indices} = this
 
-    const all_indices = this.all_indices
     this.glyph.set_data(source, all_indices, indices)
 
     this.glyph.set_visuals(source, all_indices)
@@ -165,6 +167,8 @@ export class GlyphRendererView extends DataRendererView {
     this.nonselection_glyph?.set_visuals(source, all_indices)
     this.hover_glyph?.set_visuals(source, all_indices)
     this.muted_glyph?.set_visuals(source, all_indices)
+
+    this._update_masked_indices()
 
     const {lod_factor} = this.plot_model
     const n = this.all_indices.count
@@ -191,7 +195,7 @@ export class GlyphRendererView extends DataRendererView {
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]
-    let indices = [...this.glyph.mask_data()]
+    let indices = [...this._update_masked_indices()]
 
     const {ctx} = this.layer
     ctx.save()
@@ -249,7 +253,7 @@ export class GlyphRendererView extends DataRendererView {
       indices = difference(indices, inspected_subset_indices)
 
     // Render with no selection
-    if (!(selected_full_indices.length && this.have_selection_glyphs())) {
+    if (!selected_full_indices.length) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)

@@ -20,7 +20,7 @@ export class Signal<Args, Sender extends object> {
       return false
     }
 
-    const receiver = context || slot
+    const receiver = context ?? slot
 
     if (!sendersForReceiver.has(receiver)) {
       sendersForReceiver.set(receiver, [])
@@ -46,7 +46,7 @@ export class Signal<Args, Sender extends object> {
       return false
     }
 
-    const receiver = context || slot
+    const receiver = context ?? slot
     const senders = sendersForReceiver.get(receiver)!
 
     connection.signal = null
@@ -57,7 +57,7 @@ export class Signal<Args, Sender extends object> {
   }
 
   emit(args: Args): void {
-    const receivers = receiversForSender.get(this.sender) || []
+    const receivers = receiversForSender.get(this.sender) ?? []
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
@@ -104,7 +104,7 @@ export namespace Signal {
       if (connection.signal == null)
         return
 
-      const receiver = connection.context || connection.slot
+      const receiver = connection.context ?? connection.slot
       connection.signal = null
       scheduleCleanup(sendersForReceiver.get(receiver)!)
     }
