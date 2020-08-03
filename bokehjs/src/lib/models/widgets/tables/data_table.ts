@@ -176,12 +176,8 @@ export class DataTableView extends WidgetView {
       if (!initialized)
         this.grid.resizeCanvas()
       this.grid.autosizeColumns()
-    } else if (initialized && rerender) {
-      if (autosize === AutosizeModes.fit_viewport)
-        this.invalidate_layout()
-      else
-        this.grid.invalidate()
-    }
+    } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport)
+      this.invalidate_layout()
   }
 
   updateGrid(): void {
@@ -205,6 +201,7 @@ export class DataTableView extends WidgetView {
 
       this.data.sort(sorters)
     }
+    this.grid.invalidate()
     this.updateLayout(true, true)
   }
 
