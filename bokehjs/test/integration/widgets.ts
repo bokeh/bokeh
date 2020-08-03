@@ -2,6 +2,8 @@ import {display, row} from "./utils"
 
 import {range} from "@bokehjs/core/util/array"
 
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+
 import {
   Button, Toggle, Dropdown,
   CheckboxGroup, RadioGroup,
@@ -12,6 +14,8 @@ import {
   DatePicker,
   Paragraph, Div, PreText,
 } from "@bokehjs/models/widgets"
+
+import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 describe("Widgets", () => {
   it("should allow Button", async () => {
@@ -125,6 +129,42 @@ describe("Widgets", () => {
     const obj = new PreText({text: "some text"})
     await display(obj, [500, 100])
   })
+
+  it("should allow DataTable in force_fit mode", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index"})
+    const bar_col = new TableColumn({field: "bar", title: "Bar"})
+    const columns = [index_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "force_fit"})
+    await display(table, [600, 400])
+  })
+
+  it("should allow DataTable in fit_columns mode", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index"})
+    const bar_col = new TableColumn({field: "bar", title: "Bar"})
+    const columns = [index_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "fit_columns"})
+    await display(table, [600, 400])
+  })
+
+  it("should allow DataTable in fit_viewport mode", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index"})
+    const bar_col = new TableColumn({field: "bar", title: "Bar"})
+    const columns = [index_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "fit_viewport"})
+    await display(table, [600, 400])
+  })
+
+  it("should allow DataTable in none mode", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index", width: 200})
+    const bar_col = new TableColumn({field: "bar", title: "Bar", width: 350})
+    const columns = [index_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "none"})
+    await display(table, [600, 400])
+  })
 })
 
 describe("Rows of widgets", () => {
@@ -134,5 +174,15 @@ describe("Rows of widgets", () => {
     const w1 = new TextInput({value: "Widget 2", height: 50})
     const layout = row([w0, w1])
     await display(layout, [500, 100])
+  })
+
+  it("should allow DataTable to fill row", async () => {
+    const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+    const index_col = new TableColumn({field: "index", title: "Index"})
+    const bar_col = new TableColumn({field: "bar", title: "Bar"})
+    const columns = [index_col, bar_col]
+    const table = new DataTable({source, columns, autosize_mode: "fit_columns", sizing_mode: "stretch_both"})
+    const layout = row([table], {width: 400, height: 200})
+    await display(table, [400, 200])
   })
 })

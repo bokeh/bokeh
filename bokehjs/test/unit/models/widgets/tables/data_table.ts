@@ -78,6 +78,19 @@ describe("data_table module", () => {
       expect(dp.getItem(3)).to.be.equal({__bkdt_internal_index__: 3, index: 10, bar: -10})
     })
 
+    it("should return all items when unsorted", () => {
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+      const view = new CDSView({source})
+      const dp = new TableDataProvider(source, view)
+
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 0, index: 0,  bar: 3.4},
+        {__bkdt_internal_index__: 1, index: 1,  bar: 1.2},
+        {__bkdt_internal_index__: 2, index: 2,  bar: 0},
+        {__bkdt_internal_index__: 3, index: 10, bar: -10}
+      ])
+    })
+
     it("should return items when sorted", () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
