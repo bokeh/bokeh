@@ -9,11 +9,11 @@ import {isString} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
-import {LayoutItem} from "core/layout"
+import {BoxSizing} from "core/layout"
 
+import {WidgetView} from "../widget"
 import {TableWidget} from "./table_widget"
 import {TableColumn, ColumnType, Item} from "./table_column"
-import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
@@ -25,6 +25,13 @@ import tables_css from "styles/widgets/tables.css"
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare const $: any
+
+export const AutosizeModes = {
+  fit_columns: "FCV",
+  fit_viewport: "FVC",
+  force_fit: "LFF",
+  none: "NOA",
+}
 
 export class TableDataProvider implements DataProvider<Item> {
 
@@ -80,6 +87,17 @@ export class TableDataProvider implements DataProvider<Item> {
     return range(0, this.getLength()).map((i) => this.getItem(i))
   }
 
+  getItems(): Item[] {
+    return this.getRecords()
+  }
+
+  slice(start: number, end: number | null, step?: number): Item[] {
+    start = start ?? 0
+    end = end ?? this.getLength()
+    step = step ?? 1
+    return range(start, end, step).map((i) => this.getItem(i))
+  }
+
   sort(columns: any[]): void {
     let cols = columns.map((column) => [column.sortCol.field, column.sortAsc ? 1 : -1])
 
@@ -111,6 +129,7 @@ export class DataTableView extends WidgetView {
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
+  protected _width: number | null = null
 
   connect_signals(): void {
     super.connect_signals()
@@ -134,14 +153,31 @@ export class DataTableView extends WidgetView {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 
-  _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing(this.box_sizing())
-  }
-
   update_position(): void {
     super.update_position()
     this.grid.resizeCanvas()
+  }
+
+  after_layout(): void {
+    super.after_layout()
+    this.updateLayout(true, false)
+  }
+
+  box_sizing(): Partial<BoxSizing> {
+    const sizing = super.box_sizing()
+    if (this.model.autosize_mode === "fit_viewport" && this._width != null)
+      sizing.width = this._width
+    return sizing
+  }
+
+  updateLayout(initialized: boolean, rerender: boolean): void {
+    const autosize = this.autosize
+    if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
+      if (!initialized)
+        this.grid.resizeCanvas()
+      this.grid.autosizeColumns()
+    } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport)
+      this.invalidate_layout()
   }
 
   updateGrid(): void {
@@ -165,9 +201,8 @@ export class DataTableView extends WidgetView {
 
       this.data.sort(sorters)
     }
-
     this.grid.invalidate()
-    this.grid.render()
+    this.updateLayout(true, true)
   }
 
   updateSelection(): void {
@@ -213,6 +248,17 @@ export class DataTableView extends WidgetView {
     return super.css_classes().concat(bk_data_table)
   }
 
+  get autosize(): string {
+    let autosize: string
+    if (this.model.fit_columns === true)
+      autosize = AutosizeModes.force_fit
+    else if (this.model.fit_columns === false)
+      autosize = AutosizeModes.none
+    else
+      autosize = AutosizeModes[this.model.autosize_mode]
+    return autosize
+  }
+
   render(): void {
     let checkboxSelector
     let columns: ColumnType[] = this.model.columns.map((column) => {
@@ -247,18 +293,41 @@ export class DataTableView extends WidgetView {
       reorderable = false
     }
 
+    let frozen_row = -1
+    let frozen_bottom = false
+    const {frozen_rows, frozen_columns} = this.model
+    const frozen_column = frozen_columns == null ? -1 : frozen_columns-1
+    if (frozen_rows != null) {
+      frozen_bottom = frozen_rows < 0
+      frozen_row = Math.abs(frozen_rows)
+    }
+
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
-      forceFitColumns: this.model.fit_columns, // TODO: update to autosizeColsMode
+      autosizeColsMode: this.autosize,
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
-      autoEdit: false,
+      autoEdit: this.model.auto_edit,
+      autoHeight: false,
       rowHeight: this.model.row_height,
+      frozenColumn: frozen_column,
+      frozenRow: frozen_row,
+      frozenBottom: frozen_bottom,
     }
+
+    const initialized = this.grid != null
 
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
+
+    if (this.autosize == AutosizeModes.fit_viewport) {
+      this.grid.autosizeColumns()
+      let width = 0
+      for (const column of columns)
+        width += column.width ?? 0
+      this._width = Math.ceil(width)
+    }
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
       if (!this.model.sortable)
@@ -305,8 +374,10 @@ export class DataTableView extends WidgetView {
       if (!this.model.header_row) {
         this._hide_header()
       }
-
     }
+
+    if (initialized)
+      this.updateLayout(initialized, false)
   }
 
   _hide_header(): void {
@@ -321,8 +392,12 @@ export namespace DataTable {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TableWidget.Props & {
+    autosize_mode: p.Property<"fit_columns" | "fit_viewport" | "none" | "force_fit">
+    auto_edit: p.Property<boolean>
     columns: p.Property<TableColumn[]>
-    fit_columns: p.Property<boolean>
+    fit_columns: p.Property<boolean | null>
+    frozen_columns: p.Property<number | null>
+    frozen_rows: p.Property<number | null>
     sortable: p.Property<boolean>
     reorderable: p.Property<boolean>
     editable: p.Property<boolean>
@@ -352,19 +427,25 @@ export class DataTable extends TableWidget {
   static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>({
-      columns:             [ p.Array,   []    ],
-      fit_columns:         [ p.Boolean, true  ],
-      sortable:            [ p.Boolean, true  ],
-      reorderable:         [ p.Boolean, true  ],
-      editable:            [ p.Boolean, false ],
-      selectable:          [ p.Any,     true  ], // boolean or "checkbox"
-      index_position:      [ p.Int,     0     ],
-      index_header:        [ p.String,  "#"   ],
-      index_width:         [ p.Int,     40    ],
-      scroll_to_selection: [ p.Boolean, true  ],
-      header_row:          [ p.Boolean, true  ],
-      row_height:          [ p.Int,     25    ],
+    this.define<DataTable.Props>(({Any, Array, Boolean, Int, Ref, String}) => {
+      return {
+        autosize_mode:       [ Any, "force_fit" ],
+        auto_edit:           [ Boolean, false ],
+        columns:             [ Array(Ref(TableColumn)), [] ],
+        fit_columns:         [ Boolean ],
+        frozen_columns:      [ Int ],
+        frozen_rows:         [ Int ],
+        sortable:            [ Boolean, true  ],
+        reorderable:         [ Boolean, true  ],
+        editable:            [ Boolean, false ],
+        selectable:          [ Any,     true  ], // boolean or "checkbox"
+        index_position:      [ Int,     0     ],
+        index_header:        [ String,  "#"   ],
+        index_width:         [ Int,     40    ],
+        scroll_to_selection: [ Boolean, true  ],
+        header_row:          [ Boolean, true  ],
+        row_height:          [ Int,     25    ],
+      }
     })
 
     this.override({

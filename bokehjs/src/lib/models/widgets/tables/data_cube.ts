@@ -275,10 +275,10 @@ export class DataCubeView extends DataTableView {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
-      forceFitColumns: this.model.fit_columns, // TODO: update to autosizeColsMode
+      autosizeColsMode: this.autosize,
       multiColumnSort: false,
       editable: this.model.editable,
-      autoEdit: false,
+      autoEdit: this.model.auto_edit,
       rowHeight: this.model.row_height,
     }
 

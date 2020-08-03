@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import (
+    AutosizeMode,
     DateFormat,
     FontStyle,
     NumeralLanguage,
@@ -627,15 +628,54 @@ class DataTable(TableWidget):
 
     '''
 
+    autosize_mode = Enum(AutosizeMode, default="force_fit", help="""
+    Describes the column autosizing mode with one of the following options:
+
+    ``"fit_columns"``
+        Compute columns widths based on cell contents but ensure the
+        table fits into the available viewport. This results in no
+        horizontal scrollbar showing up, but data can get unreadable
+        if there is not enough space available.
+
+    ``"fit_viewport"``
+        Adjust the viewport size after computing columns widths based
+        on cell contents.
+
+    ``"force_fit"``
+        Fit columns into available space dividing the table width across
+        the columns equally (equivalent to `fit_columns=True`).
+        This results in no horizontal scrollbar showing up, but data
+        can get unreadable if there is not enough space available.
+
+    ``"none"``
+        Do not automatically compute column widths.
+    """)
+
+    auto_edit = Bool(False, help="""
+    When enabled editing mode is enabled after a single click on a
+    table cell.
+    """)
+
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
     """)
 
-    fit_columns = Bool(True, help="""
+    fit_columns = Bool(help="""
     Whether columns should be fit to the available width. This results in no
     horizontal scrollbar showing up, but data can get unreadable if there is
-    no enough space available. If set to ``True``, columns' width is
+    not enough space available. If set to ``True``, columns' width is
     understood as maximum width.
+    """)
+
+    frozen_columns = Int(help="""
+    Integer indicating the number of columns to freeze. If set the first N
+    columns will be frozen which prevents them from scrolling out of frame.
+    """)
+
+    frozen_rows = Int(help="""
+    Integer indicating the number of rows to freeze. If set the first N
+    rows will be frozen which prevents them from scrolling out of frame,
+    if set to a negative value last N rows will be frozen.
     """)
 
     sortable = Bool(True, help="""
