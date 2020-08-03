@@ -13,19 +13,19 @@ function precision(num: number): number { // get number of digits
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
 
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
 
   return function(this: any, ...args: any): void {
     const context = this
 
     const doLater = function() {
-      timeoutId = undefined;
+      timeoutId = undefined
       if (!immediate) {
         func.apply(context, args)
       }
     }
 
-    const shouldCallNow = immediate && timeoutId === undefined;
+    const shouldCallNow = immediate && timeoutId === undefined
 
     if (timeoutId !== undefined) {
       clearTimeout(timeoutId)
@@ -46,7 +46,7 @@ export class SpinnerView extends NumericInputView {
   protected wrapper_el: HTMLDivElement
   protected btn_up_el: HTMLButtonElement
   protected btn_down_el: HTMLButtonElement
-  private _interval_handle: ReturnType<typeof setInterval>;
+  private _interval_handle: ReturnType<typeof setInterval>
 
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
@@ -100,9 +100,9 @@ export class SpinnerView extends NumericInputView {
   get precision(): number {
     const {low, high, step} = this.model
     return max(...[low, high, step].map(abs).reduce<number[]>((prev, val) => {
-        if (val!=null) prev.push(val)
-        return prev
-      }, []).map(precision))
+      if (val!=null) prev.push(val)
+      return prev
+    }, []).map(precision))
   }
 
   _start_incrementation(sign: 1|-1): void {

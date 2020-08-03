@@ -14,21 +14,21 @@ import {bk_input} from "styles/widgets/inputs"
 
 // Restricts input for the given textbox to the given inputFilter.
 export function setInputFilter(textbox: HTMLInputElement, inputFilter: (value: string) => boolean): void {
-    textbox.addEventListener("input", function(this: HTMLInputElement & { oldValue: string, oldSelectionStart: number | null, oldSelectionEnd: number | null }) {
-      if (inputFilter(this.value)) {
-        this.oldValue = this.value
-        this.oldSelectionStart = this.selectionStart
-        this.oldSelectionEnd = this.selectionEnd
-      } else if (Object.prototype.hasOwnProperty.call(this, 'oldValue')) {
-        this.value = this.oldValue
-        if (this.oldSelectionStart !== null &&
+  textbox.addEventListener("input", function(this: HTMLInputElement & { oldValue: string, oldSelectionStart: number | null, oldSelectionEnd: number | null }) {
+    if (inputFilter(this.value)) {
+      this.oldValue = this.value
+      this.oldSelectionStart = this.selectionStart
+      this.oldSelectionEnd = this.selectionEnd
+    } else if (Object.prototype.hasOwnProperty.call(this, 'oldValue')) {
+      this.value = this.oldValue
+      if (this.oldSelectionStart !== null &&
           this.oldSelectionEnd !== null) {
-          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd)
-        }
-      } else {
-        this.value = ""
+        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd)
       }
-    })
+    } else {
+      this.value = ""
+    }
+  })
 }
 
 const int_regex = /^[-+]?\d*$/
@@ -105,8 +105,8 @@ export class NumericInputView extends InputWidgetView {
   }
 
   change_input(): void {
-      if (this.value == null) this.model.value = null
-      else if (!Number.isNaN(this.value)) this.model.value = this.value
+    if (this.value == null) this.model.value = null
+    else if (!Number.isNaN(this.value)) this.model.value = this.value
   }
 }
 
