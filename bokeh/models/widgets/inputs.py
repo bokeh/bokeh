@@ -29,13 +29,16 @@ from ...core.properties import (
     Either,
     Enum,
     Float,
+    Instance,
     Int,
     Interval,
     List,
+    Override,
     PositiveInt,
     String,
     Tuple,
 )
+from ..formatters import TickFormatter
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -50,6 +53,7 @@ __all__ = (
     'InputWidget',
     'MultiChoice',
     'MultiSelect',
+    'NumericInput',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -161,6 +165,71 @@ class FileInput(Widget):
     """)
 
 
+class NumericInput(InputWidget):
+    ''' Numeric input widget.
+
+    '''
+
+    value = Either(Float, Int, help="""
+    Initial or entered value.
+
+    Change events are triggered whenever <enter> is pressed.
+    """)
+
+    low = Either(Float, Int, help="""
+    Optional lowest allowable value.
+    """)
+
+    high = Either(Float, Int, help="""
+    Optional highest allowable value.
+    """)
+
+    placeholder = String(default="", help="""
+    Placeholder for empty input field.
+    """)
+
+    mode = Enum("int", "float", help="""
+    Define the type of number which can be enter in the input
+
+    example
+    mode int: 1, -1, 156
+    mode float: 1, -1.2, 1.1e-25
+    """)
+
+    format = Either(String, Instance(TickFormatter), help="""
+    """)
+
+
+class Spinner(NumericInput):
+    ''' Numeric Spinner input widget.
+
+    '''
+
+    value_throttled = Either(Float, Int, help="""
+    value reported at the end of interactions
+    """)
+
+    mode = Override(default="float")
+
+    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    The step added or subtracted to the current value
+    """)
+
+    page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
+    Defines the multiplication factor applied to step when the page up and page
+    down keys are pressed
+    """)
+
+    interval = Either(Int, Float, default=50, help="""
+    Defines the time in ms between two changes when arrows or keys are pressed
+    """)
+
+    wheel_wait = Either(Int, Float, default=100, help="""
+    Defines the debounce time in ms before updating `value_throttled` when the
+    mouse wheel is used to change the input
+    """)
+
+
 class TextInput(InputWidget):
     ''' Single-line input widget.
 
@@ -229,6 +298,7 @@ class AutocompleteInput(TextInput):
     """)
 
     case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
+
 
 class Select(InputWidget):
     ''' Single-select widget.
@@ -359,27 +429,6 @@ class ColorPicker(InputWidget):
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
-    """)
-
-class Spinner(InputWidget):
-    ''' Spinner widget for numerical inputs
-
-    '''
-
-    value = Float(default=0, help="""
-    The initial value of the spinner
-    """)
-
-    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
-    The step added or subtracted to the current value
-    """)
-
-    low = Float(help="""
-    Optional lowest allowable value.
-    """)
-
-    high = Float(help="""
-    Optional highest allowable value.
     """)
 
 #-----------------------------------------------------------------------------
