@@ -36,7 +36,7 @@ if (typeof Uint8Array.prototype.fill === "undefined") {
   (Uint32Array.prototype as any).fill = Array.prototype.fill;
   (Int32Array.prototype as any).fill = Array.prototype.fill;
   (Float32Array.prototype as any).fill = Array.prototype.fill;
-  (Float64Array.prototype as any).fill = Array.prototype.fill
+  (Float64Array.prototype as any).fill = Array.prototype.fill // lgtm [js/automatic-semicolon-insertion]
 }
 
 if (typeof Array.prototype[Symbol.iterator] === "undefined") {
@@ -61,7 +61,7 @@ if (typeof Array.prototype[Symbol.iterator] === "undefined") {
     (Uint32Array.prototype as any)[Symbol.iterator] = iterator;
     (Int32Array.prototype as any)[Symbol.iterator] = iterator;
     (Float32Array.prototype as any)[Symbol.iterator] = iterator;
-    (Float64Array.prototype as any)[Symbol.iterator] = iterator
+    (Float64Array.prototype as any)[Symbol.iterator] = iterator // lgtm [js/automatic-semicolon-insertion]
   })()
 }
 
