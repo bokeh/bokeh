@@ -260,7 +260,7 @@ export class DateFormatter extends CellFormatter {
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     value = isString(value) ? parseInt(value, 10) : value
-    const date = tz(value, this.getFormat())
+    const date = value == null ? '' : tz(value, this.getFormat())
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
