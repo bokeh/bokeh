@@ -128,6 +128,39 @@ class Test_bundle_custom_extensions:
         assert len(bundle.js_files) == 2
         assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
 
+class Test_bundle_ext_package_no_main:
+
+    @classmethod
+    def setup_class(cls):
+        base_dir = dirname(__file__)
+        build(join(base_dir, "ext_package_no_main"), rebuild=True)
+
+    @classmethod
+    def teardown_class(cls):
+        del Model.model_class_reverse_map["ext_package_no_main.AModel"]
+        extension_dirs.clear()
+
+    def test_with_INLINE_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "inline")
+        assert len(bundle.js_files) == 0
+        assert len(bundle.js_raw) == 3
+
+    def test_with_CDN_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "cdn")
+        assert len(bundle.js_files) == 1
+        assert len(bundle.js_raw) == 2
+
+    def test_with_Server_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "server")
+        assert len(bundle.js_files) == 2
+        assert len(bundle.js_raw) == 1
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
