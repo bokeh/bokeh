@@ -12,25 +12,6 @@ import {isString} from "api/linalg"
 import {bk_input} from "styles/widgets/inputs"
 
 
-// Restricts input for the given textbox to the given inputFilter.
-export function setInputFilter(textbox: HTMLInputElement, inputFilter: (value: string) => boolean): void {
-  textbox.addEventListener("input", function(this: HTMLInputElement & { oldValue: string, oldSelectionStart: number | null, oldSelectionEnd: number | null }) {
-    if (inputFilter(this.value)) {
-      this.oldValue = this.value
-      this.oldSelectionStart = this.selectionStart
-      this.oldSelectionEnd = this.selectionEnd
-    } else if (Object.prototype.hasOwnProperty.call(this, 'oldValue')) {
-      this.value = this.oldValue
-      if (this.oldSelectionStart !== null &&
-          this.oldSelectionEnd !== null) {
-        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd)
-      }
-    } else {
-      this.value = ""
-    }
-  })
-}
-
 const int_regex = /^[-+]?\d*$/
 const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
 
@@ -38,11 +19,15 @@ export class NumericInputView extends InputWidgetView {
   model: NumericInput
 
   protected input_el: HTMLInputElement
+  protected old_value: string
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
-    this.connect(this.model.properties.value.change, () => this.input_el.value = this.format_value)
+    this.connect(this.model.properties.value.change, () => {
+      this.input_el.value = this.format_value
+      this.old_value = this.input_el.value
+    })
     this.connect(this.model.properties.low.change, () => {
       const {value, low, high} = this.model
       if (low!=null && high!=null)
@@ -66,6 +51,19 @@ export class NumericInputView extends InputWidgetView {
     return (this.model.value != null)? this.model.pretty(this.model.value): ""
   }
 
+  _set_input_filter(inputFilter: (value: string) => boolean): void {
+    this.input_el.addEventListener("input", () => {
+      const {selectionStart, selectionEnd} = this.input_el
+      if (!inputFilter(this.input_el.value)) { //an invalid character is entered
+        const difflen = this.old_value.length - this.input_el.value.length
+        this.input_el.value = this.old_value
+        if (selectionStart && selectionEnd)
+          this.input_el.setSelectionRange(selectionStart-1, selectionEnd+difflen)
+      } else
+        this.old_value = this.input_el.value
+    })
+  }
+
   render(): void {
     super.render()
 
@@ -77,6 +75,7 @@ export class NumericInputView extends InputWidgetView {
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
+    this.old_value = this.format_value
     this.set_input_filter()
     this.input_el.addEventListener("change", () => this.change_input())
     this.input_el.addEventListener("focusout", () => this.input_el.value =  this.format_value)
@@ -85,9 +84,9 @@ export class NumericInputView extends InputWidgetView {
 
   set_input_filter(): void {
     if (this.model.mode == "int")
-      setInputFilter(this.input_el, (value) => int_regex.test(value))
+      this._set_input_filter((value) => int_regex.test(value))
     else if (this.model.mode == "float")
-      setInputFilter(this.input_el, (value) => float_regex.test(value))
+      this._set_input_filter((value) => float_regex.test(value))
   }
 
   bound_value(value: number): number {
