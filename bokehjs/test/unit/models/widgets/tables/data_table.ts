@@ -176,13 +176,6 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
     })
 
-    it("should return null metadata", () => {
-      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
-      const dp = new TableDataProvider(source, view)
-      expect(dp.getItemMetadata(0)).to.be.null
-    })
-
     it("should set fields when unsorted", () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
