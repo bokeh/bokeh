@@ -183,7 +183,11 @@ def bundle_for_objs_and_resources(objs, resources):
         elif mode == "server":
             js_files.extend([ bundle.server_url for bundle in extensions ])
         elif mode == "cdn":
-            js_files.extend([ bundle.cdn_url for bundle in extensions if bundle.cdn_url is not None ])
+            for bundle in extensions:
+                if bundle.cdn_url is not None:
+                    js_files.append(bundle.cdn_url)
+                else:
+                    js_raw.append(Resources._inline(bundle.artifact_path))
         else:
             js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
