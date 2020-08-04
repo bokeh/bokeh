@@ -1,4 +1,4 @@
-import {display, fig, row, column} from "./utils"
+import {display, fig, row, column, grid} from "./utils"
 
 import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation,
@@ -14,6 +14,11 @@ import {Anchor, Location, OutputBackend} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
+import {Matrix} from "@bokehjs/core/util/data_structures"
+
+function svg_image(svg: string): string {
+  return `data:image/svg+xml;utf-8,${svg}`
+}
 
 describe("Bug", () => {
   describe("in issue #9879", () => {
@@ -60,7 +65,7 @@ describe("Bug", () => {
   <path d="M 0,0 2,0 1,2 Z" fill="green" />
 </svg>
 `
-      const img = `data:image/svg+xml;utf-8,${svg}`
+      const img = svg_image(svg)
 
       let y = 0
       const w = 1, h = 1
@@ -289,6 +294,28 @@ describe("Bug", () => {
       const {view} = await display(p, [250, 150])
       p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
       await view.ready
+    })
+  })
+
+  describe("in issue #10369", () => {
+    it("disallows ImageURL glyph to compute correct bounds with different anchors", async () => {
+      const svg = `\
+<svg version="1.1" viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="1" cy="1" r="1" fill="blue" />
+</svg>
+`
+      const img = svg_image(svg)
+
+      const plots = []
+      for (const anchor of Anchor) {
+        const x_range = new DataRange1d()
+        const y_range = new DataRange1d()
+        const p = fig([200, 200], {x_range, y_range, title: anchor, match_aspect: true})
+        p.image_url({url: [img], x: 0, y: 0, w: 1, h: 1, anchor})
+        plots.push(p)
+      }
+      const r = grid(Matrix.from(plots, 3))
+      await display(r, [650, 650])
     })
   })
 })
