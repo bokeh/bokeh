@@ -108,25 +108,13 @@ export class CDSView extends Model {
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    const selection_full = new Selection({
-      indices: selection_subset.indices.map((i) => this._indices[i]),
-      line_indices: selection_subset.line_indices,
-      multiline_indices: selection_subset.multiline_indices,
-      selected_glyphs: selection_subset.selected_glyphs,
-      view: selection_subset.view,
-    })
-    return selection_full
+    const indices = selection_subset.indices.map((i) => this._indices[i])
+    return new Selection({...selection_subset.attributes, indices})
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    const selection_subset = new Selection({
-      indices: selection_full.indices.map((i) => this.indices_map[i]),
-      line_indices: selection_full.line_indices,
-      multiline_indices: selection_full.multiline_indices,
-      selected_glyphs: selection_full.selected_glyphs,
-      view: selection_full.view,
-    })
-    return selection_subset
+    const indices = selection_full.indices.map((i) => this.indices_map[i])
+    return new Selection({...selection_full.attributes, indices})
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
