@@ -281,4 +281,14 @@ describe("Bug", () => {
       await display(row([p0, p1]), [2*300+50, 250])
     })
   })
+
+  describe("in issue #10362", () => {
+    it("disallows updating layout when changing axis label", async () => {
+      const p = fig([200, 100])
+      p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
+      const {view} = await display(p, [250, 150])
+      p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
+      await view.ready
+    })
+  })
 })
