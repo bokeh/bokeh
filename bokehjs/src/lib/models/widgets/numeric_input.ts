@@ -51,7 +51,6 @@ export class NumericInputView extends InputWidgetView {
     return (this.model.value != null)? this.model.pretty(this.model.value): ""
   }
 
-
   _set_input_filter(inputFilter: (value: string) => boolean): void {
     this.input_el.addEventListener("input", () => {
       const {selectionStart, selectionEnd} = this.input_el
@@ -59,7 +58,7 @@ export class NumericInputView extends InputWidgetView {
         const difflen = this.old_value.length - this.input_el.value.length
         this.input_el.value = this.old_value
         if (selectionStart && selectionEnd)
-        this.input_el.setSelectionRange(selectionStart-1, selectionEnd+difflen)
+          this.input_el.setSelectionRange(selectionStart-1, selectionEnd+difflen)
       } else
         this.old_value = this.input_el.value
     })
