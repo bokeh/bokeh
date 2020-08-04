@@ -73,7 +73,7 @@ export class AxisView extends GuideRendererView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint())
+    this.connect(this.model.change, () => this.plot_view.request_layout())
   }
 
   get_size(): Size {
