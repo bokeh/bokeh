@@ -119,9 +119,9 @@ export class SpinnerView extends NumericInputView {
         if (quotient < 10) {
           clearInterval(this._interval_handle)
           this._interval_handle = setInterval(() => increment_with_increasing_rate(step), this._interval/(quotient+1))
-        } else if (quotient >= 10 && quotient <= 20) {
+        } else if (quotient >= 10 && quotient <= 13) {
           clearInterval(this._interval_handle)
-          this._interval_handle = setInterval(() => increment_with_increasing_rate(step*1.1), this._interval/10)
+          this._interval_handle = setInterval(() => increment_with_increasing_rate(step*2), this._interval/10)
         }
       }
       this.increment(step)
