@@ -11,23 +11,19 @@ import {isString} from "api/linalg"
 
 import {bk_input} from "styles/widgets/inputs"
 
+declare type HTMLInputElementFilterable = HTMLInputElement & {oldValue: string}
 
 // Restricts input for the given textbox to the given inputFilter.
-export function setInputFilter(textbox: HTMLInputElement, inputFilter: (value: string) => boolean): void {
-  textbox.addEventListener("input", function(this: HTMLInputElement & { oldValue: string, oldSelectionStart: number | null, oldSelectionEnd: number | null }) {
-    if (inputFilter(this.value)) {
-      this.oldValue = this.value
-      this.oldSelectionStart = this.selectionStart
-      this.oldSelectionEnd = this.selectionEnd
-    } else if (Object.prototype.hasOwnProperty.call(this, 'oldValue')) {
-      this.value = this.oldValue
-      if (this.oldSelectionStart !== null &&
-          this.oldSelectionEnd !== null) {
-        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd)
-      }
-    } else {
-      this.value = ""
-    }
+function setInputFilter(textbox: HTMLInputElementFilterable, inputFilter: (value: string) => boolean): void {
+  textbox.addEventListener("input", () => {
+    const {selectionStart, selectionEnd} = textbox
+    if (!inputFilter(textbox.value)) { //an invalid character is entered
+      const difflen = textbox.oldValue.length - textbox.value.length
+      textbox.value = textbox.oldValue
+      if (selectionStart && selectionEnd)
+        textbox.setSelectionRange(selectionStart-1, selectionEnd+difflen)
+    } else
+      textbox.oldValue = textbox.value
   })
 }
 
@@ -37,12 +33,15 @@ const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
 export class NumericInputView extends InputWidgetView {
   model: NumericInput
 
-  protected input_el: HTMLInputElement
+  protected input_el: HTMLInputElementFilterable
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
-    this.connect(this.model.properties.value.change, () => this.input_el.value = this.format_value)
+    this.connect(this.model.properties.value.change, () => {
+      this.input_el.value = this.format_value
+      this.input_el.oldValue = this.input_el.value
+    })
     this.connect(this.model.properties.low.change, () => {
       const {value, low, high} = this.model
       if (low!=null && high!=null)
@@ -69,14 +68,17 @@ export class NumericInputView extends InputWidgetView {
   render(): void {
     super.render()
 
-    this.input_el = input({
-      type: "text",
-      class: bk_input,
-      name: this.model.name,
-      value: this.format_value,
-      disabled: this.model.disabled,
-      placeholder: this.model.placeholder,
-    })
+    this.input_el = Object.assign(
+      input({
+        type: "text",
+        class: bk_input,
+        name: this.model.name,
+        value: this.format_value,
+        disabled: this.model.disabled,
+        placeholder: this.model.placeholder,
+      }),
+      {oldValue: this.format_value}
+    )
     this.set_input_filter()
     this.input_el.addEventListener("change", () => this.change_input())
     this.input_el.addEventListener("focusout", () => this.input_el.value =  this.format_value)
