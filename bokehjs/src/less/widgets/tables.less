@@ -43,9 +43,15 @@
   .slick-cell {
     padding-left: 4px;
     padding-right: 4px;
+    border-right-color: transparent;
+    border: 0.25px solid transparent;
 
     &.active {
       border-style: dashed;
+    }
+
+    &.selected {
+      background-color: #F0F8FF;
     }
 
     &.editable {
