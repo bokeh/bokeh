@@ -227,6 +227,9 @@ class NumberFormatter(StringFormatter):
     The language to use for formatting language-specific features (e.g. thousands separator).
     """)
 
+    nan_format = String(help="""
+    Formatting to apply to NaN and None values (falls back to Numbro formatting if not set).""")
+
     rounding = Enum(RoundingFunction, help="""
     Rounding functions (round, floor, ceil) and their synonyms (nearest, rounddown, roundup).
     """)

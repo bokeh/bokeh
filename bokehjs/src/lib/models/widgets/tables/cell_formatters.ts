@@ -142,6 +142,7 @@ export namespace NumberFormatter {
   export type Props = StringFormatter.Props & {
     format: p.Property<string>
     language: p.Property<string>
+    nan_format: p.Property<string>
     rounding: p.Property<RoundingFunction>
   }
 }
@@ -158,14 +159,15 @@ export class NumberFormatter extends StringFormatter {
   static init_NumberFormatter(): void {
 
     this.define<NumberFormatter.Props>({
-      format:   [ p.String,           '0,0'   ], // TODO (bev)
-      language: [ p.String,           'en'    ], // TODO (bev)
-      rounding: [ p.RoundingFunction, 'round' ], // TODO (bev)
+      format:    [ p.String,           '0,0'   ], // TODO (bev)
+      language:  [ p.String,           'en'    ], // TODO (bev)
+      rounding:  [ p.RoundingFunction, 'round' ], // TODO (bev)
+      nan_format: [ p.String ],
     })
   }
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
-    const {format, language} = this
+    const {format, language, nan_format} = this
     const rounding = (() => {
       switch (this.rounding) {
         case "round": case "nearest":   return Math.round
@@ -173,7 +175,10 @@ export class NumberFormatter extends StringFormatter {
         case "ceil":  case "roundup":   return Math.ceil
       }
     })()
-    value = Numbro.format(value, format, language, rounding)
+    if ((value == null || isNaN(value)) && nan_format != null)
+      value = nan_format
+    else
+      value = Numbro.format(value, format, language, rounding)
     return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
