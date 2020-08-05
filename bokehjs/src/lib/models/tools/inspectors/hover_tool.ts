@@ -454,7 +454,7 @@ export class HoverToolView extends InspectToolView {
   _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
-      const content = replace_placeholders(tooltips, ds, i, this.model.formatters, vars)
+      const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
