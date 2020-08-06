@@ -861,12 +861,12 @@ export class PlotView extends LayoutDOMView {
       if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
         setTimeout(() => {
           if (document.interactive_duration() > this.model.lod_timeout) {
-            document.interactive_stop(this.model)
+            document.interactive_stop()
           }
           this.request_paint()
         }, this.model.lod_timeout)
       } else
-        document.interactive_stop(this.model)
+        document.interactive_stop()
     }
 
     for (const [, renderer_view] of this.renderer_views) {
