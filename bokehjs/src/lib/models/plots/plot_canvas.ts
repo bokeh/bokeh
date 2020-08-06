@@ -952,7 +952,7 @@ export class PlotView extends LayoutDOMView {
       renderer_view.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl) {
+      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
         this.canvas_view.blit_webgl(ctx)
         this.canvas_view.clear_webgl()
       }

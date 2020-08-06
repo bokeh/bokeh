@@ -15,6 +15,8 @@ export abstract class RendererView extends View {
 
   parent: PlotView
 
+  needs_webgl_blit: boolean
+
   private _coordinates: CoordinateTransform
   get coordinates(): CoordinateTransform {
     return this._coordinates
@@ -23,6 +25,7 @@ export abstract class RendererView extends View {
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this.model)
+    this.needs_webgl_blit = false
     this._initialize_coordinates()
   }
 

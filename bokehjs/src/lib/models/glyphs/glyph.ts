@@ -78,7 +78,8 @@ export abstract class GlyphView extends View {
     ctx.beginPath()
 
     if (this.glglyph != null) {
-      if (this.glglyph.render(ctx, indices, data))
+      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, data)
+      if (this.renderer.needs_webgl_blit)
         return
     }
 
