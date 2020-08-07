@@ -84,7 +84,7 @@ void main()
     // This is the actual half width of the line
     float w = ceil(u_antialias+v_linewidth)/2.0;
 
-    vec2 position = (a_position + u_offset) * abs_scale;
+    vec2 position = a_position;
 
     vec2 t1 = normalize(a_tangents.xy * abs_scale_aspect);  // note the scaling for aspect ratio here
     vec2 t2 = normalize(a_tangents.zw * abs_scale_aspect);
@@ -213,7 +213,6 @@ void main()
     // Calculate position in device coordinates. Note that we
     // already scaled with abs scale above.
     vec2 normpos = position * sign(u_scale_aspect);
-    normpos += 0.5;  // make up for Bokeh's offset
     normpos /= u_canvas_size / u_pixel_ratio;  // in 0..1
     gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
     gl_Position.y *= -1.0;

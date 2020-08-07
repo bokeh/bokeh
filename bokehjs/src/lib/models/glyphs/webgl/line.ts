@@ -152,10 +152,6 @@ export class LineGL extends BaseGLGlyph {
     const mainGlGlyph = mainGlyph.glglyph!
 
     if (mainGlGlyph.data_changed) {
-      if (!(isFinite(trans.dx) && isFinite(trans.dy))) {
-        return  // not sure why, but it happens on init sometimes (#4367)
-      }
-      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  // float32 precision workaround; used in _bake() and below
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
@@ -165,17 +161,8 @@ export class LineGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    // Decompose x-y scale into scalar scale and aspect-vector.
-    let {sx, sy} = trans
-    const scale_length = Math.sqrt(sx*sx + sy*sy)
-    sx /= scale_length
-    sy /= scale_length
-
-    // Do we need to re-calculate segment data and cumsum?
-    if (Math.abs(this._scale_aspect - sy/sx) > Math.abs(1e-3 * this._scale_aspect)) {
-      mainGlGlyph._update_scale(sx, sy)
-      this._scale_aspect = sy / sx
-    }
+    mainGlGlyph._update_scale(1, 1)
+    this._scale_aspect = 1
 
     // Select buffers from main glyph
     // (which may be this glyph but maybe not if this is a (non)selection glyph)
@@ -189,12 +176,10 @@ export class LineGL extends BaseGLGlyph {
     this.prog.set_texture('u_dash_atlas', this.dash_atlas.tex)
 
     // Handle transformation to device coordinates
-    const baked_offset = mainGlGlyph._baked_offset
     this.prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
     this.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    this.prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
-    this.prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
-    this.prog.set_uniform('u_scale_length', 'float', [scale_length])
+    this.prog.set_uniform('u_scale_aspect', 'vec2', [1, 1])
+    this.prog.set_uniform('u_scale_length', 'float', [Math.sqrt(2)])
 
     this.I_triangles = mainGlGlyph.I_triangles
     if (this.I_triangles.length < 65535) {
@@ -296,8 +281,8 @@ export class LineGL extends BaseGLGlyph {
     // Init array of implicit shape nx2
     let I, T, V_angles2, V_position2, V_tangents2, V_texcoord2, Vp, Vt
     const n = this.nvertices
-    const _x = new Float32Array(this.glyph._x)
-    const _y = new Float32Array(this.glyph._y)
+    const sx = this.glyph.sx
+    const sy = this.glyph.sy
 
     // Init vertex data
     const V_position = (Vp = new Float32Array(n*2))
@@ -307,8 +292,8 @@ export class LineGL extends BaseGLGlyph {
 
     // Position
     for (let i = 0, end = n; i < end; i++) {
-      V_position[(i*2)+0] = _x[i] + this._baked_offset[0]
-      V_position[(i*2)+1] = _y[i] + this._baked_offset[1]
+      V_position[(i*2)+0] = sx[i]
+      V_position[(i*2)+1] = sy[i]
     }
 
     // Tangents & norms (need tangents to calculate segments based on scale)
