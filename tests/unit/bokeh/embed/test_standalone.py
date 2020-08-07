@@ -53,15 +53,6 @@ def test_plot() -> None:
     test_plot.circle([1, 2], [2, 3])
     return test_plot
 
-@pytest.fixture
-def test_plot_and_widget() -> None:
-    from bokeh.plotting import figure
-    from bokeh.layouts import column
-    from bokeh.models import Div
-    test_plot = figure(title="'foo'")
-    test_plot.circle([1, 2], [2, 3])
-    return column(Div(text="foo"), test_plot)
-
 PAGE = Template("""
 <!DOCTYPE html>
 <html lang="en">
@@ -90,17 +81,6 @@ class Test_autoload_static:
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "html.parser")
         scripts = html.findAll(name='script')
-        assert "bokeh-widgets" not in js
-        assert len(scripts) == 1
-        attrs = scripts[0].attrs
-        assert set(attrs) == set(['src', 'id'])
-        assert attrs['src'] == 'some/path'
-
-    def test_script_attrs_with_widgets(self, test_plot_and_widget) -> None:
-        js, tag = bes.autoload_static(test_plot_and_widget, CDN, "some/path")
-        html = bs4.BeautifulSoup(tag, "html.parser")
-        scripts = html.findAll(name='script')
-        assert "bokeh-widgets" in js
         assert len(scripts) == 1
         attrs = scripts[0].attrs
         assert set(attrs) == {"src", "id"}
@@ -122,7 +102,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 1
+        assert len(scripts) == 4
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -144,29 +124,7 @@ class Test_autoload_static:
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 1
-        for script in scripts:
-            assert script.get_attribute("crossorigin") == "anonymous"
-            assert script.get_attribute("integrity").startswith("sha384-")
-
-    @pytest.mark.selenium
-    def test_js_release_cdn_with_widgets(self, monkeypatch, driver, test_file_path_and_url, test_plot_and_widget) -> None:
-        monkeypatch.setattr(buv, "__version__", "2.0.0")
-        monkeypatch.setattr(resources, "__version__", "2.0.0")
-        js, tag = bes.autoload_static(test_plot_and_widget, CDN, "some/path")
-
-        page = PAGE.render(js=js, tag=tag)
-
-        path, url = test_file_path_and_url
-        with open(path, "w") as f:
-            f.write(page)
-
-        driver.get(url)
-
-        scripts = driver.find_elements_by_css_selector('head script')
-        for x in scripts:
-            print(x.get_attribute("src"))
-        assert len(scripts) == 2  # 2 to include widgets bundle
+        assert len(scripts) == 4
         for script in scripts:
             assert script.get_attribute("crossorigin") == "anonymous"
             assert script.get_attribute("integrity").startswith("sha384-")
@@ -188,7 +146,7 @@ class Test_autoload_static:
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 1
+        assert len(scripts) == 4
         for script in scripts:
             assert script.get_attribute("crossorigin") == "anonymous"
             assert script.get_attribute("integrity").startswith("sha384-")
@@ -208,7 +166,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 1
+        assert len(scripts) == 4
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
