@@ -102,7 +102,7 @@ class Test_autoload_static:
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 3
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
