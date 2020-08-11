@@ -22,7 +22,7 @@ import time
 from flaky import flaky
 
 # Bokeh imports
-from bokeh.events import LODStart, LODEnd
+from bokeh.events import LODEnd, LODStart
 from bokeh.layouts import column
 from bokeh.models import Range1d
 from bokeh.plotting import figure
