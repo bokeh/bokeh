@@ -22,10 +22,10 @@ import time
 from flaky import flaky
 
 # Bokeh imports
+from bokeh.events import LODStart, LODEnd
 from bokeh.layouts import column
 from bokeh.models import Range1d
 from bokeh.plotting import figure
-from bokeh.events import LODStart, LODEnd
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -59,10 +59,10 @@ class Test_Plot:
             doc.add_root(layout)
 
         page = bokeh_server_page(modify_doc)
-        
+
         # This can only be called once - calling it multiple times appears to have no effect
         page.drag_canvas_at_position(100, 100, 200, 200)
-        
+
         # Wait for drag to happen
         time.sleep(0.1)
         assert goodEvents == ["LODStart"]
