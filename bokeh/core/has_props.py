@@ -234,6 +234,8 @@ class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
     '''
+    _initialized: bool = False
+
     def __init__(self, **properties):
         '''
 
@@ -245,6 +247,8 @@ class HasProps(metaclass=MetaHasProps):
 
         for name, value in properties.items():
             setattr(self, name, value)
+
+        self._initialized = True
 
     def __setattr__(self, name, value):
         ''' Intercept attribute setting on HasProps in order to special case

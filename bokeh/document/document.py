@@ -381,12 +381,7 @@ class Document:
         '''
         references_json = patch['references']
         events_json = patch['events']
-        references = instantiate_references_json(references_json)
-
-        # Use our existing model instances whenever we have them
-        for obj in references.values():
-            if obj.id in self._all_models:
-                references[obj.id] = self._all_models[obj.id]
+        references = instantiate_references_json(references_json, self._all_models)
 
         # The model being changed isn't always in references so add it in
         for event_json in events_json:
@@ -557,7 +552,7 @@ class Document:
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
-        references = instantiate_references_json(references_json)
+        references = instantiate_references_json(references_json, {})
         initialize_references_json(references_json, references)
 
         doc = Document()

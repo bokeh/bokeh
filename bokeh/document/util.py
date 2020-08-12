@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Dict
+
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..model import get_class
@@ -79,11 +82,12 @@ def initialize_references_json(references_json, references, setter=None):
         # We want to avoid any Model specific initialization that happens with
         # Slider(...) when reconstituting from JSON, but we do need to perform
         # general HasProps machinery that sets properties, so call it explicitly
-        HasProps.__init__(instance)
+        if not instance._initialized:
+            HasProps.__init__(instance)
 
         instance.update_from_json(obj_attrs, models=references, setter=setter)
 
-def instantiate_references_json(references_json):
+def instantiate_references_json(references_json, existing_instances: Dict[str, HasProps]):
     ''' Given a JSON representation of all the models in a graph, return a
     dict of new model objects.
 
@@ -102,11 +106,14 @@ def instantiate_references_json(references_json):
         obj_id = obj['id']
         obj_type = obj.get('subtype', obj['type'])
 
-        cls = get_class(obj_type)
-        instance = cls.__new__(cls, id=obj_id)
-        if instance is None:
-            raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
-        references[instance.id] = instance
+        if obj_id in existing_instances:
+            references[obj_id] = existing_instances[obj_id]
+        else:
+            cls = get_class(obj_type)
+            instance = cls.__new__(cls, id=obj_id)
+            if instance is None:
+                raise RuntimeError(f"Error loading model from JSON (type: {obj_type}, id: {obj_id})")
+            references[instance.id] = instance
 
     return references
 
