@@ -137,8 +137,8 @@ export class Document {
     this._interactive_timestamp = Date.now()
   }
 
-  interactive_stop(plot: Model): void {
-    if (this._interactive_plot != null && this._interactive_plot.id === plot.id) {
+  interactive_stop(): void {
+    if (this._interactive_plot != null) {
       this._interactive_plot.trigger_event(new LODEnd())
     }
     this._interactive_plot = null
