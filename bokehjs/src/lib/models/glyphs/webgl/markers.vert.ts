@@ -8,8 +8,8 @@ uniform vec2 u_offset;
 uniform vec2 u_scale;
 uniform float u_antialias;
 //
-attribute float a_x;
-attribute float a_y;
+attribute float a_sx;
+attribute float a_sy;
 attribute float a_size;
 attribute float a_angle;  // in radians
 attribute float a_linewidth;
@@ -29,8 +29,7 @@ void main (void)
     v_fg_color = a_fg_color;
     v_bg_color = a_bg_color;
     v_rotation = vec2(cos(-a_angle), sin(-a_angle));
-    // Calculate position - the -0.5 is to correct for canvas origin
-    vec2 pos = (vec2(a_x, a_y) + u_offset) * u_scale; // in pixels
+    vec2 pos = vec2(a_sx, a_sy);  // in pixels
     pos += 0.5;  // make up for Bokeh's offset
     pos /= u_canvas_size / u_pixel_ratio;  // in 0..1
     gl_Position = vec4(pos*2.0-1.0, 0.0, 1.0);

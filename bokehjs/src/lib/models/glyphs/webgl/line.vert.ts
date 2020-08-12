@@ -84,7 +84,7 @@ void main()
     // This is the actual half width of the line
     float w = ceil(u_antialias+v_linewidth)/2.0;
 
-    vec2 position = (a_position + u_offset) * abs_scale;
+    vec2 position = a_position;
 
     vec2 t1 = normalize(a_tangents.xy * abs_scale_aspect);  // note the scaling for aspect ratio here
     vec2 t2 = normalize(a_tangents.zw * abs_scale_aspect);

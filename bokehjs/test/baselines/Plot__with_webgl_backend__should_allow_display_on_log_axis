@@ -1,0 +1,3 @@
+Plot bbox=[0, 0, 200, 200]
+  LinearAxis bbox=[36, 175, 159, 25]
+  LogAxis bbox=[0, 5, 36, 170]

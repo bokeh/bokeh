@@ -78,7 +78,8 @@ export abstract class GlyphView extends View {
     ctx.beginPath()
 
     if (this.glglyph != null) {
-      if (this.glglyph.render(ctx, indices, data))
+      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, data)
+      if (this.renderer.needs_webgl_blit)
         return
     }
 
@@ -255,9 +256,9 @@ export abstract class GlyphView extends View {
       this._project_data()
     }
 
-    this.glglyph?.set_data_changed()
-
     this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
+
+    this.glglyph?.set_data_changed()
 
     this.index_data()
   }
@@ -306,6 +307,7 @@ export abstract class GlyphView extends View {
     }
 
     this._map_data()
+    this.glglyph?.set_data_changed()
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
