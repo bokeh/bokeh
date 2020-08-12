@@ -163,6 +163,11 @@ export class BBox implements Rect {
   get hcenter(): number { return (this.left + this.right)/2 }
   get vcenter(): number { return (this.top + this.bottom)/2 }
 
+  relativize(): BBox {
+    const {width, height} = this
+    return new BBox({x: 0, y: 0, width, height})
+  }
+
   contains(x: number, y: number): boolean {
     return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
   }

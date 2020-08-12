@@ -69,7 +69,7 @@ export class TooltipView extends AnnotationView {
     const [sx, sy] = position
 
     const side = (() => {
-      const area = this.parent.layout.bbox
+      const area = this.parent.layout.bbox.relativize()
       const {attachment} = this.model
       switch (attachment) {
         case "horizontal":
@@ -91,8 +91,8 @@ export class TooltipView extends AnnotationView {
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
     let top: number
-    let left = 0
-    let right = 0
+    let left: number | null = null
+    let right: number | null = null
 
     switch (side) {
       case "right":
@@ -118,8 +118,8 @@ export class TooltipView extends AnnotationView {
     }
 
     this.el.style.top = `${top}px`
-    this.el.style.left = left ? `${left}px` : "auto"
-    this.el.style.right = right ? `${right}px` : "auto"
+    this.el.style.left = left != null ? `${left}px` : "auto"
+    this.el.style.right = right != null ? `${right}px` : "auto"
   }
 }
 
