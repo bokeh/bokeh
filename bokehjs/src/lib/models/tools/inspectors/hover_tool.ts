@@ -266,7 +266,11 @@ export class HoverToolView extends InspectToolView {
     }
 
     for (const struct of indices.image_indices) {
-      const vars = {index: struct.index, x, y, sx, sy}
+      const vars = {
+        index: struct.index,
+        x, y, sx, sy,
+        name: renderer_view.model.name,
+      }
       const rendered = this._render_tooltips(ds, struct, vars)
       tooltips.push([sx, sy, rendered])
     }
