@@ -15,9 +15,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from flaky import flaky
 import selenium.webdriver.chrome.webdriver
 import selenium.webdriver.firefox.webdriver
+from flaky import flaky
 
 # Module under test
 import bokeh.io.webdriver as biw # isort:skip
