@@ -337,8 +337,10 @@ export class LineGL extends BaseGLGlyph {
     // Angles
     const A = new Float32Array(n)
     for (let i = 0, end = n; i < end; i++) {
-      A[i] = Math.atan2((Vt[(i*4)+0]*Vt[(i*4)+3]) - (Vt[(i*4)+1]*Vt[(i*4)+2]),
-                        (Vt[(i*4)+0]*Vt[(i*4)+2]) + (Vt[(i*4)+1]*Vt[(i*4)+3]))
+      A[i] = Math.atan2(
+        (Vt[(i*4)+0]*Vt[(i*4)+3]) - (Vt[(i*4)+1]*Vt[(i*4)+2]),
+        (Vt[(i*4)+0]*Vt[(i*4)+2]) + (Vt[(i*4)+1]*Vt[(i*4)+3]),
+      )
     }
     for (let i = 0, end = n-1; i < end; i++) {
       V_angles[(i*2)+0] = A[i]

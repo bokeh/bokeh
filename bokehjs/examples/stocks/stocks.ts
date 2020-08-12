@@ -30,8 +30,9 @@ export namespace Stocks {
     for (const key in source.data) {
       if (key != 't') {
         i += 1
-        plot.line({field: 't'}, {field: key},
-                  {source, legend: key, line_color: colors[i%6], line_width: 2})
+        plot.line({field: 't'}, {field: key}, {
+          source, legend: key, line_color: colors[i%6], line_width: 2,
+        })
       }
     }
 

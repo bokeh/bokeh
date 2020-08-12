@@ -642,7 +642,15 @@ export ${export_type} css;
         const {ES2020, ES2017, ES5} = ts.ScriptTarget
         const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
         const imports = new Set<string>(["tslib"])
-        const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
+
+        const transform: {before: Transformers, after: Transformers} = {
+          before: [transforms.collect_imports(imports), transforms.rename_exports()],
+          after: [],
+        }
+        if (canonical == "core/util/ndarray" && target == ES5) {
+          transform.after.push(transforms.es5_fix_extend_builtins())
+        }
+
         // XXX: .json extension will cause an internal error
         const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
         if (error)
