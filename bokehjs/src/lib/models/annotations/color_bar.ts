@@ -310,9 +310,11 @@ export class ColorBarView extends AnnotationView {
     ctx.save()
     ctx.translate(x_offset + x_standoff, y_offset + y_standoff)
     for (let i = 0, end = sx.length; i < end; i++) {
-      ctx.fillText(formatted_labels[i],
-                   Math.round(sx[i] + nx*this.model.label_standoff),
-                   Math.round(sy[i] + ny*this.model.label_standoff))
+      ctx.fillText(
+        formatted_labels[i],
+        Math.round(sx[i] + nx*this.model.label_standoff),
+        Math.round(sy[i] + ny*this.model.label_standoff),
+      )
     }
     ctx.restore()
   }
