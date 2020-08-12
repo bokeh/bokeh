@@ -37,7 +37,7 @@
   <td>PyPI</td>
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
+    <img src="https://pepy.tech/badge/bokeh/month"
          alt="PyPI downloads per month" />
     </a>
   </td>
