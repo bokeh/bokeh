@@ -166,6 +166,13 @@ describe("Plot", () => {
       p.circle([], [], {size: 10})
       await display(p, [300, 300])
     })
+
+    it("should allow display on log axis", async () => {
+      const p = figure({width: 200, height: 200, toolbar_location: null, title: null, y_axis_type: "log", output_backend: "webgl"})
+      p.circle([1, 2, 3], [1, 40, 900], {size: 10})
+      await display(p, [300, 300])
+    })
+
   })
 
   it("should allow to resize itself when width changes", async () => {
