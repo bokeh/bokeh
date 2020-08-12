@@ -213,6 +213,7 @@ void main()
     // Calculate position in device coordinates. Note that we
     // already scaled with abs scale above.
     vec2 normpos = position * sign(u_scale_aspect);
+    normpos += 0.5;  // make up for Bokeh's offset
     normpos /= u_canvas_size / u_pixel_ratio;  // in 0..1
     gl_Position = vec4(normpos*2.0-1.0, 0.0, 1.0);
     gl_Position.y *= -1.0;
