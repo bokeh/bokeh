@@ -277,13 +277,21 @@ export class Matrix<T> {
     return [...this]
   }
 
-  static from<U>(obj: Matrix<U> | U[][]): Matrix<U> {
-    if (obj instanceof Matrix)
+  static from<U>(obj: U[], ncols: number): Matrix<U>
+  static from<U>(obj: Matrix<U> | U[][]): Matrix<U>
+
+  static from<U>(obj: Matrix<U> | U[][] | U[], ncols?: number): Matrix<U> {
+    if (obj instanceof Matrix) {
       return obj
-    else {
+    } else if (ncols != null) {
+      const entries = obj as U[]
+      const nrows = Math.floor(entries.length/ncols)
+      return new Matrix(nrows, ncols, (row, col) => entries[row*ncols + col])
+    } else {
+      const arrays = obj as U[][]
       const nrows = obj.length
-      const ncols = min(obj.map((row) => row.length))
-      return new Matrix(nrows, ncols, (row, col) => obj[row][col])
+      const ncols = min(arrays.map((row) => row.length))
+      return new Matrix(nrows, ncols, (row, col) => arrays[row][col])
     }
   }
 }

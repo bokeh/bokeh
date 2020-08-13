@@ -1,0 +1,11 @@
+{
+  "name": "ext_package_no_main",
+  "version": "0.0.1",
+  "description": "",
+  "license": "BSD-3-Clause",
+  "keywords": [],
+  "repository": {},
+  "dependencies": {
+    "@bokeh/bokehjs": "^2.1.1"
+  }
+}

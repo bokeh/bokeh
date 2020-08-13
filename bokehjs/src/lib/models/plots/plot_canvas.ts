@@ -861,12 +861,12 @@ export class PlotView extends LayoutDOMView {
       if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
         setTimeout(() => {
           if (document.interactive_duration() > this.model.lod_timeout) {
-            document.interactive_stop(this.model)
+            document.interactive_stop()
           }
           this.request_paint()
         }, this.model.lod_timeout)
       } else
-        document.interactive_stop(this.model)
+        document.interactive_stop()
     }
 
     for (const [, renderer_view] of this.renderer_views) {
@@ -952,7 +952,7 @@ export class PlotView extends LayoutDOMView {
       renderer_view.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl) {
+      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
         this.canvas_view.blit_webgl(ctx)
         this.canvas_view.clear_webgl()
       }
@@ -995,8 +995,8 @@ export class PlotView extends LayoutDOMView {
     }
   }
 
-  save(name: string): void {
-    this.canvas_view.save(name)
+  to_blob(): Promise<Blob> {
+    return this.canvas_view.to_blob()
   }
 
   serializable_state(): {[key: string]: unknown} {

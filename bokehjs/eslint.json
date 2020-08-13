@@ -50,7 +50,7 @@
       "ObjectExpression": "first",
       "ImportDeclaration": "first",
       "VariableDeclarator": "first",
-      "CallExpression": {"arguments": "first"},
+      "CallExpression": {"arguments": 1},
       "FunctionDeclaration": {"body": 1, "parameters": "off"},
       "FunctionExpression": {"body": 1, "parameters": "off"},
       "ignoredNodes": ["ConditionalExpression"]

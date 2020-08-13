@@ -792,8 +792,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const endAngle = getAngle(unit_vec_origin_end_tangent)
 
     // Connect the point (x0, y0) to the start tangent point by a straight line
-    this.lineTo(x + unit_vec_origin_start_tangent[0] * radius,
-                y + unit_vec_origin_start_tangent[1] * radius)
+    this.lineTo(
+      x + unit_vec_origin_start_tangent[0] * radius,
+      y + unit_vec_origin_start_tangent[1] * radius,
+    )
 
     // Connect the start tangent point to the end tangent point by arc
     // and adding the end tangent point to the subpath.

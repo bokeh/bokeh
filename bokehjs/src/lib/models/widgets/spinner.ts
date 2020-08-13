@@ -47,6 +47,8 @@ export class SpinnerView extends NumericInputView {
   protected btn_up_el: HTMLButtonElement
   protected btn_down_el: HTMLButtonElement
   private _interval_handle: ReturnType<typeof setInterval>
+  private _counter: number
+  private _interval: number
 
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
@@ -55,6 +57,7 @@ export class SpinnerView extends NumericInputView {
 
   initialize(): void {
     super.initialize()
+    this._interval = 200
   }
 
   connect_signals(): void {
@@ -107,8 +110,23 @@ export class SpinnerView extends NumericInputView {
 
   _start_incrementation(sign: 1|-1): void {
     clearInterval(this._interval_handle)
+    this._counter = 0
     const {step} = this.model
-    this._interval_handle = setInterval(() => this.increment(sign * step), this.model.interval)
+    const increment_with_increasing_rate = (step: number) => {
+      this._counter += 1
+      if (this._counter % 5 == 0) {
+        const quotient  = Math.floor(this._counter / 5)
+        if (quotient < 10) {
+          clearInterval(this._interval_handle)
+          this._interval_handle = setInterval(() => increment_with_increasing_rate(step), this._interval/(quotient+1))
+        } else if (quotient >= 10 && quotient <= 13) {
+          clearInterval(this._interval_handle)
+          this._interval_handle = setInterval(() => increment_with_increasing_rate(step*2), this._interval/10)
+        }
+      }
+      this.increment(step)
+    }
+    this._interval_handle = setInterval(() => increment_with_increasing_rate(sign * step), this._interval)
   }
 
   _stop_incrementation(): void {
@@ -186,7 +204,6 @@ export namespace Spinner {
     value_throttled: p.Property<number | null>
     step: p.Property<number>
     page_step_multiplier: p.Property<number>
-    interval: p.Property<number>
     wheel_wait: p.Property<number>
   }
 }
@@ -208,7 +225,6 @@ export class Spinner extends NumericInput {
       value_throttled:      [ p.Number,    null ],
       step:                 [ p.Number,       1 ],
       page_step_multiplier: [ p.Number,      10 ],
-      interval:             [ p.Number,      50 ],
       wheel_wait:           [ p.Number,     100 ],
     })
 

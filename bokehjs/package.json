@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "2.2.0-dev.7",
+  "version": "2.2.0-dev.8",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -30,7 +30,7 @@
     "semver": "^7.1.2",
     "del": "^5.1.0",
     "terser": "^4.8.0",
-    "mocha": "^8.0.1",
+    "mocha": "^8.1.1",
     "sinon": "^9.0.1",
     "yargs": "^15.4.1",
     "typescript": "~3.8.3",
@@ -90,7 +90,7 @@
     "@bokeh/numbro": "^1.6.2",
     "proj4": "^2.6.2",
     "choices.js": "^9.0.1",
-    "@bokeh/slickgrid": "^2.4.27",
+    "@bokeh/slickgrid": "~2.4.2701",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.23",
     "underscore.template": "^0.1.7"

@@ -223,6 +223,38 @@ export function rename_exports() {
   }
 }
 
+/**
+ * Transform `var _this = _super.call(this, seq) || this;` into `var _this = new _super(seq);`.
+ */
+export function es5_fix_extend_builtins() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.Node {
+      if (ts.isFunctionDeclaration(node)) {
+        if (node.name != null && node.name.text.endsWith("NDArray") && node.body != null) {
+          const [stmt, ...rest] = node.body.statements
+          if (ts.isVariableStatement(stmt) && stmt.declarationList.declarations.length == 1) {
+            const [decl] = stmt.declarationList.declarations
+            if (ts.isIdentifier(decl.name) && decl.name.text == "_this" && decl.initializer != null) {
+              const init = ts.createNew(ts.createIdentifier("_super"), undefined, [ts.createIdentifier("seq")])
+              const decl_new = ts.updateVariableDeclaration(decl, decl.name, decl.type, init)
+              const decls_new = ts.updateVariableDeclarationList(stmt.declarationList, [decl_new])
+              const stmt_new = ts.updateVariableStatement(stmt, stmt.modifiers, decls_new)
+              const body = ts.createBlock([stmt_new, ...rest], true)
+              const constructor = ts.updateFunctionDeclaration(node, node.decorators, node.modifiers,
+                node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, body)
+              return constructor
+            }
+          }
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
 export function wrap_in_function(module_name: string) {
   return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)

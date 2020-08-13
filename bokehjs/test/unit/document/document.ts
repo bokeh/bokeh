@@ -214,7 +214,7 @@ describe("Document", () => {
     expect((d as any)._interactive_timestamp).to.be.equal(15)
     expect(d.interactive_duration()).to.be.equal(3) // second stub value 18
 
-    d.interactive_stop(m1)
+    d.interactive_stop()
     expect((d as any)._interactive_plot).to.be.null
     expect((d as any)._interactive_timestamp).to.be.null
     expect(d.interactive_duration()).to.be.equal(-1)

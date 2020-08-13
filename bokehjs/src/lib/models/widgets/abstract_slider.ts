@@ -94,40 +94,6 @@ abstract class AbstractBaseSliderView extends ControlView {
 
   protected abstract _calc_from(values: number[]): number | number[]
 
-  protected abstract _set_keypress_handles(): void
-
-  protected _keypress_handle(e: KeyboardEvent, idx: 0 | 1 = 0): void {
-    const {start, value, end, step} = this._calc_to()
-    const is_range = value.length==2
-    let low = start
-    let high = end
-    if (is_range && idx==0) {
-      high = value[1]
-    } else if (is_range && idx==1) {
-      low = value[0]
-    }
-    switch (e.which) {
-      case 37: {
-        value[idx] = Math.max(value[idx] - step, low)
-        break
-      }
-      case 39: {
-        value[idx] = Math.min(value[idx] + step, high)
-        break
-      }
-      default:
-        return
-    }
-    if (is_range) {
-      this.model.value = value
-    } else {
-      this.model.value = value[0]
-    }
-    this.model.properties.value.change.emit()
-    this.model.value_throttled = this.model.value
-    this.noUiSlider.set(value)
-  }
-
   render(): void {
     super.render()
 
@@ -159,8 +125,6 @@ abstract class AbstractBaseSliderView extends ControlView {
 
       this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.noUiSlider.on('change', (_, __, values) => this._change(values))
-
-      this._set_keypress_handles()
 
       const toggleTooltip = (i: number, show: boolean): void => {
         if (!tooltips)
@@ -221,13 +185,6 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView {
     else
       return value
   }
-
-  protected _set_keypress_handles(): void{
-    // Add single cursor event
-    const handle = this.slider_el.querySelector(".noUi-handle")!
-    handle.setAttribute('tabindex', '0')
-    handle.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e))
-  }
 }
 
 export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
@@ -243,15 +200,6 @@ export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
 
   protected _calc_from(values: number[]): number[] {
     return values
-  }
-
-  protected _set_keypress_handles(): void{
-    const handle_lower = this.slider_el.querySelector(".noUi-handle-lower")!
-    const handle_upper = this.slider_el.querySelector(".noUi-handle-upper")!
-    handle_lower.setAttribute('tabindex', '0')
-    handle_lower.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 0))
-    handle_upper.setAttribute('tabindex', '1')
-    handle_upper.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 1))
   }
 }
 

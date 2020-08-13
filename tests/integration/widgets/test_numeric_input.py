@@ -194,10 +194,10 @@ class Test_NumericInput(object):
         values_to_enter = ["0", "1", "-1", "+5",
                           "0.1", "-0.1", "+0.1", "-.1", "+.1",
                           "1e-6", "1.e5", "-1e+3", "-1.e-5",
-                          "a", ""]
+                          "a"]
 
         expected_results = [0, 1, -1, 5, 1, -1, 1, -1, 1,
-                            10, 10, -13, -15, -15, None]
+                            10, 10, -13, -15, None]
 
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
@@ -220,10 +220,10 @@ class Test_NumericInput(object):
         values_to_enter = ["0", "1", "-1", "+5",
                           "0.1", "-0.1", "+0.1", "-.1", "+.1",
                           "1e-6", "1.e5", "-1e+3", "-1.e-5",
-                          "a", "1ea"]
+                          "a"]
 
         expected_results = [0, 1, -1, 5, 0.1, -0.1, 0.1, -0.1, 0.1,
-                            1e-6, 10, -1e3, -1e-5, -1e-5, None]
+                            1e-6, 10, -1e3, -1e-5, None]
 
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)

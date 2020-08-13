@@ -1,12 +1,12 @@
 import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
-import {Signal0} from "core/signaling"
+import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export class ActionToolButtonView extends ButtonToolButtonView {
   model: ActionTool
 
   protected _clicked(): void {
-    this.model.do.emit()
+    this.model.do.emit(undefined)
   }
 }
 
@@ -15,10 +15,10 @@ export abstract class ActionToolView extends ButtonToolView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.do, () => this.doit())
+    this.connect(this.model.do, (arg: string | undefined) => this.doit(arg))
   }
 
-  abstract doit(): void
+  abstract doit(arg?: unknown): void
 }
 
 export namespace ActionTool {
@@ -39,5 +39,5 @@ export abstract class ActionTool extends ButtonTool {
 
   button_view = ActionToolButtonView
 
-  do = new Signal0<this>(this, "do")
+  do = new Signal<string | undefined, this>(this, "do")
 }
