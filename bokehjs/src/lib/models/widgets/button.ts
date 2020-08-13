@@ -7,7 +7,6 @@ export class ButtonView extends AbstractButtonView {
   model: Button
 
   click(): void {
-    this.model.clicks = this.model.clicks + 1
     this.model.trigger_event(new ButtonClick())
     super.click()
   }
@@ -16,9 +15,7 @@ export class ButtonView extends AbstractButtonView {
 export namespace Button {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = AbstractButton.Props & {
-    clicks: p.Property<number>
-  }
+  export type Props = AbstractButton.Props
 }
 
 export interface Button extends Button.Attrs {}
