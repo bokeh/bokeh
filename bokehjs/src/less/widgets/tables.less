@@ -24,10 +24,11 @@
     .bk-cell-special-defaults;
   }
 
-  .bk-cell-index {
+  .slick-cell.bk-cell-index {
     .bk-cell-special-defaults;
     text-align: right;
-    color: gray;
+    background: #eaeaea;
+	color: #909090;
   }
 
   .bk-header-index {
@@ -40,12 +41,20 @@
     background-color: transparent;
   }
 
+  .slick-row.odd {
+    background: #EAEAEA;
+  }
+
   .slick-cell {
     padding-left: 4px;
     padding-right: 4px;
     border-right-color: transparent;
     border: 0.25px solid transparent;
 
+    .bk {
+      line-height: inherit;
+    }
+   
     &.active {
       border-style: dashed;
     }
