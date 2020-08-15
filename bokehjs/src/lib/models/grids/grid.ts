@@ -65,14 +65,15 @@ export class GridView extends GuideRendererView {
 
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
+    ctx.beginPath()
     for (let i = 0; i < xs.length; i++) {
       const [sx, sy] = this.coordinates.map_to_screen(xs[i], ys[i])
-      ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-      for (let i = 1; i < sx.length; i++)
+      for (let i = 1; i < sx.length; i++) {
         ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
-      ctx.stroke()
+      }
     }
+    ctx.stroke()
   }
 
   // {{{ TODO: state
