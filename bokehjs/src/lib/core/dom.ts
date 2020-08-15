@@ -125,14 +125,14 @@ export function prepend(element: HTMLElement, ...nodes: Node[]): void {
   }
 }
 
-export function empty(element: HTMLElement, attrs: boolean = false): void {
+export function empty(node: Node, attrs: boolean = false): void {
   let child: ChildNode | null
-  while (child = element.firstChild) {
-    element.removeChild(child)
+  while (child = node.firstChild) {
+    node.removeChild(child)
   }
-  if (attrs) {
-    for (const attr of element.attributes) {
-      element.removeAttributeNode(attr)
+  if (attrs && node instanceof Element) {
+    for (const attr of node.attributes) {
+      node.removeAttributeNode(attr)
     }
   }
 }
