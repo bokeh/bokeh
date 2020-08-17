@@ -345,24 +345,18 @@ def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
 
-_SVG_SCRIPT = """
-const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
-const {PlotView} = Bokeh.require("models/plots/plot")
-
-function* collect_svgs(views) {
+_SVG_SCRIPT = """\
+const [done] = arguments
+function* export_svgs(views) {
   for (const view of views) {
-    if (view instanceof LayoutDOMView) {
-      yield* collect_svgs(view.child_views.values())
-    }
-    if (view instanceof PlotView && view.model.output_backend == "svg") {
-      const {ctx} = view.canvas_view.compose()
-      yield ctx.get_serialized_svg(true)
-    }
+    // TODO: use to_blob() API in future
+    const {ctx} = view.export("svg")
+    yield ctx.get_serialized_svg(true)
   }
 }
 
 const root_views = Object.values(Bokeh.index)
-return [...collect_svgs(root_views)]
+return [...export_svgs(root_views)]
 """
 
 _WAIT_SCRIPT = """

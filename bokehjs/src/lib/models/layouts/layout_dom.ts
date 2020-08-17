@@ -10,6 +10,7 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
+import {CanvasLayer} from "../canvas/canvas"
 
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
@@ -351,6 +352,22 @@ export abstract class LayoutDOMView extends DOMView {
       // this element is detached from DOM
       return {}
     })
+  }
+
+  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "png" ? "canvas" : "svg"
+    const composite = new CanvasLayer(output_backend, hidpi)
+
+    const {width, height} = this.layout.bbox
+    composite.resize(width, height)
+
+    for (const view of this.child_views) {
+      const region = view.export(type, hidpi)
+      const {x, y} = view.layout.bbox
+      composite.ctx.drawImage(region.canvas, x, y)
+    }
+
+    return composite
   }
 
   serializable_state(): {[key: string]: unknown} {

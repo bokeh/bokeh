@@ -1,5 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
+import {Canvas, CanvasView, FrameBox, CanvasLayer} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
@@ -997,6 +997,19 @@ export class PlotView extends LayoutDOMView {
 
   to_blob(): Promise<Blob> {
     return this.canvas_view.to_blob()
+  }
+
+  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "png" ? "canvas" : "svg"
+    const composite = new CanvasLayer(output_backend, hidpi)
+
+    const {width, height} = this.layout.bbox
+    composite.resize(width, height)
+
+    const {canvas} = this.canvas_view.compose()
+    composite.ctx.drawImage(canvas, 0, 0)
+
+    return composite
   }
 
   serializable_state(): {[key: string]: unknown} {
