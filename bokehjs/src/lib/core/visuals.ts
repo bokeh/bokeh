@@ -10,6 +10,8 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Texture} from "models/textures/texture"
+import {SVGRenderingContext2D} from "core/util/svg"
+import {CanvasLayer} from "models/canvas/canvas"
 
 function color2css(color: Color | number, alpha: number): string {
   const [r, g, b, a] = isString(color) ? color2rgba(color) : decode_rgba(color)
@@ -37,21 +39,12 @@ function _x(ctx: Context2d, h: number): void {
   ctx.stroke()
 }
 
-function _get_canvas(size: number): HTMLCanvasElement {
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  return canvas
-}
-
-function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_alpha: number, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
+function create_hatch_canvas(ctx: Context2d,
+    hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_alpha: number, hatch_scale: number, hatch_weight: number): void {
   const h = hatch_scale
   const h2 = h / 2
   const h4 = h2 / 2
 
-  const canvas = _get_canvas(hatch_scale)
-
-  const ctx = canvas.getContext("2d")! as Context2d
   ctx.strokeStyle = color2css(hatch_color, hatch_alpha)
   ctx.lineCap = "square"
   ctx.fillStyle = hatch_color
@@ -185,8 +178,6 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
       _vert(ctx, h, h2)
       break
   }
-
-  return canvas
 }
 
 export abstract class ContextProperties {
@@ -344,8 +335,13 @@ export class Hatch extends ContextProperties {
         this.cache.pattern = custom.get_pattern(color, alpha, scale, weight)
       } else {
         this.cache.pattern = (ctx: Context2d) => {
-          const canvas = create_hatch_canvas(pattern, color, alpha, scale, weight)
-          return ctx.createPattern(canvas, 'repeat')!
+          // TODO: this needs a canvas provider instead of trying to guess what to use
+          const output_backend = ctx instanceof SVGRenderingContext2D ? "svg" : "canvas"
+          const region = new CanvasLayer(output_backend, true)
+          region.resize(scale, scale)
+          region.prepare()
+          create_hatch_canvas(region.ctx, pattern, color, alpha, scale, weight)
+          return ctx.createPattern(region.canvas, "repeat")!
         }
       }
     } else
