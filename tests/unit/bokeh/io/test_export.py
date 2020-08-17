@@ -135,13 +135,20 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-              plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svgs(layout)
 
-    assert svgs == []
+    assert svgs == [
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+        '<defs/>'
+        '<image width="20" height="20" preserveAspectRatio="none" transform="translate(0, 0)" xlink:href="'
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAbElEQVQ4T2P8//+/AwMDAwhTBTD+//+/gYGBoZ4'
+        'qpjEwMIwaCAnJN2/eMPz69YtgsLKxsTGIiIigqMMahs+ePWOQkpIiaCA2daMGQoJtNAxxJp+BSzbE5hRmZuYL4uLiBsheGC1tCJYHBBUAAA7h'
+        'kkaBfwzpAAAAAElFTkSuQmCC"/>'
+        '</svg>',
+    ]
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
@@ -164,13 +171,7 @@ def test_get_svgs_with_svg_present(webdriver) -> None:
     svg2 = (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
         '<defs/>'
-        '<g>'
-            '<g transform="scale(1,1) translate(0.5,0.5) translate(0, 0)">'
-                '<rect fill="rgb(255,0,0)" stroke="none" x="5" y="5" width="10" height="10" fill-opacity="1"/>'
-                '<g/>'
-            '</g>'
-            '<g transform="scale(1,1) translate(0.5,0.5) translate(0, 0)"/>'
-        '</g>'
+        '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
         '</svg>'
     )
 

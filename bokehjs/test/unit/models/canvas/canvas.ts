@@ -54,9 +54,7 @@ describe("Canvas", () => {
       expect(primary_svg).to.be.equal(`\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="600">\
 <defs/>\
-<g transform="scale(1,1) translate(0.5,0.5)">\
-<rect fill="blue" stroke="none" x="100" y="200" width="300" height="400"/>\
-</g>\
+<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5"/>\
 </svg>\
 `)
 
@@ -64,9 +62,7 @@ describe("Canvas", () => {
       expect(overlays_svg).to.be.equal(`\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="600">\
 <defs/>\
-<g transform="scale(1,1) translate(0.5,0.5)">\
-<rect fill="green" stroke="none" x="300" y="400" width="200" height="100"/>\
-</g>\
+<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5"/>\
 </svg>\
 `)
 
@@ -75,14 +71,8 @@ describe("Canvas", () => {
       expect(composite_svg).to.be.equal(`\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="600">\
 <defs/>\
-<g>\
-<g transform="scale(1,1) translate(0.5,0.5) translate(0, 0)">\
-<rect fill="blue" stroke="none" x="100" y="200" width="300" height="400"/>\
-</g>\
-<g transform="scale(1,1) translate(0.5,0.5) translate(0, 0)">\
-<rect fill="green" stroke="none" x="300" y="400" width="200" height="100"/>\
-</g>\
-</g>\
+<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5"/>\
+<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5"/>\
 </svg>\
 `)
     })
