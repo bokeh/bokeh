@@ -138,10 +138,19 @@ A widget allowing users to choose a file and store its contents.
 .. bokeh-plot:: docs/user_guide/examples/interaction_fileinput.py
     :source-position: below
 
+MultiChoice
+~~~~~~~~~~~
+
+A multi-select widget to present multiple available options in a compact
+horizontal layout:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_multichoice.py
+    :source-position: below
+
 MultiSelect
 ~~~~~~~~~~~
 
-A multi-select widget to present multiple available options:
+A multi-select widget to present multiple available options in vertical list:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_multiselect.py
     :source-position: below
