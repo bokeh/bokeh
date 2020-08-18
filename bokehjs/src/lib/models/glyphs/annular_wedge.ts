@@ -58,8 +58,8 @@ export class AnnularWedgeView extends XYGlyphView {
       ctx.translate(sx[i], sy[i])
       ctx.rotate(_start_angle[i])
 
-      ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
+      ctx.moveTo(souter_radius[i], 0)
       ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction)
       ctx.rotate(_angle[i])
       ctx.lineTo(sinner_radius[i], 0)

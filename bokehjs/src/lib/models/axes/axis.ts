@@ -191,16 +191,16 @@ export class AxisView extends GuideRendererView {
 
     visuals.set_value(ctx)
 
+    ctx.beginPath()
     for (let i = 0; i < sxs.length; i++) {
       const sx0 = Math.round(sxs[i] + nxout)
       const sy0 = Math.round(sys[i] + nyout)
       const sx1 = Math.round(sxs[i] + nxin)
       const sy1 = Math.round(sys[i] + nyin)
-      ctx.beginPath()
       ctx.moveTo(sx0, sy0)
       ctx.lineTo(sx1, sy1)
-      ctx.stroke()
     }
+    ctx.stroke()
   }
 
   protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,

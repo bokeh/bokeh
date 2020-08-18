@@ -10,6 +10,8 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Texture} from "models/textures/texture"
+import {SVGRenderingContext2D} from "core/util/svg"
+import {CanvasLayer} from "models/canvas/canvas"
 
 function color2css(color: Color | number, alpha: number): string {
   const [r, g, b, a] = isString(color) ? color2rgba(color) : decode_rgba(color)
@@ -37,73 +39,67 @@ function _x(ctx: Context2d, h: number): void {
   ctx.stroke()
 }
 
-function _get_canvas(size: number): HTMLCanvasElement {
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  return canvas
+export const hatch_aliases: {[key: string]: mixins.HatchPattern} = {
+  " ": "blank",
+  ".": "dot",
+  o: "ring",
+  "-": "horizontal_line",
+  "|": "vertical_line",
+  "+": "cross",
+  "\"": "horizontal_dash",
+  ":": "vertical_dash",
+  "@": "spiral",
+  "/": "right_diagonal_line",
+  "\\": "left_diagonal_line",
+  x: "diagonal_cross",
+  ",": "right_diagonal_dash",
+  "`": "left_diagonal_dash",
+  v: "horizontal_wave",
+  ">": "vertical_wave",
+  "*": "criss_cross",
 }
 
-function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_alpha: number, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
+function create_hatch_canvas(ctx: Context2d,
+    hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_alpha: number, hatch_scale: number, hatch_weight: number): void {
   const h = hatch_scale
   const h2 = h / 2
   const h4 = h2 / 2
 
-  const canvas = _get_canvas(hatch_scale)
-
-  const ctx = canvas.getContext("2d")! as Context2d
   ctx.strokeStyle = color2css(hatch_color, hatch_alpha)
   ctx.lineCap = "square"
   ctx.fillStyle = hatch_color
   ctx.lineWidth = hatch_weight
 
-  switch (hatch_pattern) {
+  switch (hatch_aliases[hatch_pattern] ?? hatch_pattern) {
     // we should not need these if code conditions on hatch.doit, but
     // include them here just for completeness
-    case " ":
     case "blank":
       break
-
-    case ".":
     case "dot":
       ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
       ctx.fill()
       break
-
-    case "o":
     case "ring":
       ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
       ctx.stroke()
       break
-
-    case "-":
     case "horizontal_line":
       _horz(ctx, h, h2)
       break
-
-    case "|":
     case "vertical_line":
       _vert(ctx, h, h2)
       break
-
-    case "+":
     case "cross":
       _horz(ctx, h, h2)
       _vert(ctx, h, h2)
       break
-
-    case "\"":
     case "horizontal_dash":
       _horz(ctx, h2, h2)
       break
-
-    case ":":
     case "vertical_dash":
       _vert(ctx, h2, h2)
       break
-
-    case "@":
-    case "spiral":
+    case "spiral": {
       const h30 = h/30
       ctx.moveTo(h2, h2)
       for (let i = 0; i < 360; i++) {
@@ -114,8 +110,7 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
       }
       ctx.stroke()
       break
-
-    case "/":
+    }
     case "right_diagonal_line":
       ctx.moveTo(-h4+0.5, h)
       ctx.lineTo(h4+0.5, 0)
@@ -128,8 +123,6 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
       ctx.stroke()
       ctx.stroke()
       break
-
-    case "\\":
     case "left_diagonal_line":
       ctx.moveTo(h4+0.5, h)
       ctx.lineTo(-h4+0.5, 0)
@@ -142,51 +135,37 @@ function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Co
       ctx.stroke()
       ctx.stroke()
       break
-
-    case "x":
     case "diagonal_cross":
       _x(ctx, h)
       break
-
-    case ",":
     case "right_diagonal_dash":
       ctx.moveTo(h4+0.5, 3*h4+0.5)
       ctx.lineTo(3*h4+0.5, h4+0.5)
       ctx.stroke()
       break
-
-    case "`":
     case "left_diagonal_dash":
       ctx.moveTo(h4+0.5, h4+0.5)
       ctx.lineTo(3*h4+0.5, 3*h4+0.5)
       ctx.stroke()
       break
-
-    case "v":
     case "horizontal_wave":
       ctx.moveTo(0, h4)
       ctx.lineTo(h2, 3*h4)
       ctx.lineTo(h, h4)
       ctx.stroke()
       break
-
-    case ">":
     case "vertical_wave":
       ctx.moveTo(h4, 0)
       ctx.lineTo(3*h4, h2)
       ctx.lineTo(h4, h)
       ctx.stroke()
       break
-
-    case "*":
     case "criss_cross":
       _x(ctx, h)
       _horz(ctx, h, h2)
       _vert(ctx, h, h2)
       break
   }
-
-  return canvas
 }
 
 export abstract class ContextProperties {
@@ -344,8 +323,13 @@ export class Hatch extends ContextProperties {
         this.cache.pattern = custom.get_pattern(color, alpha, scale, weight)
       } else {
         this.cache.pattern = (ctx: Context2d) => {
-          const canvas = create_hatch_canvas(pattern, color, alpha, scale, weight)
-          return ctx.createPattern(canvas, 'repeat')!
+          // TODO: this needs a canvas provider instead of trying to guess what to use
+          const output_backend = ctx instanceof SVGRenderingContext2D ? "svg" : "canvas"
+          const region = new CanvasLayer(output_backend, true)
+          region.resize(scale, scale)
+          region.prepare()
+          create_hatch_canvas(region.ctx, pattern, color, alpha, scale, weight)
+          return ctx.createPattern(region.canvas, "repeat")!
         }
       }
     } else
