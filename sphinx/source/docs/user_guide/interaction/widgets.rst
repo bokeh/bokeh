@@ -163,6 +163,14 @@ A widget for displaying a block of text in an HTML <p> tag:
 .. bokeh-plot:: docs/user_guide/examples/interaction_paragraph.py
     :source-position: below
 
+PasswordInput
+~~~~~~~~~~~~~
+
+A text input that obscures the entered text:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_passwordinput.py
+    :source-position: below
+
 PreText
 ~~~~~~~
 
