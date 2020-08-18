@@ -113,6 +113,15 @@ plot and the table (even in static HTML documents).
 .. bokeh-plot:: docs/user_guide/examples/interaction_data_table.py
     :source-position: below
 
+DateRangeSlider
+~~~~~~~~~~~~~~~
+
+The Bokeh date range-slider can be configured with ``start`` and ``end`` date
+values, a ``step`` size, an initial ``value``, and a ``title``:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_daterangeslider.py
+    :source-position: below
+
 Div
 ~~~
 
