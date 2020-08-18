@@ -1,7 +1,7 @@
 import {display, fig, row, column, grid} from "./utils"
 
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation,
+  Arrow, ArrowHead, NormalHead, BoxAnnotation, Legend, LegendItem,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -316,6 +316,44 @@ describe("Bug", () => {
       }
       const r = grid(Matrix.from(plots, 3))
       await display(r, [650, 650])
+    })
+  })
+
+  describe("in issue #8446", () => {
+    it("disallows correct rendering circle scatter plots with SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.scatter([-1, -2, -3, -4, -5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5, marker: "circle"})
+        p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "red", alpha: 0.5})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]), [450, 250])
+    })
+  })
+
+  describe("in issue #6775", () => {
+    it("disallows correct rendering of legends with SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        const cross = p.diamond({x: 1, y: 1, color: "red", size: 30})
+        const square = p.square({x: 2, y: 1, size: 30})
+        const items = [
+          new LegendItem({label: "circle", renderers: [cross]}),
+          new LegendItem({label: "square", renderers: [square]}),
+        ]
+        const legend = new Legend({items, location: "top_center"})
+        p.add_layout(legend)
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]), [450, 250])
     })
   })
 })
