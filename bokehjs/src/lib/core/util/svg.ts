@@ -417,33 +417,20 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
       if (style.apply) {
-        // is this a gradient or pattern?
         if (value instanceof CanvasPattern) {
-          // pattern
-          if (value.__ctx) {
-            // copy over defs
-            for (const def of [...value.__ctx.__defs.childNodes]) {
-              if (def instanceof Element) {
-                const id = def.getAttribute("id")!
-                this.__ids[id] = id
-                this.__defs.appendChild(def)
-              }
-            }
-            /*
-            while(value.__ctx.__defs.childNodes.length) {
-              const id = svg_children(value.__ctx.__defs)[0].getAttribute("id")!
+          for (const def of [...value.__ctx.__defs.childNodes]) {
+            if (def instanceof Element) {
+              const id = def.getAttribute("id")!
               this.__ids[id] = id
-              this.__defs.appendChild(value.__ctx.__defs.childNodes[0])
+              this.__defs.appendChild(def)
             }
-            */
           }
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
         } else if (value instanceof CanvasGradient) {
-          // gradient
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
-        } else if (style.apply.indexOf(type)!==-1 && style.svg !== value) {
+        } else if (style.apply.indexOf(type) !== -1 && style.svg !== value) {
           if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
             // separate alpha value, since illustrator can't handle it
             const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
@@ -471,17 +458,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           }
         }
       }
-    }
-  }
-
-  /**
-    * Will return the closest group or svg node. May return the current element.
-    */
-  __closestGroupOrSvg(node: SVGElement = this.__currentElement): SVGElement {
-    if (node.nodeName === "g" || node.nodeName === "svg") {
-      return node
-    } else {
-      return this.__closestGroupOrSvg(node.parentNode as SVGElement)
     }
   }
 
@@ -528,13 +504,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     })
 
     this._transform = this._transform.clone()
-
-    /*
-    const group = this.__createElement("g")
-    const parent = this.__closestGroupOrSvg()
-    parent.appendChild(group)
-    this.__currentElement = group
-    */
   }
 
   /**
@@ -549,52 +518,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._transform = transform
     this._clip_path = clip_path
     this.__applyStyleState(attributes)
-
-    /*
-    this.__currentElement = this.__groupStack.pop()!
-    this.__currentElementsToStyle = null
-    // Clearing canvas will make the poped group invalid, currentElement is set to the root group node.
-    if (!this.__currentElement) {
-      this.__currentElement = svg_children(this.__root)[1]
-    }
-    */
-    //const state = this.__stack.pop()!
-    //this.__applyStyleState(state)
   }
-
-  /**
-    * Helper method to add transform
-    */
-  /*
-  __addTransform(t: string): void {
-    // if the current element has siblings, add another group
-    const parent = this.__closestGroupOrSvg()
-    if (parent.childNodes.length > 0) {
-      if (this.__currentElement.nodeName === "path") {
-        if (!this.__currentElementsToStyle) {
-          this.__currentElementsToStyle = {element: parent, children: []}
-        }
-        this.__currentElementsToStyle.children.push(this.__currentElement)
-        this.__applyCurrentDefaultPath()
-      }
-
-      const group = this.__createElement("g")
-      parent.appendChild(group)
-      this.__currentElement = group
-    }
-
-    let transform = this.__currentElement.getAttribute("transform")
-    if (transform) {
-      if (transform.includes(t))
-        return
-      transform += " "
-    } else {
-      transform = ""
-    }
-    transform += t
-    this.__currentElement.setAttribute("transform", transform)
-  }
-  */
 
   private _apply_transform(element: Element, transform: AffineTransform = this._transform) {
     if (!transform.is_identity) {
@@ -648,8 +572,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.__currentPosition = null
 
     const path = this.__createElement("path", {}, true)
-    const parent = this.__closestGroupOrSvg()
-    parent.appendChild(path)
+    this.__root.appendChild(path)
     this.__currentElement = path
   }
 
@@ -892,14 +815,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.beginPath()
     this.rect(x, y, width, height)
     this.fill()
-    /*
-    const rect = this.__createElement("rect", {x, y, width, height}, true)
-    this._apply_transform(rect)
-    const parent = this.__closestGroupOrSvg()
-    parent.appendChild(rect)
-    this.__currentElement = rect
-    this.__applyStyleToCurrentElement("fill")
-    */
   }
 
   /**
@@ -915,14 +830,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this.beginPath()
     this.rect(x, y, width, height)
     this.stroke()
-    /*
-    const rect = this.__createElement("rect", {x, y, width, height}, true)
-    this._apply_transform(rect)
-    const parent = this.__closestGroupOrSvg()
-    parent.appendChild(rect)
-    this.__currentElement = rect
-    this.__applyStyleToCurrentElement("stroke")
-    */
   }
 
   /**
@@ -931,28 +838,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * 2. remove all the childNodes of the root g element
     */
   __clearCanvas(): void {
-    //const current = this.__closestGroupOrSvg()
-    //const transform = current.getAttribute("transform")
     empty(this.__defs)
     empty(this.__root)
     this.__root.appendChild(this.__defs)
-    /*
-    const rootGroup = svg_children(this.__root)[1]
-    const childNodes = rootGroup.childNodes
-    for (let i = childNodes.length - 1; i >= 0; i--) {
-      if (childNodes[i]) {
-        rootGroup.removeChild(childNodes[i])
-      }
-    }
-    */
-    ///this.__currentElement = rootGroup
     this.__currentElement = this.__root
-    // reset __groupStack as all the child group nodes are all removed.
-    /*
-    if (transform) {
-      this.__addTransform(transform)
-    }
-    */
   }
 
   /**
@@ -967,8 +856,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     }
     const rect = this.__createElement("rect", {x, y, width, height, fill: "#FFFFFF"}, true)
     this._apply_transform(rect)
-    const parent = this.__closestGroupOrSvg()
-    parent.appendChild(rect)
+    this.__root.appendChild(rect)
   }
 
   /**
@@ -1060,7 +948,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     */
   __applyText(text: string, x: number, y: number, action: "fill" | "stroke"): void {
     const font = this.__parseFont()
-    const parent = this.__closestGroupOrSvg()
     const textElement = this.__createElement("text", {
       "font-family": font.family,
       "font-size": font.size,
@@ -1077,7 +964,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     this._apply_transform(textElement)
     this.__currentElement = textElement
     this.__applyStyleToCurrentElement(action)
-    parent.appendChild(this.__wrapTextLink(font, textElement))
+    this.__root.appendChild(this.__wrapTextLink(font, textElement))
   }
 
   /**
@@ -1152,27 +1039,15 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Generates a ClipPath from the clip command.
     */
   clip(): void {
-    //const group = this.__closestGroupOrSvg()
-    const clipPath = this.__createElement("clipPath")
+    const clip_path = this.__createElement("clipPath")
     const id = randomString(this.__ids)
-    //const newGroup = this.__createElement("g")
 
     this.__applyCurrentDefaultPath()
-    //group.removeChild(this.__currentElement)
-    clipPath.setAttribute("id", id)
-    clipPath.appendChild(this.__currentElement)
+    clip_path.setAttribute("id", id)
+    clip_path.appendChild(this.__currentElement)
 
-    this.__defs.appendChild(clipPath)
-
-    // set the clip path to this group
+    this.__defs.appendChild(clip_path)
     this._clip_path = `url(#${id})`
-    //group.setAttribute("clip-path", `url(#${id})`)
-
-    // clip paths can be scaled and transformed, we need to add another wrapper group to avoid later transformations
-    // to this path
-    //group.appendChild(newGroup)
-
-    //this.__currentElement = newGroup
   }
 
   /**
@@ -1212,7 +1087,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     }
 
     // parent, svg, defs, group, currentElement, svgImage, canvas, context, id
-    const parent = this.__root // this.__closestGroupOrSvg()
+    const parent = this.__root
     const translateDirective = "translate(" + dx + ", " + dy + ")"
     const transform = this._transform.clone().translate(dx, dy)
     if (image instanceof SVGRenderingContext2D || image instanceof SVGSVGElement) {
@@ -1241,29 +1116,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
           scope.appendChild(child)
         }
       }
-      /*
-      if (svg.childNodes && svg.childNodes.length > 1) {
-        const defs = svg_children(svg)[0]
-        while(defs.childNodes.length) {
-          const id = svg_children(defs)[0].getAttribute("id")!
-          this.__ids[id] = id
-          this.__defs.appendChild(svg_children(defs)[0])
-        }
-        const group = svg_children(svg)[1]
-        if (group) {
-          // save original transform
-          const originTransform = group.getAttribute("transform")
-          let transformDirective
-          if (originTransform) {
-            transformDirective = originTransform+" "+translateDirective
-          } else {
-            transformDirective = translateDirective
-          }
-          group.setAttribute("transform", transformDirective)
-          parent.appendChild(group)
-        }
-      }
-      */
     } else if (image instanceof HTMLImageElement || image instanceof SVGImageElement) {
       const svgImage = this.__createElement("image")
       svgImage.setAttribute("width", `${dw}`)
@@ -1295,9 +1147,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       canvas.height = dh
       const context = canvas.getContext("2d")!
       context.imageSmoothingEnabled = false
-      //context.mozImageSmoothingEnabled = false
-      //context.oImageSmoothingEnabled = false
-      //context.webkitImageSmoothingEnabled = false
       context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh)
       image = canvas
 
