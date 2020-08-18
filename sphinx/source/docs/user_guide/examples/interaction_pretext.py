@@ -1,7 +1,5 @@
-from bokeh.io import output_file, show
+from bokeh.io import show
 from bokeh.models import PreText
-
-output_file("div.html")
 
 pre = PreText(text="""Your text is initialized with the 'text' argument.
 

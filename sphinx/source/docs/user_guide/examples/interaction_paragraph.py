@@ -1,7 +1,5 @@
-from bokeh.io import output_file, show
+from bokeh.io import show
 from bokeh.models import Paragraph
-
-output_file("div.html")
 
 p = Paragraph(text="""Your text is initialized with the 'text' argument.  The
 remaining Paragraph arguments are 'width' and 'height'. For this example, those values

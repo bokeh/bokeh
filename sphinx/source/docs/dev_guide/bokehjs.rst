@@ -65,6 +65,12 @@ BokehJS's source code is located in the ``bokehjs/`` directory in Bokeh's monore
 repository. All further instructions and shell commands assume that ``bokehjs/``
 is the current directory.
 
+Some guidelines to adhere to when working on BokehJS:
+
+* Do not use ``for-in`` loops, especially unguarded by ``hasOwnProperty()`` Use
+  ``for-of`` loop in combination with ``keys()``, ``values()`` and/or
+  ``entries()`` from the ``core/util/object`` module instead.
+
 Requirements
 ~~~~~~~~~~~~
 
