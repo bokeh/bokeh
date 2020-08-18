@@ -69,11 +69,14 @@ log = logging.getLogger(__name__)
 
 __all__ = (
     'ButtonClick',
+    'DocumentEvent',
+    'DocumentReady',
     'DoubleTap',
     'Event',
     'LODStart',
     'LODEnd',
     'MenuItemClick',
+    'ModelEvent',
     'MouseEnter',
     'MouseLeave',
     'MouseMove',
