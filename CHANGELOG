@@ -1,3 +1,14 @@
+2020-08-18    2.1.1:
+--------------------
+  * bugfixes:
+    - #10172 [component: bokehjs] [BUG] Can't resolve 'styles/annotations.css' when importing BokehJS
+    - #10175 [component: server] [BUG] Serve application at random port failed
+    - #10181 [BUG] Unable to set `LabelSet.text_align` with `bokeh serve`
+    - #10197 [BUG] Can't select bar_line_color in ColorBar
+    - #10204 [component: bokehjs] return typed arrays as lists
+  * tasks:
+    - #10212 [component: docs] Release notes for 2.1.1
+
 2020-06-14    2.1.0:
 --------------------
   * bugfixes:
@@ -4729,3 +4740,4 @@
 2013-09-03      0.1:
 --------------------
   * initial release
+
