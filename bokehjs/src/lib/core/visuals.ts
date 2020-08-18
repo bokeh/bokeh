@@ -39,6 +39,26 @@ function _x(ctx: Context2d, h: number): void {
   ctx.stroke()
 }
 
+export const hatch_aliases: {[key: string]: mixins.HatchPattern} = {
+  " ": "blank",
+  ".": "dot",
+  o: "ring",
+  "-": "horizontal_line",
+  "|": "vertical_line",
+  "+": "cross",
+  "\"": "horizontal_dash",
+  ":": "vertical_dash",
+  "@": "spiral",
+  "/": "right_diagonal_line",
+  "\\": "left_diagonal_line",
+  x: "diagonal_cross",
+  ",": "right_diagonal_dash",
+  "`": "left_diagonal_dash",
+  v: "horizontal_wave",
+  ">": "vertical_wave",
+  "*": "criss_cross",
+}
+
 function create_hatch_canvas(ctx: Context2d,
     hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_alpha: number, hatch_scale: number, hatch_weight: number): void {
   const h = hatch_scale
@@ -50,53 +70,36 @@ function create_hatch_canvas(ctx: Context2d,
   ctx.fillStyle = hatch_color
   ctx.lineWidth = hatch_weight
 
-  switch (hatch_pattern) {
+  switch (hatch_aliases[hatch_pattern] ?? hatch_pattern) {
     // we should not need these if code conditions on hatch.doit, but
     // include them here just for completeness
-    case " ":
     case "blank":
       break
-
-    case ".":
     case "dot":
       ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
       ctx.fill()
       break
-
-    case "o":
     case "ring":
       ctx.arc(h2, h2, h2/2, 0, 2 * Math.PI, true)
       ctx.stroke()
       break
-
-    case "-":
     case "horizontal_line":
       _horz(ctx, h, h2)
       break
-
-    case "|":
     case "vertical_line":
       _vert(ctx, h, h2)
       break
-
-    case "+":
     case "cross":
       _horz(ctx, h, h2)
       _vert(ctx, h, h2)
       break
-
-    case "\"":
     case "horizontal_dash":
       _horz(ctx, h2, h2)
       break
-
-    case ":":
     case "vertical_dash":
       _vert(ctx, h2, h2)
       break
-
-    case "@":
-    case "spiral":
+    case "spiral": {
       const h30 = h/30
       ctx.moveTo(h2, h2)
       for (let i = 0; i < 360; i++) {
@@ -107,8 +110,7 @@ function create_hatch_canvas(ctx: Context2d,
       }
       ctx.stroke()
       break
-
-    case "/":
+    }
     case "right_diagonal_line":
       ctx.moveTo(-h4+0.5, h)
       ctx.lineTo(h4+0.5, 0)
@@ -121,8 +123,6 @@ function create_hatch_canvas(ctx: Context2d,
       ctx.stroke()
       ctx.stroke()
       break
-
-    case "\\":
     case "left_diagonal_line":
       ctx.moveTo(h4+0.5, h)
       ctx.lineTo(-h4+0.5, 0)
@@ -135,43 +135,31 @@ function create_hatch_canvas(ctx: Context2d,
       ctx.stroke()
       ctx.stroke()
       break
-
-    case "x":
     case "diagonal_cross":
       _x(ctx, h)
       break
-
-    case ",":
     case "right_diagonal_dash":
       ctx.moveTo(h4+0.5, 3*h4+0.5)
       ctx.lineTo(3*h4+0.5, h4+0.5)
       ctx.stroke()
       break
-
-    case "`":
     case "left_diagonal_dash":
       ctx.moveTo(h4+0.5, h4+0.5)
       ctx.lineTo(3*h4+0.5, 3*h4+0.5)
       ctx.stroke()
       break
-
-    case "v":
     case "horizontal_wave":
       ctx.moveTo(0, h4)
       ctx.lineTo(h2, 3*h4)
       ctx.lineTo(h, h4)
       ctx.stroke()
       break
-
-    case ">":
     case "vertical_wave":
       ctx.moveTo(h4, 0)
       ctx.lineTo(3*h4, h2)
       ctx.lineTo(h4, h)
       ctx.stroke()
       break
-
-    case "*":
     case "criss_cross":
       _x(ctx, h)
       _horz(ctx, h, h2)
