@@ -113,6 +113,14 @@ plot and the table (even in static HTML documents).
 .. bokeh-plot:: docs/user_guide/examples/interaction_data_table.py
     :source-position: below
 
+DatePicker
+~~~~~~~~~~~
+
+A widget to allow the user to specify a date value.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_datepicker.py
+    :source-position: below
+
 DateRangeSlider
 ~~~~~~~~~~~~~~~
 
