@@ -3,6 +3,7 @@ import {Choices as ChoicesNS} from "choices.js"
 
 import {select} from "core/dom"
 import {isString} from "core/util/types"
+import {CachedVariadicBox} from "core/layout/html"
 import * as p from "core/properties"
 
 import {bk_input} from "styles/widgets/inputs"
@@ -26,6 +27,11 @@ export class MultiChoiceView extends InputWidgetView {
 
   styles(): string[] {
     return [...super.styles(), choices_css]
+  }
+
+  _update_layout(): void {
+    this.layout = new CachedVariadicBox(this.el)
+    this.layout.set_sizing(this.box_sizing())
   }
 
   render(): void {
@@ -68,8 +74,15 @@ export class MultiChoiceView extends InputWidgetView {
       options.renderChoiceLimit = this.model.option_limit
 
     this.choice_el = new Choices(this.select_el, options)
+    const height = (): number => (this.choice_el as any).containerOuter.element.getBoundingClientRect().height
+    if (this._last_height != null && this._last_height != height()) {
+      this.root.invalidate_layout()
+    }
+    this._last_height = height()
     this.select_el.addEventListener("change", () => this.change_input())
   }
+
+  private _last_height: number | null = null
 
   set_disabled(): void {
     if (this.model.disabled)
