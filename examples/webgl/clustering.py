@@ -51,7 +51,7 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     p = figure(output_backend="webgl", title=algorithm.__class__.__name__,
                plot_width=PLOT_SIZE, plot_height=PLOT_SIZE)
 
-    p.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
+    p.circle(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1,)
 
     plots.append(p)
 
