@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {DateFormatter, NumberFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
+import {DateFormatter, NumberFormatter, ScientificFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
 
 describe("cell_formatters module", () => {
 
@@ -73,6 +73,19 @@ describe("cell_formatters module", () => {
         expect(df.getFormat()).to.be.equal("CUST")
       })
     })
+
+    describe("doFormat method", () => {
+
+      it("should apply nan_format to null", () => {
+        const df = new DateFormatter({nan_format: "-"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">-</div>')
+      })
+
+      it("should apply nan_format to nan", () => {
+        const df = new DateFormatter({nan_format: "-"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">-</div>')
+      })
+    })
   })
 
   describe("NumberFormatter", () => {
@@ -86,6 +99,22 @@ describe("cell_formatters module", () => {
 
       it("should apply nan_format to nan", () => {
         const df = new NumberFormatter({nan_format: "-"})
+        expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">-</div>')
+      })
+    })
+  })
+
+  describe("ScientificFormatter", () => {
+
+    describe("doFormat method", () => {
+
+      it("should apply nan_format to null", () => {
+        const df = new ScientificFormatter({nan_format: "-"})
+        expect(df.doFormat(0, 0, null, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">-</div>')
+      })
+
+      it("should apply nan_format to nan", () => {
+        const df = new ScientificFormatter({nan_format: "-"})
         expect(df.doFormat(0, 0, NaN, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">-</div>')
       })
     })
