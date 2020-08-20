@@ -238,7 +238,7 @@ export class DateFormatter extends StringFormatter {
 
     this.define<DateFormatter.Props>({
       format: [ p.String, 'ISO-8601' ],
-      nan_format: [ p.String ]
+      nan_format: [ p.String ],
     })
   }
 
