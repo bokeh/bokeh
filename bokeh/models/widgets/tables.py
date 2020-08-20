@@ -128,6 +128,11 @@ class ScientificFormatter(StringFormatter):
     ''' Display numeric values from continuous ranges as "basic numbers",
     using scientific notation when appropriate by default.
     '''
+
+    nan_format = String(help="""
+    Formatting to apply to NaN and None values (falls back to scientific formatting if not set).
+    """)
+
     precision = Int(10, help="""
     How many digits of precision to display.
     """)
@@ -244,7 +249,7 @@ class BooleanFormatter(CellFormatter):
     The icon visualizing the check mark.
     """)
 
-class DateFormatter(CellFormatter):
+class DateFormatter(StringFormatter):
     ''' Date cell formatter.
 
     '''
@@ -453,6 +458,11 @@ class DateFormatter(CellFormatter):
     .. _github issue: https://github.com/bokeh/bokeh/issues
 
     """)
+
+    nan_format = String(help="""
+    Formatting to apply to NaN and None values (falls back to regular date formatting if not set).
+    """)
+
 
 class HTMLTemplateFormatter(CellFormatter):
     ''' HTML formatter using a template.
