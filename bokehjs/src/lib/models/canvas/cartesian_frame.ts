@@ -9,7 +9,7 @@ import {FactorRange} from "../ranges/factor_range"
 
 import {LayoutItem} from "core/layout"
 import {BBox} from "core/util/bbox"
-import {entries} from "core/util/object"
+import {entries, to_object} from "core/util/object"
 import {assert} from "core/util/assert"
 
 type Ranges = {[key: string]: Range}
@@ -122,5 +122,15 @@ export class CartesianFrame extends LayoutItem {
 
   get y_scale(): Scale {
     return this._y_scales.get("default")!
+  }
+
+  /** @deprecated */
+  get xscales(): {[key: string]: Scale} {
+    return to_object(this.x_scales)
+  }
+
+  /** @deprecated */
+  get yscales(): {[key: string]: Scale} {
+    return to_object(this.y_scales)
   }
 }
