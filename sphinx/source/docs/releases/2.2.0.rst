@@ -43,3 +43,9 @@ report a "center" location that could anchor hovers. These have been combined in
 to a single ``Glyph.scenterxy()`` method that should be implemented instead.
 (This change is only relevant if you are implementing a new glyph in Bokeh or in
 a custom extension.)
+
+Implement ``Renderer._render`` instead of ``Renderer.render``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Renderers must implement abstract method ``_render`` instead ``render``, which is
+now "final". This breaking change affects only extension developers.
