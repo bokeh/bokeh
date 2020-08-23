@@ -407,11 +407,12 @@ export class Linker {
 
     const artifacts = []
     for (const artifact of this.cache.values()) {
-      const module = {...artifact.module}
-
-      delete module.changed
-      delete module.ast
-      delete module.dependencies
+      const module = {
+        ...artifact.module,
+        changed: undefined,
+        ast: undefined,
+        dependencies: undefined,
+      }
 
       artifacts.push({
         module: {
