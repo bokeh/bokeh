@@ -24,26 +24,28 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node)) {
         const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
         if (moduleSpecifier != null) {
           const {decorators, modifiers, importClause} = node
-          return ts.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
+          return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
         }
       }
       if (ts.isExportDeclaration(node)) {
         const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
         if (moduleSpecifier != null) {
-          const {decorators, modifiers, exportClause} = node
-          return ts.updateExportDeclaration(node, decorators, modifiers, exportClause, moduleSpecifier, false)
+          const {decorators, modifiers, isTypeOnly, exportClause} = node
+          return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
         }
       }
       if (is_require(node)) {
         const moduleSpecifier = relativize_specifier(root, node.arguments[0])
         if (moduleSpecifier != null) {
           const {expression, typeArguments} = node
-          return ts.updateCall(node, expression, typeArguments, [moduleSpecifier])
+          return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])
         }
       }
 
@@ -60,6 +62,8 @@ function is_static(node: ts.Node): boolean {
 
 export function add_init_class() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
       node = ts.visitEachChild(node, visit, context)
 
@@ -67,7 +71,9 @@ export function add_init_class() {
         const name = `init_${node.name.getText()}`
 
         if (node.members.find((member) => ts.isMethodDeclaration(member) && member.name.getText() == name && is_static(member)) != null) {
-          const init = ts.createExpressionStatement(ts.createCall(ts.createPropertyAccess(node.name, name), undefined, undefined))
+          const init = factory.createExpressionStatement(
+            factory.createCallExpression(
+              factory.createPropertyAccessExpression(node.name, name), undefined, undefined))
           return [node, init]
         }
       }
@@ -85,19 +91,21 @@ export function insert_class_name() {
   }
 
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
       node = ts.visitEachChild(node, visit, context)
 
       if (ts.isClassDeclaration(node) && node.name != null && !has__name__(node)) {
-        const property = ts.createProperty(
+        const property = factory.createPropertyDeclaration(
           undefined,
-          ts.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
+          factory.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
           "__name__",
           undefined,
           undefined,
-          ts.createStringLiteral(node.name.text))
+          factory.createStringLiteral(node.name.text))
 
-        node = ts.updateClassDeclaration(
+        node = factory.updateClassDeclaration(
           node,
           node.decorators,
           node.modifiers,
@@ -170,6 +178,8 @@ export function collect_deps(source: ts.SourceFile): string[] {
 
 export function rewrite_deps(resolve: (dep: string) => number | string | undefined) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function visit(node: ts.Node): ts.Node {
       if (is_require(node)) {
         const [arg] = node.arguments
@@ -178,7 +188,8 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
           const val = resolve(dep)
 
           if (val != null) {
-            node = ts.updateCall(node, node.expression, node.typeArguments, [ts.createLiteral(val)])
+            const literal = typeof val == "string" ? factory.createStringLiteral(val) : factory.createNumericLiteral(val)
+            node = factory.updateCallExpression(node, node.expression, node.typeArguments, [literal])
             ts.addSyntheticTrailingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, ` ${dep} `, false)
           }
 
@@ -196,6 +207,8 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
 // XXX: this is pretty naive, but affects very litte code
 export function rename_exports() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function is_exports(node: ts.Node): boolean {
       return ts.isIdentifier(node) && node.text == "exports"
     }
@@ -207,7 +220,7 @@ export function rename_exports() {
     if (has_exports) {
       function visit(node: ts.Node): ts.Node {
         if (is_exports(node)) {
-          const updated = ts.createIdentifier("exports$1")
+          const updated = factory.createIdentifier("exports$1")
           const original = node
           ts.setOriginalNode(updated, original)
           ts.setTextRange(updated, original)
@@ -228,6 +241,8 @@ export function rename_exports() {
  */
 export function es5_fix_extend_builtins() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     function visit(node: ts.Node): ts.Node {
       if (ts.isFunctionDeclaration(node)) {
         if (node.name != null && node.name.text.endsWith("NDArray") && node.body != null) {
@@ -235,12 +250,12 @@ export function es5_fix_extend_builtins() {
           if (ts.isVariableStatement(stmt) && stmt.declarationList.declarations.length == 1) {
             const [decl] = stmt.declarationList.declarations
             if (ts.isIdentifier(decl.name) && decl.name.text == "_this" && decl.initializer != null) {
-              const init = ts.createNew(ts.createIdentifier("_super"), undefined, [ts.createIdentifier("seq")])
-              const decl_new = ts.updateVariableDeclaration(decl, decl.name, decl.type, init)
-              const decls_new = ts.updateVariableDeclarationList(stmt.declarationList, [decl_new])
-              const stmt_new = ts.updateVariableStatement(stmt, stmt.modifiers, decls_new)
-              const body = ts.createBlock([stmt_new, ...rest], true)
-              const constructor = ts.updateFunctionDeclaration(node, node.decorators, node.modifiers,
+              const init = factory.createNewExpression(factory.createIdentifier("_super"), undefined, [factory.createIdentifier("seq")])
+              const decl_new = factory.updateVariableDeclaration(decl, decl.name, decl.exclamationToken, decl.type, init)
+              const decls_new = factory.updateVariableDeclarationList(stmt.declarationList, [decl_new])
+              const stmt_new = factory.updateVariableStatement(stmt, stmt.modifiers, decls_new)
+              const body = factory.createBlock([stmt_new, ...rest], true)
+              const constructor = factory.updateFunctionDeclaration(node, node.decorators, node.modifiers,
                 node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, body)
               return constructor
             }
@@ -256,11 +271,12 @@ export function es5_fix_extend_builtins() {
 }
 
 export function wrap_in_function(module_name: string) {
-  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+    const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, undefined, name)
     const params = [p("require"), p("module"), p("exports")]
-    const block = ts.createBlock(root.statements, true)
-    const func = ts.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
+    const block = factory.createBlock(root.statements, true)
+    const func = factory.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
     ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)
     return ts.updateSourceFileNode(root, [func])
   }
