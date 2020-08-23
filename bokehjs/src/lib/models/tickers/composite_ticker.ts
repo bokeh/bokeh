@@ -42,11 +42,11 @@ export class CompositeTicker extends ContinuousTicker {
     return this.tickers.map((ticker) => ticker.get_max_interval())
   }
 
-  get min_interval(): number {
+  get_min_interval(): number {
     return this.min_intervals[0]
   }
 
-  get max_interval(): number {
+  get_max_interval(): number {
     return this.max_intervals[0]
   }
 

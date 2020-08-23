@@ -21,7 +21,8 @@ export class View implements ISignalable {
 
   readonly model: HasProps
 
-  private _parent: View | null | undefined
+  readonly parent: View | null
+  readonly root: View
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -44,12 +45,11 @@ export class View implements ISignalable {
   }
 
   constructor(options: View.Options) {
-    if (options.model != null)
-      this.model = options.model
-    else
-      throw new Error("model of a view wasn't configured")
-
-    this._parent = options.parent
+    const {model, parent} = options
+    this.model = model
+    this.parent = parent
+    this.root = parent == null ? this : parent.root
+    this.removed.emit()
   }
 
   initialize(): void {
@@ -65,7 +65,6 @@ export class View implements ISignalable {
   async lazy_initialize(): Promise<void> {}
 
   remove(): void {
-    this._parent = undefined
     this.disconnect_signals()
     this.removed.emit()
   }
@@ -78,19 +77,8 @@ export class View implements ISignalable {
     return {type: this.model.type}
   }
 
-  get parent(): View | null {
-    if (this._parent !== undefined)
-      return this._parent
-    else
-      throw new Error("parent of a view wasn't configured")
-  }
-
   get is_root(): boolean {
-    return this.parent === null
-  }
-
-  get root(): View {
-    return this.is_root ? this : this.parent!.root
+    return this.parent == null
   }
 
   assert_root(): void {

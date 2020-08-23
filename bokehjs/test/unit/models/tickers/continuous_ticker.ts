@@ -5,8 +5,19 @@ import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
 describe("ContinuousTicker Model", () => {
 
   class MyTicker extends ContinuousTicker {
+    min_interval: number
+    max_interval: number | null
+
     get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
       return 100
+    }
+
+    get_min_interval(): number {
+      return this.min_interval
+    }
+
+    get_max_interval(): number {
+      return this.max_interval ?? Infinity
     }
   }
 

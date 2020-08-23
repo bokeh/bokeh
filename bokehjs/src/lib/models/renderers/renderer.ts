@@ -13,7 +13,7 @@ export abstract class RendererView extends View {
   model: Renderer
   visuals: Renderer.Visuals
 
-  parent: PlotView
+  readonly parent: PlotView
 
   needs_webgl_blit: boolean
 

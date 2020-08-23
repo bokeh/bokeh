@@ -38,16 +38,17 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | Kind<T>, (T | (() => T))?, PropertyOptions?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | Kind<T>, (T | (() => T))?, PropertyOptions<T>?] : never
 }
 
-export type PropertyOptions = {
+export type PropertyOptions<T> = {
   internal?: boolean
   optional?: boolean
+  on_update?(value: T, obj: HasProps): void
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
+  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions<T>): Property<T>
   readonly prototype: Property<T>
 }
 
@@ -94,17 +95,19 @@ export abstract class Property<T = unknown> {
 
   readonly internal: boolean
   readonly optional: boolean
+  on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly kind: Kind<T>,
               readonly default_value?: (obj: HasProps) => T,
               initial_value?: T,
-              options: PropertyOptions = {}) {
+              options: PropertyOptions<T> = {}) {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
     this.optional = options.optional ?? false
+    this.on_update = options.on_update
 
     let attr_value: T
     if (initial_value !== undefined) {
@@ -131,6 +134,7 @@ export abstract class Property<T = unknown> {
     if (attr_value != null) // XXX: non-nullalble types
       this.validate(attr_value)
     this.spec = {value: attr_value}
+    this.on_update?.(attr_value, this.obj)
   }
 
   toString(): string {
@@ -240,7 +244,7 @@ export class Font extends String {
 //
 
 export abstract class EnumProperty<T extends string> extends Property<T> {
-  readonly enum_values: T[]
+  abstract get enum_values(): T[]
 
   valid(value: unknown): boolean {
     return isString(value) && includes(this.enum_values, value)
@@ -414,8 +418,8 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 export abstract class DataSpec<T> extends VectorSpec<T> {}
 
 export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
-  readonly default_units: Units
-  readonly valid_units: Units[]
+  abstract get default_units(): Units
+  abstract get valid_units(): Units[]
 
   _update(attr_value: any): void {
     super._update(attr_value)

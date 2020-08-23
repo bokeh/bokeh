@@ -9,7 +9,7 @@ export interface HasLineGlyph {
   glyph: Line
 }
 
-export class LineToolView extends EditToolView {
+export abstract class LineToolView extends EditToolView {
   model: LineTool
 
   _set_intersection(x: number[] | number, y: number[] | number): void {
@@ -47,7 +47,7 @@ export namespace LineTool {
 
 export interface LineTool extends LineTool.Attrs { }
 
-export class LineTool extends EditTool {
+export abstract class LineTool extends EditTool {
   properties: LineTool.Props
   __view_type__: LineToolView
 
@@ -58,8 +58,6 @@ export class LineTool extends EditTool {
   }
 
   static init_LineTool(): void {
-    this.prototype.default_view = LineToolView
-
     this.define<LineTool.Props>({
       intersection_renderer: [p.Instance],
     })

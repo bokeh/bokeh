@@ -11,7 +11,7 @@ export interface HasPolyGlyph {
   glyph: MultiLine | Patches
 }
 
-export class PolyToolView extends EditToolView {
+export abstract class PolyToolView extends EditToolView {
   model: PolyTool
 
   _set_vertices(xs: number[] | number, ys: number[] | number): void {
@@ -69,7 +69,7 @@ export namespace PolyTool {
 
 export interface PolyTool extends PolyTool.Attrs {}
 
-export class PolyTool extends EditTool {
+export abstract class PolyTool extends EditTool {
   properties: PolyTool.Props
   __view_type__: PolyToolView
 
@@ -80,8 +80,6 @@ export class PolyTool extends EditTool {
   }
 
   static init_PolyTool(): void {
-    this.prototype.default_view = PolyToolView
-
     this.define<PolyTool.Props>({
       vertex_renderer: [ p.Instance ],
     })

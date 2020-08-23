@@ -23,7 +23,7 @@ export namespace AdaptiveTicker {
     base: p.Property<number>
     mantissas: p.Property<number[]>
     min_interval: p.Property<number>
-    max_interval: p.Property<number>
+    max_interval: p.Property<number | null>
   }
 }
 
@@ -37,12 +37,20 @@ export class AdaptiveTicker extends ContinuousTicker {
   }
 
   static init_AdaptiveTicker(): void {
-    this.define<AdaptiveTicker.Props>({
-      base:         [ p.Number, 10.0      ],
-      mantissas:    [ p.Array,  [1, 2, 5] ],
-      min_interval: [ p.Number, 0.0       ],
-      max_interval: [ p.Number            ],
-    })
+    this.define<AdaptiveTicker.Props>(({Number, Array, Nullable}) => ({
+      base:         [ Number, 10.0 ],
+      mantissas:    [ Array(Number), [1, 2, 5] ],
+      min_interval: [ Number, 0.0 ],
+      max_interval: [ Nullable(Number), null ],
+    }))
+  }
+
+  get_min_interval(): number {
+    return this.min_interval
+  }
+
+  get_max_interval(): number {
+    return this.max_interval ?? Infinity
   }
 
   /*protected*/ extended_mantissas: number[]

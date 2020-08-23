@@ -27,7 +27,7 @@ export abstract class GlyphView extends View {
   model: Glyph
   visuals: Glyph.Visuals
 
-  parent: GlyphRendererView
+  readonly parent: GlyphRendererView
 
   get renderer(): GlyphRendererView {
     return this.parent
