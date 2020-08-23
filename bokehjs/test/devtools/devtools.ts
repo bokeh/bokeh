@@ -124,7 +124,7 @@ async function run_tests(): Promise<boolean> {
       async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
         try {
           return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err) {
+        } catch (err: unknown) {
           if (err instanceof TimeoutError) {
             return new Timeout()
           } else {
@@ -509,10 +509,12 @@ async function run_tests(): Promise<boolean> {
     } finally {
       await Runtime.discardConsoleEntries()
     }
-  } catch (err) {
+  } catch (error: unknown) {
     failure = true
-    if (!(err instanceof Exit))
-      console.error(`INTERNAL ERROR: ${err.stack ?? err}`)
+    if (!(error instanceof Exit)) {
+      const msg = error instanceof Error && error.stack ? error.stack : error
+      console.error(`INTERNAL ERROR: ${msg}`)
+    }
   } finally {
     if (client) {
       await client.close()

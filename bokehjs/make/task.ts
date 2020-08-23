@@ -60,11 +60,12 @@ export function show_failure(failure: Failure<unknown>): void {
   show_error(failure.value)
 }
 
-export function show_error(error: Error): void {
+export function show_error(error: unknown): void {
   if (error instanceof BuildError) {
     log(`${chalk.red("failed:")} ${error.message}`)
   } else {
-    print(`${chalk.red("failed:")} ${error.stack ?? error.toString()}`)
+    const msg = error instanceof Error && error.stack ? error.stack : error
+    print(`${chalk.red("failed:")} ${msg}`)
   }
 }
 
@@ -161,8 +162,8 @@ export async function run(task: Task): Promise<Result> {
       try {
         const value = await task.fn(...args)
         result = value === undefined ? success(value) : value
-      } catch (error) {
-        result = failure(error)
+      } catch (error: unknown) {
+        result = failure(error instanceof Error ? error : new Error(`${error}`))
       }
       const end = Date.now()
       const diff = end - start

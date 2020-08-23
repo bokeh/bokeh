@@ -42,7 +42,7 @@ function _init_comms(target: string, doc: Document): void {
         const r = new Receiver()
         comm.on_msg(_handle_notebook_comms.bind(doc, r))
       })
-    } catch (e) {
+    } catch (e: unknown) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else if (doc.roots()[0].id in kernels) {
@@ -54,7 +54,7 @@ function _init_comms(target: string, doc: Document): void {
         const r = new Receiver()
         comm.onMsg = _handle_notebook_comms.bind(doc, r)
       })
-    } catch (e) {
+    } catch (e: unknown) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else if  (typeof google != 'undefined' && google.colab.kernel != null) {
@@ -74,7 +74,7 @@ function _init_comms(target: string, doc: Document): void {
           _handle_notebook_comms.bind(doc)(r, msg)
         }
       })
-    } catch (e) {
+    } catch (e: unknown) {
       logger.warn(`Google Colab comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else {

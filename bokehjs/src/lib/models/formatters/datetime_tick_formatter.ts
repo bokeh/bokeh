@@ -188,7 +188,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       try {
         tm = _array(t)
         s = _strftime(t, format)
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn(`unable to format tick for timestamp value ${t}`)
         logger.warn(` - ${error}`)
         labels.push("ERR")
