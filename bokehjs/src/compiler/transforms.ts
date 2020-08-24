@@ -270,11 +270,60 @@ export function es5_fix_extend_builtins() {
   }
 }
 
+export function fix_esmodule() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
+    let found = false
+    const statements = root.statements.map((node) => {
+      if (!found && ts.isExpressionStatement(node)) {
+        const expr = node.expression
+        if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
+          const [, arg] = expr.arguments
+          if (ts.isStringLiteral(arg) && arg.text == "__esModule") {
+            found = true
+            const es_module = factory.createIdentifier("__esModule")
+            const call = factory.createCallExpression(es_module, [], [])
+            return factory.createExpressionStatement(call)
+          }
+        }
+      }
+      return node
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
+export function remove_void0() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    let found = false
+    const statements = root.statements.filter((node) => {
+      if (!found && ts.isExpressionStatement(node)) {
+        let {expression} = node
+        while (ts.isBinaryExpression(expression) &&
+               ts.isPropertyAccessExpression(expression.left) &&
+               ts.isIdentifier(expression.left.expression) &&
+               expression.left.expression.text == "exports") {
+          expression = expression.right
+        }
+        if (ts.isVoidExpression(expression)) {
+          found = true
+          return false
+        }
+      }
+      return true
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
 export function wrap_in_function(module_name: string) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context
     const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, undefined, name)
-    const params = [p("require"), p("module"), p("exports")]
+    const params = [p("require"), p("module"), p("exports"), p("__esModule")]
     const block = factory.createBlock(root.statements, true)
     const func = factory.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
     ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)

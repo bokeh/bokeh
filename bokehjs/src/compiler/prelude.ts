@@ -104,9 +104,15 @@ ${comment(license)}
 
           mod = {exports: {}};
           cache[id] = cache[name] = mod;
-          modules[id].call(mod.exports, require, mod, mod.exports);
-        } else
+
+          function __esModule() {
+            Object.defineProperty(mod.exports, "__esModule", {value: true});
+          }
+
+          modules[id].call(mod.exports, require, mod, mod.exports, __esModule);
+        } else {
           cache[name] = mod;
+        }
       }
 
       return mod.exports;
@@ -215,7 +221,12 @@ export function default_prelude(options?: {global?: string}): string {
 
           mod = {exports: {}};
           cache[id] = cache[name] = mod;
-          modules[id].call(mod.exports, require, mod, mod.exports);
+
+          function __esModule() {
+            Object.defineProperty(mod.exports, "__esModule", {value: true});
+          }
+
+          modules[id].call(mod.exports, require, mod, mod.exports, __esModule);
         } else
           cache[name] = mod;
       }
