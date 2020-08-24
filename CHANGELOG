@@ -1,3 +1,134 @@
+2020-08-24      2.2:
+--------------------
+  * bugfixes:
+    - #5589 Some WebGL not working on Safari
+    - #6775 [component: bokehjs] SVG backend not correctly coloring glyphs in legends 
+    - #7707 [component: bokehjs] Linking the ranges of plots will break the LODEnd event
+    - #8046 [component: bokehjs] Extra whitespace with SVG export
+    - #8446 [component: bokehjs] SVG not displaying scatter output
+    - #8744 [component: bokehjs] Plots containing arrows fail to render correctly with svg output backend.
+    - #9001 [component: bokehjs] hatch_pattern and svg
+    - #9213 [component: bokehjs] Svg backend cannot draw annular_wedge correctly [BUG]
+    - #9436 [component: bokehjs] [BUG] Arrow glyph does not update
+    - #9551 [component: bokehjs] [BUG] ```export_svg``` shifting x-axis upward and overlapping with ticks in Bokeh v1.4
+    - #9927 [component: bokehjs] [BUG] MultiChoice displayed value is not updating
+    - #10002 [component: bokehjs] Bokeh not rendering, stuck on Loading BokehJS [BUG]
+    - #10108 webdriver failing to find installed firefox/geckodriver
+    - #10146 [BUG] `js_on_event` doesn't work when used in a callback
+    - #10147 [component: bokehjs] [BUG] `TileRenderer` ignores the `visible` property
+    - #10153 [component: bokehjs] [BUG] Typed Arrays returned as dicts
+    - #10164 custom latex examples do not run
+    - #10174 [BUG] Incorrect type of `Select.options`
+    - #10191 [component: bokehjs] [BUG] Tools in toolbar flickering and occasionally ignores clicks when HoverTool and hover glyph used
+    - #10193 [component: bokehjs] [BUG] `GeoJSONDataSource` incorrectly processes `MultiPolygon` geometry type
+    - #10195 [component: bokehjs] [BUG] visual glitch on empty plots with a second y-axis
+    - #10215 [component: bokehjs] [BUG] Band is not updated when the model is changed
+    - #10219 [component: bokehjs] [BUG] Misplaced Rects when using incomplete categorical ranges
+    - #10233 [component: bokehjs] [BUG] bokeh js v2.x legacy libraries
+    - #10246 [component: bokehjs] [BUG] wegbl and gridplot with a visible=False element
+    - #10249 [component: bokehjs] [BUG] SaveTool generates smaller image than plot
+    - #10251 [component: bokehjs] [BUG] DataTable column sort not working with NaNs
+    - #10273 [BUG] export_svgs() function creats two files (one is empty)
+    - #10281 [component: bokehjs] [BUG] line selection is broken
+    - #10301 [component: bokehjs] bokehjs' version has duplicated dev suffix
+    - #10302 [component: bokehjs] [BUG] Slider values increment by 2x steps
+    - #10305 [component: bokehjs] SVG backend doesn't respect NaN/non-finite values
+    - #10319 [component: bokehjs] [BUG] $name not being passed to hovertool for image plots
+    - #10320 [component: bokehjs] Plotting with transforms behavior change
+    - #10324 [component: bokehjs] Image Hover is broken 
+    - #10334 [component: bokehjs] Chrome 84 breaks toolbar rendering
+    - #10336 [BUG]  bokeh.embed.components outputs escaped javascript
+    - #10358 [component: bokehjs] [BUG] slickgrid import has syntax error
+    - #10361 [component: bokehjs] Autoload with widgets fails if earlier autoload does not specify widgets
+    - #10362 [component: bokehjs] [BUG] If axis label is added/removed, the layout is not changed right away
+    - #10365 [component: bokehjs] Tooltip chooses wrong side in grid plots
+    - #10367 [component: bokehjs] [BUG] NumericInput and Spinner several bugs
+    - #10370 [component: bokehjs] ImageURL doesn't respect anchor property when computing bounds
+    - #10394 [component: bokehjs] [BUG] Can't add tabs after closing a tab
+    - #10409 [component: examples] Spectrogram is broken
+    - #10412 [component: bokehjs] [BUG] server_session is completely broken 
+    - #10238 [component: docs] Fix windows docs build issues
+    - #10244 [component: bokehjs] Handle type="module" w/o entry point packages
+    - #10271 fix over-quoting by components
+    - #10378 [component: bokehjs] Distinguish raw strings from HTML in replace_placeholders()
+
+  * features:
+    - #3653 [component: server] Use a different error for "can't open socket" vs "404"
+    - #6864 [component: bokehjs] DataTable autoEdit expose
+    - #8595 [component: bokehjs] [Feature request] Allow DataTable to take its natural height
+    - #8924 [component: bokehjs] Allow to derive ColorBar's low/high from data
+    - #9169 [FEATURE] SVG export for gridplot
+    - #9654 [FEATURE] Iterate over submodels of a model and draw submodel graph
+    - #9956 [component: bokehjs] [FEATURE] varea_stack support in bokehjs
+    - #10179 [component: bokehjs] [FEATURE] Allow any number in spinner using step=None
+    - #10265 [FEATURE] Add a DocumentReady event
+    - #10374 [FEATURE] Allow defining custom format for NaNs in DataTable NumberFormatter
+    - #10066 [component: bokehjs] Add support for copying canvas to clipboard
+    - #10353 Enhancements for DataTable
+
+  * tasks:
+    - #10083 [component: bokehjs] bokehjs needs a better assertion framework
+    - #10086 [component: tests] Restore BokehJS linting
+    - #10089 [component: bokehjs] Simplify/refactor filters in bokehjs
+    - #10207 Need to run CI on release branches
+    - #10209 [component: bokehjs] Naming for new coordinate systems
+    - #10213 [component: build] Issues / Changelog script will need update 
+    - #10234 [component: bokehjs] Improve responsiveness when hovering over many points
+    - #10252 Deprecate Oval?
+    - #10282 [component: docs] Update blog links on all websites to point to Medium
+    - #10283 [component: docs] Contributing guide needs updating wrt. BEP 6
+    - #10284 [component: tests] [BUG] Housekeeping: remove documentation references to py.test
+    - #10289 Housekeeping: Update python idioms
+    - #10306 [BUG] cElementTree has been deprecated and will be removed in favor of ElementTree
+    - #10310 [component: docs] [BUG] Link in docs is not working for fill color property
+    - #10329 [component: bokehjs] Change NumberArray to Float32Array?
+    - #10344 [component: docs] Documentation and examples updates for 2.2 release
+    - #10347 [component: docs] Adding links to BEP 6 and BEP landing page to developer docs 
+    - #10397 [component: docs] Color site for OpenURL no longer exists
+    - #10161 [component: bokehjs] Redefine min()/max() and introduce minmax() function
+    - #10162 [component: bokehjs] Reduce memory footprint of data indexing
+    - #10163 [component: bokehjs] Don't sort indices by distance in _hit_point()
+    - #10176 [component: bokehjs] Ensure typed arrays are used for storing numerical data
+    - #10185 [component: bokehjs] Fill in the gaps in bokehjs' property definitions
+    - #10187 [component: docs] Fix typo in docs.
+    - #10200 [component: bokehjs] PlotLayout -> core.layout.BorderLayout
+    - #10201 [component: bokehjs] Drop layout's computed variables in favour of bbox
+    - #10202 [component: bokehjs] A basis for sub-coordinate systems
+    - #10208 [component: bokehjs] Rewrite gloo in TypeScript and add it to bokehjs
+    - #10222 [component: build] Fixes for sphinx 3.1.1
+    - #10225 [component: bokehjs] Improve performance by replacing _build_discontinuous_regions()
+    - #10226 [component: bokehjs] Optimize `HasProps.setv(attrs, {silent: true})`
+    - #10227 Forward merge from 2.1.1
+    - #10229 [component: bokehjs] Redesign the implementation of CDSView's filters
+    - #10235 [component: bokehjs] Redesign "materialization" of data specs
+    - #10239 [component: build] Release Automation (pt 1)
+    - #10240 [component: bokehjs] Corrected EqHistColorMapper with inverted colormap edge transform
+    - #10241 [component: bokehjs] Allow to resize images in visual tests
+    - #10257 [component: docs] Misc warnings cleanup
+    - #10260 [component: docs] #8448 Fix typo "do no yet work" -> "do not yet work" in bokeh/sphinx/source/docs/user_guide/interaction/legends.rst
+    - #10262 [component: bokehjs] Bump electron from 1.8.8 to 9.1.0 in /bokehjs/examples/electron
+    - #10269 [component: docs] Fix typos in User Guide
+    - #10272 [component: bokehjs] Improve performance of selections
+    - #10275 [component: docs] Fix minor typos
+    - #10277 [component: docs] Docs change anaconda install source
+    - #10298 Add bokeh logo palette; remove rogue double-quote from template
+    - #10304 [component: docs] Add note about nginx large_client_header_buffers to docs
+    - #10315 [component: bokehjs] Bump lodash from 4.17.15 to 4.17.19 in /bokehjs
+    - #10316 [component: server] Require auth on WSHandler
+    - #10330 [component: bokehjs] Initial webgl cleanup
+    - #10337 [component: docs] Fix typos in Dev Guide
+    - #10338 [component: bokehjs] Replace for-in loop with for-of and keys()/values()/entries()
+    - #10342 [component: bokehjs] Update bokehjs/package.json
+    - #10346 [component: tests] Perform eslint checks on codebase tests
+    - #10348 [component: bokehjs] Upgrade to SlickGrid 2.4.27
+    - #10350 [component: bokehjs] Fix bokehjs' legacy bundles
+    - #10352 Rev pillow version for sec advisory
+    - #10354 [component: bokehjs] Code dupe experiements
+    - #10357 [component: docs] Update out of date HoverTool docstring
+    - #10363 [component: bokehjs] Modernized DataTable styling
+    - #10393 [component: tests] Mark webdriver's tests as flaky
+    - #10402 [component: bokehjs] Redesign SVG backend
+
 2020-08-18    2.1.1:
 --------------------
   * bugfixes:
