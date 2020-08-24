@@ -139,7 +139,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
 def update_changelog(config: Config, system: System) -> ActionReturn:
     try:
         system.pushd("scripts")
-        # system.run(f"python milesone.py {config.version}")
+        system.run(f"python milestone.py -a {config.milestone_version}")
         system.popd()
         return PASSED("Updated CHANGELOG with new closed issues")
     except RuntimeError as e:

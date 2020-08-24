@@ -275,20 +275,13 @@ def check_milestone_items(items):
     help="Only verify the milestone for compliance, do not output changelog section(s)",
 )
 @click.option(
-    "-s",
-    "--section-only",
-    default=False,
-    is_flag=True,
-    help="Only output the new changelog section, do not output the entire changelog",
-)
-@click.option(
     "-a",
     "--allow-closed",
     default=False,
     is_flag=True,
     help="Allow processing of closed milestones",
 )
-def main(milestone, log_level, verbose, check_only, section_only, allow_closed):
+def main(milestone, log_level, verbose, check_only, allow_closed):
     """ Generates a bokeh changelog which includes the given milestone.
 
     Requires that you set GITHUB_TOKEN to your GitHub API Token. Exit code 2
@@ -317,25 +310,28 @@ def main(milestone, log_level, verbose, check_only, section_only, allow_closed):
     elif check_only:
         sys.exit(0)
 
-    print(f"{datetime.date.today()} {milestone:>8}:")
-    print("--------------------")
+    with open(REPO_ROOT / "CHANGELOG") as f:
+        old_changelog = f.read()
+
+    out = open(REPO_ROOT / "CHANGELOG", mode="w")
+
+    out.write(f"{datetime.date.today()} {milestone:>8}:\n")
+    out.write("--------------------\n")
     grouping = lambda item: get_label_type(item) or "none"
     items = sorted(items, key=grouping)
     for group_type, group in groupby(items, grouping):
         if group_type == "bug":
-            print("  * bugfixes:")
+            out.write("  * bugfixes:\n")
         elif group_type == "feature":
-            print("  * features:")
+            out.write("  * features:\n")
         elif group_type == "task":
-            print("  * tasks:")
+            out.write("  * tasks:\n")
         elif group_type == "none":
             continue
         for item in group:
-            print(f"    - {description(item)}")
-    if not section_only:
-        print()
-        print(open(REPO_ROOT / "CHANGELOG").read())
-
+            out.write(f"    - {description(item)}\n")
+        out.write("\n")
+    out.write(old_changelog)
 
 if __name__ == "__main__":
     main()

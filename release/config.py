@@ -85,3 +85,10 @@ class Config:
     @property
     def base_branch(self) -> str:
         return f"branch-{self.release_level}"
+
+    @property
+    def milestone_version(self) -> str:
+        major, minor, patch = self.base_version_tuple
+        if patch == "0":
+            return f"{major}.{minor}"
+        return self.base_version
