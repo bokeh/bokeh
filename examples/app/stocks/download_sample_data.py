@@ -13,7 +13,7 @@ def extract_hosted_zip(data_url, save_dir, exclude_term=None):
         print('Downloading %r to %r' % (data_url, zip_name))
         zip_name, hdrs = urlretrieve(url=data_url, filename=zip_name)
         print('Download successfully completed')
-    except IOError as e:
+    except OSError as e:
         print("Could not successfully retrieve %r" % data_url)
         raise e
 

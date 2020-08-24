@@ -48,7 +48,7 @@ from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
-from ..events import Event
+from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
 from ..themes import Theme, built_in_themes
 from ..themes import default as default_theme
@@ -88,7 +88,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Document(object):
+class Document:
     ''' The basic unit of serialization for Bokeh.
 
     Document instances collect Bokeh models (e.g. plots, layouts, widgets,
@@ -113,6 +113,7 @@ class Document(object):
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
+        self._event_callbacks = {}
         self._message_callbacks = {}
         self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
@@ -353,6 +354,9 @@ class Document(object):
             for model in subscribed:
                 model._trigger_event(event)
 
+        for cb in self._event_callbacks.get(event.event_name, []):
+            cb(event)
+
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.
 
@@ -377,12 +381,7 @@ class Document(object):
         '''
         references_json = patch['references']
         events_json = patch['events']
-        references = instantiate_references_json(references_json)
-
-        # Use our existing model instances whenever we have them
-        for obj in references.values():
-            if obj.id in self._all_models:
-                references[obj.id] = self._all_models[obj.id]
+        references = instantiate_references_json(references_json, self._all_models)
 
         # The model being changed isn't always in references so add it in
         for event_json in events_json:
@@ -553,7 +552,7 @@ class Document(object):
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
-        references = instantiate_references_json(references_json)
+        references = instantiate_references_json(references_json, {})
         initialize_references_json(references_json, references)
 
         doc = Document()
@@ -685,6 +684,26 @@ class Document(object):
         if message_callbacks is not None:
             for cb in message_callbacks:
                 cb(msg_data)
+
+    def on_event(self, event, *callbacks):
+        ''' Provide callbacks to invoke if a bokeh event is received.
+
+        '''
+        if not isinstance(event, str) and issubclass(event, Event):
+            event = event.event_name
+
+        if not issubclass(_CONCRETE_EVENT_CLASSES[event], DocumentEvent):
+            raise ValueError("Document.on_event may only be used to subscribe "
+                             "to events of type DocumentEvent. To subscribe "
+                             "to a ModelEvent use the Model.on_event method.")
+
+        for callback in callbacks:
+            _check_callback(callback, ('event',), what='Event callback')
+
+        if event not in self._event_callbacks:
+            self._event_callbacks[event] = [cb for cb in callbacks]
+        else:
+            self._event_callbacks[event].extend(callbacks)
 
     def on_change(self, *callbacks):
         ''' Provide callbacks to invoke if the document or any Model reachable

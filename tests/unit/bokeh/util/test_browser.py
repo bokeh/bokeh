@@ -31,7 +31,7 @@ import bokeh.util.browser as bub # isort:skip
 
 _open_args = None
 
-class _RecordingWebBrowser(object):
+class _RecordingWebBrowser:
     def open(self, *args, **kw):
         global _open_args
         _open_args = args, kw

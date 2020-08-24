@@ -2,21 +2,16 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.layouts import column, row
-from bokeh.models import ColumnDataSource, CustomJS, Spinner
-from bokeh.plotting import Figure
+from bokeh.models import Spinner
+from bokeh.plotting import figure
 
-data = np.random.rand(10, 2)
-cds = ColumnDataSource(data=dict(x=data[:, 0], y=data[:, 1]))
+x = np.random.rand(10)
+y = np.random.rand(10)
 
-p = Figure(x_range=(0, 1), y_range=(0, 1))
-points = p.scatter(x='x', y='y', source=cds)
+p = figure(x_range=(0, 1), y_range=(0, 1))
+points = p.scatter(x=x, y=y, size=4)
 
-w = Spinner(title="Glyph size", low=1, high=20, step=0.1, value=4, width=100)
-cb = CustomJS(args={'points': points}, code="""
-points.glyph.size = cb_obj.value
-""")
-points.glyph.size = w.value
+spinner = Spinner(title="Glyph size", low=1, high=40, step=0.5, value=4, width=80)
+spinner.js_link('value', points.glyph, 'size')
 
-w.js_on_change('value', cb)
-
-show(row(column(w, width=100), p))
+show(row(column(spinner, width=100), p))

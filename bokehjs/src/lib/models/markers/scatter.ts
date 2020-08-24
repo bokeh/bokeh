@@ -37,24 +37,14 @@ export class ScatterView extends MarkerView {
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    // using objects like this seems a little wonky, since the keys are coerced to
-    // stings, but it works
+    const args = this._get_legend_args({x0, x1, y0, y1}, index)
+
     const len = index + 1
-
-    const sx: number[] = new Array(len)
-    sx[index] = (x0 + x1)/2
-    const sy: number[] = new Array(len)
-    sy[index] = (y0 + y1)/2
-
-    const size: number[] = new Array(len)
-    size[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4
-    const angle: number[] = new Array(len)
-    angle[index] = 0 // don't attempt to match glyph angle
-
     const marker: string[] = new Array(len)
     marker[index] = this._marker[index]
+    args._marker = marker
 
-    this._render(ctx, [index], {sx, sy, _size: size, _angle: angle, _marker: marker} as any) // XXX
+    this._render(ctx, [index], args) // XXX
   }
 }
 

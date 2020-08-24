@@ -48,8 +48,7 @@ curdoc().add_root(SomeModelInTestScript())
 # Dev API
 #-----------------------------------------------------------------------------
 
-class TestCodeHandler(object):
-
+class TestCodeHandler:
     # Public methods ----------------------------------------------------------
 
     def test_missing_source(self) -> None:

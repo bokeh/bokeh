@@ -27,10 +27,10 @@ section of the :ref:`installation` page for more details.
 
 .. _userguide_bokehjs_models:
 
-Low Level Models
+Low-Level Models
 ----------------
 
-The low level models for building up plots and applications (e.g. guides
+The low-level models for building up plots and applications (e.g. guides
 and glyphs and widgets, etc.) generally match the Bokeh Python models
 exactly. Accordingly, the :ref:`refguide` is a primary resource for
 answering questions about BokehJS models, even though it is presented
@@ -45,7 +45,7 @@ The complete list of models available from JavaScript can be seen at
 When creating models from JavaScript, all of the keyword arguments that
 would get passed to the Python object initializer are passed as a
 JavaScript object. Here is a comparison of how to create a `Range1d`
-model. First, in python:
+model. First, in Python:
 
 .. code-block:: python
 
@@ -76,9 +76,9 @@ Python to JavaScript at this level is nearly one-to-one:
 Interfaces
 ----------
 
-Similar to the Python Bokeh library, BokehJS provides various higher level
-interfaces for interacting with and composing the low level model objects.
-These higher level interfaces currently comprise  ``Bokeh.Plotting`` and
+Similar to the Python Bokeh library, BokehJS provides various higher-level
+interfaces for interacting with and composing the low-level model objects.
+These higher-level interfaces currently comprise  ``Bokeh.Plotting`` and
 ``Bokeh.Charts``.
 
 .. note::
@@ -96,7 +96,7 @@ The JavaScript ``Bokeh.Plotting`` API is a port of the Python
 :ref:`userguide_plotting` section of the User Guide can be a useful
 reference in addition to the material here.
 
-Here is an example that is very similar the Python example
+Here is an example that is very similar to the Python example
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
 
 .. bokehjs-content::
@@ -146,7 +146,7 @@ Here is an example that is very similar the Python example
 ~~~~~~~~~~~~~~~~
 
 The JavaScript ``Bokeh.Charts`` API is a high-level interface for charting
-that is unique to BokehJS. Currently , there are two high level charts
+that is unique to BokehJS. Currently, there are two high-level charts
 supported: ``pie`` and ``bar``.
 
 .. _userguide_bokehjs_interfaces_charts_pie:
@@ -223,7 +223,7 @@ To create bar charts using ``Bokeh.Charts.bar``, the basic usage is:
     Bokeh.Charts.bar(data, { options })
 
 Where ``data`` is a JavaScript array that has as elements lists that are
-"rows" from a data table. The first "row" should contain the column headers. H
+"rows" from a data table. The first "row" should contain the column headers.
 Here is an example that might represent sales data from different regions for
 different years:
 
@@ -249,7 +249,7 @@ the following optional keys:
 :``palette``: *Palette | Array<Color>* --- a named palette, or list of colors to colormap the values
 :``axis_number_format``: *string* --- a format string to use for axis ticks
 
-By default, plots created ``Bokeh.Charts.bar`` automatically add a tooltip
+By default, plots created with ``Bokeh.Charts.bar`` automatically add a tooltip
 and hover policy. Here is some example code that demonstrates the ``bar``
 function, with the plot it generates shown below:
 

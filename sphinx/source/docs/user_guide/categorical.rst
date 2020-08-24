@@ -18,7 +18,7 @@ Bars
 Basic
 ~~~~~
 
-Bokeh make it simple to create basic bar charts using the
+Bokeh makes it simple to create basic bar charts using the
 :func:`~bokeh.plotting.Figure.hbar` and
 :func:`~bokeh.plotting.Figure.vbar` glyphs methods. In the example
 below, we have the following sequence of simple 1-level factors:
@@ -45,7 +45,7 @@ notation is:
 This more explicit form is useful when you want to customize the
 ``FactorRange``, e.g. by changing the range or category padding.
 
-Next we can call ``vbar`` with the list of fruit name factors as the ``x``
+Next, we can call ``vbar`` with the list of fruit name factors as the ``x``
 coordinate, the bar height as the ``top`` coordinate, and optionally any
 ``width`` or other properties that we would like to set:
 
@@ -86,7 +86,7 @@ Filled
 Colors
 ''''''
 
-Often times we may want to have bars that are shaded some color. This can be
+Oftentimes we may want to have bars that are shaded some color. This can be
 accomplished in different ways. One way is to supply all the colors up front.
 This can be done by putting all the data, including the colors for each bar,
 in a ``ColumnDataSource``. Then the name of the column containing the colors
@@ -105,7 +105,7 @@ colormaps the bars inside the browser. There is a function
     factor_cmap('fruits', palette=Spectral6, factors=fruits)
 
 This can be passed to ``vbar`` in the same way as the column name in the
-previous example. Putting everything together we obtain the same plot in
+previous example. Putting everything together, we obtain the same plot in
 a different way:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
@@ -116,7 +116,7 @@ a different way:
 Stacked
 ~~~~~~~
 
-Another common operation or bar charts is to stack bars on top of one
+Another common operation on bar charts is to stack bars on top of one
 another. Bokeh makes this easy to do with the specialized
 :func:`~bokeh.plotting.Figure.hbar_stack` and
 :func:`~bokeh.plotting.Figure.vbar_stack` functions. The example
@@ -128,7 +128,7 @@ fruit type stacked instead of grouped:
 
 Note that behind the scenes, these functions work by stacking up the
 successive columns in separate calls to ``vbar`` or ``hbar``. This kind of
-operation is akin the to dodge example above (i.e. the data in this case is
+operation is akin to the dodge example above (i.e. the data in this case is
 *not* in a "tidy" data format).
 
 Sometimes we may want to stack bars that have both positive and negative
@@ -187,7 +187,7 @@ Grouped
 
 When creating bar charts, it is often desirable to visually display the
 data according to sub-groups. There are two basic methods that can be used,
-depending on your use case: using nested categorical coordinates, or
+depending on your use case: using nested categorical coordinates or
 applying visual dodges.
 
 .. _userguide_categorical_bars_grouped_nested:
@@ -210,8 +210,8 @@ the plot groups the axes by fruit type, with a single call to ``vbar``:
     :source-position: above
 
 We can also apply a color mapping, similar to the earlier example. To obtain
-same grouped bar plot of fruits data as above, except with the bars shaded by
-the year, changethe ``vbar`` function call to use ``factor_cmap`` for the
+the same grouped bar plot of fruits data as above, except with the bars shaded by
+the year, change the ``vbar`` function call to use ``factor_cmap`` for the
 ``fill_color``:
 
 .. code-block:: python
@@ -238,9 +238,9 @@ Another method for achieving grouped bars is to explicitly specify a visual
 displacement for the bars. Such a visual offset is also referred to as a
 *dodge*.
 
-In this scenario, our data is not "tidy". Instead a single table with
+In this scenario, our data is not "tidy". Instead of a single table with
 rows indexed by factors ``(fruit, year)``, we have separate series for each
-year. We can plot all the year series using separate calls to ``vbar`` but
+year. We can plot all the year series using separate calls to ``vbar``, but
 since every bar in each group has the same ``fruit`` factor, the bars would
 overlap visually. We can prevent this overlap and distinguish the bars
 visually by using the :func:`~bokeh.transform.dodge` function to provide an
@@ -255,7 +255,7 @@ Stacked and Grouped
 ~~~~~~~~~~~~~~~~~~~
 
 The above techniques for stacking and grouping may also be used together to
-crate a stacked, grouped bar plot.
+create a stacked, grouped bar plot.
 
 Continuing the example above with bars grouped by quarter, we might stack each
 individual bar by region.
@@ -280,7 +280,7 @@ example, if you have range with the hierarchical factors
     ]
 
 Then it is possible to use just `"Sales"` and `"Marketing"` etc. as positions
-for glyphs. In this case the position is the center of the entire group. The
+for glyphs. In this case, the position is the center of the entire group. The
 example below shows bars for each month, grouped by financial quarter, and
 also adds a line (perhaps for a quarterly average) at the coordinates for
 ``Q1``, ``Q2``, etc.:
@@ -313,13 +313,13 @@ Bokeh:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
     :source-position: above
 
-Not that in the example above, we grouped by the column ``'cyl'`` so our CDS
+Note that in the example above we grouped by the column ``'cyl'``, so our CDS
 has a column ``'cyl'`` for this index. Additionally, other non-grouped columns
-like ``'mpg'`` have had associated columns such ``'mpg_mean'`` added, that
+like ``'mpg'`` have had associated columns such as ``'mpg_mean'`` added, that
 give the mean MPG value for each group.
 
 This usage also works when the grouping is multi-level. The example below shows
-how grouping the same data by ``('cyl', 'mfr')`` results in a hierarchical
+how grouping the same data by ``('cyl', 'mfr')`` results in a hierarchically
 nested axis. In this case, the index column name ``'cyl_mfr'`` is made by
 joining the names of the grouped columns together.
 
@@ -374,7 +374,7 @@ Categorical Offsets
 -------------------
 
 We've seen above how categorical locations can be modified by operations like
-*dodge* and *jitter*.  It is also possible to supply an offset to a categorical
+*dodge* and *jitter*. It is also possible to supply an offset to a categorical
 location explicitly. This is done by adding a numeric value to the end of a
 category, e.g. ``["Jan", 0.2]`` is the category "Jan" offset by a value of 0.2.
 For hierarchical categories, the value is added at the end of the existing
@@ -410,10 +410,10 @@ patch coordinates for the timeseries inside each category.
 
 .. _userguide_categorical_heatmaps:
 
-Heat Maps
----------
+Heatmaps
+--------
 
-In all of the cases above, we have had one categorical axis, and one
+In all of the cases above, we have had one categorical axis and one
 continuous axis. It is possible to have plots with two categorical axes. If
 we shade the rectangle that defines each pair of categories, we end up with
 a *Categorical Heatmap*
@@ -421,7 +421,7 @@ a *Categorical Heatmap*
 The plot below shows such a plot, where the x-axis categories are a list of
 years from 1948 to 2016, and the y-axis categories are the months of the
 years. Each rectangle corresponding to a ``(year, month)`` combination is
-color mapped by the unemployment rate for that month and year. Since the
+colormapped by the unemployment rate for that month and year. Since the
 unemployment rate is a continuous variable, a ``LinearColorMapper`` is used
 to colormap the plot, and is also passed to a color bar to provide a visual
 legend on the right:
@@ -432,7 +432,7 @@ legend on the right:
 A final example combines many of the techniques in this chapter: color mappers,
 visual dodges, and Pandas DataFrames. These are used to create a different
 sort of "heatmap" that results in a periodic table of the elements. A hover
-tool as also been added so that additional information about each element
+tool has also been added so that additional information about each element
 can be inspected:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py

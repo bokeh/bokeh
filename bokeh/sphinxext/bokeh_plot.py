@@ -82,6 +82,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import warnings
 from os import getenv
 from os.path import basename, dirname, join
 from uuid import uuid4
@@ -98,6 +99,7 @@ from sphinx.util.nodes import set_source_info
 from bokeh.document import Document
 from bokeh.embed import autoload_static
 from bokeh.model import Model
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
 from .example_handler import ExampleHandler
@@ -241,7 +243,15 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 
     c = ExampleHandler(source=run_source, filename=filename)
     d = Document()
-    c.modify_document(d)
+
+    # We may need to instantiate deprecated objects as part of documenting
+    # them in the reference guide. Suppress any warnings here to keep the
+    # docs build clean just for this case
+    with warnings.catch_warnings():
+        if "reference" in env.docname:
+            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+        c.modify_document(d)
+
     if c.error:
         raise RuntimeError(c.error_detail)
 

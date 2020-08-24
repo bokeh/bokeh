@@ -69,11 +69,14 @@ log = logging.getLogger(__name__)
 
 __all__ = (
     'ButtonClick',
+    'DocumentEvent',
+    'DocumentReady',
     'DoubleTap',
     'Event',
     'LODStart',
     'LODEnd',
     'MenuItemClick',
+    'ModelEvent',
     'MouseEnter',
     'MouseLeave',
     'MouseMove',
@@ -106,7 +109,7 @@ _CONCRETE_EVENT_CLASSES = {}
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(object):
+class Event:
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
@@ -120,18 +123,6 @@ class Event(object):
 
         if hasattr(cls, "event_name"):
             _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
-
-    def __init__(self, model):
-        ''' Create a new base event.
-
-        Args:
-
-            model (Model) : a Bokeh model to register event callbacks on
-
-        '''
-        self._model_id = None
-        if model is not None:
-            self._model_id = model.id
 
     @classmethod
     def decode_json(cls, dct):
@@ -168,11 +159,51 @@ class Event(object):
 
         event_values = dct['event_values']
         model_id = event_values.pop('model', {"id": None})["id"]
-        event = _CONCRETE_EVENT_CLASSES[event_name](model=None, **event_values)
-        event._model_id = model_id
+        event_cls = _CONCRETE_EVENT_CLASSES[event_name]
+        if issubclass(event_cls, ModelEvent):
+            event = event_cls(model=None, **event_values)
+            event._model_id = model_id
+        else:
+            event = event_cls(**event_values)
         return event
 
-class ButtonClick(Event):
+
+class DocumentEvent(Event):
+    ''' Base class for all Bokeh Document events.
+
+    This base class is not typically useful to instantiate on its own.
+
+    '''
+
+
+class DocumentReady(DocumentEvent):
+    ''' Announce when a Document is fully idle.
+
+    '''
+    event_name = 'document_ready'
+
+
+class ModelEvent(Event):
+    ''' Base class for all Bokeh Model events.
+
+    This base class is not typically useful to instantiate on its own.
+
+    '''
+
+    def __init__(self, model):
+        ''' Create a new base event.
+
+        Args:
+
+            model (Model) : a Bokeh model to register event callbacks on
+
+        '''
+        self._model_id = None
+        if model is not None:
+            self._model_id = model.id
+
+
+class ButtonClick(ModelEvent):
     ''' Announce a button click event on a Bokeh button widget.
 
     '''
@@ -185,7 +216,7 @@ class ButtonClick(Event):
             raise ValueError(msg.format(clsname=self.__class__.__name__))
         super().__init__(model=model)
 
-class MenuItemClick(Event):
+class MenuItemClick(ModelEvent):
     ''' Announce a button click event on a Bokeh menu item.
 
     '''
@@ -195,7 +226,7 @@ class MenuItemClick(Event):
         self.item = item
         super().__init__(model=model)
 
-class PlotEvent(Event):
+class PlotEvent(ModelEvent):
     ''' The base class for all events applicable to Plot models.
 
     '''
@@ -508,7 +539,7 @@ class Rotate(PointEvent):
 
     def __init__(self, model, rotation=None, **kwargs):
         self.rotation = rotation
-        super(Rotate, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class RotateEnd(PointEvent):
     ''' Announce the end of a rotate event on a Bokeh plot.

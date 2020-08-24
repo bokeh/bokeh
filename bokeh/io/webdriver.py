@@ -25,8 +25,9 @@ import_required("selenium.webdriver",
 
 # Standard library imports
 import atexit
-import shutil
-from os.path import devnull
+import os
+from os.path import devnull, dirname, isfile, join
+from shutil import which
 from typing import List, Optional
 
 # External imports
@@ -53,11 +54,38 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def create_firefox_webdriver() -> WebDriver:
+    firefox = which("firefox")
+    if firefox is None:
+        raise RuntimeError("firefox is not installed or not present on PATH")
+
+    geckodriver = which("geckodriver")
+    if geckodriver is None:
+        raise RuntimeError("geckodriver is not installed or not present on PATH")
+
+    firefox_paths = [
+        join(dirname(firefox), "FirefoxApp", "firefox"),
+        join(dirname(firefox), "FirefoxApp", "Contents", "MacOS", "firefox"),
+    ]
+
+    for firefox_path in firefox_paths:
+        if _is_executable(firefox_path):
+            binary_path = firefox_path
+            break
+    else:
+        binary_path = firefox
+
     from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-    binary = FirefoxBinary(_detect("firefox"))
+    binary = FirefoxBinary(binary_path)
+
     options = webdriver.firefox.options.Options()
     options.add_argument("--headless")
-    return webdriver.Firefox(firefox_binary=binary, options=options, service_log_path=devnull)
+
+    return webdriver.Firefox(
+        options=options,
+        firefox_binary=binary,
+        executable_path=geckodriver,
+        service_log_path=devnull,
+    )
 
 def create_chromium_webdriver() -> WebDriver:
     options = webdriver.chrome.options.Options()
@@ -71,8 +99,8 @@ def create_chromium_webdriver() -> WebDriver:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _detect(executable: str) -> Optional[str]:
-    return shutil.which(executable)
+def _is_executable(path: str) -> bool:
+    return isfile(path) and os.access(path, os.X_OK)
 
 def _try_create_firefox_webdriver() -> Optional[WebDriver]:
     try:
@@ -86,7 +114,7 @@ def _try_create_chromium_webdriver() -> Optional[WebDriver]:
     except Exception:
         return None
 
-class _WebdriverState(object):
+class _WebdriverState:
     '''
 
     '''

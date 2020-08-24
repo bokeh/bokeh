@@ -63,12 +63,10 @@ export class VAreaView extends AreaView {
 
   }
 
-  scenterx(i: number): number {
-    return this.sx[i]
-  }
-
-  scentery(i: number): number {
-    return (this.sy1[i] + this.sy2[i])/2
+  scenterxy(i: number): [number, number] {
+    const scx = this.sx[i]
+    const scy = (this.sy1[i] + this.sy2[i])/2
+    return [scx, scy]
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
@@ -87,7 +85,7 @@ export class VAreaView extends AreaView {
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
       result.add_to_selected_glyphs(this.model)
-      result.get_view = () => this
+      result.view = this
     }
 
     return result
@@ -126,9 +124,9 @@ export class VArea extends Area {
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>({
-      x:  [ p.CoordinateSpec ],
-      y1: [ p.CoordinateSpec ],
-      y2: [ p.CoordinateSpec ],
+      x:  [ p.XCoordinateSpec, {field: "x"}  ],
+      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      y2: [ p.YCoordinateSpec, {field: "y2"} ],
     })
   }
 }

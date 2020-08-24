@@ -3,7 +3,17 @@ import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {Interval} from "core/types"
+import {Scale} from "models/scales/scale"
 import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
+
+export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): Map<string, Interval> {
+  const r: Map<string, Interval> = new Map()
+  for (const [name, scale] of scales) {
+    const [start, end] = scale.r_invert(p0, p1)
+    r.set(name, {start, end})
+  }
+  return r
+}
 
 export class PanToolView extends GestureToolView {
   model: PanTool
@@ -100,18 +110,8 @@ export class PanToolView extends GestureToolView {
     this.last_dy = dy
 
     const {x_scales, y_scales} = frame
-
-    const xrs: Map<string, Interval> = new Map()
-    for (const [name, scale] of x_scales) {
-      const [start, end] = scale.r_invert(sx0, sx1)
-      xrs.set(name, {start, end})
-    }
-
-    const yrs: Map<string, Interval> = new Map()
-    for (const [name, scale] of y_scales) {
-      const [start, end] = scale.r_invert(sy0, sy1)
-      yrs.set(name, {start, end})
-    }
+    const xrs = update_ranges(x_scales, sx0, sx1)
+    const yrs = update_ranges(y_scales, sy0, sy1)
 
     this.pan_info = {xrs, yrs, sdx, sdy}
     this.plot_view.update_range(this.pan_info, true)

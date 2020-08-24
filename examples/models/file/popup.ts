@@ -30,7 +30,7 @@ export class Popup extends Model {
   execute(data_source: ColumnarDataSource): void {
     for (const i of data_source.selected.indices) {
       const message = replace_placeholders(this.message, data_source, i)
-      popup(message)
+      popup(message.toString())
     }
   }
 }

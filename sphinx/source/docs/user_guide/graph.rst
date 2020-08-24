@@ -13,17 +13,17 @@ The key feature of the ``GraphRenderer`` is that it maintains separate
 sub-GlyphRenderers for the graph nodes and the graph edges. This allows for
 customizing the nodes by modifying the GraphRenderer's ``node_renderer``
 property. It's possible to replace the default Circle node glyph with any
-XYGlyph instance, for example a Rect or Oval glyph. Similarly, the style
-properties of the edges can modified through the ``edge_renderer`` property.
+XYGlyph instance, for example a Rect or Ellipse glyph. Similarly, the style
+properties of the edges can be modified through the ``edge_renderer`` property.
 The edge glyph is currently limited to a MultiLine glyph.
 
-There are a couple requirements for the data sources belonging to these
+There are a couple of requirements for the data sources belonging to these
 sub-renderers:
 
 - The ColumnDataSource associated with the node sub-renderer must have a column
   named ``"index"`` that contains the unique indices of the nodes.
 - The ColumnDataSource associated with the edge sub-renderer has two required
-  columns: ``"start"`` and ``"end"``. These columns contain the node indices of
+  columns: ``"start"`` and ``"end"``. These columns contain the node indices
   for the start and end of the edges.
 
 It's possible to add extra meta-data to these data sources to in order to
@@ -32,16 +32,16 @@ tooltips.
 
 Here's a code snippet that:
 
-- replaces the node glyph with an Oval
-- sets the ``height`` and ``width`` attributes of the Oval as scalar values
-- sets the ``fill_color`` attribute of the Oval as a vectorized field and adds
+- replaces the node glyph with an Ellipse
+- sets the ``height`` and ``width`` attributes of the Ellipse as scalar values
+- sets the ``fill_color`` attribute of the Ellipse as a vectorized field and adds
   the values to the node data source.
 
 .. code-block:: python
 
     import math
     from bokeh.plotting import figure
-    from bokeh.models import GraphRenderer, Oval
+    from bokeh.models import GraphRenderer, Ellipse
     from bokeh.palettes import Spectral8
 
     N = 8
@@ -52,7 +52,7 @@ Here's a code snippet that:
 
     graph = GraphRenderer()
 
-    graph.node_renderer.glyph = Oval(height=0.1, width=0.2, fill_color="fill_color")
+    graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2, fill_color="fill_color")
     graph.node_renderer.data_source.data = dict(
         index=node_indices,
         fill_color=Spectral8)
@@ -70,7 +70,7 @@ Layout Providers
 ----------------
 
 Bokeh uses a separate ``LayoutProvider`` model in order to supply the coordinates
-of a graph in Cartesian space. Currently the only built-in provider is the
+of a graph in Cartesian space. Currently, the only built-in provider is the
 :class:`~bokeh.models.graphs.StaticLayoutProvider` model, which contains a
 dictionary of (x,y) coordinates for the nodes.
 
@@ -82,16 +82,16 @@ This example adds a provider to the above code snippet:
 Explicit Paths
 --------------
 
-By default the :class:`~bokeh.models.graphs.StaticLayoutProvider` will
+By default, the :class:`~bokeh.models.graphs.StaticLayoutProvider` will
 draw straight-line paths between the supplied node positions. In order
-to supply explicit edge paths you may also supply lists of paths to
+to supply explicit edge paths, you may also supply lists of paths to
 the ``edge_renderer``
 :class:`bokeh.models.sources.ColumnDataSource`. The
 :class:`~bokeh.models.graphs.StaticLayoutProvider` will look for these
 paths on the ``"xs"`` and ``"ys"`` columns of the data source. Note
 that these paths should be in the same order as the ``"start"`` and
 ``"end"`` points. Also note that there is no validation that they
-match up with the node positions so be extra careful when setting
+match up with the node positions, so be extra careful when setting
 explicit paths.
 
 This example extends the example from above to draw quadratic bezier
@@ -143,7 +143,7 @@ In ``from_networkx``, NetworkX's node/edge attributes are converted for
 GraphRenderer's ``node_renderer``/``edge_renderer``.
 
 For example, "Zachary's Karate Club graph" dataset has a node attribute named
-"club". It's possible to hover these information using the node attributes
+"club". It's possible to hover this information using the node attributes
 converted in ``from_networkx``. Similarly, node/edge attributes can also be
 used for color information.
 

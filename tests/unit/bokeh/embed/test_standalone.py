@@ -49,7 +49,7 @@ def stable_id():
 @pytest.fixture
 def test_plot() -> None:
     from bokeh.plotting import figure
-    test_plot = figure()
+    test_plot = figure(title="'foo'")
     test_plot.circle([1, 2], [2, 3])
     return test_plot
 
@@ -71,8 +71,8 @@ PAGE = Template("""
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_autoload_static(object):
 
+class Test_autoload_static:
     def test_return_type(self, test_plot) -> None:
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
@@ -83,8 +83,8 @@ class Test_autoload_static(object):
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         attrs = scripts[0].attrs
-        assert set(attrs) == set(['src', 'id'])
-        assert attrs['src'] == 'some/path'
+        assert set(attrs) == {"src", "id"}
+        assert attrs["src"] == "some/path"
 
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
@@ -102,7 +102,7 @@ class Test_autoload_static(object):
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 3
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
@@ -124,7 +124,7 @@ class Test_autoload_static(object):
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 4
+        assert len(scripts) == 3
         for script in scripts:
             assert script.get_attribute("crossorigin") == "anonymous"
             assert script.get_attribute("integrity").startswith("sha384-")
@@ -146,7 +146,7 @@ class Test_autoload_static(object):
         scripts = driver.find_elements_by_css_selector('head script')
         for x in scripts:
             print(x.get_attribute("src"))
-        assert len(scripts) == 4
+        assert len(scripts) == 3
         for script in scripts:
             assert script.get_attribute("crossorigin") == "anonymous"
             assert script.get_attribute("integrity").startswith("sha384-")
@@ -166,13 +166,13 @@ class Test_autoload_static(object):
         driver.get(url)
 
         scripts = driver.find_elements_by_css_selector('head script')
-        assert len(scripts) == 4
+        assert len(scripts) == 3
         for script in scripts:
             assert script.get_attribute("crossorigin") == None
             assert script.get_attribute("integrity") == ""
 
-class Test_components(object):
 
+class Test_components:
     def test_return_type(self) -> None:
         plot1 = figure()
         plot1.circle([], [])
@@ -238,15 +238,21 @@ class Test_components(object):
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
-        assert div.attrs['class'] == ['bk-root']
-        assert div.attrs['id'] == 'ID'
-        assert div.attrs['data-root-id'] == test_plot.id
+        assert set(div.attrs) == {"class", "id", "data-root-id"}
+        assert div.attrs["class"] == ["bk-root"]
+        assert div.attrs["id"] == "ID"
+        assert div.attrs["data-root-id"] == test_plot.id
         assert div.string is None
 
     def test_script_is_utf8_encoded(self, test_plot) -> None:
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
+
+    def test_quoting(self, test_plot) -> None:
+        script, div = bes.components(test_plot)
+        assert "&quot;" not in script
+        assert "'foo'" not in script
+        assert "&#x27;foo&#x27;" in script
 
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot) -> None:
         script, div = bes.components(test_plot)
@@ -261,8 +267,8 @@ class Test_components(object):
         #self.maxDiff = None
         #assert rawscript.strip() == script_content.strip()
 
-class Test_file_html(object):
 
+class Test_file_html:
     def test_return_type(self, test_plot) -> None:
 
         class fake_template:
@@ -348,8 +354,8 @@ class Test_file_html(object):
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
 
-class Test_json_item(object):
 
+class Test_json_item:
     def test_with_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
         assert out['target_id'] == "foo"
@@ -391,7 +397,7 @@ class Test_json_item(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__title_from_models(object):
+class Test__title_from_models:
     pass
 
 #-----------------------------------------------------------------------------

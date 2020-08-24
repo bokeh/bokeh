@@ -1,5 +1,6 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
+import {DEFAULT_POLY_OVERLAY} from "./poly_select_tool"
 import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {PanEvent, KeyEvent} from "core/ui_events"
@@ -67,20 +68,6 @@ export class LassoSelectToolView extends SelectToolView {
     this._select(geometry, final, mode)
   }
 
-}
-
-const DEFAULT_POLY_OVERLAY = () => {
-  return new PolyAnnotation({
-    level: "overlay",
-    xs_units: "screen",
-    ys_units: "screen",
-    fill_color: "lightgrey",
-    fill_alpha: 0.5,
-    line_color: "black",
-    line_alpha: 1.0,
-    line_width: 2,
-    line_dash: [4, 4],
-  })
 }
 
 export namespace LassoSelectTool {

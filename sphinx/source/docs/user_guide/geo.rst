@@ -5,8 +5,8 @@ Mapping Geo Data
 
 Bokeh has started adding support for working with Geographical data. There are
 a number of powerful features already available, but we still have more to add.
-Please tell us your use cases through the `Discourse`_ or on `github`_ so that we
-can continue to build out these features to meet your needs.
+Please tell us your use cases through `Discourse`_ or on `GitHub`_ so that we
+can continue to extend these features to meet your needs.
 
 .. _userguide_geo_tile_provider_maps:
 
@@ -31,7 +31,7 @@ Google Maps
 -----------
 
 Bokeh can also plot glyphs over a Google Map using the :func:`~bokeh.plotting.gmap`
-function. You must pass this function a `Google API Key`_ in order for it to work, as
+function. You must pass a `Google API Key`_ to this function in order for it to work, as
 well as any :class:`~bokeh.models.map_plots.GMapOptions` to configure the Google Map
 underlay. The Google API Key will be stored in the Bokeh Document JSON.
 
@@ -39,10 +39,10 @@ underlay. The Google API Key will be stored in the Bokeh Document JSON.
     :source-position: below
 
 .. note::
-    Google has its own terms of service for using Google Maps API and any use
+    Google has its own Terms of Service for using the Google Maps API, and any use
     of Bokeh with Google Maps must be within Google's Terms of Service
 
-Also note that Google Maps exert explicit control over aspect ratios at all
+Also note that Google Maps exerts explicit control over aspect ratios at all
 times, which imposes some limitations on ``GMapPlot``:
 
 * Only ``Range1d`` ranges are supported. Attempting to use other range types
@@ -57,7 +57,7 @@ GeoJSON Data
 ------------
 
 `GeoJSON`_ is a popular open standard for representing geographical features
-with JSON. It describes points, lines and polygons (called Patches in Bokeh) as a
+with JSON. It describes points, lines, and polygons (called Patches in Bokeh) as a
 collection of features. Each feature can also have a set of properties.
 
 Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
@@ -67,11 +67,10 @@ Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
     :source-position: above
 
 .. warning::
-    It is important to note that behind the scenes, Bokeh converts the
-    GeoJSON coordinates into columns called `x` and `y` or `xs` and `ys`)
-    (depending on whether the features are Points, Lines, MultiLines, Polygons
-    or MultiPolygons). *Properties with clashing names will be overridden when
-    the GeoJSON is converted, and should be avoided*.
+    Behind the scenes, Bokeh converts the GeoJSON coordinates into columns called
+    `x` and `y` or `xs` and `ys` (depending on whether the features are Points,
+    Lines, MultiLines, Polygons, or MultiPolygons). *Properties with clashing names
+    will be overridden when the GeoJSON is converted and should be avoided*.
 
 .. _GeoJSON: http://geojson.org
 .. _github: https://github.com/bokeh/bokeh

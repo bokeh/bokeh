@@ -8,7 +8,7 @@ In this section, the various ways of providing data for plots are explained, fro
 passing data values directly to creating a |ColumnDataSource| and filtering using
 a |CDSView|.
 
-Providing data directly
+Providing Data Directly
 -----------------------
 
 In Bokeh, it is possible to pass lists of values directly into plotting functions.
@@ -27,7 +27,7 @@ to the ``circle`` plotting method (see :ref:`userguide_plotting` for more exampl
 
 When you pass in data like this, Bokeh works behind the scenes to make a
 |ColumnDataSource| for you. But learning to create and use the |ColumnDataSource|
-will enable you access more advanced capabilities, such as streaming data,
+will enable you to access more advanced capabilities, such as streaming data,
 sharing data between plots, and filtering data.
 
 ColumnDataSource
@@ -44,9 +44,9 @@ highlighted in a second plot (:ref:`userguide_data_linked_selection`).
 At the most basic level, a |ColumnDataSource| is simply a mapping between column
 names and lists of data. The |ColumnDataSource| takes a ``data`` parameter which is a dict,
 with string column names as keys and lists (or arrays) of data values as values. If one positional
-argument is passed in to the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
+argument is passed to the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
 |ColumnDataSource| has been created, it can be passed into the ``source`` parameter of
-plotting methods which allows you to pass a column's name as a stand in for the data values:
+plotting methods which allows you to pass a column's name as a stand-in for the data values:
 
 .. code-block:: python
 
@@ -183,7 +183,7 @@ Colors
 To perform linear colormapping in the browser, the
 :func:`~bokeh.transform.linear_cmap` function may be used. It accepts the name
 of a ``ColumnDataSource`` column to colormap, a palette (which can be a built-in
-palette name, or an actual list of colors), and min/max values for the color
+palette name or an actual list of colors), and min/max values for the color
 mapping range. The result can be passed to a color property on glyphs:
 
 .. code-block:: python
@@ -298,7 +298,7 @@ GroupFilter
 
 The |GroupFilter| allows you to select rows from a dataset that have a specific value for
 a categorical variable. The |GroupFilter| has two properties, ``column_name``, the name of
-column in the |ColumnDataSource|, and ``group``, the value of the column to select for.
+the column in the |ColumnDataSource|, and ``group``, the value of the column to select for.
 
 In the example below, ``flowers`` contains a categorical variable ``species`` which is
 either ``setosa``, ``versicolor``, or ``virginica``.
@@ -350,7 +350,7 @@ provides this capability.
 The ``AjaxDataSource`` is configured with a URL to a REST endpoint and a
 polling interval. In the browser, the data source will request data from the
 endpoint at the specified interval and update the data locally. Existing
-data may either be replaced entirely, or appended to (up to a configurable
+data may either be replaced entirely or appended to (up to a configurable
 ``max_size``). The endpoint that is supplied should return a JSON dict that
 matches the standard ``ColumnDataSource`` format:
 
@@ -379,7 +379,7 @@ A full example (shown below) can be seen at
 
 .. _userguide_data_linked_selection:
 
-Linked selection
+Linked Selection
 ----------------
 
 Using the same |ColumnDataSource| in the two plots below allows their selections to be
@@ -390,7 +390,7 @@ shared.
 
 .. _userguide_data_linked_selection_with_filtering:
 
-Linked selection with filtered data
+Linked Selection with Filtered Data
 -----------------------------------
 
 With the ability to specify a subset of data to be used for each glyph renderer, it is

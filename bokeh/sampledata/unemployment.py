@@ -51,8 +51,8 @@ def _read_data():
 
     '''
     data = {}
-    with open_csv(external_path('unemployment09.csv')) as f:
-        reader = csv.reader(f, delimiter=str(','), quotechar=str('"'))
+    with open_csv(external_path("unemployment09.csv")) as f:
+        reader = csv.reader(f, delimiter=",", quotechar='"')
         for row in reader:
             dummy, state_id, county_id, dumm, dummy, dummy, dummy, dummy, rate = row
             data[(int(state_id), int(county_id))] = float(rate)

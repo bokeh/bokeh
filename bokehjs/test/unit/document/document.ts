@@ -2,7 +2,7 @@ import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {assert} from "@bokehjs/core/util/assert"
-import {values} from "@bokehjs/core/util/object"
+import {values, entries} from "@bokehjs/core/util/object"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -214,7 +214,7 @@ describe("Document", () => {
     expect((d as any)._interactive_timestamp).to.be.equal(15)
     expect(d.interactive_duration()).to.be.equal(3) // second stub value 18
 
-    d.interactive_stop(m1)
+    d.interactive_stop()
     expect((d as any)._interactive_plot).to.be.null
     expect((d as any)._interactive_timestamp).to.be.null
     expect(d.interactive_duration()).to.be.equal(-1)
@@ -430,6 +430,28 @@ describe("Document", () => {
 
     root1.children = [child1]
     expect(d._all_models.size).to.be.equal(3)
+  })
+
+  it("can notify on ready", () => {
+    const doc = new Document()
+
+    let signals = 0
+    doc.idle.connect(() => signals += 1)
+
+    const events: ev.DocumentEvent[] = []
+    doc.on_change((event) => events.push(event))
+
+    const root = new SomeModelWithChildren()
+    doc.add_root(root)
+    doc.notify_idle(root)
+
+    expect(signals).to.be.equal(1)
+    expect(events.length).to.be.equal(2) // [RootAdded, MessageSent]
+
+    const [, event] = events
+    assert(event instanceof ev.MessageSentEvent)
+    expect(event.msg_type).to.be.equal("bokeh_event")
+    expect(event.msg_data).to.be.equal({event_name: "document_ready", event_values: {}})
   })
 
   it("can notify on changes", () => {
@@ -933,8 +955,7 @@ describe("Document", () => {
     const patch = Document._compute_patch_since_json(JSON.parse(json), copy)
 
     // document should have the values we set above
-    for (const key in serialized_values) {
-      const value = (serialized_values as any)[key] // XXX: own
+    for (const [key, value] of entries(serialized_values)) {
       expect(root1.property(key).get_value()).to.be.equal(value)
     }
 

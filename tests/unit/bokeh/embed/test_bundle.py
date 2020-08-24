@@ -67,8 +67,8 @@ def test_widget() -> None:
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_bundle_for_objs_and_resources(object):
 
+class Test_bundle_for_objs_and_resources:
     def test_env_vars_precedence(self) -> None:
         b = beb.bundle_for_objs_and_resources([], INLINE)
         assert all('localhost' not in x for x in b.js_files)
@@ -128,12 +128,45 @@ class Test_bundle_custom_extensions:
         assert len(bundle.js_files) == 2
         assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
 
+class Test_bundle_ext_package_no_main:
+
+    @classmethod
+    def setup_class(cls):
+        base_dir = dirname(__file__)
+        build(join(base_dir, "ext_package_no_main"), rebuild=True)
+
+    @classmethod
+    def teardown_class(cls):
+        del Model.model_class_reverse_map["ext_package_no_main.AModel"]
+        extension_dirs.clear()
+
+    def test_with_INLINE_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "inline")
+        assert len(bundle.js_files) == 0
+        assert len(bundle.js_raw) == 3
+
+    def test_with_CDN_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "cdn")
+        assert len(bundle.js_files) == 1
+        assert len(bundle.js_raw) == 2
+
+    def test_with_Server_resources(self) -> None:
+        from ext_package_no_main import AModel
+        model = AModel()
+        bundle = beb.bundle_for_objs_and_resources([model], "server")
+        assert len(bundle.js_files) == 2
+        assert len(bundle.js_raw) == 1
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__any(object):
 
+class Test__any:
     def test_with_models(self, test_plot, test_table) -> None:
         from bokeh.models import Button
         assert beb._any([test_plot, test_table], lambda x: isinstance(x, object)) is True
@@ -148,32 +181,7 @@ class Test__any(object):
         assert beb._any([d], lambda x: isinstance(x, Button)) is False
 
 
-class Test__use_gl(object):
-
-    def test_without_gl(self, test_plot, test_glplot, test_table, test_widget) -> None:
-        assert beb._use_gl([test_plot]) is False
-        assert beb._use_gl([test_plot, test_table]) is False
-        assert beb._use_gl([test_plot, test_widget]) is False
-        d = Document()
-        d.add_root(test_plot)
-        d.add_root(test_table)
-        d.add_root(test_widget)
-        assert beb._use_gl([d]) is False
-
-    def test_with_gl(self, test_plot, test_glplot, test_table, test_widget) -> None:
-        assert beb._use_gl([test_glplot]) is True
-        assert beb._use_gl([test_plot, test_glplot]) is True
-        assert beb._use_gl([test_plot, test_widget, test_glplot]) is True
-        assert beb._use_gl([test_plot, test_widget, test_table, test_glplot]) is True
-        d = Document()
-        d.add_root(test_plot)
-        d.add_root(test_table)
-        d.add_root(test_widget)
-        d.add_root(test_glplot)
-        assert beb._use_gl([d]) is True
-
-class Test__use_tables(object):
-
+class Test__use_tables:
     def test_without_tables(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_tables([test_plot]) is False
         assert beb._use_tables([test_plot, test_glplot]) is False
@@ -196,8 +204,8 @@ class Test__use_tables(object):
         d.add_root(test_glplot)
         assert beb._use_tables([d]) is True
 
-class Test__use_widgets(object):
 
+class Test__use_widgets:
     def test_without_widgets(self, test_plot, test_glplot, test_table, test_widget) -> None:
         assert beb._use_widgets([test_plot]) is False
         assert beb._use_widgets([test_plot, test_glplot]) is False

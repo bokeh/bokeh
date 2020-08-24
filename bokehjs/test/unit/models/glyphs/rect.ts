@@ -6,6 +6,7 @@ import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Geometry} from "@bokehjs/core/geometry"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
 
@@ -112,8 +113,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
-      expect(glyph_view.sh).to.be.equal(Float64Array.of(40))
+      expect(glyph_view.sw).to.be.equal(NumberArray.of(20))
+      expect(glyph_view.sh).to.be.equal(NumberArray.of(40))
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
@@ -124,8 +125,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(new Float64Array([10]))
-      expect(glyph_view.sh).to.be.equal(new Float64Array([20]))
+      expect(glyph_view.sw).to.be.equal(new NumberArray([10]))
+      expect(glyph_view.sh).to.be.equal(new NumberArray([20]))
     })
 
     // XXX: needs update
@@ -134,8 +135,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
 
-      expect(glyph_view.sx0).to.be.equal(Float64Array.of(0))
-      expect(glyph_view.sy1).to.be.equal(Float64Array.of(0))
+      expect(glyph_view.sx0).to.be.equal(NumberArray.of(0))
+      expect(glyph_view.sy1).to.be.equal(NumberArray.of(0))
     })
 
     // XXX: needs update
@@ -147,8 +148,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
 
-      expect(glyph_view.sx0).to.be.equal(Float64Array.of(-5))
-      expect(glyph_view.sy1).to.be.equal(Float64Array.of(-10))
+      expect(glyph_view.sx0).to.be.equal(NumberArray.of(-5))
+      expect(glyph_view.sy1).to.be.equal(NumberArray.of(-10))
     })
 
     /* XXX
@@ -179,8 +180,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(Float64Array.of(20))
-      expect(glyph_view.sh).to.be.equal(Float64Array.of(0))
+      expect(glyph_view.sw).to.be.equal(NumberArray.of(20))
+      expect(glyph_view.sh).to.be.equal(NumberArray.of(0))
     })
 
     describe("hit-testing", () => {

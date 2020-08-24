@@ -14,7 +14,7 @@ You might want to read this if you are:
 A custom server process can add additional routes (web pages or
 REST endpoints) using Tornado's web framework.
 
-If an application developer uses ``bokeh serve`` they typically should not need
+If an application developer uses ``bokeh serve``, they typically should not need
 to import from ``bokeh.server`` at all. An application developer would only use
 the ``Server`` class if it is doing something specialized, such as a custom
 or embedded server process.
@@ -32,9 +32,9 @@ callbacks, to run periodically or to run when the document changes.
 
 Applications are represented by the ``Application`` class. This class
 contains a list of ``Handler`` instances and optional metadata. Handlers
-can be created in lots of ways; from JSON files, from Python functions, from
-Python files, and perhaps many more ways in the future.  The optional metadata
-is available as a JSON blob via the ``/metadata`` endpoint.  For example,
+can be created in lots of ways: from JSON files, from Python functions, from
+Python files, and perhaps many more ways in the future. The optional metadata
+is available as a JSON blob via the ``/metadata`` endpoint. For example,
 creating a ``Application`` instance with::
 
     Application(metadata=dict(hi="hi", there="there"))
@@ -52,7 +52,7 @@ will have ``http://server/myapp/metadata`` return (``application/json``)::
 Around each application, the server creates an ``ApplicationContext``. Its
 primary role is to hold the set of sessions for the application.
 
-Sessions are represented by class ``ServerSession``.
+Sessions are represented by the class ``ServerSession``.
 
 Each application has a route (called an ``app_path`` in the client
 API), and each session has an ID. The combination of the two
@@ -101,20 +101,20 @@ To work on the server, you'll need an understanding of Tornado's
 The Tornado documentation will be the best resource, but here are
 some quick things to know:
 
-- the Bokeh server is single-threaded, so it's important not to
+- The Bokeh server is single-threaded, so it's important not to
   write "blocking" code, meaning code that uses up the single
   thread while it waits for IO or performs a long computation. If
   you do this, you'll rapidly increase the latency seen by users
   of your application. For example, if you block for 100ms every
   time someone moves a slider, and ten users are doing this at
-  once, users could easily see 10*100ms=1s of lag... with only
+  once, users could easily see 10*100ms=1s of lag with only
   ten users.
-- in Tornado, nonblocking code is modeled with functions or
-  methods that return an instance of the ``Future`` class.  You
-  may have seen the ``@gen.coroutine`` decorator, which
+- In Tornado, non-blocking code is modeled with functions or
+  methods that return an instance of the ``Future`` class. You
+  may have seen the ``@gen.coroutine`` decorator. This decorator
   transforms the decorated method into a method which returns a
   ``Future``.
-- when no code is running, Tornado waits in its ``IOLoop``
+- When no code is running, Tornado waits in its ``IOLoop``
   (sometimes called a "main loop" or "event loop"), which means
   it's waiting for something to happen. When something happens,
   ``IOLoop`` executes any callbacks that were interested in that
@@ -162,7 +162,7 @@ Here are the steps in the lifecycle:
    ``Document`` if it likes. ``on_session_created()`` happens before
    ``modify_document()``.
 3. When there are no connections to a session, it will eventually
-   time out and ``on_session_destroyed()`` will be called.
+   time out, and ``on_session_destroyed()`` will be called.
 4. If the server process shuts down cleanly, it will call
    ``on_server_unloaded()`` on each application. This is probably
    rare in production: it's typical for server processes to be
@@ -172,7 +172,7 @@ Here are the steps in the lifecycle:
 
 These hooks can add periodic or one-shot callbacks to the
 ``ServerContext``. These callbacks may be asynchronous (using
-Tornado's async IO facilities), and are able to update all live
+Tornado's async IO facilities) and are able to update all live
 session documents.
 
 **Critical consideration when using ``on_server_loaded()``**:
@@ -192,7 +192,7 @@ the server.
 Locking
 ^^^^^^^
 
-The trickiest aspect of ``ServerSession`` may be locking.  In general, we
+The trickiest aspect of ``ServerSession`` may be locking. In general, we
 want one callback or one websocket request to be processed at a time; we
 don't want to interleave them, because it would be difficult to implement
 callbacks and request handlers if they had to worry about interleaving.
@@ -235,14 +235,14 @@ If an attacker knows someone's session ID, they can eavesdrop on or modify
 the session. If you're writing a larger web app with a Bokeh app embedded
 inside, this may affect how you design your larger app.
 
-When hacking on the server, for the most part session IDs are opaque strings
+When hacking on the server, for the most part session IDs are opaque strings,
 and after initially validating the ID, it doesn't matter to the server code
 what the ID is.
 
 Session Timeout
 ^^^^^^^^^^^^^^^^
 
-To avoid resource exhaustion, unused sessions will time out according to code in
+To avoid resource exhaustion, unused sessions will time out according to code
 in ``application_context.py``
 
 Websocket Protocol
@@ -252,9 +252,9 @@ The server has a websocket connection open to each client (each browser tab,
 in typical usage). The primary role of the websocket is to keep the session's
 ``Document`` in sync between the client and the server.
 
-There are two client implementations in the Bokeh codebase; one is a Python
+There are two client implementations in the Bokeh codebase: one is a Python
 ``ClientSession``, the other is a JavaScript ``ClientSession``.
-Client and server sessions are mostly symmetrical; on both sides, we are
+Client and server sessions are mostly symmetrical. On both sides, we are
 receiving change notifications from the other side's ``Document``, and sending
 notification of changes made on our side. In this way, the two ``Document``
 are kept in sync.
@@ -265,14 +265,14 @@ use it.
 
 Websockets already implement "frames" for us, and they guarantee frames will
 arrive in the same order they were sent. Frames are strings or byte arrays
-(or special internal frame types, such as pings). A websocket looks like a
+(or special internal frame types, such as pings). A websocket looks like
 two sequences of frames, one sequence in each direction ("full duplex").
 
 On top of websocket frames, we implement our own ``Message`` concept. A Bokeh
 ``Message`` spans multiple websocket frames. It always contains a header frame,
 metadata frame, and content frame. These three frames each contain a JSON
 string. The code permits these three frames to be followed by optional binary data
-frames. In principle this could allow for example, for sending numpy arrays
+frames. In principle, this could allow, for example, for sending NumPy arrays
 directly from their memory buffers to the websocket with no additional copies.
 However, the binary data frames are not yet used in Bokeh.
 
@@ -280,8 +280,8 @@ The header frame indicates the message type and gives messages an ID. Message
 IDs are used to match replies with requests (the reply contains a field saying
 "I am the reply to the request with ID xyz").
 
-The metadata frame has nothing in it for now, but could be used for debugging
-data or another purpose in the future.
+The metadata frame has nothing in it for now but could be used for debugging
+data or for another purpose in the future.
 
 The content frame has the "body" of the message.
 
@@ -303,7 +303,7 @@ There aren't many messages right now. A quick overview:
 - ``PATCH-DOC`` sends changes to the session's document to the
   other side
 
-Typically, when opening a connection one side will pull or push
+Typically, when opening a connection, one side will pull or push
 the entire document; after the initial pull or push, the two sides
 stay in sync using ``PATCH-DOC`` messages.
 
@@ -315,7 +315,7 @@ Some Current Protocol Caveats
    end up out-of-sync if this happens, because the two
    ``PATCH-DOC`` are in flight at the same time). It's easy to
    devise a scheme to detect this situation, but it's less clear
-   what to do when it's detected, so right now we don't detect it
+   what to do when it's detected, so right now, we don't detect it
    and do nothing. In most cases, applications should avoid this
    situation because even if we could make sense of it and handle
    it somehow, it would probably be inefficient for the two sides
@@ -329,10 +329,10 @@ Some Current Protocol Caveats
    changes.
 
 3. At the moment, we do not optimize binary data by sending it
-   over binary websocket frames.  However, NumPy arrays of
-   dtype ``float32``, ``float64`` and integer types smaller than ``int32``
-   are base64 encoded in content frame to avoid performance
-   limitations of naiive JSON string serialization.
+   over binary websocket frames. However, NumPy arrays of
+   dtype ``float32``, ``float64``, and integer types smaller than ``int32``
+   are base64 encoded in a content frame to avoid performance
+   limitations of naive JSON string serialization.
    JavaScript's lack of native 64-bit integer support precludes
    them from inclusion in this optimization.
    The base64 encoding should be entirely transparent to all
@@ -355,26 +355,26 @@ In brief:
   backs the ``bokeh.embed.server_document()`` and ``bokeh.embed.server_session()``
   functionality
 
-Bokeh server isn't intended to be a general-purpose web framework. You can
-however pass new endpoints to ``Server`` using the ``extra_patterns`` parameter
+Bokeh server isn't intended to be a general-purpose web framework. You can,
+however, pass new endpoints to ``Server`` using the ``extra_patterns`` parameter
 and the Tornado APIs.
 
-Additional details
+Additional Details
 ------------------
 
 Events
 ^^^^^^
 
-In general whenever a model property is modified, the new value is
+In general, whenever a model property is modified, the new value is
 first validated, and the ``Document`` is notified of the change. Just
 as models may have ``on_change`` callbacks, so can a
 ``Document``. When a ``Document`` is notified of a change to one of
-its models it will generate the appropriate event (usually a
+its models, it will generate the appropriate event (usually a
 ``ModelChangedEvent``) and trigger the ``on_change`` callbacks,
 passing them this new event. Sessions are one such callback, which
 will turn the event into a patch that can be sent across the web
 socket connection. When a message is received by the client or server
-session it will extract the patch and apply it directly to the
+session, it will extract the patch and apply it directly to the
 ``Document``.
 
 In order to avoid events bouncing back and forth between client and
@@ -382,31 +382,31 @@ server (as each patch would generate new events, which would in turn
 be sent back), the session informs the ``Document`` that it was
 responsible for generating the patch and any subsequent events that
 are generated. In this way, when a ``Session`` is notified of a change
-to the document it can check whether the ``event.setter`` is identical
+to the document, it can check whether the ``event.setter`` is identical
 with itself and therefore skip processing the event.
 
 Serialization
 ^^^^^^^^^^^^^
 
-In general all the concepts above are agnostic as to how precisely the
+In general, all the concepts above are agnostic as to how precisely the
 models and change events are encoded and decoded. Each model and its
 properties are responsible for converting their values to a JSON-like
-format, which can be sent across the Websocket connection. One
+format, which can be sent across the websocket connection. One
 difficulty here is that one model can reference other models, often in
-highly interconnected and even circular ways. Therefore during the
-conversion to a JSON-like format all references by one model to other
-models are replaced with ID references.  Additionally models and
-properties can define special serialization behaviors, one such
+highly interconnected and even circular ways. Therefore, during the
+conversion to a JSON-like format, all references by one model to other
+models are replaced with ID references. Additionally, models and
+properties can define special serialization behavior. One such
 example is the ``ColumnData`` property on a ``ColumnDataSource``,
 which will convert NumPy arrays to a base64 encoded representation,
 which is significantly more efficient than sending numeric arrays in a
-string based format. The ``ColumnData`` property
-``serializable_value`` method applies this encoding and the from_json
-method will convert the data back. Equivalently the JS-based
+string-based format. The ``ColumnData`` property
+``serializable_value`` method applies this encoding, and the from_json
+method will convert the data back. Equivalently, the JS-based
 ``ColumnDataSource`` knows how to interpret the base64 encoded data
-and converts it to Javascript typed arrays and its
+and converts it to JavaScript typed arrays, and its
 ``attributes_as_json`` methods also knows how to encode the data. In
-this way models can implement optimized serialization formats.
+this way, models can implement optimized serialization formats.
 
 
 Testing
@@ -416,7 +416,7 @@ To test client-server functionality, use the utilities in
 ``bokeh.server.tests.utils``.
 
 Using ``ManagedServerLoop``, you can start up a server instance
-in-process; share ``server.io_loop`` with a client and you can
+in-process. Share ``server.io_loop`` with a client, and you can
 test any aspect of the server. Check out the existing tests for
-lots of examples. Anytime you add a new websocket message or http
+lots of examples. Anytime you add a new websocket message or HTTP
 endpoint, be sure to add tests!

@@ -3,10 +3,10 @@ import numpy as np
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AnnularWedge, Annulus, Arc, Asterisk, Bezier, Circle,
-                          CircleCross, CircleX, Column, ColumnDataSource, Cross, Dash,
-                          Diamond, DiamondCross, Grid, Hex, HoverTool, ImageURL,
-                          InvertedTriangle, Line, LinearAxis, MultiLine,
-                          MultiPolygons, Oval, Panel, Paragraph, Patch, Patches, Plot,
+                          CircleCross, CircleX, Column, ColumnDataSource, Cross,
+                          Dash, Diamond, DiamondCross, Ellipse, Grid, Hex, HoverTool,
+                          ImageURL, InvertedTriangle, Line, LinearAxis, MultiLine,
+                          MultiPolygons, Panel, Paragraph, Patch, Patches, Plot,
                           Quad, Quadratic, Ray, Rect, Segment, Square, SquareCross,
                           SquareX, Tabs, Text, Triangle, Wedge, X,)
 from bokeh.resources import INLINE
@@ -49,11 +49,11 @@ glyphs = [
     ("annulus", Annulus(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), fill_color="#7FC97F")),
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
+    ("ellipse", Ellipse(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
     ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
-    ("oval", Oval(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
     ("quad", Quad(left="x", right="xp01", top="y", bottom="ym01", fill_color="#B3DE69")),

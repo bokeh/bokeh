@@ -42,9 +42,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_DatePicker(object):
 
+@pytest.mark.selenium
+class Test_DatePicker:
     def test_basic(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
 

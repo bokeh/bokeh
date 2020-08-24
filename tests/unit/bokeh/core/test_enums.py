@@ -30,6 +30,7 @@ ALL  = (
     'Align',
     'Anchor',
     'AngleUnits',
+    'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
     'DashPattern',
@@ -95,7 +96,7 @@ def test_Enumeration_default() -> None:
     e = bce.Enumeration()
     assert e.__slots__ == ()
 
-class Test_enumeration(object):
+class Test_enumeration:
     def test_basic(self) -> None:
         e = bce.enumeration("foo", "bar", "baz")
         assert isinstance(e, bce.Enumeration)
@@ -132,8 +133,8 @@ class Test_enumeration(object):
         e = bce.enumeration("foo", "bar", "baz")
         assert len(e) == 3
 
-class Test_bce(object):
 
+class Test_bce:
     def test_Anchor(self) -> None:
         assert tuple(bce.Anchor) == (
             "top_left",    "top_center",    "top_right",
@@ -308,6 +309,7 @@ def test_enums_contents() -> None:
         'Align',
         'Anchor',
         'AngleUnits',
+        'AutosizeMode',
         'ButtonType',
         'CalendarPosition',
         'DashPattern',

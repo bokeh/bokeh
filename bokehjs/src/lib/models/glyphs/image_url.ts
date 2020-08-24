@@ -76,23 +76,59 @@ export class ImageURLView extends XYGlyphView {
 
     const n = this._x.length
 
-    const xs = new Array<number>(w_data ? 2*n : n)
-    const ys = new Array<number>(h_data ? 2*n : n)
+    const xs = new NumberArray(w_data ? 2*n : n)
+    const ys = new NumberArray(h_data ? 2*n : n)
 
-    for (let i = 0; i < n; i++) {
-      xs[i] = this._x[i]
-      ys[i] = this._y[i]
+    const {anchor} = this.model
+
+    function x0x1(x: number, w: number): [number, number] {
+      switch (anchor) {
+        case "top_left":
+        case "bottom_left":
+        case "center_left":
+          return [x, x + w]
+        case "top_center":
+        case "bottom_center":
+        case "center":
+          return [x - w/2, x + w/2]
+        case "top_right":
+        case "bottom_right":
+        case "center_right":
+          return [x - w, x]
+      }
+    }
+
+    function y0y1(y: number, h: number): [number, number] {
+      switch (anchor) {
+        case "top_left":
+        case "top_center":
+        case "top_right":
+          return [y, y - h]
+        case "bottom_left":
+        case "bottom_center":
+        case "bottom_right":
+          return [y + h, y]
+        case "center_left":
+        case "center":
+        case "center_right":
+          return [y + h/2, y - h/2]
+      }
     }
 
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {
-      for (let i = 0; i < n; i++)
-        xs[n + i] = this._x[i] + this._w[i]
-    }
+      for (let i = 0; i < n; i++) {
+        [xs[i], xs[n + i]] = x0x1(this._x[i], this._w[i])
+      }
+    } else
+      xs.set(this._x, 0)
+
     if (h_data) {
-      for (let i = 0; i < n; i++)
-        ys[n + i] = this._y[i] + this._h[i]
-    }
+      for (let i = 0; i < n; i++) {
+        [ys[i], ys[n + i]] = y0y1(this._y[i], this._h[i])
+      }
+    } else
+      ys.set(this._y, 0)
 
     const [x0, x1] = minmax(xs)
     const [y0, y1] = minmax(ys)

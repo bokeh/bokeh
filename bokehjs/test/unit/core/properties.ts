@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
+import {keys} from "@bokehjs/core/util/object"
 
 import {HasProps} from  "@bokehjs/core/has_props"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -91,8 +92,8 @@ class Some extends HasProps {
       angle_spec: [ p.AngleSpec ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
-      coordinate_spec: [ p.CoordinateSpec ],
-      coordinate_seq_spec: [ p.CoordinateSeqSpec ],
+      coordinate_spec: [ p.XCoordinateSpec ],
+      coordinate_seq_spec: [ p.XCoordinateSeqSpec ],
       distance_spec: [ p.DistanceSpec ],
       font_size_spec: [ p.FontSizeSpec ],
       marker_spec: [ p.MarkerSpec ],
@@ -246,12 +247,12 @@ describe("properties module", () => {
         const obj1 = new Some({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
+        expect(arr1).to.be.equal(new Float32Array([1, 1, 1, 1, 1]))
 
         const obj2 = new Some({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
+        expect(arr2).to.be.equal(new Float32Array([2, 2, 2, 2, 2]))
       })
 
       it("should return an array if there is a valid expr spec", () => {
@@ -259,7 +260,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {expr: new TestExpression()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
+        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 4]))
       })
 
       it("should return an array if there is a valid field spec", () => {
@@ -267,7 +268,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
@@ -275,17 +276,15 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
       })
 
       it("should throw an Error otherwise", () => {
-        function fn(): void {
-          const source = new ColumnDataSource({data: {}})
-          const obj = new Some({number_spec: {field: "foo"}})
-          const prop = obj.properties.number_spec
-          prop.array(source)
-        }
-        expect(fn).to.throw(Error, /attempted to retrieve property array for nonexistent field 'foo'/)
+        const source = new ColumnDataSource({data: {bar: [1, 2, 3]}})
+        const obj = new Some({number_spec: {field: "foo"}})
+        const prop = obj.properties.number_spec
+        const arr = prop.array(source)
+        expect(arr).to.be.equal(new Float32Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {
@@ -293,7 +292,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
+        expect(arr).to.be.equal(new Float32Array([0, 2, 4, 6, 14]))
       })
 
       it("should apply a spec transform to a value array", () => {
@@ -301,7 +300,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
+        expect(arr).to.be.equal(new Float32Array([2, 3, 4, 5, 6]))
       })
 
       describe("changing the property attribute value", () => {
@@ -377,7 +376,7 @@ describe("properties module", () => {
       it("should return undefined on array input", () => {
         expect(prop.valid([])).to.be.true
         expect(prop.valid([1, 2, 3])).to.be.true
-        expect(prop.valid(new Float64Array([1, 2, 3]))).to.be.true
+        expect(prop.valid(new Float32Array([1, 2, 3]))).to.be.true
       })
 
       it("should throw an Error on non-array input", () => {
@@ -460,7 +459,7 @@ describe("properties module", () => {
       })
 
       it("should return undefined on svg color input", () => {
-        for (const color in svg_colors) {
+        for (const color of keys(svg_colors)) {
           expect(prop.valid(color)).to.be.true
         }
       })

@@ -613,9 +613,9 @@ export ${export_type} css;
         if (!path.startsWith("..")) {
           if (type == "js") {
             const {dir, pkg} = get_package(base, path)
-            const reso = pkg.module != null ? "ESM" : "CJS"
+            const reso = pkg.type == "module" || pkg.module != null ? "ESM" : "CJS"
             const entry = pkg.module ?? pkg.name
-            const primary = join(dir, entry) == join(base, path)
+            const primary = entry != null && join(dir, entry) == join(base, path)
             const name = canonicalize(primary ? basename(dir) : path)
             const exported = this.exports.has(name)
             return [base, path, exported ? name : undefined, reso]
@@ -642,7 +642,15 @@ export ${export_type} css;
         const {ES2020, ES2017, ES5} = ts.ScriptTarget
         const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
         const imports = new Set<string>(["tslib"])
-        const transform = {before: [transforms.collect_imports(imports), transforms.rename_exports()], after: []}
+
+        const transform: {before: Transformers, after: Transformers} = {
+          before: [transforms.collect_imports(imports), transforms.rename_exports()],
+          after: [],
+        }
+        if (canonical == "core/util/ndarray" && target == ES5) {
+          transform.after.push(transforms.es5_fix_extend_builtins())
+        }
+
         // XXX: .json extension will cause an internal error
         const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
         if (error)
@@ -754,6 +762,7 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
       module: ts.ModuleKind.CommonJS,
       esModuleInterop: true,
       importHelpers: true,
+      downlevelIteration: true,
     },
     transformers,
   })

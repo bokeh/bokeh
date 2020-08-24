@@ -10,13 +10,13 @@ First, a reminder of the distinction between standalone documents and apps:
     These are Bokeh documents that are not backed by a Bokeh server. They
     may have many tools and interactions (e.g. from ``CustomJS`` callbacks)
     but are self-contained HTML, JavaScript, and CSS. They can be
-    embedded into other HTML pages as one large document, or as a set of
+    embedded into other HTML pages as one large document or as a set of
     sub-components templated individually.
 
 :ref:`userguide_embed_apps`
     These are Bokeh documents that are backed by a Bokeh Server. In addition
     to all the features of standalone documents, it is also possible to connect
-    events and tools to real Python callbacks, that execute in the
+    events and tools to real Python callbacks that execute in the
     Bokeh server. See :ref:`userguide_server` for more information about
     creating and running Bokeh apps.
 
@@ -30,7 +30,7 @@ linked to a Bokeh server) may be published or embedded in a variety of ways.
 
 .. _userguide_embed_standalone_html:
 
-HTML files
+HTML Files
 ~~~~~~~~~~
 
 Bokeh can generate complete HTML pages for Bokeh documents using the
@@ -50,13 +50,13 @@ interactive tools (pan, zoom, etc.) for your plot. Here is an example:
 
     html = file_html(plot, CDN, "my plot")
 
-The returned HTML text can be saved to a file using standard python file
+The returned HTML text can be saved to a file using standard Python file
 operations. You can also provide your own template and pass in custom, or
 additional, template variables. See the |file_html| documentation for more
 details.
-G
+
 This is a fairly low-level, explicit way to generate an HTML file, which
-may be useful for use from a web application, e.g. a Flask app. When using
+may be useful for use in a web application, e.g. a Flask app. When using
 the |bokeh.plotting| interface in a script or Jupyter notebook, users will
 typically call the function |output_file| in conjunction with |show| or
 |save| instead.
@@ -104,7 +104,7 @@ Then the target id can be controlled on the JavaScript side:
     item = JSON.parse(item_text);
     Bokeh.embed.embed_item(item, "myplot");
 
-As a more complete example, it a Flask server may be configured to serve Bokeh
+As a more complete example, a Flask server may be configured to serve Bokeh
 JSON items from a */plot* endpoint:
 
 .. code-block:: python
@@ -134,7 +134,7 @@ or with modern syntax:
     Bokeh.embed.embed_item(item)
     </script>
 
-A full example can be found a :bokeh-tree:`examples/embed/json_item.py`.
+A full example can be found at :bokeh-tree:`examples/embed/json_item.py`.
 
 .. _userguide_embed_standalone_components:
 
@@ -181,8 +181,8 @@ The returned ``<script>`` will look something like:
 
     </script>
 
-Note that in Jupyter Notebooks, it is not possible to use components and show in
-the same notebook cell.
+Note that in Jupyter notebooks, it is not possible to use |components| and
+|show| in the same notebook cell.
 
 All of the data and plot or widget objects are contained in the ``docs_json``
 variable (contents omitted here for brevity). The resulting ``<div>`` will
@@ -196,7 +196,7 @@ These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
 
 Using these components assumes that BokehJS has already been loaded, for
-instance either inline in the document text, or from CDN. To load BokehJS
+instance either inline in the document text or from CDN. To load BokehJS
 from CDN, add the following lines in your HTML text or template with the
 appropriate version replacing ``x.y.z``:
 
@@ -227,10 +227,10 @@ For example, to use version ``1.4.0``, including widgets and tables support:
 .. note::
     You must provide the closing `</script>` tag. This is required by all
     browsers and the page will typically not render without it. You should also
-    always include the `crossorigin="anonymous"` attribute on the script.
+    always include the `crossorigin="anonymous"` attribute on the script tag.
 
 If you would like to include `Subresource Integrity`_ hashes to your explicit
-script tags by setting the `integrity` attribute, the necesary hashes can be
+script tags by setting the `integrity` attribute, the necessary hashes can be
 obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
 
 .. code-block:: python
@@ -245,7 +245,7 @@ obtained by calling :func:`~bokeh.resources.get_sri_hashes_for_version` e.g.
 
     'bokeh-widgets-2.0.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
 
-These are the bare hashes, and must be prefixed with `sha384-` to use. For
+These are the bare hashes, and they must be prefixed with `sha384-` to use. For
 example:
 
 .. code-block:: html
@@ -259,7 +259,7 @@ or release candidates).
 
 In addition to a single Bokeh model (e.g. a plot), the |components| function
 also accepts a list or tuple of models, or a dictionary of keys and models.
-Each returns a tuple with one script script and a corresponding data structure
+Each returns a tuple with one script and a corresponding data structure
 for the divs.
 
 The following illustrates how different input types correlate to outputs:
@@ -386,9 +386,9 @@ Autoload Scripts
 ~~~~~~~~~~~~~~~~
 
 A final way to embed standalone documents is the |autoload_static| function.
-This function with provide a  ``<script>`` tag that will replace itself with
+This function provides a  ``<script>`` tag that will replace itself with
 a Bokeh plot, wherever the tag happens to be located. The script will also check
-for BokehJS and load it, if necessary. Using this function it is possible to
+for BokehJS and load it, if necessary. Using this function, it is possible to
 embed a plot by placing this script tag alone in your document.
 
 This function takes a Bokeh model (e.g. a plot) that you want to display, a
@@ -512,7 +512,7 @@ Here is an example of how to use |server_session| and Flask:
     if __name__ == '__main__':
         app.run(port=8080)
 
-Standard template
+Standard Template
 -----------------
 
 Bokeh also provides a standard Jinja template that can be useful for quickly

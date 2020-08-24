@@ -3,7 +3,7 @@
 Exporting Plots
 ===============
 
-Additional dependencies
+Additional Dependencies
 -----------------------
 
 In order to use the |export| functions, users may have to install additional
@@ -13,7 +13,7 @@ dependencies. One option is to install them via conda:
 
     conda install selenium geckodriver firefox -c conda-forge
 
-Alternatively one can use ``chromedriver`` and ``chromium`` browser (or one of
+Alternatively, one can use ``chromedriver`` and ``chromium`` browser (or one of
 its variants). Typically at least one compatible browser will be available on
 modern systems, thus installing a web browser may not be necessary. Bokeh will
 search for available browsers (and drivers) and use what's available, unless
@@ -40,7 +40,7 @@ Limitations
 Responsive sizing_modes may generate layouts with unexpected size and aspect
 ratios. It is recommended to use the default ``fixed`` sizing mode.
 
-Example usage
+Example Usage
 ~~~~~~~~~~~~~
 
 Usage is similar to the |save| and |show| functions.
@@ -76,10 +76,10 @@ that can be edited in image editing programs such as Adobe Illustrator and/or
 converted to PDFs.
 
 The SVG output isn't as performant as the default Canvas backend when it comes
-to rendering large number of glyphs or handling lots of user interactions like
+to rendering a large number of glyphs or handling lots of user interactions like
 panning.
 
-Like PNGs, in order to create a SVG with a transparent background, users
+Like PNGs, in order to create an SVG with a transparent background, users
 should set the ``Plot.background_fill_color`` and ``Plot.border_fill_color``
 properties to ``None``.
 
@@ -87,12 +87,12 @@ Limitations
 ~~~~~~~~~~~
 
 It's not possible to create a single SVG for a layout of plots, as each plot
-is it's own distinct SVG element. Alternatively, it's possible to download a
+is its own distinct SVG element. Alternatively, it's possible to download an
 SVG plot using a SaveTool from the toolbar. However, currently an SVG export
 of a plot with a toolbar will have a blank area where the toolbar was rendered
 in the browser.
 
-Example usage
+Example Usage
 ~~~~~~~~~~~~~
 
 The SVG backend is activated by setting the ``Plot.output_backend`` attribute
@@ -105,22 +105,22 @@ to ``"svg"``.
     # option two
     plot.output_backend = "svg"
 
-Exporting a SVG Image
-~~~~~~~~~~~~~~~~~~~~~
+Exporting an SVG Image
+~~~~~~~~~~~~~~~~~~~~~~
 
-The simplest method to manually export a SVG plot is to install a browser
+The simplest method to manually export an SVG plot is to install a browser
 bookmarklet from the New York Times called `SVG-Crowbar`_. When clicked, it
 runs a snippet of JavaScript and adds a prompt on the page to download the
 plot. It's written to work with Chrome and should work with Firefox in most
 cases.
 
-Alternatively, it's possible to download a SVG plot using the ``SaveTool``, but
+Alternatively, it's possible to download an SVG plot using the ``SaveTool``, but
 the toolbar isn't captured though it figures into the plot layout solver
 calculations. It's not great, but a workable option.
 
 For headless export, there's a utility function, |export_svgs|, which similar
 usage to the |save| and |show| functions. This function will download all of
-SVG-enabled plots within a layout as distinct SVG files.
+the SVG-enabled plots within a layout as distinct SVG files.
 
 .. code-block:: python
 

@@ -1,29 +1,73 @@
 import FlatBush from "flatbush"
 
-import {Rect} from "../types"
+import {Indices, Rect} from "../types"
 import {empty} from "./bbox"
 
-export type IndexedRect = Rect & {i: number}
+function upperBound(value: number, arr: ArrayLike<number>): number {
+  let i = 0
+  let j = arr.length - 1
+  while (i < j) {
+    const m = (i + j) >> 1
+    if (arr[m] > value) {
+      j = m
+    } else {
+      i = m + 1
+    }
+  }
+  return arr[i]
+}
+
+class _FlatBush extends FlatBush {
+  protected _pos: number
+  protected _boxes: Float64Array
+  protected _indices: Uint16Array | Uint32Array
+  protected _levelBounds: number[]
+
+  search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
+    if (this._pos !== this._boxes.length) {
+      throw new Error('Data not yet indexed - call index.finish().')
+    }
+
+    let nodeIndex = this._boxes.length - 4
+    const queue = []
+    const results = new Indices(this.numItems)
+
+    while (nodeIndex !== undefined) {
+      // find the end index of the node
+      const end = Math.min(nodeIndex + this.nodeSize * 4, upperBound(nodeIndex, this._levelBounds))
+
+      // search through child nodes
+      for (let pos = nodeIndex; pos < end; pos += 4) {
+        const index = this._indices[pos >> 2] | 0
+
+        // check if node bbox intersects with query bbox
+        if (maxX < this._boxes[pos + 0]) continue // maxX < nodeMinX
+        if (maxY < this._boxes[pos + 1]) continue // maxY < nodeMinY
+        if (minX > this._boxes[pos + 2]) continue // minX > nodeMaxX
+        if (minY > this._boxes[pos + 3]) continue // minY > nodeMaxY
+
+        if (nodeIndex < this.numItems * 4) {
+          results.set(index) // leaf item
+        } else {
+          queue.push(index) // node; add it to the search queue
+        }
+      }
+
+      nodeIndex = queue.pop()!
+    }
+
+    return results
+  }
+}
+
 
 export class SpatialIndex {
-  private readonly index: FlatBush | null = null
+  private readonly index: _FlatBush | null = null
 
   constructor(size: number) {
     if (size > 0) {
-      this.index = new FlatBush(size)
+      this.index = new _FlatBush(size)
     }
-  }
-
-  static from(points: IndexedRect[]): SpatialIndex {
-    const index = new SpatialIndex(points.length)
-
-    for (const p of points) {
-      const {x0, y0, x1, y1} = p
-      index.add(x0, y0, x1, y1)
-    }
-
-    index.finish()
-    return index
   }
 
   add(x0: number, y0: number, x1: number, y1: number): void {
@@ -56,12 +100,12 @@ export class SpatialIndex {
     }
   }
 
-  indices(rect: Rect): number[] {
+  indices(rect: Rect): Indices {
     if (this.index == null)
-      return []
+      return new Indices(0)
     else {
       const {x0, y0, x1, y1} = this._normalize(rect)
-      return this.index.search(x0, y0, x1, y1)
+      return this.index.search_indices(x0, y0, x1, y1)
     }
   }
 

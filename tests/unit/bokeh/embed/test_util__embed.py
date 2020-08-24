@@ -51,8 +51,7 @@ class OtherModel(Model):
     child = Instance(Model)
 
 # Taken from test_callback_manager.py
-class _GoodPropertyCallback(object):
-
+class _GoodPropertyCallback:
     def __init__(self):
         self.last_name = None
         self.last_old = None
@@ -72,8 +71,8 @@ class _GoodPropertyCallback(object):
     def just_fine(self, name, old, new, extra='default'):
         pass
 
-class _GoodEventCallback(object):
 
+class _GoodEventCallback:
     def __init__(self):
         self.last_name = None
         self.last_old = None
@@ -102,15 +101,15 @@ class EmbedTestUtilModel(Model):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_FromCurdoc(object):
 
+class Test_FromCurdoc:
     def test_type(self) -> None:
         assert isinstance(beu.FromCurdoc, type)
 
 _ODFERR = "OutputDocumentFor expects a sequence of Models"
 
-class Test_OutputDocumentFor_general(object):
 
+class Test_OutputDocumentFor_general:
     def test_error_on_empty_list(self) -> None:
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor([]):
@@ -160,8 +159,8 @@ class Test_OutputDocumentFor_general(object):
             pass
         assert not check_integrity.called
 
-class Test_OutputDocumentFor_default_apply_theme(object):
 
+class Test_OutputDocumentFor_default_apply_theme:
     def test_single_model_with_document(self) -> None:
         # should use existing doc in with-block
         p = SomeModel()
@@ -267,8 +266,8 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p2.document is not None
         assert p2.document.theme is orig_theme
 
-class Test_OutputDocumentFor_custom_apply_theme(object):
 
+class Test_OutputDocumentFor_custom_apply_theme:
     def test_single_model_with_document(self) -> None:
         # should use existing doc in with-block
         p = SomeModel()
@@ -378,8 +377,8 @@ class Test_OutputDocumentFor_custom_apply_theme(object):
         assert p2.document is not None
         assert p2.document.theme is orig_theme
 
-class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
+class Test_OutputDocumentFor_FromCurdoc_apply_theme:
     def setup_method(self):
         self.orig_theme = curdoc().theme
         curdoc().theme = Theme(json={})
@@ -497,8 +496,8 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p2.document is not None
         assert p2.document.theme is orig_theme
 
-class Test_standalone_docs_json_and_render_items(object):
 
+class Test_standalone_docs_json_and_render_items:
     def test_passing_model(self) -> None:
         p1 = SomeModel()
         d = Document()
@@ -577,8 +576,8 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 0
             assert caplog.text == ''
 
-class Test_standalone_docs_json(object):
 
+class Test_standalone_docs_json:
     @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
     def test_delgation(self, mock_sdjari) -> None:
         p1 = SomeModel()
@@ -608,8 +607,8 @@ class Test_standalone_docs_json(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__create_temp_doc(object):
 
+class Test__create_temp_doc:
     def test_no_docs(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
@@ -663,8 +662,8 @@ class Test__create_temp_doc(object):
         assert p2.document == p1.document
         assert p2.document == p2.child.document
 
-class Test__dispose_temp_doc(object):
 
+class Test__dispose_temp_doc:
     def test_no_docs(self) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
@@ -693,7 +692,7 @@ class Test__dispose_temp_doc(object):
         assert p1.document is None
         assert p2.document is None
 
-class Test__set_temp_theme(object):
+class Test__set_temp_theme:
     def test_apply_None(self) -> None:
         d = Document()
         orig = d.theme
@@ -718,7 +717,7 @@ class Test__set_temp_theme(object):
         assert d._old_theme is orig
         assert d.theme is t
 
-class Test__unset_temp_theme(object):
+class Test__unset_temp_theme:
     def test_basic(self) -> None:
         t = Theme(json={})
         d = Document()

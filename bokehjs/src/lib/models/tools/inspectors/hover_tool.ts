@@ -8,12 +8,13 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
-import {replace_placeholders, Vars} from "core/util/templating"
-import {div, span} from "core/dom"
+import {replace_placeholders, Formatters, Vars} from "core/util/templating"
+import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
 import {isEmpty} from "core/util/object"
-import {isString, isFunction, isNumber} from "core/util/types"
+import {enumerate} from "core/util/iterator"
+import {isString, isArray, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
@@ -59,15 +60,18 @@ export class HoverToolView extends InspectToolView {
   model: HoverTool
 
   protected _ttviews: Map<Tooltip, TooltipView>
-
   protected _ttmodels: Map<GlyphRenderer, Tooltip> | null
-
   protected _computed_renderers: DataRenderer[] | null
+  protected _template_el?: HTMLElement
 
   initialize(): void {
     super.initialize()
     this._ttmodels = null
     this._ttviews = new Map()
+    const {tooltips} = this.model
+    if (isArray(tooltips)) {
+      this._template_el = this._create_template(tooltips)
+    }
   }
 
   remove(): void {
@@ -114,7 +118,14 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
+    // XXX: move this to lazy_initialize()
+    (async () => {
+      const views = await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
+      for (const ttview of views) {
+        ttview.render()
+      }
+    })()
+
     return ttmodels
   }
 
@@ -189,7 +200,6 @@ export class HoverToolView extends InspectToolView {
     const tooltip = this.ttmodels.get(renderer)
     if (tooltip == null)
       return
-    tooltip.clear()
 
     const selection_manager = renderer.get_selection_manager()
 
@@ -197,19 +207,22 @@ export class HoverToolView extends InspectToolView {
     if (renderer instanceof GlyphRenderer)
       indices = renderer.view.convert_selection_to_subset(indices)
 
-    if (indices.is_empty())
+    if (indices.is_empty()) {
+      tooltip.clear()
       return
+    }
 
     const ds = selection_manager.source
 
     const {sx, sy} = geometry
-    const xscale = renderer_view.scope.x_scale
-    const yscale = renderer_view.scope.y_scale
+    const xscale = renderer_view.coordinates.x_scale
+    const yscale = renderer_view.coordinates.y_scale
     const x = xscale.invert(sx)
     const y = yscale.invert(sy)
 
     const glyph = (renderer_view as any).glyph // XXX
 
+    const tooltips: [number, number, HTMLElement][] = []
     for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
@@ -249,13 +262,17 @@ export class HoverToolView extends InspectToolView {
         indices: indices.line_indices,
         name: renderer_view.model.name,
       }
-      tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
+      tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
     }
 
     for (const struct of indices.image_indices) {
-      const vars = {index: struct.index, x, y, sx, sy}
+      const vars = {
+        index: struct.index,
+        x, y, sx, sy,
+        name: renderer_view.model.name,
+      }
       const rendered = this._render_tooltips(ds, struct, vars)
-      tooltip.add(sx, sy, rendered)
+      tooltips.push([sx, sy, rendered])
     }
 
     for (const i of indices.indices) {
@@ -305,7 +322,7 @@ export class HoverToolView extends InspectToolView {
             indices: indices.multiline_indices,
             name: renderer_view.model.name,
           }
-          tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
+          tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
         }
       } else {
         // handle non-multiglyphs
@@ -337,16 +354,29 @@ export class HoverToolView extends InspectToolView {
           indices: indices.indices,
           name: renderer_view.model.name,
         }
-        tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
+        tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
       }
+    }
+
+    if (tooltips.length == 0)
+      tooltip.clear()
+    else {
+      const {content} = tooltip
+      empty(tooltip.content)
+      for (const [,, node] of tooltips) {
+        content.appendChild(node)
+      }
+
+      const [x, y] = tooltips[tooltips.length-1]
+      tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
     }
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     for (const r of this.computed_renderers) {
       const rv = this.plot_view.renderer_views.get(r)!
-      const x = rv.scope.x_scale.invert(geometry.sx)
-      const y = rv.scope.y_scale.invert(geometry.sy)
+      const x = rv.coordinates.x_scale.invert(geometry.sx)
+      const y = rv.coordinates.y_scale.invert(geometry.sy)
 
       const index = (r as any).data_source.inspected
       const g = {x, y, ...geometry}
@@ -355,61 +385,85 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
+  _create_template(tooltips: [string, string][]): HTMLElement {
+    const rows = div({style: {display: "table", borderSpacing: "2px"}})
+
+    for (const [label] of tooltips) {
+      const row = div({style: {display: "table-row"}})
+      rows.appendChild(row)
+
+      const label_cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
+      row.appendChild(label_cell)
+
+      const value_el = span()
+      value_el.dataset.value = ""
+
+      const swatch_el = span({class: bk_tooltip_color_block}, " ")
+      swatch_el.dataset.swatch = ""
+      undisplay(swatch_el)
+
+      const value_cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value}, value_el, swatch_el)
+      row.appendChild(value_cell)
+    }
+
+    return rows
+  }
+
+  _render_template(template: HTMLElement, tooltips: [string, string][], ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
+    const el = template.cloneNode(true) as HTMLElement
+
+    const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
+    const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
+
+    const color_re = /\$color(\[.*\])?:(\w*)/
+
+    for (const [[, value], j] of enumerate(tooltips)) {
+      const result = value.match(color_re)
+      if (result != null) {
+        const [, opts="", colname] = result
+        const column = ds.get_column(colname) // XXX: change to columnar ds
+        if (column == null) {
+          value_els[j].textContent = `${colname} unknown`
+          continue
+        }
+        const hex = opts.indexOf("hex") >= 0
+        const swatch = opts.indexOf("swatch") >= 0
+        let color = isNumber(i) ? column[i] : null
+        if (color == null) {
+          value_els[j].textContent = "(null)"
+          continue
+        }
+        if (hex)
+          color = color2hex(color)
+        value_els[j].textContent = color
+        if (swatch) {
+          swatch_els[j].style.backgroundColor = color
+          display(swatch_els[j])
+        }
+      } else {
+        const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
+        if (isString(content)) {
+          value_els[j].textContent = content
+        } else {
+          for (const el of content) {
+            value_els[j].appendChild(el)
+          }
+        }
+      }
+    }
+
+    return el
+  }
+
   _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
-      const el = div()
-      el.innerHTML = replace_placeholders(tooltips, ds, i, this.model.formatters, vars)
-      return el
+      const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
+      return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else {
-      const rows = div({style: {display: "table", borderSpacing: "2px"}})
-
-      for (const [label, value] of tooltips) {
-        const row = div({style: {display: "table-row"}})
-        rows.appendChild(row)
-
-        let cell: HTMLElement
-
-        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
-        row.appendChild(cell)
-
-        cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value})
-        row.appendChild(cell)
-
-        if (value.indexOf("$color") >= 0) {
-          const [, opts="", colname] = value.match(/\$color(\[.*\])?:(\w*)/)! // XXX!
-          const column = ds.get_column(colname) // XXX: change to columnar ds
-          if (column == null) {
-            const el = span({}, `${colname} unknown`)
-            cell.appendChild(el)
-            continue
-          }
-          const hex = opts.indexOf("hex") >= 0
-          const swatch = opts.indexOf("swatch") >= 0
-          let color = isNumber(i) ? column[i] : null
-          if (color == null) {
-            const el = span({}, "(null)")
-            cell.appendChild(el)
-            continue
-          }
-          if (hex)
-            color = color2hex(color)
-          let el = span({}, color)
-          cell.appendChild(el)
-          if (swatch) {
-            el = span({class: bk_tooltip_color_block, style: {backgroundColor: color}}, " ")
-            cell.appendChild(el)
-          }
-        } else {
-          const el = span()
-          el.innerHTML = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
-          cell.appendChild(el)
-        }
-      }
-
-      return rows
+      return this._render_template(this._template_el!, tooltips, ds, i, vars)
     }
   }
 }
@@ -419,7 +473,7 @@ export namespace HoverTool {
 
   export type Props = InspectTool.Props & {
     tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
-    formatters: p.Property<any> // XXX
+    formatters: p.Property<Formatters>
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
     mode: p.Property<HoverMode>

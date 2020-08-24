@@ -10,7 +10,7 @@ import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {some, every, includes} from "../core/util/array"
-import {clone} from "../core/util/object"
+import {clone, keys, entries} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {enumerate} from "core/util/iterator"
@@ -533,10 +533,22 @@ export class Figure extends Plot {
     return this._marker(models.CircleCross, args)
   }
 
+  circle_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.CircleDot, args)
+  }
+
   circle_x(args: Partial<MarkerArgs>): GlyphRenderer
   circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
   circle_x(...args: unknown[]): GlyphRenderer {
     return this._marker(models.CircleX, args)
+  }
+
+  circle_y(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_y(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.CircleY, args)
   }
 
   cross(args: Partial<MarkerArgs>): GlyphRenderer
@@ -563,10 +575,40 @@ export class Figure extends Plot {
     return this._marker(models.DiamondCross, args)
   }
 
+  diamond_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  diamond_dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.DiamondDot, args)
+  }
+
+  dot(args: Partial<MarkerArgs>): GlyphRenderer
+  dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.Dot, args)
+  }
+
+  hex(args: Partial<MarkerArgs>): GlyphRenderer
+  hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  hex(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.Hex, args)
+  }
+
+  hex_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  hex_dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.HexDot, args)
+  }
+
   inverted_triangle(args: Partial<MarkerArgs>): GlyphRenderer
   inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
   inverted_triangle(...args: unknown[]): GlyphRenderer {
     return this._marker(models.InvertedTriangle, args)
+  }
+
+  plus(args: Partial<MarkerArgs>): GlyphRenderer
+  plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  plus(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.Plus, args)
   }
 
   square(args: Partial<MarkerArgs>): GlyphRenderer
@@ -581,6 +623,18 @@ export class Figure extends Plot {
     return this._marker(models.SquareCross, args)
   }
 
+  square_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.SquareDot, args)
+  }
+
+  square_pin(args: Partial<MarkerArgs>): GlyphRenderer
+  square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_pin(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.SquarePin, args)
+  }
+
   square_x(args: Partial<MarkerArgs>): GlyphRenderer
   square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
   square_x(...args: unknown[]): GlyphRenderer {
@@ -593,10 +647,28 @@ export class Figure extends Plot {
     return this._marker(models.Triangle, args)
   }
 
+  triangle_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  triangle_dot(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.TriangleDot, args)
+  }
+
+  triangle_pin(args: Partial<MarkerArgs>): GlyphRenderer
+  triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  triangle_pin(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.TrianglePin, args)
+  }
+
   x(args: Partial<MarkerArgs>): GlyphRenderer
   x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
   x(...args: unknown[]): GlyphRenderer {
     return this._marker(models.X, args)
+  }
+
+  y(args: Partial<MarkerArgs>): GlyphRenderer
+  y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  y(...args: unknown[]): GlyphRenderer {
+    return this._marker(models.Y, args)
   }
 
   scatter(args: Partial<ScatterArgs>): GlyphRenderer
@@ -631,14 +703,13 @@ export class Figure extends Plot {
 
     const result: Attrs = {}
     const traits = new Set()
-    for (const pname in cls.prototype._props) {
+    for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
         if (props.hasOwnProperty(prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype._props.hasOwnProperty(trait)
-                 && props.hasOwnProperty(prefix+trait)) {
+        } else if (!cls.prototype._props.hasOwnProperty(trait) && props.hasOwnProperty(prefix+trait)) {
           result[pname] = props[prefix+trait]
         } else if (override_defaults.hasOwnProperty(trait)) {
           result[pname] = override_defaults[trait]
@@ -672,8 +743,7 @@ export class Figure extends Plot {
   }
 
   _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
-    for (const name in attrs) {
-      const value = attrs[name]
+    for (const [name, value] of entries(attrs)) {
       const prop = cls.prototype._props[name]
 
       if (prop != null) {

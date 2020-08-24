@@ -54,6 +54,12 @@ jobs:
         run: |
           node make test:lib
 
+      - name: Lint codebase
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make lint
+
       - name: Collect results
         if: always()
         shell: bash

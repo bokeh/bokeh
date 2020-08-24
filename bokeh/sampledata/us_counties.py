@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
-import xml.etree.cElementTree as et
+import xml.etree.ElementTree as et
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
@@ -72,7 +72,7 @@ def _read_data():
 
     with open_csv(external_path('US_Counties.csv')) as f:
         next(f)
-        reader = csv.reader(f, delimiter=str(','), quotechar=str('"'))
+        reader = csv.reader(f, delimiter=",", quotechar='"')
         for row in reader:
             name, dummy, state, dummy, geometry, dummy, dummy, dummy, det_name, state_id, county_id, dummy, dummy = row
             xml = et.fromstring(geometry)

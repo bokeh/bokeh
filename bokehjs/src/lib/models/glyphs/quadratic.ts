@@ -2,6 +2,7 @@ import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
+import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
@@ -49,6 +50,11 @@ export class QuadraticView extends GlyphView {
   model: Quadratic
   visuals: Quadratic.Visuals
 
+  protected _project_data(): void {
+    inplace.project_xy(this._x0, this._y0)
+    inplace.project_xy(this._x1, this._y1)
+  }
+
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
@@ -84,12 +90,8 @@ export class QuadraticView extends GlyphView {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterx(): number {
-    throw new Error("not implemented")
-  }
-
-  scentery(): number {
-    throw new Error("not implemented")
+  scenterxy(): [number, number] {
+    throw new Error(`${this}.scenterxy() is not implemented`)
   }
 }
 
@@ -123,7 +125,14 @@ export class Quadratic extends Glyph {
   static init_Quadratic(): void {
     this.prototype.default_view = QuadraticView
 
-    this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])
+    this.define<Quadratic.Props>({
+      x0: [ p.XCoordinateSpec, {field: "x0"} ],
+      y0: [ p.YCoordinateSpec, {field: "y0"} ],
+      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      cx: [ p.XCoordinateSpec, {field: "cx"} ],
+      cy: [ p.YCoordinateSpec, {field: "cy"} ],
+    })
     this.mixins<Quadratic.Mixins>(LineVector)
   }
 }

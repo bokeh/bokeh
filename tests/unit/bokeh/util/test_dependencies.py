@@ -25,16 +25,16 @@ import bokeh.util.dependencies as dep # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_import_optional(object):
 
+class Test_import_optional:
     def test_success(self) -> None:
         assert dep.import_optional('sys') is not None
 
     def test_fail(self) -> None:
         assert dep.import_optional('bleepbloop') is None
 
-class Test_import_required(object):
 
+class Test_import_required:
     def test_success(self) -> None:
         assert dep.import_required('sys', 'yep') is not None
 

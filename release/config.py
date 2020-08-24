@@ -4,48 +4,59 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+"""
+
+"""
 
 # Standard library imports
 import re
-from typing import Any, Callable, Dict
+from typing import Dict, Optional, Tuple
 
 # Bokeh imports
 from .enums import VersionType
-from .system import System
-from .ui import bright, red
+from .logger import LOG, Scrubber
 
-__all__ = (
-    "Config",
-    "StepType",
-)
+__all__ = ("Config",)
 
 # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
-ANY_VERSION = re.compile(r"^(\d+\.\d+\.\d+)((dev|rc)(\d+))?$")
+ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))((dev|rc)(\d+))?$")
 
-FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)?$")
+FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
-class Config(object):
-    def __init__(self, version: str, dry_run: bool = False) -> None:
-        if not ANY_VERSION.match(version):
-            raise ValueError(f"Invalid Bokeh version for build/release {version!r}")
+class Config:
+    def __init__(self, version: str) -> None:
+        m = ANY_VERSION.match(version)
+        if not m:
+            raise ValueError(f"Invalid version for Bokeh build/release {version!r}")
+        groups = m.groups()
+
         self.version: str = version
-        self.dry_run: bool = False
 
-        self.system = System(dry_run=dry_run)
+        self.base_version: str = groups[0]
+        self.base_version_tuple: Tuple[str, ...] = tuple(groups[1:4])
+        self.ext: Optional[str] = groups[4]
+        self.ext_type: str = groups[5]
+        self.ext_number: str = groups[6]
 
-        self.credentials: Dict[str, Any] = {}
-        self._last_any_version: str = ""
-        self._last_full_version: str = ""
+        self._secrets: Dict[str, str] = {}
 
-    def _to_js_version(self, v: str) -> str:
-        if FULL_VERSION.match(v):
-            return v
-        match = ANY_VERSION.match(v)
-        if not match:
-            raise ValueError(f"Invalid verison {v!r}")
-        (version, suffix, release, number) = match.groups()
-        return f"{version}-{release}.{number}"
+    def add_secret(self, name: str, secret: str) -> None:
+        """
+
+        """
+        if name in self._secrets:
+            raise RuntimeError()
+        LOG.add_scrubber(Scrubber(secret, name=name))
+        self._secrets[name] = secret
+
+    @property
+    def secrets(self) -> Dict[str, str]:
+        return self._secrets
+
+    @property
+    def prerelease(self) -> bool:
+        return self.version_type != VersionType.FULL
 
     @property
     def version_type(self) -> VersionType:
@@ -58,44 +69,26 @@ class Config(object):
 
     @property
     def js_version(self) -> str:
-        return self._to_js_version(self.version)
+        if self.ext is None:
+            return self.version
+        return f"{self.base_version}-{self.ext_type}.{self.ext_number}"
 
     @property
-    def last_any_version(self) -> str:
-        return self._last_any_version
-
-    @last_any_version.setter
-    def last_any_version(self, v: str) -> None:
-        m = ANY_VERSION.match(v)
-        if not m:
-            raise ValueError(f"Invalid Bokeh version {v!r}")
-        self._last_any_version = v
+    def release_level(self) -> str:
+        major, minor = self.base_version_tuple[:2]
+        return f"{major}.{minor}"
 
     @property
-    def js_last_any_version(self) -> str:
-        return self._to_js_version(self.last_any_version)
+    def staging_branch(self) -> str:
+        return f"staging-{self.version}"
 
     @property
-    def last_full_version(self) -> str:
-        return self._last_full_version
-
-    @last_full_version.setter
-    def last_full_version(self, v: str) -> None:
-        m = FULL_VERSION.match(v)
-        if not m:
-            raise ValueError(f"Invalid Bokeh version {v!r}")
-        self._last_full_version = v
+    def base_branch(self) -> str:
+        return f"branch-{self.release_level}"
 
     @property
-    def release_branch(self) -> str:
-        return f"release-{self.version}"
-
-    def abort(self) -> None:
-        print()
-        print(bright(red("!!! Tasks failed. The XXX has been aborted.")))
-        print()
-
-        raise RuntimeError()
-
-
-StepType = Callable[[Config, System], None]
+    def milestone_version(self) -> str:
+        major, minor, patch = self.base_version_tuple
+        if patch == "0":
+            return f"{major}.{minor}"
+        return self.base_version

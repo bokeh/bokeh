@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import {intersection} from "core/util/array"
+import {Indices} from "core/types"
 import {Filter} from "../filters/filter"
 import {ColumnarDataSource} from "./columnar_data_source"
 
@@ -11,8 +11,9 @@ export namespace CDSView {
   export type Props = Model.Props & {
     filters: p.Property<Filter[]>
     source: p.Property<ColumnarDataSource>
-    indices: p.Property<number[]>
+    indices: p.Property<Indices>
     indices_map: p.Property<{[key: string]: number}>
+    masked: p.Property<Indices | null>
   }
 }
 
@@ -32,8 +33,9 @@ export class CDSView extends Model {
     })
 
     this.internal({
-      indices:     [ p.Array, [] ],
-      indices_map: [ p.Any,   {} ],
+      indices:     [ p.Any       ],
+      indices_map: [ p.Any, {}   ],
+      masked:      [ p.Any, null ],
     })
   }
 
@@ -78,44 +80,44 @@ export class CDSView extends Model {
   }
 
   compute_indices(): void {
-    const indices = this.filters
-      .map((filter) => filter.compute_indices(this.source))
-      .filter((indices) => indices != null)
+    const {source} = this
+    if (source == null)
+      return
 
-    if (indices.length > 0)
-      this.indices = intersection.apply(this, indices)
-    else if (this.source instanceof ColumnarDataSource)
-      this.indices = this.source.get_indices()
+    // XXX: if the data source is empty, there still may be one
+    // index originating from glyph's scalar values.
+    const size = source.get_length() ?? 1
+    const indices = Indices.all_set(size)
 
+    for (const filter of this.filters) {
+      indices.intersect(filter.compute_indices(source))
+    }
+
+    this.indices = indices
+    this._indices = [...indices]
     this.indices_map_to_subset()
   }
 
+  private _indices: number[]
+
   indices_map_to_subset(): void {
     this.indices_map = {}
-    for (let i = 0; i < this.indices.length; i++){
-      this.indices_map[this.indices[i]] = i
+    for (let i = 0; i < this._indices.length; i++){
+      this.indices_map[this._indices[i]] = i
     }
   }
 
   convert_selection_from_subset(selection_subset: Selection): Selection {
-    const selection_full = new Selection()
-    selection_full.update_through_union(selection_subset)
-    const indices_1d = selection_subset.indices.map((i) => this.indices[i])
-    selection_full.indices = indices_1d
-    selection_full.image_indices = selection_subset.image_indices
-    return selection_full
+    const indices = selection_subset.indices.map((i) => this._indices[i])
+    return new Selection({...selection_subset.attributes, indices})
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    const selection_subset = new Selection()
-    selection_subset.update_through_union(selection_full)
-    const indices_1d = selection_full.indices.map((i) => this.indices_map[i])
-    selection_subset.indices = indices_1d
-    selection_subset.image_indices = selection_full.image_indices
-    return selection_subset
+    const indices = selection_full.indices.map((i) => this.indices_map[i])
+    return new Selection({...selection_full.attributes, indices})
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
-    return indices.map((i) => this.indices[i])
+    return indices.map((i) => this._indices[i])
   }
 }

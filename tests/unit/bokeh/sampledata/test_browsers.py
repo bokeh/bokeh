@@ -49,7 +49,7 @@ def test_icons() -> None:
     assert isinstance(bsb.icons, dict)
 
     # check detail for package data
-    assert set(bsb.icons.keys()).issubset(set(["Chrome", "Firefox", "Safari", "Opera", "IE"]))
+    assert set(bsb.icons.keys()).issubset({"Chrome", "Firefox", "Safari", "Opera", "IE"})
 
 #-----------------------------------------------------------------------------
 # Dev API

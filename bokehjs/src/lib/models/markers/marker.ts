@@ -1,15 +1,16 @@
 import {RenderOne} from "./defs"
 import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
-import type {MarkerGLGlyph} from "../glyphs/webgl/markers"
+import type {MarkerGL} from "../glyphs/webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {Class} from "core/class"
 
 export interface MarkerData extends XYGlyphData {
   _size: Arrayable<number>
@@ -25,9 +26,19 @@ export abstract class MarkerView extends XYGlyphView {
   visuals: Marker.Visuals
 
   /** @internal */
-  glglyph?: MarkerGLGlyph
+  glglyph_cls?: Class<MarkerGL>
+  glglyph?: MarkerGL
 
   protected _render_one: RenderOne
+
+  initialize(): void {
+    super.initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && this.glglyph_cls != null) {
+      this.glglyph = new this.glglyph_cls(webgl.gl, this)
+    }
+  }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
     for (const i of indices) {
@@ -51,9 +62,8 @@ export abstract class MarkerView extends XYGlyphView {
     }
   }
 
-  protected _mask_data(): number[] {
-    // dilate the inner screen region by max_size and map back to data space for use in
-    // spatial query
+  protected _mask_data(): Indices {
+    // dilate the inner screen region by max_size and map back to data space for use in spatial query
     const hr = this.renderer.plot_view.frame.bbox.h_range
     const sx0 = hr.start - this.max_size
     const sx1 = hr.end + this.max_size
@@ -111,7 +121,7 @@ export abstract class MarkerView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -119,7 +129,7 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = this.index.indices({x0, x1, y0, y1})
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
   }
 
@@ -140,9 +150,8 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    // using objects like this seems a little wonky, since the keys are coerced to
-    // stings, but it works
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): any {
+    // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -155,7 +164,12 @@ export abstract class MarkerView extends XYGlyphView {
     const angle: number[] = new Array(len)
     angle[index] = 0 // don't attempt to match glyph angle
 
-    this._render(ctx, [index], {sx, sy, _size: size, _angle: angle} as any) // XXX
+    return {sx, sy, _size: size, _angle: angle}
+  }
+
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+    const args = this._get_legend_args({x0, x1, y0, y1}, index)
+    this._render(ctx, [index], args) // XXX
   }
 }
 

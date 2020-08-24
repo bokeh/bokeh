@@ -30,8 +30,8 @@ import bokeh.application.handlers.handler as bahh # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_Handler(object):
 
+class Test_Handler:
     # Public methods ----------------------------------------------------------
 
     def test_create(self) -> None:

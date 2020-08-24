@@ -23,9 +23,9 @@ export type Expr<T> = {
   expr: Expression<T>
 }
 
-export type Scalar<T> = Value<T>
+export type Scalar<T> = Value<T> & Transformed<T>
 
-export type Vector<T> = Value<T> | Field | Expr<T>
+export type Vector<T> = (Value<T> | Field | Expr<T>) & Transformed<T>
 
 export type Dimensional<T, U> = T & {units?: U}
 

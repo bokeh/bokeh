@@ -50,9 +50,9 @@ PAGE = Template("""
 </body>
 """)
 
-@pytest.mark.selenium
-class Test_json_item(object):
 
+@pytest.mark.selenium
+class Test_json_item:
     def test_bkroot_added_to_target(self, driver, test_file_path_and_url) -> None:
         p = Plot()
         html = PAGE.render(item=json.dumps(json_item(p)), resources=INLINE.render())

@@ -49,30 +49,30 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ScriptRef(object):
 
+class ScriptRef:
     def __init__(self, url, type="text/javascript"):
         self.url = url
         self.type = type
 
-class Script(object):
 
+class Script:
     def __init__(self, content, type="text/javascript"):
         self.content = content
         self.type = type
 
-class StyleRef(object):
 
+class StyleRef:
     def __init__(self, url):
         self.url = url
 
-class Style(object):
 
+class Style:
     def __init__(self, content):
         self.content = content
 
-class Bundle(object):
 
+class Bundle:
     @classmethod
     def of(cls, js_files, js_raw, css_files, css_raw, hashes):
         return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw, hashes=hashes)
@@ -154,7 +154,6 @@ def bundle_for_objs_and_resources(objs, resources):
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets = _use_widgets(objs) if objs else True
     use_tables  = _use_tables(objs)  if objs else True
-    use_gl      = _use_gl(objs)      if objs else True
 
     js_files = []
     js_raw = []
@@ -167,8 +166,6 @@ def bundle_for_objs_and_resources(objs, resources):
             js_resources.js_components.remove("bokeh-widgets")
         if not use_tables and "bokeh-tables" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-tables")
-        if not use_gl and "bokeh-gl" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-gl")
 
         js_files.extend(js_resources.js_files)
         js_raw.extend(js_resources.js_raw)
@@ -186,7 +183,11 @@ def bundle_for_objs_and_resources(objs, resources):
         elif mode == "server":
             js_files.extend([ bundle.server_url for bundle in extensions ])
         elif mode == "cdn":
-            js_files.extend([ bundle.cdn_url for bundle in extensions if bundle.cdn_url is not None ])
+            for bundle in extensions:
+                if bundle.cdn_url is not None:
+                    js_files.append(bundle.cdn_url)
+                else:
+                    js_raw.append(Resources._inline(bundle.artifact_path))
         else:
             js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
@@ -331,19 +332,6 @@ def _any(objs, query):
             if any(query(ref) for ref in obj.references()):
                 return True
     return False
-
-def _use_gl(objs):
-    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
-
-    Args:
-        objs (seq[Model or Document]) :
-
-    Returns:
-        bool
-
-    '''
-    from ..models.plots import Plot
-    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
 def _use_tables(objs):
     ''' Whether a collection of Bokeh objects contains a TableWidget

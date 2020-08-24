@@ -37,7 +37,7 @@
   <td>PyPI</td>
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
+    <img src="https://pepy.tech/badge/bokeh/month"
          alt="PyPI downloads per month" />
     </a>
   </td>
@@ -322,6 +322,12 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
     <a href="https://www.rexhomes.com/">
     <img src="https://static.bokeh.org/sponsor/rex.jpg"
          alt="Rex Logo" width="100"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://nomnomdata.com/">
+    <img src="https://files.nomitall.nomnomdata.com/images/logo-small.svg"
+         alt="Nom Nom Data Logo" width="100"/>
     </a>
   </td>
 </tr>

@@ -57,7 +57,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class CommsHandle(object):
+class CommsHandle:
     '''
 
     '''

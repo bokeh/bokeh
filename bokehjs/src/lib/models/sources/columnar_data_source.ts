@@ -5,7 +5,7 @@ import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 import {Arrayable, ArrayableNew} from "core/types"
 import {isArray} from "core/util/types"
-import {uniq, range} from "core/util/array"
+import {uniq} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
@@ -104,10 +104,8 @@ export abstract class ColumnarDataSource extends DataSource {
     }
   }
 
-  get_indices(): number[] {
-    const length = this.get_length()
-    return range(0, length != null ? length : 1)
-    //TODO: returns [0] when no data, should it?
+  get length(): number {
+    return this.get_length() ?? 0
   }
 
   clear(): void {

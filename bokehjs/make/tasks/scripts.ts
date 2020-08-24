@@ -52,8 +52,8 @@ function min_js(js: string): string {
 }
 
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, gl, api, widgets, tables} = paths.lib
-  const packages = [bokehjs, gl, api, widgets, tables]
+  const {bokehjs, api, widgets, tables} = paths.lib
+  const packages = [bokehjs, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
@@ -82,8 +82,8 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
 })
 
 task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, gl, api, widgets, tables} = paths.lib_legacy
-  const packages = [bokehjs, gl, api, widgets, tables]
+  const {bokehjs, api, widgets, tables} = paths.lib_legacy
+  const packages = [bokehjs, api, widgets, tables]
 
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),

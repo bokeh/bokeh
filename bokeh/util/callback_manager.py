@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class EventCallbackManager(object):
+class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
     triggering event callbacks on the Python side.
 
@@ -94,7 +94,7 @@ class EventCallbackManager(object):
             self.document._subscribed_models[key].add(self)
 
 
-class PropertyCallbackManager(object):
+class PropertyCallbackManager:
     ''' A mixin class to provide an interface for registering and
     triggering callbacks.
 

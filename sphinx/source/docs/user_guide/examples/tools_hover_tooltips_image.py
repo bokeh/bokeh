@@ -17,6 +17,7 @@ data = dict(image=[ramp, steps, bitmask],
             dh=[10,  10, 25])
 
 TOOLTIPS = [
+    ('name', "$name"),
     ('index', "$index"),
     ('pattern', '@pattern'),
     ("x", "$x"),
@@ -25,7 +26,7 @@ TOOLTIPS = [
     ('squared', '@squared')
 ]
 
-p = figure( x_range=(0, 35), y_range=(0, 35), tools='hover,wheel_zoom', tooltips=TOOLTIPS)
-p.image(source=data, image='image', x='x', y='y', dw='dw', dh='dh', palette="Inferno256")
+p = figure(x_range=(0, 35), y_range=(0, 35), tools='hover,wheel_zoom', tooltips=TOOLTIPS)
+p.image(source=data, image='image', x='x', y='y', dw='dw', dh='dh', palette="Inferno256", name="Image Glyph")
 
 show(p)

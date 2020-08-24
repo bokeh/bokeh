@@ -1,16 +1,18 @@
 import {Signal0} from "./signaling"
+import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray} from "./types"
+import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {is_color} from "./util/color"
+import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 import {settings} from "./settings"
+import {Kind} from "./kinds"
 
 function valueToString(value: any): string {
   try {
@@ -36,7 +38,7 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?, PropertyOptions?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | Kind<T>, (T | (() => T))?, PropertyOptions?] : never
 }
 
 export type PropertyOptions = {
@@ -45,12 +47,16 @@ export type PropertyOptions = {
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
+  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
   readonly prototype: Property<T>
 }
 
 export abstract class Property<T = unknown> {
   __value__: T
+
+  get is_value(): boolean {
+    return this.spec.value !== undefined
+  }
 
   get syncable(): boolean {
     return !this.internal
@@ -91,6 +97,7 @@ export abstract class Property<T = unknown> {
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
+              readonly kind: Kind<T>,
               readonly default_value?: (obj: HasProps) => T,
               initial_value?: T,
               options: PropertyOptions = {}) {
@@ -142,14 +149,14 @@ export abstract class Property<T = unknown> {
       throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
   }
 
-  valid(_value: unknown): boolean {
-    return true
+  valid(value: unknown): boolean {
+    return this.kind.valid(value)
   }
 
   // ----- property accessors
 
   value(do_spec_transform: boolean = true): any {
-    if (this.spec.value === undefined)
+    if (!this.is_value)
       throw new Error("attempted to retrieve property value for property without value specification")
     let ret = this.normalize([this.spec.value])[0]
     if (this.spec.transform != null && do_spec_transform)
@@ -162,11 +169,13 @@ export abstract class Property<T = unknown> {
 // Primitive Properties
 //
 
+export class PrimitiveProperty<T> extends Property<T> {}
+
 export class Any extends Property<any> {}
 
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
-    return isArray(value) || value instanceof Float64Array
+    return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
   }
 }
 
@@ -238,17 +247,17 @@ export abstract class EnumProperty<T extends string> extends Property<T> {
   }
 }
 
-export function Enum<T extends string>(values: T[]): PropertyConstructor<T> {
+export function Enum<T extends string>(values: Iterable<T>): PropertyConstructor<T> {
   return class extends EnumProperty<T> {
     get enum_values(): T[] {
-      return values
+      return [...values]
     }
   }
 }
 
 export class Direction extends EnumProperty<enums.Direction> {
   get enum_values(): enums.Direction[] {
-    return enums.Direction
+    return [...enums.Direction]
   }
 
   normalize(values: any): any {
@@ -263,6 +272,7 @@ export class Direction extends EnumProperty<enums.Direction> {
   }
 }
 
+/* TODO: remove this {{{ */
 export const Anchor = Enum(enums.Anchor)
 export const AngleUnits = Enum(enums.AngleUnits)
 export const BoxOrigin = Enum(enums.BoxOrigin)
@@ -310,6 +320,7 @@ export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
 export const TooltipAttachment = Enum(enums.TooltipAttachment)
 export const UpdateMode = Enum(enums.UpdateMode)
 export const VerticalAlign = Enum(enums.VerticalAlign)
+/* }}} */
 
 //
 // DataSpec properties
@@ -368,25 +379,35 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
-    let ret: any
+    let array: Arrayable
+
+    const length = source.get_length() ?? 1
 
     if (this.spec.field != null) {
-      ret = this.normalize(source.get_column(this.spec.field))
-      if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+      const column = source.get_column(this.spec.field)
+      if (column != null)
+        array = this.normalize(column)
+      else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+        const missing = new NumberArray(length)
+        missing.fill(NaN)
+        array = missing
+      }
     } else if (this.spec.expr != null) {
-      ret = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize(this.spec.expr.v_compute(source))
     } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
       const value = this.value(false) // don't apply any spec transform
-      ret = repeat(value, length)
+      if (isNumber(value)) {
+        const values = new NumberArray(length)
+        values.fill(value)
+        array = values
+      } else
+        array = repeat(value, length)
     }
 
     if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
-    return ret
+      array = this.spec.transform.v_compute(array)
+    return array
   }
 }
 
@@ -422,9 +443,26 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
   }
 }
 
+export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
+  readonly dimension: "x" | "y"
+}
+
+export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
+export abstract class CoordinateSeqSpec extends BaseCoordinateSpec<Arrayable<number> | Arrayable<Factor>> {}
+export abstract class CoordinateSeqSeqSeqSpec extends BaseCoordinateSpec<number[][][] | Factor[][][]> {}
+
+export class XCoordinateSpec extends CoordinateSpec { readonly dimension = "x" }
+export class YCoordinateSpec extends CoordinateSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSpec extends CoordinateSeqSpec { readonly dimension = "y" }
+
+export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "x" }
+export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
+
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" as "rad" }
-  get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
+  get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
@@ -436,7 +474,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits { return "data" as "data" }
-  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
+  get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {
@@ -451,11 +489,23 @@ export class NumberSpec extends DataSpec<number> {
   }
 }
 
-export class CoordinateSpec extends DataSpec<number | Factor> {}
-
-export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
-
-export class ColorSpec extends DataSpec<types.Color | null> {}
+export class ColorSpec extends DataSpec<types.Color | null> {
+  array(source: ColumnarDataSource): ColorArray {
+    const colors = super.array(source)
+    const n = colors.length
+    const array = new ColorArray(n)
+    for (let i = 0; i < n; i++) {
+      const color = colors[i] as types.Color | number /* uint32 */ | null
+      if (isNumber(color))
+        array[i] = color
+      else {
+        const rgba = color2rgba(color)
+        array[i] = encode_rgba(rgba)
+      }
+    }
+    return array
+  }
+}
 
 export class FontSizeSpec extends DataSpec<string> {}
 

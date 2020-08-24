@@ -46,4 +46,8 @@ export abstract class Range extends Model {
   get is_reversed(): boolean {
     return this.start > this.end
   }
+
+  get is_valid(): boolean {
+    return !isNaN(this.min) && !isNaN(this.max)
+  }
 }

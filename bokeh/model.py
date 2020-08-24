@@ -73,7 +73,7 @@ def collect_filtered_models(discard, *input_values):
 
     '''
 
-    ids = set([])
+    ids = set()
     collected = []
     queued = []
 
@@ -365,18 +365,13 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     # Public methods ----------------------------------------------------------
 
     def js_on_event(self, event, *callbacks):
-
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
-        if event not in self.js_event_callbacks:
-            self.js_event_callbacks[event] = []
+        old_callbacks = self.js_event_callbacks.get("event", [])
+        new_callbacks = [ callback for callback in callbacks if callback not in old_callbacks ]
 
-        for callback in callbacks:
-            if callback in self.js_event_callbacks[event]:
-                continue
-            self.js_event_callbacks[event].append(callback)
-
+        self.js_event_callbacks[event] = old_callbacks + new_callbacks
 
     def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.

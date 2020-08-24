@@ -71,7 +71,7 @@ In the near future, a property ``image_indices`` will be added to support
 hit testing of image glyphs.
 
 All code should update to use these new properties. For now *read only*
-access to things like ``selected['1d'].indicies`` will continue to function
+access to things like ``selected['1d'].indices`` will continue to function
 as before for compatibility. However, programmatically *setting* selections
 must now go through the mode properties, i.e. ``.indices``, ``.line_indices``,
 etc.
@@ -118,7 +118,7 @@ method call that added the callback. Example:
 Sphinx Version
 ~~~~~~~~~~~~~~
 
-The `bokeh.sphinxext` Sphinx extension has been updated to work with currnt
+The `bokeh.sphinxext` Sphinx extension has been updated to work with current
 versions. Sphinx >= 1.6 is now required to use the extension.
 
 .. _project roadmap: https://bokeh.org/roadmap

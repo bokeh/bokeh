@@ -1,9 +1,8 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
-import {find_last_index} from "core/util/array"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, RaggedArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -12,16 +11,14 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
+import {inplace} from "core/util/projections"
 
 export interface PatchesData extends GlyphData {
-  _xs: NumberArray[]
-  _ys: NumberArray[]
+  _xs: RaggedArray
+  _ys: RaggedArray
 
-  sxs: NumberArray[]
-  sys: NumberArray[]
-
-  sxss: Arrayable<number>[][]
-  syss: Arrayable<number>[][]
+  sxs: RaggedArray
+  sys: RaggedArray
 }
 
 export interface PatchesView extends PatchesData {}
@@ -30,51 +27,16 @@ export class PatchesView extends GlyphView {
   model: Patches
   visuals: Patches.Visuals
 
-  private _build_discontinuous_object(nanned_qs: Arrayable<number>[]): Arrayable<number>[][] {
-    // _s is this.xs, this.ys, this.sxs, this.sys
-    // an object of n 1-d arrays in either data or screen units
-    //
-    // Each 1-d array gets broken to an array of arrays split
-    // on any NaNs
-    //
-    // So:
-    // { 0: [x11, x12],
-    //   1: [x21, x22, x23],
-    //   2: [x31, NaN, x32]
-    // }
-    // becomes
-    // { 0: [[x11, x12]],
-    //   1: [[x21, x22, x23]],
-    //   2: [[x31],[x32]]
-    // }
-    const ds: number[][][] = []
-    for (let i = 0, end = nanned_qs.length; i < end; i++) {
-      ds[i] = []
-      let qs = [...nanned_qs[i]]
-      while (qs.length > 0) {
-        const nan_index = find_last_index(qs, (q) => isNaN(q))
-
-        let qs_part
-        if (nan_index >= 0)
-          qs_part = qs.splice(nan_index)
-        else {
-          qs_part = qs
-          qs = []
-        }
-
-        const denanned = qs_part.filter((q) => !isNaN(q))
-        ds[i].push(denanned)
-      }
-    }
-    return ds
+  protected _project_data(): void {
+    inplace.project_xy(this._xs.array, this._ys.array)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs[i]
-      const ysi = this._ys[i]
+      const xsi = this._xs.get(i)
+      const ysi = this._ys.get(i)
 
       if (xsi.length == 0)
         index.add_empty()
@@ -87,17 +49,14 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     const xr = this.renderer.plot_view.frame.x_range
     const [x0, x1] = [xr.min, xr.max]
 
     const yr = this.renderer.plot_view.frame.y_range
     const [y0, y1] = [yr.min, yr.max]
 
-    const indices = this.index.indices({x0, x1, y0, y1})
-
-    // TODO (bev) this should be under test
-    return indices.sort((a, b) => a - b)
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
@@ -119,13 +78,9 @@ export class PatchesView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
-    // this.sxss and this.syss are used by _hit_point and sxc, syc
-    // This is the earliest we can build them, and only build them once
-    this.sxss = this._build_discontinuous_object(sxs)
-    this.syss = this._build_discontinuous_object(sys)
-
     for (const i of indices) {
-      const [sx, sy] = [sxs[i], sys[i]]
+      const sx = sxs.get(i)
+      const sy = sys.get(i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
@@ -151,10 +106,9 @@ export class PatchesView extends GlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices = []
 
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
-      const sxss = this.sxs[index]
-      const syss = this.sys[index]
+    for (const index of candidates) {
+      const sxss = this.sxs.get(index)
+      const syss = this.sys.get(index)
       let hit = true
       for (let j = 0, endj = sxss.length; j < endj; j++) {
         const sx = sxss[j]
@@ -179,16 +133,25 @@ export class PatchesView extends GlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
-
     const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
-      const sxs = this.sxss[index]
-      const sys = this.syss[index]
-      for (let j = 0, endj = sxs.length; j < endj; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j])) {
-          indices.push(index)
+
+    for (const index of candidates) {
+      const sxsi = this.sxs.get(index)
+      const sysi = this.sys.get(index)
+
+      const n = sxsi.length
+      for (let k = 0, j = 0;; j++) {
+        if (isNaN(sxsi[j]) || j == n) {
+          const sxsi_kj = sxsi.subarray(k, j)
+          const sysi_kj = sysi.subarray(k, j)
+          if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
+            indices.push(index)
+            break
+          }
+          k = j + 1
         }
+        if (j == n)
+          break
       }
     }
 
@@ -199,37 +162,34 @@ export class PatchesView extends GlyphView {
     return sum(array) / array.length
   }
 
-  scenterx(i: number, sx: number, sy: number): number {
-    if (this.sxss[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sxs[i])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxss[i]
-      const sys = this.syss[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j]))
-          return this._get_snap_coord(sxs[j])
-      }
-    }
+  scenterxy(i: number, sx: number, sy: number): [number, number] {
+    const sxsi = this.sxs.get(i)
+    const sysi = this.sys.get(i)
 
-    unreachable()
-  }
+    const n = sxsi.length
+    let has_nan = false
+    for (let k = 0, j = 0;; j++) {
+      const this_nan = isNaN(sxsi[j])
+      has_nan = has_nan || this_nan
 
-  scentery(i: number, sx: number, sy: number): number {
-    if (this.syss[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sys[i])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxss[i]
-      const sys = this.syss[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j], sys[j]))
-          return this._get_snap_coord(sys[j])
+      if (j == n && !has_nan) {
+        const scx = this._get_snap_coord(sxsi)
+        const scy = this._get_snap_coord(sysi)
+        return [scx, scy]
       }
+
+      if (this_nan || j == n) {
+        const sxsi_kj = sxsi.subarray(k, j)
+        const sysi_kj = sysi.subarray(k, j)
+        if (hittest.point_in_poly(sx, sy, sxsi_kj, sysi_kj)) {
+          const scx = this._get_snap_coord(sxsi_kj)
+          const scy = this._get_snap_coord(sysi_kj)
+          return [scx, scy]
+        }
+        k = j + 1
+      }
+      if (j == n)
+        break
     }
 
     unreachable()
@@ -266,7 +226,10 @@ export class Patches extends Glyph {
   static init_Patches(): void {
     this.prototype.default_view = PatchesView
 
-    this.coords([['xs', 'ys']])
+    this.define<Patches.Props>({
+      xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
+      ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
+    })
     this.mixins<Patches.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

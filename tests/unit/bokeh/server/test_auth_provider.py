@@ -47,7 +47,7 @@ def null_auth():
 
 Test___all__ = verify_all(bsa, ALL)
 
-class TestNullAuth(object):
+class TestNullAuth:
     def test_endpoints(self, null_auth) -> None:
         assert null_auth.endpoints == []
 
@@ -72,7 +72,7 @@ class TestNullAuth(object):
     def test_logout_handler(self, null_auth) -> None:
         assert null_auth.logout_handler == None
 
-class TestAuthModule_properties(object):
+class TestAuthModule_properties:
     def test_no_endpoints(self) -> None:
         def func(filename):
             am = bsa.AuthModule(filename)
@@ -231,7 +231,7 @@ class LogoutHandler(RequestHandler): pass
     """, func, suffix='.py')
 
 
-class TestAuthModule_validation(object):
+class TestAuthModule_validation:
     def test_no_file(self) -> None:
         with pytest.raises(ValueError) as e:
             bsa.AuthModule("junkjunkjunk")

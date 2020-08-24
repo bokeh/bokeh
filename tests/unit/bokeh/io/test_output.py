@@ -32,8 +32,8 @@ import bokeh.io.output as bio # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_output_file(object):
 
+class Test_output_file:
     @patch('bokeh.io.state.State.output_file')
     def test_no_args(self, mock_output_file) -> None:
         default_kwargs = dict(title="Bokeh Plot", mode=None, root_dir=None)
@@ -50,8 +50,8 @@ class Test_output_file(object):
         assert mock_output_file.call_args[0] == ("foo.html",)
         assert mock_output_file.call_args[1] == kwargs
 
-class Test_output_notebook(object):
 
+class Test_output_notebook:
     @patch('bokeh.io.output.run_notebook_hook')
     def test_no_args(self, mock_run_notebook_hook) -> None:
         default_load_jupyter_args = (None, False, False, 5000)

@@ -13,26 +13,37 @@ function event(event_name: string) {
 }
 
 export abstract class BokehEvent {
-
   /* prototype */ event_name: string
-
-  origin: HasProps | null = null
 
   to_json(): EventJSON {
     const {event_name} = this
     return {event_name, event_values: this._to_json()}
   }
 
+  protected abstract _to_json(): JSON
+}
+
+export abstract class ModelEvent extends BokehEvent {
+
+  origin: HasProps | null = null
+
   protected _to_json(): JSON {
     return {model: this.origin}
   }
 }
 
+@event("document_ready")
+export class DocumentReady extends BokehEvent {
+  protected _to_json(): JSON {
+    return {}
+  }
+}
+
 @event("button_click")
-export class ButtonClick extends BokehEvent {}
+export class ButtonClick extends ModelEvent {}
 
 @event("menu_item_click")
-export class MenuItemClick extends BokehEvent {
+export class MenuItemClick extends ModelEvent {
 
   constructor(readonly item: string) {
     super()
@@ -46,7 +57,7 @@ export class MenuItemClick extends BokehEvent {
 
 // A UIEvent is an event originating on a canvas this includes.
 // DOM events such as keystrokes as well as hammer events and LOD events.
-export abstract class UIEvent extends BokehEvent {}
+export abstract class UIEvent extends ModelEvent {}
 
 @event("lodstart")
 export class LODStart extends UIEvent {}

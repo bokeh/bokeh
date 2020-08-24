@@ -52,7 +52,6 @@ void main()
     float point_size = SQRT_2*v_size  + 2.0 * (v_linewidth + 1.5*u_antialias);
     float distance = marker(P*point_size, v_size);
     gl_FragColor = outline(distance, v_linewidth, u_antialias, v_fg_color, v_bg_color);
-    //gl_FragColor.rgb *= gl_FragColor.a;  // pre-multiply alpha
 }
 `
 

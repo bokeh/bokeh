@@ -1,6 +1,7 @@
 import {Document, DocJson} from "../document"
 import {logger} from "../core/logging"
 import {unescape, uuid4} from "../core/util/string"
+import {entries} from "core/util/object"
 import {isString} from "../core/util/types"
 import {defer} from "core/util/callback"
 import {View} from "core/view"
@@ -51,8 +52,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
 
   const docs: {[key: string]: Document} = {}
-  for (const docid in docs_json) {
-    const doc_json = docs_json[docid]
+  for (const [docid, doc_json] of entries(docs_json)) {
     docs[docid] = Document.from_json(doc_json)
   }
 

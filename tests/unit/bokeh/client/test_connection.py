@@ -27,7 +27,7 @@ import bokeh.client.connection as bcc # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class FakeSess(object):
+class FakeSess:
     id = "session_id"
 
 #-----------------------------------------------------------------------------
@@ -38,8 +38,8 @@ class FakeSess(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_ClientConnection(object):
 
+class Test_ClientConnection:
     def test_creation(self) -> None:
         c = bcc.ClientConnection("session", "wsurl")
         assert c.url == "wsurl"

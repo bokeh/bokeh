@@ -20,6 +20,7 @@ from itertools import chain
 # Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin
 from bokeh.core.enums import NamedColor as Color
+from bokeh.core.property.dataspec import field
 
 # Module under test
  # isort:skip
@@ -89,8 +90,8 @@ def check_text_properties(model, prefix="", font_size='16px', baseline='bottom',
     assert getattr(model, prefix + "text_baseline") == baseline
 
 def check_marker_properties(marker):
-    assert marker.x is None
-    assert marker.y is None
+    assert marker.x == field("x")
+    assert marker.y == field("y")
     assert marker.size == 4
 
 #-----------------------------------------------------------------------------

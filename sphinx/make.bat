@@ -5,7 +5,7 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
-set BUILDDIR=_build
+set BUILDDIR=build
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% source
 set I18NSPHINXOPTS=%SPHINXOPTS% .
 if NOT "%PAPER%" == "" (
@@ -27,8 +27,7 @@ if "%1" == "help" (
 )
 
 if "%1" == "clean" (
-	for /d %%i in (%BUILDDIR%\*) do rmdir /q /s %%i
-	del /q /s %BUILDDIR%\*
+	rmdir %BUILDDIR% /s /q
 	del /q /s source\docs\gallery\*
 	goto end
 )
@@ -39,7 +38,7 @@ if "%1" == "all" (
 
 if "%1" == "html" (
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%\html
-
+	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h
 	if errorlevel 1 exit /b 1
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.

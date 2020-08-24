@@ -191,7 +191,7 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   refresh(): void {
-    const groups = this.extractGroups(this.view.indices)
+    const groups = this.extractGroups([...this.view.indices])
     const labels = this.source.data[this.columns[0].field!]
 
     if (groups.length) {
@@ -275,10 +275,10 @@ export class DataCubeView extends DataTableView {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
-      forceFitColumns: this.model.fit_columns,
+      autosizeColsMode: this.autosize,
       multiColumnSort: false,
       editable: this.model.editable,
-      autoEdit: false,
+      autoEdit: this.model.auto_edit,
       rowHeight: this.model.row_height,
     }
 

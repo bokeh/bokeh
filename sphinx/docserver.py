@@ -32,7 +32,7 @@ def welcome():
 @app.route('/versions.json')
 def send_versions():
     return flask.send_from_directory(
-        os.path.join(_basedir, "sphinx"), "test_versions.json")
+        os.path.join(_basedir, "sphinx"), "versions.json")
 
 @app.route('/alert.html')
 def send_alert():

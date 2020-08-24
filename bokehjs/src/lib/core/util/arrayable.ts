@@ -1,5 +1,6 @@
 import {Arrayable, ArrayableNew} from "../types"
 import {isArray} from "./types"
+import {clamp} from "./math"
 
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
@@ -83,6 +84,7 @@ export function subselect<T>(array: Arrayable<T>, indices: Arrayable<number>): A
 }
 
 export function map(array: Float64Array, fn: (item: number, i: number, array: Float64Array) => number): Float64Array
+export function map(array: Float32Array, fn: (item: number, i: number, array: Float32Array) => number): Float32Array
 export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
 
@@ -297,4 +299,81 @@ export function sorted_index<T>(array: Arrayable<T>, value: T): number {
       high = mid
   }
   return low
+}
+
+export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
+  const nbins = bin_edges.length - 1
+  const counts = Array(nbins).fill(0)
+  for (let i = 0; i < data.length; i++) {
+    const sample = data[i]
+    const index = sorted_index(bin_edges, sample)
+    const bin = clamp(index - 1, 0, nbins - 1)
+    counts[bin] += 1
+  }
+  return counts
+}
+
+export function interpolate(points: Arrayable<number>, x_values: Arrayable<number>, y_values: Arrayable<number>): Arrayable<number> {
+  // Implementation ported from np.interp
+
+  const n = points.length
+  const results: number[] = new Array(n)
+
+  for (let i = 0; i < n; i++) {
+    const point = points[i]
+
+    if (isNaN(point)) {
+      results[i] = point
+      continue
+    }
+
+    const index = left_edge_index(point, x_values)
+    if (index == -1)
+      results[i] = y_values[0]
+    else if (index == x_values.length)
+      results[i] = y_values[y_values.length-1]
+    else if (index == x_values.length-1 || x_values[index] == point) {
+      results[i] = y_values[index]
+    } else {
+      const x0 = x_values[index]
+      const y0 = y_values[index]
+      const x1 = x_values[index + 1]
+      const y1 = y_values[index + 1]
+      results[i] = lerp(point, x0, y0, x1, y1)
+    }
+  }
+  return results
+}
+
+function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number {
+  const slope = (y1 - y0)/(x1 - x0)
+  let res = slope*(x-x0) + y0
+  if (!isFinite(res)) {
+    res = slope*(x-x1) + y1
+    if (!isFinite(res) && (y0 == y1))
+      res = y0
+  }
+  return res
+}
+
+export function left_edge_index(point: number, intervals: Arrayable<number>): number {
+  if (point < intervals[0])
+    return -1
+  if (point > intervals[intervals.length - 1])
+    return intervals.length
+  let leftEdgeIndex = 0
+  let rightEdgeIndex = intervals.length - 1
+  while (rightEdgeIndex - leftEdgeIndex != 1) {
+    const indexOfNumberToCompare = leftEdgeIndex + Math.floor((rightEdgeIndex - leftEdgeIndex)/2)
+    if (point >= intervals[indexOfNumberToCompare])
+      leftEdgeIndex = indexOfNumberToCompare
+    else
+      rightEdgeIndex = indexOfNumberToCompare
+  }
+  return leftEdgeIndex
+}
+
+export function norm(array: Arrayable<number>, start: number, end: number): Arrayable<number> {
+  const span = end - start
+  return map(array, (x) => (x - start) / span)
 }

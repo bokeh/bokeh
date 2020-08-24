@@ -23,10 +23,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-import socket
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from io import open
 from urllib.request import URLopener
 
 # External imports
@@ -59,14 +57,13 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """GET method handler."""
         try:
-            path = self.path[1:].split('?')[0]
-            html = open(os.path.join(HTML_ROOT, path), 'r', encoding='latin-1')
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(html.read().encode('utf-8'))
-            html.close()
-        except IOError:
+            path = self.path[1:].split("?")[0]
+            with open(os.path.join(HTML_ROOT, path), encoding="latin-1") as f:
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                self.wfile.write(f.read().encode("utf-8"))
+        except OSError:
             self.send_error(404, 'File Not Found: %s' % path)
 
     def log_message(self, format, *args):
@@ -74,7 +71,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         pass
 
 
-class SimpleWebServer(object):
+class SimpleWebServer:
     """A very basic web server."""
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT):
         self.stop_serving = False
@@ -85,7 +82,7 @@ class SimpleWebServer(object):
                 self.host = host
                 self.port = port
                 break
-            except socket.error:
+            except OSError:
                 log.debug("port %d is in use, trying to next one" % port)
                 port += 1
 
@@ -108,7 +105,7 @@ class SimpleWebServer(object):
         try:
             # This is to force stop the server loop
             URLopener().open("http://%s:%d" % (self.host, self.port))
-        except IOError:
+        except OSError:
             pass
         log.info("Shutting down the webserver")
         self.thread.join()

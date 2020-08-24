@@ -59,7 +59,7 @@ export class Comparator {
     b_stack.push(b)
 
     const result = (() => {
-      if (equals in a && equals in b) {
+      if (a[equals] != null && b[equals] != null) {
         return a[equals](b, this)
       }
 
@@ -89,6 +89,10 @@ export class Comparator {
             return this.eq(`${a}`, `${b}`)
           }
         }
+      }
+
+      if (a instanceof Node) {
+        return this.nodes(a, b)
       }
 
       throw Error(`can't compare objects of type ${class_name}`)
@@ -170,6 +174,19 @@ export class Comparator {
       if (!b.hasOwnProperty(key) || !this.eq(a[key], b[key]))
         return false
     }
+
+    return true
+  }
+
+  nodes(a: Node, b: Node): boolean {
+    if (a.nodeType != b.nodeType)
+      return false
+
+    if (a.textContent != b.textContent)
+      return false
+
+    if (!this.iterables(a.childNodes, b.childNodes))
+      return false
 
     return true
   }

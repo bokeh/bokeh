@@ -77,7 +77,7 @@ class AutoloadJsHandler(SessionHandler):
         bundle = bundle_for_objs_and_resources(None, resources)
 
         render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
 

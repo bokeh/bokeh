@@ -323,7 +323,7 @@ describe("core/util/ndarray module", () => {
   it("should support ndarray() function", () => {
     const nd0 = ndarray([1, 2, 3, 4, 5, 6])
     expect(is_NDArray(nd0)).to.be.true
-    expect(nd0.dtype).to.be.equal("float64")
+    expect(nd0.dtype).to.be.equal("float32")
     expect(nd0.shape).to.be.equal([6])
   })
 

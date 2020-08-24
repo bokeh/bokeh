@@ -98,6 +98,8 @@ Pull Request:
 * **DO** keep the discussions focused. When a new or related topic comes up it's often better to
   create new issue than to side track the discussion.
 
+* **DO** have a look at [BEP-1](https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management) to see how we manage issues and pull requests in bokeh.
+
 * **DON'T** surprise us with big pull requests. Instead, file an issue and start a discussion so we
   can agree on a direction before you invest a large amount of time.
 

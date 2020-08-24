@@ -180,16 +180,22 @@ describe("templating module", () => {
 
     it("should replace field names with values as-is with safe format", () => {
       const s1 = tmpl.replace_placeholders("stuff @foo{safe}", source, 0)
-      expect(s1).to.be.equal("stuff 10")
+      const n1 = document.createTextNode("stuff 10")
+      expect(s1).to.be.equal([n1])
 
       const s2 = tmpl.replace_placeholders("stuff @foo{safe}", source, 1)
-      expect(s2).to.be.equal("stuff 1.002")
+      const n2 = document.createTextNode("stuff 1.002")
+      expect(s2).to.be.equal([n2])
 
       const s3 = tmpl.replace_placeholders("stuff @bar{safe}", source, 0)
-      expect(s3).to.be.equal("stuff a")
+      const n3 = document.createTextNode("stuff a")
+      expect(s3).to.be.equal([n3])
 
       const s4 = tmpl.replace_placeholders("stuff @bar{safe}", source, 1)
-      expect(s4).to.be.equal("stuff <div>b</div>")
+      const n4_0 = document.createTextNode("stuff ")
+      const n4_1 = document.createElement("div")
+      n4_1.textContent = "b"
+      expect(s4).to.be.equal([n4_0, n4_1])
     })
 
     it("should ignore extra/unused formatters", () => {

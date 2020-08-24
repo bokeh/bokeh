@@ -1,15 +1,16 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Arrayable, Attrs, PlainObject} from "./types"
+import {Arrayable, Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
+import * as k from "./kinds"
 import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {entries, clone, extend, isEmpty} from "./util/object"
+import {values, entries, clone, extend} from "./util/object"
 import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -18,6 +19,7 @@ import {is_NDArray} from "./util/ndarray"
 import {encode_NDArray} from "./util/serialization"
 import {equals, Equals, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
+import * as kinds from "./kinds"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
@@ -46,7 +48,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
   id: string
 }
 
-export type PropertyGenerator = Generator<Property, void>
+export type PropertyGenerator = Generator<Property, void, undefined>
 
 export abstract class HasProps extends Signalable() implements Equals, Printable {
   __view_type__: View
@@ -69,8 +71,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return __module__ != null ? `${__module__}.${__name__}` : __name__
   }
 
-  get [Symbol.toStringTag](): string {
-    return this.constructor.__name__
+  static get [Symbol.toStringTag](): string {
+    return this.__name__
   }
 
   static init_HasProps(): void {
@@ -100,21 +102,19 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       return undefined
     else if (isFunction(default_value))
       return default_value
+    else if (isArray(default_value))
+      return () => copy(default_value)
+    else if (isPlainObject(default_value))
+      return () => clone(default_value)
     else if (!isObject(default_value))
       return () => default_value
-    else {
-      //logger.warn(`${this.prototype.type}.${attr} uses unwrapped non-primitive default value`)
-
-      if (isArray(default_value))
-        return () => copy(default_value)
-      else
-        return () => clone(default_value as PlainObject)
-    }
+    else
+      throw new Error(`${default_value} must be explicitly wrapped in a function`)
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
-  static define<T>(obj: Partial<p.DefineOf<T>>): void {
-    for (const [name, prop] of entries(obj)) {
+  static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
       if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
@@ -282,10 +282,14 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
-      if (type != null)
-        this.properties[name] = new type(this, name, default_value, get(name), options)
+      let property: p.Property<unknown>
+
+      if (type instanceof k.Kind)
+        property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
-        throw new Error(`undefined property type for ${this.type}.${name}`)
+        property = new type(this, name, k.Any, default_value, get(name), options)
+
+      this.properties[name] = property
     }
 
     // allowing us to defer initialization when loading many models
@@ -333,7 +337,6 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
-    const silent     = options.silent
     const changed    = []
     const changing   = this._changing
     this._changing = true
@@ -346,19 +349,17 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     }
 
     // Trigger all relevant attribute changes.
-    if (!silent) {
-      if (changed.length > 0)
-        this._pending = true
-      for (const prop of changed) {
-        prop.change.emit()
-      }
+    if (changed.length > 0)
+      this._pending = true
+    for (const prop of changed) {
+      prop.change.emit()
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
     // be recursively nested within `"change"` events.
     if (changing)
       return
-    if (!silent && !options.no_change) {
+    if (!options.no_change) {
       while (this._pending) {
         this._pending = false
         this.change.emit()
@@ -369,22 +370,24 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this._changing = false
   }
 
-  setv(changes: Attrs, options: HasProps.SetOptions = {}): void {
-    if (isEmpty(changes))
+  setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
+    const changes = entries(changed_attrs)
+
+    if (changes.length == 0)
       return
+
+    if (options.silent === true) {
+      for (const [attr, value] of changes) {
+        this.properties[attr].set_value(value)
+      }
+      return
+    }
 
     const changed = new Map<Property, unknown>()
     const previous = new Map<Property, unknown>()
 
-    for (const attr in changes) {
-      if (!changes.hasOwnProperty(attr))
-        continue
-
+    for (const [attr, value] of changes) {
       const prop = this.properties[attr]
-      if (prop == null)
-        throw new Error(`property ${this.type}.${attr} wasn't declared`)
-
-      const value = changes[attr]
       changed.set(prop, value)
       previous.set(prop, prop.get_value())
     }
@@ -405,9 +408,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         }
       }
 
-      if (options.silent !== true) {
-        this._push_changes(changed, options)
-      }
+      this._push_changes(changed, options)
     }
   }
 
@@ -439,9 +440,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   *[Symbol.iterator](): PropertyGenerator {
-    for (const name in this.properties) {
-      yield this.properties[name]
-    }
+    yield* values(this.properties)
   }
 
   *syncable_properties(): PropertyGenerator {
@@ -475,9 +474,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       return ref_array
     } else if (isPlainObject(value)) {
       const ref_obj: Attrs = {}
-      for (const subkey in value) {
-        if (value.hasOwnProperty(subkey))
-          ref_obj[subkey] = HasProps._value_to_json(value[subkey])
+      for (const [subkey, subvalue] of entries(value)) {
+        ref_obj[subkey] = HasProps._value_to_json(subvalue)
       }
       return ref_obj
     } else
@@ -509,11 +507,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       for (const elem of v)
         HasProps._json_record_references(doc, elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._json_record_references(doc, elem, refs, {recursive})
-        }
+      for (const elem of values(v)) {
+        HasProps._json_record_references(doc, elem, refs, {recursive})
       }
     }
   }
@@ -536,11 +531,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       for (const elem of v)
         HasProps._value_record_references(elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._value_record_references(elem, refs, {recursive})
-        }
+      for (const elem of values(v)) {
+        HasProps._value_record_references(elem, refs, {recursive})
       }
     }
   }

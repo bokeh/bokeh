@@ -71,6 +71,7 @@ from ..core.properties import (
     String,
     StringSpec,
 )
+from ..core.property.dataspec import field
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
@@ -80,6 +81,7 @@ from ..core.property_mixins import (
     ScalarLineProps,
     TextProps,
 )
+from ..util.deprecation import deprecated
 from .glyph import (
     ConnectedXYGlyph,
     FillGlyph,
@@ -143,11 +145,11 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the center of the annular wedges.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the center of the annular wedges.
     """)
 
@@ -190,11 +192,11 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the center of the annuli.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the center of the annuli.
     """)
 
@@ -225,11 +227,11 @@ class Arc(XYGlyph, LineGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the center of the arcs.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the center of the arcs.
     """)
 
@@ -266,37 +268,37 @@ class Bezier(LineGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1')
+    _args = ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1")
 
-    x0 = NumberSpec(help="""
+    x0 = NumberSpec(default=field("x0"), help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec(help="""
+    y0 = NumberSpec(default=field("y0"), help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec(help="""
+    x1 = NumberSpec(default=field("x1"), help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec(help="""
+    y1 = NumberSpec(default=field("y1"), help="""
     The y-coordinates of the ending points.
     """)
 
-    cx0 = NumberSpec(help="""
+    cx0 = NumberSpec(default=field("cx0"), help="""
     The x-coordinates of first control points.
     """)
 
-    cy0 = NumberSpec(help="""
+    cy0 = NumberSpec(default=field("cy0"), help="""
     The y-coordinates of first control points.
     """)
 
-    cx1 = NumberSpec(help="""
+    cx1 = NumberSpec(default=field("cx1"), help="""
     The x-coordinates of second control points.
     """)
 
-    cy1 = NumberSpec(help="""
+    cy1 = NumberSpec(default=field("cy1"), help="""
     The y-coordinates of second control points.
     """)
 
@@ -315,11 +317,11 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the centers of the ellipses.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the centers of the ellipses.
     """)
 
@@ -355,15 +357,15 @@ class HArea(FillGlyph, HatchGlyph, LineGlyph):
     # functions derived from this class
     _args = ('x1', 'x2', 'y')
 
-    x1 = NumberSpec(help="""
+    x1 = NumberSpec(default=field("x1"), help="""
     The x-coordinates for the points of one side of the area.
     """)
 
-    x2 = NumberSpec(help="""
+    x2 = NumberSpec(default=field("x2"), help="""
     The x-coordinates for the points of the other side of the area.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates for the points of the area.
     """)
 
@@ -387,7 +389,7 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('y', 'height', 'right', 'left')
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the centers of the horizontal bars.
     """)
 
@@ -510,11 +512,11 @@ class Image(XYGlyph):
     The arrays of scalar data for the images to be colormapped.
     """)
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the image anchors.
     """)
 
@@ -571,11 +573,11 @@ class ImageRGBA(XYGlyph):
     The arrays of RGBA data for the images.
     """)
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the image anchors.
     """)
 
@@ -630,11 +632,11 @@ class ImageURL(XYGlyph):
         the client.
     """)
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the image anchors.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the image anchors.
     """)
 
@@ -697,11 +699,11 @@ class Line(ConnectedXYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Line.py"
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates for the points of the line.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates for the points of the line.
     """)
 
@@ -723,11 +725,11 @@ class MultiLine(LineGlyph):
     # functions derived from this class
     _args = ('xs', 'ys')
 
-    xs = NumberSpec(help="""
+    xs = NumberSpec(default=field("xs"), help="""
     The x-coordinates for all the lines, given as a "list of lists".
     """)
 
-    ys = NumberSpec(help="""
+    ys = NumberSpec(default=field("ys"), help="""
     The y-coordinates for all the lines, given as a "list of lists".
     """)
 
@@ -753,7 +755,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('xs', 'ys')
 
-    xs = NumberSpec(help="""
+    xs = NumberSpec(default=field("xs"), help="""
     The x-coordinates for all the patches, given as a nested list.
 
     .. note::
@@ -762,7 +764,7 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
         one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
 
-    ys = NumberSpec(help="""
+    ys = NumberSpec(default=field("ys"), help="""
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -792,17 +794,21 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
 
     '''
 
+    def __init__(self, **kwargs):
+        deprecated("'Oval' is deprecated and will be removed in Bokeh 3.0, use the Ellipse glyph instead")
+        super().__init__(**kwargs)
+
     __example__ = "examples/reference/models/Oval.py"
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the centers of the ovals.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the centers of the ovals.
     """)
 
@@ -840,7 +846,7 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('x', 'y')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates for the points of the patch.
 
     .. note::
@@ -849,7 +855,7 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
         values in the sequence.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates for the points of the patch.
 
     .. note::
@@ -887,7 +893,7 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('xs', 'ys')
 
-    xs = NumberSpec(help="""
+    xs = NumberSpec(default=field("xs"), help="""
     The x-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -896,7 +902,7 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
         values in the sublists.
     """)
 
-    ys = NumberSpec(help="""
+    ys = NumberSpec(default=field("ys"), help="""
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
@@ -965,29 +971,29 @@ class Quadratic(LineGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('x0', 'y0', 'x1', 'y1', 'cx', 'cy')
+    _args = ("x0", "y0", "x1", "y1", "cx", "cy")
 
-    x0 = NumberSpec(help="""
+    x0 = NumberSpec(default=field("x0"), help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec(help="""
+    y0 = NumberSpec(default=field("y0"), help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec(help="""
+    x1 = NumberSpec(default=field("x1"), help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec(help="""
+    y1 = NumberSpec(default=field("y1"), help="""
     The y-coordinates of the ending points.
     """)
 
-    cx = NumberSpec(help="""
+    cx = NumberSpec(default=field("cx"), help="""
     The x-coordinates of the control points.
     """)
 
-    cy = NumberSpec(help="""
+    cy = NumberSpec(default=field("cy"), help="""
     The y-coordinates of the control points.
     """)
 
@@ -1006,11 +1012,11 @@ class Ray(XYGlyph, LineGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'length', 'angle')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to start the rays.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to start the rays.
     """)
 
@@ -1038,11 +1044,11 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the centers of the rectangles.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the centers of the rectangles.
     """)
 
@@ -1086,19 +1092,19 @@ class Segment(LineGlyph):
     # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1')
 
-    x0 = NumberSpec(help="""
+    x0 = NumberSpec(default=field("x0"), help="""
     The x-coordinates of the starting points.
     """)
 
-    y0 = NumberSpec(help="""
+    y0 = NumberSpec(default=field("y0"), help="""
     The y-coordinates of the starting points.
     """)
 
-    x1 = NumberSpec(help="""
+    x1 = NumberSpec(default=field("x1"), help="""
     The x-coordinates of the ending points.
     """)
 
-    y1 = NumberSpec(help="""
+    y1 = NumberSpec(default=field("y1"), help="""
     The y-coordinates of the ending points.
     """)
 
@@ -1123,11 +1129,11 @@ class Step(XYGlyph, LineGlyph):
     # functions derived from this class
     _args = ('x', 'y')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates for the steps.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates for the steps.
     """)
 
@@ -1155,11 +1161,11 @@ class Text(XYGlyph, TextGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the text anchors.
     """)
 
@@ -1201,15 +1207,15 @@ class VArea(FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('x', 'y1', 'y2')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates for the points of the area.
     """)
 
-    y1 = NumberSpec(help="""
+    y1 = NumberSpec(default=field("y1"), help="""
     The y-coordinates for the points of one side of the area.
     """)
 
-    y2 = NumberSpec(help="""
+    y2 = NumberSpec(default=field("y2"), help="""
     The y-coordinates for the points of the other side of the area.
     """)
 
@@ -1232,7 +1238,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('x', 'width', 'top', 'bottom')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the centers of the vertical bars.
     """)
 
@@ -1271,11 +1277,11 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
     # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the points of the wedges.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the points of the wedges.
     """)
 

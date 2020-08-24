@@ -1,5 +1,6 @@
-import {div, classes, display, undisplay, empty, remove, append, Keys} from "../dom"
+import {div, classes, display, undisplay, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
+import {enumerate} from "./iterator"
 
 //import menus_css from "styles/menus.css"
 import * as styles from "styles/menus"
@@ -12,6 +13,7 @@ export type MenuItem = {
   tooltip?: string
   active?: () => boolean
   handler: () => void
+  if?: () => boolean
 } | null
 
 export type MenuOptions = {
@@ -100,18 +102,20 @@ export class ContextMenu {
     const orientation = this.options.orientation ?? "vertical"
     classes(this.el).add("bk-context-menu", `bk-${orientation}`)
 
-    append(this.el, ...this.items.map((item, i) => {
+    for (const [item, i] of enumerate(this.items)) {
       let el: HTMLElement
-      if (item != null) {
+      if (item == null) {
+        el = div({class: styles.bk_divider})
+      } else if (item.if != null && !item.if()) {
+        continue
+      } else {
         const icon = item.icon != null ? div({class: ["bk-menu-icon", item.icon]}) : null
         el = div({class: item.active?.() ? "bk-active": null, title: item.tooltip}, icon, item.label)
-      } else {
-        el = div({class: styles.bk_divider})
       }
 
       el.addEventListener("click", () => this._item_click(i))
-      return el
-    }))
+      this.el.appendChild(el)
+    }
   }
 
   show(at?: ScreenPoint): void {
@@ -120,6 +124,8 @@ export class ContextMenu {
 
     if (!this._open) {
       this.render()
+      if (this.el.children.length == 0)
+        return
       this._position(at ?? {left: 0, top: 0})
       display(this.el)
       this._listen()

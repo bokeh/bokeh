@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # test_client_server.py is the test for the main functionality
 # of the server, here we're testing some properties in isolation
-class TestServer(object):
+class TestServer:
     def test_port(self) -> None:
         loop = IOLoop()
         loop.make_current()

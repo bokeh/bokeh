@@ -72,10 +72,25 @@ describe("data_table module", () => {
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
 
-      expect(dp.getItem(0)).to.be.equal({__bkdt_internal_index__: 0, index: 0,  bar: 3.4})
-      expect(dp.getItem(1)).to.be.equal({__bkdt_internal_index__: 1, index: 1,  bar: 1.2})
-      expect(dp.getItem(2)).to.be.equal({__bkdt_internal_index__: 2, index: 2,  bar: 0})
-      expect(dp.getItem(3)).to.be.equal({__bkdt_internal_index__: 3, index: 10, bar: -10})
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 0, index: 0,  bar: 3.4},
+        {__bkdt_internal_index__: 1, index: 1,  bar: 1.2},
+        {__bkdt_internal_index__: 2, index: 2,  bar: 0},
+        {__bkdt_internal_index__: 3, index: 10, bar: -10},
+      ])
+    })
+
+    it("should return all items when unsorted", () => {
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
+      const view = new CDSView({source})
+      const dp = new TableDataProvider(source, view)
+
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 0, index: 0,  bar: 3.4},
+        {__bkdt_internal_index__: 1, index: 1,  bar: 1.2},
+        {__bkdt_internal_index__: 2, index: 2,  bar: 0},
+        {__bkdt_internal_index__: 3, index: 10, bar: -10},
+      ])
     })
 
     it("should return items when sorted", () => {
@@ -85,10 +100,12 @@ describe("data_table module", () => {
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
       dp.sort([fake_col])
 
-      expect(dp.getItem(0)).to.be.equal({__bkdt_internal_index__: 3, index: 10, bar: -10})
-      expect(dp.getItem(1)).to.be.equal({__bkdt_internal_index__: 2, index: 2,  bar: 0})
-      expect(dp.getItem(2)).to.be.equal({__bkdt_internal_index__: 1, index: 1,  bar: 1.2})
-      expect(dp.getItem(3)).to.be.equal({__bkdt_internal_index__: 0, index: 0,  bar: 3.4})
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 3, index: 10, bar: -10},
+        {__bkdt_internal_index__: 2, index: 2,  bar: 0},
+        {__bkdt_internal_index__: 1, index: 1,  bar: 1.2},
+        {__bkdt_internal_index__: 0, index: 0,  bar: 3.4},
+      ])
     })
 
     it("should return fields when unsorted", () => {
@@ -159,13 +176,6 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
     })
 
-    it("should return null metadata", () => {
-      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
-      const view = new CDSView({source})
-      const dp = new TableDataProvider(source, view)
-      expect(dp.getItemMetadata(0)).to.be.null
-    })
-
     it("should set fields when unsorted", () => {
       const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
@@ -192,5 +202,56 @@ describe("data_table module", () => {
       expect(dp.source.data).to.be.equal({index: [0, 1, 2, 10.1], bar: [3.4, 100, 0, -10]})
     })
 
+    it("should support sorting NaNs and infinities", () => {
+      const source = new ColumnDataSource({data: {
+        index: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+        col0: [3.4, -Infinity, NaN, 1.21, 1.2, -Infinity, Infinity, 0, NaN, -10],
+      }})
+      const view = new CDSView({source})
+      const dp = new TableDataProvider(source, view)
+
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 0, index: "A", col0: 3.4},
+        {__bkdt_internal_index__: 1, index: "B", col0: -Infinity},
+        {__bkdt_internal_index__: 2, index: "C", col0: NaN},
+        {__bkdt_internal_index__: 3, index: "D", col0: 1.21},
+        {__bkdt_internal_index__: 4, index: "E", col0: 1.2},
+        {__bkdt_internal_index__: 5, index: "F", col0: -Infinity},
+        {__bkdt_internal_index__: 6, index: "G", col0: Infinity},
+        {__bkdt_internal_index__: 7, index: "H", col0: 0},
+        {__bkdt_internal_index__: 8, index: "I", col0: NaN},
+        {__bkdt_internal_index__: 9, index: "J", col0: -10},
+      ])
+
+      dp.sort([{sortCol: {field: "col0"}, sortAsc: true}])
+
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 1, index: "B", col0: -Infinity},
+        {__bkdt_internal_index__: 5, index: "F", col0: -Infinity},
+        {__bkdt_internal_index__: 9, index: "J", col0: -10},
+        {__bkdt_internal_index__: 7, index: "H", col0: 0},
+        {__bkdt_internal_index__: 4, index: "E", col0: 1.2},
+        {__bkdt_internal_index__: 3, index: "D", col0: 1.21},
+        {__bkdt_internal_index__: 0, index: "A", col0: 3.4},
+        {__bkdt_internal_index__: 6, index: "G", col0: Infinity},
+        {__bkdt_internal_index__: 2, index: "C", col0: NaN},
+        {__bkdt_internal_index__: 8, index: "I", col0: NaN},
+      ])
+
+      dp.sort([{sortCol: {field: "col0"}, sortAsc: false}])
+
+      expect(dp.getItems()).to.be.equal([
+        {__bkdt_internal_index__: 2, index: "C", col0: NaN},
+        {__bkdt_internal_index__: 8, index: "I", col0: NaN},
+        {__bkdt_internal_index__: 6, index: "G", col0: Infinity},
+        {__bkdt_internal_index__: 0, index: "A", col0: 3.4},
+        {__bkdt_internal_index__: 3, index: "D", col0: 1.21},
+        {__bkdt_internal_index__: 4, index: "E", col0: 1.2},
+        {__bkdt_internal_index__: 7, index: "H", col0: 0},
+        {__bkdt_internal_index__: 9, index: "J", col0: -10},
+        {__bkdt_internal_index__: 1, index: "B", col0: -Infinity},
+        {__bkdt_internal_index__: 5, index: "F", col0: -Infinity},
+      ])
+    })
   })
 })

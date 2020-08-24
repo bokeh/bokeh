@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -11,7 +11,6 @@ import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
-import {isArray, isTypedArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 
 export interface MultiPolygonsData extends GlyphData {
@@ -29,6 +28,10 @@ export class MultiPolygonsView extends GlyphView {
   visuals: MultiPolygons.Visuals
 
   protected _hole_index: SpatialIndex
+
+  protected _project_data(): void {
+    // TODO
+  }
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -117,22 +120,17 @@ export class MultiPolygonsView extends GlyphView {
     return index
   }
 
-  protected _mask_data(): number[] {
+  protected _mask_data(): Indices {
     const xr = this.renderer.plot_view.frame.x_range
     const [x0, x1] = [xr.min, xr.max]
 
     const yr = this.renderer.plot_view.frame.y_range
     const [y0, y1] = [yr.min, yr.max]
 
-    const indices = this.index.indices({x0, x1, y0, y1})
-
-    // TODO this is probably needed in patches as well so that we don't draw glyphs multiple times
-    return indices.sort((a, b) => a - b).filter((value, index, array) => {
-      return (index === 0) || (value !== array[index - 1])
-    })
+    return this.index.indices({x0, x1, y0, y1})
   }
 
-  protected _inner_loop(ctx: Context2d, sx: Arrayable<Arrayable<Arrayable<number>>>, sy: Arrayable<Arrayable<Arrayable<number>>>): void {
+  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {
@@ -187,8 +185,7 @@ export class MultiPolygonsView extends GlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices = []
 
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const index of candidates) {
       const sxss = this.sxs[index]
       const syss = this.sys[index]
       let hit = true
@@ -221,8 +218,7 @@ export class MultiPolygonsView extends GlyphView {
     const hole_candidates = this._hole_index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const index of candidates) {
       const sxs = this.sxs[index]
       const sys = this.sys[index]
       for (let j = 0, endj = sxs.length; j < endj; j++) {
@@ -231,7 +227,7 @@ export class MultiPolygonsView extends GlyphView {
         if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])) {
           if (nk == 1) {
             indices.push(index)
-          } else if (hole_candidates.indexOf(index) == -1) {
+          } else if (!hole_candidates.get(index)) {
             indices.push(index)
           } else if (nk > 1) {
             let in_a_hole = false
@@ -260,36 +256,23 @@ export class MultiPolygonsView extends GlyphView {
     return sum(array) / array.length
   }
 
-  scenterx(i: number, sx: number, sy: number): number {
+  scenterxy(i: number, sx: number, sy: number): [number, number] {
     if (this.sxs[i].length == 1) {
       // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sxs[i][0][0])
+      const scx = this._get_snap_coord(this.sxs[i][0][0])
+      const scy = this._get_snap_coord(this.sys[i][0][0])
+      return [scx, scy]
     } else {
       // We have discontinuous objects, so we need to find which
       // one we're in, we can use point_in_poly again
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
-          return this._get_snap_coord(sxs[j][0])
-      }
-    }
-
-    unreachable()
-  }
-
-  scentery(i: number, sx: number, sy: number): number {
-    if (this.sys[i].length == 1) {
-      // We don't have discontinuous objects so we're ok
-      return this._get_snap_coord(this.sys[i][0][0])
-    } else {
-      // We have discontinuous objects, so we need to find which
-      // one we're in, we can use point_in_poly again
-      const sxs = this.sxs[i]
-      const sys = this.sys[i]
-      for (let j = 0, end = sxs.length; j < end; j++) {
-        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0]))
-          return this._get_snap_coord(sys[j][0])
+        if (hittest.point_in_poly(sx, sy, sxs[j][0], sys[j][0])) {
+          const scx = this._get_snap_coord(sxs[j][0])
+          const scy = this._get_snap_coord(sys[j][0])
+          return [scx, scy]
+        }
       }
     }
 
@@ -297,34 +280,21 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   map_data(): void {
-    const self = this as any
-
-    for (let [xname, yname] of this.model._coords) {
-      const sxname = `s${xname}`
-      const syname = `s${yname}`
-      xname = `_${xname}`
-      yname = `_${yname}`
-
-      if (self[xname] != null && (isArray(self[xname][0]) || isTypedArray(self[xname][0]))) {
-        const ni = self[xname].length
-
-        self[sxname] = new Array(ni)
-        self[syname] = new Array(ni)
-
-        for (let i = 0; i < ni; i++) {
-          const nj = self[xname][i].length
-          self[sxname][i] = new Array(nj)
-          self[syname][i] = new Array(nj)
-          for (let j = 0; j < nj; j++) {
-            const nk = self[xname][i][j].length
-            self[sxname][i][j] = new Array(nk)
-            self[syname][i][j] = new Array(nk)
-            for (let k = 0; k < nk; k++) {
-              const [sx, sy] = this.renderer.scope.map_to_screen(self[xname][i][j][k], self[yname][i][j][k])
-              self[sxname][i][j][k] = sx
-              self[syname][i][j][k] = sy
-            }
-          }
+    const n_i = this._xs.length
+    this.sxs = new Array(n_i)
+    this.sys = new Array(n_i)
+    for (let i = 0; i < n_i; i++) {
+      const n_j = this._xs[i].length
+      this.sxs[i] = new Array(n_j)
+      this.sys[i] = new Array(n_j)
+      for (let j = 0; j < n_j; j++) {
+        const n_k = this._xs[i][j].length
+        this.sxs[i][j] = new Array(n_k)
+        this.sys[i][j] = new Array(n_k)
+        for (let k = 0; k < n_k; k++) {
+          const [sx, sy] = this.renderer.coordinates.map_to_screen(this._xs[i][j][k], this._ys[i][j][k])
+          this.sxs[i][j][k] = sx
+          this.sys[i][j][k] = sy
         }
       }
     }
@@ -339,8 +309,8 @@ export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
-    xs: p.CoordinateSeqSpec
-    ys: p.CoordinateSeqSpec
+    xs: p.CoordinateSeqSeqSeqSpec
+    ys: p.CoordinateSeqSeqSeqSpec
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -361,7 +331,10 @@ export class MultiPolygons extends Glyph {
   static init_MultiPolygons(): void {
     this.prototype.default_view = MultiPolygonsView
 
-    this.coords([['xs', 'ys']])
+    this.define<MultiPolygons.Props>({
+      xs: [ p.XCoordinateSeqSeqSeqSpec, {field: "xs"} ],
+      ys: [ p.YCoordinateSeqSeqSeqSpec, {field: "ys"} ],
+    })
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

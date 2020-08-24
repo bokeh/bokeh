@@ -34,8 +34,8 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_PandasDataFrame(object):
 
+class Test_PandasDataFrame:
     def test_valid(self, pd) -> None:
         prop = bcpp.PandasDataFrame()
         assert prop.is_valid(pd.DataFrame())
@@ -50,8 +50,8 @@ class Test_PandasDataFrame(object):
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-class Test_PandasGroupBy(object):
 
+class Test_PandasGroupBy:
     def test_valid(self, pd) -> None:
         prop = bcpp.PandasGroupBy()
         assert prop.is_valid(pd.core.groupby.GroupBy(pd.DataFrame()))

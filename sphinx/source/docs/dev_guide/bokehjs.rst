@@ -61,9 +61,15 @@ the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-
 Development
 -----------
 
-bokehjs's source code is located in ``bokehjs/`` directory in bokeh's monorepo
+BokehJS's source code is located in the ``bokehjs/`` directory in Bokeh's monorepo
 repository. All further instructions and shell commands assume that ``bokehjs/``
 is the current directory.
+
+Some guidelines to adhere to when working on BokehJS:
+
+* Do not use ``for-in`` loops, especially unguarded by ``hasOwnProperty()`` Use
+  ``for-of`` loop in combination with ``keys()``, ``values()`` and/or
+  ``entries()`` from the ``core/util/object`` module instead.
 
 Requirements
 ~~~~~~~~~~~~
@@ -78,7 +84,7 @@ You can install nodejs with conda:
 
     $ conda install -c conda-forge nodejs
 
-or follow official installation `instructions <https://nodejs.org/en/download/>`_.
+or follow the official installation `instructions <https://nodejs.org/en/download/>`_.
 
 Upgrade your npm after installing or updating nodejs, or whenever asked by npm:
 
@@ -92,14 +98,14 @@ Officially supported platforms are as follows:
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 
-bokehjs can be developed on different platforms and versions of aforementioned
+BokehJS can be developed on different platforms and versions of aforementioned
 software, but results may vary, especially when it comes to testing (visual
 testing in particular).
 
 Building
 ~~~~~~~~
 
-bokehjs' build is maintained by using an in-house tool that visually resembles
+BokehJS's build is maintained by using an in-house tool that visually resembles
 gulp. All commands start with ``node make`` (don't confuse this with GNU make).
 
 Most common commands:
@@ -118,7 +124,7 @@ it for code emit, because we rely on AST transforms to produce viable library co
 Testing
 ~~~~~~~
 
-bokehjs testing is performed with ``node make test`` command. You can run individual
+BokehJS testing is performed with the ``node make test`` command. You can run individual
 test suites with ``node make test:suite_name``. Known tests suites are:
 
 * ``node make test:size``
@@ -126,27 +132,27 @@ test suites with ``node make test:suite_name``. Known tests suites are:
 * ``node make test:unit``
 * ``node make test:integration``
 
-The last to can be run with ``node make test:lib``. Unit and integration tests are
+The last two can be run with ``node make test:lib``. Unit and integration tests are
 run in a web browser (see requirements), which is started automatically with the
 right settings to guarantee consistent test results.
 
-To review visual tests' output, start bokehjs' devtools server:
+To review the visual tests' output, start BokehJS's devtools server:
 
 .. code-block:: sh
 
     $ node test/devtools server
     listening on 127.0.0.1:5777
 
-and navigate to ``/integration/report``. Devtools server can be also used to
-manually inspect and debug tests. For that the following endpoints are available:
+and navigate to ``/integration/report``. Devtools server can also be used to
+manually inspect and debug tests. For that, the following endpoints are available:
 
 * ``/unit``
 * ``/defaults``
 * ``/integration``
 
-Those load bokehjs and tests, but don't anything. You have to issue ``Tests.run_all()``
-in JavaScript console. This allows to you to set breakpoints before running code. You
-can filter out tests by providing a string keyword or a regular expression. Alternatively
+Those load BokehJS and the tests, but don't do anything. You have to issue ``Tests.run_all()``
+in a JavaScript console. This allows you to set breakpoints before running code. You
+can filter out tests by providing a string keyword or a regular expression. Alternatively,
 you can run tests immediately with these endpoints:
 
 * ``/unit/run``
@@ -155,7 +161,7 @@ you can run tests immediately with these endpoints:
 
 You can use ``?k=some%20text`` to filter tests by a keyword.
 
-CI and visual testing
+CI and Visual Testing
 ~~~~~~~~~~~~~~~~~~~~~
 
 ``test:integration`` does two types of tests:
@@ -176,27 +182,27 @@ The full procedure for visual testing is as follows:
 2. Use ``node make tests`` to incrementally test your changes on your system.
 3. Commit changes to textual baselines (``test/baselines/*``).
 4. Push your changes to GitHub and wait for CI to finish.
-5. If you added new tests and CI will expectedly fail with "missing baseline
+5. If you added new tests, CI will expectedly fail with "missing baseline
    images" error message.
-6. If tests passed then your are done.
-7. If tests failed, go to bokehjs' GitHub_Actions_ page. Find the most recent
+6. If tests passed then you are done.
+7. If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
    test run for your PR and download the associated ``bokehjs-report`` artifact.
 8. Unzip the artifact archive.
 9. Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
-   where ``name`` is either ``linux``, ``macos`` or ``windows`` and review test output
+   where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
    for each platform. If there are no unintentional differences, then commit all
    new or modified files under ``test/baselines/{linux,macos,windows}``.
 10. Push your changes again to GitHub and verify that tests pass this time.
 
 .. note::
 
-    Make sure to monitor state of ``test/baselines`` directory, so that you don't
-    commit unnecessary files. If you do so, subsequent tests will fail.
+    Make sure to monitor the state of the ``test/baselines`` directory, so that you
+    don't commit unnecessary files. If you do so, subsequent tests will fail.
 
-Minimal model/view module
+Minimal Model/View Module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Models (and views) come in many forms and sizes. At minimum a model is implemented.
+Models (and views) come in many forms and sizes. At minimum, a model is implemented.
 A view may follow if a "visual" model is being implemented. A minimal model/view
 module looks like this:
 
@@ -209,7 +215,7 @@ module looks like this:
 
       initialize(): void {
         super.initialize()
-        // perform view intialization (remove if not needed)
+        // perform view initialization (remove if not needed)
       }
 
       async lazy_initialize(): Promise<void> {
@@ -250,13 +256,13 @@ module looks like this:
     }
 
 For trivial modules like this, most of the code is just boilerplate to make
-bokehjs' code statically type-check and generate useful type declarations
+BokehJS's code statically type-check and generate useful type declarations
 for further consumption (in tests or by users).
 
-Code style guide
+Code Style Guide
 ~~~~~~~~~~~~~~~~
 
-bokehjs doesn't have an explicit style guide. Make your changes consistent in
+BokehJS doesn't have an explicit style guide. Make your changes consistent in
 formatting. Use ``node make lint``. Follow patterns observed in the surrounding
 code and apply common sense.
 

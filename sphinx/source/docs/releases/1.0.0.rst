@@ -55,7 +55,7 @@ Any code that looks like the first version above should be updated to use the
 second version. This applies to both Python or JavaScript callbacks for
 selections.
 
-While this breaking incompatibility is regretable, there are now much more
+While this breaking incompatibility is regrettable, there are now much more
 extensive integration tests in place to maintain that the second version will
 always function as expected from now on.
 
@@ -134,7 +134,7 @@ Codebase Tests
 ~~~~~~~~~~~~~~
 
 The Pytest "quality" mark has been changed to "codebase". Now to run the
-codebase tests, execute ``py.test -m codebase``. If you have installed a
+codebase tests, execute ``pytest -m codebase``. If you have installed a
 pre-commit hook to run quality tests before allowing a commit, the hook code
 should be updated as above. This change is only expected to affect those who
 are developing the Bokeh codebase.

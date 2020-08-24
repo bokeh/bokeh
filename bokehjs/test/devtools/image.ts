@@ -34,34 +34,60 @@ function rgba2hsla(r: number, g: number, b: number, a: number): [number, number,
   return [f(h*360), f(s*100), f(l*100), a]
 }
 
-export function diff_image(existing: Buffer, current: Buffer, verbose: boolean = false): ImageDiff | null {
-  const existing_img = PNG.sync.read(existing)
-  const current_img = PNG.sync.read(current)
+function encode(r: number, g: number, b: number, a: number = 1.0): number {
+  return (a*255 & 0xFF) << 24 | (b & 0xFF) << 16 | (g & 0xFF) << 8 | (r & 0xFF)
+}
 
-  // TODO: resize
-  const same_dims = existing_img.width == current_img.width && existing_img.height == current_img.height
+function decode(v: number): [number, number, number, number] {
+  return [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, ((v >> 24) & 0xFF) / 255]
+}
+
+function image_data(image: PNG): Uint32Array {
+  return new Uint32Array(image.data.buffer, image.data.byteOffset, image.width*image.height)
+}
+
+function resize_image(image: PNG, width: number, height: number): PNG {
+  const resized = new PNG({width, height})
+
+  const image_array = image_data(image)
+  const resized_array = image_data(resized)
+
+  resized_array.fill(encode(255, 255, 255))
+
+  const min_width = Math.min(image.width, width)
+  const min_height = Math.min(image.height, height)
+  for (let i = 0; i < min_height; i++) {
+    const data = image_array.subarray(i*image.width, i*image.width + min_width)
+    resized_array.set(data, i*resized.width)
+  }
+
+  return resized
+}
+
+export function diff_image(existing: Buffer, current: Buffer, verbose: boolean = false): ImageDiff | null {
+  let existing_img: PNG = PNG.sync.read(existing)
+  let current_img: PNG = PNG.sync.read(current)
+
+  const same_dims = existing_img.width == current_img.width &&
+                    existing_img.height == current_img.height
+
   if (!same_dims) {
-    throw new Error("bad dims")
+    const new_width = Math.max(existing_img.width, current_img.width)
+    const new_height = Math.max(existing_img.height, current_img.height)
+    existing_img = resize_image(existing_img, new_width, new_height)
+    current_img = resize_image(current_img, new_width, new_height)
   }
 
   const {width, height} = current_img
   const diff_img = new PNG({width, height})
 
-  const len = width*height
-  const a32 = new Uint32Array(existing_img.data.buffer, existing_img.data.byteOffset, len)
-  const b32 = new Uint32Array(current_img.data.buffer, current_img.data.byteOffset, len)
-  const c32 = new Uint32Array(diff_img.data.buffer, diff_img.data.byteOffset, len)
-
-  function encode(r: number, g: number, b: number, a: number = 1.0): number {
-    return (a*255 & 0xFF) << 24 | (b & 0xFF) << 16 | (g & 0xFF) << 8 | (r & 0xFF)
-  }
-
-  function decode(v: number): [number, number, number, number] {
-    return [v & 0xFF, (v >> 8) & 0xFF, (v >> 16) & 0xFF, ((v >> 24) & 0xFF) / 255]
-  }
+  const a32 = image_data(existing_img)
+  const b32 = image_data(current_img)
+  const c32 = image_data(diff_img)
 
   c32.fill(encode(0, 0, 0))
 
+  const len = width*height
   let pixels = 0
   for (let i = 0; i < len; i++) {
     const a = a32[i]

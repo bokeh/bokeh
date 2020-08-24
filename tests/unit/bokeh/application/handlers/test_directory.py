@@ -75,8 +75,7 @@ def script_adds_two_roots(some_model_name, another_model_name):
     return script_adds_two_roots_template % (another_model_name, some_model_name,
                                              another_model_name, some_model_name)
 
-class Test_DirectoryHandler(object):
-
+class Test_DirectoryHandler:
     # Public methods ----------------------------------------------------------
 
     def test_directory_empty_mainpy(self) -> None:

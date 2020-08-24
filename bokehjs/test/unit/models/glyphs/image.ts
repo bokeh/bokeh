@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {create_glyph_view} from "./glyph_utils"
 import {Image} from "@bokehjs/models/glyphs/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("Image module", () => {
 
@@ -19,8 +20,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image, data)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.equal(new Float64Array([34]))
-      expect(image_view.sh).to.be.equal(new Float64Array([38]))
+      expect(image_view.sw).to.be.equal(new NumberArray([34]))
+      expect(image_view.sh).to.be.equal(new NumberArray([38]))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -36,8 +37,8 @@ describe("Image module", () => {
       const image_view = await create_glyph_view(image, data)
       image_view.map_data()
 
-      expect(image_view.sw).to.be.equal(new Float64Array([1]))
-      expect(image_view.sh).to.be.equal(new Float64Array([2]))
+      expect(image_view.sw).to.be.equal(new NumberArray([1]))
+      expect(image_view.sh).to.be.equal(new NumberArray([2]))
     })
   })
 })

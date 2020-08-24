@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {create_glyph_view} from "./glyph_utils"
 import {Ray} from "@bokehjs/models/glyphs/ray"
 import {SpatialUnits} from "@bokehjs/core/enums"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("Ray", () => {
 
@@ -23,7 +24,7 @@ describe("Ray", () => {
         const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
         glyph_view.map_data()
 
-        expect(glyph_view.slength).to.be.equal(new Float64Array([20]))
+        expect(glyph_view.slength).to.be.equal(new NumberArray([20]))
       }
     })
 
@@ -35,7 +36,7 @@ describe("Ray", () => {
         const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
         glyph_view.map_data()
 
-        expect(glyph_view.slength).to.be.equal(new Float64Array([10]))
+        expect(glyph_view.slength).to.be.equal(new NumberArray([10]))
       }
     })
   })

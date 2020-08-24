@@ -39,6 +39,7 @@ from ..document import Document
 from ..resources import DEFAULT_SERVER_HTTP_URL, _SessionCoordinates
 from ..util.browser import NEW_PARAM
 from ..util.token import generate_jwt_token, generate_session_id
+from .states import ErrorReason
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 #-----------------------------------------------------------------------------
@@ -208,7 +209,7 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
         controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
                         new=NEW_PARAM[new])
 
-class ClientSession(object):
+class ClientSession:
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the
@@ -291,6 +292,22 @@ class ClientSession(object):
         return self._connection.connected
 
     @property
+    def error_reason(self):
+        return self._connection.error_reason
+
+    @property
+    def error_code(self):
+        return self._connection.error_code
+
+    @property
+    def error_detail(self):
+        return self._connection.error_detail
+
+    @property
+    def url(self):
+        return self._connection.url
+
+    @property
     def document(self):
         ''' A :class:`~bokeh.document.Document` that will be kept in sync with
         the corresponding Document on the server.
@@ -334,6 +351,23 @@ class ClientSession(object):
         '''
         self._connection.force_roundtrip()
 
+    def check_connection_errors(self):
+        ''' Raises an error, when the connection could not have been
+        established.
+
+        Should be used, after a call to connect.
+
+        Returns:
+            None
+
+        '''
+        if not self.connected:
+            if self.error_reason is ErrorReason.HTTP_ERROR:
+                if self.error_code == 404:
+                    raise OSError(f"Check your application path! The given Path is not valid: {self.url}")
+                raise OSError(f"We received an HTTP-Error. Disconnected with error code: {self.error_id}, given message: {self.error_message}")
+            raise OSError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+
     def pull(self):
         ''' Pull the server's state and set it as session.document.
 
@@ -344,8 +378,7 @@ class ClientSession(object):
 
         '''
         self.connect()
-        if not self.connected:
-            raise IOError("Cannot pull session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+        self.check_connection_errors()
 
         if self.document is None:
             doc = Document()
@@ -382,8 +415,7 @@ class ClientSession(object):
                 raise ValueError("Cannot push() a different document from existing session.document")
 
         self.connect()
-        if not self.connected:
-            raise IOError("Cannot push session document because we failed to connect to the server (to start the server, try the 'bokeh serve' command)")
+        self.check_connection_errors()
         self._connection.push_doc(doc)
         if self._document is None:
             self._attach_document(doc)

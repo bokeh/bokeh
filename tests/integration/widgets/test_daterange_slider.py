@@ -53,9 +53,9 @@ start = date(2017, 8, 3)
 end = date(2017, 8, 10)
 value = (start + timedelta(days=1), end - timedelta(days=1))
 
-@pytest.mark.selenium
-class Test_DateRangeSlider(object):
 
+@pytest.mark.selenium
+class Test_DateRangeSlider:
     def test_display(self, bokeh_model_page) -> None:
         slider = DateRangeSlider(start=start, end=end, value=value, css_classes=["foo"], width=300)
 

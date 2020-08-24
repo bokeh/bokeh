@@ -37,8 +37,8 @@ export class LabelView extends TextAnnotationView {
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
 
-    const xscale = this.scope.x_scale
-    const yscale = this.scope.y_scale
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
     let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
     let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)

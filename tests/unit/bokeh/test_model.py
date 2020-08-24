@@ -38,8 +38,8 @@ class SomeModel(Model):
     b = String("hello")
     c = List(Int, [1, 2, 3])
 
-class Test_js_on_change(object):
 
+class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:
         m = SomeModel()
         with pytest.raises(ValueError):
@@ -91,8 +91,8 @@ class Test_js_on_change(object):
         m.js_on_change('foo', cb, cb)
         assert m.js_property_callbacks == {"foo": [cb]}
 
-class Test_js_link(object):
 
+class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:
         m1 = SomeModel()
         m2 = SomeModel()
@@ -193,14 +193,14 @@ def test_select() -> None:
     d.add_root(root4)
 
     # select()
-    assert set([root1]) == set(root1.select(dict(a=42)))
-    assert set([root1]) == set(root1.select(dict(name='a')))
-    assert set([root2])  == set(root2.select(dict(name='c')))
-    assert set()  == set(root1.select(dict(name='nope')))
+    assert {root1} == set(root1.select(dict(a=42)))
+    assert {root1} == set(root1.select(dict(name="a")))
+    assert {root2} == set(root2.select(dict(name="c")))
+    assert set() == set(root1.select(dict(name="nope")))
 
     # select() on object
     assert set() == set(root3.select(dict(name='a')))
-    assert set([root3]) == set(root3.select(dict(a=44)))
+    assert {root3} == set(root3.select(dict(a=44)))
 
     # select_one()
     assert root3 == root3.select_one(dict(name='d'))
@@ -215,17 +215,17 @@ def test_select() -> None:
     assert None == root3.select_one(dict(name='c'))
 
     # set_select()
-    root1.set_select(dict(a=42), dict(name='c', a=44))
-    assert set([root1]) == set(root1.select(dict(name='c')))
-    assert set([root1])  == set(root1.select(dict(a=44)))
+    root1.set_select(dict(a=42), dict(name="c", a=44))
+    assert {root1} == set(root1.select(dict(name="c")))
+    assert {root1} == set(root1.select(dict(a=44)))
 
     # set_select() on object
     root3.set_select(dict(name='d'), dict(a=57))
-    assert set([root3]) == set(root3.select(dict(a=57)))
+    assert {root3} == set(root3.select(dict(a=57)))
 
     # set_select() on class
     root2.set_select(SomeModel, dict(name='new_name'))
-    assert set([root2]) == set(root2.select(dict(name="new_name")))
+    assert {root2} == set(root2.select(dict(name="new_name")))
 
 #-----------------------------------------------------------------------------
 # Dev API

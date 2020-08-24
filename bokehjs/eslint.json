@@ -18,7 +18,13 @@
   "plugins": ["@typescript-eslint"],
   "extends": [],
   "rules": {
-    "@typescript-eslint/ban-types": "error",
+    "@typescript-eslint/ban-types": ["error", {
+      "types": {
+        "Function": false,
+        "object": false,
+        "{}": false
+      }
+    }],
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/member-delimiter-style": ["error", {
       "multiline": {
@@ -44,7 +50,7 @@
       "ObjectExpression": "first",
       "ImportDeclaration": "first",
       "VariableDeclarator": "first",
-      "CallExpression": {"arguments": "first"},
+      "CallExpression": {"arguments": 1},
       "FunctionDeclaration": {"body": 1, "parameters": "off"},
       "FunctionExpression": {"body": 1, "parameters": "off"},
       "ignoredNodes": ["ConditionalExpression"]
@@ -66,6 +72,7 @@
       "named": "never",
       "asyncArrow": "always"
     }],
-    "space-in-parens": ["error", "never"]
+    "space-in-parens": ["error", "never"],
+    "guard-for-in": ["error"]
   }
 }

@@ -40,8 +40,8 @@ import bokeh.models.sources as bms # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestColumnDataSource(object):
 
+class TestColumnDataSource:
     def test_basic(self) -> None:
         ds = bms.ColumnDataSource()
         assert isinstance(ds, bms.DataSource)
@@ -80,7 +80,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_data_accepts_dataframe_arg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -94,7 +94,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_data_kwarg(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3])
@@ -106,7 +106,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -118,7 +118,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
-        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+        assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
     def test_data_accepts_dataframe_index_named_column(self, pd) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
@@ -132,7 +132,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['level_0'], np.ndarray)
         assert [0, 1] == list(ds.data['level_0'])
-        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+        assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
     def test_init_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
@@ -145,7 +145,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_data_accepts_dataframe_column_categoricalindex(self, pd) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
@@ -160,7 +160,7 @@ class TestColumnDataSource(object):
             assert list(df[key]) == list(ds.data[key])
         assert isinstance(ds.data['index'], np.ndarray)
         assert [0, 1] == list(ds.data['index'])
-        assert set(ds.column_names) - set(df.columns) == set(["index"])
+        assert set(ds.column_names) - set(df.columns) == {"index"}
 
     def test_init_dataframe_nonstring_named_column(self, pd) -> None:
         data = {1: [1, 2], 2: [2, 3]}
@@ -309,14 +309,14 @@ class TestColumnDataSource(object):
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
     def test__df_index_name_with_named_multi_index(self, pd) -> None:
-        data = io.StringIO(u'''
+        data = io.StringIO("""\
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
 Apple,Green,9,$0.99
 Pear,Red,25,$2.59
 Pear,Green,26,$2.79
 Lime,Green,99,$0.39
-''')
+""")
         df = pd.read_csv(data).set_index(['Fruit', 'Color'])
         assert df.index.names == ['Fruit', 'Color']
         assert bms.ColumnDataSource._df_index_name(df) == "Fruit_Color"

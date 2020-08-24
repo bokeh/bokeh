@@ -463,7 +463,7 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    bar_props = Include(LineProps, help="""
+    bar_props = Include(ScalarLineProps, help="""
     The %s for the color scale bar outline.
     """)
 
@@ -1048,6 +1048,10 @@ class Tooltip(Annotation):
 
     inner_only = Bool(default=True, help="""
     Whether to display outside a central plot frame area.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
     show_arrow = Bool(default=True, help="""

@@ -24,12 +24,10 @@ export class HBarView extends BoxView {
   model: HBar
   visuals: HBar.Visuals
 
-  scenterx(i: number): number {
-    return (this.sleft[i] + this.sright[i])/2
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sleft[i] + this.sright[i])/2
+    const scy = this.sy[i]
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
@@ -84,11 +82,11 @@ export class HBar extends Box {
   static init_HBar(): void {
     this.prototype.default_view = HBarView
 
-    this.coords([['left', 'y']])
     this.define<HBar.Props>({
-      height: [ p.NumberSpec     ],
-      right:  [ p.CoordinateSpec ],
+      left:   [ p.XCoordinateSpec, {value: 0}       ],
+      y:      [ p.YCoordinateSpec, {field: "y"}     ],
+      height: [ p.NumberSpec,      {value: 1}       ],
+      right:  [ p.XCoordinateSpec, {field: "right"} ],
     })
-    this.override({ left: 0 })
   }
 }

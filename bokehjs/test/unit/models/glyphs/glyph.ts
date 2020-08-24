@@ -18,16 +18,14 @@ describe("glyph module", () => {
       class SomeGlyphView extends GlyphView {
         model: SomeGlyph
 
-        protected _index_data(_index: SpatialIndex): void {}
+        protected _index_data(index: SpatialIndex): void {
+          index.add_empty()
+        }
 
         protected _render(_ctx: Context2d, _indices: number[], {}: object): void {}
 
-        scenterx(_i: number): number {
-          return 0
-        }
-
-        scentery(_i: number): number {
-          return 0
+        scenterxy(): [number, number] {
+          return [0, 0]
         }
 
         protected _hit_point?(_geometry: PointGeometry): Selection {

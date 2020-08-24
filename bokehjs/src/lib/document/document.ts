@@ -1,13 +1,14 @@
 import {Models} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
+import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
 import {difference, intersection, copy, includes} from "core/util/array"
+import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
 import {isEqual} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
@@ -33,7 +34,7 @@ export class EventManager {
     this.document._trigger_on_change(event)
   }
 
-  trigger(event: BokehEvent): void {
+  trigger(event: ModelEvent): void {
     for (const model of this.subscribed_models) {
       if (event.origin != null && event.origin != model)
         continue
@@ -112,6 +113,7 @@ export class Document {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
+      this.event_manager.send_event(new DocumentReady())
       this.idle.emit()
     }
   }
@@ -135,8 +137,8 @@ export class Document {
     this._interactive_timestamp = Date.now()
   }
 
-  interactive_stop(plot: Model): void {
-    if (this._interactive_plot != null && this._interactive_plot.id === plot.id) {
+  interactive_stop(): void {
+    if (this._interactive_plot != null) {
       this._interactive_plot.trigger_event(new LODEnd())
     }
     this._interactive_plot = null
@@ -402,8 +404,7 @@ export class Document {
 
     function resolve_dict(dict: PlainObject) {
       const resolved: PlainObject = {}
-      for (const k in dict) {
-        const v = dict[k]
+      for (const [k, v] of entries(dict)) {
         resolved[k] = resolve_ref(v)
       }
       return resolved
@@ -440,8 +441,8 @@ export class Document {
           const {instance, is_new} = to_update.get(v.id)!
           const {attributes} = instance
 
-          for (const attr in attributes) {
-            finalize_all_by_dfs(attributes[attr])
+          for (const value of values(attributes)) {
+            finalize_all_by_dfs(value)
           }
 
           if (is_new) {
@@ -457,8 +458,8 @@ export class Document {
         for (const e of v)
           finalize_all_by_dfs(e)
       } else if (isPlainObject(v)) {
-        for (const k in v)
-          finalize_all_by_dfs(v[k])
+        for (const value of values(v))
+          finalize_all_by_dfs(value)
       }
     }
 

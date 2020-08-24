@@ -16,7 +16,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import AnyRef, Bool, Dict, Either, Int, Seq, String
+from ..core.has_props import abstract
+from ..core.properties import AnyRef, Bool, Dict, Int, Seq, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -35,20 +36,11 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+@abstract
 class Filter(Model):
     ''' A Filter model represents a filtering operation that returns a row-wise subset of
     data when applied to a ``ColumnDataSource``.
     '''
-
-    filter = Either(Seq(Int), Seq(Bool), help="""
-    A list that can be either integer indices or booleans representing a row-wise subset of data.
-    """)
-
-    def __init__(self, *args, **kw):
-        if len(args) == 1 and "filter" not in kw:
-            kw["filter"] = args[0]
-
-        super().__init__(**kw)
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
@@ -132,7 +124,7 @@ class CustomJSFilter(Filter):
 
             code = '''
             const indices = []
-            for (var i = 0; i <= source.data['some_column'].length; i++) {
+            for (let i = 0; i <= source.data['some_column'].length; i++) {
                 if (source.data['some_column'][i] == 'some_value') {
                     indices.push(i)
                 }

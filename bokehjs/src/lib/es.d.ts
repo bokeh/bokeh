@@ -35,3 +35,11 @@ interface Float32Array {
 interface Float64Array {
   constructor: Float64ArrayConstructor
 }
+
+declare class ClipboardItem {
+  constructor(blobs: {[key: string]: Blob})
+}
+
+interface Clipboard {
+  write(items: ClipboardItem[]): Promise<void>
+}

@@ -36,9 +36,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_CopyPaste(object):
 
+@pytest.mark.selenium
+class Test_CopyPaste:
     def test_copy_paste_to_textarea(self, bokeh_model_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
         columns = [TableColumn(field='x', title='x'), TableColumn(field='y', title='y')]

@@ -81,6 +81,7 @@ __all__ = (
     'Align',
     'Anchor',
     'AngleUnits',
+    'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
     'DashPattern',
@@ -142,7 +143,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Enumeration(object):
+class Enumeration:
     ''' Represent an enumerated collection of values.
 
     .. note::
@@ -218,7 +219,7 @@ def enumeration(*values, **kwargs):
         "_quote": kwargs.get("quote", False),
     })
 
-    return type(str("Enumeration"), (Enumeration,), attrs)()
+    return type("Enumeration", (Enumeration,), attrs)()
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")
@@ -231,6 +232,9 @@ Anchor = enumeration(
 
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
+
+#: Specify autosize mode for DataTable
+AutosizeMode = enumeration("fit_columns", "fit_viewport", "force_fit", "none")
 
 #: Specify a style for button widgets
 ButtonType = enumeration("default", "primary", "success", "warning", "danger")

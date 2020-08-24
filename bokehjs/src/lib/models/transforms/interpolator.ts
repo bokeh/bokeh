@@ -1,7 +1,7 @@
 import {Transform} from "./transform"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import {includes} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 
@@ -34,8 +34,8 @@ export abstract class Interpolator extends Transform {
     })
   }
 
-  protected _x_sorted: number[]
-  protected _y_sorted: number[]
+  protected _x_sorted: NumberArray
+  protected _y_sorted: NumberArray
   protected _sorted_dirty = true
 
   connect_signals(): void {
@@ -44,7 +44,7 @@ export abstract class Interpolator extends Transform {
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    const result = new Float64Array(xs.length)
+    const result = new NumberArray(xs.length)
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i]
       result[i] = this.compute(x)
@@ -80,23 +80,21 @@ export abstract class Interpolator extends Transform {
     if (tsx.length < 2)
       throw new Error("x and y must have at least two elements to support interpolation")
 
-    // The following sorting code is referenced from:
-    // http://stackoverflow.com/questions/11499268/sort-two-arrays-the-same-way
-    const list: {x: number, y: number}[] = []
-    for (const j in tsx) {
-      list.push({x: tsx[j], y: tsy[j]})
+    const n = tsx.length
+    const index = new Uint32Array(n)
+    for (let i = 0; i < n; i++) {
+      index[i] = i
     }
 
-    if (descending)
-      list.sort((a, b) => a.x > b.x ? -1 : (a.x == b.x ? 0 : 1))
-    else
-      list.sort((a, b) => a.x < b.x ? -1 : (a.x == b.x ? 0 : 1))
+    const sign = descending ? -1 : 1
+    index.sort((i, j) => sign*(tsx[i] - tsx[j]))
 
-    this._x_sorted = []
-    this._y_sorted = []
-    for (const {x, y} of list) {
-      this._x_sorted.push(x)
-      this._y_sorted.push(y)
+    this._x_sorted = new NumberArray(n)
+    this._y_sorted = new NumberArray(n)
+
+    for (let i = 0; i < n; i++) {
+      this._x_sorted[i] = tsx[index[i]]
+      this._y_sorted[i] = tsy[index[i]]
     }
 
     this._sorted_dirty = false

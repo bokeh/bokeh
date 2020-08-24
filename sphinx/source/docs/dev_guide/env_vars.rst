@@ -27,4 +27,4 @@ default log levels, and makes generated HTML and JSON more human-readable
 
     We recommend manually setting ``BOKEH_RESOURCES`` to ``server``
     for server work, and ``inline`` for notebooks (other
-    :class:`~bokeh.resources.Resources` settings may also work)
+    :class:`~bokeh.resources.Resources` settings may also work).
