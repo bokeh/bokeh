@@ -284,7 +284,9 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
 
-      if (type instanceof k.Kind)
+      if (type instanceof p.PropertyAlias)
+        property = this.properties[type.attr]
+      else if (type instanceof k.Kind)
         property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
         property = new type(this, name, k.Any, default_value, get(name), options)

@@ -81,7 +81,7 @@ export namespace Burtin {
 
   const p = plt.figure({
     title: null,
-    plot_width: width, plot_height: height,
+    width, height,
     x_axis_type: null, y_axis_type: null,
     x_range: [-420, 420], y_range: [-420, 420],
     min_border: 0,

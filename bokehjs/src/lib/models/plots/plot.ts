@@ -38,8 +38,8 @@ export namespace Plot {
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
 
-    plot_width: p.Property<number>
-    plot_height: p.Property<number>
+    plot_width: p.Property<number | null>
+    plot_height: p.Property<number | null>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -128,8 +128,8 @@ export class Plot extends LayoutDOM {
       toolbar_location:  [ p.Location, 'right'                 ],
       toolbar_sticky:    [ p.Boolean,  true                    ],
 
-      plot_width:        [ p.Number,   600                     ],
-      plot_height:       [ p.Number,   600                     ],
+      plot_width:        [ p.Alias("width")                    ],
+      plot_height:       [ p.Alias("height")                   ],
 
       frame_width:       [ p.Number,   null                    ],
       frame_height:      [ p.Number,   null                    ],
@@ -179,29 +179,12 @@ export class Plot extends LayoutDOM {
     })
 
     this.override({
+      width: 600,
+      height: 600,
       outline_line_color: "#e5e5e5",
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
-  }
-
-  // TODO: change this when we drop ES5 compatibility (https://github.com/microsoft/TypeScript/issues/338)
-  get width(): number | null {
-    // const width = super.width
-    const width = this.properties.width.get_value()
-    return width != null ? width : this.plot_width
-  }
-  set width(width: number | null) {
-    this.setv({width, plot_width: width})
-  }
-
-  get height(): number | null {
-    // const height = super.height
-    const height = this.properties.height.get_value()
-    return height != null ? height : this.plot_height
-  }
-  set height(height: number | null) {
-    this.setv({height, plot_height: height})
   }
 
   protected _doc_attached(): void {

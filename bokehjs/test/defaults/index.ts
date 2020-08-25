@@ -12,6 +12,7 @@ import {isEqual} from "@bokehjs/core/util/eq"
 
 import {Models} from "@bokehjs/base"
 import {HasProps} from "@bokehjs/core/has_props"
+import {PropertyAlias} from "@bokehjs/core/properties"
 
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
@@ -207,7 +208,8 @@ describe("Defaults", () => {
       const attrs: {[key: string]: unknown} = {}
       for (const [attr, prop] of Object.entries(model.prototype._props)) {
         if (prop.options?.internal !== true) {
-          const value = prop.default_value != null ? prop.default_value() : null // XXX: non-nullable properties
+          const actual_prop = prop.type instanceof PropertyAlias ? model.prototype._props[prop.type.attr] : prop
+          const value = actual_prop.default_value != null ? actual_prop.default_value() : null // XXX: non-nullable properties
           attrs[attr] = deep_value_to_serializable(attr, value, undefined)
         }
       }

@@ -266,7 +266,7 @@ describe("gridplot()", () => {
 
     const figs = coeffs.map((ycoeff) => {
       return coeffs.map((xcoeff) => {
-        const fig = figure({plot_height: 200, plot_width: 200})
+        const fig = figure({height: 200, width: 200})
         fig.xaxis.map((axis) => (axis.formatter as any).use_scientific = false)
         fig.yaxis.map((axis) => (axis.formatter as any).use_scientific = false)
         fig.xaxis.map((axis) => axis.major_label_orientation = "vertical")

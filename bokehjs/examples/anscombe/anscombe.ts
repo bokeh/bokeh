@@ -43,8 +43,8 @@ export namespace Anscombe {
       x_range: xdr,
       y_range: ydr,
       title,
-      plot_width: 400,
-      plot_height: 400,
+      width: 400,
+      height: 400,
       background_fill_color: "#F2F2F7",
     })
     const xaxis = new Bokeh.LinearAxis({axis_line_color: null})
