@@ -8,7 +8,7 @@ import {VectorSpec, ScalarSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
-import {isEqual} from "../core/util/eq"
+import {is_equal} from "../core/util/eq"
 import {some, every, includes} from "../core/util/array"
 import {clone, keys, entries} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
@@ -989,7 +989,7 @@ export class Figure extends Plot {
     const {legend} = this
     let added = false
     for (const item of legend.items) {
-      if (item.label != null && isEqual(item.label, legend_item_label)) {
+      if (item.label != null && is_equal(item.label, legend_item_label)) {
         // XXX: remove this when vectorable properties are refined
         const label = item.label as Value<string> | Field
         if ("value" in label) {

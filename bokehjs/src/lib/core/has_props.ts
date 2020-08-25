@@ -12,7 +12,7 @@ import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
 import {values, entries, clone, extend} from "./util/object"
 import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
-import {isEqual} from './util/eq'
+import {is_equal} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {is_NDArray} from "./util/ndarray"
@@ -344,7 +344,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this._changing = true
 
     for (const [prop, value] of changes) {
-      if (check_eq === false || !isEqual(prop.get_value(), value)) {
+      if (check_eq === false || !is_equal(prop.get_value(), value)) {
         prop.set_value(value)
         changed.push(prop)
       }

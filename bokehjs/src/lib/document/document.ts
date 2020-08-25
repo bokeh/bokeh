@@ -10,7 +10,7 @@ import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
-import {isEqual} from "core/util/eq"
+import {is_equal} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
@@ -523,7 +523,7 @@ export class Document {
       } else if (old_value == null || new_value == null) {
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       } else {
-        if (!isEqual(old_value, new_value))
+        if (!is_equal(old_value, new_value))
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       }
     }
