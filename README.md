@@ -280,7 +280,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) as well as sponsorship by the organizations and companies below:
 
-<table>
+<table align="center">
 <tr>
   <td>
     <a href="https://www.numfocus.org/">
@@ -288,6 +288,14 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="NumFocus Logo" width="200"/>
     </a>
   </td>
+  <td colspan="2">
+    <a href="https://www.blackstone.com/the-firm/">
+    <img src="https://static.bokeh.org/sponsor/blackstone.png"
+         alt="Blackstone Logo" width="400"/>
+    </a>
+  </td>
+ </tr>
+ <tr>
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
@@ -308,7 +316,6 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
   </td>
 </tr>
 </table>
-
 
 <table align="center">
 <tr>
