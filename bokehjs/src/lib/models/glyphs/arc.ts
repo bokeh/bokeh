@@ -83,11 +83,11 @@ export class Arc extends XYGlyph {
 
     this.mixins<Arc.Mixins>(LineVector)
 
-    this.define<Arc.Props>({
-      direction:   [ p.Direction,   'anticlock' ],
-      radius:      [ p.DistanceSpec             ],
-      start_angle: [ p.AngleSpec                ],
-      end_angle:   [ p.AngleSpec                ],
-    })
+    this.define<Arc.Props>(({}) => ({
+      direction:   [ Direction, "anticlock" ],
+      radius:      [ p.DistanceSpec ],
+      start_angle: [ p.AngleSpec ],
+      end_angle:   [ p.AngleSpec ],
+    }))
   }
 }

@@ -4,6 +4,7 @@ import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import {Line, Fill} from "core/visuals"
+import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
@@ -147,7 +148,7 @@ export namespace AnnularWedge {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    direction: p.Direction
+    direction: p.Property<Direction>
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
     start_angle: p.AngleSpec
@@ -174,12 +175,12 @@ export class AnnularWedge extends XYGlyph {
 
     this.mixins<AnnularWedge.Mixins>([LineVector, FillVector])
 
-    this.define<AnnularWedge.Props>({
-      direction:    [ p.Direction,   'anticlock' ],
-      inner_radius: [ p.DistanceSpec             ],
-      outer_radius: [ p.DistanceSpec             ],
-      start_angle:  [ p.AngleSpec                ],
-      end_angle:    [ p.AngleSpec                ],
-    })
+    this.define<AnnularWedge.Props>(({}) => ({
+      direction:    [ Direction, "anticlock" ],
+      inner_radius: [ p.DistanceSpec ],
+      outer_radius: [ p.DistanceSpec ],
+      start_angle:  [ p.AngleSpec ],
+      end_angle:    [ p.AngleSpec ],
+    }))
   }
 }

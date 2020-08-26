@@ -93,17 +93,17 @@ export class Label extends TextAnnotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Label.Props>({
-      x:            [ p.Number                       ],
-      x_units:      [ p.SpatialUnits, 'data'         ],
-      y:            [ p.Number                       ],
-      y_units:      [ p.SpatialUnits, 'data'         ],
-      text:         [ p.String                       ],
-      angle:        [ p.Angle,       0               ],
-      angle_units:  [ p.AngleUnits,  'rad'           ],
-      x_offset:     [ p.Number,      0               ],
-      y_offset:     [ p.Number,      0               ],
-    })
+    this.define<Label.Props>(({Number, String, Angle}) => ({
+      x:           [ Number ],
+      x_units:     [ SpatialUnits, "data" ],
+      y:           [ Number ],
+      y_units:     [ SpatialUnits, "data" ],
+      text:        [ String ],
+      angle:       [ Angle, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
+      x_offset:    [ Number, 0 ],
+      y_offset:    [ Number, 0 ],
+    }))
 
     this.override({
       background_fill_color: null,

@@ -28,11 +28,11 @@ export class MapOptions extends Model {
   }
 
   static init_MapOptions(): void {
-    this.define<MapOptions.Props>({
-      lat:  [ p.Number     ],
-      lng:  [ p.Number     ],
-      zoom: [ p.Number, 12 ],
-    })
+    this.define<MapOptions.Props>(({Int, Number}) => ({
+      lat:  [ Number ],
+      lng:  [ Number ],
+      zoom: [ Int, 12 ],
+    }))
   }
 }
 
@@ -57,12 +57,12 @@ export class GMapOptions extends MapOptions {
   }
 
   static init_GMapOptions(): void {
-    this.define<GMapOptions.Props>({
-      map_type:      [ p.String,  "roadmap" ],
-      scale_control: [ p.Boolean, false     ],
-      styles:        [ p.String             ],
-      tilt:          [ p.Int,     45        ],
-    })
+    this.define<GMapOptions.Props>(({Boolean, Int, String}) => ({
+      map_type:      [ String,  "roadmap" ],
+      scale_control: [ Boolean, false     ],
+      styles:        [ String             ],
+      tilt:          [ Int,     45        ],
+    }))
   }
 }
 
@@ -90,10 +90,10 @@ export class GMapPlot extends Plot {
     // This seems to be necessary so that everything can initialize.
     // Feels very clumsy, but I'm not sure how the properties system wants
     // to handle something like this situation.
-    this.define<GMapPlot.Props>({
-      map_options: [ p.Instance ],
-      api_key:     [ p.String   ],
-    })
+    this.define<GMapPlot.Props>(({String, Ref}) => ({
+      map_options: [ Ref(GMapOptions) ],
+      api_key:     [ String ],
+    }))
 
     this.override({
       x_range: () => new Range1d(),

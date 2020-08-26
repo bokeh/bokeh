@@ -105,14 +105,18 @@ export class DatePicker extends InputWidget {
   static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
-    this.define<DatePicker.Props>({
-      value:          [ p.Any                      ],
-      min_date:       [ p.Any                      ],
-      max_date:       [ p.Any                      ],
-      disabled_dates: [ p.Any,              []     ],
-      enabled_dates:  [ p.Any,              []     ],
-      position:       [ p.CalendarPosition, "auto" ],
-      inline:         [ p.Boolean,          false  ],
+    this.define<DatePicker.Props>(({Boolean, String, Array, Tuple, Or}) => {
+      const DateStr = String
+      const DatesList = Array(Or(DateStr, Tuple(DateStr, DateStr)))
+      return {
+        value:          [ String ],
+        min_date:       [ String ],
+        max_date:       [ String ],
+        disabled_dates: [ DatesList, [] ],
+        enabled_dates:  [ DatesList, [] ],
+        position:       [ CalendarPosition, "auto" ],
+        inline:         [ Boolean, false ],
+      }
     })
   }
 }

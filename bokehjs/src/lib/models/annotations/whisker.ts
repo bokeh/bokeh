@@ -82,10 +82,10 @@ export class Whisker extends UpperLower {
 
     this.mixins<Whisker.Mixins>(LineVector)
 
-    this.define<Whisker.Props>({
-      lower_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
-      upper_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
-    })
+    this.define<Whisker.Props>(({Ref}) => ({
+      lower_head: [ Ref(ArrowHead), () => new TeeHead({level: "underlay", size: 10}) ],
+      upper_head: [ Ref(ArrowHead), () => new TeeHead({level: "underlay", size: 10}) ],
+    }))
 
     this.override({
       level: 'underlay',

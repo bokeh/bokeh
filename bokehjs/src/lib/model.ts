@@ -31,13 +31,13 @@ export class Model extends HasProps {
   }
 
   static init_Model(): void {
-    this.define<Model.Props>({
-      tags:                  [ p.Array, [] ],
-      name:                  [ p.String    ],
-      js_property_callbacks: [ p.Any,   {} ],
-      js_event_callbacks:    [ p.Any,   {} ],
-      subscribed_events:     [ p.Array, [] ],
-    })
+    this.define<Model.Props>(({Any, String, Array, Dict, Nullable}) => ({
+      tags:                  [ Array(String), [] ],
+      name:                  [ Nullable(String), null ],
+      js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
+      js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],
+      subscribed_events:     [ Array(String), [] ],
+    }))
   }
 
   initialize(): void {

@@ -26,12 +26,12 @@ export abstract class Interpolator extends Transform {
   }
 
   static init_Interpolator(): void {
-    this.define<Interpolator.Props>({
-      x:    [ p.Any           ],
-      y:    [ p.Any           ],
-      data: [ p.Any           ],
-      clip: [ p.Boolean, true ],
-    })
+    this.define<Interpolator.Props>(({Boolean, Number, String, Ref, Array, Or, Nullable}) => ({
+      x:    [ Or(String, Array(Number)) ],
+      y:    [ Or(String, Array(Number)) ],
+      data: [ Nullable(Ref(ColumnarDataSource)), null ],
+      clip: [ Boolean, true ],
+    }))
   }
 
   protected _x_sorted: NumberArray

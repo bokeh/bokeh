@@ -21,11 +21,11 @@ export class CategoricalColorMapper extends ColorMapper {
   }
 
   static init_CategoricalColorMapper(): void {
-    this.define<CategoricalColorMapper.Props>({
-      factors: [ p.Array     ],
-      start:   [ p.Number, 0 ],
-      end:     [ p.Number    ],
-    })
+    this.define<CategoricalColorMapper.Props>(({Any, Number, Array, Nullable}) => ({
+      factors: [ Array(Any /*TODO*/) ],
+      start:   [ Number, 0 ],
+      end:     [ Nullable(Number), null ],
+    }))
   }
 
   protected _v_compute<T>(data: ArrayableOf<Factor>, values: Arrayable<T>,

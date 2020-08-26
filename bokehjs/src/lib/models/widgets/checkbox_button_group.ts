@@ -48,8 +48,8 @@ export class CheckboxButtonGroup extends ButtonGroup {
   static init_CheckboxButtonGroup(): void {
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define<CheckboxButtonGroup.Props>({
-      active: [ p.Array, [] ],
-    })
+    this.define<CheckboxButtonGroup.Props>(({Int, Array}) => ({
+      active: [ Array(Int), [] ],
+    }))
   }
 }

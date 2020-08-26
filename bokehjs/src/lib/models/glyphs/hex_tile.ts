@@ -239,14 +239,14 @@ export class HexTile extends Glyph {
     this.prototype.default_view = HexTileView
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector])
-    this.define<HexTile.Props>({
-      r:            [ p.NumberSpec                      ],
-      q:            [ p.NumberSpec                      ],
-      size:         [ p.Number,             1.0         ],
-      aspect_scale: [ p.Number,             1.0         ],
-      scale:        [ p.NumberSpec,         1.0         ],
-      orientation:  [ p.HexTileOrientation, "pointytop" ],
-    })
+    this.define<HexTile.Props>(({Number}) => ({
+      r:            [ p.NumberSpec ],
+      q:            [ p.NumberSpec ],
+      size:         [ Number, 1.0 ],
+      aspect_scale: [ Number, 1.0 ],
+      scale:        [ p.NumberSpec, 1.0 ],
+      orientation:  [ HexTileOrientation, "pointytop" ],
+    }))
     this.override({line_color: null})
   }
 }

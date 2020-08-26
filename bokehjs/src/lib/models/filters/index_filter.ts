@@ -21,9 +21,9 @@ export class IndexFilter extends Filter {
   }
 
   static init_IndexFilter(): void {
-    this.define<IndexFilter.Props>({
-      indices: [ p.Array, null ],
-    })
+    this.define<IndexFilter.Props>(({Int, Array, Nullable}) => ({
+      indices: [ Nullable(Array(Int)), null ],
+    }))
   }
 
   compute_indices(source: ColumnarDataSource): Indices {

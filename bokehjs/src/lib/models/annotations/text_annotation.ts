@@ -181,8 +181,8 @@ export abstract class TextAnnotation extends Annotation {
   }
 
   static init_TextAnnotation(): void {
-    this.define<TextAnnotation.Props>({
-      render_mode: [ p.RenderMode, "canvas" ],
-    })
+    this.define<TextAnnotation.Props>(() => ({
+      render_mode: [ RenderMode, "canvas" ],
+    }))
   }
 }

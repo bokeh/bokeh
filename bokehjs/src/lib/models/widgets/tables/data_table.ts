@@ -428,23 +428,23 @@ export class DataTable extends TableWidget {
   static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Null}) => ({
+    this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Nullable}) => ({
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
       auto_edit:           [ Boolean, false ],
       columns:             [ Array(Ref(TableColumn)), [] ],
-      fit_columns:         [ Or(Boolean, Null), null ],
-      frozen_columns:      [ Or(Int, Null), null ],
-      frozen_rows:         [ Or(Int, Null), null ],
+      fit_columns:         [ Nullable(Boolean), null ],
+      frozen_columns:      [ Nullable(Int), null ],
+      frozen_rows:         [ Nullable(Int), null ],
       sortable:            [ Boolean, true ],
       reorderable:         [ Boolean, true ],
       editable:            [ Boolean, false ],
       selectable:          [ Or(Boolean, Enum("checkbox")), true ],
-      index_position:      [ Or(Int, Null), 0 ],
-      index_header:        [ String,  "#"   ],
-      index_width:         [ Int,     40    ],
-      scroll_to_selection: [ Boolean, true  ],
-      header_row:          [ Boolean, true  ],
-      row_height:          [ Int,     25    ],
+      index_position:      [ Nullable(Int), 0 ],
+      index_header:        [ String, "#" ],
+      index_width:         [ Int, 40 ],
+      scroll_to_selection: [ Boolean, true ],
+      header_row:          [ Boolean, true ],
+      row_height:          [ Int, 25 ],
     }))
 
     this.override({

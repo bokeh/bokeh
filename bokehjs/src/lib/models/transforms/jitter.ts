@@ -27,11 +27,11 @@ export class Jitter extends RangeTransform {
   }
 
   static init_Jitter(): void {
-    this.define<Jitter.Props>({
-      mean:         [ p.Number, 0        ],
-      width:        [ p.Number, 1        ],
-      distribution: [ p.Distribution, 'uniform'],
-    })
+    this.define<Jitter.Props>(({Number}) => ({
+      mean:         [ Number, 0 ],
+      width:        [ Number, 1 ],
+      distribution: [ Distribution, "uniform" ],
+    }))
   }
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {

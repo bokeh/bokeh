@@ -1,4 +1,5 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {CustomJSHover} from "./customjs_hover"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {Renderer, RendererView} from "../../renderers/renderer"
@@ -8,7 +9,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
-import {replace_placeholders, Formatters, Vars} from "core/util/templating"
+import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
@@ -500,24 +501,24 @@ export class HoverTool extends InspectTool {
   static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>({
-      tooltips: [ p.Any, [
+    this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Null, Nullable}) => ({
+      tooltips: [ Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>()), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ p.Any,               {}             ],
-      renderers:    [ p.Any,               'auto'         ],
-      names:        [ p.Array,             []             ],
-      mode:         [ p.HoverMode,         'mouse'        ],
-      muted_policy: [ p.MutedPolicy,       'show'         ],
-      point_policy: [ p.PointPolicy,       'snap_to_data' ],
-      line_policy:  [ p.LinePolicy,        'nearest'      ],
-      show_arrow:   [ p.Boolean,           true           ],
-      anchor:       [ p.Anchor,            'center'       ],
-      attachment:   [ p.TooltipAttachment, 'horizontal'   ],
-      callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-    })
+      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
+      renderers:    [ Or(Array(Ref(DataRenderer)), Auto, Null), "auto" ],
+      names:        [ Array(String), [] ],
+      mode:         [ HoverMode, "mouse" ],
+      muted_policy: [ MutedPolicy, "show" ],
+      point_policy: [ PointPolicy, "snap_to_data" ],
+      line_policy:  [ LinePolicy, "nearest" ],
+      show_arrow:   [ Boolean, true ],
+      anchor:       [ Anchor, "center" ],
+      attachment:   [ TooltipAttachment, "horizontal" ],
+      callback:     [ Nullable(Any /*TODO*/) ],
+    }))
 
     this.register_alias("hover", () => new HoverTool())
   }

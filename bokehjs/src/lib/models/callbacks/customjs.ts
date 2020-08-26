@@ -22,10 +22,10 @@ export class CustomJS extends Callback {
   }
 
   static init_CustomJS(): void {
-    this.define<CustomJS.Props>({
-      args:       [ p.Any,     {}    ], // TODO (bev) better type
-      code:       [ p.String,  ''    ],
-    })
+    this.define<CustomJS.Props>(({Unknown, String, Dict}) => ({
+      args: [ Dict(Unknown), {} ],
+      code: [ String, "" ],
+    }))
   }
 
   get names(): string[] {

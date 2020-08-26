@@ -289,11 +289,11 @@ export class Circle extends XYGlyph {
 
     this.mixins<Circle.Mixins>([LineVector, FillVector])
 
-    this.define<Circle.Props>({
-      angle:            [ p.AngleSpec,       0                             ],
-      size:             [ p.DistanceSpec,    { units: "screen", value: 4 } ],
-      radius:           [ p.DistanceSpec,    undefined, {optional: true}   ], // XXX: null
-      radius_dimension: [ p.RadiusDimension, 'x'                           ],
-    })
+    this.define<Circle.Props>(({}) => ({
+      angle:            [ p.AngleSpec, 0 ],
+      size:             [ p.DistanceSpec, {units: "screen", value: 4} ],
+      radius:           [ p.DistanceSpec, undefined, {optional: true} ], // XXX: null
+      radius_dimension: [ RadiusDimension, "x" ],
+    }))
   }
 }

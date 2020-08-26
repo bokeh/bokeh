@@ -128,12 +128,12 @@ extensions in the next section.
         // The this.define() block adds corresponding "properties" to the JS model.
         // These should normally line up 1-1 with the Python model class. Most property
         // types have counterparts, e.g. bokeh.core.properties.String will be
-        // ``p.String`` in the JS implementation. Any time the JS type system is not
+        // ``String`` in the JS implementation. Any time the JS type system is not
         // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-        this.define<Custom.Props>({
-          text:   [ p.String ],
-          slider: [ p.Any    ],
-        })
+        this.define<Custom.Props>(({String, Ref}) => ({
+          text:   [ String ],
+          slider: [ Ref(Slider) ],
+        }))
       }
     }
 

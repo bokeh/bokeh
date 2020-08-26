@@ -57,8 +57,8 @@ export class Image extends ImageBase {
   static init_Image(): void {
     this.prototype.default_view = ImageView
 
-    this.define<Image.Props>({
-      color_mapper: [ p.Instance, () => new LinearColorMapper({palette: Greys9()}) ],
-    })
+    this.define<Image.Props>(({Ref}) => ({
+      color_mapper: [ Ref(ColorMapper), () => new LinearColorMapper({palette: Greys9()}) ],
+    }))
   }
 }

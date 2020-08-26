@@ -40,21 +40,21 @@ export class DataRange1d extends DataRange {
   }
 
   static init_DataRange1d(): void {
-    this.define<DataRange1d.Props>({
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-      range_padding:       [ p.Number,       0.1       ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd                ],
-      follow_interval:     [ p.Number                  ],
-      default_span:        [ p.Number,       2         ],
-      only_visible:        [ p.Boolean,      false     ],
-    })
+    this.define<DataRange1d.Props>(({Boolean, Number}) => ({
+      start:               [ Number                  ],
+      end:                 [ Number                  ],
+      range_padding:       [ Number,       0.1       ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      flipped:             [ Boolean,      false     ],
+      follow:              [ StartEnd                ],
+      follow_interval:     [ Number                  ],
+      default_span:        [ Number,       2         ],
+      only_visible:        [ Boolean,      false     ],
+    }))
 
-    this.internal({
-      scale_hint: [ p.String, 'auto' ],
-    })
+    this.internal<DataRange1d.Props>(({Enum}) => ({
+      scale_hint: [ Enum("log", "auto"), "auto" ],
+    }))
   }
 
   protected _initial_start: number

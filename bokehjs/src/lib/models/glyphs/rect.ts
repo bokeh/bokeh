@@ -257,8 +257,8 @@ export class Rect extends CenterRotatable {
 
   static init_Rect(): void {
     this.prototype.default_view = RectView
-    this.define<Rect.Props>({
-      dilate: [ p.Boolean, false ],
-    })
+    this.define<Rect.Props>(({Boolean}) => ({
+      dilate: [ Boolean, false ],
+    }))
   }
 }

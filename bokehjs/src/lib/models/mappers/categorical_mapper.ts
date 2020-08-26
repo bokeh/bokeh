@@ -18,9 +18,10 @@ export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boole
 }
 
 export function cat_v_compute<T>(data: ArrayableOf<Factor>, factors: ArrayableOf<Factor>,
-    targets: Arrayable<T>, values: Arrayable<T>, start: number, end: number, extra_value: T): void {
+    targets: Arrayable<T>, values: Arrayable<T>, start: number, end: number | null, extra_value: T): void {
+  const N = data.length
 
-  for (let i = 0, N = data.length; i < N; i++) {
+  for (let i = 0; i < N; i++) {
     let d = data[i]
 
     let key: number
@@ -57,7 +58,7 @@ export namespace CategoricalMapper {
   export type Props = Mapper.Props & {
     factors: p.Property<ArrayableOf<Factor>>
     start: p.Property<number>
-    end: p.Property<number>
+    end: p.Property<number | null>
   }
 }
 

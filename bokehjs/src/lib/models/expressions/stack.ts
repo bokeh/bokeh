@@ -21,9 +21,9 @@ export class Stack extends Expression {
   }
 
   static init_Stack(): void {
-    this.define<Stack.Props>({
-      fields: [ p.Array, [] ],
-    })
+    this.define<Stack.Props>(({String, Array}) => ({
+      fields: [ Array(String), [] ],
+    }))
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {

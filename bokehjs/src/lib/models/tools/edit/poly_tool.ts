@@ -80,8 +80,8 @@ export abstract class PolyTool extends EditTool {
   }
 
   static init_PolyTool(): void {
-    this.define<PolyTool.Props>({
-      vertex_renderer: [ p.Instance ],
-    })
+    this.define<PolyTool.Props>(({Ref}) => ({
+      vertex_renderer: [ Ref(GlyphRenderer) ],
+    }))
   }
 }

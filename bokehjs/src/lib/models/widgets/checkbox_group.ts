@@ -65,10 +65,10 @@ export class CheckboxGroup extends InputGroup {
   static init_CheckboxGroup(): void {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define<CheckboxGroup.Props>({
-      active:   [ p.Array,   []    ],
-      labels:   [ p.Array,   []    ],
-      inline:   [ p.Boolean, false ],
-    })
+    this.define<CheckboxGroup.Props>(({Boolean, Int, String, Array}) => ({
+      active: [ Array(Int), [] ],
+      labels: [ Array(String), [] ],
+      inline: [ Boolean, false ],
+    }))
   }
 }

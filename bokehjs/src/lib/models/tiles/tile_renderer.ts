@@ -402,12 +402,12 @@ export class TileRenderer extends DataRenderer {
   static init_TileRenderer(): void {
     this.prototype.default_view = TileRendererView
 
-    this.define<TileRenderer.Props>({
-      alpha:          [ p.Number,   1.0              ],
-      smoothing:      [ p.Boolean,  true             ],
-      tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-      render_parents: [ p.Boolean,  true             ],
-    })
+    this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({
+      alpha:          [ Number, 1.0 ],
+      smoothing:      [ Boolean, true ],
+      tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
+      render_parents: [ Boolean, true ],
+    }))
   }
 
   // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs

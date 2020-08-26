@@ -248,10 +248,10 @@ module looks like this:
       static init_SomeModel(): void {
         this.prototype.default_view = SomeModelView
 
-        this.define<SomeModel.Props>({
-          some_property: [ p.Number, 0 ],
+        this.define<SomeModel.Props>(({Number}) => ({
+          some_property: [ Number, 0 ],
           // add more property definitions
-        })
+        }))
       }
     }
 

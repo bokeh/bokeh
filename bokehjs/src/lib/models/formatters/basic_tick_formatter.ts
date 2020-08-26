@@ -22,12 +22,12 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   static init_BasicTickFormatter(): void {
-    this.define<BasicTickFormatter.Props>({
-      precision:        [ p.Any,     'auto' ], // TODO (bev) better
-      use_scientific:   [ p.Boolean, true   ],
-      power_limit_high: [ p.Number,  5      ],
-      power_limit_low:  [ p.Number,  -3     ],
-    })
+    this.define<BasicTickFormatter.Props>(({Boolean, Int, Auto, Or}) => ({
+      precision:        [ Or(Int, Auto), "auto" ],
+      use_scientific:   [ Boolean, true],
+      power_limit_high: [ Int, 5 ],
+      power_limit_low:  [ Int, -3 ],
+    }))
   }
 
   protected last_precision: number = 3

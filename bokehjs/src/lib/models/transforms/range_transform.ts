@@ -23,9 +23,9 @@ export abstract class RangeTransform extends Transform {
   }
 
   static init_RangeTransform(): void {
-    this.define<RangeTransform.Props>({
-      range: [ p.Instance ],
-    })
+    this.define<RangeTransform.Props>(({Ref}) => ({
+      range: [ Ref(Range) ],
+    }))
   }
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {

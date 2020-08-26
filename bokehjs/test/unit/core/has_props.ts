@@ -14,17 +14,17 @@ class SubclassWithProps extends HasProps {
   foo: number
   bar: boolean
 }
-SubclassWithProps.define<any>({
-  foo: [ p.Number,  0    ],
-  bar: [ p.Boolean, true ],
-})
+SubclassWithProps.define<any>(({Boolean, Number}) => ({
+  foo: [ Number, 0 ],
+  bar: [ Boolean, true ],
+}))
 
 class SubSubclassWithProps extends SubclassWithProps {
   baz: string
 }
-SubSubclassWithProps.define<any>({
-  baz: [ p.String, '' ],
-})
+SubSubclassWithProps.define<any>(({String}) => ({
+  baz: [ String, "" ],
+}))
 
 class SubclassWithMixins extends HasProps {}
 SubclassWithMixins.mixins(['line'])
@@ -39,39 +39,39 @@ class SubclassWithNumberSpec extends HasProps {
   foo: any // XXX
   bar: boolean
 }
-SubclassWithNumberSpec.define<any>({
-  foo: [ p.NumberSpec, {field: 'colname'} ],
-  bar: [ p.Boolean,    true               ],
-})
+SubclassWithNumberSpec.define<any>(({Boolean}) => ({
+  foo: [ p.NumberSpec, {field: "colname"} ],
+  bar: [ Boolean, true ],
+}))
 
 class SubclassWithDistanceSpec extends HasProps {
   foo: any // XXX
   bar: boolean
 }
-SubclassWithDistanceSpec.define<any>({
-  foo: [ p.DistanceSpec, {field: 'colname'} ],
-  bar: [ p.Boolean,      true               ],
-})
+SubclassWithDistanceSpec.define<any>(({Boolean}) => ({
+  foo: [ p.DistanceSpec, {field: "colname"} ],
+  bar: [ Boolean, true ],
+}))
 
 class SubclassWithTransformSpec extends HasProps {
   foo: any // XX
   bar: boolean
 }
-SubclassWithTransformSpec.define<any>({
-  foo: [ p.NumberSpec, {field: 'colname', transform: new TestModel()} ],
-  bar: [ p.Boolean,    true               ],
-})
+SubclassWithTransformSpec.define<any>(({Boolean}) => ({
+  foo: [ p.NumberSpec, {field: "colname", transform: new TestModel()} ],
+  bar: [ Boolean, true ],
+}))
 
 class SubclassWithOptionalSpec extends HasProps {
   foo: any // XXX
   bar: boolean
   baz: any // XXX
 }
-SubclassWithOptionalSpec.define<any>({
+SubclassWithOptionalSpec.define<any>(({Boolean}) => ({
   foo: [ p.NumberSpec, {value: null}, {optional: true} ],
-  bar: [ p.Boolean,    true               ],
-  baz: [ p.NumberSpec, {field: 'colname'} ],
-})
+  bar: [ Boolean, true ],
+  baz: [ p.NumberSpec, {field: "colname"} ],
+}))
 
 describe("core/has_props module", () => {
 

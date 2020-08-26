@@ -185,10 +185,10 @@ export class MultiLine extends Glyph {
   static init_MultiLine(): void {
     this.prototype.default_view = MultiLineView
 
-    this.define<MultiLine.Props>({
+    this.define<MultiLine.Props>(({}) => ({
       xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
       ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
-    })
+    }))
     this.mixins<MultiLine.Mixins>(LineVector)
   }
 }

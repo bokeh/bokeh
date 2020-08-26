@@ -22,9 +22,9 @@ export abstract class ArrowHead extends Annotation {
   }
 
   static init_ArrowHead(): void {
-    this.define<ArrowHead.Props>({
-      size: [ p.Number, 25 ],
-    })
+    this.define<ArrowHead.Props>(({Number}) => ({
+      size: [ Number, 25 ],
+    }))
   }
 
   visuals: Visuals

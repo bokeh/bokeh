@@ -105,12 +105,12 @@ export class BoxSelectTool extends SelectTool {
   static init_BoxSelectTool(): void {
     this.prototype.default_view = BoxSelectToolView
 
-    this.define<BoxSelectTool.Props>({
-      dimensions:             [ p.Dimensions, "both"              ],
-      select_every_mousemove: [ p.Boolean,    false               ],
-      overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      origin:                 [ p.BoxOrigin,  "corner"            ],
-    })
+    this.define<BoxSelectTool.Props>(({Boolean, Ref}) => ({
+      dimensions:             [ Dimensions, "both" ],
+      select_every_mousemove: [ Boolean, false ],
+      overlay:                [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
+      origin:                 [ BoxOrigin, "corner" ],
+    }))
 
     this.register_alias("box_select", () => new BoxSelectTool())
     this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: 'width'}))

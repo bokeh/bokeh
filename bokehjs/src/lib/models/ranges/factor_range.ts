@@ -126,22 +126,22 @@ export class FactorRange extends Range {
   }
 
   static init_FactorRange(): void {
-    this.define<FactorRange.Props>({
-      factors:             [ p.Array,        []        ],
-      factor_padding:      [ p.Number,       0         ],
-      subgroup_padding:    [ p.Number,       0.8       ],
-      group_padding:       [ p.Number,       1.4       ],
-      range_padding:       [ p.Number,       0         ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-    })
+    this.define<FactorRange.Props>(({Any, Number, Array}) => ({
+      factors:             [ Array(Any /*TODO*/), [] ],
+      factor_padding:      [ Number, 0 ],
+      subgroup_padding:    [ Number, 0.8 ],
+      group_padding:       [ Number, 1.4 ],
+      range_padding:       [ Number, 0 ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      start:               [ Number ],
+      end:                 [ Number ],
+    }))
 
-    this.internal({
-      levels:      [ p.Number      ], // how many levels of
-      mids:        [ p.Array, null ], // mid level factors (if 3 total levels)
-      tops:        [ p.Array, null ], // top level factors (whether 2 or 3 total levels)
-    })
+    this.internal<FactorRange.Props>(({Number, String, Array, Tuple, Nullable}) => ({
+      levels: [ Number ], // how many levels of
+      mids:   [ Nullable(Array(Tuple(String, String))), null ], // mid level factors (if 3 total levels)
+      tops:   [ Nullable(Array(String)), null ], // top level factors (whether 2 or 3 total levels)
+    }))
   }
 
   protected _mapping: Mapping

@@ -11,9 +11,13 @@ import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 
 // XXX: add appropriate base classes to get rid of this
 export type Drag = Tool
+export const Drag = Tool
 export type Inspection = Tool
+export const Inspection = Tool
 export type Scroll = Tool
+export const Scroll = Tool
 export type Tap = Tool
+export const Tap = Tool
 
 type ActiveGestureToolsProps = {
   active_drag: p.Property<Drag | "auto" | null>
@@ -59,13 +63,13 @@ export class Toolbar extends ToolbarBase {
   static init_Toolbar(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<Toolbar.Props>({
-      active_drag:     [ p.Any, 'auto' ],
-      active_inspect:  [ p.Any, 'auto' ],
-      active_scroll:   [ p.Any, 'auto' ],
-      active_tap:      [ p.Any, 'auto' ],
-      active_multi:    [ p.Any, null   ],
-    })
+    this.define<Toolbar.Props>(({Or, Ref, Auto, Null, Nullable}) => ({
+      active_drag:     [ Or(Ref(Drag), Auto, Null), "auto" ],
+      active_inspect:  [ Or(Ref(Inspection), Auto, Null), "auto" ],
+      active_scroll:   [ Or(Ref(Scroll), Auto, Null), "auto" ],
+      active_tap:      [ Or(Ref(Tap), Auto, Null), "auto" ],
+      active_multi:    [ Nullable(Ref(GestureTool)), null ],
+    }))
   }
 
   connect_signals(): void {

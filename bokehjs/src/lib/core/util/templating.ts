@@ -2,14 +2,17 @@ import * as Numbro from "@bokeh/numbro"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 
+import {Enum} from "../kinds"
 import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
+import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {ImageIndex} from "models/selections/selection"
 
+export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
+
 export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = {[key: string]: FormatterSpec}
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string

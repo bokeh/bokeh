@@ -27,9 +27,9 @@ export class SelectionManager extends HasProps {
   }
 
   static init_SelectionManager(): void {
-    this.internal({
-      source: [ p.Any ],
-    })
+    this.internal<SelectionManager.Props>(({Ref}) => ({
+      source: [ Ref(ColumnarDataSource) ],
+    }))
   }
 
   inspectors: Map<Renderer, Selection> = new Map()

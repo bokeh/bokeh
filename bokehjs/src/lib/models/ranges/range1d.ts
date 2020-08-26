@@ -22,12 +22,12 @@ export class Range1d extends Range {
   }
 
   static init_Range1d(): void {
-    this.define<Range1d.Props>({
-      start:  [ p.Number, 0 ],
-      end:    [ p.Number, 1 ],
-      reset_start:  [ p.Number ],
-      reset_end:    [ p.Number ],
-    })
+    this.define<Range1d.Props>(({Number}) => ({
+      start:       [ Number, 0 ],
+      end:         [ Number, 1 ],
+      reset_start: [ Number    ],
+      reset_end:   [ Number    ],
+    }))
   }
 
   protected _set_auto_bounds(): void {

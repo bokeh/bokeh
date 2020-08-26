@@ -132,13 +132,13 @@ export class WaterfallRenderer extends Renderer {
   static init_WaterfallRenderer(): void {
     this.prototype.default_view = WaterfallRendererView
 
-    this.define<WaterfallRenderer.Props>({
-      latest:      [ p.Any ],
-      palette:     [ p.Any ],
-      num_grams:   [ p.Int ],
-      gram_length: [ p.Int ],
-      tile_width:  [ p.Int ],
-    })
+    this.define<WaterfallRenderer.Props>(({Int, Number, Color, Array}) => ({
+      latest:      [ Array(Number) ],
+      palette:     [ Array(Color) ],
+      num_grams:   [ Int ],
+      gram_length: [ Int ],
+      tile_width:  [ Int ],
+    }))
 
     this.override({
       level: "glyph",

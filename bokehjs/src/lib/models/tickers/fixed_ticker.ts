@@ -21,10 +21,10 @@ export class FixedTicker extends ContinuousTicker {
   }
 
   static init_FixedTicker(): void {
-    this.define<FixedTicker.Props>({
-      ticks: [ p.Array, [] ],
-      minor_ticks: [ p.Array, [] ],
-    })
+    this.define<FixedTicker.Props>(({Number, Array}) => ({
+      ticks: [ Array(Number), [] ],
+      minor_ticks: [ Array(Number), [] ],
+    }))
   }
 
   get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {

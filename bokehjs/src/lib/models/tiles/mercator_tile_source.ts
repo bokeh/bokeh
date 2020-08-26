@@ -22,10 +22,10 @@ export class MercatorTileSource extends TileSource {
   }
 
   static init_MercatorTileSource(): void {
-    this.define<MercatorTileSource.Props>({
-      snap_to_zoom: [ p.Boolean, false ],
-      wrap_around:  [ p.Boolean, true  ],
-    })
+    this.define<MercatorTileSource.Props>(({Boolean}) => ({
+      snap_to_zoom: [ Boolean, false ],
+      wrap_around:  [ Boolean, true ],
+    }))
 
     this.override({
       x_origin_offset:    20037508.34,

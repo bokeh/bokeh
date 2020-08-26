@@ -57,10 +57,10 @@ export abstract class ColorMapper extends Mapper<Color> {
   }
 
   static init_ColorMapper(): void {
-    this.define<ColorMapper.Props>({
-      palette:   [ p.Any           ], // TODO (bev)
-      nan_color: [ p.Color, "gray" ],
-    })
+    this.define<ColorMapper.Props>(({Number, Color, Array, Or}) => ({
+      palette:   [ Array(Or(Color, Number)) ],
+      nan_color: [ Color, "gray" ],
+    }))
   }
 
   v_compute(xs: ArrayableOf<number | Factor>): Arrayable<Color> {

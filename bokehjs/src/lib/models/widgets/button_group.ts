@@ -71,9 +71,9 @@ export abstract class ButtonGroup extends Control {
   }
 
   static init_ButtonGroup(): void {
-    this.define<ButtonGroup.Props>({
-      labels:      [ p.Array,      []        ],
-      button_type: [ p.ButtonType, "default" ],
-    })
+    this.define<ButtonGroup.Props>(({String, Array}) => ({
+      labels:      [ Array(String), [] ],
+      button_type: [ ButtonType, "default" ],
+    }))
   }
 }

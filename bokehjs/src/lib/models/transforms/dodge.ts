@@ -19,9 +19,9 @@ export class Dodge extends RangeTransform {
   }
 
   static init_Dodge(): void {
-    this.define<Dodge.Props>({
-      value: [ p.Number,  0 ],
-    })
+    this.define<Dodge.Props>(({Number}) => ({
+      value: [ Number, 0 ],
+    }))
   }
 
   protected _compute(x: number): number {

@@ -288,16 +288,16 @@ export class ImageURL extends XYGlyph {
   static init_ImageURL(): void {
     this.prototype.default_view = ImageURLView
 
-    this.define<ImageURL.Props>({
-      url:            [ p.StringSpec            ],
-      anchor:         [ p.Anchor,    'top_left' ],
-      global_alpha:   [ p.Number,    1.0        ],
-      angle:          [ p.AngleSpec, 0          ],
-      w:              [ p.DistanceSpec          ],
-      h:              [ p.DistanceSpec          ],
-      dilate:         [ p.Boolean,   false      ],
-      retry_attempts: [ p.Number,    0          ],
-      retry_timeout:  [ p.Number,    0          ],
-    })
+    this.define<ImageURL.Props>(({Boolean, Int, Alpha}) => ({
+      url:            [ p.StringSpec ],
+      anchor:         [ Anchor, "top_left" ],
+      global_alpha:   [ Alpha, 1.0 ],
+      angle:          [ p.AngleSpec, 0 ],
+      w:              [ p.DistanceSpec ],
+      h:              [ p.DistanceSpec ],
+      dilate:         [ Boolean, false ],
+      retry_attempts: [ Int, 0 ],
+      retry_timeout:  [ Int, 0 ],
+    }))
   }
 }

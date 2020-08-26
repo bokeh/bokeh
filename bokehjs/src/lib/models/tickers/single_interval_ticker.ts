@@ -23,9 +23,9 @@ export class SingleIntervalTicker extends ContinuousTicker {
   }
 
   static init_SingleIntervalTicker(): void {
-    this.define<SingleIntervalTicker.Props>({
-      interval: [ p.Number ],
-    })
+    this.define<SingleIntervalTicker.Props>(({Number}) => ({
+      interval: [ Number ],
+    }))
   }
 
   get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number): number {

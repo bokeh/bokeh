@@ -93,13 +93,13 @@ export class WheelPanTool extends GestureTool {
   static init_WheelPanTool(): void {
     this.prototype.default_view = WheelPanToolView
 
-    this.define<WheelPanTool.Props>({
-      dimension: [ p.Dimension, "width" ],
-    })
+    this.define<WheelPanTool.Props>(() => ({
+      dimension: [ Dimension, "width" ],
+    }))
 
-    this.internal({
-      speed: [ p.Number, 1/1000 ],
-    })
+    this.internal<WheelPanTool.Props>(({Number}) => ({
+      speed: [ Number, 1/1000 ],
+    }))
 
     this.register_alias("xwheel_pan", () => new WheelPanTool({dimension: "width"}))
     this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))

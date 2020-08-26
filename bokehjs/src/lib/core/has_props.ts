@@ -79,9 +79,9 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this.prototype._props = {}
     this.prototype._mixins = []
 
-    this.define<HasProps.Props>({
-      id: [ p.String, () => uniqueId() ],
-    })
+    this.define<HasProps.Props>(({String}) => ({
+      id: [ String, () => uniqueId() ],
+    }))
   }
 
   /** @prototype */
@@ -148,10 +148,10 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     }
   }
 
-  static internal(obj: any): void {
+  static internal<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
     const _object: any = {}
-    for (const [name, entry] of entries(obj)) {
-      const [type, default_value, options = {}] = entry as any
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
+      const [type, default_value, options = {}] = prop as any
       _object[name] = [type, default_value, {...options, internal: true}]
     }
     this.define(_object)

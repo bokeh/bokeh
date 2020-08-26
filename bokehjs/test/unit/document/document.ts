@@ -30,9 +30,9 @@ class AnotherModel extends Model {
   }
 
   static init_AnotherModel(): void {
-    this.define<AnotherModel.Props>({
-      bar: [ p.Number, 1 ],
-    })
+    this.define<AnotherModel.Props>(({Number}) => ({
+      bar: [ Number, 1 ],
+    }))
   }
 }
 
@@ -57,10 +57,10 @@ class SomeModel extends Model {
 
   static init_SomeModel(): void {
 
-    this.define<SomeModel.Props>({
-      foo:   [ p.Number, 2 ],
-      child: [ p.Instance, null ],
-    })
+    this.define<SomeModel.Props>(({Number, Ref, Nullable}) => ({
+      foo:   [ Number, 2 ],
+      child: [ Nullable(Ref(Model)), null ],
+    }))
   }
 }
 
@@ -84,9 +84,9 @@ class SomeModelWithChildren extends Model {
 
   static init_SomeModelWithChildren(): void {
 
-    this.define<SomeModelWithChildren.Props>({
-      children: [ p.Array, [] ],
-    })
+    this.define<SomeModelWithChildren.Props>(({Array, Ref}) => ({
+      children: [ Array(Ref(Model)), [] ],
+    }))
   }
 }
 
@@ -117,10 +117,10 @@ class ModelWithConstructTimeChanges extends Model {
 
   static init_ModelWithConstructTimeChanges(): void {
 
-    this.define<ModelWithConstructTimeChanges.Props>({
-      foo:   [ p.Number, 2 ],
-      child: [ p.Instance, null ],
-    })
+    this.define<ModelWithConstructTimeChanges.Props>(({Number, Ref, Nullable}) => ({
+      foo:   [ Number, 2 ],
+      child: [ Nullable(Ref(Model)), null ],
+    }))
   }
 }
 
@@ -155,12 +155,12 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
 
   static init_ComplicatedModelWithConstructTimeChanges(): void {
 
-    this.define<ComplicatedModelWithConstructTimeChanges.Props>({
-      list_prop:         [ p.Array ],
-      dict_prop:         [ p.Any ],
-      obj_prop:          [ p.Instance ],
-      dict_of_list_prop: [ p.Any ],
-    })
+    this.define<ComplicatedModelWithConstructTimeChanges.Props>(({Array, Dict, Ref}) => ({
+      list_prop:         [ Array(Ref(AnotherModel)) ],
+      dict_prop:         [ Dict(Ref(AnotherModel)) ],
+      obj_prop:          [ Ref(ModelWithConstructTimeChanges) ],
+      dict_of_list_prop: [ Dict(Array(Ref(Model))) ],
+    }))
   }
 }
 

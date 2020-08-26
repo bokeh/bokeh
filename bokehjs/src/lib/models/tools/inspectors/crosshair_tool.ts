@@ -62,16 +62,16 @@ export class CrosshairTool extends InspectTool {
   static init_CrosshairTool(): void {
     this.prototype.default_view = CrosshairToolView
 
-    this.define<CrosshairTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-      line_color: [ p.Color, 'black'     ],
-      line_width: [ p.Number, 1          ],
-      line_alpha: [ p.Number, 1.0        ],
-    })
+    this.define<CrosshairTool.Props>(({Alpha, Number, Color}) => ({
+      dimensions: [ Dimensions, "both" ],
+      line_color: [ Color, "black" ],
+      line_width: [ Number, 1 ],
+      line_alpha: [ Alpha, 1 ],
+    }))
 
-    this.internal({
-      spans:          [ p.Any                    ],
-    })
+    this.internal<CrosshairTool.Props>(({Struct, Ref}) => ({
+      spans: [ Struct({width: Ref(Span), height: Ref(Span)}) ],
+    }))
 
     this.register_alias("crosshair", () => new CrosshairTool())
   }

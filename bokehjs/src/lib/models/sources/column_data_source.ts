@@ -157,9 +157,9 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static init_ColumnDataSource(): void {
-    this.define<ColumnDataSource.Props>({
-      data: [ p.Any, {} ],
-    })
+    this.define<ColumnDataSource.Props>(({Dict, Any /*Arrayable*/}) => ({
+      data: [ Dict(Any /*Arrayable*/), {} ], // TODO: resolve ndarray refs earlier
+    }))
   }
 
   stream(new_data: Data, rollover?: number, setter_id?: string): void {

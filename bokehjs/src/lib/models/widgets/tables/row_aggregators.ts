@@ -24,9 +24,9 @@ export abstract class RowAggregator extends Model {
   }
 
   static init_RowAggregator(): void {
-    this.define<RowAggregator.Props>({
-      field_: [ p.String, '' ],
-    })
+    this.define<RowAggregator.Props>(({String}) => ({
+      field_: [ String, "" ],
+    }))
   }
 
   abstract init(): void

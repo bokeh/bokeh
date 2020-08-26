@@ -123,60 +123,60 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>({
-      toolbar:           [ p.Instance, () => new Toolbar()     ],
-      toolbar_location:  [ p.Location, 'right'                 ],
-      toolbar_sticky:    [ p.Boolean,  true                    ],
+    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar_location:  [ Nullable(Location), "right" ],
+      toolbar_sticky:    [ Boolean, true ],
 
-      plot_width:        [ p.Alias("width")                    ],
-      plot_height:       [ p.Alias("height")                   ],
+      plot_width:        [ p.Alias("width") ],
+      plot_height:       [ p.Alias("height") ],
 
-      frame_width:       [ p.Number,   null                    ],
-      frame_height:      [ p.Number,   null                    ],
+      frame_width:       [ Nullable(Number), null ],
+      frame_height:      [ Nullable(Number), null ],
 
-      title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
-      title_location:    [ p.Location, 'above'                 ],
+      title:             [ Or(Ref(Title), String, Null), () => new Title({text: ""}) ],
+      title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ p.Array,    []                      ],
-      below:             [ p.Array,    []                      ],
-      left:              [ p.Array,    []                      ],
-      right:             [ p.Array,    []                      ],
-      center:            [ p.Array,    []                      ],
+      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ p.Array,    []                      ],
+      renderers:         [ Array(Ref(DataRenderer)), [] ],
 
-      x_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-      y_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+      x_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      y_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
-      x_scale:           [ p.Instance, () => new LinearScale() ],
-      y_scale:           [ p.Instance, () => new LinearScale() ],
+      x_scale:           [ Ref(Scale), () => new LinearScale() ],
+      y_scale:           [ Ref(Scale), () => new LinearScale() ],
 
-      lod_factor:        [ p.Number,   10                      ],
-      lod_interval:      [ p.Number,   300                     ],
-      lod_threshold:     [ p.Number,   2000                    ],
-      lod_timeout:       [ p.Number,   500                     ],
+      lod_factor:        [ Number, 10 ],
+      lod_interval:      [ Number, 300 ],
+      lod_threshold:     [ Number, 2000 ],
+      lod_timeout:       [ Number, 500 ],
 
-      hidpi:             [ p.Boolean,  true                    ],
-      output_backend:    [ p.OutputBackend, "canvas"           ],
+      hidpi:             [ Boolean, true ],
+      output_backend:    [ OutputBackend, "canvas" ],
 
-      min_border:        [ p.Number,   5                       ],
-      min_border_top:    [ p.Number,   null                    ],
-      min_border_left:   [ p.Number,   null                    ],
-      min_border_bottom: [ p.Number,   null                    ],
-      min_border_right:  [ p.Number,   null                    ],
+      min_border:        [ Nullable(Number), 5 ],
+      min_border_top:    [ Nullable(Number), null ],
+      min_border_left:   [ Nullable(Number), null ],
+      min_border_bottom: [ Nullable(Number), null ],
+      min_border_right:  [ Nullable(Number), null ],
 
-      inner_width:       [ p.Number                            ],
-      inner_height:      [ p.Number                            ],
-      outer_width:       [ p.Number                            ],
-      outer_height:      [ p.Number                            ],
+      inner_width:       [ Number ],
+      inner_height:      [ Number ],
+      outer_width:       [ Number ],
+      outer_height:      [ Number ],
 
-      match_aspect:      [ p.Boolean,  false                   ],
-      aspect_scale:      [ p.Number,   1                       ],
+      match_aspect:      [ Boolean, false ],
+      aspect_scale:      [ Number, 1 ],
 
-      reset_policy:      [ p.ResetPolicy,  "standard"          ],
-    })
+      reset_policy:      [ ResetPolicy, "standard" ],
+    }))
 
     this.override({
       width: 600,

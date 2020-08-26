@@ -226,10 +226,10 @@ export class Patches extends Glyph {
   static init_Patches(): void {
     this.prototype.default_view = PatchesView
 
-    this.define<Patches.Props>({
+    this.define<Patches.Props>(({}) => ({
       xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
       ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
-    })
+    }))
     this.mixins<Patches.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

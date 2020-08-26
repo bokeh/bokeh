@@ -162,9 +162,9 @@ export class Annulus extends XYGlyph {
 
     this.mixins<Annulus.Mixins>([LineVector, FillVector])
 
-    this.define<Annulus.Props>({
+    this.define<Annulus.Props>(({}) => ({
       inner_radius: [ p.DistanceSpec ],
       outer_radius: [ p.DistanceSpec ],
-    })
+    }))
   }
 }

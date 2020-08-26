@@ -47,9 +47,9 @@ export class MonthsTicker extends SingleIntervalTicker {
   }
 
   static init_MonthsTicker(): void {
-    this.define<MonthsTicker.Props>({
-      months: [ p.Array, [] ],
-    })
+    this.define<MonthsTicker.Props>(({Int, Array}) => ({
+      months: [ Array(Int), [] ],
+    }))
   }
 
   initialize(): void {

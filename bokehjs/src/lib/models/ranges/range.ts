@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {Plot} from "../plots/plot"
+import type {Plot} from "../plots/plot"
 import * as p from "core/properties"
 
 export namespace Range {
@@ -23,15 +23,15 @@ export abstract class Range extends Model {
   }
 
   static init_Range(): void {
-    this.define<Range.Props>({
-      bounds:       [ p.Any ], // TODO (bev)
-      min_interval: [ p.Any ],
-      max_interval: [ p.Any ],
-    })
+    this.define<Range.Props>(({Number, Tuple, Or, Auto, Nullable}) => ({
+      bounds:       [ Nullable(Or(Tuple(Number, Number), Auto)) ],
+      min_interval: [ Number ],
+      max_interval: [ Number ],
+    }))
 
-    this.internal({
-      plots: [ p.Array, [] ],
-    })
+    this.internal<Range.Props>(({Array, AnyRef}) => ({
+      plots: [ Array(AnyRef<Plot>()), [] ], // XXX: recursive imports
+    }))
   }
 
   start: number

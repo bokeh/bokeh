@@ -23,9 +23,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
   }
 
   static init_EqHistColorMapper(): void {
-    this.define<EqHistColorMapper.Props>({
-      bins: [ p.Int, 256*256 ],
-    })
+    this.define<EqHistColorMapper.Props>(({Int}) => ({
+      bins: [ Int, 256*256 ],
+    }))
   }
 
   protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {

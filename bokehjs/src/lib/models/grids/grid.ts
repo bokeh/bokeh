@@ -219,12 +219,12 @@ export class Grid extends GuideRenderer {
       ["band_",       mixins.Hatch],
     ])
 
-    this.define<Grid.Props>({
-      bounds:       [ p.Any,     'auto'    ], // TODO (bev)
-      dimension:    [ p.Any,     0         ],
-      axis:         [ p.Instance           ],
-      ticker:       [ p.Instance           ],
-    })
+    this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or}) => ({
+      bounds:    [ Or(Tuple(Number, Number), Auto), "auto" ],
+      dimension: [ Enum(0, 1), 0 ],
+      axis:      [ Ref(Axis) ],
+      ticker:    [ Ref(Ticker) ],
+    }))
 
     this.override({
       level: "underlay",

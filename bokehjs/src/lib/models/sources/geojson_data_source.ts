@@ -44,13 +44,13 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   static init_GeoJSONDataSource(): void {
-    this.define<GeoJSONDataSource.Props>({
-      geojson: [ p.Any ], // TODO (bev)
-    })
+    this.define<GeoJSONDataSource.Props>(({String}) => ({
+      geojson: [ String ],
+    }))
 
-    this.internal({
-      data:    [ p.Any, {} ],
-    })
+    this.internal<GeoJSONDataSource.Props>(({Dict, Arrayable}) => ({
+      data: [ Dict(Arrayable), {} ],
+    }))
   }
 
   initialize(): void {

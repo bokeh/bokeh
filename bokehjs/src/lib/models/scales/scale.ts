@@ -23,10 +23,10 @@ export abstract class Scale extends Transform {
   }
 
   static init_Scale(): void {
-    this.internal({
-      source_range: [ p.Any ],
-      target_range: [ p.Any ], // p.Instance(Range1d)
-    })
+    this.internal<Scale.Props>(({Ref}) => ({
+      source_range: [ Ref(Range) ],
+      target_range: [ Ref(Range1d) ],
+    }))
   }
 
   abstract compute(x: number): number

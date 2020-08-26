@@ -99,9 +99,9 @@ export class FreehandDrawTool extends EditTool {
   static init_FreehandDrawTool(): void {
     this.prototype.default_view = FreehandDrawToolView
 
-    this.define<FreehandDrawTool.Props>({
-      num_objects: [ p.Int, 0 ],
-    })
+    this.define<FreehandDrawTool.Props>(({Int}) => ({
+      num_objects: [ Int, 0 ],
+    }))
   }
   tool_name = "Freehand Draw Tool"
   icon = bk_tool_icon_freehand_draw

@@ -22,10 +22,10 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   static init_FuncTickFormatter(): void {
-    this.define<FuncTickFormatter.Props>({
-      args:       [ p.Any,     {}    ], // TODO (bev) better type
-      code:       [ p.String,  ''    ],
-    })
+    this.define<FuncTickFormatter.Props>(({Unknown, String, Dict}) => ({
+      args: [ Dict(Unknown), {} ],
+      code: [ String, "" ],
+    }))
   }
 
   get names(): string[] {

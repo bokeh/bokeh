@@ -185,9 +185,9 @@ export class StringEditor extends CellEditor {
 
   static init_StringEditor(): void {
     this.prototype.default_view = StringEditorView
-    this.define<StringEditor.Props>({
-      completions: [ p.Array, [] ],
-    })
+    this.define<StringEditor.Props>(({String, Array}) => ({
+      completions: [ Array(String), [] ],
+    }))
   }
 }
 
@@ -254,9 +254,9 @@ export class SelectEditor extends CellEditor {
 
   static init_SelectEditor(): void {
     this.prototype.default_view = SelectEditorView
-    this.define<SelectEditor.Props>({
-      options: [ p.Array, [] ],
-    })
+    this.define<SelectEditor.Props>(({String, Array}) => ({
+      options: [ Array(String), [] ],
+    }))
   }
 }
 
@@ -378,9 +378,9 @@ export class IntEditor extends CellEditor {
 
   static init_IntEditor(): void {
     this.prototype.default_view = IntEditorView
-    this.define<IntEditor.Props>({
-      step: [ p.Number, 1 ],
-    })
+    this.define<IntEditor.Props>(({Int}) => ({
+      step: [ Int, 1 ],
+    }))
   }
 }
 
@@ -437,9 +437,9 @@ export class NumberEditor extends CellEditor {
 
   static init_NumberEditor(): void {
     this.prototype.default_view = NumberEditorView
-    this.define<NumberEditor.Props>({
-      step: [ p.Number, 0.01 ],
-    })
+    this.define<NumberEditor.Props>(({Number}) => ({
+      step: [ Number, 0.01 ],
+    }))
   }
 }
 
