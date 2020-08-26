@@ -109,7 +109,13 @@ ${comment(license)}
             Object.defineProperty(mod.exports, "__esModule", {value: true});
           }
 
-          modules[id].call(mod.exports, require, mod, mod.exports, __esModule);
+          function __esExport(name, value) {
+            Object.defineProperty(mod.exports, name, {
+              enumerable: true, get: function () { return value; }
+            });
+          }
+
+          modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
         } else {
           cache[name] = mod;
         }
@@ -226,7 +232,13 @@ export function default_prelude(options?: {global?: string}): string {
             Object.defineProperty(mod.exports, "__esModule", {value: true});
           }
 
-          modules[id].call(mod.exports, require, mod, mod.exports, __esModule);
+          function __esExport(name, value) {
+            Object.defineProperty(mod.exports, name, {
+              enumerable: true, get: function () { return value; }
+            });
+          }
+
+          modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
         } else
           cache[name] = mod;
       }

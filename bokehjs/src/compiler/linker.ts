@@ -301,6 +301,9 @@ export class Linker {
       const remove_void0 = transforms.remove_void0()
       transformers.push(remove_void0)
 
+      const fix_esexports = transforms.fix_esexports()
+      transformers.push(fix_esexports)
+
       const rewrite_deps = transforms.rewrite_deps((dep) => {
         const module_dep = module.dependencies.get(dep)
         return module_dep != null ? module_dep.id : undefined
