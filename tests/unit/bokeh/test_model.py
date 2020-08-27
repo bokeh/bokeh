@@ -91,6 +91,37 @@ class Test_js_on_change:
         m.js_on_change('foo', cb, cb)
         assert m.js_property_callbacks == {"foo": [cb]}
 
+class Test_js_on_event:
+
+    def test_with_multple_callbacks(self) -> None:
+        cb1 = CustomJS(code="foo")
+        cb2 = CustomJS(code="bar")
+        m = SomeModel()
+        m.js_on_event("some", cb1, cb2)
+        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+
+    def test_with_multple_callbacks_separately(self) -> None:
+        cb1 = CustomJS(code="foo")
+        cb2 = CustomJS(code="bar")
+        m = SomeModel()
+        m.js_on_event("some", cb1)
+        assert m.js_event_callbacks == {"some": [cb1]}
+        m.js_on_event("some", cb2)
+        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+
+    def test_ignores_dupe_callbacks(self) -> None:
+        cb = CustomJS(code="foo")
+        m = SomeModel()
+        m.js_on_event("some", cb, cb)
+        assert m.js_event_callbacks == {"some": [cb]}
+
+    def test_ignores_dupe_callbacks_separately(self) -> None:
+        cb = CustomJS(code="foo")
+        m = SomeModel()
+        m.js_on_event("some", cb)
+        assert m.js_event_callbacks == {"some": [cb]}
+        m.js_on_event("some", cb)
+        assert m.js_event_callbacks == {"some": [cb]}
 
 class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:
