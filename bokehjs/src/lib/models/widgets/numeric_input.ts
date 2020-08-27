@@ -1,16 +1,14 @@
 import * as numbro from "@bokeh/numbro"
 
-import { InputWidgetView, InputWidget } from "./input_widget"
+import {InputWidgetView, InputWidget} from "./input_widget"
+import {TickFormatter} from "../formatters/tick_formatter"
 
 import {input} from "core/dom"
+import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 import * as p from "core/properties"
 
-import {TickFormatter} from "api"
-import {isString} from "api/linalg"
-
 import {bk_input} from "styles/widgets/inputs"
-
 
 const int_regex = /^[-+]?\d*$/
 const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
@@ -23,22 +21,22 @@ export class NumericInputView extends InputWidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.value.change, () => {
       this.input_el.value = this.format_value
       this.old_value = this.input_el.value
     })
     this.connect(this.model.properties.low.change, () => {
       const {value, low, high} = this.model
-      if (low!=null && high!=null)
-        assert(low<=high, "Invalid bounds, low must be inferior to high")
+      if (low != null && high != null)
+        assert(low <= high, "Invalid bounds, low must be inferior to high")
       if (value != null && low != null)
         this.model.value = Math.max(value, low)
     })
     this.connect(this.model.properties.high.change, () => {
       const {value, low, high} = this.model
-      if (low!=null && high!=null)
-        assert(high>=low, "Invalid bounds, high must be superior to low")
+      if (low != null && high != null)
+        assert(high >= low, "Invalid bounds, high must be superior to low")
       if (value != null && high != null)
         this.model.value = Math.min(value, high)
     })
@@ -48,17 +46,17 @@ export class NumericInputView extends InputWidgetView {
   }
 
   get format_value(): string {
-    return (this.model.value != null)? this.model.pretty(this.model.value): ""
+    return this.model.value != null ? this.model.pretty(this.model.value) : ""
   }
 
   _set_input_filter(inputFilter: (value: string) => boolean): void {
     this.input_el.addEventListener("input", () => {
       const {selectionStart, selectionEnd} = this.input_el
-      if (!inputFilter(this.input_el.value)) { //an invalid character is entered
+      if (!inputFilter(this.input_el.value)) { // an invalid character is entered
         const difflen = this.old_value.length - this.input_el.value.length
         this.input_el.value = this.old_value
         if (selectionStart && selectionEnd)
-          this.input_el.setSelectionRange(selectionStart-1, selectionEnd+difflen)
+          this.input_el.setSelectionRange(selectionStart-1, selectionEnd + difflen)
       } else
         this.old_value = this.input_el.value
     })
@@ -75,6 +73,7 @@ export class NumericInputView extends InputWidgetView {
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
+
     this.old_value = this.format_value
     this.set_input_filter()
     this.input_el.addEventListener("change", () => this.change_input())
@@ -92,20 +91,23 @@ export class NumericInputView extends InputWidgetView {
   bound_value(value: number): number {
     let output = value
     const {low, high} = this.model
-    output = (low != null)? Math.max(low, output): output
-    output = (high != null)? Math.min(high, output): output
+    output = low != null ? Math.max(low, output) : output
+    output = high != null ? Math.min(high, output) : output
     return output
   }
 
   get value(): number | null {
-    let value = (this.input_el.value!=="")? Number(this.input_el.value) : null
-    if(value!=null) value = this.bound_value(value)
+    let value = this.input_el.value != "" ? Number(this.input_el.value) : null
+    if (value != null)
+      value = this.bound_value(value)
     return value
   }
 
   change_input(): void {
-    if (this.value == null) this.model.value = null
-    else if (!Number.isNaN(this.value)) this.model.value = this.value
+    if (this.value == null)
+      this.model.value = null
+    else if (!Number.isNaN(this.value))
+      this.model.value = this.value
   }
 }
 
