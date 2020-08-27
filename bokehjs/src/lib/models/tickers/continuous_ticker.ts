@@ -40,9 +40,6 @@ export abstract class ContinuousTicker extends Ticker<number> {
     })
   }
 
-  min_interval: number
-  max_interval: number
-
   get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any): TickSpec<number> {
     return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
   }
@@ -99,14 +96,10 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 
   // Returns the smallest interval that can be returned by get_interval().
-  get_min_interval(): number {
-    return this.min_interval
-  }
+  abstract get_min_interval(): number
 
   // Returns the largest interval that can be returned by get_interval().
-  get_max_interval(): number {
-    return this.max_interval != null ? this.max_interval : Infinity
-  }
+  abstract get_max_interval(): number
 
   // Returns the interval size that would produce exactly the number of
   // desired ticks.  (In general we won't use exactly this interval, because

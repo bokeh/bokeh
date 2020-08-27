@@ -8,7 +8,7 @@ export class DOMView extends View {
   el: HTMLElement
 
   /** @override */
-  root: DOMView
+  readonly root: DOMView
 
   initialize(): void {
     super.initialize()

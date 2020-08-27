@@ -6,11 +6,9 @@ import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size} from "core/layout"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
-import {SidePanel} from "core/layout/side_panel"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
-  panel: SidePanel
 
   readonly rotate: boolean = true
 
@@ -46,7 +44,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected _render(): void {
     // TODO: this should be handled by the layout
-    const {bbox} = this.panel
+    const {bbox} = this.panel!
     if (!this._previous_bbox.equals(bbox)) {
       position(this.el, bbox)
       this._previous_bbox = bbox

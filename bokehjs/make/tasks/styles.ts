@@ -22,8 +22,8 @@ task("styles:compile", async () => {
         ext: ".css",
       })
       write(dst, css)
-    } catch (error) {
-      errors.push(error.toString())
+    } catch (error: unknown) {
+      errors.push(`${error}`)
     }
   }
 

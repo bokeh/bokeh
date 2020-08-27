@@ -606,14 +606,7 @@ describe("Document", () => {
     d.set_title('Foo')
     expect(d.roots().length).to.be.equal(2)
     expect(d.title()).to.be.equal('Foo')
-    let got_error = false
-    try {
-      d.destructively_move(d)
-    } catch (e) {
-      got_error = true
-      expect(e.message.includes("Attempted to overwrite a document with itself")).to.be.true
-    }
-    expect(got_error).to.be.true
+    expect(() => d.destructively_move(d)).to.throw(Error, "Attempted to overwrite a document with itself")
   })
 
   it("can destructively move", () => {

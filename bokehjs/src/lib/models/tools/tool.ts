@@ -64,7 +64,7 @@ export type ToolAliases = {
 export abstract class ToolView extends View {
   model: Tool
 
-  parent: PlotView
+  readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent

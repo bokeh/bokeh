@@ -140,7 +140,21 @@ export class PanTool extends GestureTool {
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
+      dimensions: [ p.Dimensions, "both", {
+        on_update(value: Dimensions, obj: PanTool) {
+          switch (value) {
+            case "both":
+              obj.icon = bk_tool_icon_pan
+              break
+            case "width":
+              obj.icon = bk_tool_icon_xpan
+              break
+            case "height":
+              obj.icon = bk_tool_icon_ypan
+              break
+          }
+        },
+      }],
     })
 
     this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
@@ -154,13 +168,5 @@ export class PanTool extends GestureTool {
 
   get tooltip(): string {
     return this._get_dim_tooltip("Pan", this.dimensions)
-  }
-
-  get icon(): string {
-    switch (this.dimensions) {
-      case "both":   return bk_tool_icon_pan
-      case "width":  return bk_tool_icon_xpan
-      case "height": return bk_tool_icon_ypan
-    }
   }
 }

@@ -49,7 +49,7 @@ export async function add_document_from_session(websocket_url: string, token: st
   let session: ClientSession
   try {
     session = await _get_session(websocket_url, token, args_string)
-  } catch (error) {
+  } catch (error: unknown) {
     const session_id = parse_token(token).session_id
     logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
     throw error

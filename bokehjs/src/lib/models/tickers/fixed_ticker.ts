@@ -39,7 +39,12 @@ export class FixedTicker extends ContinuousTicker {
     return 0
   }
 
-  min_interval: number = 0
-  max_interval: number = 0
+  get_min_interval(): number {
+    return 0
+  }
+
+  get_max_interval(): number {
+    return 0
+  }
   //
 }

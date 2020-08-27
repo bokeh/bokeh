@@ -36,8 +36,9 @@ export abstract class Range extends Model {
 
   start: number
   end: number
-  min: number
-  max: number
+
+  abstract get min(): number
+  abstract get max(): number
 
   have_updated_interactively: boolean = false
 

@@ -11,8 +11,8 @@ export namespace Stocks {
     const plot = plt.figure({
       tools: "pan,wheel_zoom,save,reset",
       title,
-      plot_width: 400,
-      plot_height: 400,
+      width: 400,
+      height: 400,
       background_fill_color: "#eeeeff",
     })
 

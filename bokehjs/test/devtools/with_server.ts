@@ -62,7 +62,7 @@ export function with_server<T>(f: (url: string) => T): Promise<T> {
       const v = f(url)
       // note that "v" can be another promise OR a final value
       promise.resolve(v)
-    } catch (e) {
+    } catch (e: unknown) {
       promise.reject(e)
     }
   }

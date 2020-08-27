@@ -70,7 +70,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
       try {
         views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Error rendering Bokeh items:", error)
       }
     } else

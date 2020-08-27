@@ -32,11 +32,11 @@ export class SingleIntervalTicker extends ContinuousTicker {
     return this.interval
   }
 
-  get min_interval(): number {
+  get_min_interval(): number {
     return this.interval
   }
 
-  get max_interval(): number {
+  get_max_interval(): number {
     return this.interval
   }
 }

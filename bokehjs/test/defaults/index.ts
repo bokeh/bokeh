@@ -8,10 +8,11 @@ import all_defaults from "../.generated_defaults/defaults.json"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference} from "@bokehjs/core/util/array"
 import {keys, values, entries} from "@bokehjs/core/util/object"
-import {isEqual} from "@bokehjs/core/util/eq"
+import {is_equal} from "@bokehjs/core/util/eq"
 
 import {Models} from "@bokehjs/base"
 import {HasProps} from "@bokehjs/core/has_props"
+import {PropertyAlias} from "@bokehjs/core/properties"
 
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
@@ -96,12 +97,12 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
       let py_v = python_defaults[k]
       strip_ids(py_v)
 
-      if (!isEqual(py_v, js_v)) {
+      if (!is_equal(py_v, js_v)) {
 
         // these two conditionals compare 'foo' and {value: 'foo'}
-        if (isPlainObject(js_v) && 'value' in js_v && isEqual(py_v, js_v.value))
+        if (isPlainObject(js_v) && 'value' in js_v && is_equal(py_v, js_v.value))
           continue
-        if (isPlainObject(py_v) && 'value' in py_v && isEqual(py_v.value, js_v))
+        if (isPlainObject(py_v) && 'value' in py_v && is_equal(py_v.value, js_v))
           continue
 
         if (isPlainObject(js_v) && 'attributes' in js_v && isPlainObject(py_v) && 'attributes' in py_v) {
@@ -125,7 +126,7 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
             for (let i = 0; i < js_v.length; i++) {
               delete (js_v[i] as any).id
               delete (py_v[i] as any).id
-              if (!isEqual(js_v[i], py_v[i])) {
+              if (!is_equal(js_v[i], py_v[i])) {
                 equal = false
                 break
               }
@@ -207,7 +208,8 @@ describe("Defaults", () => {
       const attrs: {[key: string]: unknown} = {}
       for (const [attr, prop] of Object.entries(model.prototype._props)) {
         if (prop.options?.internal !== true) {
-          const value = prop.default_value != null ? prop.default_value() : null // XXX: non-nullable properties
+          const actual_prop = prop.type instanceof PropertyAlias ? model.prototype._props[prop.type.attr] : prop
+          const value = actual_prop.default_value != null ? actual_prop.default_value() : null // XXX: non-nullable properties
           attrs[attr] = deep_value_to_serializable(attr, value, undefined)
         }
       }

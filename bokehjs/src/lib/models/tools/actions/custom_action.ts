@@ -15,8 +15,7 @@ export class CustomActionView extends ActionToolView {
   model: CustomAction
 
   doit(): void {
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model)
+    this.model.callback?.execute(this.model)
   }
 }
 

@@ -157,7 +157,7 @@ function Throws(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error) {
+    } catch (error: unknown) {
       if (!(error instanceof Error)) {
         throw new ExpectationError(`expected ${to_string(fn)} to throw a proper exception, got ${to_string(error)}`)
       }
@@ -187,7 +187,7 @@ function NotThrows(fn: () => unknown) {
   return function(error_type?: Class<Error>, pattern?: RegExp | string) {
     try {
       fn()
-    } catch (error) {
+    } catch (error: unknown) {
       if (!(error instanceof Error)) {
         throw new ExpectationError(`expected ${to_string(fn)} to not throw, got ${to_string(error)}`)
       }

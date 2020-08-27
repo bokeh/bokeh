@@ -295,6 +295,15 @@ export class Linker {
       const remove_use_strict = transforms.remove_use_strict()
       transformers.push(remove_use_strict)
 
+      const fix_esmodule = transforms.fix_esmodule()
+      transformers.push(fix_esmodule)
+
+      const remove_void0 = transforms.remove_void0()
+      transformers.push(remove_void0)
+
+      const fix_esexports = transforms.fix_esexports()
+      transformers.push(fix_esexports)
+
       const rewrite_deps = transforms.rewrite_deps((dep) => {
         const module_dep = module.dependencies.get(dep)
         return module_dep != null ? module_dep.id : undefined
@@ -407,11 +416,12 @@ export class Linker {
 
     const artifacts = []
     for (const artifact of this.cache.values()) {
-      const module = {...artifact.module}
-
-      delete module.changed
-      delete module.ast
-      delete module.dependencies
+      const module = {
+        ...artifact.module,
+        changed: undefined,
+        ast: undefined,
+        dependencies: undefined,
+      }
 
       artifacts.push({
         module: {

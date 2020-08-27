@@ -16,7 +16,7 @@ export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
 
   root: LayoutDOMView
-  parent: LayoutDOMView
+  readonly parent: LayoutDOMView
 
   protected _idle_notified: boolean = false
 

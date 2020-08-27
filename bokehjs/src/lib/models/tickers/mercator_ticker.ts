@@ -8,7 +8,7 @@ export namespace MercatorTicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BasicTicker.Props & {
-    dimension: p.Property<LatLon | null | undefined>
+    dimension: p.Property<LatLon | null>
   }
 }
 

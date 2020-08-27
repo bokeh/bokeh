@@ -18,7 +18,7 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
     super(attrs)
   }
 
-  metrics: {min: number, max: number, binning: Arrayable<number>}
+  MatricsType: {min: number, max: number, binning: Arrayable<number>}
 
   protected cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, edges: any): T {
     if (d < edges.binning[0])
