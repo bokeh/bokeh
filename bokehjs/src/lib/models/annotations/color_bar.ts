@@ -479,7 +479,7 @@ export class ColorBarView extends AnnotationView {
   protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {
     // XXX: passing null as cross_loc probably means MercatorTickFormatters, etc
     // will not function properly in conjunction with colorbars
-    const formatted_labels = this.model.formatter.doFormat(initial_labels, null as any)
+    const formatted_labels = this.model.formatter.doFormat(initial_labels, {loc: NaN})
 
     for (let i = 0, end = major_ticks.length; i < end; i++) {
       if (major_ticks[i] in this.model.major_label_overrides)
@@ -508,9 +508,7 @@ export class ColorBarView extends AnnotationView {
     const [i, j] = this._normals()
     const [start, end] = [this.model.color_mapper.metrics.min, this.model.color_mapper.metrics.max]
 
-    // XXX: passing null as cross_loc probably means MercatorTickers, etc
-    // will not function properly in conjunction with colorbars
-    const ticks = this.model.ticker.get_ticks(start, end, null, null, this.model.ticker.desired_num_ticks)
+    const ticks = this.model.ticker.get_ticks_no_defaults(start, end, NaN, this.model.ticker.desired_num_ticks)
 
     const majors = ticks.major
     const minors = ticks.minor

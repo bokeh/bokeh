@@ -430,7 +430,7 @@ export class AxisView extends GuideRendererView {
     const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
     const majors = ticks.major
     const minors = ticks.minor
 

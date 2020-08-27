@@ -140,7 +140,7 @@ export class GridView extends GuideRendererView {
       return coords
     }
 
-    const ticks = ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+    const ticks = ticker.get_ticks(start, end, range, cross_range.min)[location]
 
     const min = range.min
     const max = range.max

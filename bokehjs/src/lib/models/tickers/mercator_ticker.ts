@@ -27,7 +27,7 @@ export class MercatorTicker extends BasicTicker {
     }))
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     if (this.dimension == null) {
       throw new Error(`${this}.dimension wasn't configured`)
     }
@@ -40,7 +40,7 @@ export class MercatorTicker extends BasicTicker {
       return this._get_ticks_lat(data_low, data_high, cross_loc, desired_n_ticks)
   }
 
-  protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const [proj_low] = wgs84_mercator.invert(data_low, cross_loc)
     const [proj_high, proj_cross_loc] = wgs84_mercator.invert(data_high, cross_loc)
 
@@ -65,7 +65,7 @@ export class MercatorTicker extends BasicTicker {
     return {major, minor}
   }
 
-  protected _get_ticks_lat(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  protected _get_ticks_lat(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const [, proj_low] = wgs84_mercator.invert(cross_loc, data_low)
     const [proj_cross_loc, proj_high] = wgs84_mercator.invert(cross_loc, data_high)
 

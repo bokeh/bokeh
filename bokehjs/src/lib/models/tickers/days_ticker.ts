@@ -68,7 +68,7 @@ export class DaysTicker extends SingleIntervalTicker {
       this.interval = 31*ONE_DAY
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     const month_dates = date_range_by_month(data_low, data_high)
 
     const days = this.days

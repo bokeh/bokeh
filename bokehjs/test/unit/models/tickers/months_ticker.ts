@@ -17,7 +17,7 @@ describe("MonthsTicker Model", () => {
 
   it("should return nice ticks on a single interval", () => {
     const ticker = new MonthsTicker({months: [6]})
-    const ticks = ticker.get_ticks_no_defaults(Date.UTC(2000, 0, 1), Date.UTC(2005, 0, 1), null, 5)
+    const ticks = ticker.get_ticks_no_defaults(Date.UTC(2000, 0, 1), Date.UTC(2005, 0, 1), NaN, 5)
     const expected_major = [2000, 2001, 2002, 2003, 2004].map((year) => Date.UTC(year, 6, 1))
     expect(ticks.major).to.be.equal(expected_major)
     expect(ticks.minor).to.be.equal([])
@@ -25,7 +25,7 @@ describe("MonthsTicker Model", () => {
 
   it("should return nice ticks on multiple intervals", () => {
     const ticker = new MonthsTicker({months: [3, 9]})
-    const ticks = ticker.get_ticks_no_defaults(Date.UTC(2000, 0, 1), Date.UTC(2002, 0, 1), null, 5)
+    const ticks = ticker.get_ticks_no_defaults(Date.UTC(2000, 0, 1), Date.UTC(2002, 0, 1), NaN, 5)
     const expected_major = [Date.UTC(2000, 3, 1), Date.UTC(2000, 9, 1), Date.UTC(2001, 3, 1), Date.UTC(2001, 9, 1)]
     expect(ticks.major).to.be.equal(expected_major)
     expect(ticks.minor).to.be.equal([])

@@ -22,7 +22,7 @@ export class CategoricalTicker extends Ticker<Factor> {
     super(attrs)
   }
 
-  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any): FactorTickSpec {
+  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: number): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 
     const tops = this._collect(range.tops || [], range, start, end)

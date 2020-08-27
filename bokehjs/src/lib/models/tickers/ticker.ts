@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Range} from "../ranges/range"
 import * as p from "core/properties"
 
 export type TickSpec<T> = {
@@ -35,5 +36,5 @@ export abstract class Ticker<T> extends Model {
   }
 
   // Generates a nice series of ticks for a given range.
-  abstract get_ticks(data_low: number, data_high: number, range: any, cross_loc: any, unused: any): TickSpec<T>
+  abstract get_ticks(data_low: number, data_high: number, range: Range, cross_loc: number): TickSpec<T>
 }

@@ -84,7 +84,7 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }

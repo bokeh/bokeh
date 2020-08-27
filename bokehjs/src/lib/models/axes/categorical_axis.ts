@@ -87,7 +87,7 @@ export class CategoricalAxisView extends AxisView {
     const [start, end] = this.computed_bounds
     const loc = this.loc
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
     const info: [string[], Coords, Orient | number, visuals.Text][] = []
@@ -120,7 +120,7 @@ export class CategoricalAxisView extends AxisView {
     const [range] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
 
     const coords: CategoricalTickCoords = {
       major: [[], []],
