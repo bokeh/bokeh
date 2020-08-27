@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+from os.path import basename
 
 # External imports
 import bs4
@@ -432,6 +433,34 @@ def test_external_js_and_css_resource_ordering() -> None:
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
 
 
+def test_legacy_resources():
+    r = resources.Resources(minified=True, legacy=True)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.legacy.min.js",
+        "bokeh-widgets.legacy.min.js",
+        "bokeh-tables.legacy.min.js",
+    ]
+
+    r = resources.Resources(minified=True, legacy=False)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.min.js",
+        "bokeh-widgets.min.js",
+        "bokeh-tables.min.js",
+    ]
+
+    r = resources.Resources(minified=False, legacy=True)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.legacy.js",
+        "bokeh-widgets.legacy.js",
+        "bokeh-tables.legacy.js",
+    ]
+
+    r = resources.Resources(minified=False, legacy=False)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.js",
+        "bokeh-widgets.js",
+        "bokeh-tables.js",
+    ]
 
 # -----------------------------------------------------------------------------
 # Dev API
