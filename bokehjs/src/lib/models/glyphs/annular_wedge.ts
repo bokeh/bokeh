@@ -50,7 +50,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
@@ -61,10 +61,10 @@ export class AnnularWedgeView extends XYGlyphView {
 
       ctx.beginPath()
       ctx.moveTo(souter_radius[i], 0)
-      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction)
+      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], anticlock)
       ctx.rotate(_angle[i])
       ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !direction)
+      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !anticlock)
       ctx.closePath()
 
       ctx.rotate(-_angle[i]-_start_angle[i])
@@ -118,12 +118,12 @@ export class AnnularWedgeView extends XYGlyphView {
         candidates.push(i)
     }
 
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
     const indices: number[] = []
     for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
-      const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
+      const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
+      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
         indices.push(i)
       }
     }

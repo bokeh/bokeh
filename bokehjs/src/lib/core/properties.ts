@@ -148,7 +148,7 @@ export abstract class Property<T = unknown> {
     return values
   }
 
-  validate(value: any): void {
+  validate(value: unknown): void {
     if (!this.valid(value))
       throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
   }

@@ -33,14 +33,14 @@ export class ArcView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, sradius, _start_angle, _end_angle}: ArcData): void {
     if (this.visuals.line.doit) {
-      const direction = this.model.properties.direction.value()
+      const anticlock = this.model.direction == "anticlock"
 
       for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], anticlock)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

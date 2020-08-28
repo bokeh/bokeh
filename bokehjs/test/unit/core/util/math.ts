@@ -41,29 +41,29 @@ describe("math module", () => {
   describe("angle_between", () => {
 
     it("should return true if `mid` angle strictly between `lhs` and `rhs`", () => {
-      expect(math.angle_between(0, -1, 1, 1)).to.be.true
-      expect(math.angle_between(0, -1, 1, 0)).to.be.false
+      expect(math.angle_between(0, -1, 1, true)).to.be.true
+      expect(math.angle_between(0, -1, 1, false)).to.be.false
     })
 
     it("should return false if `mid` == `lhs` == `rhs`", () => {
-      expect(math.angle_between(10, 10, 10, 1)).to.be.false
-      expect(math.angle_between(10, 10, 10, 0)).to.be.false
+      expect(math.angle_between(10, 10, 10, true)).to.be.false
+      expect(math.angle_between(10, 10, 10, false)).to.be.false
     })
 
     it("should return false if `lhs` == `rhs` == 0", () => {
-      expect(math.angle_between(0, 0, 0, 0)).to.be.false
-      expect(math.angle_between(1, 0, 0, 0)).to.be.false
-      expect(math.angle_between(-1, 0, 0, 0)).to.be.false
-      expect(math.angle_between(0, 0, 0, 1)).to.be.false
-      expect(math.angle_between(1, 0, 0, 1)).to.be.false
-      expect(math.angle_between(-1, 0, 0, 1)).to.be.false
+      expect(math.angle_between(0, 0, 0, false)).to.be.false
+      expect(math.angle_between(1, 0, 0, false)).to.be.false
+      expect(math.angle_between(-1, 0, 0, false)).to.be.false
+      expect(math.angle_between(0, 0, 0, true)).to.be.false
+      expect(math.angle_between(1, 0, 0, true)).to.be.false
+      expect(math.angle_between(-1, 0, 0, true)).to.be.false
     })
 
     it("should return true if angle dist is 2_PI", () => {
-      expect(math.angle_between(1, 0, 2*PI, 0)).to.be.true
-      expect(math.angle_between(-1, 0, 2*PI, 0)).to.be.true
-      expect(math.angle_between(1, 0, 2*PI, 1)).to.be.true
-      expect(math.angle_between(-1, 0, 2*PI, 1)).to.be.true
+      expect(math.angle_between(1, 0, 2*PI, false)).to.be.true
+      expect(math.angle_between(-1, 0, 2*PI, false)).to.be.true
+      expect(math.angle_between(1, 0, 2*PI, true)).to.be.true
+      expect(math.angle_between(-1, 0, 2*PI, true)).to.be.true
     })
 
   })

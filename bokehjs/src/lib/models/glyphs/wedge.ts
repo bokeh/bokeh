@@ -34,14 +34,14 @@ export class WedgeView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], anticlock)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
@@ -94,13 +94,13 @@ export class WedgeView extends XYGlyphView {
       }
     }
 
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
     const indices: number[] = []
 
     for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
-      const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
+      const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
+      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
         indices.push(i)
       }
     }
