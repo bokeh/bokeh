@@ -6,9 +6,9 @@ export namespace Range {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    bounds: p.Property<[number, number] | "auto" | null>
-    min_interval: p.Property<number>
-    max_interval: p.Property<number>
+    bounds: p.Property<[number | null, number | null] | "auto" | null>
+    min_interval: p.Property<number | null>
+    max_interval: p.Property<number | null>
     plots: p.Property<Plot[]>
   }
 }
@@ -24,9 +24,9 @@ export abstract class Range extends Model {
 
   static init_Range(): void {
     this.define<Range.Props>(({Number, Tuple, Or, Auto, Nullable}) => ({
-      bounds:       [ Nullable(Or(Tuple(Number, Number), Auto)) ],
-      min_interval: [ Number ],
-      max_interval: [ Number ],
+      bounds:       [ Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto)), null ],
+      min_interval: [ Nullable(Number), null ],
+      max_interval: [ Nullable(Number), null ],
     }))
 
     this.internal<Range.Props>(({Array, AnyRef}) => ({

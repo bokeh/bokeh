@@ -643,10 +643,10 @@ export class PlotView extends LayoutDOMView {
     if (min_interval != null || max_interval != null) {
       const old_interval = Math.abs(rng.end - rng.start)
       const new_interval = Math.abs(range_info.end - range_info.start)
-      if (min_interval > 0 && new_interval < min_interval) {
+      if (min_interval != null && min_interval > 0 && new_interval < min_interval) {
         weight = (old_interval - min_interval) / (old_interval - new_interval)
       }
-      if (max_interval > 0 && new_interval > max_interval) {
+      if (max_interval != null && max_interval > 0 && new_interval > max_interval) {
         weight = (max_interval - old_interval) / (new_interval - old_interval)
       }
       weight = Math.max(0.0, Math.min(1.0, weight))
