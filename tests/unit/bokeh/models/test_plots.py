@@ -32,6 +32,7 @@ from bokeh.models import (
     PanTool,
     Plot,
     Range1d,
+    CustomJS
 )
 from bokeh.plotting import figure
 
@@ -192,6 +193,7 @@ class TestPlotValidation:
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
         dep.grid.x_range_name="foo"
+        p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0

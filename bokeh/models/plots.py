@@ -54,6 +54,7 @@ from ..model import Model, collect_filtered_models
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
+from .callbacks import Callback
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
@@ -383,7 +384,7 @@ class Plot(LayoutDOM):
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
         msg  = ""
-        filt = lambda x: x is not self and isinstance(x, Plot)
+        filt = lambda x: x is not self and isinstance(x, (Plot, Callback))
         for ref in collect_filtered_models(filt, self):
             prop_names = ref.properties()
             bad = []
