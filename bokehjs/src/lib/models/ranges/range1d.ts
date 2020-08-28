@@ -7,8 +7,8 @@ export namespace Range1d {
   export type Props = Range.Props & {
     start: p.Property<number>
     end: p.Property<number>
-    reset_start: p.Property<number>
-    reset_end: p.Property<number>
+    reset_start: p.Property<number | null>
+    reset_end: p.Property<number | null>
   }
 }
 
@@ -22,30 +22,35 @@ export class Range1d extends Range {
   }
 
   static init_Range1d(): void {
-    this.define<Range1d.Props>(({Number}) => ({
+    this.define<Range1d.Props>(({Number, Nullable}) => ({
       start:       [ Number, 0 ],
       end:         [ Number, 1 ],
-      reset_start: [ Number    ],
-      reset_end:   [ Number    ],
+      reset_start: [ Nullable(Number), null, {
+        on_update(reset_start, self: Range1d) {
+          self._reset_start = reset_start ?? self.start
+        },
+      }],
+      reset_end: [ Nullable(Number), null, {
+        on_update(reset_end, self: Range1d) {
+          self._reset_end = reset_end ?? self.end
+        },
+      }],
     }))
   }
 
   protected _set_auto_bounds(): void {
     if (this.bounds == 'auto') {
-      const min = Math.min(this.reset_start, this.reset_end)
-      const max = Math.max(this.reset_start, this.reset_end)
+      const min = Math.min(this._reset_start, this._reset_end)
+      const max = Math.max(this._reset_start, this._reset_end)
       this.setv({bounds: [min, max]}, {silent: true})
     }
   }
 
+  private _reset_start: number
+  private _reset_end: number
+
   initialize(): void {
     super.initialize()
-    if (this.reset_start == null) {
-      this.reset_start = this.start
-    }
-    if (this.reset_end == null) {
-      this.reset_end = this.end
-    }
     this._set_auto_bounds()
   }
 
@@ -59,8 +64,9 @@ export class Range1d extends Range {
 
   reset(): void {
     this._set_auto_bounds()
-    if (this.start != this.reset_start || this.end != this.reset_end)
-      this.setv({start: this.reset_start, end: this.reset_end})
+    const {_reset_start, _reset_end} = this
+    if (this.start != _reset_start || this.end != _reset_end)
+      this.setv({start: _reset_start, end: _reset_end})
     else
       this.change.emit()
   }
