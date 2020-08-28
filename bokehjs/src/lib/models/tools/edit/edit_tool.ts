@@ -10,7 +10,7 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
-export interface HasXYGlyph {
+export type HasXYGlyph = {
   glyph: XYGlyph
 }
 

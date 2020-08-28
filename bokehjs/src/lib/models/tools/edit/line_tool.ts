@@ -3,9 +3,9 @@ import {isArray} from "core/util/types"
 import {Line} from "../../glyphs/line"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 
-import { EditTool, EditToolView, HasXYGlyph } from "./edit_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
-export interface HasLineGlyph {
+export type HasLineGlyph = {
   glyph: Line
 }
 
@@ -41,7 +41,7 @@ export namespace LineTool {
 
   export type Props = EditTool.Props & {
     renderers: p.Property<(GlyphRenderer & HasLineGlyph)[]>
-    intersection_renderer: p.Property<(GlyphRenderer & HasXYGlyph & HasLineGlyph)>
+    intersection_renderer: p.Property<(GlyphRenderer & HasLineGlyph)>
   }
 }
 
@@ -58,8 +58,8 @@ export abstract class LineTool extends EditTool {
   }
 
   static init_LineTool(): void {
-    this.define<LineTool.Props>(({Ref}) => ({
-      intersection_renderer: [ Ref(GlyphRenderer) ],
+    this.define<LineTool.Props>(({AnyRef}) => ({
+      intersection_renderer: [ AnyRef<GlyphRenderer & HasLineGlyph>() ],
     }))
   }
 }

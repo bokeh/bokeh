@@ -117,10 +117,10 @@ export class GraphRenderer extends DataRenderer {
   static init_GraphRenderer(): void {
     this.prototype.default_view = GraphRendererView
 
-    this.define<GraphRenderer.Props>(({Ref}) => ({
+    this.define<GraphRenderer.Props>(({Ref, AnyRef}) => ({
       layout_provider:   [ Ref(LayoutProvider) ],
-      node_renderer:     [ Ref(GlyphRenderer) ],
-      edge_renderer:     [ Ref(GlyphRenderer) ],
+      node_renderer:     [ AnyRef<GlyphRenderer & {glyph: XYGlyph}>() ],
+      edge_renderer:     [ AnyRef<GlyphRenderer & {glyph: MultiLine}>() ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
     }))

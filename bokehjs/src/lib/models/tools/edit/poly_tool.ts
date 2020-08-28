@@ -63,7 +63,7 @@ export namespace PolyTool {
 
   export type Props = EditTool.Props & {
     renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
-    vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph)>
+    vertex_renderer: p.Property<GlyphRenderer & HasXYGlyph>
   }
 }
 
@@ -80,8 +80,8 @@ export abstract class PolyTool extends EditTool {
   }
 
   static init_PolyTool(): void {
-    this.define<PolyTool.Props>(({Ref}) => ({
-      vertex_renderer: [ Ref(GlyphRenderer) ],
+    this.define<PolyTool.Props>(({AnyRef}) => ({
+      vertex_renderer: [ AnyRef<GlyphRenderer & HasXYGlyph>() ],
     }))
   }
 }
