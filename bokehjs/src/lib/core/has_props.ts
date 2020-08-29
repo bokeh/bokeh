@@ -234,7 +234,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly properties: {[key: string]: Property} = {} // Object.create(null)
+  readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
     const prop = this.properties[name]
@@ -245,7 +245,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   get attributes(): Attrs {
-    const attrs: Attrs = {} // Object.create(null)
+    const attrs: Attrs = {}
     for (const prop of this) {
       attrs[prop.attr] = prop.get_value()
     }

@@ -120,8 +120,10 @@ export abstract class Property<T = unknown> {
       else if (default_value !== undefined)
         attr_value = default_value(obj)
       else {
-        //throw new Error("no default")
-        attr_value = null as any // XXX: nullable properties
+        // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
+        // console.warn(`${this.obj}.${this.attr} has no value nor default`)
+        this.spec = {value: null}
+        return
       }
     }
 
@@ -131,8 +133,7 @@ export abstract class Property<T = unknown> {
   //protected abstract _update(attr_value: T): void
 
   protected _update(attr_value: T): void {
-    if (attr_value != null) // XXX: non-nullalble types
-      this.validate(attr_value)
+    this.validate(attr_value)
     this.spec = {value: attr_value}
     this.on_update?.(attr_value, this.obj)
   }
@@ -150,7 +151,7 @@ export abstract class Property<T = unknown> {
 
   validate(value: unknown): void {
     if (!this.valid(value))
-      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new Error(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
   }
 
   valid(value: unknown): boolean {
