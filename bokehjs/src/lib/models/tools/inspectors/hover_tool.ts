@@ -223,7 +223,7 @@ export class HoverToolView extends InspectToolView {
 
     const glyph = (renderer_view as any).glyph // XXX
 
-    const tooltips: [number, number, HTMLElement][] = []
+    const tooltips: [number, number, HTMLElement | null][] = []
     for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
@@ -365,7 +365,8 @@ export class HoverToolView extends InspectToolView {
       const {content} = tooltip
       empty(tooltip.content)
       for (const [,, node] of tooltips) {
-        content.appendChild(node)
+        if (node != null)
+          content.appendChild(node)
       }
 
       const [x, y] = tooltips[tooltips.length-1]
@@ -456,16 +457,17 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
-    } else {
+    } else if (tooltips != null) {
       return this._render_template(this._template_el!, tooltips, ds, i, vars)
-    }
+    } else
+      return null
   }
 }
 
@@ -473,7 +475,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
@@ -502,7 +504,7 @@ export class HoverTool extends InspectTool {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Null, Nullable}) => ({
-      tooltips: [ Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>()), [
+      tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
