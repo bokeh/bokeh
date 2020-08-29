@@ -72,7 +72,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     this.title_el.style.display = hide_header ? "none" : ""
 
     if (!hide_header) {
-      if (this.model.title.length != 0)
+      if (this.model.title?.length != 0)
         this.title_el.textContent = `${this.model.title}: `
 
       if (this.model.show_value) {
@@ -207,7 +207,7 @@ export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props & {
-    title: p.Property<string>
+    title: p.Property<string | null>
     show_value: p.Property<boolean>
     start: p.Property<any> // XXX
     end: p.Property<any> // XXX
@@ -232,9 +232,9 @@ export abstract class AbstractSlider extends Control {
   }
 
   static init_AbstractSlider(): void {
-    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref}) => {
+    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref, Nullable}) => {
       return {
-        title:           [ String, "" ],
+        title:           [ Nullable(String), "" ],
         show_value:      [ Boolean, true ],
         start:           [ Any ],
         end:             [ Any ],
