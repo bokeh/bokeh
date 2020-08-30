@@ -12,7 +12,7 @@ export namespace MercatorAxis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LinearAxis.Props & {
-    ticker:    p.Property<MercatorTicker>
+    ticker: p.Property<MercatorTicker>
     formatter: p.Property<MercatorTickFormatter>
   }
 }
