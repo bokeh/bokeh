@@ -447,7 +447,7 @@ export class DataTable extends TableWidget {
       row_height:          [ Int, 25 ],
     }))
 
-    this.override({
+    this.override<DataTable.Props>({
       width: 600,
       height: 400,
     })

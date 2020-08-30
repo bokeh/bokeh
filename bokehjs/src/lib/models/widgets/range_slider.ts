@@ -28,7 +28,7 @@ export class RangeSlider extends AbstractSlider {
   static init_RangeSlider(): void {
     this.prototype.default_view = RangeSliderView
 
-    this.override({
+    this.override<RangeSlider.Props>({
       format: "0[.]00",
     })
   }

@@ -164,7 +164,7 @@ export class BoxAnnotation extends Annotation {
       in_cursor: [ Nullable(String), null ],
     }))
 
-    this.override({
+    this.override<BoxAnnotation.Props>({
       fill_color: '#fff9ba',
       fill_alpha: 0.4,
       line_color: '#cccccc',

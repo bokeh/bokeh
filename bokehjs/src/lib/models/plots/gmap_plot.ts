@@ -95,7 +95,7 @@ export class GMapPlot extends Plot {
       api_key:     [ String ],
     }))
 
-    this.override({
+    this.override<GMapPlot.Props>({
       x_range: () => new Range1d(),
       y_range: () => new Range1d(),
     })

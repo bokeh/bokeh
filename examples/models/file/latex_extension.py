@@ -22,6 +22,7 @@ class LatexLabel(Label):
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css"]
     __implementation__ = TypeScript("""
 import {Label, LabelView} from "models/annotations/label"
+import * as p from "core/properties"
 
 declare namespace katex {
   function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
@@ -60,11 +61,22 @@ export class LatexLabelView extends LabelView {
   }
 }
 
+export namespace LatexLabel {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Label.Props
+}
+
+export interface LatexLabel extends LatexLabel.Attrs {}
+
 export class LatexLabel extends Label {
+  properties: LatexLabel.Props
+  __view_type__: LatexLabelView
+
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
 
-    this.override({
+    this.override<LatexLabel.Props>({
       render_mode: "css",
     })
   }

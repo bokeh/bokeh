@@ -108,7 +108,7 @@ export class PolyAnnotation extends Annotation {
       screen: [ Boolean, false ],
     }))
 
-    this.override({
+    this.override<PolyAnnotation.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",

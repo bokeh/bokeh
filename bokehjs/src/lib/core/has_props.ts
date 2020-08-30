@@ -210,7 +210,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this.prototype._mixins = [...this.prototype._mixins, ...names]
   }
 
-  static override(obj: any): void {
+  static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
       const value = this.prototype._props[name]

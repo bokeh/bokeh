@@ -244,7 +244,7 @@ export class LabelSet extends TextAnnotation {
       source:       [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
     }))
 
-    this.override({
+    this.override<LabelSet.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

@@ -33,7 +33,7 @@ export class LinearAxis extends ContinuousAxis {
   static init_LinearAxis(): void {
     this.prototype.default_view = LinearAxisView
 
-    this.override({
+    this.override<LinearAxis.Props>({
       ticker:    () => new BasicTicker(),
       formatter: () => new BasicTickFormatter(),
     })

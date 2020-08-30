@@ -390,7 +390,7 @@ export class Legend extends Annotation {
       click_policy:     [ LegendClickPolicy, "none" ],
     }))
 
-    this.override({
+    this.override<Legend.Props>({
       border_line_color: "#e5e5e5",
       border_line_alpha: 0.5,
       border_line_width: 1,

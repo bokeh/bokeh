@@ -228,7 +228,7 @@ export class Spinner extends NumericInput {
       wheel_wait:           [ Number, 100 ],
     }))
 
-    this.override({
+    this.override<Spinner.Props>({
       mode: "float",
     })
   }

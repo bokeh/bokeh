@@ -25,7 +25,7 @@ export abstract class GuideRenderer extends Renderer {
   }
 
   static init_GuideRenderer(): void {
-    this.override({
+    this.override<GuideRenderer.Props>({
       level: "guide",
     })
   }

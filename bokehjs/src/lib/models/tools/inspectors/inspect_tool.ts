@@ -32,7 +32,7 @@ export abstract class InspectTool extends ButtonTool {
       toggleable: [ Boolean, true ],
     }))
 
-    this.override({
+    this.override<InspectTool.Props>({
       active: true,
     })
   }

@@ -196,7 +196,7 @@ export class CategoricalAxis extends Axis {
       subgroup_label_orientation: [ Or(TickLabelOrientation, Number), "parallel" ],
     }))
 
-    this.override({
+    this.override<CategoricalAxis.Props>({
       ticker: () => new CategoricalTicker(),
       formatter: () => new CategoricalTickFormatter(),
       separator_line_color: "lightgrey",

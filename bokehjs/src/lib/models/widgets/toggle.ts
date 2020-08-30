@@ -52,7 +52,7 @@ export class Toggle extends AbstractButton {
       active: [ Boolean, false ],
     }))
 
-    this.override({
+    this.override<Toggle.Props>({
       label: "Toggle",
     })
   }

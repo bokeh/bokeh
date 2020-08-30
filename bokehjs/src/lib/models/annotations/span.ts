@@ -105,7 +105,7 @@ export class Span extends Annotation {
       for_hover: [ Boolean, false ],
     }))
 
-    this.override({
+    this.override<Span.Props>({
       line_color: 'black',
     })
   }

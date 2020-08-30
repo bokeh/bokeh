@@ -27,7 +27,7 @@ export class MercatorTileSource extends TileSource {
       wrap_around:  [ Boolean, true ],
     }))
 
-    this.override({
+    this.override<MercatorTileSource.Props>({
       x_origin_offset:    20037508.34,
       y_origin_offset:    20037508.34,
       initial_resolution: 156543.03392804097,

@@ -91,7 +91,7 @@ export class Slope extends Annotation {
       y_intercept: [ Nullable(Number), null ],
     }))
 
-    this.override({
+    this.override<Slope.Props>({
       line_color: 'black',
     })
 

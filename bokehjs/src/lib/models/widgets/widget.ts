@@ -52,7 +52,7 @@ export abstract class Widget extends HTMLBox {
       default_size: [ Number,      300          ],
     }))
 
-    this.override({
+    this.override<Widget.Props>({
       margin: [5, 5, 5, 5],
     })
   }

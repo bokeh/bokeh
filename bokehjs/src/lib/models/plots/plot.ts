@@ -178,7 +178,7 @@ export class Plot extends LayoutDOM {
       reset_policy:      [ ResetPolicy, "standard" ],
     }))
 
-    this.override({
+    this.override<Plot.Props>({
       width: 600,
       height: 600,
       outline_line_color: "#e5e5e5",

@@ -226,7 +226,7 @@ export class Grid extends GuideRenderer {
       ticker:    [ Ref(Ticker) ],
     }))
 
-    this.override({
+    this.override<Grid.Props>({
       level: "underlay",
       band_fill_color: null,
       band_fill_alpha: 0,

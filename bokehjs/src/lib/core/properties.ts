@@ -41,6 +41,10 @@ export type DefineOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
 }
 
+export type DefaultsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
+}
+
 export type PropertyOptions<T> = {
   internal?: boolean
   optional?: boolean

@@ -140,7 +140,7 @@ export class WaterfallRenderer extends Renderer {
       tile_width:  [ Int ],
     }))
 
-    this.override({
+    this.override<WaterfallRenderer.Props>({
       level: "glyph",
     })
   }

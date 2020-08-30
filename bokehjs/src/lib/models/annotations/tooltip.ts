@@ -161,7 +161,7 @@ export class Tooltip extends Annotation {
       custom:   [ Boolean ],
     }))
 
-    this.override({
+    this.override<Tooltip.Props>({
       level: 'overlay',
     })
   }

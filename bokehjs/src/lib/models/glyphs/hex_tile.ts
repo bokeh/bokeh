@@ -247,6 +247,6 @@ export class HexTile extends Glyph {
       scale:        [ p.NumberSpec, 1.0 ],
       orientation:  [ HexTileOrientation, "pointytop" ],
     }))
-    this.override({line_color: null})
+    this.override<HexTile.Props>({line_color: null})
   }
 }

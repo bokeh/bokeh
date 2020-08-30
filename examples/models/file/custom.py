@@ -75,7 +75,7 @@ export class MyPlot extends Plot {
       gradient_colors: [ Array(String), ["white", "lightgray"] ],
     }))
 
-    this.override({
+    this.override<MyPlot.Props>({
       background_fill_alpha: 0.0,
       border_fill_alpha: 0.0,
     })

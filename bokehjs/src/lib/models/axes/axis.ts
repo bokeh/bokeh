@@ -572,7 +572,7 @@ export class Axis extends GuideRenderer {
       fixed_location:          [ Nullable(Or(Number, Any)), null ],
     }))
 
-    this.override({
+    this.override<Axis.Props>({
       axis_line_color: 'black',
 
       major_tick_line_color: 'black',

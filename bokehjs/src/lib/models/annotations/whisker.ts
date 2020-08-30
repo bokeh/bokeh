@@ -87,7 +87,7 @@ export class Whisker extends UpperLower {
       upper_head: [ Ref(ArrowHead), () => new TeeHead({level: "underlay", size: 10}) ],
     }))
 
-    this.override({
+    this.override<Whisker.Props>({
       level: 'underlay',
     })
   }

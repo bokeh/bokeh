@@ -106,7 +106,7 @@ export class NormalHead extends ArrowHead {
   static init_NormalHead(): void {
     this.mixins<NormalHead.Mixins>([LineVector, FillVector])
 
-    this.override({
+    this.override<NormalHead.Props>({
       fill_color: 'black',
     })
   }
@@ -166,7 +166,7 @@ export class VeeHead extends ArrowHead {
   static init_VeeHead(): void {
     this.mixins<VeeHead.Mixins>([LineVector, FillVector])
 
-    this.override({
+    this.override<VeeHead.Props>({
       fill_color: 'black',
     })
   }

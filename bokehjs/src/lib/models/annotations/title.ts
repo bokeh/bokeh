@@ -159,7 +159,7 @@ export class Title extends TextAnnotation {
       text_baseline: [ TextBaseline, "bottom" ],
     }))
 
-    this.override({
+    this.override<Title.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

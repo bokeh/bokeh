@@ -646,7 +646,7 @@ export class ColorBar extends Annotation {
       minor_tick_out:        [ Number, 0 ],
     }))
 
-    this.override({
+    this.override<ColorBar.Props>({
       background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
       bar_line_color: null,
