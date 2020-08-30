@@ -383,19 +383,20 @@ class Plot(LayoutDOM):
 
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
-        msg  = ""
+        msg   = ""
+        valid = {
+            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
+            for axis in ("x_range", "y_range")
+        }
         for place in _VALID_PLACES + ('renderers',):
             for ref in getattr(self, place):
-                prop_names = ref.properties()
-                bad = []
-                if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
-                    if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
-                        bad.append(('x_range_name', ref.x_range_name))
-                    if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
-                        bad.append(('y_range_name', ref.y_range_name))
+                bad = ', '.join(
+                    f"{axis}='{value}'"
+                    for axis, keys in valid.items()
+                    if (value:= getattr(ref, axis, 'default')) not in keys
+                )
                 if bad:
-                    if msg: msg += ", "
-                    msg += (", ".join("%s=%r" % (a, b) for (a,b) in bad) + " [%s]" % ref)
+                    msg += (", " if msg else "") + f"{bad} [{ref}]"
         if msg:
             return msg
 
