@@ -332,6 +332,7 @@ export namespace Legend {
 
   export type Mixins =
     mixins.LabelText      &
+    mixins.TitleText      &
     mixins.InactiveFill   &
     mixins.BorderLine     &
     mixins.BackgroundFill
