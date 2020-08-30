@@ -391,9 +391,9 @@ class Plot(LayoutDOM):
         for place in _VALID_PLACES + ('renderers',):
             for ref in getattr(self, place):
                 bad = ', '.join(
-                    f"{axis}='{value}'"
+                    f"{axis}='{getattr(ref, axis)}'"
                     for axis, keys in valid.items()
-                    if (value:= getattr(ref, axis, 'default')) not in keys
+                    if getattr(ref, axis, 'default') not in keys
                 )
                 if bad:
                     msg += (", " if msg else "") + f"{bad} [{ref}]"
