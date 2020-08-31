@@ -67,6 +67,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     await this._build_tool_button_views()
   }
 

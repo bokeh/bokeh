@@ -39,6 +39,7 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     await this.build_child_views()
   }
 
