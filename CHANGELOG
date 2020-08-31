@@ -1,3 +1,13 @@
+2020-08-31    2.2.1:
+--------------------
+  * bugfixes:
+    - #10426 [component: bokehjs] INLINE_LEGACY does not work (CDN.legacy = True does work)
+    - #10431 [component: server] [BUG] pull_session not working in Win10 without this import statement: 'from bokeh.server.server import Server'
+    - #10434 Bokeh not embedding plot in Django app sea_surface example [BUG]
+    - #10435 [BUG] Regression causing multiple js_on_event subscribers to be ignored
+    - #10443 [BUG] incorrect Plot._check_bad_extra_range_name
+    - #10448 [component: bokehjs] DataTable DateFormatter does not handle NaT
+
 2020-08-24      2.2:
 --------------------
   * bugfixes:
