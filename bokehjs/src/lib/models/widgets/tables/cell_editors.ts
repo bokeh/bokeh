@@ -346,7 +346,7 @@ export class IntEditorView extends CellEditorView {
   }
 
   serializeValue(): any {
-    return parseInt(this.getValue(), 10) || 0
+    return parseInt(this.getValue(), 10) ?? 0
   }
 
   loadValue(item: Item): void {
@@ -405,7 +405,7 @@ export class NumberEditorView extends CellEditorView {
   }
 
   serializeValue(): any {
-    return parseFloat(this.getValue()) || 0.0
+    return parseFloat(this.getValue()) ?? 0.0
   }
 
   loadValue(item: Item): void {

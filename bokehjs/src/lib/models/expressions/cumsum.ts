@@ -29,7 +29,7 @@ export class CumSum extends Expression {
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
-    const result = new NumberArray(source.get_length() || 0)
+    const result = new NumberArray(source.get_length() ?? 0)
     const col = source.data[this.field]
     const offset = this.include_zero ? 1 : 0
     result[0] = this.include_zero ? 0 : col[0]

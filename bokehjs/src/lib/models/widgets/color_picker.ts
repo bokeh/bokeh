@@ -10,7 +10,7 @@ export class ColorPickerView extends InputWidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.color.change, () => this.input_el.value = this.model.color)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }

@@ -360,7 +360,7 @@ export class Document {
     for (const obj of references_json) {
       const obj_id = obj.id
       const obj_type = obj.type
-      const obj_attrs = obj.attributes || {}
+      const obj_attrs = obj.attributes ?? {}
 
       let instance = existing_models.get(obj_id)
       if (instance == null) {

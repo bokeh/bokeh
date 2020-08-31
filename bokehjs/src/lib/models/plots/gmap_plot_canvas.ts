@@ -76,7 +76,7 @@ export class GMapPlotView extends PlotView {
 
     // PAN ----------------------------
     } else if (range_info.sdx != null || range_info.sdy != null) {
-      this.map.panBy(range_info.sdx || 0, range_info.sdy || 0)
+      this.map.panBy(range_info.sdx ?? 0, range_info.sdy ?? 0)
       super.update_range(range_info)
 
     // ZOOM ---------------------------

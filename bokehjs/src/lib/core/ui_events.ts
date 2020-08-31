@@ -322,7 +322,7 @@ export class UIEvents implements EventListenerObject {
 
         // the event happened on a renderer
         if (view != null) {
-          cursor = view.cursor(e.sx, e.sy) || cursor
+          cursor = view.cursor(e.sx, e.sy) ?? cursor
 
           if (!is_empty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays

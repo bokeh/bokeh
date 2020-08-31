@@ -165,7 +165,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
 
   const g2 = new Text({
     x: {field: "text_cx"}, y: {field: "text_cy"},
-    text: {field: opts.slice_labels || "labels"},
+    text: {field: opts.slice_labels ?? "labels"},
     angle: {field: "text_angles"},
     text_align: "center", text_baseline: "middle",
     text_color: {field: "text_colors"}, text_font_size: "12px",

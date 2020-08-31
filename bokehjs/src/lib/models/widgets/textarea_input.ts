@@ -12,7 +12,7 @@ export class TextAreaInputView extends InputWidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
     this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
