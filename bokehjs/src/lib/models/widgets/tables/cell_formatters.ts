@@ -273,7 +273,8 @@ export class DateFormatter extends StringFormatter {
     const {nan_format} = this
     value = isString(value) ? parseInt(value, 10) : value
     let date: string
-    if ((value == null || isNaN(value)) && nan_format != null)
+    // Handle null, NaN and NaT
+    if ((value == null || isNaN(value) || value === -9223372036854776) && nan_format != null)
       date = nan_format
     else
       date = value == null ? '' : tz(value, this.getFormat())

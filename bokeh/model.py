@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from inspect import isclass
 from json import loads
 from operator import itemgetter
+from typing import Type, Union
 
 # Bokeh imports
 from .core.has_props import HasProps, abstract
@@ -364,14 +365,21 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     # Public methods ----------------------------------------------------------
 
-    def js_on_event(self, event, *callbacks):
-        if not isinstance(event, str) and issubclass(event, Event):
+    def js_on_event(self, event: Union[str, Type[Event]], *callbacks) -> None:
+        if isinstance(event, str):
+            pass
+        elif isinstance(event, type) and issubclass(event, Event):
             event = event.event_name
+        else:
+            raise ValueError(f"expected string event name or event class, got {event}")
 
-        old_callbacks = self.js_event_callbacks.get("event", [])
-        new_callbacks = [ callback for callback in callbacks if callback not in old_callbacks ]
+        all_callbacks = list(self.js_event_callbacks.get(event, []))
 
-        self.js_event_callbacks[event] = old_callbacks + new_callbacks
+        for callback in callbacks:
+            if callback not in all_callbacks:
+                all_callbacks.append(callback)
+
+        self.js_event_callbacks[event] = all_callbacks
 
     def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.

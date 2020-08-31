@@ -314,7 +314,9 @@ class BaseResources:
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
-        files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
+        legacy = ".legacy" if self.legacy else ""
+
+        files = [f"{component}{legacy}{minified}.{kind}" for component in self.components(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
