@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-import sys
 from pprint import pformat
 from urllib.parse import urljoin
 
@@ -35,6 +34,7 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.string import format_docstring
+from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
@@ -711,10 +711,4 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_SESSION_TOKEN_EXPIRATION=DEFAULT_SESSION_TOKEN_EXPIRATION,
 )
 
-# See https://github.com/bokeh/bokeh/issues/9507
-if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
-    import asyncio
-    if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
-        # WindowsProactorEventLoopPolicy is not compatible with tornado 6
-        # fallback to the pre-3.8 default of WindowsSelectorEventLoopPolicy
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+fixup_windows_event_loop_policy()
