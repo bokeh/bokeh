@@ -1,0 +1,15 @@
+.. _release-2-2-1:
+
+2.2.1
+=====
+
+Bokeh Version ``2.2.1`` (Aug 2020) is a patch-release that fixes some bugs:
+
+* Fix overly agressive "extra range check" (:bokeh-issue:`10443`)
+* Fix missing NaT support to DateFormatter (:bokeh-issue:`10448`)
+* Fix bokeh.client event loop issue on win/py3.8+  (:bokeh-issue:`10431`)
+* Fix bug for Django embedding (:bokeh-issue:`10434`)
+* Fix regression with js_on_event (:bokeh-issue:`10435`)
+* Fix INLINE_LEGACY resources option (:bokeh-issue:`10426`)
+
+For full details see the :bokeh-tree:`CHANGELOG`.
