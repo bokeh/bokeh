@@ -7,6 +7,7 @@ import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
+import {to_fixed} from "core/util/string"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
@@ -129,11 +130,10 @@ export class ScientificFormatter extends StringFormatter {
 
     if ((value == null || isNaN(value)) && this.nan_format != null)
       value = this.nan_format
-    else if (need_sci) {
+    else if (need_sci)
       value = value.toExponential(precision)
-    } else {
-      value = value.toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-    }
+    else
+      value = to_fixed(value, precision)
 
     // add StringFormatter formatting
     return super.doFormat(row, cell, value, columnDef, dataContext)

@@ -1,4 +1,5 @@
 import {TickFormatter} from "./tick_formatter"
+import {to_fixed} from "core/util/string"
 import * as p from "core/properties"
 
 export namespace BasicTickFormatter {
@@ -60,29 +61,19 @@ export class BasicTickFormatter extends TickFormatter {
     return false
   }
 
-  _format_with_precision(ticks: number[], need_sci: boolean, precision: number|undefined): string[] {
-    const labels: string[] = new Array(ticks.length)
-
+  _format_with_precision(ticks: number[], need_sci: boolean, precision: number | undefined): string[] {
     if (need_sci) {
-      for (let i = 0, end = ticks.length; i < end; i++) {
-        labels[i] = ticks[i].toExponential(precision)
-      }
+      return ticks.map((tick) => tick.toExponential(precision))
     } else {
-      for (let i = 0, end = ticks.length; i < end; i++) {
-        // strip trailing zeros
-        labels[i] = ticks[i].toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-      }
+      return ticks.map((tick) => to_fixed(tick, precision))
     }
-
-    return labels
   }
 
-  _auto_precision(ticks: number[], need_sci: boolean): number|undefined {
+  _auto_precision(ticks: number[], need_sci: boolean): number | undefined {
     const labels: string[] = new Array(ticks.length)
     const asc = this.last_precision <= 15
 
-    outer:
-    for (let x = this.last_precision; asc ? x <= 15 : x >= 1; asc ? x++ : x--) {
+    outer: for (let x = this.last_precision; asc ? x <= 15 : x >= 1; asc ? x++ : x--) {
       if (need_sci) {
         labels[0] = ticks[0].toExponential(x)
         for (let i = 1; i < ticks.length; i++) {
@@ -93,9 +84,9 @@ export class BasicTickFormatter extends TickFormatter {
         this.last_precision = x
         break
       } else {
-        labels[0] = ticks[0].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+        labels[0] = to_fixed(ticks[0], x)
         for (let i = 1; i < ticks.length; i++) {
-          labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+          labels[i] = to_fixed(ticks[i], x)
           if (labels[i] == labels[i-1]) {
             continue outer
           }
