@@ -32,7 +32,7 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
   return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item) => {
     const spacer = span({
       class: 'slick-group-toggle',
-      style: { 'margin-left': `${(indent || 0) * 15}px`},
+      style: { 'margin-left': `${(indent ?? 0) * 15}px`},
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 

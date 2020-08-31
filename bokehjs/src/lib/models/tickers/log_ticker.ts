@@ -24,7 +24,7 @@ export class LogTicker extends AdaptiveTicker {
     })
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
 

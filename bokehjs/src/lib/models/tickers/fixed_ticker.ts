@@ -27,7 +27,7 @@ export class FixedTicker extends ContinuousTicker {
     }))
   }
 
-  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     return {
       major: this.ticks,
       minor: this.minor_ticks,

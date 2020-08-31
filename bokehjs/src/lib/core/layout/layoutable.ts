@@ -28,21 +28,21 @@ export abstract class Layoutable {
   }
 
   set_sizing(sizing: Partial<BoxSizing>): void {
-    const width_policy = sizing.width_policy || "fit"
+    const width_policy = sizing.width_policy ?? "fit"
     const width = sizing.width
     const min_width = sizing.min_width != null ? sizing.min_width : 0
     const max_width = sizing.max_width != null ? sizing.max_width : Infinity
 
-    const height_policy = sizing.height_policy || "fit"
+    const height_policy = sizing.height_policy ?? "fit"
     const height = sizing.height
     const min_height = sizing.min_height != null ? sizing.min_height : 0
     const max_height = sizing.max_height != null ? sizing.max_height : Infinity
 
     const aspect = sizing.aspect
-    const margin = sizing.margin || {top: 0, right: 0, bottom: 0, left: 0}
+    const margin = sizing.margin ?? {top: 0, right: 0, bottom: 0, left: 0}
     const visible = sizing.visible !== false
-    const halign = sizing.halign || "start"
-    const valign = sizing.valign || "start"
+    const halign = sizing.halign ?? "start"
+    const valign = sizing.valign ?? "start"
 
     this._sizing = {
       width_policy, min_width, width, max_width,
@@ -68,7 +68,7 @@ export abstract class Layoutable {
   }
 
   set_geometry(outer: BBox, inner?: BBox): void {
-    this._set_geometry(outer, inner || outer)
+    this._set_geometry(outer, inner ?? outer)
   }
 
   is_width_expanding(): boolean {

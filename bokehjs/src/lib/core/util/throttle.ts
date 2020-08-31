@@ -4,10 +4,10 @@ function _delay_animation(callback: FrameRequestCallback): number {
 }
 
 const delay_animation =
-  (typeof window !== 'undefined' ?  window        .requestAnimationFrame       : undefined) ||
-  (typeof window !== 'undefined' ?  window        .webkitRequestAnimationFrame : undefined) ||
-  (typeof window !== 'undefined' ? (window as any).mozRequestAnimationFrame    : undefined) ||
-  (typeof window !== 'undefined' ? (window as any).msRequestAnimationFrame     : undefined) || _delay_animation
+  (typeof window !== 'undefined' ?  window        .requestAnimationFrame       : undefined) ??
+  (typeof window !== 'undefined' ?  window        .webkitRequestAnimationFrame : undefined) ??
+  (typeof window !== 'undefined' ? (window as any).mozRequestAnimationFrame    : undefined) ??
+  (typeof window !== 'undefined' ? (window as any).msRequestAnimationFrame     : undefined) ?? _delay_animation
 
 // Returns a function, that, when invoked, will only be triggered at
 // most once during a given window of time.

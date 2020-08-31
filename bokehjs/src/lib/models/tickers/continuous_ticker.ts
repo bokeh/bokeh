@@ -1,4 +1,5 @@
 import {Ticker, TickSpec} from "./ticker"
+import {Range} from "../ranges/range"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 
@@ -26,7 +27,7 @@ export namespace ContinuousTicker {
 
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
-export abstract class ContinuousTicker extends Ticker<number> {
+export abstract class ContinuousTicker extends Ticker {
   properties: ContinuousTicker.Props
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
@@ -40,7 +41,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
     }))
   }
 
-  get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any): TickSpec<number> {
+  get_ticks(data_low: number, data_high: number, _range: Range, cross_loc: number): TickSpec<number> {
     return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
   }
 
@@ -57,7 +58,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
 
   // The version of get_ticks() that does the work (and the version that
   // should be overridden in subclasses).
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const interval = this.get_interval(data_low, data_high, desired_n_ticks)
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)

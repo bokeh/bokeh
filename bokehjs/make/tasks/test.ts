@@ -69,7 +69,7 @@ function mocha(files: string[]): Promise<void> {
     args.push("--grep", argv.k as string)
 
   args = args.concat(
-    ["--reporter", (argv.reporter as string | undefined) || "spec"],
+    ["--reporter", (argv.reporter as string | undefined) ?? "spec"],
     ["--slow", "5s"],
     ["--exit"],
     files,

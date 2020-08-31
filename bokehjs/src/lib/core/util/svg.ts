@@ -37,7 +37,7 @@ function randomString(holder: KV<string>): string {
 function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
   const lookup = new Map()
   const items = input.split(',')
-  radix = radix || 10
+  radix = radix ?? 10
   // Map from named to numbered entities.
   for (let i = 0; i < items.length; i += 2) {
     const entity = '&' + items[i + 1] + ';'
@@ -53,14 +53,14 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
 function getTextAnchor(textAlign: string): string {
   // TODO: support rtl languages
   const mapping: KV<string> = {left:"start", right:"end", center:"middle", start:"start", end:"end"}
-  return mapping[textAlign] || mapping.start
+  return mapping[textAlign] ?? mapping.start
 }
 
 // helper function to map canvas-textBaseline to svg-dominantBaseline
 function getDominantBaseline(textBaseline: string): string {
   // INFO: not supported in all browsers
   const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top:"text-before-edge", bottom:"text-after-edge", middle:"central"}
-  return mapping[textBaseline] || mapping.alphabetic
+  return mapping[textBaseline] ?? mapping.alphabetic
 }
 
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
@@ -910,11 +910,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i
     const fontPart = regex.exec(this.font)!
     const data: FontData = {
-      style: fontPart[1] || 'normal',
-      size: fontPart[4] || '10px',
-      family: fontPart[6] || 'sans-serif',
-      weight: fontPart[3] || 'normal',
-      decoration: fontPart[2] || 'normal',
+      style: fontPart[1] ?? 'normal',
+      size: fontPart[4] ?? '10px',
+      family: fontPart[6] ?? 'sans-serif',
+      weight: fontPart[3] ?? 'normal',
+      decoration: fontPart[2] ?? 'normal',
     }
 
     // canvas doesn't support underline natively, but we can pass this attribute

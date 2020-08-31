@@ -14,7 +14,7 @@ export interface Models {
 }
 
 export const Models = ((name: string): typeof HasProps => {
-  const model = overrides[name] || _all_models.get(name)
+  const model = overrides[name] ?? _all_models.get(name)
 
   if (model == null) {
     throw new Error(`Model '${name}' does not exist. This could be due to a widget or a custom model not being registered before first usage.`)

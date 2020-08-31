@@ -1,16 +1,7 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import {argmin, nth} from "core/util/array"
+import {clamp, log} from "core/util/math"
 import * as p from "core/properties"
-
-// Forces a number x into a specified range [min_val, max_val].
-function clamp(x: number, min_val: number, max_val: number): number {
-  return Math.max(min_val, Math.min(max_val, x))
-}
-
-// A log function with an optional base.
-function log(x: number, base=Math.E): number {
-  return Math.log(x) / Math.log(base)
-}
 
 // This Ticker produces nice round ticks at any magnitude.
 // AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the

@@ -295,7 +295,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   }
 
   const dist_dir = join(base_dir, "dist")
-  const lib_dir = options.outDir || dist_dir
+  const lib_dir = options.outDir ?? dist_dir
 
   const artifact = basename(base_dir)
 

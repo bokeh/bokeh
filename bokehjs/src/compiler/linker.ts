@@ -315,7 +315,7 @@ export class Linker {
     }
 
     const print = (module: ModuleInfo): string => {
-      let ast = module.ast || this.parse_module(module)
+      let ast = module.ast ?? this.parse_module(module)
       ast = transforms.apply(ast, ...transformers(module))
       const source = transforms.print_es(ast)
       return convert.removeMapFileComments(source)
@@ -484,7 +484,7 @@ export class Linker {
     const json_file = path + ".json"
     const has_js_file = file_exists(js_file)
     const has_json_file = file_exists(json_file)
-    const has_file = has_js_file || has_json_file
+    const has_file = has_js_file ?? has_json_file
 
     if (directory_exists(path)) {
       const pkg_file = this.resolve_package(path)
@@ -808,5 +808,5 @@ export function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): {
     throw new BuildError("linker", `${module.file}:${line-1}:${col}: ${message}`)
   }
 
-  return {min_source: code || "", min_map: typeof map === "string" ? map : undefined}
+  return {min_source: code ?? "", min_map: typeof map === "string" ? map : undefined}
 }

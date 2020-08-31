@@ -191,10 +191,10 @@ export abstract class EditTool extends GestureTool {
   }
 
   get tooltip(): string {
-    return this.custom_tooltip || this.tool_name
+    return this.custom_tooltip ?? this.tool_name
   }
 
   get computed_icon(): string {
-    return this.custom_icon || this.icon
+    return this.custom_icon ?? this.icon
   }
 }

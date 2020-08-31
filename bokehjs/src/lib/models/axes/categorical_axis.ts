@@ -25,7 +25,7 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
@@ -83,11 +83,11 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
     const info: [string[], Coords, Orient | number, visuals.Text][] = []
@@ -113,14 +113,13 @@ export class CategoricalAxisView extends AxisView {
     return info
   }
 
-  // {{{ TODO: state
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
 
     const coords: CategoricalTickCoords = {
       major: [[], []],
@@ -130,21 +129,20 @@ export class CategoricalAxisView extends AxisView {
     }
 
     coords.major[i] = ticks.major as any
-    coords.major[j] = ticks.major.map((_x) => this.loc)
+    coords.major[j] = ticks.major.map(() => this.loc)
 
     if (range.levels == 3) {
       coords.mids[i] = ticks.mids as any
-      coords.mids[j] = ticks.mids.map((_x) => this.loc)
+      coords.mids[j] = ticks.mids.map(() => this.loc)
     }
 
     if (range.levels > 1) {
       coords.tops[i] = ticks.tops as any
-      coords.tops[j] = ticks.tops.map((_x) => this.loc)
+      coords.tops[j] = ticks.tops.map(() => this.loc)
     }
 
     return coords
   }
-  // }}}
 }
 
 export namespace CategoricalAxis {

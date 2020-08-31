@@ -68,7 +68,7 @@ async function run_tests(): Promise<boolean> {
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName || "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName ?? "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -76,7 +76,7 @@ async function run_tests(): Promise<boolean> {
         const {text, exception, url, lineNumber, columnNumber, stackTrace} = exceptionDetails
         return {
           text: exception != null && exception.description != null ? exception.description : text,
-          url: url || "(inline)",
+          url: url ?? "(inline)",
           line: lineNumber+1,
           col: columnNumber+1,
           trace: stackTrace ? collect_trace(stackTrace) : [],

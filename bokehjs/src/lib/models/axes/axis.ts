@@ -430,7 +430,7 @@ export class AxisView extends GuideRendererView {
     const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
     const majors = ticks.major
     const minors = ticks.minor
 
@@ -503,7 +503,7 @@ export namespace Axis {
 
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
-    ticker: p.Property<Ticker<any>> // TODO
+    ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | null>
     axis_label_standoff: p.Property<number>
