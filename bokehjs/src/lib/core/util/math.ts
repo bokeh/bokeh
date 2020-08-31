@@ -76,9 +76,9 @@ export function rnorm(mu: number, sigma: number): number {
 }
 
 export function clamp(val: number, min: number, max: number): number {
-  if (val < min)
-    return min
-  if (val > max)
-    return max
-  return val
+  return val < min ? min : (val > max ? max : val)
+}
+
+export function log(x: number, base: number = Math.E): number {
+  return Math.log(x)/Math.log(base)
 }
