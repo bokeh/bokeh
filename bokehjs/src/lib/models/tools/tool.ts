@@ -140,9 +140,9 @@ export abstract class Tool extends Model {
   static init_Tool(): void {
     this.prototype._known_aliases = new Map()
 
-    this.internal({
-      active: [ p.Boolean, false ],
-    })
+    this.internal<Tool.Props>(({Boolean}) => ({
+      active: [ Boolean, false ],
+    }))
   }
 
   readonly event_type?: EventType | EventType[]

@@ -38,7 +38,11 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (T | (() => T))?, PropertyOptions<T>?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
+}
+
+export type DefaultsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
 }
 
 export type PropertyOptions<T> = {
@@ -120,8 +124,10 @@ export abstract class Property<T = unknown> {
       else if (default_value !== undefined)
         attr_value = default_value(obj)
       else {
-        //throw new Error("no default")
-        attr_value = null as any // XXX: nullable properties
+        // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
+        // console.warn(`${this.obj}.${this.attr} has no value nor default`)
+        this.spec = {value: null}
+        return
       }
     }
 
@@ -131,8 +137,7 @@ export abstract class Property<T = unknown> {
   //protected abstract _update(attr_value: T): void
 
   protected _update(attr_value: T): void {
-    if (attr_value != null) // XXX: non-nullalble types
-      this.validate(attr_value)
+    this.validate(attr_value)
     this.spec = {value: attr_value}
     this.on_update?.(attr_value, this.obj)
   }
@@ -148,9 +153,9 @@ export abstract class Property<T = unknown> {
     return values
   }
 
-  validate(value: any): void {
+  validate(value: unknown): void {
     if (!this.valid(value))
-      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new Error(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
   }
 
   valid(value: unknown): boolean {
@@ -182,64 +187,77 @@ export function Alias(attr: string) {
 
 export class PrimitiveProperty<T> extends Property<T> {}
 
+/** @deprecated */
 export class Any extends Property<any> {}
 
+/** @deprecated */
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
     return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
   }
 }
 
+/** @deprecated */
 export class Boolean extends Property<boolean> {
   valid(value: unknown): boolean {
     return isBoolean(value)
   }
 }
 
+/** @deprecated */
 export class Color extends Property<types.Color> {
   valid(value: unknown): boolean {
     return isString(value) && is_color(value)
   }
 }
 
+/** @deprecated */
 export class Instance extends Property<any /*HasProps*/> {
   //valid(value: unknown): boolean { return  value.properties != null }
 }
 
+/** @deprecated */
 export class Number extends Property<number> {
   valid(value: unknown): boolean {
     return isNumber(value)
   }
 }
 
+/** @deprecated */
 export class Int extends Number {
   valid(value: unknown): boolean {
     return isNumber(value) && (value | 0) == value
   }
 }
 
+/** @deprecated */
 export class Angle extends Number {}
 
+/** @deprecated */
 export class Percent extends Number {
   valid(value: unknown): boolean {
     return isNumber(value) && 0 <= value && value <= 1.0
   }
 }
 
+/** @deprecated */
 export class String extends Property<string> {
   valid(value: unknown): boolean {
     return isString(value)
   }
 }
 
+/** @deprecated */
 export class NullString extends Property<string | null> {
   valid(value: unknown): boolean {
     return value === null || isString(value)
   }
 }
 
+/** @deprecated */
 export class FontSize extends String {}
 
+/** @deprecated */
 export class Font extends String {
   _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
@@ -250,6 +268,7 @@ export class Font extends String {
 // Enum properties
 //
 
+/** @deprecated */
 export abstract class EnumProperty<T extends string> extends Property<T> {
   abstract get enum_values(): T[]
 
@@ -258,6 +277,7 @@ export abstract class EnumProperty<T extends string> extends Property<T> {
   }
 }
 
+/** @deprecated */
 export function Enum<T extends string>(values: Iterable<T>): PropertyConstructor<T> {
   return class extends EnumProperty<T> {
     get enum_values(): T[] {
@@ -283,55 +303,53 @@ export class Direction extends EnumProperty<enums.Direction> {
   }
 }
 
-/* TODO: remove this {{{ */
-export const Anchor = Enum(enums.Anchor)
-export const AngleUnits = Enum(enums.AngleUnits)
-export const BoxOrigin = Enum(enums.BoxOrigin)
-export const ButtonType = Enum(enums.ButtonType)
-export const CalendarPosition = Enum(enums.CalendarPosition)
-export const Dimension = Enum(enums.Dimension)
-export const Dimensions = Enum(enums.Dimensions)
-export const Distribution = Enum(enums.Distribution)
-export const FontStyle = Enum(enums.FontStyle)
-export const HatchPatternType = Enum(enums.HatchPatternType)
-export const HTTPMethod = Enum(enums.HTTPMethod)
-export const HexTileOrientation = Enum(enums.HexTileOrientation)
-export const HoverMode = Enum(enums.HoverMode)
-export const LatLon = Enum(enums.LatLon)
-export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
-export const LegendLocation = Enum(enums.LegendLocation)
-export const LineCap = Enum(enums.LineCap)
-export const LineJoin = Enum(enums.LineJoin)
-export const LinePolicy = Enum(enums.LinePolicy)
-export const Location = Enum(enums.Location)
-export const Logo = Enum(enums.Logo)
-export const MarkerType = Enum(enums.MarkerType)
-export const MutedPolicy = Enum(enums.MutedPolicy)
-export const Orientation = Enum(enums.Orientation)
-export const OutputBackend = Enum(enums.OutputBackend)
-export const PaddingUnits = Enum(enums.PaddingUnits)
-export const Place = Enum(enums.Place)
-export const PointPolicy = Enum(enums.PointPolicy)
-export const RadiusDimension = Enum(enums.RadiusDimension)
-export const RenderLevel = Enum(enums.RenderLevel)
-export const RenderMode = Enum(enums.RenderMode)
-export const ResetPolicy = Enum(enums.ResetPolicy)
-export const RoundingFunction = Enum(enums.RoundingFunction)
-export const Side = Enum(enums.Side)
-export const SizingMode = Enum(enums.SizingMode)
-export const Sort = Enum(enums.Sort)
-export const SpatialUnits = Enum(enums.SpatialUnits)
-export const StartEnd = Enum(enums.StartEnd)
-export const StepMode = Enum(enums.StepMode)
-export const TapBehavior = Enum(enums.TapBehavior)
-export const TextAlign = Enum(enums.TextAlign)
-export const TextBaseline = Enum(enums.TextBaseline)
-export const TextureRepetition = Enum(enums.TextureRepetition)
-export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
-export const TooltipAttachment = Enum(enums.TooltipAttachment)
-export const UpdateMode = Enum(enums.UpdateMode)
-export const VerticalAlign = Enum(enums.VerticalAlign)
-/* }}} */
+/** @deprecated */ export const Anchor = Enum(enums.Anchor)
+/** @deprecated */ export const AngleUnits = Enum(enums.AngleUnits)
+/** @deprecated */ export const BoxOrigin = Enum(enums.BoxOrigin)
+/** @deprecated */ export const ButtonType = Enum(enums.ButtonType)
+/** @deprecated */ export const CalendarPosition = Enum(enums.CalendarPosition)
+/** @deprecated */ export const Dimension = Enum(enums.Dimension)
+/** @deprecated */ export const Dimensions = Enum(enums.Dimensions)
+/** @deprecated */ export const Distribution = Enum(enums.Distribution)
+/** @deprecated */ export const FontStyle = Enum(enums.FontStyle)
+/** @deprecated */ export const HatchPatternType = Enum(enums.HatchPatternType)
+/** @deprecated */ export const HTTPMethod = Enum(enums.HTTPMethod)
+/** @deprecated */ export const HexTileOrientation = Enum(enums.HexTileOrientation)
+/** @deprecated */ export const HoverMode = Enum(enums.HoverMode)
+/** @deprecated */ export const LatLon = Enum(enums.LatLon)
+/** @deprecated */ export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
+/** @deprecated */ export const LegendLocation = Enum(enums.LegendLocation)
+/** @deprecated */ export const LineCap = Enum(enums.LineCap)
+/** @deprecated */ export const LineJoin = Enum(enums.LineJoin)
+/** @deprecated */ export const LinePolicy = Enum(enums.LinePolicy)
+/** @deprecated */ export const Location = Enum(enums.Location)
+/** @deprecated */ export const Logo = Enum(enums.Logo)
+/** @deprecated */ export const MarkerType = Enum(enums.MarkerType)
+/** @deprecated */ export const MutedPolicy = Enum(enums.MutedPolicy)
+/** @deprecated */ export const Orientation = Enum(enums.Orientation)
+/** @deprecated */ export const OutputBackend = Enum(enums.OutputBackend)
+/** @deprecated */ export const PaddingUnits = Enum(enums.PaddingUnits)
+/** @deprecated */ export const Place = Enum(enums.Place)
+/** @deprecated */ export const PointPolicy = Enum(enums.PointPolicy)
+/** @deprecated */ export const RadiusDimension = Enum(enums.RadiusDimension)
+/** @deprecated */ export const RenderLevel = Enum(enums.RenderLevel)
+/** @deprecated */ export const RenderMode = Enum(enums.RenderMode)
+/** @deprecated */ export const ResetPolicy = Enum(enums.ResetPolicy)
+/** @deprecated */ export const RoundingFunction = Enum(enums.RoundingFunction)
+/** @deprecated */ export const Side = Enum(enums.Side)
+/** @deprecated */ export const SizingMode = Enum(enums.SizingMode)
+/** @deprecated */ export const Sort = Enum(enums.Sort)
+/** @deprecated */ export const SpatialUnits = Enum(enums.SpatialUnits)
+/** @deprecated */ export const StartEnd = Enum(enums.StartEnd)
+/** @deprecated */ export const StepMode = Enum(enums.StepMode)
+/** @deprecated */ export const TapBehavior = Enum(enums.TapBehavior)
+/** @deprecated */ export const TextAlign = Enum(enums.TextAlign)
+/** @deprecated */ export const TextBaseline = Enum(enums.TextBaseline)
+/** @deprecated */ export const TextureRepetition = Enum(enums.TextureRepetition)
+/** @deprecated */ export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
+/** @deprecated */ export const TooltipAttachment = Enum(enums.TooltipAttachment)
+/** @deprecated */ export const UpdateMode = Enum(enums.UpdateMode)
+/** @deprecated */ export const VerticalAlign = Enum(enums.VerticalAlign)
 
 //
 // DataSpec properties

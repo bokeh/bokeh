@@ -34,7 +34,7 @@ export class RedoTool extends ActionTool {
   static init_RedoTool(): void {
     this.prototype.default_view = RedoToolView
 
-    this.override({
+    this.override<RedoTool.Props>({
       disabled: true,
     })
 

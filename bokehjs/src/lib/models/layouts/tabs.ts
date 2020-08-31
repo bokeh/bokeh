@@ -5,7 +5,7 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {Model} from "../../model"
+import {Panel} from "./panel"
 
 import {bk_left, bk_right, bk_active, bk_side} from "styles/mixins"
 import {bk_tabs_header, bk_headers, bk_headers_wrapper, bk_tab, bk_close} from "styles/tabs"
@@ -251,38 +251,10 @@ export class Tabs extends LayoutDOM {
   static init_Tabs(): void {
     this.prototype.default_view = TabsView
 
-    this.define<Tabs.Props>({
-      tabs:          [ p.Array,    []      ],
-      tabs_location: [ p.Location, "above" ],
-      active:        [ p.Number,   0       ],
-    })
-  }
-}
-
-export namespace Panel {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Model.Props & {
-    title: p.Property<string>
-    child: p.Property<LayoutDOM>
-    closable: p.Property<boolean>
-  }
-}
-
-export interface Panel extends Panel.Attrs {}
-
-export class Panel extends Model {
-  properties: Panel.Props
-
-  constructor(attrs?: Partial<Panel.Attrs>) {
-    super(attrs)
-  }
-
-  static init_Panel(): void {
-    this.define<Panel.Props>({
-      title:    [ p.String,  ""    ],
-      child:    [ p.Instance       ],
-      closable: [ p.Boolean, false ],
-    })
+    this.define<Tabs.Props>(({Int, Array, Ref}) => ({
+      tabs:          [ Array(Ref(Panel)), [] ],
+      tabs_location: [ Location, "above" ],
+      active:        [ Int, 0 ],
+    }))
   }
 }

@@ -94,9 +94,12 @@ export class Select extends InputWidget {
   static init_Select(): void {
     this.prototype.default_view = SelectView
 
-    this.define<Select.Props>({
-      value:   [ p.String, '' ],
-      options: [ p.Any,    [] ], // TODO (bev) is this used?
+    this.define<Select.Props>(({String, Array, Tuple, Dict, Or}) => {
+      const Options = Array(Or(String, Tuple(String, String)))
+      return {
+        value:   [ String, "" ],
+        options: [ Or(Options, Dict(Options)), [] ],
+      }
     })
   }
 }

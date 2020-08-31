@@ -12,7 +12,7 @@ export namespace MercatorAxis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LinearAxis.Props & {
-    ticker:    p.Property<MercatorTicker>
+    ticker: p.Property<MercatorTicker>
     formatter: p.Property<MercatorTickFormatter>
   }
 }
@@ -33,7 +33,7 @@ export class MercatorAxis extends LinearAxis {
   static init_MercatorAxis(): void {
     this.prototype.default_view = MercatorAxisView
 
-    this.override({
+    this.override<MercatorAxis.Props>({
       ticker:    () => new MercatorTicker({dimension: "lat"}),
       formatter: () => new MercatorTickFormatter({dimension: "lat"}),
     })

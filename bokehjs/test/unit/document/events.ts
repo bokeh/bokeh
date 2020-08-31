@@ -1,7 +1,6 @@
 import {expect} from "assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
-import * as p from "@bokehjs/core/properties"
 import {Document} from "@bokehjs/document/document"
 import * as events from "@bokehjs/document/events"
 
@@ -20,13 +19,12 @@ const EVENTS = [
 class TestModel extends HasProps {}
 
 class TestModelWithRefs extends HasProps {
-
-  foo: any
+  foo: number[]
 
   static init_TestModelWithRefs(): void {
-    this.define<any>({
-      foo: [ p.Any, [] ],
-    })
+    this.define<any>(({Number, Array}) => ({
+      foo: [ Array(Number), [] ],
+    }))
   }
 }
 

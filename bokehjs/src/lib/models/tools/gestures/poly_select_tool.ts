@@ -101,9 +101,9 @@ export class PolySelectTool extends SelectTool {
   static init_PolySelectTool(): void {
     this.prototype.default_view = PolySelectToolView
 
-    this.define<PolySelectTool.Props>({
-      overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
-    })
+    this.define<PolySelectTool.Props>(({Ref}) => ({
+      overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+    }))
 
     this.register_alias("poly_select", () => new PolySelectTool())
   }

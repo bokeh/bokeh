@@ -50,11 +50,11 @@ export class DaysTicker extends SingleIntervalTicker {
   }
 
   static init_DaysTicker(): void {
-    this.define<DaysTicker.Props>({
-      days: [ p.Array, [] ],
-    })
+    this.define<DaysTicker.Props>(({Int, Array}) => ({
+      days: [ Array(Int), [] ],
+    }))
 
-    this.override({
+    this.override<DaysTicker.Props>({
       num_minor_ticks: 0,
     })
   }

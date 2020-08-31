@@ -19,10 +19,6 @@ export class ServerSentDataSource extends WebDataSource {
 
   protected initialized: boolean = false
 
-  destroy(): void {
-    super.destroy()
-  }
-
   setup(): void {
     if (!this.initialized) {
       this.initialized = true

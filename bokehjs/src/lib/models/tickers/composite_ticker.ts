@@ -24,9 +24,9 @@ export class CompositeTicker extends ContinuousTicker {
   }
 
   static init_CompositeTicker(): void {
-    this.define<CompositeTicker.Props>({
-      tickers: [p.Array, [] ],
-    })
+    this.define<CompositeTicker.Props>(({Array, Ref}) => ({
+      tickers: [ Array(Ref(ContinuousTicker)), [] ],
+    }))
   }
 
   // The tickers should be in order of increasing interval size; specifically,

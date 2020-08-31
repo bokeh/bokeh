@@ -178,13 +178,13 @@ export class Gear extends XYGlyph {
 
     this.mixins<Gear.Mixins>([LineVector, FillVector])
 
-    this.define<Gear.Props>({
-      angle:          [ p.AngleSpec,   0     ],
-      module:         [ p.NumberSpec         ],
-      pressure_angle: [ p.NumberSpec,  20    ], // TODO: units: deg
-      shaft_size:     [ p.NumberSpec,  0.3   ],
-      teeth:          [ p.NumberSpec         ],
+    this.define<Gear.Props>(({}) => ({
+      angle:          [ p.AngleSpec, 0 ],
+      module:         [ p.NumberSpec ],
+      pressure_angle: [ p.NumberSpec, 20 ], // TODO: units: deg
+      shaft_size:     [ p.NumberSpec, 0.3 ],
+      teeth:          [ p.NumberSpec ],
       internal:       [ p.BooleanSpec, false ],
-    })
+    }))
   }
 }

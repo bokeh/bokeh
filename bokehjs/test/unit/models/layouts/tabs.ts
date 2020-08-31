@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
-import {Panel, Tabs} from "@bokehjs/models/layouts/tabs"
+import {Panel} from "@bokehjs/models/layouts/panel"
+import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 

@@ -47,12 +47,12 @@ export abstract class Widget extends HTMLBox {
   }
 
   static init_Widget(): void {
-    this.define<Widget.Props>({
-      orientation:  [ p.Orientation, "horizontal" ],
-      default_size: [ p.Number,      300          ],
-    })
+    this.define<Widget.Props>(({Number}) => ({
+      orientation:  [ Orientation, "horizontal" ],
+      default_size: [ Number,      300          ],
+    }))
 
-    this.override({
+    this.override<Widget.Props>({
       margin: [5, 5, 5, 5],
     })
   }

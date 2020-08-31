@@ -26,16 +26,16 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   static init_AjaxDataSource(): void {
-    this.define<AjaxDataSource.Props>({
-      polling_interval: [ p.Number ],
-      content_type: [ p.String,     'application/json' ],
-      http_headers: [ p.Any,         {}                ],
-      method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
-      if_modified:  [ p.Boolean,     false             ],
-    })
+    this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict}) => ({
+      polling_interval: [ Int ],
+      content_type:     [ String, "application/json" ],
+      http_headers:     [ Dict(String), {} ],
+      method:           [ HTTPMethod, "POST" ],
+      if_modified:      [ Boolean, false ],
+    }))
   }
 
-  protected interval: number
+  protected interval: number | null = null
   protected initialized: boolean = false
 
   destroy(): void {

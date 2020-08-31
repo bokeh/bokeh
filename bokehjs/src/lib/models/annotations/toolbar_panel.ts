@@ -92,8 +92,8 @@ export class ToolbarPanel extends Annotation {
   static init_ToolbarPanel(): void {
     this.prototype.default_view = ToolbarPanelView
 
-    this.define<ToolbarPanel.Props>({
-      toolbar: [ p.Instance ],
-    })
+    this.define<ToolbarPanel.Props>(({Ref}) => ({
+      toolbar: [ Ref(Toolbar) ],
+    }))
   }
 }

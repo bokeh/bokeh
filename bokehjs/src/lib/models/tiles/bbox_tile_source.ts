@@ -19,9 +19,9 @@ export class BBoxTileSource extends MercatorTileSource {
   }
 
   static init_BBoxTileSource(): void {
-    this.define<BBoxTileSource.Props>({
-      use_latlon: [ p.Boolean, false ],
-    })
+    this.define<BBoxTileSource.Props>(({Boolean}) => ({
+      use_latlon: [ Boolean, false ],
+    }))
   }
 
   get_image_url(x: number, y: number, z: number): string {

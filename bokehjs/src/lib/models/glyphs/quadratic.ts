@@ -125,14 +125,14 @@ export class Quadratic extends Glyph {
   static init_Quadratic(): void {
     this.prototype.default_view = QuadraticView
 
-    this.define<Quadratic.Props>({
+    this.define<Quadratic.Props>(({}) => ({
       x0: [ p.XCoordinateSpec, {field: "x0"} ],
       y0: [ p.YCoordinateSpec, {field: "y0"} ],
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
       y1: [ p.YCoordinateSpec, {field: "y1"} ],
       cx: [ p.XCoordinateSpec, {field: "cx"} ],
       cy: [ p.YCoordinateSpec, {field: "cy"} ],
-    })
+    }))
     this.mixins<Quadratic.Mixins>(LineVector)
   }
 }

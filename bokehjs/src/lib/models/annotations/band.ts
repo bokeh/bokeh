@@ -99,7 +99,7 @@ export class Band extends UpperLower {
 
     this.mixins<Band.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
-    this.override({
+    this.override<Band.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",

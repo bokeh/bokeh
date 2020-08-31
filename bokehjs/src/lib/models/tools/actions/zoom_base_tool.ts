@@ -46,10 +46,10 @@ export class ZoomBaseTool extends ActionTool {
   static init_ZoomBaseTool(): void {
     this.prototype.default_view = ZoomBaseToolView
 
-    this.define<ZoomBaseTool.Props>({
-      factor:     [ p.Percent,    0.1    ],
-      dimensions: [ p.Dimensions, "both" ],
-    })
+    this.define<ZoomBaseTool.Props>(({Percent}) => ({
+      factor:     [ Percent,    0.1    ],
+      dimensions: [ Dimensions, "both" ],
+    }))
   }
 
   sign: number

@@ -94,19 +94,19 @@ export class Span extends Annotation {
 
     this.mixins<Span.Mixins>(mixins.Line/*Scalar*/)
 
-    this.define<Span.Props>({
-      render_mode:    [ p.RenderMode,   'canvas'  ],
-      location:       [ p.Number,       null      ],
-      location_units: [ p.SpatialUnits, 'data'    ],
-      dimension:      [ p.Dimension,    'width'   ],
-    })
+    this.define<Span.Props>(({Number, Nullable}) => ({
+      render_mode:    [ RenderMode, "canvas" ],
+      location:       [ Nullable(Number), null ],
+      location_units: [ SpatialUnits, "data" ],
+      dimension:      [ Dimension, "width" ],
+    }))
 
-    this.override({
+    this.internal<Span.Props>(({Boolean}) => ({
+      for_hover: [ Boolean, false ],
+    }))
+
+    this.override<Span.Props>({
       line_color: 'black',
-    })
-
-    this.internal({
-      for_hover: [ p.Boolean, false ],
     })
   }
 }

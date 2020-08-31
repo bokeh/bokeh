@@ -34,10 +34,10 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 
   static init_ContinuousTicker(): void {
-    this.define<ContinuousTicker.Props>({
-      num_minor_ticks:   [ p.Number, 5 ],
-      desired_num_ticks: [ p.Number, 6 ],
-    })
+    this.define<ContinuousTicker.Props>(({Int}) => ({
+      num_minor_ticks:   [ Int, 5 ],
+      desired_num_ticks: [ Int, 6 ],
+    }))
   }
 
   get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any): TickSpec<number> {

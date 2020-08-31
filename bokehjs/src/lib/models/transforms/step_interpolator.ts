@@ -21,9 +21,9 @@ export class StepInterpolator extends Interpolator {
   }
 
   static init_StepInterpolator(): void {
-    this.define<StepInterpolator.Props>({
-      mode: [ p.StepMode, "after" ],
-    })
+    this.define<StepInterpolator.Props>(() => ({
+      mode: [ StepMode, "after" ],
+    }))
   }
 
   compute(x: number): number {

@@ -70,13 +70,13 @@ export class TextAreaInput extends InputWidget {
   static init_TextAreaInput(): void {
     this.prototype.default_view = TextAreaInputView
 
-    this.define<TextAreaInput.Props>({
-      value:       [ p.String, ""  ],
-      value_input: [ p.String, ""  ],
-      placeholder: [ p.String, ""  ],
-      cols:        [ p.Number, 20  ],
-      rows:        [ p.Number, 2   ],
-      max_length:  [ p.Number, 500 ],
-    })
+    this.define<TextAreaInput.Props>(({Int, String}) => ({
+      value:       [ String, "" ],
+      value_input: [ String, "" ],
+      placeholder: [ String, "" ],
+      cols:        [ Int, 20 ],
+      rows:        [ Int, 2 ],
+      max_length:  [ Int, 500 ],
+    }))
   }
 }

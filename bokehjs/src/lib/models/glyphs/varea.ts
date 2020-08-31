@@ -123,10 +123,10 @@ export class VArea extends Area {
   static init_VArea(): void {
     this.prototype.default_view = VAreaView
 
-    this.define<VArea.Props>({
-      x:  [ p.XCoordinateSpec, {field: "x"}  ],
+    this.define<VArea.Props>(({}) => ({
+      x:  [ p.XCoordinateSpec, {field: "x"} ],
       y1: [ p.YCoordinateSpec, {field: "y1"} ],
       y2: [ p.YCoordinateSpec, {field: "y2"} ],
-    })
+    }))
   }
 }

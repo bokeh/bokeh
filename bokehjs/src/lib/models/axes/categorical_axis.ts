@@ -191,12 +191,12 @@ export class CategoricalAxis extends Axis {
       ["subgroup_",  mixins.Text],
     ])
 
-    this.define<CategoricalAxis.Props>({
-      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-    })
+    this.define<CategoricalAxis.Props>(({Number, Or}) => ({
+      group_label_orientation:    [ Or(TickLabelOrientation, Number), "parallel" ],
+      subgroup_label_orientation: [ Or(TickLabelOrientation, Number), "parallel" ],
+    }))
 
-    this.override({
+    this.override<CategoricalAxis.Props>({
       ticker: () => new CategoricalTicker(),
       formatter: () => new CategoricalTickFormatter(),
       separator_line_color: "lightgrey",

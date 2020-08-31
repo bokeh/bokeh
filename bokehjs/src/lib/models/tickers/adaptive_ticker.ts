@@ -23,7 +23,7 @@ export namespace AdaptiveTicker {
     base: p.Property<number>
     mantissas: p.Property<number[]>
     min_interval: p.Property<number>
-    max_interval: p.Property<number | null>
+    max_interval: p.Property<number | null> // XXX: null -> Infinity, but can't serialize currently
   }
 }
 

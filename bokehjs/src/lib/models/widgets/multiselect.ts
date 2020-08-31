@@ -100,10 +100,10 @@ export class MultiSelect extends InputWidget {
   static init_MultiSelect(): void {
     this.prototype.default_view = MultiSelectView
 
-    this.define<MultiSelect.Props>({
-      value:   [ p.Array, [] ],
-      options: [ p.Array, [] ],
-      size:    [ p.Number, 4 ], // 4 is the HTML default
-    })
+    this.define<MultiSelect.Props>(({Int, String, Array, Tuple, Or}) => ({
+      value:   [ Array(String), [] ],
+      options: [ Array(Or(String, Tuple(String, String))), [] ],
+      size:    [ Int, 4 ], // 4 is the HTML default
+    }))
   }
 }

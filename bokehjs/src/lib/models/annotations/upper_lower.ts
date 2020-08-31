@@ -101,12 +101,12 @@ export class UpperLower extends Annotation {
   }
 
   static init_UpperLower(): void {
-    this.define<UpperLower.Props>({
-      lower:        [ p.DistanceSpec                               ],
-      upper:        [ p.DistanceSpec                               ],
-      base:         [ p.DistanceSpec                               ],
-      dimension:    [ p.Dimension,    'height'                     ],
-      source:       [ p.Instance,     () => new ColumnDataSource() ],
-    })
+    this.define<UpperLower.Props>(({Ref}) => ({
+      lower:     [ p.DistanceSpec ],
+      upper:     [ p.DistanceSpec ],
+      base:      [ p.DistanceSpec ],
+      dimension: [ Dimension, "height" ],
+      source:    [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
+    }))
   }
 }

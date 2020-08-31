@@ -43,10 +43,10 @@ export class ToolbarViewModel extends Model {
   }
 
   static init_ToolbarViewModel(): void {
-    this.define<ToolbarViewModel.Props>({
-      _visible: [ p.Any,     null  ],
-      autohide: [ p.Boolean, false ],
-    })
+    this.define<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
+      _visible: [ Nullable(Boolean), null ],
+      autohide: [ Boolean, false ],
+    }))
   }
 
   get visible(): boolean {
@@ -193,7 +193,7 @@ export namespace ToolbarBase {
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}
 
-function createGestureMap(): GesturesMap {
+function create_gesture_map(): GesturesMap {
   return {
     pan:       { tools: [], active: null },
     scroll:    { tools: [], active: null },
@@ -218,18 +218,36 @@ export class ToolbarBase extends Model {
   static init_ToolbarBase(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<ToolbarBase.Props>({
-      tools:      [ p.Array,   []       ],
-      logo:       [ p.Logo,    'normal' ], // TODO (bev)
-      autohide:   [ p.Boolean, false    ],
-    })
+    this.define<ToolbarBase.Props>(({Boolean, Array, Ref}) => ({
+      tools:    [ Array(Ref(Tool)), [] ],
+      logo:     [ Logo, "normal" ],
+      autohide: [ Boolean, false ],
+    }))
 
-    this.internal({
-      gestures:         [ p.Any,      createGestureMap ],
-      actions:          [ p.Array,    []      ],
-      inspectors:       [ p.Array,    []      ],
-      help:             [ p.Array,    []      ],
-      toolbar_location: [ p.Location, 'right' ],
+    this.internal<ToolbarBase.Props>(({Array, Struct, Ref, Nullable}) => {
+      const GestureEntry = Struct({
+        tools: Array(Ref(GestureTool)),
+        active: Nullable(Ref(Tool)),
+      })
+      const GestureMap = Struct({
+        pan:       GestureEntry,
+        scroll:    GestureEntry,
+        pinch:     GestureEntry,
+        tap:       GestureEntry,
+        doubletap: GestureEntry,
+        press:     GestureEntry,
+        pressup:   GestureEntry,
+        rotate:    GestureEntry,
+        move:      GestureEntry,
+        multi:     GestureEntry,
+      })
+      return {
+        gestures:         [ GestureMap, create_gesture_map ],
+        actions:          [ Array(Ref(ActionTool)), [] ],
+        inspectors:       [ Array(Ref(InspectTool)), [] ],
+        help:             [ Array(Ref(HelpTool)), [] ],
+        toolbar_location: [ Location, "right" ],
+      }
     })
   }
 
@@ -266,7 +284,7 @@ export class ToolbarBase extends Model {
         logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
-    const new_gestures = createGestureMap()
+    const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
       if (tool instanceof GestureTool && tool.event_type) {
         if (isString(tool.event_type)) {

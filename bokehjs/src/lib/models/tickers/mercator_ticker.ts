@@ -22,9 +22,9 @@ export class MercatorTicker extends BasicTicker {
   }
 
   static init_MercatorTicker(): void {
-    this.define<MercatorTicker.Props>({
-      dimension: [ p.LatLon ],
-    })
+    this.define<MercatorTicker.Props>(() => ({
+      dimension: [ LatLon ],
+    }))
   }
 
   get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {

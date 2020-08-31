@@ -160,10 +160,10 @@ export class BoxEditTool extends EditTool {
   static init_BoxEditTool(): void {
     this.prototype.default_view = BoxEditToolView
 
-    this.define<BoxEditTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-      num_objects: [ p.Int, 0 ],
-    })
+    this.define<BoxEditTool.Props>(({Int}) => ({
+      dimensions:  [ Dimensions, "both" ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Box Edit Tool"

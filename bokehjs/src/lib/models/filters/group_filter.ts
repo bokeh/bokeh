@@ -23,10 +23,10 @@ export class GroupFilter extends Filter {
   }
 
   static init_GroupFilter(): void {
-    this.define<GroupFilter.Props>({
-      column_name: [ p.String ],
-      group:       [ p.String ],
-    })
+    this.define<GroupFilter.Props>(({String}) => ({
+      column_name: [ String ],
+      group:       [ String ],
+    }))
   }
 
   compute_indices(source: ColumnarDataSource): Indices {

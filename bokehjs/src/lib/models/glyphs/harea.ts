@@ -123,10 +123,10 @@ export class HArea extends Area {
   static init_HArea(): void {
     this.prototype.default_view = HAreaView
 
-    this.define<HArea.Props>({
+    this.define<HArea.Props>(({}) => ({
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
       x2: [ p.XCoordinateSpec, {field: "x2"} ],
-      y:  [ p.YCoordinateSpec, {field: "y"}  ],
-    })
+      y:  [ p.YCoordinateSpec, {field: "y"} ],
+    }))
   }
 }

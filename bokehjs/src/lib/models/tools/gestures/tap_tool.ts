@@ -79,10 +79,10 @@ export class TapTool extends SelectTool {
   static init_TapTool(): void {
     this.prototype.default_view = TapToolView
 
-    this.define<TapTool.Props>({
-      behavior: [ p.TapBehavior, "select" ],
-      callback: [ p.Any                   ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-    })
+    this.define<TapTool.Props>(({Any, Nullable}) => ({
+      behavior: [ TapBehavior, "select" ],
+      callback: [ Nullable(Any /*TODO*/) ],
+    }))
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
     this.register_alias("tap", () => new TapTool())

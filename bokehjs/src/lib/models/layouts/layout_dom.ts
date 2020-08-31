@@ -414,25 +414,25 @@ export abstract class LayoutDOM extends Model {
 
   static init_LayoutDOM(): void {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Null, Auto, Color, Array, Tuple, Or} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
-        width:         [ Or(Number, Null), null ],
-        height:        [ Or(Number, Null), null ],
-        min_width:     [ Or(Number, Null), null ],
-        min_height:    [ Or(Number, Null), null ],
-        max_width:     [ Or(Number, Null), null ],
-        max_height:    [ Or(Number, Null), null ],
+        width:         [ Nullable(Number), null ],
+        height:        [ Nullable(Number), null ],
+        min_width:     [ Nullable(Number), null ],
+        min_height:    [ Nullable(Number), null ],
+        max_width:     [ Nullable(Number), null ],
+        max_height:    [ Nullable(Number), null ],
         margin:        [ Or(Number, Number2, Number4), [0, 0, 0, 0] ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
-        sizing_mode:   [ Or(SizingMode, Null), null ],
+        sizing_mode:   [ Nullable(SizingMode), null ],
         visible:       [ Boolean, true ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align)), "start" ],
-        background:    [ Or(Color, Null), null ],
+        background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
       }
     })

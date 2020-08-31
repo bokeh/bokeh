@@ -86,12 +86,12 @@ export class Slope extends Annotation {
 
     this.mixins<Slope.Mixins>(mixins.Line/*Scalar*/)
 
-    this.define<Slope.Props>({
-      gradient:       [ p.Number,       null      ],
-      y_intercept:    [ p.Number,       null      ],
-    })
+    this.define<Slope.Props>(({Number, Nullable}) => ({
+      gradient:    [ Nullable(Number), null ],
+      y_intercept: [ Nullable(Number), null ],
+    }))
 
-    this.override({
+    this.override<Slope.Props>({
       line_color: 'black',
     })
 

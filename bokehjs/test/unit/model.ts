@@ -3,20 +3,18 @@ import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Model} from "@bokehjs/model"
-import * as p from "@bokehjs/core/properties"
 
 class SomeModel extends Model {
-
   foo: number
   bar: string
   baz: number
 
   static init_SomeModel(): void {
-    this.define<any>({
-      foo: [ p.Number, 2 ],
-      bar: [ p.String    ],
-      baz: [ p.Number, 1 ],
-    })
+    this.define<any>(({Number, String}) => ({
+      foo: [ Number, 2 ],
+      bar: [ String ],
+      baz: [ Number, 1 ],
+    }))
   }
 }
 

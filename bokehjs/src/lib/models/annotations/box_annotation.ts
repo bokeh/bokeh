@@ -145,26 +145,26 @@ export class BoxAnnotation extends Annotation {
 
     this.mixins<BoxAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
-    this.define<BoxAnnotation.Props>({
-      render_mode:  [ p.RenderMode,   'canvas'  ],
-      top:          [ p.Number,       null      ],
-      top_units:    [ p.SpatialUnits, 'data'    ],
-      bottom:       [ p.Number,       null      ],
-      bottom_units: [ p.SpatialUnits, 'data'    ],
-      left:         [ p.Number,       null      ],
-      left_units:   [ p.SpatialUnits, 'data'    ],
-      right:        [ p.Number,       null      ],
-      right_units:  [ p.SpatialUnits, 'data'    ],
-    })
+    this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
+      render_mode:  [ RenderMode, "canvas" ],
+      top:          [ Nullable(Number), null ],
+      top_units:    [ SpatialUnits, "data" ],
+      bottom:       [ Nullable(Number), null ],
+      bottom_units: [ SpatialUnits, "data" ],
+      left:         [ Nullable(Number), null ],
+      left_units:   [ SpatialUnits, "data" ],
+      right:        [ Nullable(Number), null ],
+      right_units:  [ SpatialUnits, "data" ],
+    }))
 
-    this.internal({
-      screen:    [ p.Boolean, false ],
-      ew_cursor: [ p.String,  null  ],
-      ns_cursor: [ p.String,  null  ],
-      in_cursor: [ p.String,  null  ],
-    })
+    this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({
+      screen:    [ Boolean, false ],
+      ew_cursor: [ Nullable(String), null ],
+      ns_cursor: [ Nullable(String), null ],
+      in_cursor: [ Nullable(String), null ],
+    }))
 
-    this.override({
+    this.override<BoxAnnotation.Props>({
       fill_color: '#fff9ba',
       fill_alpha: 0.4,
       line_color: '#cccccc',

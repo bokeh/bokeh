@@ -25,10 +25,10 @@ export class CustomJSFilter extends Filter {
   }
 
   static init_CustomJSFilter(): void {
-    this.define<CustomJSFilter.Props>({
-      args:       [ p.Any,     {}    ], // TODO (bev) better type
-      code:       [ p.String,  ''    ],
-    })
+    this.define<CustomJSFilter.Props>(({Unknown, String, Dict}) => ({
+      args: [ Dict(Unknown), {} ],
+      code: [ String, "" ],
+    }))
   }
 
   get names(): string[] {

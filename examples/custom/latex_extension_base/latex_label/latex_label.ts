@@ -37,13 +37,24 @@ export class LatexLabelView extends LabelView {
   }
 }
 
+export namespace LatexLabel {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Label.Props
+}
+
+export interface LatexLabel extends LatexLabel.Attrs {}
+
 export class LatexLabel extends Label {
+  properties: LatexLabel.Props
+  __view_type__: LatexLabelView
+
   static __module__ = "latex_label"
 
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
 
-    this.override({
+    this.override<LatexLabel.Props>({
       render_mode: "css",
     })
   }

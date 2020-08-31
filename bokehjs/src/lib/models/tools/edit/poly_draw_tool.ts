@@ -257,10 +257,10 @@ export class PolyDrawTool extends PolyTool {
   static init_PolyDrawTool(): void {
     this.prototype.default_view = PolyDrawToolView
 
-    this.define<PolyDrawTool.Props>({
-      drag:        [ p.Boolean, true ],
-      num_objects: [ p.Int,     0    ],
-    })
+    this.define<PolyDrawTool.Props>(({Boolean, Int}) => ({
+      drag:        [ Boolean, true ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Polygon Draw Tool"

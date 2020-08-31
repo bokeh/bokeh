@@ -33,14 +33,14 @@ export class ArcView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, sradius, _start_angle, _end_angle}: ArcData): void {
     if (this.visuals.line.doit) {
-      const direction = this.model.properties.direction.value()
+      const anticlock = this.model.direction == "anticlock"
 
       for (const i of indices) {
         if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+        ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], anticlock)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -83,11 +83,11 @@ export class Arc extends XYGlyph {
 
     this.mixins<Arc.Mixins>(LineVector)
 
-    this.define<Arc.Props>({
-      direction:   [ p.Direction,   'anticlock' ],
-      radius:      [ p.DistanceSpec             ],
-      start_angle: [ p.AngleSpec                ],
-      end_angle:   [ p.AngleSpec                ],
-    })
+    this.define<Arc.Props>(({}) => ({
+      direction:   [ Direction, "anticlock" ],
+      radius:      [ p.DistanceSpec ],
+      start_angle: [ p.AngleSpec ],
+      end_angle:   [ p.AngleSpec ],
+    }))
   }
 }

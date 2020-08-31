@@ -1,6 +1,10 @@
+import * as types from "./types"
 import * as tp from "./util/types"
-import {Color as ColorType} from "./types"
 import {is_color} from "./util/color"
+import {size} from "./util/object"
+
+type ESMap<K, V> = Map<K, V>
+const ESMap = window.Map
 
 export abstract class Kind<T> {
   __type__: T
@@ -34,12 +38,19 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is ObjType {
-      // XXX: disable validation for now, because object graph
-      // initialization depends on this.
-      value
+    valid(_value: unknown): _value is ObjType {
+      // XXX: disable validation for now, because object graph initialization depends on this.
+      // return value instanceof this.obj_type
       return true
-      //return value instanceof this.obj_type
+    }
+  }
+
+  export class AnyRef<ObjType extends object> extends Kind<ObjType> {
+
+    valid(_value: unknown): _value is ObjType {
+      // XXX: disable validation for now, because object graph initialization depends on this.
+      // return tp.isObject(value)
+      return true
     }
   }
 
@@ -52,6 +63,12 @@ export namespace Kinds {
   export class Int extends Number {
     valid(value: unknown): value is number {
       return super.valid(value) && tp.isInteger(value)
+    }
+  }
+
+  export class Percent extends Number {
+    valid(value: unknown): value is number {
+      return super.valid(value) && 0 <= value && value <= 1
     }
   }
 
@@ -89,8 +106,44 @@ export namespace Kinds {
     }
   }
 
-  export class Array<ItemType> extends Kind<ItemType[]> {
+  export class Struct<T extends object> extends Kind<T> {
 
+    constructor(readonly struct_type: {[key in keyof T]: Kind<T[key]>}) {
+      super()
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      if (!tp.isPlainObject(value))
+        return false
+
+      const {struct_type} = this
+      if (size(struct_type) != size(value))
+        return false
+
+      for (const key in struct_type) {
+        if (struct_type.hasOwnProperty(key)) {
+          if (!value.hasOwnProperty(key))
+            return false
+
+          const item_type = struct_type[key]
+          const item = value[key]
+
+          if (!item_type.valid(item))
+            return false
+        }
+      }
+
+      return true
+    }
+  }
+
+  export class Arrayable extends Kind<types.Arrayable> {
+    valid(value: unknown): value is types.Arrayable {
+      return tp.isArray(value) || tp.isTypedArray(value) // TODO: too specific
+    }
+  }
+
+  export class Array<ItemType> extends Kind<ItemType[]> {
     constructor(readonly item_type: Kind<ItemType>) {
       super()
     }
@@ -116,13 +169,23 @@ export namespace Kinds {
     }
   }
 
+  export class Opt<BaseType> extends Kind<BaseType | undefined> {
+    constructor(readonly base_type: Kind<BaseType>) {
+      super()
+    }
+
+    valid(value: unknown): value is BaseType | undefined {
+      return value === undefined || this.base_type.valid(value)
+    }
+  }
+
   export class String extends Kind<string> {
     valid(value: unknown): value is string {
       return tp.isString(value)
     }
   }
 
-  export class Enum<T extends string> extends Kind<T> {
+  export class Enum<T extends string | number> extends Kind<T> {
     readonly values: Set<T>
 
     constructor(values: Iterable<T>) {
@@ -139,7 +202,7 @@ export namespace Kinds {
     }
   }
 
-  export class Struct<ItemType> extends Kind<{[key: string]: ItemType}> {
+  export class Dict<ItemType> extends Kind<{[key: string]: ItemType}> {
 
     constructor(readonly item_type: Kind<ItemType>) {
       super()
@@ -161,14 +224,14 @@ export namespace Kinds {
     }
   }
 
-  export class Dict<KeyType, ItemType> extends Kind<Map<KeyType, ItemType>> {
+  export class Map<KeyType, ItemType> extends Kind<ESMap<KeyType, ItemType>> {
 
     constructor(readonly key_type: Kind<KeyType>, readonly item_type: Kind<ItemType>) {
       super()
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!(value instanceof Map))
+      if (!(value instanceof ESMap))
         return false
 
       for (const [key, item] of value.entries()) {
@@ -180,15 +243,15 @@ export namespace Kinds {
     }
   }
 
-  export class Color extends Kind<ColorType> {
-    valid(value: unknown): value is ColorType {
+  export class Color extends Kind<types.Color> {
+    valid(value: unknown): value is types.Color{
       return tp.isString(value) && is_color(value)
     }
   }
 
-  export class Percent extends Number {
-    valid(value: unknown): value is number {
-      return super.valid(value) && 0 <= value && value <= 1.0
+  export class Function<Args extends unknown[], Ret> extends Kind<(...args: Args) => Ret> {
+    valid(value: unknown): value is this["__type__"] {
+      return tp.isFunction(value)
     }
   }
 }
@@ -201,15 +264,21 @@ export const Int = new Kinds.Int()
 export const String = new Kinds.String()
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
+export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)
 export const Or = <T extends unknown[]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
+export const Struct = <T extends object>(struct_type: {[key in keyof T]: Kind<T[key]>}) => new Kinds.Struct(struct_type)
+export const Arrayable = new Kinds.Arrayable()
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
-export const Struct = <V>(item_type: Kind<V>) => new Kinds.Struct(item_type)
-export const Dict = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Dict(key_type, item_type)
-export const Enum = <T extends string>(...values: T[]) => new Kinds.Enum(values)
+export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
+export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)
+export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)
 export const Ref = <ObjType extends object>(obj_type: Constructor<ObjType>) => new Kinds.Ref<ObjType>(obj_type)
+export const AnyRef = <ObjType extends object>() => new Kinds.AnyRef<ObjType>()
+export const Function = <Args extends unknown[], Ret>() => new Kinds.Function<Args, Ret>()
 
 export const Percent = new Kinds.Percent()
+export const Alpha = Percent
 export const Color = new Kinds.Color()
 export const Auto = Enum("auto")
 

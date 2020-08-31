@@ -176,7 +176,7 @@ def test_Arrow() -> None:
     assert arrow.y_end is None
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
-    assert arrow.source is None
+    assert isinstance(arrow.source, ColumnDataSource)
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)

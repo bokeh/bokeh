@@ -11,8 +11,8 @@ export namespace DatetimeAxis {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LinearAxis.Props & {
-    // XXX: ticker:    DatetimeTicker
-    // XXX: formatter: DatetimeTickFormatter
+    ticker: p.Property<DatetimeTicker>
+    formatter: p.Property<DatetimeTickFormatter>
   }
 }
 
@@ -26,10 +26,13 @@ export class DatetimeAxis extends LinearAxis {
     super(attrs)
   }
 
+  ticker: DatetimeTicker
+  formatter: DatetimeTickFormatter
+
   static init_DatetimeAxis(): void {
     this.prototype.default_view = DatetimeAxisView
 
-    this.override({
+    this.override<DatetimeAxis.Props>({
       ticker:    () => new DatetimeTicker(),
       formatter: () => new DatetimeTickFormatter(),
     })

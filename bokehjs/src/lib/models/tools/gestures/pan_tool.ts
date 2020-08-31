@@ -139,8 +139,8 @@ export class PanTool extends GestureTool {
   static init_PanTool(): void {
     this.prototype.default_view = PanToolView
 
-    this.define<PanTool.Props>({
-      dimensions: [ p.Dimensions, "both", {
+    this.define<PanTool.Props>(() => ({
+      dimensions: [ Dimensions, "both", {
         on_update(value: Dimensions, obj: PanTool) {
           switch (value) {
             case "both":
@@ -155,7 +155,7 @@ export class PanTool extends GestureTool {
           }
         },
       }],
-    })
+    }))
 
     this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
     this.register_alias("xpan", () => new PanTool({dimensions: 'width'}))

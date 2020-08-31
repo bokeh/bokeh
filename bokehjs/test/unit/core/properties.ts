@@ -74,21 +74,21 @@ class Some extends HasProps {
   }
 
   static init_Some(): void {
-    this.define<Some.Props>({
-      anchor: [ p.Anchor ],
-      any: [ p.Any ],
-      array: [ p.Array ],
-      boolean: [ p.Boolean ],
-      color: [ p.Color ],
-      instance: [ p.Instance ],
-      number: [ p.Number ],
-      int: [ p.Int ],
-      angle: [ p.Angle ],
-      percent: [ p.Percent ],
-      string: [ p.String ],
-      font_size: [ p.FontSize ],
-      font: [ p.Font ],
-      direction: [ p.Direction ],
+    this.define<Some.Props>((kinds) => ({
+      anchor: [ enums.Anchor ],
+      any: [ kinds.Any ],
+      array: [ kinds.Array(kinds.Number) ],
+      boolean: [ kinds.Boolean ],
+      color: [ kinds.Color ],
+      instance: [ kinds.Ref(HasProps) ],
+      number: [ kinds.Number ],
+      int: [ kinds.Int ],
+      angle: [ kinds.Angle ],
+      percent: [ kinds.Percent ],
+      string: [ kinds.String ],
+      font_size: [ kinds.FontSize ],
+      font: [ kinds.Font ],
+      direction: [ enums.Direction ],
       angle_spec: [ p.AngleSpec ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
@@ -100,7 +100,7 @@ class Some extends HasProps {
       number_spec: [ p.NumberSpec ],
       string_spec: [ p.StringSpec ],
       null_string_spec: [ p.NullStringSpec ],
-    })
+    }))
   }
 }
 
@@ -376,7 +376,7 @@ describe("properties module", () => {
       it("should return undefined on array input", () => {
         expect(prop.valid([])).to.be.true
         expect(prop.valid([1, 2, 3])).to.be.true
-        expect(prop.valid(new Float32Array([1, 2, 3]))).to.be.true
+        expect(prop.valid(new Float32Array([1, 2, 3]))).to.be.false
       })
 
       it("should throw an Error on non-array input", () => {
@@ -489,23 +489,6 @@ describe("properties module", () => {
 
       it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
-      })
-    })
-
-    describe("normalize", () => {
-      it("should convert 'clock' to false", () => {
-        const result = prop.normalize(["clock"])
-        expect(result).to.be.equal(new Uint8Array([0]))
-      })
-
-      it("should convert 'anticlock' to true", () => {
-        const result = prop.normalize(["anticlock"])
-        expect(result).to.be.equal(new Uint8Array([1]))
-      })
-
-      it("should return a Uint8Array", () => {
-        const result = prop.normalize(["clock", "anticlock"])
-        expect(result).to.be.equal(new Uint8Array([0, 1]))
       })
     })
   })

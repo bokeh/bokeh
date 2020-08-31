@@ -166,11 +166,11 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static init_SelectTool(): void {
-    this.define<SelectTool.Props>({
-      renderers: [ p.Any,   'auto'    ],
-      names:     [ p.Array, []        ],
-      mode:      [ p.Any,   "replace" ],
-    })
+    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto, Null}) => ({
+      renderers: [ Or(Array(Ref(DataRenderer)), Auto, Null), "auto" ],
+      names:     [ Array(String), [] ],
+      mode:      [ SelectionMode, "replace" ],
+    }))
   }
 
   get menu(): MenuItem[] | null {

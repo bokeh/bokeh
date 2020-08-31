@@ -23,10 +23,10 @@ export class OpenURL extends Callback {
   }
 
   static init_OpenURL(): void {
-    this.define<OpenURL.Props>({
-      url: [ p.String, 'http://' ],
-      same_tab: [ p.Boolean, false ],
-    })
+    this.define<OpenURL.Props>(({Boolean, String}) => ({
+      url: [ String, "http://" ],
+      same_tab: [ Boolean, false ],
+    }))
   }
 
   execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {

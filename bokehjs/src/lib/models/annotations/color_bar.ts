@@ -625,28 +625,28 @@ export class ColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<ColorBar.Props>({
-      location:                [ p.Any,         'top_right' ],
-      orientation:             [ p.Orientation, 'vertical'  ],
-      title:                   [ p.String                   ],
-      title_standoff:          [ p.Number,      2           ],
-      width:                   [ p.Any,         'auto'      ],
-      height:                  [ p.Any,         'auto'      ],
-      scale_alpha:             [ p.Number,      1.0         ],
-      ticker:                  [ p.Instance,    () => new BasicTicker()        ],
-      formatter:               [ p.Instance,    () => new BasicTickFormatter() ],
-      major_label_overrides:   [ p.Any,         {}          ],
-      color_mapper:            [ p.Instance                 ],
-      label_standoff:          [ p.Number,      5           ],
-      margin:                  [ p.Number,      30          ],
-      padding:                 [ p.Number,      10          ],
-      major_tick_in:           [ p.Number,      5           ],
-      major_tick_out:          [ p.Number,      0           ],
-      minor_tick_in:           [ p.Number,      0           ],
-      minor_tick_out:          [ p.Number,      0           ],
-    })
+    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto}) => ({
+      location:              [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
+      orientation:           [ Orientation, "vertical" ],
+      title:                 [ String ],
+      title_standoff:        [ Number, 2 ],
+      width:                 [ Or(Number, Auto), "auto" ],
+      height:                [ Or(Number, Auto), "auto" ],
+      scale_alpha:           [ Alpha, 1.0 ],
+      ticker:                [ Ref(ContinuousTicker), () => new BasicTicker() ],
+      formatter:             [ Ref(TickFormatter), () => new BasicTickFormatter() ],
+      major_label_overrides: [ Dict(String), {} ],
+      color_mapper:          [ Ref(ContinuousColorMapper) ],
+      label_standoff:        [ Number, 5 ],
+      margin:                [ Number, 30 ],
+      padding:               [ Number, 10 ],
+      major_tick_in:         [ Number, 5 ],
+      major_tick_out:        [ Number, 0 ],
+      minor_tick_in:         [ Number, 0 ],
+      minor_tick_out:        [ Number, 0 ],
+    }))
 
-    this.override({
+    this.override<ColorBar.Props>({
       background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
       bar_line_color: null,

@@ -21,9 +21,9 @@ export class LogTickFormatter extends TickFormatter {
   }
 
   static init_LogTickFormatter(): void {
-    this.define<LogTickFormatter.Props>({
-      ticker: [ p.Instance, null ],
-    })
+    this.define<LogTickFormatter.Props>(({Ref, Nullable}) => ({
+      ticker: [ Nullable(Ref(LogTicker)), null ],
+    }))
   }
 
   protected basic_formatter: BasicTickFormatter

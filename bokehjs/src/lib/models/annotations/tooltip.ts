@@ -149,20 +149,20 @@ export class Tooltip extends Annotation {
   static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
-    this.define<Tooltip.Props>({
-      attachment: [ p.TooltipAttachment, 'horizontal' ],
-      inner_only: [ p.Boolean,           true         ],
-      show_arrow: [ p.Boolean,           true         ],
-    })
+    this.define<Tooltip.Props>(({Boolean}) => ({
+      attachment: [ TooltipAttachment, "horizontal" ],
+      inner_only: [ Boolean, true ],
+      show_arrow: [ Boolean, true ],
+    }))
 
-    this.override({
+    this.internal<Tooltip.Props>(({Boolean, Number, Tuple, Ref, Nullable}) => ({
+      position: [ Nullable(Tuple(Number, Number)), null ],
+      content:  [ Ref(HTMLElement), () => div() ],
+      custom:   [ Boolean ],
+    }))
+
+    this.override<Tooltip.Props>({
       level: 'overlay',
-    })
-
-    this.internal({
-      position: [ p.Any, null        ],
-      content:  [ p.Any, () => div() ],
-      custom:   [ p.Any              ],
     })
   }
 

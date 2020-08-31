@@ -332,6 +332,7 @@ export namespace Legend {
 
   export type Mixins =
     mixins.LabelText      &
+    mixins.TitleText      &
     mixins.InactiveFill   &
     mixins.BorderLine     &
     mixins.BackgroundFill
@@ -373,24 +374,24 @@ export class Legend extends Annotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>({
-      orientation:      [ p.Orientation,    'vertical'  ],
-      location:         [ p.Any,            'top_right' ], // TODO (bev)
-      title:            [ p.String                      ],
-      title_standoff:   [ p.Number,         5           ],
-      label_standoff:   [ p.Number,         5           ],
-      glyph_height:     [ p.Number,         20          ],
-      glyph_width:      [ p.Number,         20          ],
-      label_height:     [ p.Number,         20          ],
-      label_width:      [ p.Number,         20          ],
-      margin:           [ p.Number,         10          ],
-      padding:          [ p.Number,         10          ],
-      spacing:          [ p.Number,         3           ],
-      items:            [ p.Array,          []          ],
-      click_policy:     [ p.Any,            "none"      ],
-    })
+    this.define<Legend.Props>(({Number, String, Array, Tuple, Or, Ref}) => ({
+      orientation:      [ Orientation, "vertical" ],
+      location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
+      title:            [ String ],
+      title_standoff:   [ Number, 5 ],
+      label_standoff:   [ Number, 5 ],
+      glyph_height:     [ Number, 20 ],
+      glyph_width:      [ Number, 20 ],
+      label_height:     [ Number, 20 ],
+      label_width:      [ Number, 20 ],
+      margin:           [ Number, 10 ],
+      padding:          [ Number, 10 ],
+      spacing:          [ Number, 3 ],
+      items:            [ Array(Ref(LegendItem)), [] ],
+      click_policy:     [ LegendClickPolicy, "none" ],
+    }))
 
-    this.override({
+    this.override<Legend.Props>({
       border_line_color: "#e5e5e5",
       border_line_alpha: 0.5,
       border_line_width: 1,

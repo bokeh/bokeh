@@ -68,8 +68,8 @@ export class Scatter extends Marker {
 
   static init_Scatter(): void {
     this.prototype.default_view = ScatterView
-    this.define<Scatter.Props>({
+    this.define<Scatter.Props>(({}) => ({
       marker: [ p.MarkerSpec, {value: "circle"} ],
-    })
+    }))
   }
 }

@@ -298,9 +298,9 @@ export class Canvas extends HasProps {
   static init_Canvas(): void {
     this.prototype.default_view = CanvasView
 
-    this.internal({
-      hidpi:          [ p.Boolean,       true     ],
-      output_backend: [ p.OutputBackend, "canvas" ],
-    })
+    this.internal<Canvas.Props>(({Boolean}) => ({
+      hidpi:          [ Boolean, true ],
+      output_backend: [ OutputBackend, "canvas" ],
+    }))
   }
 }

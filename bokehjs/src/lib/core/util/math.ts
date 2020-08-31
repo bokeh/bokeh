@@ -1,5 +1,3 @@
-const enum Direction {clock, anticlock}
-
 export function angle_norm(angle: number): number {
   if (angle == 0) {
     return 0
@@ -17,7 +15,7 @@ export function angle_dist(lhs: number, rhs: number): number {
   return angle_norm(lhs-rhs)
 }
 
-export function angle_between(mid: number, lhs: number, rhs: number, direction: Direction): boolean {
+export function angle_between(mid: number, lhs: number, rhs: number, anticlock: boolean = false): boolean {
   const d = angle_dist(lhs, rhs)
   if (d == 0)
     return false
@@ -25,7 +23,7 @@ export function angle_between(mid: number, lhs: number, rhs: number, direction: 
     return true
   const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
-  return (direction == Direction.clock) ? cond : !cond
+  return !anticlock ? cond : !cond
 }
 
 export function random(): number {

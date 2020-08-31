@@ -556,23 +556,23 @@ export class Axis extends GuideRenderer {
       ["axis_label_",  mixins.Text],
     ])
 
-    this.define<Axis.Props>({
-      bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
-      ticker:                  [ p.Instance               ],
-      formatter:               [ p.Instance               ],
-      axis_label:              [ p.String,   ''           ],
-      axis_label_standoff:     [ p.Int,      5            ],
-      major_label_standoff:    [ p.Int,      5            ],
-      major_label_orientation: [ p.Any,      "horizontal" ], // TODO: p.TickLabelOrientation | p.Number
-      major_label_overrides:   [ p.Any,      {}           ],
-      major_tick_in:           [ p.Number,   2            ],
-      major_tick_out:          [ p.Number,   6            ],
-      minor_tick_in:           [ p.Number,   0            ],
-      minor_tick_out:          [ p.Number,   4            ],
-      fixed_location:          [ p.Any,      null         ],
-    })
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Dict, Tuple, Or, Nullable, Auto}) => ({
+      bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
+      ticker:                  [ Ref(Ticker) ],
+      formatter:               [ Ref(TickFormatter) ],
+      axis_label:              [ Nullable(String), "" ],
+      axis_label_standoff:     [ Int, 5 ],
+      major_label_standoff:    [ Int, 5 ],
+      major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
+      major_label_overrides:   [ Dict(String), {} ],
+      major_tick_in:           [ Number, 2 ],
+      major_tick_out:          [ Number, 6 ],
+      minor_tick_in:           [ Number, 0 ],
+      minor_tick_out:          [ Number, 4 ],
+      fixed_location:          [ Nullable(Or(Number, Any)), null ],
+    }))
 
-    this.override({
+    this.override<Axis.Props>({
       axis_line_color: 'black',
 
       major_tick_line_color: 'black',

@@ -54,11 +54,11 @@ export class GridBox extends LayoutDOM {
   static init_GridBox(): void {
     this.prototype.default_view = GridBoxView
 
-    this.define<GridBox.Props>({
-      children: [ p.Array,  []     ],
-      rows:     [ p.Any,    "auto" ],
-      cols:     [ p.Any,    "auto" ],
-      spacing:  [ p.Any,    0      ],
-    })
+    this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({
+      children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
+      rows:     [ Any /*TODO*/, "auto" ],
+      cols:     [ Any /*TODO*/, "auto" ],
+      spacing:  [ Or(Number, Tuple(Number, Number)), 0 ],
+    }))
   }
 }

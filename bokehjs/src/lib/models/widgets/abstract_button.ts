@@ -75,7 +75,7 @@ export namespace AbstractButton {
 
   export type Props = Control.Props & {
     label: p.Property<string>
-    icon: p.Property<AbstractIcon>
+    icon: p.Property<AbstractIcon | null>
     button_type: p.Property<ButtonType>
   }
 }
@@ -91,10 +91,10 @@ export abstract class AbstractButton extends Control {
   }
 
   static init_AbstractButton(): void {
-    this.define<AbstractButton.Props>({
-      label:       [ p.String,     "Button"  ],
-      icon:        [ p.Instance              ],
-      button_type: [ p.ButtonType, "default" ], // TODO (bev)
-    })
+    this.define<AbstractButton.Props>(({String, Ref, Nullable}) => ({
+      label:       [ String, "Button" ],
+      icon:        [ Nullable(Ref(AbstractIcon)), null ],
+      button_type: [ ButtonType, "default" ],
+    }))
   }
 }

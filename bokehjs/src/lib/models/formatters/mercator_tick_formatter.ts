@@ -21,9 +21,9 @@ export class MercatorTickFormatter extends BasicTickFormatter {
   }
 
   static init_MercatorTickFormatter(): void {
-    this.define<MercatorTickFormatter.Props>({
-      dimension: [ p.LatLon ],
-    })
+    this.define<MercatorTickFormatter.Props>(() => ({
+      dimension: [ LatLon ],
+    }))
   }
 
   doFormat(ticks: number[], opts: {loc: number}): string[] {

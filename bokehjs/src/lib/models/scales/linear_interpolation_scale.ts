@@ -22,7 +22,9 @@ export class LinearInterpolationScale extends Scale {
   }
 
   static init_LinearInterpolationScale(): void {
-    this.internal({binning: [ p.Array ]})
+    this.internal<LinearInterpolationScale.Props>(({Arrayable}) => ({
+      binning: [ Arrayable ],
+    }))
   }
 
   compute(x: number): number {

@@ -22,10 +22,10 @@ export class CustomJSHover extends Model {
   }
 
   static init_CustomJSHover(): void {
-    this.define<CustomJSHover.Props>({
-      args: [ p.Any,    {} ], // TODO (bev) better type
-      code: [ p.String, "" ],
-    })
+    this.define<CustomJSHover.Props>(({Unknown, String, Dict}) => ({
+      args: [ Dict(Unknown), {} ],
+      code: [ String, "" ],
+    }))
   }
 
   get values(): any[] {

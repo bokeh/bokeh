@@ -62,8 +62,8 @@ export abstract class InputWidget extends Control {
   }
 
   static init_InputWidget(): void {
-    this.define<InputWidget.Props>({
-      title:    [ p.String, "" ],
-    })
+    this.define<InputWidget.Props>(({String}) => ({
+      title: [ String, "" ],
+    }))
   }
 }

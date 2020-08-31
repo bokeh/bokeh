@@ -10,7 +10,7 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
-export interface HasXYGlyph {
+export type HasXYGlyph = {
   glyph: XYGlyph
 }
 
@@ -166,7 +166,7 @@ export namespace EditTool {
   export type Props = GestureTool.Props & {
     custom_icon: p.Property<string>
     custom_tooltip: p.Property<string>
-    empty_value: p.Property<any>
+    empty_value: p.Property<unknown>
     renderers: p.Property<GlyphRenderer[]>
   }
 }
@@ -182,12 +182,12 @@ export abstract class EditTool extends GestureTool {
   }
 
   static init_EditTool(): void {
-    this.define<EditTool.Props>({
-      custom_icon:    [ p.String    ],
-      custom_tooltip: [ p.String    ],
-      empty_value:    [ p.Any       ],
-      renderers:      [ p.Array, [] ],
-    })
+    this.define<EditTool.Props>(({Unknown, String, Array, Ref}) => ({
+      custom_icon:    [ String ],
+      custom_tooltip: [ String ],
+      empty_value:    [ Unknown ],
+      renderers:      [ Array(Ref(GlyphRenderer)), [] ],
+    }))
   }
 
   get tooltip(): string {

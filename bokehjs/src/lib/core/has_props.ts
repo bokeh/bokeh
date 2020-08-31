@@ -79,9 +79,9 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this.prototype._props = {}
     this.prototype._mixins = []
 
-    this.define<HasProps.Props>({
-      id: [ p.String, () => uniqueId() ],
-    })
+    this.define<HasProps.Props>(({String}) => ({
+      id: [ String, () => uniqueId() ],
+    }))
   }
 
   /** @prototype */
@@ -148,10 +148,10 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     }
   }
 
-  static internal(obj: any): void {
+  static internal<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
     const _object: any = {}
-    for (const [name, entry] of entries(obj)) {
-      const [type, default_value, options = {}] = entry as any
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
+      const [type, default_value, options = {}] = prop as any
       _object[name] = [type, default_value, {...options, internal: true}]
     }
     this.define(_object)
@@ -210,7 +210,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this.prototype._mixins = [...this.prototype._mixins, ...names]
   }
 
-  static override(obj: any): void {
+  static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
     for (const [name, prop] of entries(obj)) {
       const default_value = this._fix_default(prop, name)
       const value = this.prototype._props[name]
@@ -234,7 +234,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
-  readonly properties: {[key: string]: Property} = {} // Object.create(null)
+  readonly properties: {[key: string]: Property} = {}
 
   property(name: string): Property {
     const prop = this.properties[name]
@@ -245,7 +245,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   }
 
   get attributes(): Attrs {
-    const attrs: Attrs = {} // Object.create(null)
+    const attrs: Attrs = {}
     for (const prop of this) {
       attrs[prop.attr] = prop.get_value()
     }

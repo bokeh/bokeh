@@ -1,4 +1,5 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {CustomJSHover} from "./customjs_hover"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {Renderer, RendererView} from "../../renderers/renderer"
@@ -8,7 +9,7 @@ import {DataRenderer} from "../../renderers/data_renderer"
 import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
-import {replace_placeholders, Formatters, Vars} from "core/util/templating"
+import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
@@ -222,7 +223,7 @@ export class HoverToolView extends InspectToolView {
 
     const glyph = (renderer_view as any).glyph // XXX
 
-    const tooltips: [number, number, HTMLElement][] = []
+    const tooltips: [number, number, HTMLElement | null][] = []
     for (const i of indices.line_indices) {
       let data_x = glyph._x[i+1]
       let data_y = glyph._y[i+1]
@@ -364,7 +365,8 @@ export class HoverToolView extends InspectToolView {
       const {content} = tooltip
       empty(tooltip.content)
       for (const [,, node] of tooltips) {
-        content.appendChild(node)
+        if (node != null)
+          content.appendChild(node)
       }
 
       const [x, y] = tooltips[tooltips.length-1]
@@ -455,16 +457,17 @@ export class HoverToolView extends InspectToolView {
     return el
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
-    } else {
+    } else if (tooltips != null) {
       return this._render_template(this._template_el!, tooltips, ds, i, vars)
-    }
+    } else
+      return null
   }
 }
 
@@ -472,7 +475,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
@@ -500,24 +503,24 @@ export class HoverTool extends InspectTool {
   static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>({
-      tooltips: [ p.Any, [
+    this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Null, Nullable}) => ({
+      tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ p.Any,               {}             ],
-      renderers:    [ p.Any,               'auto'         ],
-      names:        [ p.Array,             []             ],
-      mode:         [ p.HoverMode,         'mouse'        ],
-      muted_policy: [ p.MutedPolicy,       'show'         ],
-      point_policy: [ p.PointPolicy,       'snap_to_data' ],
-      line_policy:  [ p.LinePolicy,        'nearest'      ],
-      show_arrow:   [ p.Boolean,           true           ],
-      anchor:       [ p.Anchor,            'center'       ],
-      attachment:   [ p.TooltipAttachment, 'horizontal'   ],
-      callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-    })
+      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
+      renderers:    [ Or(Array(Ref(DataRenderer)), Auto, Null), "auto" ],
+      names:        [ Array(String), [] ],
+      mode:         [ HoverMode, "mouse" ],
+      muted_policy: [ MutedPolicy, "show" ],
+      point_policy: [ PointPolicy, "snap_to_data" ],
+      line_policy:  [ LinePolicy, "nearest" ],
+      show_arrow:   [ Boolean, true ],
+      anchor:       [ Anchor, "center" ],
+      attachment:   [ TooltipAttachment, "horizontal" ],
+      callback:     [ Nullable(Any /*TODO*/) ],
+    }))
 
     this.register_alias("hover", () => new HoverTool())
   }

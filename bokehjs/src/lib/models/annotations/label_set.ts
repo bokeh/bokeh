@@ -232,19 +232,19 @@ export class LabelSet extends TextAnnotation {
       ["background_", mixins.FillVector],
     ])
 
-    this.define<LabelSet.Props>({
-      x:            [ p.NumberSpec                      ],
-      y:            [ p.NumberSpec                      ],
-      x_units:      [ p.SpatialUnits, 'data'            ],
-      y_units:      [ p.SpatialUnits, 'data'            ],
-      text:         [ p.StringSpec,   { field: "text" } ],
-      angle:        [ p.AngleSpec,    0                 ],
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      source:       [ p.Instance,     () => new ColumnDataSource()  ],
-    })
+    this.define<LabelSet.Props>(({Ref}) => ({
+      x:            [ p.NumberSpec ],
+      y:            [ p.NumberSpec ],
+      x_units:      [ SpatialUnits, "data" ],
+      y_units:      [ SpatialUnits, "data" ],
+      text:         [ p.StringSpec, {field: "text"} ],
+      angle:        [ p.AngleSpec, 0 ],
+      x_offset:     [ p.NumberSpec, {value: 0} ],
+      y_offset:     [ p.NumberSpec, {value: 0} ],
+      source:       [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
+    }))
 
-    this.override({
+    this.override<LabelSet.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

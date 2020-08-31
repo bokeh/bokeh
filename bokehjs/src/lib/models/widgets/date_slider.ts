@@ -26,7 +26,7 @@ export class DateSlider extends AbstractSlider {
   static init_DateSlider(): void {
     this.prototype.default_view = DateSliderView
 
-    this.override({
+    this.override<DateSlider.Props>({
       format: "%d %b %Y",
     })
   }

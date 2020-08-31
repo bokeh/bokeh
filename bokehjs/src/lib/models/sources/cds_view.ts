@@ -27,16 +27,16 @@ export class CDSView extends Model {
   }
 
   static init_CDSView(): void {
-    this.define<CDSView.Props>({
-      filters: [ p.Array, [] ],
-      source:  [ p.Instance  ],
-    })
+    this.define<CDSView.Props>(({Array, Ref}) => ({
+      filters: [ Array(Ref(Filter)), [] ],
+      source:  [ Ref(ColumnarDataSource) ],
+    }))
 
-    this.internal({
-      indices:     [ p.Any       ],
-      indices_map: [ p.Any, {}   ],
-      masked:      [ p.Any, null ],
-    })
+    this.internal<CDSView.Props>(({Int, Dict, Ref, Nullable}) => ({
+      indices:     [ Ref(Indices) ],
+      indices_map: [ Dict(Int), {} ],
+      masked:      [ Nullable(Ref(Indices)), null ],
+    }))
   }
 
   initialize(): void {

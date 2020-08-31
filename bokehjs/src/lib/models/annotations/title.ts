@@ -103,12 +103,12 @@ export namespace Title {
 
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
-    text_font: p.Property<string> // XXX: Font
+    text_font: p.Property<string>
     text_font_size: p.StringSpec
     text_font_style: p.Property<FontStyle>
     text_color: p.ColorSpec
     text_alpha: p.NumberSpec
-    text_line_height: p.NumberSpec
+    text_line_height: p.Property<number>
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
@@ -141,27 +141,27 @@ export class Title extends TextAnnotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Title.Props>({
-      text:             [ p.String                     ],
-      text_font:        [ p.Font,          'helvetica' ],
-      text_font_size:   [ p.StringSpec,    '13px'      ],
-      text_font_style:  [ p.FontStyle,     'bold'      ],
-      text_color:       [ p.ColorSpec,     '#444444'   ],
-      text_alpha:       [ p.NumberSpec,    1.0         ],
-      text_line_height: [ p.Number,        1.0         ],
-      vertical_align:   [ p.VerticalAlign, 'bottom'    ],
-      align:            [ p.TextAlign,     'left'      ],
-      offset:           [ p.Number,        0           ],
-    })
+    this.define<Title.Props>(({Number, String}) => ({
+      text:             [ String ],
+      text_font:        [ p.Font, "helvetica" ],
+      text_font_size:   [ p.StringSpec, "13px" ],
+      text_font_style:  [ FontStyle, "bold" ],
+      text_color:       [ p.ColorSpec, "#444444" ],
+      text_alpha:       [ p.NumberSpec, 1.0 ],
+      text_line_height: [ Number, 1.0 ],
+      vertical_align:   [ VerticalAlign, "bottom" ],
+      align:            [ TextAlign, "left" ],
+      offset:           [ Number, 0 ],
+    }))
 
-    this.override({
+    this.internal<Title.Props>(() => ({
+      text_align:    [ TextAlign, "left" ],
+      text_baseline: [ TextBaseline, "bottom" ],
+    }))
+
+    this.override<Title.Props>({
       background_fill_color: null,
       border_line_color: null,
-    })
-
-    this.internal({
-      text_align:    [ p.TextAlign,    'left'   ],
-      text_baseline: [ p.TextBaseline, 'bottom' ],
     })
   }
 }

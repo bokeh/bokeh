@@ -130,9 +130,9 @@ export abstract class ButtonTool extends Tool {
   }
 
   static init_ButtonTool(): void {
-    this.internal({
-      disabled: [ p.Boolean, false ],
-    })
+    this.internal<ButtonTool.Props>(({Boolean}) => ({
+      disabled: [ Boolean, false ],
+    }))
   }
 
   tool_name: string

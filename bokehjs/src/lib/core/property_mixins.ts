@@ -1,6 +1,7 @@
 import * as p from "./properties"
 import {Color} from "./types"
 import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import * as k from "./kinds"
 import {Texture} from "models/textures/texture"
 
 export type HatchPattern = HatchPatternType | string
@@ -44,38 +45,38 @@ export type Text = {
 }
 
 export const Line: p.DefineOf<Line> = {
-  line_color:       [ p.Color,        "black"     ],
-  line_alpha:       [ p.Number,       1.0         ],
-  line_width:       [ p.Number,       1           ],
-  line_join:        [ p.LineJoin,     "bevel"     ],
-  line_cap:         [ p.LineCap,      "butt"      ],
-  line_dash:        [ p.Array,        []          ],
-  line_dash_offset: [ p.Number,       0           ],
+  line_color:       [ k.Nullable(k.Color), "black" ],
+  line_alpha:       [ k.Alpha, 1.0 ],
+  line_width:       [ k.Number, 1 ],
+  line_join:        [ LineJoin, "bevel"],
+  line_cap:         [ LineCap, "butt" ],
+  line_dash:        [ k.Array(k.Number), [] ],
+  line_dash_offset: [ k.Number, 0 ],
 }
 
 export const Fill: p.DefineOf<Fill> = {
-  fill_color:       [ p.Color,        "gray"      ],
-  fill_alpha:       [ p.Number,       1.0         ],
+  fill_color:       [ k.Nullable(k.Color), "gray" ],
+  fill_alpha:       [ k.Alpha, 1.0 ],
 }
 
 export const Hatch: p.DefineOf<Hatch> = {
-  hatch_color:      [ p.Color,        "black"     ],
-  hatch_alpha:      [ p.Number,       1.0         ],
-  hatch_scale:      [ p.Number,       12.0        ],
-  hatch_pattern:    [ p.NullString,   null        ],
-  hatch_weight:     [ p.Number,       1.0         ],
-  hatch_extra:      [ p.Any,          {}          ],
+  hatch_color:      [ k.Nullable(k.Color), "black" ],
+  hatch_alpha:      [ k.Alpha, 1.0 ],
+  hatch_scale:      [ k.Number, 12.0 ],
+  hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.String)), null ],
+  hatch_weight:     [ k.Number, 1.0 ],
+  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
 }
 
 export const Text: p.DefineOf<Text> = {
-  text_color:       [ p.Color,        "#444444"   ],
-  text_alpha:       [ p.Number,       1.0         ],
-  text_font:        [ p.Font,         "helvetica" ],
-  text_font_size:   [ p.FontSize,     "16px"      ],
-  text_font_style:  [ p.FontStyle,    "normal"    ],
-  text_align:       [ p.TextAlign,    "left"      ],
-  text_baseline:    [ p.TextBaseline, "bottom"    ],
-  text_line_height: [ p.Number,       1.2         ],
+  text_color:       [ k.Nullable(k.Color), "#444444" ],
+  text_alpha:       [ k.Alpha, 1.0 ],
+  text_font:        [ p.Font, "helvetica" ],
+  text_font_size:   [ k.FontSize, "16px" ],
+  text_font_style:  [ FontStyle, "normal" ],
+  text_align:       [ TextAlign, "left" ],
+  text_baseline:    [ TextBaseline, "bottom" ],
+  text_line_height: [ k.Number, 1.2 ],
 }
 
 // Scalar
@@ -191,10 +192,10 @@ export const LineVector: p.DefineOf<LineVector> = {
   line_color:       [ p.ColorSpec,      "black"     ],
   line_alpha:       [ p.NumberSpec,     1.0         ],
   line_width:       [ p.NumberSpec,     1           ],
-  line_join:        [ p.LineJoin,       "bevel"     ],
-  line_cap:         [ p.LineCap,        "butt"      ],
-  line_dash:        [ p.Array,          []          ],
-  line_dash_offset: [ p.Number,         0           ],
+  line_join:        [ LineJoin, "bevel" ],
+  line_cap:         [ LineCap, "butt" ],
+  line_dash:        [ k.Array(k.Number), [] ],
+  line_dash_offset: [ k.Number, 0 ],
 }
 
 export const FillVector: p.DefineOf<FillVector> = {
@@ -208,7 +209,7 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ p.Any,            {}          ],
+  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
@@ -216,10 +217,10 @@ export const TextVector: p.DefineOf<TextVector> = {
   text_alpha:       [ p.NumberSpec,     1.0         ],
   text_font:        [ p.Font,           "helvetica" ],
   text_font_size:   [ p.FontSizeSpec,   "16px"      ],
-  text_font_style:  [ p.FontStyle,      "normal"    ],
-  text_align:       [ p.TextAlign,      "left"      ],
-  text_baseline:    [ p.TextBaseline,   "bottom"    ],
-  text_line_height: [ p.Number,         1.2         ],
+  text_font_style:  [ FontStyle, "normal" ],
+  text_align:       [ TextAlign, "left" ],
+  text_baseline:    [ TextBaseline, "bottom" ],
+  text_line_height: [ k.Number, 1.2 ],
 }
 
 // Common property mixins used in models. This duplication is currently unavoidable.

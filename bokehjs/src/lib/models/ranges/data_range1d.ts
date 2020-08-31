@@ -21,8 +21,8 @@ export namespace DataRange1d {
     range_padding: p.Property<number>
     range_padding_units: p.Property<PaddingUnits>
     flipped: p.Property<boolean>
-    follow: p.Property<StartEnd>
-    follow_interval: p.Property<number>
+    follow: p.Property<StartEnd | null>
+    follow_interval: p.Property<number | null>
     default_span: p.Property<number>
     only_visible: p.Property<boolean>
 
@@ -40,29 +40,29 @@ export class DataRange1d extends DataRange {
   }
 
   static init_DataRange1d(): void {
-    this.define<DataRange1d.Props>({
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-      range_padding:       [ p.Number,       0.1       ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd                ],
-      follow_interval:     [ p.Number                  ],
-      default_span:        [ p.Number,       2         ],
-      only_visible:        [ p.Boolean,      false     ],
-    })
+    this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
+      start:               [ Number ],
+      end:                 [ Number ],
+      range_padding:       [ Number, 0.1 ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      flipped:             [ Boolean, false ],
+      follow:              [ Nullable(StartEnd), null ],
+      follow_interval:     [ Nullable(Number), null ],
+      default_span:        [ Number, 2.0 ],
+      only_visible:        [ Boolean, false ],
+    }))
 
-    this.internal({
-      scale_hint: [ p.String, 'auto' ],
-    })
+    this.internal<DataRange1d.Props>(({Enum}) => ({
+      scale_hint: [ Enum("log", "auto"), "auto" ],
+    }))
   }
 
-  protected _initial_start: number
-  protected _initial_end: number
+  protected _initial_start: number | null
+  protected _initial_end: number | null
   protected _initial_range_padding: number
   protected _initial_range_padding_units: PaddingUnits
-  protected _initial_follow: StartEnd
-  protected _initial_follow_interval: number
+  protected _initial_follow: StartEnd | null
+  protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
   protected _plot_bounds: Map<Plot, Rect>

@@ -97,18 +97,18 @@ export class PolyAnnotation extends Annotation {
 
     this.mixins<PolyAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
-    this.define<PolyAnnotation.Props>({
-      xs:           [ p.Array,        []        ],
-      xs_units:     [ p.SpatialUnits, 'data'    ],
-      ys:           [ p.Array,        []        ],
-      ys_units:     [ p.SpatialUnits, 'data'    ],
-    })
+    this.define<PolyAnnotation.Props>(({Number, Array}) => ({
+      xs:           [ Array(Number), [] ],
+      xs_units:     [ SpatialUnits, "data" ],
+      ys:           [ Array(Number), [] ],
+      ys_units:     [ SpatialUnits, "data" ],
+    }))
 
-    this.internal({
-      screen: [ p.Boolean, false ],
-    })
+    this.internal<PolyAnnotation.Props>(({Boolean}) => ({
+      screen: [ Boolean, false ],
+    }))
 
-    this.override({
+    this.override<PolyAnnotation.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",

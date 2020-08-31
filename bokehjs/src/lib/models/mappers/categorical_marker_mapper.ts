@@ -25,13 +25,13 @@ export class CategoricalMarkerMapper extends Mapper<string> {
   }
 
   static init_CategoricalMarkerMapper(): void {
-    this.define<CategoricalMarkerMapper.Props>({
-      factors:       [ p.Array                ],
-      markers:       [ p.Array                ],
-      start:         [ p.Number,     0        ],
-      end:           [ p.Number               ],
-      default_value: [ p.MarkerType, "circle" ],
-    })
+    this.define<CategoricalMarkerMapper.Props>(({Any, Number, Array, Nullable}) => ({
+      factors:       [ Array(Any /*TODO*/) ],
+      markers:       [ Array(MarkerType) ],
+      start:         [ Number, 0 ],
+      end:           [ Nullable(Number), null],
+      default_value: [ MarkerType, "circle" ],
+    }))
   }
 
   v_compute(xs: ArrayableOf<Factor>): Arrayable<string> {

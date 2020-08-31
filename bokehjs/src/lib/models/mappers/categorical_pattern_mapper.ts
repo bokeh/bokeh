@@ -25,13 +25,13 @@ export class CategoricalPatternMapper extends Mapper<string> {
   }
 
   static init_CategoricalPatternMapper(): void {
-    this.define<CategoricalPatternMapper.Props>({
-      factors:       [ p.Array                 ],
-      patterns:      [ p.Array                 ],
-      start:         [ p.Number,           0   ],
-      end:           [ p.Number                ],
-      default_value: [ p.HatchPatternType, " " ],
-    })
+    this.define<CategoricalPatternMapper.Props>(({Any, Number, Array, Nullable}) => ({
+      factors:       [ Array(Any /*TODO*/) ],
+      patterns:      [ Array(HatchPatternType) ],
+      start:         [ Number, 0 ],
+      end:           [ Nullable(Number), null ],
+      default_value: [ HatchPatternType, " " ],
+    }))
   }
 
   v_compute(xs: ArrayableOf<Factor>): Arrayable<string> {

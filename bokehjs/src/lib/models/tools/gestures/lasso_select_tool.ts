@@ -94,10 +94,10 @@ export class LassoSelectTool extends SelectTool {
   static init_LassoSelectTool(): void {
     this.prototype.default_view = LassoSelectToolView
 
-    this.define<LassoSelectTool.Props>({
-      select_every_mousemove: [ p.Boolean, true                  ],
-      overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
-    })
+    this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
+      select_every_mousemove: [ Boolean, true ],
+      overlay:                [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+    }))
 
     this.register_alias("lasso_select", () => new LassoSelectTool())
   }

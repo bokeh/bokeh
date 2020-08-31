@@ -21,9 +21,9 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static init_StaticLayoutProvider(): void {
-    this.define<StaticLayoutProvider.Props>({
-      graph_layout: [ p.Any, {} ],
-    })
+    this.define<StaticLayoutProvider.Props>(({Number, Tuple, Dict}) => ({
+      graph_layout: [ Dict(Tuple(Number, Number)), {} ],
+    }))
   }
 
   get_node_coordinates(node_source: ColumnarDataSource): [NumberArray, NumberArray] {

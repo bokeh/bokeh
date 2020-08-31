@@ -34,7 +34,7 @@ export class UndoTool extends ActionTool {
   static init_UndoTool(): void {
     this.prototype.default_view = UndoToolView
 
-    this.override({
+    this.override<UndoTool.Props>({
       disabled: true,
     })
 
