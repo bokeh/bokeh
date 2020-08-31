@@ -22,7 +22,7 @@ task("compiler:build", ["compiler:ts"], async () => {
   const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, cache})
 
   if (!argv.rebuild) linker.load_cache()
-  const [bundle] = linker.link()
+  const [bundle] = await linker.link()
   linker.store_cache()
 
   bundle.assemble().write(join(build_dir.js, "compiler.js"))
