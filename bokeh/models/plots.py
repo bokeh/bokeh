@@ -50,7 +50,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
     MISSING_RENDERERS,
 )
-from ..model import Model, collect_filtered_models
+from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
@@ -70,6 +70,8 @@ from .tools import HoverTool, Tool, Toolbar
 __all__ = (
     'Plot',
 )
+
+_VALID_PLACES = ('left', 'right', 'above', 'below', 'center')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -253,10 +255,9 @@ class Plot(LayoutDOM):
             None
 
         '''
-        valid_places = ['left', 'right', 'above', 'below', 'center']
-        if place not in valid_places:
+        if place not in _VALID_PLACES:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(_VALID_PLACES))
             )
 
         getattr(self, place).append(obj)
@@ -382,19 +383,20 @@ class Plot(LayoutDOM):
 
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
-        msg  = ""
-        filt = lambda x: x is not self and isinstance(x, Plot)
-        for ref in collect_filtered_models(filt, self):
-            prop_names = ref.properties()
-            bad = []
-            if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
-                if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
-                    bad.append(('x_range_name', ref.x_range_name))
-                if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
-                    bad.append(('y_range_name', ref.y_range_name))
-            if bad:
-                if msg: msg += ", "
-                msg += (", ".join("%s=%r" % (a, b) for (a,b) in bad) + " [%s]" % ref)
+        msg   = ""
+        valid = {
+            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
+            for axis in ("x_range", "y_range")
+        }
+        for place in _VALID_PLACES + ('renderers',):
+            for ref in getattr(self, place):
+                bad = ', '.join(
+                    f"{axis}='{getattr(ref, axis)}'"
+                    for axis, keys in valid.items()
+                    if getattr(ref, axis, 'default') not in keys
+                )
+                if bad:
+                    msg += (", " if msg else "") + f"{bad} [{ref}]"
         if msg:
             return msg
 
