@@ -503,7 +503,7 @@ export namespace Axis {
 
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
-    ticker: p.Property<Ticker<any>> // TODO
+    ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | null>
     axis_label_standoff: p.Property<number>

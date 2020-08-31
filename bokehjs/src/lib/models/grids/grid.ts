@@ -182,7 +182,7 @@ export namespace Grid {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
     axis: p.Property<Axis>
-    ticker: p.Property<Ticker<any>>
+    ticker: p.Property<Ticker>
   } & Mixins
 
   export type Mixins =
@@ -235,7 +235,7 @@ export class Grid extends GuideRenderer {
     })
   }
 
-  get_ticker(): Ticker<any> | null {
+  get_ticker(): Ticker | null {
     if (this.ticker != null) {
       return this.ticker
     }
