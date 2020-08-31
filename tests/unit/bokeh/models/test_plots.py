@@ -22,6 +22,7 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.models import (
     CategoricalScale,
+    CustomJS,
     DataRange1d,
     FactorRange,
     GlyphRenderer,
@@ -187,11 +188,13 @@ class TestPlotValidation:
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
+    def test_bad_extra_range_only_immediate_refs(self) -> None:
         # test whether adding a figure (*and* it's extra ranges)
         # to another's references doesn't create a false positive
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
         dep.grid.x_range_name="foo"
+        p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0
