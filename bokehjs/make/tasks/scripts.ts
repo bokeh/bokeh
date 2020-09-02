@@ -66,7 +66,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const bundles = linker.link()
+  const bundles = await linker.link()
   linker.store_cache()
 
   const outputs = packages.map((pkg) => pkg.output)
@@ -93,7 +93,7 @@ task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const bundles = linker.link()
+  const bundles = await linker.link()
   linker.store_cache()
 
   const outputs = packages.map((pkg) => pkg.output)

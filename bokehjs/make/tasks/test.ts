@@ -118,6 +118,7 @@ function sys_path(): string {
       path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
       break
     case "Windows_NT":
+      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
       path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
       break
   }
@@ -297,7 +298,7 @@ function compile(name: string) {
   compile_typescript(`./test/${name}/tsconfig.json`)
 }
 
-function bundle(name: string): void {
+async function bundle(name: string): Promise<void> {
   const linker = new Linker({
     entries: [join(paths.build_dir.test, name, "index.js")],
     bases: [paths.build_dir.test, "./node_modules"],
@@ -310,14 +311,14 @@ function bundle(name: string): void {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const [bundle] = linker.link()
+  const [bundle] = await linker.link()
   linker.store_cache()
 
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
 task("test:compile:unit", async () => compile("unit"))
-const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => bundle("unit"))
+const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
 task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
@@ -325,7 +326,7 @@ task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) =>
 })
 
 task("test:compile:integration", async () => compile("integration"))
-const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => bundle("integration"))
+const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "integration", "test/baselines")
@@ -333,7 +334,7 @@ task2("test:integration", [start, integration_bundle], async ([devtools_port, se
 })
 
 task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
-const defaults_bundle = task("test:defaults:bundle", [passthrough("test:defaults:compile")], async () => bundle("defaults"))
+const defaults_bundle = task("test:defaults:bundle", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
 
 task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "defaults")
