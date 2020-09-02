@@ -14,7 +14,7 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class MultiChoiceView extends InputWidgetView {
   model: MultiChoice
 
-  protected select_el: HTMLSelectElement
+  protected input_el: HTMLSelectElement
   protected choice_el: Choices
 
   connect_signals(): void {
@@ -37,14 +37,14 @@ export class MultiChoiceView extends InputWidgetView {
   render(): void {
     super.render()
 
-    this.select_el = select({
+    this.input_el = select({
       multiple: true,
       class: bk_input,
       name: this.model.name,
       disabled: this.model.disabled,
     })
 
-    this.group_el.appendChild(this.select_el)
+    this.group_el.appendChild(this.input_el)
 
     const selected = new Set(this.model.value)
     const choices = this.model.options.map((opt) => {
@@ -73,13 +73,13 @@ export class MultiChoiceView extends InputWidgetView {
     if (this.model.option_limit != null)
       options.renderChoiceLimit = this.model.option_limit
 
-    this.choice_el = new Choices(this.select_el, options)
+    this.choice_el = new Choices(this.input_el, options)
     const height = (): number => (this.choice_el as any).containerOuter.element.getBoundingClientRect().height
     if (this._last_height != null && this._last_height != height()) {
       this.root.invalidate_layout()
     }
     this._last_height = height()
-    this.select_el.addEventListener("change", () => this.change_input())
+    this.input_el.addEventListener("change", () => this.change_input())
   }
 
   private _last_height: number | null = null
@@ -107,7 +107,7 @@ export class MultiChoiceView extends InputWidgetView {
     // focus remains on <select> and one can seamlessly scroll
     // up/down.
     if (is_focused)
-      this.select_el.focus()
+      this.input_el.focus()
   }
 }
 

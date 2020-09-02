@@ -7,6 +7,8 @@ import {
   LinearAxis, CategoricalAxis,
 } from "@bokehjs/models"
 
+import {MultiChoice} from "@bokehjs/models/widgets"
+
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Color} from "@bokehjs/core/types"
@@ -413,6 +415,15 @@ describe("Bug", () => {
       p.add_layout(labels2)
 
       await display(p, [350, 350])
+    })
+  })
+
+  describe("in issue #10452", () => {
+    it("prevents changing MultiChoice.disabled property", async () => {
+      const widget = new MultiChoice({options: ["1", "2", "3"], width: 100, height: 20})
+      const {view} = await display(widget, [100, 20])
+      widget.disabled = true
+      await view.ready
     })
   })
 })
