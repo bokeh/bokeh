@@ -118,6 +118,7 @@ function sys_path(): string {
       path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
       break
     case "Windows_NT":
+      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
       path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
       break
   }
