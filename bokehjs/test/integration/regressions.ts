@@ -1,7 +1,7 @@
 import {display, fig, row, column, grid} from "./utils"
 
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, Legend, LegendItem,
+  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -354,6 +354,65 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]), [450, 250])
+    })
+  })
+
+  describe("in issue #10454", () => {
+    it("disallows using categorical coordinates with LabelSet annotation", async () => {
+      const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
+      p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
+
+      const labels0 = new LabelSet({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
+      p.add_layout(labels0)
+
+      const labels1 = new LabelSet({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
+      p.add_layout(labels1)
+
+      const source = new ColumnDataSource({data: {
+        x: ["X1", "X2", "X3"],
+        y: ["Y1", "Y2", "Y3"],
+        text: ["L20", "L21", "L22"],
+      }})
+      const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
+      p.add_layout(labels2)
+
+      await display(p, [350, 350])
+    })
+
+    it("disallows using categorical coordinates with Arrow annotation", async () => {
+      const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
+      p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
+
+      const arrow0 = new Arrow({
+        x_start: {value: "X1"}, y_start: {value: "Y1"},
+        x_end: {value: "X3"}, y_end: {value: "Y3"},
+        line_color: "red",
+      })
+      p.add_layout(arrow0)
+      const arrow1 = new Arrow({
+        x_start: {value: "X3"}, y_start: {value: "Y1"},
+        x_end: {value: "X1"}, y_end: {value: "Y3"},
+        line_color: "green",
+      })
+      p.add_layout(arrow1)
+
+      const source = new ColumnDataSource({data: {
+        x_start: ["X2", "X2", "X2", "X2"],
+        y_start: ["Y2", "Y2", "Y2", "Y2"],
+        x_end: ["X3", "X2", "X1", "X2"],
+        y_end: ["Y2", "Y3", "Y2", "Y1"],
+      }})
+      const labels2 = new Arrow({
+        x_start: {field: "x_start"},
+        y_start: {field: "y_start"},
+        x_end: {field: "x_end"},
+        y_end: {field: "y_end"},
+        source,
+        line_color: "blue",
+      })
+      p.add_layout(labels2)
+
+      await display(p, [350, 350])
     })
   })
 })
