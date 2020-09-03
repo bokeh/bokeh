@@ -94,9 +94,8 @@ def create_chromium_webdriver(extra_options=None) -> WebDriver:
     options.add_argument("--force-device-scale-factor=1")
     options.add_argument("--force-color-profile=srgb")
     if extra_options:
-      for op in extra_options:
-          assert isinstance(op,str)
-          options.add_argument(op)
+        for op in extra_options:
+            options.add_argument(op)
     return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
