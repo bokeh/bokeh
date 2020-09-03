@@ -100,6 +100,14 @@ export class CartesianFrame extends LayoutItem {
     this._update_scales()
   }
 
+  get x_target(): Range1d {
+    return this._x_target
+  }
+
+  get y_target(): Range1d {
+    return this._y_target
+  }
+
   get x_ranges(): Map<string, Range> {
     return this._x_ranges
   }

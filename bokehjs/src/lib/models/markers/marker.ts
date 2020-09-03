@@ -64,17 +64,15 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _mask_data(): Indices {
     // dilate the inner screen region by max_size and map back to data space for use in spatial query
-    const hr = this.renderer.plot_view.frame.bbox.h_range
-    const sx0 = hr.start - this.max_size
-    const sx1 = hr.end + this.max_size
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const {x_target, y_target} = this.renderer.plot_view.frame
 
-    const vr = this.renderer.plot_view.frame.bbox.v_range
-    const sy0 = vr.start - this.max_size
-    const sy1 = vr.end + this.max_size
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const hr = x_target.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
+    const vr = y_target.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))
 
-    return this.index.indices({x0, x1, y0, y1})
+    return this.index.indices({
+      x0: hr.start, x1: hr.end,
+      y0: vr.start, y1: vr.end,
+    })
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
