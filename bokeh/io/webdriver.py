@@ -87,7 +87,7 @@ def create_firefox_webdriver() -> WebDriver:
         service_log_path=devnull,
     )
 
-def create_chromium_webdriver(extra_options=None) -> WebDriver:
+def create_chromium_webdriver(extra_options: Optional[List[str]] = None) -> WebDriver:
     options = webdriver.chrome.options.Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
