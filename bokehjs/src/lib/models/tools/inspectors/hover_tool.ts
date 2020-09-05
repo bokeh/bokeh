@@ -21,7 +21,7 @@ import {enumerate} from "core/util/iterator"
 import {isString, isArray, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
-import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
+import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
 import {bk_tool_icon_hover} from "styles/icons"
@@ -185,8 +185,7 @@ export class HoverToolView extends InspectToolView {
       sm.inspect(this.plot_view.renderer_views.get(r)!, geometry)
     }
 
-    if (this.model.callback != null)
-      this._emit_callback(geometry)
+    this._emit_callback(geometry)
   }
 
   _update([renderer_view, {geometry}]: [RendererView, {geometry: PointGeometry | SpanGeometry}]): void {
@@ -384,18 +383,23 @@ export class HoverToolView extends InspectToolView {
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
-    for (const r of this.computed_renderers) {
-      if (!(r instanceof GlyphRenderer))
+    const {callback} = this.model
+    if (callback == null)
+      return
+
+    for (const renderer of this.computed_renderers) {
+      if (!(renderer instanceof GlyphRenderer))
         continue
 
-      const rv = this.plot_view.renderer_views.get(r)!
-      const x = rv.coordinates.x_scale.invert(geometry.sx)
-      const y = rv.coordinates.y_scale.invert(geometry.sy)
+      const glyph_renderer_view = this.plot_view.renderer_views.get(renderer)!
+      const {x_scale, y_scale} = glyph_renderer_view.coordinates
+      const x = x_scale.invert(geometry.sx)
+      const y = y_scale.invert(geometry.sy)
 
-      const index = r.data_source.inspected as any // XXX: Selection vs number
-      const g = {x, y, ...geometry}
-
-      this.model.callback!.execute(this.model, {index, geometry: g, renderer: r})
+      callback.execute(this.model, {
+        geometry: {x, y, ...geometry},
+        renderer,
+      })
     }
   }
 
@@ -498,7 +502,7 @@ export namespace HoverTool {
     show_arrow: p.Property<boolean>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
-    callback: p.Property<CallbackLike1<HoverTool, {index: number, geometry: Geometry, renderer: Renderer}> | null>
+    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer}> | null>
   }
 }
 
