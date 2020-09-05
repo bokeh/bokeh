@@ -14,6 +14,7 @@
     "noEmitOnError": false,
     "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "commonjs",
