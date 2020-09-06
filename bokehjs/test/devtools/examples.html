@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+
+      .entries {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="entries">
+    {%- for name in entries %}
+      <a href="/examples/{{ name }}">{{ name }}</a>
+    {% endfor -%}
+    </div>
+  </body>
+</html>
