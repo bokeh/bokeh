@@ -252,9 +252,7 @@ export abstract class AbstractSlider extends Control {
   behaviour: "drag" | "tap"
   connected: false | boolean[] = false
 
-  protected _formatter(value: number, _format: string | TickFormatter): string {
-    return `${value}`
-  }
+  protected abstract _formatter(value: number, format: string | TickFormatter): string
 
   pretty(value: number): string {
     return this._formatter(value, this.format)
