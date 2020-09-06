@@ -3,7 +3,7 @@
 import {defer} from "./util/callback"
 import {find, remove_by} from "./util/array"
 
-export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
+export type Slot<Args, Sender extends object> = (args: Args, sender: Sender) => void
 
 export class Signal<Args, Sender extends object> {
 

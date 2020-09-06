@@ -89,12 +89,14 @@ export class PolyDrawToolView extends PolyToolView {
       const glyph: any = renderer.glyph
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
       if (xkey) {
-        for (const array of cds.get_array(xkey))
-          Array.prototype.push.apply(xs, array)
+        for (const array of cds.get_array<number[]>(xkey)) {
+          xs.push(...array)
+        }
       }
       if (ykey) {
-        for (const array of cds.get_array(ykey))
-          Array.prototype.push.apply(ys, array)
+        for (const array of cds.get_array<number[]>(ykey)) {
+          ys.push(...array)
+        }
       }
       if (this._drawing && (i == (this.model.renderers.length-1))) {
         // Skip currently drawn vertex
