@@ -14,7 +14,7 @@
     "noEmitOnError": false,
     "declaration": true,
     "sourceMap": true,
-    "declarationMap": false,
+    "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "commonjs",
@@ -28,7 +28,8 @@
     "baseUrl": ".",
     "paths": {
       "*": ["../build/js/lib/*", "../build/js/types/*"]
-    }
+    },
+    "outDir": "../build/examples"
   },
   "include": ["./**/*.ts", "./bokehjs.d.ts"]
 }
