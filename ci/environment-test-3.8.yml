@@ -33,7 +33,7 @@ dependencies:
   - mypy
   - nbconvert >=5.4
   - networkx
-  - nodejs >=10.13
+  - nodejs >=12.12
   - numba
   - pandas
   - psutil
