@@ -58,9 +58,6 @@ def pytest_generate_tests(metafunc):
                 result.append(pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True))
             return result
 
-        if 'js_example' in metafunc.fixturenames:
-            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_js ]
-            metafunc.parametrize('js_example,example,config', params)
         if 'file_example' in metafunc.fixturenames:
             params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file ]
             metafunc.parametrize('file_example,example,config', params)
@@ -105,15 +102,6 @@ def report():
 
     with open(join(BASE_DIR, "examples-report.html"), "w") as f:
         f.write(html)
-
-def test_js_examples(js_example, example, report, config) -> None:
-    if config.option.verbose:
-        print()
-    if example.no_js:
-        if not config.option.no_js:
-            warn("skipping bokehjs for %s" % example.relpath)
-    else:
-        _run_in_browser(example, "file://%s" % example.path, report, config.option.verbose)
 
 def test_file_examples(file_example, example, report, config) -> None:
     if config.option.verbose:

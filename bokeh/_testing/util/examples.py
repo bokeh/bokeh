@@ -54,7 +54,6 @@ JOB_ID = os.environ.get("GITHUB_ACTION", "local")
 #-----------------------------------------------------------------------------
 
 class Flags:
-    js       = 1 << 0
     file     = 1 << 1
     server   = 1 << 2
     notebook = 1 << 3
@@ -75,7 +74,6 @@ class Example:
 
     def __str__(self):
         flags = [
-            "js"       if self.is_js       else "",
             "file"     if self.is_file     else "",
             "server"   if self.is_server   else "",
             "notebook" if self.is_notebook else "",
@@ -108,10 +106,6 @@ class Example:
     @property
     def img_path(self):
         return self.path_no_ext + ".png"
-
-    @property
-    def is_js(self):
-        return self.flags & Flags.js
 
     @property
     def is_file(self):
@@ -168,10 +162,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         elif name.endswith(".ipynb"):
             flags |= Flags.notebook
         elif isdir(join(example_path, name)):
-            if exists(join(example_path, name, name + ".html")):
-                name = join(name, name + ".html")
-                flags |= example_type if example_type else Flags.js
-            elif exists(join(example_path, name, name + ".py")):
+            if exists(join(example_path, name, name + ".py")):
                 name = join(name, name + ".py")
                 flags |= example_type if example_type else Flags.file
             elif exists(join(example_path, name, "main.py")):
