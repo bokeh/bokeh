@@ -70,4 +70,20 @@ export class Range1d extends Range {
     else
       this.change.emit()
   }
+
+  map(fn: (v: number) => number): Range1d {
+    return new Range1d({start: fn(this.start), end: fn(this.end)})
+  }
+
+  widen(v: number): Range1d {
+    let {start, end} = this
+    if (this.is_reversed) {
+      start += v
+      end -= v
+    } else {
+      start -= v
+      end += v
+    }
+    return new Range1d({start, end})
+  }
 }

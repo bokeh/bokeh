@@ -11,6 +11,7 @@ import {range} from "core/util/array"
 import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {Range1d} from "../ranges/range1d"
 
 export interface CircleData extends XYGlyphData {
   _angle: NumberArray
@@ -77,33 +78,25 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _mask_data(): Indices {
-    const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges
+    const {frame} = this.renderer.plot_view
 
-    let x0: number, y0: number
-    let x1: number, y1: number
+    const shr = frame.x_target
+    const svr = frame.y_target
+
+    let hr: Range1d
+    let vr: Range1d
     if (this._radius != null && this.model.properties.radius.units == "data") {
-      const sx0 = hr.start
-      const sx1 = hr.end
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-      x0 -= this.max_radius
-      x1 += this.max_radius
-
-      const sy0 = vr.start
-      const sy1 = vr.end
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-      y0 -= this.max_radius
-      y1 += this.max_radius
+      hr = shr.map((x) => this.renderer.xscale.invert(x)).widen(this.max_radius)
+      vr = svr.map((y) => this.renderer.yscale.invert(y)).widen(this.max_radius)
     } else {
-      const sx0 = hr.start - this.max_size
-      const sx1 = hr.end + this.max_size
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-
-      const sy0 = vr.start - this.max_size
-      const sy1 = vr.end + this.max_size
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      hr = shr.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
+      vr = svr.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))
     }
 
-    return this.index.indices({x0, x1, y0, y1})
+    return this.index.indices({
+      x0: hr.start, x1: hr.end,
+      y0: vr.start, y1: vr.end,
+    })
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {

@@ -12,11 +12,15 @@ import {MultiChoice} from "@bokehjs/models/widgets"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Color} from "@bokehjs/core/types"
-import {Anchor, Location, OutputBackend} from "@bokehjs/core/enums"
+import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
+import {assert} from "@bokehjs/core/util/assert"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/data_structures"
+import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
+
+const n_marker_types = [...MarkerType].length
 
 function svg_image(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -415,6 +419,87 @@ describe("Bug", () => {
       p.add_layout(labels2)
 
       await display(p, [350, 350])
+    })
+  })
+
+  describe("in issue #10457", () => {
+    it("prevents rendering circle glyph with reversed ranges and radius in data units", async () => {
+      function plot(x_range: [number, number], y_range: [number, number]) {
+        const title = `[${x_range}] × [${y_range}]`
+        const p = fig([150, 150], {x_range, y_range, title})
+        p.circle({
+          x: [0, 50, 100], y: [0, 50, 100], radius: {value: 20},
+          fill_color: ["red", "green", "blue"],
+          line_color: "black",
+          alpha: 0.5,
+        })
+        return p
+      }
+
+      const p1 = plot([0, 100], [0, 100])
+      const p2 = plot([100, 0], [0, 100])
+      const p3 = plot([0, 100], [100, 0])
+      const p4 = plot([100, 0], [100, 0])
+
+      const layout = row([p1, p2, p3, p4])
+      await display(layout, [4*150 + 50, 150 + 50])
+    })
+
+    it("prevents rendering marker glyphs with reversed ranges", async () => {
+      type MarkerFn = (p: Figure) => (args: Partial<MarkerArgs>) => void
+
+      function plot(fn: MarkerFn, x_range: [number, number], y_range: [number, number]) {
+        const p = fig([100, 50], {x_range, y_range, x_axis_type: null, y_axis_type: null})
+        fn(p)({
+          x: [0, 50, 100], y: [0, 50, 100], size: {value: 30},
+          fill_color: ["red", "green", "blue"],
+          line_color: "black",
+          alpha: 0.5,
+        })
+        return p
+      }
+
+      function plots(fn: MarkerFn) {
+        const p1 = plot(fn, [0, 100], [0, 100])
+        const p2 = plot(fn, [100, 0], [0, 100])
+        const p3 = plot(fn, [0, 100], [100, 0])
+        const p4 = plot(fn, [100, 0], [100, 0])
+        return [p1, p2, p3, p4]
+      }
+
+      const fns: MarkerFn[] = [
+        (p) => p.asterisk.bind(p),
+        (p) => p.circle.bind(p),
+        (p) => p.circle_cross.bind(p),
+        (p) => p.circle_dot.bind(p),
+        (p) => p.circle_x.bind(p),
+        (p) => p.circle_y.bind(p),
+        (p) => p.cross.bind(p),
+        (p) => p.dash.bind(p),
+        (p) => p.diamond.bind(p),
+        (p) => p.diamond_cross.bind(p),
+        (p) => p.diamond_dot.bind(p),
+        (p) => p.dot.bind(p),
+        (p) => p.hex.bind(p),
+        (p) => p.hex_dot.bind(p),
+        (p) => p.inverted_triangle.bind(p),
+        (p) => p.plus.bind(p),
+        (p) => p.square.bind(p),
+        (p) => p.square_cross.bind(p),
+        (p) => p.square_dot.bind(p),
+        (p) => p.square_pin.bind(p),
+        (p) => p.square_x.bind(p),
+        (p) => p.triangle.bind(p),
+        (p) => p.triangle_dot.bind(p),
+        (p) => p.triangle_pin.bind(p),
+        (p) => p.x.bind(p),
+        (p) => p.y.bind(p),
+      ]
+
+      assert(fns.length == n_marker_types)
+
+      const layout = column(fns.map((fn) => row(plots(fn))))
+      await display(layout, [450, fns.length*50 + 50])
     })
   })
 
