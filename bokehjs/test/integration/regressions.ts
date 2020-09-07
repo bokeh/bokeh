@@ -5,6 +5,9 @@ import {
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
+  GlyphRenderer, GraphRenderer,
+  Circle, MultiLine,
+  StaticLayoutProvider,
 } from "@bokehjs/models"
 
 import {MultiChoice} from "@bokehjs/models/widgets"
@@ -504,6 +507,38 @@ describe("Bug", () => {
 
       const layout = column(fns.map((fn) => row(plots(fn))))
       await display(layout, [450, fns.length*50 + 50])
+    })
+  })
+
+  describe("in issue #10472", () => {
+    it("prevents GraphRenderer to participate in auto-ranging", async () => {
+      const p = fig([200, 200], {
+        x_range: new DataRange1d({range_padding: 0.2}),
+        y_range: new DataRange1d({range_padding: 0.2}),
+      })
+
+      const layout_provider = new StaticLayoutProvider({
+        graph_layout: {
+          4: [2, 1],
+          5: [2, 2],
+          6: [3, 1],
+          7: [3, 2],
+        },
+      })
+
+      const node_renderer = new GlyphRenderer({
+        glyph: new Circle({size: 10, fill_color: "red"}),
+        data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+      })
+      const edge_renderer = new GlyphRenderer({
+        glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+        data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+      })
+
+      const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+      p.add_renderers(graph)
+
+      await display(p, [200+50, 200+50])
     })
   })
 
