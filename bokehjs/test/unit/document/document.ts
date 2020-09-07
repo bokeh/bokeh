@@ -509,8 +509,8 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(1)
     expect(m.bar).to.be.equal(1)
 
-    const events: ev.DocumentChangedEvent[] = []
-    const listener = (event: ev.DocumentChangedEvent) => events.push(event)
+    const events: ev.DocumentEvent[] = []
+    const listener = (event: ev.DocumentEvent) => events.push(event)
     d.on_change(listener)
 
     m.bar = 42

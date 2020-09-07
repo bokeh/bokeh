@@ -30,7 +30,7 @@ export class LegendItem extends Model {
 
   static init_LegendItem(): void {
     this.define<LegendItem.Props>(({Int, Array, Ref, Nullable}) => ({
-      label:     [ p.StringSpec, null ],
+      label:     [ p.NullStringSpec, null ],
       renderers: [ Array(Ref(GlyphRenderer)), [] ],
       index:     [ Nullable(Int), null ],
     }))

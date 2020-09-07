@@ -71,7 +71,7 @@ export class SelectionManager extends HasProps {
         const inspection = this.get_or_create_inspector(renderer_view.model)
         inspection.update(hit_test_result, true, "replace")
         this.source.setv({inspected: inspection}, {silent: true})
-        this.source.inspect.emit([renderer_view, {geometry}])
+        this.source.inspect.emit([renderer_view.model, {geometry}])
       }
     } else if (renderer_view instanceof GraphRendererView) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)

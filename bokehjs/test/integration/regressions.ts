@@ -211,7 +211,11 @@ describe("Bug", () => {
         right: random.floats(factors.length),
         height: 0.8,
       })
-      p.yaxis.forEach((axis: CategoricalAxis) => axis.subgroup_label_orientation = 0)
+
+      for (const axis of p.yaxis) {
+        if (axis instanceof CategoricalAxis)
+          axis.subgroup_label_orientation = 0
+      }
 
       await display(p, [200, 300])
     })

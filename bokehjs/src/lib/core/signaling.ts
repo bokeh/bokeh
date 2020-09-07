@@ -166,7 +166,7 @@ export function Signalable() {
 
 interface Connection {
   signal: Signal<any, object> | null
-  readonly slot: Slot<any, object>
+  readonly slot: Slot<any, any>
   readonly context: object | null
 }
 

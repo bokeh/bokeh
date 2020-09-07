@@ -7,7 +7,7 @@
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "strictBindCallApply": true,
-    "strictFunctionTypes": false,
+    "strictFunctionTypes": true,
     "strictPropertyInitialization": false,
     "alwaysStrict": true,
     "noErrorTruncation": true,

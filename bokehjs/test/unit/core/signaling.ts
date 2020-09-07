@@ -9,7 +9,7 @@ describe("core/signaling module", () => {
     })
 
     it("should support `{dis}connect()` method", () => {
-      const signal = new Signal(Object.create(null), "some")
+      const signal = new Signal<number, {}>(Object.create(null), "some")
 
       let signaled: number = 0
       const fn = (val: number) => signaled = val

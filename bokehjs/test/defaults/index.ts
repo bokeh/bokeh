@@ -117,8 +117,9 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
           let equal = true
 
           // palettes in JS are stored as int color values
-          if (k === 'palette')
-            py_v = py_v.map((x: string) => parseInt(x.slice(1), 16))
+          if (k === 'palette') {
+            py_v = (py_v as string[]).map((x) => parseInt(x.slice(1), 16))
+          }
 
           if (js_v.length !== py_v.length)
             equal = false
