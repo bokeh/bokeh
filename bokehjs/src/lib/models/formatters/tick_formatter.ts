@@ -17,4 +17,12 @@ export abstract class TickFormatter extends Model {
   }
 
   abstract doFormat(ticks: string[] | number[], opts: {loc: number}): string[]
+
+  compute(tick: string | number, opts?: {loc: number}): string {
+    return this.doFormat([tick] as string[] | number[], opts ?? {loc: 0})[0]
+  }
+
+  v_compute(tick: string[] | number[], opts?: {loc: number}): string[] {
+    return this.doFormat(tick, opts ?? {loc: 0})
+  }
 }

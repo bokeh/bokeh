@@ -1,9 +1,9 @@
 import * as numbro from "@bokeh/numbro"
 
 import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
+import {TickFormatter} from "../formatters/tick_formatter"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
-import {TickFormatter} from "../formatters/tick_formatter"
 
 export class RangeSliderView extends AbstractRangeSliderView {
   model: RangeSlider
@@ -37,10 +37,9 @@ export class RangeSlider extends AbstractSlider {
   connected = [false, true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)){
+    if (isString(format))
       return numbro.format(value, format)
-    } else {
-      return format.doFormat([value], {loc: 0})[0]
-    }
+    else
+      return format.compute(value)
   }
 }
