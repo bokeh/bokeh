@@ -6,19 +6,22 @@ import {Renderer, RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
 import {GraphRenderer/*, GraphRendererView*/} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
+import {LineView} from "../../glyphs/line"
+import {MultiLineView} from "../../glyphs/multi_line"
 import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
+import {NumberArray} from "core/types"
 import {color2hex} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isArray, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
-import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
+import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
 import {bk_tool_icon_hover} from "styles/icons"
@@ -27,7 +30,7 @@ import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from
 export type TooltipVars = {index: number} & Vars
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
-    sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
+    sx: number, sy: number, dx: NumberArray, dy: NumberArray): [[number, number], number] {
   const d1 = {x: dx[i], y: dy[i]}
   const d2 = {x: dx[i+1], y: dy[i+1]}
 
@@ -53,7 +56,7 @@ export function _nearest_line_hit(i: number, geometry: Geometry,
     return [[d2.x, d2.y], i+1]
 }
 
-export function _line_hit(xs: number[], ys: number[], ind: number): [[number, number], number] {
+export function _line_hit(xs: NumberArray, ys: NumberArray, ind: number): [[number, number], number] {
   return [[xs[ind], ys[ind]], ind]
 }
 
@@ -182,8 +185,7 @@ export class HoverToolView extends InspectToolView {
       sm.inspect(this.plot_view.renderer_views.get(r)!, geometry)
     }
 
-    if (this.model.callback != null)
-      this._emit_callback(geometry)
+    this._emit_callback(geometry)
   }
 
   _update([renderer_view, {geometry}]: [RendererView, {geometry: PointGeometry | SpanGeometry}]): void {
@@ -221,49 +223,52 @@ export class HoverToolView extends InspectToolView {
     const x = xscale.invert(sx)
     const y = yscale.invert(sy)
 
-    const glyph = (renderer_view as any).glyph // XXX
+    const {glyph} = renderer_view
 
     const tooltips: [number, number, HTMLElement | null][] = []
-    for (const i of indices.line_indices) {
-      let data_x = glyph._x[i+1]
-      let data_y = glyph._y[i+1]
-      let ii = i
 
-      let rx: number
-      let ry: number
-      switch (this.model.line_policy) {
-        case "interp": { // and renderer.get_interpolation_hit?
-          [data_x, data_y] = glyph.get_interpolation_hit(i, geometry)
-          rx = xscale.compute(data_x)
-          ry = yscale.compute(data_y)
-          break
-        }
-        case "prev": {
-          [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i)
-          break
-        }
-        case "next": {
-          [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i+1)
-          break
-        }
-        case "nearest": {
-          [[rx, ry], ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
-          data_x = glyph._x[ii]
-          data_y = glyph._y[ii]
-          break
-        }
-        default: {
-          [rx, ry] = [sx, sy]
-        }
-      }
+    if (glyph instanceof LineView) {
+      for (const i of indices.line_indices) {
+        let data_x = glyph._x[i+1]
+        let data_y = glyph._y[i+1]
+        let ii = i
 
-      const vars = {
-        index: ii,
-        x, y, sx, sy, data_x, data_y, rx, ry,
-        indices: indices.line_indices,
-        name: renderer_view.model.name,
+        let rx: number
+        let ry: number
+        switch (this.model.line_policy) {
+          case "interp": { // and renderer.get_interpolation_hit?
+            [data_x, data_y] = glyph.get_interpolation_hit(i, geometry)
+            rx = xscale.compute(data_x)
+            ry = yscale.compute(data_y)
+            break
+          }
+          case "prev": {
+            [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i)
+            break
+          }
+          case "next": {
+            [[rx, ry], ii] = _line_hit(glyph.sx, glyph.sy, i+1)
+            break
+          }
+          case "nearest": {
+            [[rx, ry], ii] = _nearest_line_hit(i, geometry, sx, sy, glyph.sx, glyph.sy)
+            data_x = glyph._x[ii]
+            data_y = glyph._y[ii]
+            break
+          }
+          default: {
+            [rx, ry] = [sx, sy]
+          }
+        }
+
+        const vars = {
+          index: ii,
+          x, y, sx, sy, data_x, data_y, rx, ry,
+          indices: indices.line_indices,
+          name: renderer_view.model.name,
+        }
+        tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
       }
-      tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
     }
 
     for (const struct of indices.image_indices) {
@@ -278,10 +283,10 @@ export class HoverToolView extends InspectToolView {
 
     for (const i of indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-      if (!isEmpty(indices.multiline_indices)) {
+      if (glyph instanceof MultiLineView && !isEmpty(indices.multiline_indices)) {
         for (const j of indices.multiline_indices[i.toString()]) { // TODO: indices.multiline_indices.get(i)
-          let data_x = glyph._xs[i][j]
-          let data_y = glyph._ys[i][j]
+          let data_x = glyph._xs.get(i)[j]
+          let data_y = glyph._ys.get(i)[j]
           let jj = j
 
           let rx: number
@@ -294,17 +299,17 @@ export class HoverToolView extends InspectToolView {
               break
             }
             case "prev": {
-              [[rx, ry], jj] = _line_hit(glyph.sxs[i], glyph.sys[i], j)
+              [[rx, ry], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
               break
             }
             case "next": {
-              [[rx, ry], jj] = _line_hit(glyph.sxs[i], glyph.sys[i], j+1)
+              [[rx, ry], jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j+1)
               break
             }
             case "nearest": {
-              [[rx, ry], jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs[i], glyph.sys[i])
-              data_x = glyph._xs[i][jj]
-              data_y = glyph._ys[i][jj]
+              [[rx, ry], jj] = _nearest_line_hit(j, geometry, sx, sy, glyph.sxs.get(i), glyph.sys.get(i))
+              data_x = glyph._xs.get(i)[jj]
+              data_y = glyph._ys.get(i)[jj]
               break
             }
             default:
@@ -327,8 +332,8 @@ export class HoverToolView extends InspectToolView {
         }
       } else {
         // handle non-multiglyphs
-        const data_x = glyph._x != null ? glyph._x[i] : undefined
-        const data_y = glyph._y != null ? glyph._y[i] : undefined
+        const data_x = (glyph as any)._x?.[i]
+        const data_y = (glyph as any)._y?.[i]
 
         let rx: number
         let ry: number
@@ -336,8 +341,11 @@ export class HoverToolView extends InspectToolView {
           // Pass in our screen position so we can determine which patch we're
           // over if there are discontinuous patches.
           let pt = glyph.get_anchor_point(this.model.anchor, i, [sx, sy])
-          if (pt == null)
+          if (pt == null) {
             pt = glyph.get_anchor_point("center", i, [sx, sy])
+            if (pt == null)
+              continue // TODO?
+          }
 
           rx = pt.x
           ry = pt.y
@@ -375,15 +383,23 @@ export class HoverToolView extends InspectToolView {
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
-    for (const r of this.computed_renderers) {
-      const rv = this.plot_view.renderer_views.get(r)!
-      const x = rv.coordinates.x_scale.invert(geometry.sx)
-      const y = rv.coordinates.y_scale.invert(geometry.sy)
+    const {callback} = this.model
+    if (callback == null)
+      return
 
-      const index = (r as any).data_source.inspected
-      const g = {x, y, ...geometry}
+    for (const renderer of this.computed_renderers) {
+      if (!(renderer instanceof GlyphRenderer))
+        continue
 
-      this.model.callback!.execute(this.model, {index, geometry: g, renderer: r})
+      const glyph_renderer_view = this.plot_view.renderer_views.get(renderer)!
+      const {x_scale, y_scale} = glyph_renderer_view.coordinates
+      const x = x_scale.invert(geometry.sx)
+      const y = y_scale.invert(geometry.sy)
+
+      callback.execute(this.model, {
+        geometry: {x, y, ...geometry},
+        renderer,
+      })
     }
   }
 
@@ -486,7 +502,7 @@ export namespace HoverTool {
     show_arrow: p.Property<boolean>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
-    callback: p.Property<CallbackLike1<HoverTool, {index: number, geometry: Geometry, renderer: Renderer}> | null>
+    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer}> | null>
   }
 }
 
