@@ -2,7 +2,7 @@ import {HasProps} from "./has_props"
 import {Geometry} from "./geometry"
 import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
-import {Renderer, RendererView} from "models/renderers/renderer"
+import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import {GlyphRendererView} from "models/renderers/glyph_renderer"
 import {GraphRendererView} from "models/renderers/graph_renderer"
 import * as p from "./properties"
@@ -32,9 +32,9 @@ export class SelectionManager extends HasProps {
     }))
   }
 
-  inspectors: Map<Renderer, Selection> = new Map()
+  inspectors: Map<DataRenderer, Selection> = new Map()
 
-  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
+  select(renderer_views: DataRendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
     // divide renderers into glyph_renderers or graph_renderers
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
@@ -61,7 +61,7 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  inspect(renderer_view: RendererView, geometry: Geometry): boolean {
+  inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
     let did_hit = false
 
     if (renderer_view instanceof GlyphRendererView) {
@@ -81,13 +81,13 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  clear(rview?: RendererView): void {
+  clear(rview?: DataRendererView): void {
     this.source.selected.clear()
     if (rview != null)
       this.get_or_create_inspector(rview.model).clear()
   }
 
-  get_or_create_inspector(renderer: Renderer): Selection {
+  get_or_create_inspector(renderer: DataRenderer): Selection {
     let selection = this.inspectors.get(renderer)
     if (selection == null) {
       selection = new Selection()

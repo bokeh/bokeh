@@ -2,7 +2,7 @@ import {Tile} from "./tile_source"
 import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
-import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
@@ -13,8 +13,6 @@ import {Image, ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {SelectionManager} from "core/selection_manager"
-import {ColumnDataSource} from "../sources/column_data_source"
 
 import {bk_tile_attribution} from "styles/tiles"
 import tiles_css from "styles/tiles.css"
@@ -29,7 +27,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
   y_coord: number
 }
 
-export class TileRendererView extends DataRendererView {
+export class TileRendererView extends RendererView {
   model: TileRenderer
 
   protected attribution_el?: HTMLElement
@@ -381,7 +379,7 @@ export class TileRendererView extends DataRendererView {
 export namespace TileRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = DataRenderer.Props & {
+  export type Props = Renderer.Props & {
     alpha: p.Property<number>
     smoothing: p.Property<boolean>
     tile_source: p.Property<TileSource>
@@ -391,7 +389,7 @@ export namespace TileRenderer {
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
-export class TileRenderer extends DataRenderer {
+export class TileRenderer extends Renderer {
   properties: TileRenderer.Props
   __view_type__: TileRendererView
 
@@ -408,14 +406,9 @@ export class TileRenderer extends DataRenderer {
       tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
       render_parents: [ Boolean, true ],
     }))
-  }
 
-  // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs
-  private _selection_manager = new SelectionManager({
-    source: new ColumnDataSource(),
-  })
-
-  get_selection_manager(): SelectionManager {
-    return this._selection_manager
+    this.override<TileRenderer.Props>({
+      level: "image",
+    })
   }
 }

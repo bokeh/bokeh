@@ -1,6 +1,6 @@
 import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
-import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
 import {logger} from "core/logging"
@@ -91,14 +91,14 @@ export class DataRange1d extends DataRange {
     return Math.max(this.start, this.end)
   }
 
-  computed_renderers(): Renderer[] {
+  computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const names = this.names
     let renderers = this.renderers
 
     if (renderers.length == 0) {
       for (const plot of this.plots) {
-        const rs = plot.renderers.filter((r) => r instanceof GlyphRenderer)
+        const rs = plot.renderers.filter((r) => r instanceof DataRenderer)
         renderers = renderers.concat(rs)
       }
     }

@@ -39,7 +39,7 @@ export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: stri
   const plot_view = (await build_view(plot)).build()
   doc.add_root(plot)
 
-  return plot_view.renderer_views.get(glyph_renderer)! as GlyphRendererView
+  return plot_view.renderer_view(glyph_renderer)!
 }
 
 export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<ViewOf<G>> {

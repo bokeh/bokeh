@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {Axis, AxisView} from "@bokehjs/models/axes/axis"
+import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -26,7 +26,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
 
     expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
@@ -45,7 +45,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(10)
   })
 
@@ -63,7 +63,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -82,7 +82,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -101,7 +101,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(0.5)
   })
 })
@@ -128,7 +128,7 @@ describe("AxisView", () => {
     plot.add_layout(axis, 'below')
 
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
 
     return {axis, axis_view}
   }

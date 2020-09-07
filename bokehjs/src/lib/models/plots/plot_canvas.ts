@@ -3,8 +3,7 @@ import {Canvas, CanvasView, FrameBox, CanvasLayer} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
-import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
+import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -68,6 +67,12 @@ export class PlotView extends LayoutDOMView {
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
+
+  protected _invalidate_dataranges: boolean = true
+  set invalidate_dataranges(value: boolean) {
+    this._invalidate_dataranges = value
+  }
+
   state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
@@ -87,10 +92,12 @@ export class PlotView extends LayoutDOMView {
 
   computed_renderers: Renderer[]
 
+  renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
+    return this.renderer_views.get(renderer)
+  }
+
   /*protected*/ renderer_views: Map<Renderer, RendererView>
   /*protected*/ tool_views: Map<Tool, ToolView>
-
-  protected range_update_timestamp?: number
 
   get is_paused(): boolean {
     return this._is_paused != null && this._is_paused !== 0
@@ -290,7 +297,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
-      const view = this.renderer_views.get(model)! as AnnotationView | AxisView
+      const view = this.renderer_view(model)!
       return view.layout = new SidePanel(side, view)
     }
 
@@ -374,7 +381,6 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-
   update_dataranges(): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
@@ -391,13 +397,13 @@ export class PlotView extends LayoutDOMView {
     }
 
     for (const [renderer, renderer_view] of this.renderer_views) {
-      if (renderer_view instanceof GlyphRendererView) {
-        const bds = renderer_view.glyph.bounds()
+      if (renderer_view instanceof DataRendererView) {
+        const bds = renderer_view.glyph_view.bounds()
         if (bds != null)
           bounds.set(renderer, bds)
 
         if (calculate_log_bounds) {
-          const log_bds = renderer_view.glyph.log_bounds()
+          const log_bds = renderer_view.glyph_view.log_bounds()
           if (log_bds != null)
             log_bounds.set(renderer, log_bds)
         }
@@ -446,7 +452,7 @@ export class PlotView extends LayoutDOMView {
       }
     }
 
-    this.range_update_timestamp = Date.now()
+    this._invalidate_dataranges = false
   }
 
   push_state(type: string, new_info: Partial<StateInfo>): void {
@@ -504,8 +510,8 @@ export class PlotView extends LayoutDOMView {
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
     for (const renderer of this.model.renderers) {
-      if (renderer instanceof GlyphRenderer) {
-        const {selected} = renderer.data_source
+      if (renderer instanceof DataRenderer) {
+        const {selected} = renderer.selection_manager.source
         selection.set(renderer, selected)
       }
     }
@@ -514,10 +520,10 @@ export class PlotView extends LayoutDOMView {
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
     for (const renderer of this.model.renderers) {
-      if (!(renderer instanceof GlyphRenderer))
+      if (!(renderer instanceof DataRenderer))
         continue
 
-      const ds = renderer.data_source
+      const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
         if (selection != null) {
@@ -868,12 +874,8 @@ export class PlotView extends LayoutDOMView {
         document.interactive_stop()
     }
 
-    for (const [, renderer_view] of this.renderer_views) {
-      if (this.range_update_timestamp == null ||
-          (renderer_view instanceof GlyphRendererView && renderer_view.set_data_timestamp > this.range_update_timestamp)) {
-        this.update_dataranges()
-        break
-      }
+    if (this._invalidate_dataranges) {
+      this.update_dataranges()
     }
 
     let do_primary = false

@@ -94,16 +94,7 @@ class Renderer(Model):
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
 
-
-@abstract
-class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
-
-    '''
-
-    level = Override(default="glyph")
-
-class TileRenderer(DataRenderer):
+class TileRenderer(Renderer):
     '''
 
     '''
@@ -123,6 +114,16 @@ class TileRenderer(DataRenderer):
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
+
+    level = Override(default="image")
+
+@abstract
+class DataRenderer(Renderer):
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``GraphRenderer``).
+
+    '''
+
+    level = Override(default="glyph")
 
 class GlyphRenderer(DataRenderer):
     '''
