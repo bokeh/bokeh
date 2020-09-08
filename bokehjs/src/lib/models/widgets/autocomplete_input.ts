@@ -133,6 +133,10 @@ export class AutocompleteInputView extends TextInputView {
       default: {
         const value = this.input_el.value
 
+        if (! this.model.restrict_value) {
+          this.model.value = this.input_el.value
+        }
+
         if (value.length < this.model.min_characters) {
           this._hide_menu()
           return
@@ -171,6 +175,7 @@ export namespace AutocompleteInput {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
     case_sensitive: p.Property<boolean>
+    restrict_value: p.Property<boolean>
   }
 }
 
@@ -191,6 +196,7 @@ export class AutocompleteInput extends TextInput {
       completions:    [ Array(String), [] ],
       min_characters: [ Int, 2 ],
       case_sensitive: [ Boolean, true ],
+      restrict_value: [ Boolean, true],
     }))
   }
 }

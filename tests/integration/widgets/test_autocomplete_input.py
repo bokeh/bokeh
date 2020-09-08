@@ -240,6 +240,19 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
+    def test_restrict_value(self, bokeh_model_page) -> None:
+        # restrict_value=True by default
+        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"], restrict_value=False)
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        text = "not in completions"
+        enter_text_in_element(page.driver, el, text, click=2, enter=False)
+
+        assert text_input.value == text
+        assert page.has_no_console_errors()
+
     def test_arrow_cannot_escape_menu(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
