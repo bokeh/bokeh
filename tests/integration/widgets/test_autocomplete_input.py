@@ -15,8 +15,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
+# Standard library imports
 import time
+
+# External imports
 from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
@@ -271,7 +273,7 @@ class Test_AutocompleteInput:
         el = page.driver.find_element_by_css_selector('.foo input')
         text = "not in completions"
         enter_text_in_element(page.driver, el, text, click=1, enter=True)
-        
+
         # without wait time, text_input.value is incomplete
         time.sleep(0.1)
         assert text_input.value == text
