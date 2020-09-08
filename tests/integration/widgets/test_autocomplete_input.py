@@ -16,6 +16,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
+import time
 from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
@@ -241,15 +242,38 @@ class Test_AutocompleteInput:
         assert page.has_no_console_errors()
 
     def test_strict(self, bokeh_model_page) -> None:
-        # strict=True by default
-        text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"], strict=False)
+        """Test effect of 'strict=False' with explicit JS callback"""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], strict=False)
+        text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(text_input)
 
         el = page.driver.find_element_by_css_selector('.foo input')
         text = "not in completions"
-        enter_text_in_element(page.driver, el, text, click=2, enter=True)
+        enter_text_in_element(page.driver, el, text, click=1, enter=True)
 
+        results = page.results
+        assert results['value'] == text
+        assert page.has_no_console_errors()
+
+
+    def test_server_strict(self, bokeh_server_page) -> None:
+        """Test effect of 'strict=False' without explicit callback."""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], strict=False)
+
+        def add_autocomplete(doc):
+            # note: for some reason, bokeh_server_page requires a 'canvas' in the document
+            plot = Plot()
+            doc.add_root(column(text_input,plot))
+
+        page = bokeh_server_page(add_autocomplete)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        text = "not in completions"
+        enter_text_in_element(page.driver, el, text, click=1, enter=True)
+        
+        # without wait time, text_input.value is incomplete
+        time.sleep(0.1)
         assert text_input.value == text
         assert page.has_no_console_errors()
 
