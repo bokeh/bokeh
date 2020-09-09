@@ -43,6 +43,7 @@ export class AutocompleteInputView extends TextInputView {
       this.input_el.focus()
       this._hide_menu()
     }
+    super.change_input()
   }
 
   protected _update_completions(completions: string[]): void {
@@ -132,10 +133,6 @@ export class AutocompleteInputView extends TextInputView {
       }
       default: {
         const value = this.input_el.value
-
-        if (!this.model.strict) {
-          this.model.value = this.input_el.value
-        }
 
         if (value.length < this.model.min_characters) {
           this._hide_menu()
