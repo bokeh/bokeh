@@ -240,9 +240,9 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
-    def test_strict(self, bokeh_model_page) -> None:
-        """Test effect of 'strict=False' with explicit JS callback"""
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], strict=False)
+    def test_restrict(self, bokeh_model_page) -> None:
+        """Test effect of 'restrict=False' with explicit JS callback"""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
         text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
         page = bokeh_model_page(text_input)
@@ -256,9 +256,9 @@ class Test_AutocompleteInput:
         assert page.has_no_console_errors()
 
 
-    def test_server_strict(self, bokeh_server_page) -> None:
-        """Test effect of 'strict=False' without explicit callback."""
-        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], strict=False)
+    def test_server_restrict(self, bokeh_server_page) -> None:
+        """Test effect of 'restrict=False' without explicit callback."""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
 
         def add_autocomplete(doc):
             # note: for some reason, bokeh_server_page requires a 'canvas' in the document

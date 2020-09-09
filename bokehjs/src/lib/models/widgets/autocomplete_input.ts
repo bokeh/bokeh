@@ -43,7 +43,10 @@ export class AutocompleteInputView extends TextInputView {
       this.input_el.focus()
       this._hide_menu()
     }
-    super.change_input()
+
+    if (!this.model.restrict) {
+      super.change_input()
+    }
   }
 
   protected _update_completions(completions: string[]): void {
@@ -172,7 +175,7 @@ export namespace AutocompleteInput {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
     case_sensitive: p.Property<boolean>
-    strict: p.Property<boolean>
+    restrict: p.Property<boolean>
   }
 }
 
@@ -193,7 +196,7 @@ export class AutocompleteInput extends TextInput {
       completions:    [ Array(String), [] ],
       min_characters: [ Int, 2 ],
       case_sensitive: [ Boolean, true ],
-      strict: [ Boolean, true ],
+      restrict: [ Boolean, true ],
     }))
   }
 }

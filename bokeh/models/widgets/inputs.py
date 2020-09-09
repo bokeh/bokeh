@@ -295,7 +295,7 @@ class AutocompleteInput(TextInput):
 
     case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
 
-    strict = Bool(default=True, help="""
+    restrict = Bool(default=True, help="""
     Set to False in order to allow users to enter text that is not present in the list of completion strings.
     """)
 
