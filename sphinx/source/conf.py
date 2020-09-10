@@ -1,4 +1,7 @@
+# Standard library imports
 import os
+
+# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 
