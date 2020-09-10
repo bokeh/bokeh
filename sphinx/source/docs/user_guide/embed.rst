@@ -431,7 +431,7 @@ on the server at `"some/path"`, from the document that has the plot embedded.
 
 .. note::
     The ``<script>`` tag loads a ``<div>`` in place, so it must be placed
-    under ``<head>``.
+    under ``<body>``.
 
 .. _userguide_embed_apps:
 
