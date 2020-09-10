@@ -53,12 +53,15 @@ describe("ColorBar module", () => {
     describe("ColorBar._title_extent method", () => {
 
       it("_title_height should return 0 if there is no title", async () => {
-        const view = await color_bar_view()
+        const view = await color_bar_view({
+          color_mapper: new LinearColorMapper({palette: Viridis.Viridis10}),
+        })
         expect(view._title_extent()).to.be.equal(0)
       })
 
       it("_title_height should calculate title height plus title_standoff if there is a title", async () => {
         const view = await color_bar_view({
+          color_mapper: new LinearColorMapper({palette: Viridis.Viridis10}),
           title: "I'm a title",
           title_standoff: 5,
         })

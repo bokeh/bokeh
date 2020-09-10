@@ -2,7 +2,11 @@ import {display, fig, grid} from "./_util"
 
 import pipeline from "./_data"
 
-import {Plot, Range1d, GlyphRenderer, LinearColorMapper, EqHistColorMapper} from "@bokehjs/models"
+import {
+  Plot, Range1d, GlyphRenderer,
+  LinearColorMapper, EqHistColorMapper,
+  ColorBar,
+} from "@bokehjs/models"
 import {Plasma256} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
@@ -92,9 +96,22 @@ describe("Color mapping", () => {
     }
 
     function eqhist_mapped_plot(data: Float64NDArray) {
-      const color_mapper = new EqHistColorMapper({palette: Plasma256})
+      const palette = Plasma256
+      const color_mapper = new EqHistColorMapper({palette})
+
       const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
       p.image({image: [data as any], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+
+      const color_bar = new ColorBar({
+        color_mapper,
+        ticker: "auto",
+        formatter: "auto",
+        orientation: "horizontal",
+        location: [0, 0],
+        padding: 0,
+      })
+      p.add_layout(color_bar, "below")
+
       return p
     }
 
