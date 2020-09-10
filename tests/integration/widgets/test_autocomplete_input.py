@@ -240,6 +240,40 @@ class Test_AutocompleteInput:
 
         assert page.has_no_console_errors()
 
+    def test_restrict(self, bokeh_model_page) -> None:
+        """Test effect of 'restrict=False' with explicit JS callback"""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
+        text_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        text = "not in completions"
+        enter_text_in_element(page.driver, el, text, click=1, enter=True)
+
+        results = page.results
+        assert results['value'] == text
+        assert page.has_no_console_errors()
+
+
+    def test_server_restrict(self, bokeh_server_page) -> None:
+        """Test effect of 'restrict=False' without explicit callback."""
+        text_input = AutocompleteInput(css_classes=["foo"], completions = ["aAaBbb", "aAaBbB"], restrict=False)
+
+        def add_autocomplete(doc):
+            # note: for some reason, bokeh_server_page requires a 'canvas' in the document
+            plot = Plot()
+            doc.add_root(column(text_input,plot))
+
+        page = bokeh_server_page(add_autocomplete)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        text = "not in completions"
+        enter_text_in_element(page.driver, el, text, click=1, enter=True)
+
+        assert text_input.value == text
+        assert page.has_no_console_errors()
+
     def test_arrow_cannot_escape_menu(self, bokeh_model_page) -> None:
         text_input = AutocompleteInput(title="title", css_classes=["foo"], completions = ["100001", "12344556", "12344557", "3194567289", "209374209374"])
 
