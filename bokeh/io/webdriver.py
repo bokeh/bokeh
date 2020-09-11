@@ -87,12 +87,15 @@ def create_firefox_webdriver() -> WebDriver:
         service_log_path=devnull,
     )
 
-def create_chromium_webdriver() -> WebDriver:
+def create_chromium_webdriver(extra_options: Optional[List[str]] = None) -> WebDriver:
     options = webdriver.chrome.options.Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
     options.add_argument("--force-device-scale-factor=1")
     options.add_argument("--force-color-profile=srgb")
+    if extra_options:
+        for op in extra_options:
+            options.add_argument(op)
     return webdriver.Chrome(options=options)
 
 #-----------------------------------------------------------------------------
