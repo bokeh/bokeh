@@ -56,7 +56,8 @@ export abstract class CellEditorView extends DOMView {
   renderEditor(): void {}
 
   disableNavigation(): void {
-    this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
+    // XXX: without cast `event` is of non-specific type `Event`
+    (this.inputEl as HTMLElement).addEventListener("keydown", (event) => {
       switch (event.keyCode) {
         case Keys.Left:
         case Keys.Right:

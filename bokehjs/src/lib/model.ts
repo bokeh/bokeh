@@ -11,7 +11,7 @@ export namespace Model {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HasProps.Props & {
-    tags: p.Property<string[]>
+    tags: p.Property<unknown[]>
     name: p.Property<string | null>
     js_property_callbacks: p.Property<{[key: string]: CallbackLike0<Model>[]}>
     js_event_callbacks: p.Property<{[key: string]: CallbackLike0<ModelEvent>[]}>
@@ -31,8 +31,8 @@ export class Model extends HasProps {
   }
 
   static init_Model(): void {
-    this.define<Model.Props>(({Any, String, Array, Dict, Nullable}) => ({
-      tags:                  [ Array(String), [] ],
+    this.define<Model.Props>(({Any, Unknown, String, Array, Dict, Nullable}) => ({
+      tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],
       js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
       js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],

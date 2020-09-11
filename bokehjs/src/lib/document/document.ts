@@ -75,7 +75,7 @@ export class Document {
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: Map<(event: DocumentEvent) => void, boolean>
+  protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
@@ -314,7 +314,7 @@ export class Document {
     }
   }
 
-  remove_on_change(callback: (event: DocumentEvent) => void): void {
+  remove_on_change(callback: ((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void)): void {
     this._callbacks.delete(callback)
   }
 
@@ -325,7 +325,7 @@ export class Document {
           callback(ev)
         }
       } else {
-        callback(event)
+        callback(event as any) // TODO
       }
     }
   }

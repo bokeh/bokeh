@@ -9,6 +9,8 @@ import {uniq} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
+import type {Renderer} from "../renderers/renderer"
+import {Geometry} from "core/geometry"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -43,7 +45,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<unknown, this> // XXX: <[indices, tool, renderer-view, source, data], this>
+  inspect: Signal<[Renderer, {geometry: Geometry}], this>
 
   streaming: Signal0<this>
   patching: Signal<number[], this>
@@ -58,7 +60,7 @@ export abstract class ColumnarDataSource extends DataSource {
     }))
 
     this.internal<ColumnarDataSource.Props>(({Ref}) => ({
-      selection_manager: [ Ref(SelectionManager), (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
+      selection_manager: [ Ref(SelectionManager), (self) => new SelectionManager({source: self as ColumnarDataSource}) ],
       inspected:         [ Ref(Selection), () => new Selection() ],
     }))
   }
@@ -67,7 +69,7 @@ export abstract class ColumnarDataSource extends DataSource {
     super.initialize()
 
     this._select = new Signal0(this, "select")
-    this.inspect = new Signal(this, "inspect") // XXX: <[indices, tool, renderer-view, source, data], this>
+    this.inspect = new Signal(this, "inspect")
 
     this.streaming = new Signal0(this, "streaming")
     this.patching = new Signal(this, "patching")

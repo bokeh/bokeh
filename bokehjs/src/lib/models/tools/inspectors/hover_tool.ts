@@ -2,9 +2,9 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {CustomJSHover} from "./customjs_hover"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
-import {Renderer, RendererView} from "../../renderers/renderer"
+import {Renderer} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRenderer/*, GraphRendererView*/} from "../../renderers/graph_renderer"
+import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
@@ -188,16 +188,17 @@ export class HoverToolView extends InspectToolView {
     this._emit_callback(geometry)
   }
 
-  _update([renderer_view, {geometry}]: [RendererView, {geometry: PointGeometry | SpanGeometry}]): void {
+  _update([renderer, {geometry}]: [Renderer, {geometry: Geometry}]): void {
     if (!this.model.active)
       return
 
-    if (!(renderer_view instanceof GlyphRendererView)) // || renderer_view instanceof GraphRendererView))
+    if (!(geometry.type == "point" || geometry.type == "span"))
       return
 
-    const {model: renderer} = renderer_view
+    if (!(renderer instanceof GlyphRenderer)) // || renderer instanceof GraphRenderer))
+      return
 
-    if (this.model.muted_policy == 'ignore' && renderer instanceof GlyphRenderer && renderer.muted)
+    if (this.model.muted_policy == 'ignore' && renderer.muted)
       return
 
     const tooltip = this.ttmodels.get(renderer)
@@ -207,8 +208,7 @@ export class HoverToolView extends InspectToolView {
     const selection_manager = renderer.get_selection_manager()
 
     let indices = selection_manager.inspectors.get(renderer)!
-    if (renderer instanceof GlyphRenderer)
-      indices = renderer.view.convert_selection_to_subset(indices)
+    indices = renderer.view.convert_selection_to_subset(indices)
 
     if (indices.is_empty()) {
       tooltip.clear()
@@ -216,6 +216,7 @@ export class HoverToolView extends InspectToolView {
     }
 
     const ds = selection_manager.source
+    const renderer_view = this.plot_view.renderer_views.get(renderer)! as GlyphRendererView
 
     const {sx, sy} = geometry
     const xscale = renderer_view.coordinates.x_scale
@@ -265,7 +266,7 @@ export class HoverToolView extends InspectToolView {
           index: ii,
           x, y, sx, sy, data_x, data_y, rx, ry,
           indices: indices.line_indices,
-          name: renderer_view.model.name,
+          name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, ii, vars)])
       }
@@ -275,7 +276,7 @@ export class HoverToolView extends InspectToolView {
       const vars = {
         index: struct.index,
         x, y, sx, sy,
-        name: renderer_view.model.name,
+        name: renderer.name,
       }
       const rendered = this._render_tooltips(ds, struct, vars)
       tooltips.push([sx, sy, rendered])
@@ -326,7 +327,7 @@ export class HoverToolView extends InspectToolView {
             index, x, y, sx, sy, data_x, data_y,
             segment_index: jj,
             indices: indices.multiline_indices,
-            name: renderer_view.model.name,
+            name: renderer.name,
           }
           tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
         }
@@ -361,7 +362,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index, x, y, sx, sy, data_x, data_y,
           indices: indices.indices,
-          name: renderer_view.model.name,
+          name: renderer.name,
         }
         tooltips.push([rx, ry, this._render_tooltips(ds, index, vars)])
       }

@@ -48,6 +48,12 @@ jobs:
         run: |
           node make lib:build
 
+      - name: Build examples
+        working-directory: ./bokehjs
+        shell: bash
+        run: |
+          node make examples:build
+
       - name: Run tests
         working-directory: ./bokehjs
         shell: bash

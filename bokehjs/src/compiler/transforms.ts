@@ -23,36 +23,43 @@ export function relativize_modules(relativize: (file: string, module_path: strin
     return null
   }
 
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    const {factory} = context
+  return (context: ts.TransformationContext): ts.CustomTransformer => {
+    return {
+      transformSourceFile(root: ts.SourceFile): ts.SourceFile {
+        const {factory} = context
 
-    function visit(node: ts.Node): ts.Node {
-      if (ts.isImportDeclaration(node)) {
-        const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
-        if (moduleSpecifier != null) {
-          const {decorators, modifiers, importClause} = node
-          return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
-        }
-      }
-      if (ts.isExportDeclaration(node)) {
-        const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
-        if (moduleSpecifier != null) {
-          const {decorators, modifiers, isTypeOnly, exportClause} = node
-          return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
-        }
-      }
-      if (is_require(node)) {
-        const moduleSpecifier = relativize_specifier(root, node.arguments[0])
-        if (moduleSpecifier != null) {
-          const {expression, typeArguments} = node
-          return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])
-        }
-      }
+        function visit(node: ts.Node): ts.Node {
+          if (ts.isImportDeclaration(node)) {
+            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            if (moduleSpecifier != null) {
+              const {decorators, modifiers, importClause} = node
+              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
+            }
+          }
+          if (ts.isExportDeclaration(node)) {
+            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            if (moduleSpecifier != null) {
+              const {decorators, modifiers, isTypeOnly, exportClause} = node
+              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
+            }
+          }
+          if (is_require(node)) {
+            const moduleSpecifier = relativize_specifier(root, node.arguments[0])
+            if (moduleSpecifier != null) {
+              const {expression, typeArguments} = node
+              return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])
+            }
+          }
 
-      return ts.visitEachChild(node, visit, context)
+          return ts.visitEachChild(node, visit, context)
+        }
+
+        return ts.visitNode(root, visit)
+      },
+      transformBundle(_root: ts.Bundle): ts.Bundle {
+        throw new Error("unsupported")
+      },
     }
-
-    return ts.visitNode(root, visit)
   }
 }
 

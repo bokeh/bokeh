@@ -69,12 +69,12 @@ export function show_error(error: unknown): void {
   }
 }
 
-export type Fn<T> = (...args: unknown[]) => Promise<Result<T> | void>
+export type Fn<Args extends unknown[], T> = (...args: Args) => Promise<Result<T> | void>
 
 class Task<T = unknown> {
   constructor(readonly name: string,
               readonly deps: Dependency[],
-              readonly fn?: Fn<T>) {}
+              readonly fn?: Fn<unknown[], T>) {}
 
   toString(): string {
     return this.name
@@ -88,7 +88,7 @@ export function task2<T, T0, T1>    (name: string, deps: [Task<T0>, Task<T1>],  
 export function task2<T, T0, T1, T2>(name: string, deps: [Task<T0>, Task<T1>, Task<T2>], fn: (v0: T0, v1: T1, v2: T2) => Promise<Result<T>>): Task<T>
 
 export function task2<T, Args extends unknown[]>(name: string, deps: Task<unknown>[], fn: (...args: Args) => Promise<Result<T>>): Task<T> {
-  return task(name, deps.map((dep) => dep.name), fn)
+  return task(name, deps.map((dep) => dep.name), fn as Fn<unknown[], T>)
 }
 
 export type TaskLike = string | Task
@@ -113,7 +113,7 @@ function _resolve_task(dep: TaskLike): Task {
   }
 }
 
-export function task<T>(name: string, deps: DependencyLike[] | Fn<T>, fn?: Fn<T>): Task<T> {
+export function task<T>(name: string, deps: DependencyLike[] | Fn<unknown[], T>, fn?: Fn<unknown[], T>): Task<T> {
   if (!Array.isArray(deps)) {
     fn = deps
     deps = []

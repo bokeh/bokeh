@@ -84,9 +84,9 @@ export class CrosshairTool extends InspectTool {
     this.internal<CrosshairTool.Props>(({Struct, Ref}) => ({
       spans: [
         Struct({width: Ref(Span), height: Ref(Span)}),
-        (self: CrosshairTool) => ({
-          width: span(self, "width"),
-          height: span(self, "height"),
+        (self) => ({
+          width: span(self as CrosshairTool, "width"),
+          height: span(self as CrosshairTool, "height"),
         }),
       ],
     }))

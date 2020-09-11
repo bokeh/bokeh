@@ -102,10 +102,8 @@ export class SpinnerView extends NumericInputView {
 
   get precision(): number {
     const {low, high, step} = this.model
-    return max(...[low, high, step].map(abs).reduce<number[]>((prev, val) => {
-      if (val!=null) prev.push(val)
-      return prev
-    }, []).map(precision))
+    const p = precision
+    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)))
   }
 
   _start_incrementation(sign: 1|-1): void {

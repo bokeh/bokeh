@@ -390,7 +390,7 @@ export namespace LayoutDOM {
     min_height: p.Property<number | null>
     max_width: p.Property<number | null>
     max_height: p.Property<number | null>
-    margin: p.Property<number | [number, number] | [number, number, number, number]>
+    margin: p.Property<number | [number, number] | [number, number, number, number] | null>
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
@@ -425,7 +425,7 @@ export abstract class LayoutDOM extends Model {
         min_height:    [ Nullable(Number), null ],
         max_width:     [ Nullable(Number), null ],
         max_height:    [ Nullable(Number), null ],
-        margin:        [ Or(Number, Number2, Number4), [0, 0, 0, 0] ],
+        margin:        [ Nullable(Or(Number, Number2, Number4)), [0, 0, 0, 0] ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],

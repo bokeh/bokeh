@@ -3,7 +3,7 @@
 import {defer} from "./util/callback"
 import {find, remove_by} from "./util/array"
 
-export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
+export type Slot<Args, Sender extends object> = (args: Args, sender: Sender) => void
 
 export class Signal<Args, Sender extends object> {
 
@@ -166,7 +166,7 @@ export function Signalable() {
 
 interface Connection {
   signal: Signal<any, object> | null
-  readonly slot: Slot<any, object>
+  readonly slot: Slot<any, any>
   readonly context: object | null
 }
 

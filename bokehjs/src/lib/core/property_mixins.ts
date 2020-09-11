@@ -108,7 +108,7 @@ export type HatchScalar = {
 export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
-  text_font: p.ScalarSpec<string>
+  text_font: p.Property<string>
   text_font_size: p.ScalarSpec<string>
   text_font_style: p.ScalarSpec<FontStyle>
   text_align: p.ScalarSpec<TextAlign>

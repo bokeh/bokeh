@@ -10,22 +10,47 @@ import {BYTE_ORDER} from "@bokehjs/core/util/serialization"
 
 class TestModel extends HasProps {}
 
+namespace SubclassWithProps {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    foo: p.Property<number>
+    bar: p.Property<boolean>
+  }
+}
+interface SubclassWithProps extends SubclassWithProps.Attrs {}
 class SubclassWithProps extends HasProps {
-  foo: number
-  bar: boolean
+  properties: SubclassWithProps.Props
+  constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
+    super(attrs)
+  }
+  static init_SubclassWithProps() {
+    this.define<SubclassWithProps.Props>(({Boolean, Number}) => ({
+      foo: [ Number, 0 ],
+      bar: [ Boolean, true ],
+    }))
+  }
 }
-SubclassWithProps.define<any>(({Boolean, Number}) => ({
-  foo: [ Number, 0 ],
-  bar: [ Boolean, true ],
-}))
 
+namespace SubSubclassWithProps {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = SubclassWithProps.Props & {
+    baz: p.Property<string>
+  }
+}
+interface SubSubclassWithProps extends SubSubclassWithProps.Attrs {}
 class SubSubclassWithProps extends SubclassWithProps {
-  baz: string
+  properties: SubSubclassWithProps.Props
+  constructor(attrs?: Partial<SubSubclassWithProps.Attrs>) {
+    super(attrs)
+  }
+  static init_SubSubclassWithProps() {
+    this.define<SubSubclassWithProps.Props>(({String}) => ({
+      baz: [ String, "" ],
+    }))
+  }
 }
-SubSubclassWithProps.define<any>(({String}) => ({
-  baz: [ String, "" ],
-}))
 
+// TODO {{{
 class SubclassWithMixins extends HasProps {}
 SubclassWithMixins.mixins(['line'])
 
@@ -34,44 +59,72 @@ SubSubclassWithMixins.mixins(['fill:foo_'])
 
 class SubclassWithMultipleMixins extends HasProps {}
 SubclassWithMultipleMixins.mixins(['line', 'text:bar_'])
+// }}}
 
+namespace SubclassWithNumberSpec {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    foo: p.NumberSpec
+    bar: p.Property<boolean>
+  }
+}
+interface SubclassWithNumberSpec extends SubclassWithNumberSpec.Attrs {}
 class SubclassWithNumberSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
+  properties: SubclassWithNumberSpec.Props
+  constructor(attrs?: Partial<SubclassWithNumberSpec.Attrs>) {
+    super(attrs)
+  }
+  static init_SubclassWithNumberSpec() {
+    this.define<SubclassWithNumberSpec.Props>(({Boolean}) => ({
+      foo: [ p.NumberSpec, {field: "colname"} ],
+      bar: [ Boolean, true ],
+    }))
+  }
 }
-SubclassWithNumberSpec.define<any>(({Boolean}) => ({
-  foo: [ p.NumberSpec, {field: "colname"} ],
-  bar: [ Boolean, true ],
-}))
 
+namespace SubclassWithDistanceSpec {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    foo: p.DistanceSpec
+    bar: p.Property<boolean>
+  }
+}
+interface SubclassWithDistanceSpec extends SubclassWithDistanceSpec.Attrs {}
 class SubclassWithDistanceSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
+  properties: SubclassWithDistanceSpec.Props
+  constructor(attrs?: Partial<SubclassWithDistanceSpec.Attrs>) {
+    super(attrs)
+  }
+  static init_SubclassWithDistanceSpec() {
+    this.define<SubclassWithDistanceSpec.Props>(({Boolean}) => ({
+      foo: [ p.DistanceSpec, {field: "colname"} ],
+      bar: [ Boolean, true ],
+    }))
+  }
 }
-SubclassWithDistanceSpec.define<any>(({Boolean}) => ({
-  foo: [ p.DistanceSpec, {field: "colname"} ],
-  bar: [ Boolean, true ],
-}))
 
-class SubclassWithTransformSpec extends HasProps {
-  foo: any // XX
-  bar: boolean
+namespace SubclassWithOptionalSpec {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    foo: p.NumberSpec
+    bar: p.Property<boolean>
+    baz: p.NumberSpec
+  }
 }
-SubclassWithTransformSpec.define<any>(({Boolean}) => ({
-  foo: [ p.NumberSpec, {field: "colname", transform: new TestModel()} ],
-  bar: [ Boolean, true ],
-}))
-
+interface SubclassWithOptionalSpec extends SubclassWithOptionalSpec.Attrs {}
 class SubclassWithOptionalSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
-  baz: any // XXX
+  properties: SubclassWithOptionalSpec.Props
+  constructor(attrs?: Partial<SubclassWithOptionalSpec.Attrs>) {
+    super(attrs)
+  }
+  static init_SubclassWithOptionalSpec() {
+    this.define<SubclassWithOptionalSpec.Props>(({Boolean}) => ({
+      foo: [ p.NumberSpec, undefined, {optional: true} ],
+      bar: [ Boolean, true ],
+      baz: [ p.NumberSpec, {field: "colname"} ],
+    }))
+  }
 }
-SubclassWithOptionalSpec.define<any>(({Boolean}) => ({
-  foo: [ p.NumberSpec, {value: null}, {optional: true} ],
-  bar: [ Boolean, true ],
-  baz: [ p.NumberSpec, {field: "colname"} ],
-}))
 
 describe("core/has_props module", () => {
 

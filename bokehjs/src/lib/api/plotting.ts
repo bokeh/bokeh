@@ -9,9 +9,9 @@ import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {is_equal} from "../core/util/eq"
-import {some, every, includes} from "../core/util/array"
+import {some, includes} from "../core/util/array"
 import {clone, keys, entries} from "../core/util/object"
-import {isNumber, isString, isArray} from "../core/util/types"
+import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {enumerate} from "core/util/iterator"
 
@@ -857,12 +857,11 @@ export class Figure extends Plot {
       return range
     }
     if (isArray(range)) {
-      if (every(range, isString)) {
-        const factors = range as string[]
+      if (isArrayOf(range, isString)) {
+        const factors = range
         return new models.FactorRange({factors})
-      }
-      if (range.length == 2) {
-        const [start, end] = range as [number, number]
+      } else {
+        const [start, end] = range
         return new models.Range1d({start, end})
       }
     }

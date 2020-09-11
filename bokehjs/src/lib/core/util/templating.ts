@@ -20,7 +20,7 @@ export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
 
 export const DEFAULT_FORMATTERS = {
-  numeral:  (value: string | number, format: string, _special_vars: Vars) => Numbro.format(value, format),
+  numeral:  (value: unknown, format: string, _special_vars: Vars) => Numbro.format(value, format),
   datetime: (value: unknown, format: string, _special_vars: Vars) => tz(value, format),
   printf:   (value: unknown, format: string, _special_vars: Vars) => sprintf(format, value),
 }
@@ -54,7 +54,6 @@ export function get_formatter(raw_spec: string, format?: string, formatters?: Fo
 
   // format spec in the formatters dict, use that
   if (formatters != null && raw_spec in formatters) {
-
     const formatter = formatters[raw_spec]
 
     if (isString(formatter)) {
