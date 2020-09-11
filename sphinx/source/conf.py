@@ -70,7 +70,6 @@ autodoc_member_order = 'groupwise'
 
 bokeh_missing_google_api_key_ok = False
 
-# Check for GOOGLE_API_KEY
 if not bokeh_missing_google_api_key_ok:
     if "GOOGLE_API_KEY" not in os.environ:
         raise RuntimeError("\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
