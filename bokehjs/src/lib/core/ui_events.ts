@@ -10,10 +10,10 @@ import {reversed, is_empty} from "./util/array"
 import {isString} from "./util/types"
 import {is_mobile} from "./util/compat"
 import {PlotView} from "../models/plots/plot"
-import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import {ContextMenu} from "./util/menus"
 import {RendererView} from "../models/renderers/renderer"
+import type {CanvasView} from "../models/canvas/canvas"
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
@@ -85,9 +85,9 @@ export type KeyEvent = {
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
 
-export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
+export type UISignal<E> = Signal<{id: string | null, e: E}, UIEventBus>
 
-export class UIEvents implements EventListenerObject {
+export class UIEventBus implements EventListenerObject {
   readonly pan_start:    UISignal<PanEvent> = new Signal(this, 'pan:start')
   readonly pan:          UISignal<PanEvent> = new Signal(this, 'pan')
   readonly pan_end:      UISignal<PanEvent> = new Signal(this, 'pan:end')
@@ -121,9 +121,11 @@ export class UIEvents implements EventListenerObject {
 
   private menu: ContextMenu
 
-  constructor(readonly plot_view: PlotView,
-              readonly toolbar: Toolbar,
-              readonly hit_area: HTMLElement) {
+  get hit_area(): HTMLElement {
+    return this.canvas_view.events_el
+  }
+
+  constructor(readonly canvas_view: CanvasView) {
     this._configure_hammerjs()
 
     // Mouse & keyboard events not handled through hammerjs
@@ -279,8 +281,8 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _hit_test_renderers(sx: number, sy: number): RendererView | null {
-    const views = this.plot_view.get_renderer_views()
+  protected _hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
+    const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
       const {level} = view.model
@@ -293,22 +295,133 @@ export class UIEvents implements EventListenerObject {
     return null
   }
 
-  protected _hit_test_frame(sx: number, sy: number): boolean {
-    return this.plot_view.frame.bbox.contains(sx, sy)
+  set_cursor(cursor: string = "default"): void {
+    this.hit_area.style.cursor = cursor
   }
 
-  protected _hit_test_canvas(sx: number, sy: number): boolean {
-    return this.plot_view.layout.bbox.contains(sx, sy)
+  protected _hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
+    return plot_view.frame.bbox.contains(sx, sy)
   }
+
+  protected _hit_test_canvas(plot_view: PlotView, sx: number, sy: number): boolean {
+    return plot_view.layout.bbox.contains(sx, sy)
+  }
+
+  protected _hit_test_plot(sx: number, sy: number): PlotView | null {
+    // TODO: z-index
+    for (const plot_view of this.canvas_view.plot_views) {
+      if (plot_view.layout.bbox.relative()/*XXX*/.contains(sx, sy))
+        return plot_view
+    }
+
+    return null
+  }
+
+  protected _prev_move: {sx: number, sy: number, plot_view: PlotView | null} | null = null
+
+  protected _curr_pan: {plot_view: PlotView} | null = null
+  protected _curr_pinch: {plot_view: PlotView} | null = null
+  protected _curr_rotate: {plot_view: PlotView} | null = null
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
-    const gestures = this.toolbar.gestures
+    const {sx, sy} = e
+    const plot_view = this._hit_test_plot(sx, sy)
+    const curr_view = plot_view
+
+    const relativize_event = (_plot_view: PlotView): E => {
+      const [rel_sx, rel_sy] = [sx, sy] // plot_view.layout.bbox.relativize(sx, sy)
+      return {...e, sx: rel_sx, sy: rel_sy}
+    }
+
+    if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
+      let pan_view: PlotView | null
+      if (e.type == "panstart" && curr_view != null) {
+        this._curr_pan = {plot_view: curr_view}
+        pan_view = curr_view
+      } else if (e.type == "pan" && this._curr_pan != null) {
+        pan_view = this._curr_pan.plot_view
+      } else if (e.type == "panend" && this._curr_pan != null) {
+        pan_view = this._curr_pan.plot_view
+        this._curr_pan = null
+      } else {
+        pan_view = null
+      }
+
+      if (pan_view != null) {
+        const event = relativize_event(pan_view)
+        this.__trigger(pan_view, signal, event, srcEvent)
+      }
+    } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
+      let pinch_view: PlotView | null
+      if (e.type == "pinchstart" && curr_view != null) {
+        this._curr_pinch = {plot_view: curr_view}
+        pinch_view = curr_view
+      } else if (e.type == "pinch" && this._curr_pinch != null) {
+        pinch_view = this._curr_pinch.plot_view
+      } else if (e.type == "pinchend" && this._curr_pinch != null) {
+        pinch_view = this._curr_pinch.plot_view
+        this._curr_pinch = null
+      } else {
+        pinch_view = null
+      }
+
+      if (pinch_view != null) {
+        const event = relativize_event(pinch_view)
+        this.__trigger(pinch_view, signal, event, srcEvent)
+      }
+    } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
+      let rotate_view: PlotView | null
+      if (e.type == "rotatestart" && curr_view != null) {
+        this._curr_rotate = {plot_view: curr_view}
+        rotate_view = curr_view
+      } else if (e.type == "rotate" && this._curr_rotate != null) {
+        rotate_view = this._curr_rotate.plot_view
+      } else if (e.type == "rotateend" && this._curr_rotate != null) {
+        rotate_view = this._curr_rotate.plot_view
+        this._curr_rotate = null
+      } else {
+        rotate_view = null
+      }
+
+      if (rotate_view != null) {
+        const event = relativize_event(rotate_view)
+        this.__trigger(rotate_view, signal, event, srcEvent)
+      }
+    } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
+      const prev_view = this._prev_move?.plot_view
+
+      if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
+        const {sx, sy} = relativize_event(prev_view)
+        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+      }
+
+      if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
+        const {sx, sy} = relativize_event(curr_view)
+        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shiftKey: false, ctrlKey: false}, srcEvent)
+      }
+
+      if (curr_view != null && e.type == "mousemove") {
+        const event = relativize_event(curr_view)
+        this.__trigger(curr_view, signal, event, srcEvent)
+      }
+
+      this._prev_move = {sx, sy, plot_view: curr_view}
+    } else {
+      if (curr_view != null) {
+        const event = relativize_event(curr_view)
+        this.__trigger(curr_view, signal, event, srcEvent)
+      }
+    }
+  }
+
+  __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
+    const gestures = plot_view.model.toolbar.gestures
     type BaseType = keyof typeof gestures
 
     const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
-    const view = this._hit_test_renderers(e.sx, e.sy)
-    const on_canvas = this._hit_test_canvas(e.sx, e.sy)
+    const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
+    const on_canvas = this._hit_test_canvas(plot_view, e.sx, e.sy)
 
     switch (base_type) {
       case "move": {
@@ -316,7 +429,7 @@ export class UIEvents implements EventListenerObject {
         if (active_gesture != null)
           this.trigger(signal, e, active_gesture.id)
 
-        const active_inspectors = this.toolbar.inspectors.filter(t => t.active)
+        const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
         let cursor = "default"
 
         // the event happened on a renderer
@@ -329,14 +442,14 @@ export class UIEvents implements EventListenerObject {
           }
 
         // the event happened on the plot frame but off a renderer
-        } else if (this._hit_test_frame(e.sx, e.sy)) {
+        } else if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
           if (!is_empty(active_inspectors)) {
             cursor = "crosshair"
           }
         }
 
-        this.plot_view.set_cursor(cursor)
-        this.plot_view.set_toolbar_visibility(on_canvas)
+        this.set_cursor(cursor)
+        plot_view.set_toolbar_visibility(on_canvas)
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break
@@ -383,18 +496,18 @@ export class UIEvents implements EventListenerObject {
       }
     }
 
-    this._trigger_bokeh_event(e)
+    this._trigger_bokeh_event(plot_view, e)
   }
 
   trigger<E>(signal: UISignal<E>, e: E, id: string | null = null): void {
     signal.emit({id, e})
   }
 
-  protected _trigger_bokeh_event(e: UIEvent): void {
+  protected _trigger_bokeh_event(plot_view: PlotView, e: UIEvent): void {
     const ev = (() => {
       const {sx, sy} = e
-      const x = this.plot_view.frame.x_scale.invert(sx)
-      const y = this.plot_view.frame.y_scale.invert(sy)
+      const x = plot_view.frame.x_scale.invert(sx)
+      const y = plot_view.frame.y_scale.invert(sy)
 
       switch (e.type) {
         case "wheel":
@@ -437,7 +550,7 @@ export class UIEvents implements EventListenerObject {
     })()
 
     if (ev != null)
-      this.plot_view.model.trigger_event(ev)
+      plot_view.model.trigger_event(ev)
   }
 
   private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
@@ -560,10 +673,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   private _doubletap(e: HammerEvent): void {
-    // NOTE: doubletap event triggered unconditionally
-    const ev = this._tap_event(e)
-    this._trigger_bokeh_event(ev)
-    this.trigger(this.doubletap, ev)
+    this._trigger(this.doubletap, this._tap_event(e), e.srcEvent)
   }
 
   private _press(e: HammerEvent): void {

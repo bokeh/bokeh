@@ -69,7 +69,7 @@ export class TooltipView extends AnnotationView {
     const [sx, sy] = position
 
     const side = (() => {
-      const area = this.parent.layout.bbox.relativize()
+      const area = this.parent.layout.bbox.relative()
       const {attachment} = this.model
       switch (attachment) {
         case "horizontal":
