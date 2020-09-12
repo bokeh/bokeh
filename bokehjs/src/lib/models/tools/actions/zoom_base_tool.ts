@@ -19,8 +19,7 @@ export class ZoomBaseToolView extends ActionToolView {
     this.plot_view.push_state('zoom_out', {range: zoom_info})
     this.plot_view.update_range(zoom_info, {scrolling: true})
 
-    if (this.model.document)
-      this.model.document.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model)
   }
 }
 
