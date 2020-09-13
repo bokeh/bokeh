@@ -1,5 +1,6 @@
 import {SidePanel} from "core/layout/side_panel"
 import {Size} from "core/layout"
+import {SerializableState} from "core/view"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
 
@@ -51,7 +52,7 @@ export abstract class AnnotationView extends RendererView {
     return this.layout == null // TODO: change this, when center layout is fully implemented
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     const state = super.serializable_state()
     return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
   }

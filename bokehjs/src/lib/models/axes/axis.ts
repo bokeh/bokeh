@@ -7,6 +7,7 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
+import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Size} from "core/layout"
 import {SidePanel, Orient} from "core/layout/side_panel"
@@ -490,7 +491,7 @@ export class AxisView extends GuideRendererView {
   }
   // }}}
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,

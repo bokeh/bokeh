@@ -21,6 +21,7 @@ import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
+import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
 import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
@@ -1013,11 +1014,11 @@ export class PlotView extends LayoutDOMView {
     return composite
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
     const renderers = this.get_renderer_views()
       .map((view) => view.serializable_state())
-      .filter((item) => "bbox" in item)
-    return {...state, children: [...(children as any), ...renderers]} // XXX
+      .filter((item) => item.bbox != null)
+    return {...state, children: [...children ?? [], ...renderers]}
   }
 }
