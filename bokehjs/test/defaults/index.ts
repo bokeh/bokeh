@@ -13,6 +13,7 @@ import {is_equal} from "@bokehjs/core/util/eq"
 import {Models} from "@bokehjs/base"
 import {HasProps} from "@bokehjs/core/has_props"
 import {PropertyAlias} from "@bokehjs/core/properties"
+import {settings} from "@bokehjs/core/settings"
 
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
@@ -37,7 +38,7 @@ function safe_stringify(v: unknown): string {
   }
 }
 
-function deep_value_to_serializable(_key: string, value: any, _optional_parent_object: any): any {
+function deep_value_to_serializable(_key: string, value: unknown, _optional_parent_object: any): any {
   if (value instanceof HasProps) {
     return {type: value.type, attributes: value.attributes_as_json()}
   } else if (isArray(value)) {
@@ -90,11 +91,17 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
     if (name == "DateRangeSlider" && (k == "start" || k == "end"))
       continue
 
-    if (k === 'id')
+    // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
+    if (settings.dev && k.includes("text_font") && js_v == "Bokeh")
+      continue
+
+    if (k === "id")
       continue
 
     if (k in python_defaults) {
       let py_v = python_defaults[k]
+
+      strip_ids(js_v)
       strip_ids(py_v)
 
       if (!is_equal(py_v, js_v)) {
@@ -210,7 +217,8 @@ describe("Defaults", () => {
       for (const [attr, prop] of Object.entries(model.prototype._props)) {
         if (prop.options?.internal !== true) {
           const actual_prop = prop.type instanceof PropertyAlias ? model.prototype._props[prop.type.attr] : prop
-          const value = actual_prop.default_value != null ? actual_prop.default_value() : null // XXX: non-nullable properties
+          // XXX: required proprties and defaults depending on model's instance
+          const value = actual_prop.default_value != null ? actual_prop.default_value({} as any) : null
           attrs[attr] = deep_value_to_serializable(attr, value, undefined)
         }
       }
