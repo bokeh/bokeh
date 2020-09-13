@@ -3,7 +3,7 @@ import {CustomJSHover} from "./customjs_hover"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {Renderer} from "../../renderers/renderer"
-import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {LineView} from "../../glyphs/line"
@@ -136,7 +136,7 @@ export class HoverToolView extends InspectToolView {
   get computed_renderers(): DataRenderer[] {
     if (this._computed_renderers == null) {
       const renderers = this.model.renderers
-      const all_renderers = this.plot_model.renderers
+      const all_renderers = this.plot_model.data_renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
     }

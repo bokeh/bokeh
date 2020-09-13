@@ -21,6 +21,7 @@ import {Scale} from "../scales/scale"
 import {Glyph} from "../glyphs/glyph"
 import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
@@ -53,7 +54,7 @@ export namespace Plot {
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
 
-    renderers: p.Property<DataRenderer[]>
+    renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
     extra_x_ranges: p.Property<{[key: string]: Range}>
@@ -143,7 +144,7 @@ export class Plot extends LayoutDOM {
       right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
       center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ Array(Ref(DataRenderer)), [] ],
+      renderers:         [ Array(Ref(Renderer)), [] ],
 
       x_range:           [ Ref(Range), () => new DataRange1d() ],
       extra_x_ranges:    [ Dict(Ref(Range)), {} ],
@@ -235,7 +236,11 @@ export class Plot extends LayoutDOM {
     del(this.center)
   }
 
-  add_renderers(...renderers: DataRenderer[]): void {
+  get data_renderers(): DataRenderer[] {
+    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+  }
+
+  add_renderers(...renderers: Renderer[]): void {
     this.renderers = this.renderers.concat(renderers)
   }
 

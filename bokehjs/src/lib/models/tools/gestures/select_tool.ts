@@ -24,7 +24,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   get computed_renderers(): DataRenderer[] {
     const renderers = this.model.renderers
-    const all_renderers = this.plot_model.renderers
+    const all_renderers = this.plot_model.data_renderers
     const names = this.model.names
     return compute_renderers(renderers, all_renderers, names)
   }

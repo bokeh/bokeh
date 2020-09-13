@@ -98,8 +98,7 @@ export class DataRange1d extends DataRange {
 
     if (renderers.length == 0) {
       for (const plot of this.plots) {
-        const rs = plot.renderers.filter((r) => r instanceof DataRenderer)
-        renderers = renderers.concat(rs)
+        renderers = renderers.concat(plot.data_renderers)
       }
     }
 
