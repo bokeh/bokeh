@@ -64,7 +64,7 @@ export class WheelPanToolView extends GestureToolView {
     // of 'dimensions' is ignored.
     const pan_info = {xrs, yrs, factor}
     this.plot_view.push_state('wheel_pan', {range: pan_info})
-    this.plot_view.update_range(pan_info, false, true)
+    this.plot_view.update_range(pan_info, {scrolling: true})
 
     if (this.model.document != null)
       this.model.document.interactive_start(this.plot_model)

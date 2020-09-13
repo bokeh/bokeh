@@ -3,8 +3,15 @@ import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
-import {PlotView, RangeInfo} from "./plot_canvas"
+import {PlotView} from "./plot_canvas"
 import {FrameBox} from "../canvas/canvas"
+import {RangeInfo, RangeOptions} from "./range_manager"
+
+type GMapRangeInfo = RangeInfo & {
+  sdx?: number
+  sdy?: number
+  factor?: number
+}
 
 declare global {
   interface Window {
@@ -67,17 +74,17 @@ export class GMapPlotView extends PlotView {
     super.remove()
   }
 
-  update_range(range_info: RangeInfo & {sdx?: number, sdy?: number, factor?: number} | null): void {
+  update_range(range_info: GMapRangeInfo | null, options?: RangeOptions): void {
     // RESET -------------------------
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})
       this.map.setOptions({zoom: this.initial_zoom})
-      super.update_range(null)
+      super.update_range(null, options)
 
     // PAN ----------------------------
     } else if (range_info.sdx != null || range_info.sdy != null) {
       this.map.panBy(range_info.sdx ?? 0, range_info.sdy ?? 0)
-      super.update_range(range_info)
+      super.update_range(range_info, options)
 
     // ZOOM ---------------------------
     } else if (range_info.factor != null) {
@@ -91,7 +98,7 @@ export class GMapPlotView extends PlotView {
 
       this.pause()
 
-      super.update_range(range_info)
+      super.update_range(range_info, options)
 
       const zoom_change = range_info.factor < 0 ?  -1 : 1
 

@@ -131,7 +131,7 @@ export class GlyphRendererView extends DataRendererView {
       this.connect(this.model.data_source.inspect, () => this.request_render())
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
-    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges())
+    this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 

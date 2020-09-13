@@ -114,7 +114,7 @@ export class PanToolView extends GestureToolView {
     const yrs = update_ranges(y_scales, sy0, sy1)
 
     this.pan_info = {xrs, yrs, sdx, sdy}
-    this.plot_view.update_range(this.pan_info, true)
+    this.plot_view.update_range(this.pan_info, {panning: true})
   }
 }
 
