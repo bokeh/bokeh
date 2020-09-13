@@ -11,6 +11,7 @@ import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
 import {CanvasLayer} from "../canvas/canvas"
+import {SerializableState} from "core/view"
 
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
@@ -371,7 +372,7 @@ export abstract class LayoutDOMView extends DOMView {
     return composite
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,

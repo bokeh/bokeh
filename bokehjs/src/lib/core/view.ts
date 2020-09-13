@@ -3,10 +3,17 @@ import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {StyleSheet, stylesheet} from "./dom"
 import {isArray} from "./util/types"
+import {Box} from "./types"
 
 import root_css from "styles/root.css"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
+
+export type SerializableState = {
+  type: string
+  bbox?: Box
+  children?: SerializableState[]
+}
 
 export namespace View {
   export type Options = {
@@ -73,7 +80,7 @@ export class View implements ISignalable {
     return `${this.model.type}View(${this.model.id})`
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {type: this.model.type}
   }
 

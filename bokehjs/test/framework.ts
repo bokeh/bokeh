@@ -243,7 +243,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
       const left = rect.left + window.pageXOffset - document.documentElement!.clientLeft
       const top = rect.top + window.pageYOffset - document.documentElement!.clientTop
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
-      const state = test.view.serializable_state() as any
+      const state = test.view.serializable_state()
       return {error, time, state, bbox}
     } catch (err: unknown) {
       error = err instanceof Error ? err : new Error(`${err}`)
