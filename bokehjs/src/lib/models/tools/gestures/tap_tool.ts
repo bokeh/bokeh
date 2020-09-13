@@ -24,7 +24,7 @@ export class TapToolView extends SelectToolView {
 
       for (const [, renderers] of renderers_by_source) {
         const sm = renderers[0].get_selection_manager()
-        const r_views = renderers.map((r) => this.plot_view.renderer_views.get(r)!)
+        const r_views = renderers.map((r) => this.plot_view.renderer_view(r)!)
         const did_hit = sm.select(r_views, geometry, final, mode)
 
         if (did_hit && callback != null) {
@@ -39,7 +39,7 @@ export class TapToolView extends SelectToolView {
       this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
     } else {
       for (const r of this.computed_renderers) {
-        const rv = this.plot_view.renderer_views.get(r)!
+        const rv = this.plot_view.renderer_view(r)!
         const sm = r.get_selection_manager()
         const did_hit = sm.inspect(rv, geometry)
 

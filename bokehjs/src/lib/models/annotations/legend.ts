@@ -1,6 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
-import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
@@ -270,7 +269,7 @@ export class LegendView extends AnnotationView {
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
         for (const r of item.renderers) {
-          const view = this.plot_view.renderer_views.get(r)! as GlyphRendererView
+          const view = this.plot_view.renderer_view(r)!
           view.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
         }
 

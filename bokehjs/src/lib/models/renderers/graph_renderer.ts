@@ -1,5 +1,6 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
+import {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import * as p from "core/properties"
@@ -7,6 +8,7 @@ import {build_view} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
+import {Patches} from "../glyphs/patches"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Arrayable} from "core/types"
 import {assert} from "core/util/assert"
@@ -16,6 +18,10 @@ export class GraphRendererView extends DataRendererView {
 
   edge_view: GlyphRendererView
   node_view: GlyphRendererView
+
+  get glyph_view(): GlyphView {
+    return this.node_view.glyph
+  }
 
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -60,6 +66,14 @@ export class GraphRendererView extends DataRendererView {
 
     const {edge_renderer, node_renderer} = this.model
 
+    // TODO: XsYsGlyph or something
+    if (!(edge_renderer.glyph instanceof MultiLine || edge_renderer.glyph instanceof Patches)) {
+      throw new Error(`${this}.edge_renderer.glyph must be a MultiLine glyph`)
+    }
+    if (!(node_renderer.glyph instanceof XYGlyph)) {
+      throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
+    }
+
     edge_renderer.glyph.xs = {expr: xs_expr}
     edge_renderer.glyph.ys = {expr: ys_expr}
 
@@ -97,8 +111,8 @@ export namespace GraphRenderer {
 
   export type Props = DataRenderer.Props & {
     layout_provider: p.Property<LayoutProvider>
-    node_renderer: p.Property<GlyphRenderer & {glyph: XYGlyph}>
-    edge_renderer: p.Property<GlyphRenderer & {glyph: MultiLine}>
+    node_renderer: p.Property<GlyphRenderer>
+    edge_renderer: p.Property<GlyphRenderer>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
   }
@@ -117,10 +131,10 @@ export class GraphRenderer extends DataRenderer {
   static init_GraphRenderer(): void {
     this.prototype.default_view = GraphRendererView
 
-    this.define<GraphRenderer.Props>(({Ref, AnyRef}) => ({
+    this.define<GraphRenderer.Props>(({Ref}) => ({
       layout_provider:   [ Ref(LayoutProvider) ],
-      node_renderer:     [ AnyRef<GlyphRenderer & {glyph: XYGlyph}>() ],
-      edge_renderer:     [ AnyRef<GlyphRenderer & {glyph: MultiLine}>() ],
+      node_renderer:     [ Ref(GlyphRenderer) ],
+      edge_renderer:     [ Ref(GlyphRenderer) ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => new NodesOnly() ],
     }))

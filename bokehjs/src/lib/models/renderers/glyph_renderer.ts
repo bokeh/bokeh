@@ -48,10 +48,13 @@ export class GlyphRendererView extends DataRendererView {
   muted_glyph?: GlyphView
   decimated_glyph: GlyphView
 
+  get glyph_view(): GlyphView {
+    return this.glyph
+  }
+
   protected all_indices: Indices
   protected decimated: Indices
 
-  set_data_timestamp: number
   protected last_dtrender: number
 
   async lazy_initialize(): Promise<void> {
@@ -177,7 +180,7 @@ export class GlyphRendererView extends DataRendererView {
       this.decimated.set(i)
     }
 
-    this.set_data_timestamp = Date.now()
+    this.plot_view.invalidate_dataranges = true
 
     if (request_render) {
       this.request_render()
@@ -342,10 +345,10 @@ export namespace GlyphRenderer {
     data_source: p.Property<ColumnarDataSource>
     view: p.Property<CDSView>
     glyph: p.Property<Glyph>
-    hover_glyph: p.Property<Glyph>
+    hover_glyph: p.Property<Glyph | null>
     nonselection_glyph: p.Property<Glyph | "auto">
     selection_glyph: p.Property<Glyph | "auto">
-    muted_glyph: p.Property<Glyph>
+    muted_glyph: p.Property<Glyph | null>
     muted: p.Property<boolean>
   }
 }
@@ -363,14 +366,14 @@ export class GlyphRenderer extends DataRenderer {
   static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref}) => ({
+    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
-      view:               [ Ref(CDSView), () => new CDSView() ],
+      view:               [ Ref(CDSView), (self) => new CDSView({source: (self as GlyphRenderer).data_source}) ],
       glyph:              [ Ref(Glyph) ],
-      hover_glyph:        [ Ref(Glyph) ],
+      hover_glyph:        [ Nullable(Ref(Glyph)), null ],
       nonselection_glyph: [ Or(Ref(Glyph), Auto), "auto" ],
       selection_glyph:    [ Or(Ref(Glyph), Auto), "auto" ],
-      muted_glyph:        [ Ref(Glyph) ],
+      muted_glyph:        [ Nullable(Ref(Glyph)), null ],
       muted:              [ Boolean, false ],
     }))
   }
@@ -378,7 +381,7 @@ export class GlyphRenderer extends DataRenderer {
   initialize(): void {
     super.initialize()
 
-    if (this.view.source == null) {
+    if (this.view.source != this.data_source) {
       this.view.source = this.data_source
       this.view.compute_indices()
     }

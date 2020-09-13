@@ -90,7 +90,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   /** @prototype */
   _props: {[key: string]: {
     type: p.PropertyConstructor<unknown>
-    default_value?: () => unknown   // T
+    default_value?: (self: HasProps) => unknown // T
     options: p.PropertyOptions<unknown>
   }}
 

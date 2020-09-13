@@ -1,7 +1,7 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer} from "../../renderers/data_renderer"
+import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
 import {compute_renderers, RendererSpec} from "../util"
 import * as p from "core/properties"
@@ -24,7 +24,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   get computed_renderers(): DataRenderer[] {
     const renderers = this.model.renderers
-    const all_renderers = this.plot_model.renderers
+    const all_renderers = this.plot_model.data_renderers
     const names = this.model.names
     return compute_renderers(renderers, all_renderers, names)
   }
@@ -82,11 +82,11 @@ export abstract class SelectToolView extends GestureToolView {
     for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
 
-      const r_views = []
+      const r_views: DataRendererView[] = []
       for (const r of renderers) {
-        const r_view = this.plot_view.renderer_views.get(r)
+        const r_view = this.plot_view.renderer_view(r)
         if (r_view != null) {
-          r_views.push(r_view)
+          r_views.push(r_view as DataRendererView)
         }
       }
       sm.select(r_views, geometry, final, mode)
