@@ -63,7 +63,7 @@ export class WheelPanToolView extends GestureToolView {
     // for GMap plots, and GMap plots always preserve aspect, so effective the value
     // of 'dimensions' is ignored.
     const pan_info = {xrs, yrs, factor}
-    this.plot_view.push_state('wheel_pan', {range: pan_info})
+    this.plot_view.state.push("wheel_pan", {range: pan_info})
     this.plot_view.update_range(pan_info, {scrolling: true})
 
     this.model.document?.interactive_start(this.plot_model)

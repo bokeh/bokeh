@@ -56,7 +56,7 @@ export class LassoSelectToolView extends SelectToolView {
   _pan_end(ev: PanEvent): void {
     this._clear_overlay()
     this._do_select(this.data!.sx, this.data!.sy, true, this._select_mode(ev))
-    this.plot_view.push_state('lasso_select', {selection: this.plot_view.get_selection()})
+    this.plot_view.state.push("lasso_select", {selection: this.plot_view.get_selection()})
   }
 
   _clear_overlay(): void {

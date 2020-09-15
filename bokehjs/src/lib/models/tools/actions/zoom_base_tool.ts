@@ -16,7 +16,7 @@ export class ZoomBaseToolView extends ActionToolView {
 
     const zoom_info = scale_range(frame, this.model.sign * this.model.factor, h_axis, v_axis)
 
-    this.plot_view.push_state('zoom_out', {range: zoom_info})
+    this.plot_view.state.push("zoom_out", {range: zoom_info})
     this.plot_view.update_range(zoom_info, {scrolling: true})
 
     this.model.document?.interactive_start(this.plot_model)

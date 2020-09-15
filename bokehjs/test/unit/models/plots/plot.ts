@@ -51,7 +51,7 @@ describe("Plot module", () => {
 
     it("should perform standard reset actions by default", async () => {
       const view = await new_plot_view()
-      const spy_state = sinon.spy(view, 'clear_state')
+      const spy_state = sinon.spy(view.state, 'clear')
       const spy_range = sinon.spy(view, 'reset_range')
       const spy_selection = sinon.spy(view, 'reset_selection')
       const spy_event = sinon.spy(view.model, 'trigger_event')
@@ -64,7 +64,7 @@ describe("Plot module", () => {
 
     it("should skip standard reset actions for event_only policy", async () => {
       const view = await new_plot_view({reset_policy: "event_only"})
-      const spy_state = sinon.spy(view, 'clear_state')
+      const spy_state = sinon.spy(view.state, 'clear')
       const spy_range = sinon.spy(view, 'reset_range')
       const spy_selection = sinon.spy(view, 'reset_selection')
       const spy_event = sinon.spy(view.model, 'trigger_event')

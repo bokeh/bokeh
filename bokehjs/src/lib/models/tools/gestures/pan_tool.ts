@@ -58,7 +58,7 @@ export class PanToolView extends GestureToolView {
     this.v_axis_only = false
 
     if (this.pan_info != null)
-      this.plot_view.push_state('pan', {range: this.pan_info})
+      this.plot_view.state.push("pan", {range: this.pan_info})
   }
 
   _update(dx: number, dy: number): void {

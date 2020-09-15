@@ -35,7 +35,7 @@ export class PolySelectToolView extends SelectToolView {
 
   _doubletap(ev: TapEvent): void {
     this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
-    this.plot_view.push_state('poly_select', {selection: this.plot_view.get_selection()})
+    this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
     this._clear_data()
   }
 

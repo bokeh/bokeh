@@ -12,7 +12,6 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
@@ -29,15 +28,7 @@ import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
-
-export type StateInfo = {
-  range?: RangeInfo
-  selection: Map<DataRenderer, Selection>
-  dimensions: {
-    width: number
-    height: number
-  }
-}
+import {StateInfo, StateManager} from "./state_manager"
 
 export class PlotView extends LayoutDOMView {
   model: Plot
@@ -60,25 +51,24 @@ export class PlotView extends LayoutDOMView {
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
+  protected _state_manager: StateManager
   protected _range_manager: RangeManager
+
+  get state(): StateManager {
+    return this._state_manager
+  }
 
   set invalidate_dataranges(value: boolean) {
     this._range_manager.invalidate_dataranges = value
   }
 
-  state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
 
   protected lod_started: boolean
 
-  protected _initial_state_info: StateInfo
-
-  protected state: {
-    history: {type: string, info: StateInfo}[]
-    index: number
-  }
+  protected _initial_state: StateInfo
 
   protected throttled_paint: () => void
 
@@ -148,7 +138,7 @@ export class PlotView extends LayoutDOMView {
 
   reset(): void {
     if (this.model.reset_policy == "standard") {
-      this.clear_state()
+      this.state.clear()
       this.reset_range()
       this.reset_selection()
     }
@@ -174,18 +164,14 @@ export class PlotView extends LayoutDOMView {
 
     super.initialize()
 
-    this.state_changed = new Signal0(this, "state_changed")
-
     this.lod_started = false
     this.visuals = new Visuals(this.model) as any // XXX
 
-    this._initial_state_info = {
+    this._initial_state = {
       selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
-
-    this.state = {history: [], index: -1}
 
     this.renderer_views = new Map()
     this.tool_views = new Map()
@@ -203,6 +189,7 @@ export class PlotView extends LayoutDOMView {
     )
 
     this._range_manager = new RangeManager(this)
+    this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => this.repaint(), 1000/60)
 
@@ -378,48 +365,6 @@ export class PlotView extends LayoutDOMView {
       callback(visible)
   }
 
-  push_state(type: string, new_info: Partial<StateInfo>): void {
-    const {history, index} = this.state
-
-    const prev_info = history[index] != null ? history[index].info : {}
-    const info = {...this._initial_state_info, ...prev_info, ...new_info}
-
-    this.state.history = this.state.history.slice(0, this.state.index + 1)
-    this.state.history.push({type, info})
-    this.state.index = this.state.history.length - 1
-
-    this.state_changed.emit()
-  }
-
-  clear_state(): void {
-    this.state = {history: [], index: -1}
-    this.state_changed.emit()
-  }
-
-  can_undo(): boolean {
-    return this.state.index >= 0
-  }
-
-  can_redo(): boolean {
-    return this.state.index < this.state.history.length - 1
-  }
-
-  undo(): void {
-    if (this.can_undo()) {
-      this.state.index -= 1
-      this._do_state_change(this.state.index)
-      this.state_changed.emit()
-    }
-  }
-
-  redo(): void {
-    if (this.can_redo()) {
-      this.state.index += 1
-      this._do_state_change(this.state.index)
-      this.state_changed.emit()
-    }
-  }
-
   update_range(range_info: RangeInfo | null, options?: RangeOptions): void {
     this.pause()
     this._range_manager.update(range_info, options)
@@ -428,16 +373,6 @@ export class PlotView extends LayoutDOMView {
 
   reset_range(): void {
     this.update_range(null)
-  }
-
-  protected _do_state_change(index: number): void {
-    const info = this.state.history[index] != null ? this.state.history[index].info : this._initial_state_info
-
-    if (info.range != null)
-      this.update_range(info.range)
-
-    if (info.selection != null)
-      this.update_selection(info.selection)
   }
 
   get_selection(): Map<DataRenderer, Selection> {
@@ -683,8 +618,8 @@ export class PlotView extends LayoutDOMView {
       overlays.finish()
     }
 
-    if (this._initial_state_info.range == null) {
-      this._initial_state_info.range = this._range_manager.compute_initial() ?? undefined
+    if (this._initial_state.range == null) {
+      this._initial_state.range = this._range_manager.compute_initial() ?? undefined
     }
 
     this._needs_paint = false

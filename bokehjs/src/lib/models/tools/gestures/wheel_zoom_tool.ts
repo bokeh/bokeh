@@ -44,7 +44,7 @@ export class WheelZoomToolView extends GestureToolView {
 
     const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
 
-    this.plot_view.push_state('wheel_zoom', {range: zoom_info})
+    this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
     const {maintain_focus} = this.model
     this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus})
