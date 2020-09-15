@@ -489,25 +489,32 @@ export class PlotView extends LayoutDOMView {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
   }
 
-  async build_renderer_views(): Promise<void> {
-    this.computed_renderers = []
-
+  protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
-    this.computed_renderers.push(...above, ...below, ...left, ...right, ...center, ...renderers)
+
+    yield* above
+    yield* below
+    yield* left
+    yield* right
+    yield* center
+    yield* renderers
 
     if (this._title != null)
-      this.computed_renderers.push(this._title)
+      yield this._title
 
     if (this._toolbar != null)
-      this.computed_renderers.push(this._toolbar)
+      yield this._toolbar
 
     for (const tool of this.model.toolbar.tools) {
       if (tool.overlay != null)
-        this.computed_renderers.push(tool.overlay)
+        yield tool.overlay
 
-      this.computed_renderers.push(...tool.synthetic_renderers)
+      yield* tool.synthetic_renderers
     }
+  }
 
+  async build_renderer_views(): Promise<void> {
+    this.computed_renderers = [...this._compute_renderers()]
     await build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
