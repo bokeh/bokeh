@@ -297,10 +297,10 @@ reStructuredText website`_.
 For information on writing style, see Bokeh's `style guidelines`_ and the
 `Google developer documentation style guide`_.
 
-`Release Notes`_ are generally handled by the Bokeh core team as part of 
-Bokeh's `release management`_. Each release should add a new file under 
+`Release Notes`_ are generally handled by the Bokeh core team as part of
+Bokeh's `release management`_. Each release should add a new file under
 ``sphinx/source/docs/releases`` that briefly describes the changes in the
-release, including any migration notes. The filename should be 
+release, including any migration notes. The filename should be
 ``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
 Sphinx build will automatically add this content to the list of all releases.
 
