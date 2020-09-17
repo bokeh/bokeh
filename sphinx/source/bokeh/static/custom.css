@@ -392,7 +392,9 @@ div.bk-root {
 }
 
 code {
-  color: #D95B43;
+  color: rgb(33, 37, 41);
+  padding: 2px 1px;
+  background-color:#eef0f1;
 }
 
 a.headerlink {
