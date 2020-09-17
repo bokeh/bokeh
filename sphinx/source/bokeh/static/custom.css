@@ -301,14 +301,14 @@ body { font-family: "Lato", sans-serif; }
 .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
-a { color: #D95B43; }
+a { color: #CF462A; }
 
 h1 { font-family: "Work Sans", sans-serif; }
 h2 { font-family: "Work Sans", sans-serif; }
 h3 { font-family: "Work Sans", sans-serif; }
 h4 { font-family: "Work Sans", sans-serif; }
 
-.link { color: #D95B43; }
+.link { color: #CF462A; }
 
 .links { background-color: #542437; color: #fff; font-family: "Lato", sans-serif; }
 .links h6 { font-family: "Work Sans", sans-serif; font-weight: 700; font-size: 14px; }
@@ -324,7 +324,7 @@ h4 { font-family: "Work Sans", sans-serif; }
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    color: #D95B43;
+    color: #CF462A;
     cursor: pointer;
     display: block;
     font-size: 1em;
@@ -363,7 +363,7 @@ h4 { font-family: "Work Sans", sans-serif; }
 }
 
 #banner .version-alert {
-  background-color: #D95B43;
+  background-color: #CF462A;
   padding: 1em;
   color: #fff;
   font-family: "Work Sans", sans-serif;
