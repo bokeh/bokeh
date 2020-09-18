@@ -377,20 +377,15 @@ export class PlotView extends LayoutDOMView {
 
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
-    for (const renderer of this.model.renderers) {
-      if (renderer instanceof DataRenderer) {
-        const {selected} = renderer.selection_manager.source
-        selection.set(renderer, selected)
-      }
+    for (const renderer of this.model.data_renderers) {
+      const {selected} = renderer.selection_manager.source
+      selection.set(renderer, selected)
     }
     return selection
   }
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
-    for (const renderer of this.model.renderers) {
-      if (!(renderer instanceof DataRenderer))
-        continue
-
+    for (const renderer of this.model.data_renderers) {
       const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
