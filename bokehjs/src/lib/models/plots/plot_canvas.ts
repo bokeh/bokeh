@@ -455,7 +455,7 @@ export class PlotView extends LayoutDOMView {
 
   async build_tool_views(): Promise<void> {
     const tool_models = this.model.toolbar.tools
-    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
+    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this})
     new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
