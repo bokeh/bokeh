@@ -6,7 +6,7 @@ export const bk_btn_primary = "bk-btn-primary"
 export const bk_btn_success = "bk-btn-success"
 export const bk_btn_warning = "bk-btn-warning"
 export const bk_btn_danger = "bk-btn-danger"
-export const bk_btn_stealth = "bk-btn-stealth"
+export const bk_btn_light = "bk-btn-light"
 
 import {ButtonType} from "core/enums"
 export function bk_btn_type(button_type: ButtonType): string {
@@ -16,7 +16,7 @@ export function bk_btn_type(button_type: ButtonType): string {
     case "success": return bk_btn_success
     case "warning": return bk_btn_warning
     case "danger":  return bk_btn_danger
-    case "stealth": return bk_btn_stealth
+    case "light": return bk_btn_light
   }
 }
 
