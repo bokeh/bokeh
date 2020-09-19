@@ -19,8 +19,8 @@ export const AngleUnits = Enum("deg", "rad")
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
-export const ButtonType = Enum("default", "primary", "success", "warning", "danger")
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "stealth"
+export const ButtonType = Enum("default", "primary", "success", "warning", "danger", "stealth")
 
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")
