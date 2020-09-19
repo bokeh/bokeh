@@ -401,19 +401,21 @@ export class ColorBarView extends AnnotationView {
       * The parallel frame dimension * 0.80
     */
 
-    const frame_height = this.plot_view.frame.bbox.height
-    const frame_width = this.plot_view.frame.bbox.width
+    const {bbox} = this.panel ?? this.plot_view.frame
+    const {padding} = this.model
     const title_extent = this._title_extent()
 
-    let height: number, width: number
+    let width: number
+    let height: number
+
     switch (this.model.orientation) {
       case "vertical": {
         if (this.model.height == 'auto') {
           if (this.panel != null)
-            height = frame_height - 2*this.model.padding - title_extent
+            height = bbox.height - 2*padding - title_extent
           else {
-            height = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_height*LONG_DIM_MIN_SCALAR])
-            height = min([height, frame_height*LONG_DIM_MAX_SCALAR - 2*this.model.padding - title_extent])
+            height = max([this.model.color_mapper.palette.length*SHORT_DIM, bbox.height*LONG_DIM_MIN_SCALAR])
+            height = min([height, bbox.height*LONG_DIM_MAX_SCALAR - 2*padding - title_extent])
           }
         } else
           height = this.model.height
@@ -426,10 +428,10 @@ export class ColorBarView extends AnnotationView {
 
         if (this.model.width == 'auto') {
           if (this.panel != null)
-            width = frame_width - 2*this.model.padding
+            width = bbox.width - 2*padding
           else {
-            width = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_width*LONG_DIM_MIN_SCALAR])
-            width = min([width, frame_width*LONG_DIM_MAX_SCALAR - 2*this.model.padding])
+            width = max([this.model.color_mapper.palette.length*SHORT_DIM, bbox.width*LONG_DIM_MIN_SCALAR])
+            width = min([width, bbox.width*LONG_DIM_MAX_SCALAR - 2*padding])
           }
         } else
           width = this.model.width
