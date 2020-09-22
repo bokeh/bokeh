@@ -286,8 +286,8 @@ Bokeh's narrative documentation consists of these for elements:
 * Gallery_: interactive examples with source code
 * `Developer guide`_: instructions for contributing to Bokeh
 
-Sphinx generates each of those elements from reStructuredText (RST) files. To
-edit any of those elements, open the corresponding RST source file in the
+Sphinx generates each of those elements from reStructuredText (ReST) files. To
+edit any of those elements, open the corresponding ReST source file in the
 ``sphinx/source/docs`` folder of the Bokeh source tree.
 
 For information on how to format text using reStructuredText, see the
