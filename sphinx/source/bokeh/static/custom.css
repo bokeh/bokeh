@@ -414,6 +414,8 @@ span.highlighted {
   background-color: #ECD078;
 }
 
+/* Custom styles for documentation landing page (index.rst) */
+
 .bg-bokeh-one {
   background-color: rgba(246,169,27,0.3);
 }
