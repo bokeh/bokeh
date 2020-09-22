@@ -18,7 +18,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
-	'sphinx_panels',
+    'sphinx_panels',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
