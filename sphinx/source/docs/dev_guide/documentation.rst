@@ -78,7 +78,6 @@ throughout the narrative documentation:
    "JavaScript", "Capitalize both 'J' and 'S'"
    "Jupyter notebook", "Capitalize Jupyter, but not notebook"
    "Python", "Always capitalize Python (the language)"
-   "[TBD]", "[TBD]"
 
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
