@@ -69,11 +69,11 @@ There are various ways to get in touch with the `Bokeh community`_:
 * The `Bokeh Discourse`_ is the best place to ask usage questions and is a
   great way to get feedback from other users on how to approach a problem.
 * Questions involving pandas or other libraries may find a wider audience by
-  posting with the `"bokeh" tag on Stackoveflow`_.
+  posting with the `"bokeh" tag on Stack Overflow`_.
 * If you think you've found a bug, or would like to request a feature, please
   report an issue at `Bokeh's GitHub repository`_.
 
-You can also find more information about Bokeh on `Twitter`_, `Medium`_ and
+You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 `LinkedIn`_.
 
 .. toctree::
@@ -91,7 +91,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_ and
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org
-.. _`"bokeh" tag on Stackoveflow`: https://stackoverflow.com/questions/tagged/bokeh
+.. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
 .. _Twitter: https://twitter.com/bokeh
 .. _Medium: https://medium.com/bokeh
