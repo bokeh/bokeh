@@ -23,6 +23,9 @@ dependencies:
   - colorcet
   - pygments
   - sphinx >=1.8
+  - pip
+  - pip:
+    - sphinx-panels
 
   # tests
   - beautifulsoup4
