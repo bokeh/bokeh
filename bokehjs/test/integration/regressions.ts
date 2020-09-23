@@ -10,7 +10,7 @@ import {
   StaticLayoutProvider,
 } from "@bokehjs/models"
 
-import {MultiChoice} from "@bokehjs/models/widgets"
+import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -544,8 +544,17 @@ describe("Bug", () => {
 
   describe("in issue #10452", () => {
     it("prevents changing MultiChoice.disabled property", async () => {
-      const widget = new MultiChoice({options: ["1", "2", "3"], width: 100, height: 20})
-      const {view} = await display(widget, [100, 20])
+      const widget = new MultiChoice({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const {view} = await display(widget, [250, 100])
+      widget.disabled = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #10507", () => {
+    it("prevents changing MultiSelect.disabled property", async () => {
+      const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const {view} = await display(widget, [250, 100])
       widget.disabled = true
       await view.ready
     })
