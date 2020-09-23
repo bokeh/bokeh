@@ -97,8 +97,9 @@ export abstract class Property<T = unknown> {
 
   readonly change: Signal0<HasProps>
 
-  readonly internal: boolean
+  /*readonly*/ internal: boolean
   readonly optional: boolean
+
   on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
