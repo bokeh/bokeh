@@ -4,10 +4,10 @@ Documentation
 =============
 
 The Bokeh documentation is an important resource for the entire Bokeh
-community. It helps guide new users and it is the definitive reference for
+community. It helps guide new users, and it is the definitive reference for
 seasoned users and developers. That is why all contributions to Bokeh must
-contain adequate documentation. And it is why we have set standards to make
-sure that Bokeh's documentation remains easily accessible and up to date.
+contain adequate documentation. It is also why we have set standards to ensure
+that Bokeh's documentation remains easily accessible and up to date.
 
 Just like Bokeh itself, the documentation is a community effort. And just like
 Bokeh, the documentation is being adapted and improved all the time. In fact,
@@ -22,7 +22,7 @@ Issues`_ on GitHub. This list contains several projects as a starting
 point.
 
 This section describes Bokeh's `style guidelines`_ for contributing to the
-documentation. This section also includes details about how to `build`_ and
+documentation. This section also includes details on how to `build`_ and
 `edit`_ the documentation in your local development environment.
 
 .. _`style guidelines`:
@@ -35,6 +35,12 @@ Bokeh's documentation uses the `Google developer documentation style guide`_.
 If your contribution includes substantial edits or additions, please
 familiarize yourself with Google's style guide. A simple way to get started
 is using Google's free `technical writing courses`_.
+
+.. note::
+  You will find that many parts of Bokeh's documentation do not yet follow
+  these style guidelines. We are currently working on implementing these
+  changes. However, we request that all documentation contributions follow
+  the standards described in this document.
 
 Principles of good style
 ~~~~~~~~~~~~~~~~~~~~~~~~
