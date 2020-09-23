@@ -142,17 +142,17 @@ export abstract class GlyphView extends View {
     const n = pts.length
     if (pts_location == 'center') {
       const halfspan = map(spans, (d) => d/2)
-      pt0 = new NumberArray(n)
+      pt0 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
         pt0[i] = pts[i] - halfspan[i]
       }
-      pt1 = new NumberArray(n)
+      pt1 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
         pt1[i] = pts[i] + halfspan[i]
       }
     } else {
       pt0 = pts
-      pt1 = new NumberArray(n)
+      pt1 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
         pt1[i] = pt0[i] + spans[i]
       }
