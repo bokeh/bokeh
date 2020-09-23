@@ -8,6 +8,12 @@ web browsers. It helps you build beautiful graphics, ranging from simple plots
 to complex dashboards with streaming datasets. With Bokeh, you can create
 JavaScript-powered visualizations without writing any JavaScript yourself.
 
+.. raw:: html
+
+    <form class="bd-search align-items-center" action="search.html" method="get">
+      <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
+    </form>
+
 Finding the right documentation resources
 -----------------------------------------
 
@@ -24,9 +30,9 @@ Bokeh's documentation consists of several components:
 
     Follow these guides to get started:
 
-    * `Installation and quickstart`_: Tutorials that walk you through installing Bokeh and creating your first visualizations.
+    * :ref:`installation`: Instructions for installing Bokeh.
 
-    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them.
+    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them. Includes a quickstart tutorial and several examples.
 
     ---
     :header: bg-bokeh-two
@@ -39,6 +45,8 @@ Bokeh's documentation consists of several components:
 
     * `Interactive tutorial notebooks`_: A collection of interactive notebooks to experiment with all elements of Bokeh
 
+    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them, including examples.
+
     ---
     :header: bg-bokeh-three
     If you need more advanced information
@@ -49,17 +57,6 @@ Bokeh's documentation consists of several components:
     * :ref:`refguide` Guide: Detailed information about all of Bokeh's components
 
     * :ref:`devguide` Guide: Information on the various ways you can contribute to the Bokeh Project.
-
-Searching the documentation
----------------------------
-
-To search for a particular topic or keyword, use this search box:
-
-.. raw:: html
-
-    <form class="bd-search align-items-center" action="search.html" method="get">
-      <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
-    </form>
 
 Connecting with the Bokeh community
 -----------------------------------
@@ -76,6 +73,61 @@ There are various ways to get in touch with the `Bokeh community`_:
 You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 `LinkedIn`_.
 
+
+.. panels::
+    :body: bokeh-examples
+    :container: container-fluid pb-3 examples-container
+    :column: col-lg-1 col-md-1 col-sm-2 col-xs-4 p-2
+
+    .. image:: /_images/thumbs/image_t.png
+       :target: docs/gallery/image.html
+       :alt: Thumbnail for image example
+    ---
+    .. image:: /_images/thumbs/anscombe_t.png
+       :target: docs/gallery/anscombe.html
+       :alt: Thumbnail for Anscombe's quartet example
+    ---
+    .. image:: /_images/thumbs/stocks_t.png
+       :target: docs/gallery/stocks.html
+       :alt: Thumbnail for stocks example
+    ---
+    .. image:: /_images/thumbs/lorenz_t.png
+       :target: docs/gallery/lorenz.html
+       :alt: Thumbnail for Lorenz attractor example
+    ---
+    .. image:: /_images/thumbs/candlestick_t.png
+       :target: docs/gallery/candlestick.html
+       :alt: Thumbnail for candlestick example
+    ---
+    .. image:: /_images/thumbs/scatter_t.png
+       :target: docs/gallery/color_scatter.html
+       :alt: Thumbnail for color scatter example
+    ---
+    .. image:: /_images/thumbs/les_mis_t.png
+       :target: docs/gallery/les_mis.html
+       :alt: Thumbnail for Les Mis occurrences example
+    ---
+    .. image:: /_images/thumbs/histogram_t.png
+       :target: docs/gallery/histogram.html
+       :alt: Thumbnail for histogram example
+    ---
+    .. image:: /_images/thumbs/iris_t.png
+       :target: docs/gallery/iris.html
+       :alt: Thumbnail for iris morphology example
+    ---
+    .. image:: /_images/thumbs/choropleth_t.png
+       :target: docs/gallery/texas.html
+       :alt: Thumbnail for choropleth example
+    ---
+    .. image:: /_images/thumbs/splom_t.png
+       :target: docs/gallery/iris_splom.html
+       :alt: Thumbnail for iris example
+    ---
+    .. image:: /_images/thumbs/burtin_t.png
+       :target: docs/gallery/burtin.html
+       :alt: Thumbnail for Burtin example
+
+
 .. toctree::
     :maxdepth: 3
     :hidden:
@@ -87,7 +139,6 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     docs/dev_guide
     docs/releases
 
-.. _Installation and quickstart: https://docs.bokeh.org/en/latest/docs/installation.html
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org

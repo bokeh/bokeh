@@ -416,6 +416,15 @@ span.highlighted {
 
 /* Custom styles for documentation landing page (index.rst) */
 
+.bokeh-examples {
+  padding: 0px;
+}
+
+.bokeh-examples img {
+  width: 100%;
+  height: 100%;
+}
+
 .bg-bokeh-one {
   background-color: rgba(246,169,27,0.3);
 }
@@ -435,4 +444,12 @@ span.highlighted {
 
 .card-text a {
 	font-weight: 600;
+}
+
+/* The example boxes disappear on very small screens because I could not get
+sphinx-panels/bootstrap to work right*/
+@media (max-width: 575px) {
+	.examples-container {
+	  display: none
+	}
 }
