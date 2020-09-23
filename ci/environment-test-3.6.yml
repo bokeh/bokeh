@@ -48,6 +48,9 @@ dependencies:
   - selenium >=3.8
   - scipy
   - sphinx
+  - pip
+  - pip:
+    - sphinx-panels
 
   # examples
   - flask >=1.0
