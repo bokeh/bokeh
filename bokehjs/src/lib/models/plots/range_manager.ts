@@ -70,7 +70,9 @@ export class RangeManager {
     }
 
     for (const renderer of this.parent.model.data_renderers) {
-      const renderer_view = this.parent.renderer_view(renderer)!
+      const renderer_view = this.parent.renderer_view(renderer)
+      if (renderer_view == null)
+        continue
 
       const bds = renderer_view.glyph_view.bounds()
       if (bds != null)

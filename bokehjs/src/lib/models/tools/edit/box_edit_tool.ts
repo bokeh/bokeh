@@ -40,7 +40,9 @@ export class BoxEditToolView extends EditToolView {
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
-    const renderer_view = this.plot_view.renderer_view(renderer)!
+    const renderer_view = this.plot_view.renderer_view(renderer)
+    if (renderer_view == null)
+      return
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
     const cds = renderer.data_source

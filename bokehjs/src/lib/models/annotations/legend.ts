@@ -269,8 +269,8 @@ export class LegendView extends AnnotationView {
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
         for (const r of item.renderers) {
-          const view = this.plot_view.renderer_view(r)!
-          view.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
+          const view = this.plot_view.renderer_view(r)
+          view?.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
         }
 
         if (!active) {
