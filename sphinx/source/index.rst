@@ -52,7 +52,7 @@ Bokeh's documentation consists of several components:
     If you need more advanced information
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Get to know every aspect of Bokeh: 
+    Get to know every aspect of Bokeh:
 
     * :ref:`refguide` Guide: Detailed information about all of Bokeh's components
 

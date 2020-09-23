@@ -44,7 +44,7 @@ html {
 
 @media (min-width: 768px) {
   .search-front-page {
-      width: 50%;
+    width: 50%;
   }
 }
 
@@ -438,18 +438,18 @@ span.highlighted {
 }
 
 .card-header p {
-	font-weight: 600;
-	font-size: 125%;
+  font-weight: 600;
+  font-size: 125%;
 }
 
 .card-text a {
-	font-weight: 600;
+  font-weight: 600;
 }
 
 /* The example boxes disappear on very small screens because I could not get
 sphinx-panels/bootstrap to work right*/
 @media (max-width: 575px) {
-	.examples-container {
-	  display: none
-	}
+  .examples-container {
+    display: none
+  }
 }
