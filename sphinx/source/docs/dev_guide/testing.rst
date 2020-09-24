@@ -9,9 +9,6 @@ regressions. This chapter describes how to run various tests locally in
 a development environment, guidelines for writing tests, and information
 regarding the continuous testing infrastructure.
 
-.. contents::
-    :local:
-    :depth: 2
 
 Running Tests Locally
 ---------------------
