@@ -7,8 +7,9 @@ import {
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer,
-  Circle, MultiLine,
+  Circle, Quad, MultiLine,
   StaticLayoutProvider,
+  Plot,
 } from "@bokehjs/models"
 
 import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
@@ -565,11 +566,52 @@ describe("Bug", () => {
     it("disallows correct placement of Rect glyph with datetime values", async () => {
       const t0 = 1600755745624.793
       const source = new ColumnDataSource({data: {
-        x: linspace(t0, t0 + 2 * 3600 * 1000, 50),
+        x: linspace(t0, t0 + 2*3600*1000, 50),
       }})
       const p = fig([800, 300])
       p.rect({x: {field: "x"}, y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
       await display(p, [800, 300])
+    })
+  })
+
+  describe("in issue holoviews#4589", () => {
+    it("disallows rendering two glyphs sharing a source and view", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x: [0],
+          y: [0],
+          left: [1],
+          right: [2],
+          bottom: [1],
+          top: [2],
+        },
+      })
+
+      const view = new CDSView({source})
+
+      const circle_renderer = new GlyphRenderer({
+        data_source: source,
+        glyph: new Circle(),
+        view,
+      })
+
+      const quad_renderer = new GlyphRenderer({
+        data_source: source,
+        glyph: new Quad(),
+        view,
+      })
+
+      const x_range = new Range1d({start: -1, end: 3})
+      const y_range = new Range1d({start: -1, end: 3})
+
+      const p = new Plot({
+        width: 200, height: 200,
+        x_range, y_range,
+        title: null, toolbar_location: null,
+        renderers: [circle_renderer, quad_renderer],
+      })
+
+      await display(p, [250, 250])
     })
   })
 })
