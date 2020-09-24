@@ -1,5 +1,6 @@
 import {display, fig, row, column, grid} from "./utils"
 
+import {linspace} from "@bokehjs/core/util/array"
 import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem,
   Range1d, DataRange1d, FactorRange,
@@ -10,7 +11,7 @@ import {
   StaticLayoutProvider,
 } from "@bokehjs/models"
 
-import {MultiChoice} from "@bokehjs/models/widgets"
+import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -544,10 +545,31 @@ describe("Bug", () => {
 
   describe("in issue #10452", () => {
     it("prevents changing MultiChoice.disabled property", async () => {
-      const widget = new MultiChoice({options: ["1", "2", "3"], width: 100, height: 20})
-      const {view} = await display(widget, [100, 20])
+      const widget = new MultiChoice({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const {view} = await display(widget, [250, 100])
       widget.disabled = true
       await view.ready
+    })
+  })
+
+  describe("in issue #10507", () => {
+    it("prevents changing MultiSelect.disabled property", async () => {
+      const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
+      const {view} = await display(widget, [250, 100])
+      widget.disabled = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #10488", () => {
+    it("disallows correct placement of Rect glyph with datetime values", async () => {
+      const t0 = 1600755745624.793
+      const source = new ColumnDataSource({data: {
+        x: linspace(t0, t0 + 2 * 3600 * 1000, 50),
+      }})
+      const p = fig([800, 300])
+      p.rect({x: {field: "x"}, y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
+      await display(p, [800, 300])
     })
   })
 })
