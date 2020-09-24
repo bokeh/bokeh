@@ -12,9 +12,6 @@ For this reason, in order to develop Bokeh from a source checkout, you must
 first be able to build BokehJS. This chapter will walk you through getting a
 full development environment set up.
 
-.. contents::
-    :local:
-    :depth: 2
 
 .. dev_guide_preliminaries:
 
