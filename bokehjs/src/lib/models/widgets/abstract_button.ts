@@ -59,10 +59,9 @@ export abstract class AbstractButtonView extends ControlView {
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
-      if (this.model.label!==""){
+      if (this.model.label!=""){
         prepend(this.button_el, this.icon_view.el, nbsp())
-      }
-      else {
+      } else {
         prepend(this.button_el, this.icon_view.el)
       }
       this.icon_view.render()
