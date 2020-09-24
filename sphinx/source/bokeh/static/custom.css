@@ -394,7 +394,7 @@ div.bk-root {
 code {
   font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, "Lucida Console", Courier, monospace;
   color: rgb(33, 37, 41);
-  padding: 4px 3px 2px 3px;
+  padding: 2px 3px 0px 3px;
   font-size: 80%;
   background-color:#eef0f1;
 }
