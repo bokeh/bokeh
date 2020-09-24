@@ -94,7 +94,7 @@ Setting up and building Bokeh's documentation
 ---------------------------------------------
 
 Bokeh uses Sphinx_ to generate the HTML files displayed at docs.bokeh.org_. The
-documentation is written in reStructuredText_ (RST).
+documentation is written in reStructuredText_ (ReST).
 
 HTML is the only output format supported by Bokeh's documentation. Many pages
 use dynamic content and rely heavily on JavaScript.
@@ -259,7 +259,7 @@ properties within the source code. You can add text to any property type by
 passing a ``help`` argument.
 
 Any string passed as a ``help`` argument can be formatted using
-reStructuredText_ (RST).
+reStructuredText_ (ReST).
 
 For example:
 
@@ -291,7 +291,7 @@ Bokeh's narrative documentation consists of these for elements:
 * Gallery_: interactive examples with source code
 * `Developer guide`_: instructions for contributing to Bokeh
 
-Sphinx generates each of those elements from reStructuredText (ReST) files. To
+Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
 ``sphinx/source/docs`` folder of the Bokeh source tree.
 
