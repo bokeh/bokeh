@@ -58,7 +58,7 @@ Follow these basic guidelines in all your writing for Bokeh:
 * Address the reader in the **second person ('you')**. Avoid using the first
   person ('we') or the third person ('the user').
 * Use **American English** spelling and grammar (refer to `Merriam-Webster`_ for
-  consistent spelling)
+  consistent spelling).
 * Use **sentence case for headlines** (capitalize words like in a regular
   sentence, but do not use any punctuation at the end).
 * Use **serial commas**, also known as Oxford Commas.
