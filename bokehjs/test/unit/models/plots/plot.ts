@@ -7,6 +7,11 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {build_view} from "@bokehjs/core/build_views"
 import {Place} from "@bokehjs/core/enums"
+import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
+import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import {Rect, Circle, MultiLine} from "@bokehjs/models/glyphs"
+import {ColumnDataSource} from "@bokehjs/models/sources"
+import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
 async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
   const plot = new Plot({
@@ -20,10 +25,29 @@ async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView>
 describe("Plot module", () => {
 
   describe("Plot", () => {
-
   })
 
   describe("PlotView", () => {
+    it("should allow to resolve child renderers of its composite renderers", async () => {
+      const graph = new GraphRenderer({
+        layout_provider: new StaticLayoutProvider(),
+        node_renderer: new GlyphRenderer({
+          data_source: new ColumnDataSource({data: {start: [], end: []}}),
+          glyph: new Circle(),
+        }),
+        edge_renderer: new GlyphRenderer({
+          data_source: new ColumnDataSource({data: {index: []}}),
+          glyph: new MultiLine(),
+        }),
+      })
+      const glyph = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Rect()})
+      const plot = new Plot({renderers: [graph, glyph]})
+      const plot_view = (await build_view(plot)).build()
+      expect(plot_view.renderer_view(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
+      expect(plot_view.renderer_view(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
+      expect(plot_view.renderer_view(graph)).to.be.instanceof(GraphRendererView)
+      expect(plot_view.renderer_view(glyph)).to.be.instanceof(GlyphRendererView)
+    })
 
     it("should perform standard reset actions by default", async () => {
       const view = await new_plot_view()
