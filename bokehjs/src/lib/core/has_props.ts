@@ -337,11 +337,8 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
   private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
-    // Extract attributes and options.
     const check_eq   = options.check_eq
     const changed    = []
-    const changing   = this._changing
-    this._changing = true
 
     for (const [prop, value] of changes) {
       if (check_eq === false || !is_equal(prop.get_value(), value)) {
@@ -349,6 +346,13 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         changed.push(prop)
       }
     }
+
+    this._emit_changes(changed, options)
+  }
+
+  _emit_changes(changed: Property[], options: HasProps.SetOptions): void {
+    const changing   = this._changing
+    this._changing = true
 
     // Trigger all relevant attribute changes.
     if (changed.length > 0)
@@ -594,7 +598,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return false
   }
 
-  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+  /*protected*/ _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
     const {document} = this
     if (document == null)
       return

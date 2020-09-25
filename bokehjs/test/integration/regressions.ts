@@ -574,6 +574,25 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #10527", () => {
+    it("disallows repainting after in-place data update without manual emit", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x: [0, 1, 2, 3],
+          y: [0, 1, 2, 3],
+          color: ["red", "green", "blue", "yellow"],
+        },
+      })
+
+      const p = fig([200, 200])
+      p.circle({x: {field: "x"}, y: {field: "y"}, color: {field: "color"}, radius: 0.2, source})
+      const {view} = await display(p, [250, 250])
+
+      source.data.color = ["yellow", "blue", "green", "red"]
+      await view.ready
+    })
+  })
+
   describe("in issue holoviews#4589", () => {
     it("disallows rendering two glyphs sharing a source and view", async () => {
       const source = new ColumnDataSource({

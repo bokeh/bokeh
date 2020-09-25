@@ -48,6 +48,7 @@ export type DefaultsOf<P> = {
 export type PropertyOptions<T> = {
   internal?: boolean
   optional?: boolean
+  proxy?(value: T, obj: HasProps): T
   on_update?(value: T, obj: HasProps): void
 }
 
@@ -100,6 +101,7 @@ export abstract class Property<T = unknown> {
   readonly internal: boolean
   readonly optional: boolean
   on_update?(value: T, obj: HasProps): void
+  proxy?(value: T, obj: HasProps): T
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
@@ -111,6 +113,7 @@ export abstract class Property<T = unknown> {
 
     this.internal = options.internal ?? false
     this.optional = options.optional ?? false
+    this.proxy = options.proxy
     this.on_update = options.on_update
 
     let attr_value: T
@@ -137,6 +140,8 @@ export abstract class Property<T = unknown> {
   //protected abstract _update(attr_value: T): void
 
   protected _update(attr_value: T): void {
+    if (this.proxy != null)
+      attr_value = this.proxy(attr_value, this.obj)
     this.validate(attr_value)
     this.spec = {value: attr_value}
     this.on_update?.(attr_value, this.obj)

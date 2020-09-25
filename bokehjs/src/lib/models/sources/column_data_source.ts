@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import {TypedArray} from "core/types"
 import {NDArray} from "core/util/ndarray"
-import {entries} from "core/util/object"
+import {keys, entries} from "core/util/object"
 import * as typed_array from "core/util/typed_array"
 import {union} from "core/util/set"
 import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
@@ -158,7 +158,30 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   static init_ColumnDataSource(): void {
     this.define<ColumnDataSource.Props>(({Dict, Any /*Arrayable*/}) => ({
-      data: [ Dict(Any /*Arrayable*/), {} ], // TODO: resolve ndarray refs earlier
+      // TODO: resolve ndarray refs earlier
+      data: [ Dict(Any /*Arrayable*/), {}, {
+        proxy(data, obj: ColumnDataSource) {
+          const proxy = {}
+
+          for (const name of keys(data)) {
+            Object.defineProperty(proxy, name, {
+              get(this: object): Arrayable {
+                return data[name]
+              },
+              set(this: object, value: Arrayable): object {
+                data[name] = value
+                obj._emit_changes([obj.properties.data], {})
+                // ??? obj._push_changes([[obj.properties.data, data, data]], {})
+                return this
+              },
+              configurable: false,
+              enumerable: true,
+            })
+          }
+
+          return proxy
+        },
+      }],
     }))
   }
 
