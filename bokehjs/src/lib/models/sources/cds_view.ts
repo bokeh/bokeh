@@ -47,10 +47,7 @@ export class CDSView extends Model {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.properties.filters.change, () => {
-      this.compute_indices()
-      this.change.emit()
-    })
+    this.connect(this.properties.filters.change, () => this.compute_indices())
 
     const connect_listeners = () => {
       const fn = () => this.compute_indices()

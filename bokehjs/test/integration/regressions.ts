@@ -5,6 +5,9 @@ import {
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
+  GlyphRenderer,
+  Circle, Quad,
+  Plot,
 } from "@bokehjs/models"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -354,6 +357,47 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]), [450, 250])
+    })
+  })
+
+  describe("in issue holoviews#4589", () => {
+    it("disallows rendering two glyphs sharing a source and view", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x: [0],
+          y: [0],
+          left: [1],
+          right: [2],
+          bottom: [1],
+          top: [2],
+        },
+      })
+
+      const view = new CDSView({source})
+
+      const circle_renderer = new GlyphRenderer({
+        data_source: source,
+        glyph: new Circle(),
+        view,
+      })
+
+      const quad_renderer = new GlyphRenderer({
+        data_source: source,
+        glyph: new Quad(),
+        view,
+      })
+
+      const x_range = new Range1d({start: -1, end: 3})
+      const y_range = new Range1d({start: -1, end: 3})
+
+      const p = new Plot({
+        width: 200, height: 200,
+        x_range, y_range,
+        title: null, toolbar_location: null,
+        renderers: [circle_renderer, quad_renderer],
+      })
+
+      await display(p, [250, 250])
     })
   })
 })
