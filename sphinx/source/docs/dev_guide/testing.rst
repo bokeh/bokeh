@@ -215,12 +215,9 @@ There are a number of files that affect the build configuration:
 Etiquette
 ~~~~~~~~~
 
-CI services provide finite free build workers to Open Source projects. The below
-consideration will help you be considerate of others needing these limited
-resources:
-
-* Group commits into meaningful chunks of work before pushing to GitHub (i.e.
-  don't push on every commit).
+CI services provide finite free build workers to Open Source projects. Grouping commits into meaningful
+chunks of work before pushing into GitHub (i.e. not pushing on every commit)
+will help you be considerate of others needing these limited resources.
 
 
 
