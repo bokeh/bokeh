@@ -213,6 +213,7 @@ export class BitSet implements Equals {
   }
 
   select<T>(array: Arrayable<T>): Arrayable<T> {
+    assert(this.size == array.length, "Size mismatch")
     const n = this.count
     const result = new (array.constructor as ArrayableNew)<T>(n)
     let i = 0
