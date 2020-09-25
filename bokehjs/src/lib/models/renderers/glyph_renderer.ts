@@ -130,7 +130,8 @@ export class GlyphRendererView extends DataRendererView {
     if (this.hover_glyph != null)
       this.connect(this.model.data_source.inspect, () => this.request_render())
     this.connect(this.model.properties.view.change, () => this.set_data())
-    this.connect(this.model.view.change, () => this.set_data())
+    this.connect(this.model.view.properties.indices.change, () => this.set_data())
+    this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -163,13 +164,7 @@ export class GlyphRendererView extends DataRendererView {
     const {all_indices} = this
 
     this.glyph.set_data(source, all_indices, indices)
-
-    this.glyph.set_visuals(source, all_indices)
-    this.decimated_glyph.set_visuals(source, all_indices)
-    this.selection_glyph?.set_visuals(source, all_indices)
-    this.nonselection_glyph?.set_visuals(source, all_indices)
-    this.hover_glyph?.set_visuals(source, all_indices)
-    this.muted_glyph?.set_visuals(source, all_indices)
+    this.set_visuals()
 
     this._update_masked_indices()
 
@@ -185,6 +180,18 @@ export class GlyphRendererView extends DataRendererView {
     if (request_render) {
       this.request_render()
     }
+  }
+
+  set_visuals(): void {
+    const source = this.model.data_source
+    const {all_indices} = this
+
+    this.glyph.set_visuals(source, all_indices)
+    this.decimated_glyph.set_visuals(source, all_indices)
+    this.selection_glyph?.set_visuals(source, all_indices)
+    this.nonselection_glyph?.set_visuals(source, all_indices)
+    this.hover_glyph?.set_visuals(source, all_indices)
+    this.muted_glyph?.set_visuals(source, all_indices)
   }
 
   get has_webgl(): boolean {
