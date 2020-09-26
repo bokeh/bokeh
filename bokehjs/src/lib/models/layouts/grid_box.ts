@@ -8,9 +8,8 @@ export class GridBoxView extends LayoutDOMView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.children.change, () => this.rebuild())
-    this.connect(this.model.properties.rows.change, () => this.rebuild())
-    this.connect(this.model.properties.cols.change, () => this.rebuild())
+    const {children, rows, cols, spacing} = this.model.properties
+    this.on_change([children, rows, cols, spacing], () => this.rebuild())
   }
 
   get child_models(): LayoutDOM[] {

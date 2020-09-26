@@ -6,7 +6,7 @@ import {
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
-  GlyphRenderer, GraphRenderer,
+  GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine,
   StaticLayoutProvider,
   Plot,
@@ -571,6 +571,23 @@ describe("Bug", () => {
       const p = fig([800, 300])
       p.rect({x: {field: "x"}, y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
       await display(p, [800, 300])
+    })
+  })
+
+  describe("in issue #10498", () => {
+    it("rebuild GridBox when rows or cols properties are modified", async () => {
+      const p1 = fig([300, 300])
+      const p2 = fig([300, 300])
+      p1.circle({x: [0, 1], y: [0, 1], color: "red"})
+      p2.circle({x: [1, 0], y: [0, 1], color: "green"})
+      const box = new GridBox({
+        children: [[p1, 0, 0], [p2, 0, 1]],
+        cols: {0: 300, 1: 300},
+        sizing_mode: "fixed",
+      })
+      const {view}  = await display(box, [600, 300])
+      box.cols = {0: 100, 1: 500}
+      await view.ready
     })
   })
 
