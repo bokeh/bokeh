@@ -1,5 +1,6 @@
 # Standard library imports
 import os
+from datetime import date
 
 # Bokeh imports
 from bokeh import __version__
@@ -8,8 +9,9 @@ from bokeh.settings import settings
 # -- Project configuration -----------------------------------------------------
 
 author = "Bokeh Contributors"
+year = date.today().year
 
-copyright = f"©2019 {author}."
+copyright = f"©{year} {author}."
 
 project = 'Bokeh'
 
