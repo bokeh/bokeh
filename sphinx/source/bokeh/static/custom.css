@@ -450,10 +450,8 @@ span.highlighted {
   font-weight: 600;
 }
 
-/* The example boxes disappear on very small screens because I could not get
-sphinx-panels/bootstrap to work right*/
 @media (max-width: 575px) {
-  .examples-container {
-    display: none
+  .examples-container .d-flex {
+    width: 25%;
   }
 }
