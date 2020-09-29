@@ -236,17 +236,7 @@ export class CanvasView extends DOMView {
       // Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
-    }
-  }
-
-  clear_webgl(): void {
-    const {webgl} = this
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      this._clear_webgl()
     }
   }
 
@@ -267,6 +257,18 @@ export class CanvasView extends DOMView {
         ctx.scale(ratio, ratio)
         ctx.translate(0.5, 0.5)
       }
+      this._clear_webgl()
+    }
+  }
+
+  protected _clear_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      // Prepare GL for drawing
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     }
   }
 
