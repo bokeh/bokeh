@@ -1,7 +1,9 @@
-.. _userguide_quickstart:
+.. _quickstart_tutorial:
 
-Quickstart
-##########
+Quickstart tutorial
+###################
+
+TBD TBD TBD TBD
 
 Bokeh is an interactive visualization library for modern web browsers. It
 provides elegant, concise construction of versatile graphics, and affords

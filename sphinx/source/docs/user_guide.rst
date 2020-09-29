@@ -7,7 +7,6 @@ User Guide
     :maxdepth: 2
     :hidden:
 
-    user_guide/quickstart
     user_guide/concepts
     user_guide/plotting
     user_guide/data
@@ -30,11 +29,9 @@ User Guide
     user_guide/bokehjs
 
 This user guide is intended to walk you through many common tasks that
-you might want to accomplish using Bokeh. The guide is arranged by
+you might want to accomplish using Bokeh. You should have completed the steps
+described in TBD TBD Quickstart/Install TBD. The guide is arranged by
 topic:
-
-:ref:`userguide_quickstart`
-    Get set up and running quickly.
 
 :ref:`userguide_concepts`
     Learn important foundational concepts about how Bokeh is organized.

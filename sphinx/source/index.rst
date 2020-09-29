@@ -30,9 +30,9 @@ Bokeh's documentation consists of several components:
 
     Follow these guides to get started:
 
-    * :ref:`installation`: Instructions for installing Bokeh.
+    * :ref:`quickstart`: Tutorials that walk you through installing Bokeh and creating your first visualizations.
 
-    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them. Includes a quickstart tutorial and several examples.
+    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them. Includes several standalone examples.
 
     ---
     :header: bg-bokeh-two
@@ -132,7 +132,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     :maxdepth: 3
     :hidden:
 
-    docs/installation
+    docs/quickstart
     docs/user_guide
     docs/gallery
     docs/reference

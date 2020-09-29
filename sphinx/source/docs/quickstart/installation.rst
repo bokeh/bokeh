@@ -1,11 +1,9 @@
-.. _installation:
+.. _quickstart_installation:
 
 Installation
 ############
 
-.. toctree::
-    :maxdepth: 2
-    :hidden:
+TBD TBD TBD TBD
 
 This section provides complete details about Bokeh's required and
 optional dependencies as well as information about how to install
