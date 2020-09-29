@@ -575,7 +575,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10498", () => {
-    it("rebuild GridBox when rows or cols properties are modified", async () => {
+    it("prevents GridBox from rebuilding when rows or cols properties are modified", async () => {
       const p1 = fig([300, 300])
       const p2 = fig([300, 300])
       p1.circle({x: [0, 1], y: [0, 1], color: "red"})
@@ -585,7 +585,7 @@ describe("Bug", () => {
         cols: {0: 300, 1: 300},
         sizing_mode: "fixed",
       })
-      const {view}  = await display(box, [600, 300])
+      const {view} = await display(box, [600, 300])
       box.cols = {0: 100, 1: 500}
       await view.ready
     })
