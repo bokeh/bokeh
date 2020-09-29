@@ -136,7 +136,7 @@ With the Windows PowerShell, use this command:
 
 .. code-block:: PowerShell
 
-    $env:GOOGLE_API_KEY=some_value
+    $env:GOOGLE_API_KEY="some_value"
 
 In a Windows terminal, use this command:
 
