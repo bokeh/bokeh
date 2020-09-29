@@ -11,12 +11,12 @@ import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
 import {values, entries, clone, extend} from "./util/object"
-import {isPlainObject, isObject, isArray, isTypedArray, isString, isFunction} from "./util/types"
+import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isFunction} from "./util/types"
 import {is_equal} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {is_NDArray} from "./util/ndarray"
-import {encode_NDArray} from "./util/serialization"
+import {encode_NDArray, SerializationError} from "./util/serialization"
 import {equals, Equals, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import * as kinds from "./kinds"
@@ -480,8 +480,10 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         ref_obj[subkey] = HasProps._value_to_json(subvalue)
       }
       return ref_obj
-    } else
+    } else if (value === null || isBoolean(value) || isNumber(value) || isString(value)) {
       return value
+    } else
+      throw new SerializationError(`${Object.prototype.toString.call(value)} is not serializable`)
   }
 
   // Convert attributes to "shallow" JSON (values which are themselves models
