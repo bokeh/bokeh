@@ -84,6 +84,10 @@ export abstract class RendererView extends View {
   }
 
   protected abstract _render(): void
+
+  renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
+    return undefined
+  }
 }
 
 export namespace Renderer {

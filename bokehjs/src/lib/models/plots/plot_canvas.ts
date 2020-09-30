@@ -87,7 +87,15 @@ export class PlotView extends LayoutDOMView {
   computed_renderers: Renderer[]
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    return this.renderer_views.get(renderer)
+    const view = this.renderer_views.get(renderer)
+    if (view == null) {
+      for (const [, renderer_view] of this.renderer_views) {
+        const view = renderer_view.renderer_view(renderer)
+        if (view != null)
+          return view
+      }
+    }
+    return view
   }
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
