@@ -74,6 +74,12 @@ export class GraphRendererView extends DataRendererView {
       throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
     }
 
+    edge_renderer.glyph.properties.xs.internal = true
+    edge_renderer.glyph.properties.ys.internal = true
+
+    node_renderer.glyph.properties.x.internal = true
+    node_renderer.glyph.properties.y.internal = true
+
     edge_renderer.glyph.xs = {expr: xs_expr}
     edge_renderer.glyph.ys = {expr: ys_expr}
 

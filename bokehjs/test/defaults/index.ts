@@ -9,11 +9,13 @@ import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference} from "@bokehjs/core/util/array"
 import {keys, values, entries} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
+import {SerializationError} from "@bokehjs/core/util/serialization"
 
 import {Models} from "@bokehjs/base"
 import {HasProps} from "@bokehjs/core/has_props"
 import {PropertyAlias} from "@bokehjs/core/properties"
 import {settings} from "@bokehjs/core/settings"
+import {Document} from "@bokehjs/document"
 
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
@@ -235,4 +237,17 @@ describe("Defaults", () => {
     console.error(`Python/bokehjs matching defaults problems: ${fail_count}`)
     expect(fail_count).to.be.equal(0)
   })
+
+  for (const name of keys(all_defaults)) {
+    // TODO: add a default to GeoJSONDataSource.geojson?
+    const fn = name == "GeoJSONDataSource" ? it.skip : it
+
+    fn(`have ${name} model serializable`, () => {
+      const model = Models(name) as any
+      const doc = new Document()
+      const obj = new model() // TODO: this relies on null hack in properties
+      doc.add_root(obj)
+      expect(() => doc.to_json(true)).to.not.throw(SerializationError)
+    })
+  }
 })
