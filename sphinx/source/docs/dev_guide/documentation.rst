@@ -3,39 +3,109 @@
 Documentation
 =============
 
-Contributions to Bokeh will only be accepted if they contain sufficient and
-appropriate documentation support. This section outlines how to build and
-edit documentation locally, as well as describes conventions that the project
-adheres to.
+The Bokeh documentation is an important resource for the entire Bokeh
+community. It helps guide new users, and it is the definitive reference for
+seasoned users and developers. That is why all contributions to Bokeh must
+contain adequate documentation. It is also why we have set standards to ensure
+that Bokeh's documentation remains easily accessible and up to date.
 
-Helping with documentation is one of the most valuable ways to contribute to a
-project. It's also a good way to get started and introduce yourself as a new
-contributor. The most likely way for typos or other small documentation errors
-to be resolved is for the person who notices the problem to immediately submit
-a Pull Request to with a correction. *This is always appreciated!* In
-addition to quick fixes, there is also a list of `Open Docs Issues`_ on GitHub
-that anyone can look at for tasks that need help.
+Just like Bokeh itself, the documentation is a community effort. And just like
+Bokeh, the documentation is being adapted and improved all the time. In fact,
+helping with the documentation is one of the most valuable ways to contribute
+to Bokeh. It's also a good way to get started and introduce yourself as a new
+contributor.
 
-Working on Documentation
-------------------------
+An easy way to get started is to submit pull requests for any typos or other
+small errors you might find in Bokeh's documentation. *This is always
+appreciated!* In addition to quick fixes, check the list of `Open Docs
+Issues`_ on GitHub. This list contains several projects as a starting
+point.
 
-Sphinx_ is used to generate HTML documentation. Due to the innate dependency
-of Bokeh on JavaScript, no other output formats are supported by the official
-build configuration. This section describes how to use Sphinx to build the
-Bokeh documentation from source.
+This section describes Bokeh's `style guidelines`_ for contributing to the
+documentation. This section also includes details on how to `build`_ and
+`edit`_ the documentation in your local development environment.
 
-Install Requirements
-~~~~~~~~~~~~~~~~~~~~
+.. _`style guidelines`:
 
-In order to build the docs from source, it is recommended that you first
-follow the instructions in :ref:`devguide_setup`.
+Documentation style guidelines
+------------------------------
 
-Some of the Bokeh examples in the documentation rely on sample data that is
-not included in the Bokeh GitHub repository or released packages, due to
-their size.
+Bokeh's documentation uses the `Google developer documentation style guide`_.
 
-Once Bokeh is installed, the sample data can be obtained by executing the
-following command at a Bash or Windows prompt:
+If your contribution includes substantial edits or additions, please
+familiarize yourself with Google's style guide. A simple way to get started
+is using Google's free `technical writing courses`_.
+
+.. note::
+  You will find that many parts of Bokeh's documentation do not yet follow
+  these style guidelines. We are currently working on implementing these
+  changes. However, we request that all documentation contributions follow
+  the standards described in this document.
+
+Principles of good style
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Follow these basic guidelines in all your writing for Bokeh:
+
+.. vale off
+
+* Be aware of **sentence length**. Try to avoid sentences that require more
+  than two commas. Consider breaking up longer sentences. You could also use
+  bulleted or numbered lists instead.
+* Avoid jargon or uncommon words and phrases. Keep in mind that many users of
+  Bokeh don't use English as their primary language.
+* Use **active voice** instead of passive voice whenever possible.
+* Address the reader in the **second person ('you')**. Avoid using the first
+  person ('we') or the third person ('the user').
+* Use **American English** spelling and grammar (refer to `Merriam-Webster`_ for
+  consistent spelling).
+* Use **sentence case for headlines** (capitalize words like in a regular
+  sentence, but do not use any punctuation at the end).
+* Use **serial commas**, also known as Oxford Commas.
+* Write in a way that is inclusive_ and accessible_.
+* Activate the **spell checker** in your development environment.
+
+.. vale on
+
+Refer to the `Google developer documentation style guide`_ for more detailed
+information.
+
+Commonly used terms
+~~~~~~~~~~~~~~~~~~~
+
+These are some commonly used terms and phrases and their spellings used
+throughout the narrative documentation:
+
+.. csv-table::
+   :header: "Term", "Details"
+   :widths: 25, 75
+
+   "Bokeh, BokehJS", "Always capitalize Bokeh and BokehJS"
+   "JavaScript", "Capitalize both 'J' and 'S'"
+   "Jupyter notebook", "Capitalize Jupyter, but not notebook"
+   "Python", "Always capitalize Python (the language)"
+
+In general, see the `word list of the Google developer documentation style
+guide`_ for reference.
+
+.. _`build`:
+
+Setting up and building Bokeh's documentation
+---------------------------------------------
+
+Bokeh uses Sphinx_ to generate the HTML files displayed at docs.bokeh.org_. The
+documentation is written in reStructuredText_ (ReST).
+
+HTML is the only output format supported by Bokeh's documentation. Many pages
+use dynamic content and rely heavily on JavaScript.
+
+Preparing your environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build the documentation, follow the instructions in :ref:`devguide_setup`.
+However, some of the examples in the documentation require additional sample
+data. Use this command on a console to automatically download and install the
+necessary data:
 
 .. code-block:: sh
 
@@ -44,119 +114,129 @@ following command at a Bash or Windows prompt:
 See :ref:`install_sampledata` for alternative instructions on how to
 download the sample data.
 
-Build the Documentation
-~~~~~~~~~~~~~~~~~~~~~~~
+In order to build the documentation, you must set the environment variable
+``GOOGLE_API_KEY``. The documentation includes some plots with maps, and a valid
+Google API key is required to build those plots correctly. You have two
+options:
 
-To generate the full documentation, first navigate to the  ``sphinx``
-subdirectory of the Bokeh source tree.
+* Follow the instructions on the `Google developers website`_ to generate a new
+  API key.
+
+* Use a placeholder value like ``some_value`` instead of a valid API key. If
+  you use a placeholder, some map plots in Bokeh's documentation might not be
+  rendered correctly, but the documentation should otherwise be built correctly.
+
+On Linux or macOS, use the following command to set the environment variable:
+
+.. code-block:: sh
+
+    GOOGLE_API_KEY=some_value
+
+With the Windows PowerShell, use this command:
+
+.. code-block:: PowerShell
+
+    $env:GOOGLE_API_KEY="some_value"
+
+In a Windows terminal, use this command:
+
+.. code-block:: doscon
+
+    set GOOGLE_API_KEY=some_value
+
+Building Bokeh's documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can find all source files for Bokeh's documentation in the ``sphinx``
+directory of the Bokeh source tree.
 
 .. code-block:: sh
 
     cd sphinx
 
-Sphinx uses the ``make`` tool to control the build process. The most common
-targets of the Bokeh makefile are:
+Sphinx uses the standard Unix ``make`` command to control the build process. For
+Windows users, the ``sphinx`` directory includes the file ``make.bat``. Use this
+Windows batch file instead of ``make``, which is usually only available on
+Unix-based systems.
 
-``clean``
-    Remove all previously built documentation output. All outputs will
-    be generated from scratch on the next build.
+When building Bokeh's documentation, the most common options for ``make`` are:
 
-``html``
-    Build any HTML output that is not built, or needs re-building (e.g.
-    because the input source file has changed since the last build).
+* ``clean``: remove all previously built documentation output. All output files
+  are generated from scratch on the next build.
+* ``html``: build any HTML output that hasn't been built yet or needs to be
+  rebuilt to include changes to the documentation source files.
+* ``serve``: start a minimal web server and open a web browser to display the
+  docs. Starting a server is necessary because large portions of the
+  documentation require JavaScript files in the background.
 
-``serve``
-    Start a server to serve the docs and open a web browser to display them.
-    Note that due to the JavaScript files involved, starting a real server is
-    necessary to view many portions of the docs fully.
-
-For example, to clean the docs build directory, run the following command at
-the command line:
+For example, to clean the docs build directory, run the following command:
 
 .. code-block:: sh
 
     make clean
 
-Multiple targets may be combined in a single `make` invocation. For instance,
-executing the following command will clean the docs build, generate all HTML
-docs from scratch, and then open a browser to display the results:
+You can combine multiple targets in one command (not supported by make.bat).
+For example:
 
 .. code-block:: sh
 
     make clean html serve
 
-By default, built docs will load the most recent BokehJS from CDN. If you are
-making local changes to the BokehJS and wish to have the docs use your locally
-built BokehJS instead, you can set the environment variable ``BOKEH_DOCS_CDN``
-before calling ``make``:
+Documents that you build yourself in your local environment load the most
+recent version of BokehJS from Bokeh's Content Delivery Network (CDN) by
+default. If you would like to use your local version of BokehJS instead, set
+the environment variable ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``:
 
 .. code-block:: sh
 
-    BOKEH_DOCS_CDN=local make clean html serve
+    BOKEH_DOCS_CDN=local
 
-Building the docs also requires setting up the ``GOOGLE_API_KEY`` environment variable that ``gmap`` plots use.
-You can `create a new API Key <https://developers.google.com/maps/documentation/javascript/get-api-key>`_.
-Or if you don't care whether ``gmap`` plots work, you can set the variable with a fake value before calling ``make``:
+.. _`edit`:
 
-.. code-block:: sh
+Writing Bokeh's documentation
+-----------------------------
+The documentation available at docs.bokeh.org_ mainly consists of those two
+elements:
 
-    GOOGLE_API_KEY=foo make clean html serve
+* **Docstrings and Model help text within the Python source code of Bokeh**:
+  detailed explanations of all Bokeh modules and their properties. These texts
+  are available from the Python interpreter and within most Python development
+  environments. Sphinx also uses those texts to generate the `API Reference`_
+  within Bokeh's documentation.
 
-Source Code Documentation
--------------------------
+* **Narrative documentation**: tutorial-like descriptions and instructions for
+  Bokeh. This includes sections like the `User guide`_, `Developer guide`_ or
+  Gallery_.
 
-Docstrings and Model help are available from a Python interpreter, but are also
-processed by the Sphinx build to automatically generate a complete
-:ref:`refguide`.
+Contributing to Bokeh's source code documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All functions and methods in Bokeh use docstrings_. In addition, Bokeh uses its
+own system to provide `detailed information on individual properties`_.
 
-Bokeh uses some common conventions to create a consistent documentation style.
+.. _docstrings:
 
-Docstrings
-~~~~~~~~~~
+Writing docstrings
+''''''''''''''''''
 
-We use `Sphinx Napoleon`_ to process docstrings for our reference
-documentation.
+To automatically process all docstrings, Bokeh uses an extension for Sphinx
+called `Napoleon`_ with `Napoleon's Google style`_. For Napoleon to work
+correctly, all docstrings you write should follow the rules in the `Google
+Python Style Guide`_.
 
-All docstrings are `Google Style Docstrings`_. Docstrings should generally
-begin with a verb stating what the function or method does in a short
-statement. For example, the "verb first" style is preferred:
+Docstrings for functions and methods generally include these three elements:
 
-.. code-block:: python
+* A short description of what the function or method does, starting with a
+  verb. For example: "Creates and returns a new Foo."
+* Args: list all parameters, if any.
+* Returns: describe the return values of the function or method, even if the
+  function returns ``None``.
 
-    """ Create and return a new Foo. (GOOD)
-
-    """
-
-over the more verbose sentence below:
-
-.. code-block:: python
-
-    """ This function creates and returns a new Foo. (BAD)
-
-    """
-
-Docstrings for functions and methods should generally include the following
-sections:
-
-* ``Args``  (unless the function takes no arguments)
-* ``Returns`` (even if the function just returns ``None``)
-
-Short descriptions for parameters should be written in such a way that
-inserting an implicit "IS" makes a complete sentence. For example:
+For example:
 
 .. code-block:: python
 
-    title_font (str, optional) :
-        A font used for the plot title (default: Sans)
-
-can be reasonably read as "title_font IS a font used for the plot title".
-
-A complete example might look like:
-
-.. code-block:: python
-
-    def somefunc(name, level):
-        ''' Create and return a new Foo.
+    def foo_function(name, level):
+        ''' Creates and returns a new Foo.
 
         Args:
             name (str) :
@@ -167,16 +247,21 @@ A complete example might look like:
 
         Returns:
             Foo
-
         '''
 
-Models and Properties
-~~~~~~~~~~~~~~~~~~~~~
+.. _`detailed information on individual properties`:
 
-Bokeh's Model system supports its own system for providing detailed
-documentation for individual properties. These are given as a ``help``
-argument to the property type, which is interpreted as standard Sphinx
-ReST when the reference documentation is built. For example:
+Writing models and properties help
+''''''''''''''''''''''''''''''''''
+
+Bokeh's model includes a system to provide documentation about individual
+properties within the source code. You can add text to any property type by
+passing a ``help`` argument.
+
+Any string passed as a ``help`` argument can be formatted using
+reStructuredText_ (ReST).
+
+For example:
 
 .. code-block:: python
 
@@ -196,53 +281,55 @@ ReST when the reference documentation is built. For example:
         defaults to all renderers on a plot.
         """)
 
+Writing for Bokeh's narrative documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Narrative Documentation
------------------------
+Bokeh's narrative documentation consists of these for elements:
 
-The narrative documentation consists of all the documentation that is not
-automatically generated from docstrings and Bokeh property helpstrings. This
-includes User's Guide, Quickstart, etc. The source code for these docs are
-standard Sphinx Restructure Text (ReST) files that are located under the
-``sphinx/source/docs`` subdirectory of the source tree.
+* `Installation`_: instructions on installing Bokeh
+* `User guide`_: descriptions and instructions for using Bokeh
+* Gallery_: interactive examples with source code
+* `Developer guide`_: instructions for contributing to Bokeh
 
-Section Headings
-~~~~~~~~~~~~~~~~
+Sphinx generates each of those elements from reStructuredText (.rst) files. To
+edit any of those elements, open the corresponding ReST source file in the
+``sphinx/source/docs`` folder of the Bokeh source tree.
 
-In narrative documentation, headings help the users follow the
-key points and sections. The following outlines the headings hierarchy:
+For information on how to format text using reStructuredText, see the
+`reStructuredText primer on the Sphinx website`_ or the `official
+reStructuredText website`_.
 
-.. code-block:: python
+For information on writing style, see Bokeh's `style guidelines`_ and the
+`Google developer documentation style guide`_.
 
-    Top level
-    =========
-
-    This will add a "Top Level" entry in the navigation sidebar.
-
-    Second level
-    ------------
-
-    This may add a sub-entry in the sidebar, depending on configuration.
-
-    Third level
-    ~~~~~~~~~~~
-
-    Fourth level
-    ''''''''''''
-
-Note that the length of the underline *must* match that of the heading text,
-or else the Sphinx build will fail.
-
-Release Notes
-~~~~~~~~~~~~~
-
-Each release should add a new file under ``sphinx/source/docs/releases`` that
-briefly describes the changes in the release, including any migration notes.
-The filename should be ``<version>.rst``, for example
-:bokeh-tree:`sphinx/source/docs/releases/0.12.7.rst`. The
+`Release Notes`_ are generally handled by the Bokeh core team as part of
+Bokeh's `release management`_. Each release should add a new file under
+``sphinx/source/docs/releases`` that briefly describes the changes in the
+release, including any migration notes. The filename should be
+``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
 Sphinx build will automatically add this content to the list of all releases.
 
-.. _Google Style Docstrings: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/example_google.html#example-google
+
 .. _Open Docs Issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
+.. _Google developer documentation style guide: https://developers.google.com/style
+.. _technical writing courses: https://developers.google.com/tech-writing
+.. _Merriam-Webster: https://www.merriam-webster.com/
+.. _inclusive: https://developers.google.com/style/inclusive-documentation
+.. _accessible: https://developers.google.com/style/accessibility
+.. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
 .. _Sphinx: http://sphinx-doc.org
-.. _Sphinx Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
+.. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
+.. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
+.. _Google developers website: https://developers.google.com/maps/documentation/javascript/get-api-key
+.. _`API Reference`: https://docs.bokeh.org/en/latest/docs/reference.html
+.. _`User guide`: https://docs.bokeh.org/en/latest/docs/user_guide.html
+.. _`Developer guide`: https://docs.bokeh.org/en/latest/docs/dev_guide.html
+.. _Gallery: https://docs.bokeh.org/en/latest/docs/gallery.html
+.. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
+.. _`Napoleon's Google style`: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
+.. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
+.. _`Installation`: https://docs.bokeh.org/en/latest/docs/installation.html
+.. _`reStructuredText primer on the Sphinx website`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+.. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
+.. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
+.. _`release management`: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
