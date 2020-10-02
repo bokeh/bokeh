@@ -340,7 +340,7 @@ class _RequestProxy:
             val = getattr(self._request, name, None)
             if val is not None:
                 return val
-        return super.__getattr__(name)
+        return super().__getattr__(name)
 
 #-----------------------------------------------------------------------------
 # Code
