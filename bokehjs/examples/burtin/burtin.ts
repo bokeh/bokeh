@@ -11,11 +11,11 @@ export namespace Burtin {
   type Gram = "negative" | "positive"
 
   const antibiotics: [string, number, number, number, Gram][] = [
-    ["Mycobacterium tuberculosis",      800,        5,            2,        "negative"],
-    ["Salmonella schottmuelleri",       10,         0.8,          0.09,     "negative"],
+    ["Mycobacterium tuberculosis",      850,        5,            2,        "negative"],
+    ["Salmonella schottmuelleri",       15,         0.8,          0.09,     "negative"],
     ["Proteus vulgaris",                3,          0.1,          0.1,      "negative"],
-    ["Klebsiella pneumoniae",           850,        1.2,          1,        "negative"],
-    ["Brucella abortus",                1,          2,            0.02,     "negative"],
+    ["Klebsiella pneumoniae",           800,        1.2,          1,        "negative"],
+    ["Brucella abortus",                100,          2,            0.02,     "negative"],
     ["Pseudomonas aeruginosa",          850,        2,            0.4,      "negative"],
     ["Escherichia coli",                100,        0.4,          0.1,      "negative"],
     ["Salmonella (Eberthella) typhosa", 1,          0.4,          0.008,    "negative"],
