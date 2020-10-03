@@ -16,10 +16,10 @@ requires [Jupyter Notebook](https://jupyter.org/).
 
 Run with `python standalone_embed.py`.
 
-On Windows, the `num_procs=4` argument must be removed from the Server initialisation call on line 34.
+On Windows, the `num_procs=4` argument must be removed from the Server initialization call on line 34.
 
 ### `tornado_embed.py`
 
 Run with `python tornado_embed.py`.
 
-On Windows, the `num_procs=4` argument must be removed from the Server initialisation call on line 47.
+On Windows, the `num_procs=4` argument must be removed from the Server initialization call on line 47.

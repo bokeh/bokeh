@@ -3,7 +3,7 @@
 We welcome contributions from users!
 
 We want to make the process of contributing as smooth as possible (for both you *and*
-the maintainers). Please refer to the information below to avoid suprises down the
+the maintainers). Please refer to the information below to avoid surprises down the
 road.
 
 ## Getting Set Up
@@ -77,7 +77,7 @@ Pull Request:
    be used automatically when you create the PR.) The PR must have a meaningful title and a message
    explaining what was achieved, what remains to be done, maybe an example, etc.
 
-6. We genrally don't accept code contributions without tests. If there are valid reasons for not
+6. We generally don't accept code contributions without tests. If there are valid reasons for not
    including a test, please discuss this in the PR.
 
 7. We will review your PR as time permits. Reviewers may comment on your contributions, ask
