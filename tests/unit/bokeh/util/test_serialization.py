@@ -51,13 +51,13 @@ class Test_make_id:
 
     def test_simple_ids_no(self) -> None:
         os.environ["BOKEH_SIMPLE_IDS"] = "no"
-        assert len(bus.make_id()) == 36
+        assert len(bus.make_id()) == 39
         assert isinstance(bus.make_id(), str)
         del os.environ["BOKEH_SIMPLE_IDS"]
 
 class Test_make_globally_unique_id:
     def test_basic(self) -> None:
-        assert len(bus.make_globally_unique_id()) == 36
+        assert len(bus.make_globally_unique_id()) == 39
         assert isinstance(bus.make_globally_unique_id(), str)
 
 def test_np_consts() -> None:
