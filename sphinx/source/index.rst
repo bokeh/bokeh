@@ -30,7 +30,7 @@ Bokeh's documentation consists of several components:
 
     Follow these guides to get started:
 
-    * :ref:`quickstart`: Tutorials that walk you through installing Bokeh and creating your first visualizations.
+    * :ref:`getting_started`: Tutorials that walk you through installing Bokeh and creating your first visualizations.
 
     * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them. Includes several standalone examples.
 
@@ -132,7 +132,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     :maxdepth: 3
     :hidden:
 
-    docs/quickstart
+    docs/getting_started
     docs/user_guide
     docs/gallery
     docs/reference

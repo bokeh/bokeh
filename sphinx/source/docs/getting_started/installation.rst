@@ -1,4 +1,4 @@
-.. _quickstart_installation:
+.. _getting_started_installation:
 
 Installation
 ############

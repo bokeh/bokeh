@@ -1,4 +1,4 @@
-.. _quickstart_tutorial1_line_chart:
+.. _quickstart_tutorial1:
 
 Tutorial 1: Creating a line chart
 #################################
