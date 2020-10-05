@@ -267,7 +267,8 @@ def make_globally_unique_id():
         str
 
     '''
-    return str(uuid.uuid4())
+    # add bk prefix to make id valid for css
+    return 'bk-' + str(uuid.uuid4())
 
 def array_encoding_disabled(array):
     ''' Determine whether an array may be binary encoded.
