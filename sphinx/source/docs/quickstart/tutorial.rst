@@ -4,12 +4,20 @@ Quickstart tutorial
 ###################
 
 TBD TBD TBD TBD
+This document is a collection of guides to the basic funtions of Bokeh. The guides cover.
+
+Before you start, please make sure you have Bokeh installed correctly 
+
 
 Bokeh is an interactive visualization library for modern web browsers. It
 provides elegant, concise construction of versatile graphics, and affords
 high-performance interactivity over large or streaming datasets. Bokeh can help
 anyone who would like to quickly and easily make interactive plots, dashboards,
 and data applications.
+
+[prerequisits]
+You should have some basic knowledge of |Python| (https://www.python.org/doc/). Knowing about |Pandas| or
+|NumPy| is helpful but not required.
 
 To offer both simplicity and the powerful and flexible features needed for
 advanced customizations, Bokeh exposes two interface levels to users:

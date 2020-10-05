@@ -10,6 +10,8 @@ Quickstart
 
     quickstart/*
 
+Maybe call it "Getting started" anstelle von "Quickstart". Quickstart ist kein schönes Wort
+und sieht doof aus. Pandas nennt das auch "Getting started". 
 
 Links to installation and tutorial
 

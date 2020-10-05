@@ -3,13 +3,100 @@
 Installation
 ############
 
-TBD TBD TBD TBD
+You can install Bokeh with either ``conda`` or ``pip``:
+
+.. panels::
+    :container: container-fluid pb-3
+    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2
+
+    :header: bg-bokeh-one
+
+    Installing with ``conda``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    The easiest way to install Bokeh is to use the
+    `Anaconda Python distribution`_. Once you have either `Anaconda`_ or
+    `Miniconda`_ installed, use this command to install Bokeh:
+
+    .. code-block:: sh
+
+        conda install bokeh
+
+    This installs all dependencies required to use Bokeh.
+    Conda also installs the examples into the ``examples/`` subdirectory of
+    your Anaconda or Miniconda installation directory.
+
+    ---
+    :header: bg-bokeh-two
+
+    Installing with ``pip``
+    ^^^^^^^^^^^^^^^^^^^^^^^
+
+    Another way to install Bokeh is to use ``pip``. Use this command to install
+    Bokeh:
+
+    .. code-block:: sh
+
+        pip install bokeh
+
+    .. note::
+        Using ``pip`` does not install the examples. The `_install_sampledata`
+        section contains instructions on how to install the required data for
+        using the examples.
+
+To check if the installation was sucessful, use this command:
+
+.. code-block:: sh
+
+    bokeh info
+
+-> Now tutorials!!
+
+
+The easiest way to install Bokeh is to use the `Anaconda Python distribution`_.
+Once you have Anaconda or Miniconda installed, use this command to install
+Bokeh:
+
+.. code-block:: sh
+
+    conda install bokeh
+
+This installs all the dependencies that Bokeh needs. Anaconda minimizes
+installation effort on all platforms and configurations, including Windows,
+and also installs the examples into the ``examples/`` subdirectory of your
+Anaconda or Miniconda installation directory.
+
+
+Another way to install Bokeh is to use ``pip``. Use this command to install
+Bokeh:
+
+[seems like I first needed to pip install wheel, otherwise I'd get an error message?]
+
+
+.. code-block:: sh
+
+    pip install bokeh
+
+.. note::
+    Using ``pip`` does not install the examples. The `_install_sampledata`
+    section contains instructions on how to install the required data for
+    using the examples.
+
+[Why would I want the examples???]
+
+In most cases you should have working setup. proceed to tutorial 1 to create
+your first visualization.
+
+If you want to install a development version of Bokeh to contribute to the project,
+please see the 'setting up' instructions in the Devlopers guide. 
+
+here is more details about 
 
 This section provides complete details about Bokeh's required and
 optional dependencies as well as information about how to install
 Bokeh in different situations. To get up and running as fast as possible,
-see the :ref:`userguide_quickstart_install` section of the
-:ref:`userguide_quickstart`.
+see the [userguide_quickstart_install] section of the
+[userguide_quickstart].
 
 .. _install_supported:
 
@@ -25,7 +112,7 @@ limited capacity, but no guarantees or support is provided.
 Required Dependencies
 =====================
 
-For basic usage, have the following libraries installed:
+For basic usage, the following libraries are required:
 
 .. code::
 
@@ -37,6 +124,9 @@ For basic usage, have the following libraries installed:
     packaging>=16.8
     tornado>=5
     typing_extensions >=3.7.4
+
+All those packages are automatically installed if you use ``conda`` or
+``pip``.
 
 .. _install_optional:
 
@@ -92,7 +182,7 @@ If you are already an Anaconda user, you can simply run the command:
     conda install bokeh
 
 This will install the most recent published Bokeh release from the
-`Anaconda, Inc.`_ package repository, along with all dependencies.
+[Anaconda, Inc. package repository LINK TBD], along with all dependencies.
 
 Alternatively, it is possible to install from PyPI using ``pip``:
 
@@ -124,6 +214,10 @@ interpreter:
 
 Finally, the location that the sample data is stored can be configured.
 See the |bokeh.sampledata| reference for details.
+
+
+
+=========> put the following into Dev Guide???
 
 Advanced Cases
 ==============
@@ -174,6 +268,7 @@ As a concrete example, the links for version ``2.0.1`` are:
     BokehJS from CDN.
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
-.. _Anaconda, Inc.: http://anaconda.com
+.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 
 .. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`

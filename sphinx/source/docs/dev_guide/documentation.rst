@@ -3,6 +3,9 @@
 Documentation
 =============
 
+TBD: switch order off Narrative Documentation and Source code docs
+in #writing-bokeh-s-documentation section
+
 The Bokeh documentation is an important resource for the entire Bokeh
 community. It helps guide new users, and it is the definitive reference for
 seasoned users and developers. That is why all contributions to Bokeh must
