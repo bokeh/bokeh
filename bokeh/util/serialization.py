@@ -243,6 +243,7 @@ def make_id():
     IDs (as strings) for identifying Bokeh objects within a Document. However,
     if it is desirable to have globally unique for every object, this behavior
     can be overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
+    IDs are returned with a prefix of ``bk-``.
 
     Returns:
         str
@@ -253,9 +254,11 @@ def make_id():
     if settings.simple_ids():
         with _simple_id_lock:
             _simple_id += 1
-            return str(_simple_id)
+            str_id = str(_simple_id)
     else:
-        return make_globally_unique_id()
+        str_id = make_globally_unique_id()
+    # add bk- prefix to make id valid for css
+    return 'bk-' + str_id
 
 def make_globally_unique_id():
     ''' Return a globally unique UUID.
@@ -267,8 +270,7 @@ def make_globally_unique_id():
         str
 
     '''
-    # add bk prefix to make id valid for css
-    return 'bk-' + str(uuid.uuid4())
+    return str(uuid.uuid4())
 
 def array_encoding_disabled(array):
     ''' Determine whether an array may be binary encoded.
