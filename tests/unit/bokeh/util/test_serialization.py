@@ -53,6 +53,7 @@ class Test_make_id:
         os.environ["BOKEH_SIMPLE_IDS"] = "no"
         assert len(bus.make_id()) == 39
         assert isinstance(bus.make_id(), str)
+        assert bus.make_id().startswith("bk-")
         del os.environ["BOKEH_SIMPLE_IDS"]
 
 class Test_make_globally_unique_id:
