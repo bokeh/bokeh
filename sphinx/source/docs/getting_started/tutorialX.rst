@@ -6,7 +6,7 @@ Quickstart tutorial
 TBD TBD TBD TBD
 This document is a collection of guides to the basic funtions of Bokeh. The guides cover.
 
-Before you start, please make sure you have Bokeh installed correctly 
+Before you start, please make sure you have Bokeh installed correctly
 
 
 Bokeh is an interactive visualization library for modern web browsers. It
