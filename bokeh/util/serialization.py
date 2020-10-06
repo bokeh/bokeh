@@ -257,7 +257,9 @@ def make_id():
             str_id = str(_simple_id)
     else:
         str_id = make_globally_unique_id()
+
     # add bk- prefix to make id valid for css
+    # https://github.com/bokeh/bokeh/issues/10547
     return 'bk-' + str_id
 
 def make_globally_unique_id():
