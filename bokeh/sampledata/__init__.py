@@ -22,7 +22,7 @@ programmatically.
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
 
-By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
+By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``
 (The directory is created if it does not already exist.) Bokeh looks for
 a YAML configuration file at ``$HOME/.bokeh/config``. The YAML key
 ``sampledata_dir`` can be set to the absolute path of a directory where

@@ -34,11 +34,12 @@ if "%1" == "clean" (
 
 if "%1" == "all" (
     make html
+	make serve
 )
 
 if "%1" == "html" (
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%\html
-	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h
+	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h /y
 	if errorlevel 1 exit /b 1
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.

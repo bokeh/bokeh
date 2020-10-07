@@ -3,7 +3,7 @@
 First steps 2: exploring renderers
 ==================================
 
-In the :ref:`previous tutorial <quickstart_tutorial1>`, you used Bokeh's
+In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
 :func:`~bokeh.plotting.figure` function to render line charts.
 
 In this tutorial, you will use different renderers to create various other

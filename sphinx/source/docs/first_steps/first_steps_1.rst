@@ -140,7 +140,7 @@ With Bokeh's |bokeh.plotting| interface, you can add more glyphs to your plot:
     # add multiple renderers
     p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
     p.line(x, y2, legend_label="Rate", line_color="red", line_width=2)
-    p.line(x, y3, legend_label="Objects", line_color="yellow", line_width=2)
+    p.line(x, y3, legend_label="Objects", line_color="green", line_width=2)
 
     # show the results
     show(p)
@@ -173,12 +173,11 @@ Finally, add more calls to the |Figure.line| function:
     # add multiple renderers
     p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
     p.line(x, y2, legend_label="Rate", line_color="red", line_width=2)
-    p.line(x, y3, legend_label="Objects", line_color="yellow", line_width=2)
+    p.line(x, y3, legend_label="Objects", line_color="green", line_width=2)
 
 This is what the completed code for your multi-line plot should look like:
 
-.. bokeh-plot::
-    :source-position: above
+.. code-block:: python
 
     from bokeh.plotting import figure, output_file, show
 
@@ -197,7 +196,7 @@ This is what the completed code for your multi-line plot should look like:
     # add multiple renderers
     p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
     p.line(x, y2, legend_label="Rate", line_color="red", line_width=2)
-    p.line(x, y3, legend_label="Objects", line_color="yellow", line_width=2)
+    p.line(x, y3, legend_label="Objects", line_color="green", line_width=2)
 
     # show the results
     show(p)
