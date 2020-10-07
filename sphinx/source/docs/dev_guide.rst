@@ -1,6 +1,6 @@
 .. _devguide:
 
-Developers Guide
+Developers guide
 ################
 
 .. toctree::

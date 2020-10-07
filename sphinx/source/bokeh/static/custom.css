@@ -418,7 +418,8 @@ span.highlighted {
   background-color: #ECD078;
 }
 
-/* Custom styles for documentation landing page (index.rst) */
+/* Custom styles for documentation landing page (index.rst) and other pages
+using sphinx_panels */
 
 .bokeh-examples {
   padding: 0px;
@@ -439,6 +440,22 @@ span.highlighted {
 
 .bg-bokeh-three {
   background-color: rgba(0,170,174,0.3);
+}
+
+.bg-bokeh-four {
+  background-color: rgba(240,82,35,0.3);
+}
+
+.bg-bokeh-five {
+  background-color: rgba(138,40,137,0.3);
+}
+
+.bg-bokeh-six {
+  background-color: rgba(32,178,84,0.3);
+}
+
+.bg-bokeh-seven {
+  background-color: rgba(236,21,87,0.3);
 }
 
 .card-header p {

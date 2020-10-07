@@ -1,6 +1,6 @@
 .. _userguide:
 
-User Guide
+User guide
 ##########
 
 .. toctree::
