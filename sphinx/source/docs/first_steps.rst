@@ -8,7 +8,6 @@ First steps
     :hidden:
     :glob:
 
-    first_steps/installation
     first_steps/*
 
 Installing Bokeh
@@ -33,7 +32,8 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
         conda install bokeh
 
-    Conda requires either `Anaconda`_ or `Miniconda`_ to be installed.
+    Conda requires either `Anaconda`_ or `Miniconda`_ to be installed on your
+    system.
 
     ---
     :header: bg-bokeh-two
@@ -47,15 +47,15 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
         pip install bokeh
 
-For more detailed information on installing and potential problems you might
-encounter, go to the :ref:`installation` section.
+More detailed installation instructions are available in the
+:ref:`installation` section.
 
 .. _`first_steps_overview`:
 
 First steps guides
 ------------------
 
-(placeholders add thumbnails!)
+(placeholders)
 
 .. panels::
     :container: container-fluid pb-3
