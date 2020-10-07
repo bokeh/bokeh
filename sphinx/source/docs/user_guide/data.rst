@@ -1,6 +1,6 @@
 .. _userguide_data:
 
-Providing Data
+Providing data
 ==============
 
 No data visualization is possible without the underlying data to be represented.
@@ -8,7 +8,7 @@ In this section, the various ways of providing data for plots are explained, fro
 passing data values directly to creating a |ColumnDataSource| and filtering using
 a |CDSView|.
 
-Providing Data Directly
+Providing data directly
 -----------------------
 
 In Bokeh, it is possible to pass lists of values directly into plotting functions.
@@ -67,10 +67,10 @@ plotting methods which allows you to pass a column's name as a stand-in for the 
     update the ``.data`` property of a data source "all at once".
 
 
-Pandas
-~~~~~~
+Using data from pandas
+~~~~~~~~~~~~~~~~~~~~~~
 
-The ``data`` parameter can also be a Pandas ``DataFrame`` or ``GroupBy`` object.
+The ``data`` parameter can also be a pandas ``DataFrame`` or ``GroupBy`` object.
 
 .. code-block:: python
 
@@ -82,8 +82,8 @@ has a named index column, then CDS will also have a column with this name. Howev
 if the index name is ``None``, then the CDS will be assigned a generic name.
 It will be ``index`` if it is available, and ``level_0`` otherwise.
 
-Pandas MultiIndex
-~~~~~~~~~~~~~~~~~
+Using pandas MultiIndex
+~~~~~~~~~~~~~~~~~~~~~~~
 All ``MultiIndex`` columns and indices will be flattened before forming the
 ``ColumnsDataSource``. For the index, an index of tuples will be created, and the
 names of the ``MultiIndex`` joined with an underscore. The column names will also
@@ -100,8 +100,8 @@ will result in a column named ``index`` with ``[(A, B), (A, C), (A, D)]`` and co
 named ``a_b``, ``b_a``, and ``b_b``. This process will fail for non-string column names,
 so flatten the ``DataFrame`` manually in that case.
 
-Pandas GroupBy
-~~~~~~~~~~~~~~
+Using pandas GroupBy
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -116,7 +116,7 @@ will be flattened using the aforementioned scheme. For example, if a
 ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
 to a CDS will result in columns such as ``'mpg_mean'``
 
-Note this capability to adapt ``GroupBy`` objects may only work with Pandas ``>=0.20.0``.
+Note this capability to adapt ``GroupBy`` objects may only work with pandas ``>=0.20.0``.
 
 Streaming
 ~~~~~~~~~
@@ -162,7 +162,7 @@ The tuples that describe patch changes are of the form:
 
 For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
 
-Transforming Data
+Transforming data
 -----------------
 
 We have seen above how data can be added to a ``ColumnDataSource`` to drive
@@ -248,7 +248,7 @@ relative to the first data point. The full result is shown below:
     :source-position: none
 
 
-Filtering Data
+Filtering data
 --------------
 
 It's often desirable to focus in on a portion of data that has been subsampled or filtered
@@ -315,7 +315,7 @@ or a list of booleans that represents the filtered subset. The |ColumnDataSource
 that is associated with the |CDSView| this filter is added to will be available
 at render time with the variable ``source``.
 
-Javascript
+JavaScript
 ''''''''''
 
 To create a |CustomJSFilter| with custom functionality written in JavaScript,
@@ -379,7 +379,7 @@ A full example (shown below) can be seen at
 
 .. _userguide_data_linked_selection:
 
-Linked Selection
+Linked selection
 ----------------
 
 Using the same |ColumnDataSource| in the two plots below allows their selections to be
@@ -390,7 +390,7 @@ shared.
 
 .. _userguide_data_linked_selection_with_filtering:
 
-Linked Selection with Filtered Data
+Linked selection with filtered data
 -----------------------------------
 
 With the ability to specify a subset of data to be used for each glyph renderer, it is
@@ -406,7 +406,7 @@ the corresponding point in the other plot if it exists.
 .. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
 
-Other Data Types
+Other data types
 ----------------
 
 Bokeh also has the capability to render network graph data and geographical data.
