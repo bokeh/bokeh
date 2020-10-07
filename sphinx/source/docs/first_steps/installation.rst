@@ -1,34 +1,39 @@
-.. _getting_started_installation:
+.. _installation:
 
-Installation
-############
+Installation details
+====================
 
-Bokeh is officially supported and tested on Python 3.6 and above (CPython).
+This section provides more detailed information about installing Bokeh. This
+includes details about Bokeh's prerequisites as well as Bokeh's required and
+optional dependencies.
 
-You can install Bokeh with either ``conda`` or ``pip``:
+Supported platforms
+-------------------
+
+Bokeh is officially supported (and continuously tested) on CPython versions
+3.6+ only. It's possible that Bokeh does work on other version of Python, but
+no guarantees or support are provided.
+
+Installing with ``conda`` or ``pip``
+------------------------------------
+
+The easiest way to install Bokeh is using ``conda``. Conda is part of the
+`Anaconda Python Distribution`_, which was designed with scientific and data analysis
+applications like Bokeh in mind.
 
 .. panels::
-    :container: container-fluid pb-3
-    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-2
-
-    :header: bg-bokeh-one
 
     Installing with ``conda``
     ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Make sure you have either `Anaconda`_ or `Miniconda`_ installed and use
+    Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
     this command to install Bokeh:
 
     .. code-block:: sh
 
         conda install bokeh
 
-    This installs all dependencies required to use Bokeh.
-    Conda also installs the examples into the ``examples/`` subdirectory of
-    your Anaconda or Miniconda installation directory.
-
     ---
-    :header: bg-bokeh-two
 
     Installing with ``pip``
     ^^^^^^^^^^^^^^^^^^^^^^^
@@ -39,45 +44,39 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
         pip install bokeh
 
-    .. note::
-        Using ``pip`` does not install the examples. Read the
-        :ref:`install_sampledata` section to learn more about this.
+Checking your installation
+--------------------------
 
-To check if the installation was successful, use this command:
+To verify whether the installation was successful, use this command:
 
 .. code-block:: sh
 
     bokeh info
 
 You should see, among other things, a line with information on the installed
-version of Bokeh. If you receive an error instead, try searching for more
-information `"bokeh" tag on Stack Overflow`_ or asking a question in the
+version of Bokeh.
+
+If you receive an error instead, try searching for more information by using
+the `"bokeh" tag on Stack Overflow`_ or asking a question in the
 `Bokeh Discourse`_ community.
 
-Once you have Bokeh installed, build your first visualization by following
-the tutorials. Check the :ref:`userguide` for a comprehensive overview of all the
-things you can do with Bokeh.
+.. tip::
+    Once you have Bokeh installed, build your first visualization by following
+    the :ref:`first steps guides <first_steps_overview>`.
+
+    Check the :ref:`userguide` for a comprehensive overview of all the things
+    you can do with Bokeh.
+
+Installing for development
+--------------------------
 
 If you want to install a development version of Bokeh to contribute to the project,
 please see the :ref:`devguide_setup` instructions in the :ref:`devguide`.
 
-Advanced installing information
-===============================
-
-This section provides complete details about Bokeh's prerequisites as well as
-Bokeh's required and optional dependencies.
-
-Supported platforms
-^^^^^^^^^^^^^^^^^^^
-
-Bokeh is officially supported (and continuously tested) on CPython versions
-3.6+ only. It's possible that Bokeh does work on other version of Python, but
-no guarantees or support are provided.
-
 .. _install_required:
 
-Required dependencies
-^^^^^^^^^^^^^^^^^^^^^
+Installing required dependencies
+--------------------------------
 
 For basic usage, Bokeh requires the following libraries:
 
@@ -97,10 +96,10 @@ All those packages are automatically installed if you use ``conda`` or
 
 .. _install_optional:
 
-Optional dependencies
-^^^^^^^^^^^^^^^^^^^^^
+Installing optional dependencies
+--------------------------------
 
-In addition to the required dependencies above, some additional packages are
+In addition to the required dependencies, some additional packages are
 necessary for certain optional features:
 
 Jupyter
@@ -114,13 +113,14 @@ NodeJS
     ``CustomJS`` implementations in TypeScript.
 
 NetworkX
-    Necessary to use the ``from_networkx`` function to generate Bokeh graph
-    renderers directly from NetworkX data.
+    Necessary to use the :func:`~bokeh.plotting.graph.from_networkx` function
+    to generate Bokeh graph renderers directly from NetworkX data.
 
 Pandas
-    Necessary for the ``hexbin`` function. Additionally, using Pandas makes
-    some aspects of Bokeh simpler to use. For example, glyph functions are able
-    to automatically convert Pandas DataFrames to Bokeh data sources.
+    Necessary for the :func:`~bokeh.plotting.Figure.hexbin` function.
+    Additionally, having Pandas installed makes some aspects of Bokeh simpler
+    to use. For example, glyph functions are able to automatically convert
+    Pandas DataFrames to Bokeh data sources.
 
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
@@ -134,34 +134,35 @@ Sphinx
 
 .. _install_sampledata:
 
-Sample data
-^^^^^^^^^^^
+Installing sample data
+----------------------
 
-Some of the Bokeh examples rely on sample data that is not included in the
-Bokeh GitHub repository or released packages, due to their size.
+Some of the Bokeh examples rely on sample data. Because this sample data is
+rather big, it is not included in Bokeh's GitHub repository and also not in
+packages installed with ``pip``.
 
-First install Bokeh. Then install the sample data with this command:
+After installing Bokeh, you can automatically download and install the
+sample data with this command:
 
 .. code-block:: sh
 
     bokeh sampledata
 
-Alternatively, you can use the following statements to download and install
-the sample data directly in a Python interpreter:
+Alternatively, you can download and install the sample data directly inside
+a Python interpreter:
 
 .. code-block:: python
 
     >>> import bokeh.sampledata
     >>> bokeh.sampledata.download()
 
-You can also configure the location where Bokeh stores the sample data. See the
-|bokeh.sampledata| reference for details.
-
+If you want to change the location where Bokeh stores the sample data, check
+the |bokeh.sampledata| reference for details.
 
 .. _install_bokehjs:
 
-Standalone BokehJS
-^^^^^^^^^^^^^^^^^^
+Installing standalone BokehJS
+-----------------------------
 
 BokehJS is Bokeh's client-side runtime library. You can also use BokehJS as a
 standalone JavaScript library. To do so, download the code from Bokeh's content
@@ -194,8 +195,6 @@ For example, the links for version ``2.0.1`` are:
 .. note::
     You should always set `crossorigin="anonymous"` on script tags that load
     BokehJS from CDN.
-
-    [What is crossorigin? an environemnt variable??]
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
