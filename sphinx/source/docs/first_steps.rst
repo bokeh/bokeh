@@ -8,6 +8,7 @@ First steps
     :hidden:
     :glob:
 
+    first_steps/installation
     first_steps/*
 
 Installing Bokeh
@@ -47,15 +48,15 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
         pip install bokeh
 
-More detailed installation instructions are available in the
-:ref:`installation` section.
+For more detailed information on installing and potential problems you might
+encounter, go to the :ref:`installation` section.
 
 .. _`first_steps_overview`:
 
 First steps guides
 ------------------
 
-(placeholders)
+(placeholders - add thubnails!)
 
 .. panels::
     :container: container-fluid pb-3

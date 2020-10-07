@@ -21,6 +21,10 @@ The easiest way to install Bokeh is using ``conda``. Conda is part of the
 `Anaconda Python Distribution`_, which was designed with scientific and data analysis
 applications like Bokeh in mind.
 
+If you use Anaconda on your system, installing with ``conda`` is the recommended
+method. Otherwise, use ``pip``.
+
+
 .. panels::
 
     Installing with ``conda``
@@ -43,6 +47,12 @@ applications like Bokeh in mind.
     .. code-block:: sh
 
         pip install bokeh
+
+    .. note::
+        On some systems, pip will display an error message about the wheel
+        package when installing tornado. This is a `known issue
+        <https://github.com/tornadoweb/tornado/issues/1602#issuecomment-163472168>`_,
+        you can usually ignore the error.
 
 Checking your installation
 --------------------------
@@ -137,9 +147,13 @@ Sphinx
 Installing sample data
 ----------------------
 
-Some of the Bokeh examples rely on sample data. Because this sample data is
-rather big, it is not included in Bokeh's GitHub repository and also not in
-packages installed with ``pip``.
+Optionally, Bokeh can download and install a collection of sample data. This
+includes a variety of freely available data tables and databases that you can
+use with Bokeh. Because this sample data is rather big, it is not included in
+Bokeh's installation packages.
+
+In `Bokeh's GitHub repository`_, you can find a number of examples. Those
+examples also use this sample data.
 
 After installing Bokeh, you can automatically download and install the
 sample data with this command:
@@ -148,13 +162,13 @@ sample data with this command:
 
     bokeh sampledata
 
-Alternatively, you can download and install the sample data directly inside
-a Python interpreter:
+Alternatively, you can download and install the sample data from within your
+Python code:
 
 .. code-block:: python
 
-    >>> import bokeh.sampledata
-    >>> bokeh.sampledata.download()
+    import bokeh.sampledata
+    bokeh.sampledata.download()
 
 If you want to change the location where Bokeh stores the sample data, check
 the |bokeh.sampledata| reference for details.
@@ -201,5 +215,6 @@ For example, the links for version ``2.0.1`` are:
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
+.. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
 
 .. |bokeh.sampledata| replace:: :ref:`bokeh.sampledata <bokeh.sampledata>`
