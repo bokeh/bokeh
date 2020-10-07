@@ -71,7 +71,7 @@ rst_epilog = """
 
 autodoc_member_order = 'groupwise'
 
-bokeh_missing_google_api_key_ok = True
+bokeh_missing_google_api_key_ok = False
 
 if not bokeh_missing_google_api_key_ok:
     if "GOOGLE_API_KEY" not in os.environ:
