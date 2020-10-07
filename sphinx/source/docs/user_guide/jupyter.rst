@@ -10,10 +10,10 @@ Working in Notebooks
 
 `Jupyter`_ notebooks are computable documents often used for exploratory work,
 data analysis, teaching, and demonstration. A notebook is a series of *input
-cells* that can be individually executed to display their output immediately
-after the cell. In addition to  *Classic* notebooks, there are also notebooks for
-the newer *JupyterLab* project. Bokeh can embed both standalone and Bokeh server
-content with either.
+cells* that can execute individually to immediately display their output. In
+addition to  *Classic* notebooks, there are also notebooks for the newer
+*JupyterLab* project. Bokeh can embed both standalone and Bokeh server content
+with either.
 
 .. _Jupyter:  https://jupyter.org
 
@@ -22,7 +22,7 @@ content with either.
 Standalone Output
 ~~~~~~~~~~~~~~~~~
 
-Standalone Bokeh content (i.e. that does not use a Bokeh server) can be embedded
+Standalone Bokeh content doesn't require a Bokeh server and can be embedded
 directly in classic Jupyter notebooks as well as in JupyterLab.
 
 Classic Notebook
@@ -30,16 +30,16 @@ Classic Notebook
 
 To display Bokeh plots inline in a classic Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
-the |output_file| function we have seen previously. No other modifications
-are required. When |show| is called, the plot will be displayed inline in
-the next notebook output cell. You can see a Jupyter screenshot below:
+the |output_file| function. No other modifications are required. When you
+call |show|, the plot will display inline in the next notebook output cell.
+See a screenshot of Jupyter below:
 
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
     :align: center
 
-Multiple plots can be displayed in a single notebook output cell by calling
-|show| multiple times in the input cell. The plots will be displayed in order.
+To have a single notebook output cell display multiple plots, call |show|
+multiple times in the input cell. The plots will display in order.
 
 .. image:: /_images/notebook_inline_multiple.png
     :scale: 50 %
@@ -48,21 +48,21 @@ Multiple plots can be displayed in a single notebook output cell by calling
 JupyterLab
 ++++++++++
 
-In order to embed Bokeh plots inside of JupyterLab, you need to install
-the two JupyterLab extensions. First, install *jupyterlab-manager* by running
-the following command:
+To embed Bokeh plots inside of JupyterLab, you'll need the following two JupyterLab extensions:
 
-.. code:: sh
+1. First install *jupyterlab-manager* with this command:
+
+.. code::
 
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
-And then similarly install the *jupyter_bokeh* extension:
+2. Then install the *jupyter_bokeh* extension as follows:
 
-.. code:: sh
+.. code::
 
     jupyter labextension install @bokeh/jupyter_bokeh
 
-Once this is installed, usage is the same as with classic notebooks above.
+The rest is the same as with classic notebooks above.
 
 .. image:: /_images/joyplot_jupyter_lab.png
     :scale: 25 %
@@ -71,40 +71,40 @@ Once this is installed, usage is the same as with classic notebooks above.
 Bokeh Server Applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is also possible to embed full Bokeh server applications that can connect
-plot events and Bokeh's built-in widgets directly to Python callback code.
+You can also embed full Bokeh server applications connecting plot events
+and Bokeh's built-in widgets directly to Python callback code.
 See :ref:`userguide_server` for general information about Bokeh server
-applications, and the following notebook for a complete example of a Bokeh
-application embedded in a Jupyter notebook:
+applications. For a complete example of a Bokeh application embedded in
+a Jupyter notebook, refer to the following notebook:
 
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 
 JupyterHub
 ++++++++++
 
-In order to embed Bokeh server applications when running notebooks from your own
-JupyterHub instance, some additional steps are necessary to enable network
-connectivity between the client browser and the Bokeh server running in the
+When running notebooks from your own JupyterHub instance, some additional
+steps are necessary to embed Bokeh server applications and to enable network
+connectivity between the client browser and the Bokeh server running in a
 JupyterLab cell. This is because your browser needs to connect to the port the
-Bokeh server is listening on, but JupyterHub is acting as a reverse proxy
+Bokeh server is listening on. However, JupyterHub is acting as a reverse proxy
 between your browser and your JupyterLab container. Follow all the JupyterLab
-instructions above, then continue with the following steps below.
+instructions above, then continue with the following steps:
 
-First, you must install the ``nbserverproxy`` server extension. This can be done
-by running the command:
+1. Install the ``nbserverproxy`` server extension as follows:
 
-.. code:: sh
+   .. code:: sh
 
     pip install nbserverproxy && jupyter serverextension enable --py nbserverproxy
 
-Second, you must define a function to help create the URL that the browser
-uses to connect to the Bokeh server. This will be passed into |show| in
-the final step. A reference implementation is provided here, although you
-must either modify it or define the environment variable ``EXTERNAL_URL``
-to the URL of your JupyterHub installation. By default, JupyterHub will set
-``JUPYTERHUB_SERVICE_PREFIX``.
+2. Define a function to help create the URL for the browser to connect to
+   the Bokeh server.
 
-.. code-block:: python
+   See below for a reference implementation. You'll have to either modify
+   this code or assign the URL of your JupyterHub installation to the environment
+   variable ``EXTERNAL_URL``. JupyterHub defaults to ``JUPYTERHUB_SERVICE_PREFIX``
+   in this case.
+
+   .. code-block:: python
 
     def remote_jupyter_proxy_url(port):
         """
@@ -129,24 +129,24 @@ to the URL of your JupyterHub installation. By default, JupyterHub will set
         full_url = urllib.parse.urljoin(user_url, proxy_url_path)
         return full_url
 
-Finally, you can pass the function you defined in step 2 to |show|
-as the notebook_url keyword argument, which Bokeh will call while
-setting up the server and creating the URL for loading the graph:
+3. Pass the function you defined in step 2 to the |show| function
+   as the notebook_url keyword argument, which Bokeh will call while
+   setting up the server and creating the URL to load a graph:
 
-.. code-block:: python
+   .. code-block:: python
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
-At this point, the Bokeh graph should load and execute python
+Now the Bokeh graph should load and execute python
 callbacks defined in your JupyterLab environment.
 
 Trusting Notebooks
 ~~~~~~~~~~~~~~~~~~
 
-Depending on the version of the notebook in use, it may be necessary to
-"trust" the notebook in order for Bokeh plots to re-render when the
-notebook is closed and subsequently re-opened. The "Trust Notebook" option
-is typically located under the "File" menu:
+Depending on the version of the notebook you use, you may have to
+"trust" the notebook for Bokeh plots to re-render when the
+notebook is closed and re-opened. The "Trust Notebook" option is
+typically located under the "File" menu:
 
 .. image:: /_images/notebook_trust.png
     :scale: 50 %
@@ -157,68 +157,63 @@ is typically located under the "File" menu:
 Notebook Slides
 ~~~~~~~~~~~~~~~
 
-It is possible to use a notebook in conjunction with `Reveal.js`_
-to generate slideshows from notebook cell content. It is also possible to
-include standalone (i.e. non-server) Bokeh plots in such sideshows, however,
-some steps must be followed to correctly display the output. Primarily: **the
-cell containing** ``output_notebook`` **must be not be skipped**.
+You can use a notebook with `Reveal.js`_ to generate slideshows from cells.
+You can also include standalone (i.e. non-server) Bokeh plots in such sideshows.
+However, you will need to take a few extra steps to display the output correctly.
+Particularly, make sure that **the cell containing the** ``output_notebook``
+**is not be skipped**.
 
-The rendered cell output of the ``output_notebook`` call is responsible
-for making sure the BokehJS library is loaded. Without that, Bokeh plots
-cannot function. If this cell type is marked *"skip"* then BokehJS will
-not be loaded, and Bokeh plots will not display. An alternative, if you
-wish to hide this cell, is to mark it as the *"notes"* slide type.
+Rendered cell output of the ``output_notebook`` call ensures that the
+BokehJS library loads. Otherwise, Bokeh plots will not work. If this cell's
+type is set to *"skip"*, BokehJS will not load, and Bokeh plots will not display.
+If you want to hide this cell, assign it the *"notes"* slide type.
 
 .. _userguide_jupyter_notebook_notebook_handles:
 
 Notebook Handles
 ~~~~~~~~~~~~~~~~
 
-It is possible to update a previously shown plot in place. When the argument
-``notebook_handle=True`` is passed to |show|, a handle object is returned.
-This handle object can be used with the |push_notebook| function to update
-the plot with any recent changes to plots properties, data source values, etc.
-This `notebook handle` functionality is only supported in classic Jupyter
-notebooks and is not implemented in JupyterLab or Zeppelin yet.
+You can update a displayed plot without reloading it. To do so, pass the
+``notebook_handle=True`` argument to |show| for it to return a handle object.
+You can use this handle object with the |push_notebook| function to update the plot
+with any recent changes to plots properties, data source values, etc.
 
-The following screenshots walk through the basic usage of notebook handles.
+This `notebook handle` functionality is only supported in classic Jupyter notebooks
+and is not implemented in JupyterLab or Zeppelin yet.
 
-First, import standard functions, as well as |push_notebook|:
+The following screenshots illustrate basic usage of notebook handles:
+
+1. Import standard functions and |push_notebook|:
 
 .. image:: /_images/notebook_comms1.png
     :scale: 50 %
     :align: center
 
-Next, create some plots, and make sure to pass ``notebook_handle=True`` to
-|show|:
+2. Create some plots and pass ``notebook_handle=True`` to |show|:
 
 .. image:: /_images/notebook_comms2.png
     :scale: 50 %
     :align: center
 
-Looking at the handle, see that it is associated with the output cell for
-``In[2]`` that was just displayed:
+3. Check that the handle is associated with the output cell for ``In[2]`` just displayed:
 
 .. image:: /_images/notebook_comms3.png
     :scale: 50 %
     :align: center
 
-Now, update any properties of the plot, then call |push_notebook| with the
-handle:
+4. Update some properties of the plot, then call |push_notebook| with the handle:
 
 .. image:: /_images/notebook_comms4.png
     :scale: 50 %
     :align: center
 
-After doing so, note that the earlier output cell for ``In[2]`` has changed
-(*without* being re-executed)
+5. Note that the output cell for ``In[2]`` has changed (*without* being re-executed):
 
 .. image:: /_images/notebook_comms5.png
     :scale: 50 %
     :align: center
 
-More detailed demonstrations of using notebook handles can be found in the
-following example notebooks:
+See the following notebooks for more detailed examples of notebook handle use:
 
 * :bokeh-tree:`examples/howto/notebook_comms/Basic Usage.ipynb`
 * :bokeh-tree:`examples/howto/notebook_comms/Continuous Updating.ipynb`
@@ -230,12 +225,12 @@ following example notebooks:
 Jupyter Interactors
 ~~~~~~~~~~~~~~~~~~~
 
-It is possible to drive updates to Bokeh plots using notebook widgets,
-known as `interactors`_. The key to doing this is the |push_notebook| function
-described above. Typically it is called in the update callback for the
-interactors, to update the plot from widget values. A screenshot of the
+You can use notebook widgets, known as `interactors`_, to update
+Bokeh plots. The key to doing this is the |push_notebook| function.
+The update callback for the interactors calls this function
+to update the plot from widget values. See a screenshot of the
 :bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb` example
-notebook is shown below:
+notebook below:
 
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
@@ -257,18 +252,19 @@ notebook is shown below:
 More Example Notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Many more examples using notebook can be found in the `bokeh-notebook`_
-repository. First, clone the repository locally:
+You can find many more examples of notebook use in the `bokeh-notebook`_ repository:
 
-.. code:: sh
+1. Clone the repository locally:
+
+   .. code:: sh
 
     git clone https://github.com/bokeh/bokeh-notebooks.git
 
-Then, launch the Jupyter notebooks in your web browser. Alternatively, live notebooks
-that can be run immediately online are hosted by `Binder`_.
+2. Launch the Jupyter notebooks in your web browser.
 
-Additionally, there are some notebooks under `examples`_ in the main `Bokeh`_
-repo:
+Alternatively, `Binder`_ hosts live notebooks that you can run online.
+
+The main `Bokeh`_ repo also includes some notebooks under `examples`_:
 
 - `categorical data`_
 - `hover callback`_
@@ -308,11 +304,9 @@ Notebook comms examples:
 IPyWidgets outside the Notebook
 -------------------------------
 
-In the previous section, we learned how to use Bokeh in JupyterLab and classical
-notebook environments. Suppose we would like to do the opposite and take
-advantage of the vibrant Jupyter ecosystem, in particular `IPyWidgets`_, in
-a Bokeh application, outside the confines of those environments. This can be
-achieved with help from `ipywidgets_bokeh`_ extension to Bokeh:
+Now that you know how to use Bokeh in the JupyterLab and classical notebook environments,
+you might want to take advantage of the vibrant Jupyter ecosystem outside of these environments.
+You can do so with the `ipywidgets_bokeh`_ extension for Bokeh:
 
 .. code-block:: sh
 
@@ -324,20 +318,19 @@ or
 
     $ pip install ipywidgets_bokeh
 
-Then you can use an IPyWidget in Bokeh, by simply wrapping it in ``IPyWidget``
-model and adding the wrapper to a document or including it in a layout. Given
-that this is run outside Jupyter, there is no need for installing and/or
-enabling any extensions.
+This extension lets you use `IPyWidgets`_ in Bokeh. Simply wrap a widget in an
+``IPyWidget`` model and add the wrapper to a document or include it in a layout.
+You don't have to install or enable any other extensions.
 
 Example
 ~~~~~~~
 
-Suppose we would like to create an application with a single Jupyter slider
-and log its value to the console, as the slider is manipulated. We start by
-constructing the widget and configuring an observer, the same as we would
-do in Jupyter:
+Let's create an example application with a single Jupyter slider that logs its
+adjustments to the console:
 
-.. code-block:: python
+1. Start by constructing a widget and configuring an observer:
+
+   .. code-block:: python
 
     from ipywidgets import FloatSlider
     angle = FloatSlider(min=0, max=360, value=0, step=1, description="Angle")
@@ -346,28 +339,28 @@ do in Jupyter:
         print(f"angle={change['new']} deg")
     angle.observe(on_change, names="value")
 
-To integrate the widget with Bokeh, we have to wrap it in ``IPyWidget``:
+2. To integrate the widget with Bokeh, wrap it in ``IPyWidget``:
 
-.. code-block:: python
+   .. code-block:: python
 
     from ipywidgets_bokeh import IPyWidget
     ipywidget = IPyWidget(widget=angle)
 
-Then we add the wrapper to a Bokeh document:
+3. Add the wrapper to a Bokeh document:
 
-.. code-block:: python
+   .. code-block:: python
 
     from bokeh.plotting import curdoc
     doc = curdoc()
     doc.add_root(ipywidget)
 
-To run this, assuming the code is saved under ``ipy_slider.py``, we issue
-``bokeh serve ipy_slider.py`` (see :ref:`userguide_server` for details). The
-application is available at http://localhost:5006/ipy_slider.
+To run the app, enter ``bokeh serve ipy_slider.py``, where ``ipy_slider.py``
+is the name of the application (see :ref:`userguide_server` for details).
+This application is available at http://localhost:5006/ipy_slider.
 
-From here, one can create more complex layouts and include advanced widgets,
-like `ipyleaflet`_, `ipyvolume`_, etc. More examples are available in the Bokeh
-repository under ``examples/howto/ipywidgets``.
+You can build on the above to create more complex layouts and include advanced widgets,
+such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see ``examples/howto/ipywidgets``
+in the Bokeh repository.
 
 .. _IPyWidgets: https://ipywidgets.readthedocs.io
 .. _ipywidgets_bokeh: https://github.com/bokeh/ipywidgets_bokeh
