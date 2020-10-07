@@ -3,72 +3,70 @@
 Developing with JavaScript
 ==========================
 
-In order to create interactive plots and applications in the browser, Bokeh
-has a client-side library, BokehJS, to do all the work of drawing and rendering
-and event handling in a browser. The Bokeh Python library (and libraries for
-other languages such as R, Scala, and Julia), are primarily a means to interact
-with BokehJS conveniently at a high level, without needing to explicitly worry
-about JavaScript or web development.
+BokehJS is a client-side library that lets you create interactive plots and
+applications. It takes care of drawing, rendering, and event handling. The 
+Bokeh Python library (and libraries for other languages such as R, Scala, 
+and Julia) enables convenient high-level interaction with BokehJS, so you 
+don't have to worry about JavaScript or web development.
 
-However, BokehJS has its own API, and it is possible to do pure JavaScript
-development using BokehJS directly. Additionally, :ref:`userguide_extensions`
-with custom models typically requires interacting with BokehJS directly as well.
+However, BokehJS also has its own API that lets you do pure JavaScript development 
+using BokehJS directly. Additionally, :ref:`userguide_extensions` with custom 
+models typically require direct interaction with BokehJS.
 
 .. warning::
-    The BokehJS APIs is still considered experimental, and may undergo changes
-    in future releases.
+    The BokehJS APIs is still in development and may undergo changes in future
+    releases.
 
 Obtaining BokehJS
 -----------------
 
-BokehJS is made available via CDN and ``npm``. See the :ref:`install_bokehjs`
+BokehJS is available via CDN and ``npm``. See the :ref:`install_bokehjs`
 section of the :ref:`installation` page for more details.
 
 
 .. _userguide_bokehjs_models:
 
-Low-Level Models
+Low-level models
 ----------------
 
-The low-level models for building up plots and applications (e.g. guides
-and glyphs and widgets, etc.) generally match the Bokeh Python models
-exactly. Accordingly, the :ref:`refguide` is a primary resource for
-answering questions about BokehJS models, even though it is presented
-from a Python perspective.
+Generally, the low-level models for plots and applications (e.g. guides,
+glyphs, widgets) match the Bokeh Python models exactly. The :ref:`refguide`
+is therefore the primary reference for BokehJS models, even though it
+focuses on Python.
 
-Unlike the hierarchical organization of the Python library, all of the
-JavaScript models are all in one flat ``Bokeh`` module. Typically any
-Python ``ClassName`` is available as ``Bokeh.ClassName`` from JavaScript.
-The complete list of models available from JavaScript can be seen at
-:bokeh-tree:`bokehjs/src/lib/api/models.ts`.
+Whereas the Python library is organized hierarchically, JavaScript models 
+are all in one flat ``Bokeh`` module. Typically any Python ``ClassName`` 
+is available as ``Bokeh.ClassName`` in JavaScript. For a complete list 
+of JavaScript models, see :bokeh-tree:`bokehjs/src/lib/api/models.ts`.
 
-When creating models from JavaScript, all of the keyword arguments that
-would get passed to the Python object initializer are passed as a
-JavaScript object. Here is a comparison of how to create a `Range1d`
-model. First, in Python:
+When creating models in JavaScript, make a JavaScript object of all the 
+keyword arguments you'd pass to the Python object initializer. Here is an
+example of how to initialize a `Range1d` model in both languages:
 
-.. code-block:: python
+• Python
+
+  .. code-block:: python
 
     xdr = Range1d(start=-0.5, end=20.5)
 
-and the corresponding JavaScript version:
+• JavaScript
 
-.. code-block:: javascript
+  .. code-block:: javascript
 
     var xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
 
-This pattern holds in general. Once created, Bokeh model properties are
-set in exactly the same way in both languages. To set the ``end`` value
-to 30 on the `Range1d` from above, use ``xdr.end = 30`` in either Python
-or JavaScript.
+This pattern works in all similar situations. Once you create a Bokeh model,
+you can set its properties in exactly the same way in both languages. For
+example, ``xdr.end = 30`` sets the ``end`` value to 30 on the `Range1d` model
+above in both Python and JavaScript.
 
-As an example, here is an example that creates a plot with axes, grids,
-and a line glyph from scratch. Comparison with examples in
-:bokeh-tree:`examples/models` will show that the translation from
-Python to JavaScript at this level is nearly one-to-one:
+Below is an example that creates a plot with axes, grids, and a line glyph
+from scratch. Compare with samples in :bokeh-tree:`examples/models` and 
+you'll see that the code in Python and JavaScript is nearly identical at
+this level:
 
 .. bokehjs-content::
-    :title: Bokeh Simple Line
+    :title: Bokeh simple line
     :js_file: docs/user_guide/examples/simple_line.js
 
 .. _userguide_bokehjs_interfaces:
@@ -77,14 +75,14 @@ Interfaces
 ----------
 
 Similar to the Python Bokeh library, BokehJS provides various higher-level
-interfaces for interacting with and composing the low-level model objects.
-These higher-level interfaces currently comprise  ``Bokeh.Plotting`` and
+interfaces. These interfaces let you interact with and compose low-level
+model objects. The higher-level interfaces comprise ``Bokeh.Plotting`` and
 ``Bokeh.Charts``.
 
 .. note::
-    As of ``0.12.2`` the APIs described below have been split into BokehJS
-    API, in the ``bokeh-api.js`` file, which must be imported in addition
-    to ``bokeh.js``.
+    Starting from version ``0.12.2`` these APIs make up the BokehJS API in
+    the ``bokeh-api.js`` file. You'll have to import this file in addition
+    to ``bokeh.js`` to enable these APIs.
 
 .. _userguide_bokehjs_interfaces_plotting:
 
@@ -93,14 +91,14 @@ These higher-level interfaces currently comprise  ``Bokeh.Plotting`` and
 
 The JavaScript ``Bokeh.Plotting`` API is a port of the Python
 ``bokeh.plotting`` interface. Accordingly, the information in the
-:ref:`userguide_plotting` section of the User Guide can be a useful
-reference in addition to the material here.
+:ref:`userguide_plotting` section of the User guide can be a useful
+reference in addition to the material provided here.
 
-Here is an example that is very similar to the Python example
+The JavaScript sample below is very similar to the Python code in
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
 
 .. bokehjs-content::
-    :title: Bokeh Color Scatter
+    :title: Bokeh color scatter
 
     var plt = Bokeh.Plotting;
 
@@ -145,24 +143,23 @@ Here is an example that is very similar to the Python example
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
 
-The JavaScript ``Bokeh.Charts`` API is a high-level interface for charting
-that is unique to BokehJS. Currently, there are two high-level charts
-supported: ``pie`` and ``bar``.
+The JavaScript ``Bokeh.Charts`` API is a high-level charting interface that 
+is unique to BokehJS. The API supports two high-level charts: ``pie`` and ``bar``.
 
 .. _userguide_bokehjs_interfaces_charts_pie:
 
 ``Bokeh.Charts.pie``
 ''''''''''''''''''''
 
-To create pie charts using ``Bokeh.Charts.pie``, the basic usage is:
+The following lets you create basic pie charts with ``Bokeh.Charts.pie``:
 
 .. code-block:: javascript
 
     Bokeh.Charts.pie(data, { options })
 
 Where ``data`` is a JavaScript object that has ``labels`` and
-``values`` keys, and ``options`` is an object that has any of
-the following optional keys:
+``values`` keys and ``options`` is an object that can include
+any of the following optional keys:
 
 :``width``: *number* --- chart width in pixels
 :``height``: *number* --- chart height in pixels
@@ -171,15 +168,14 @@ the following optional keys:
 :``start_angle``: *number* --- start angle for wedges in radians
 :``end_angle``: *number* --- end angle for wedges in radians
 :``center``: *[number, number]* --- ``(x, y)`` location of the pie center in pixels
-:``palette``: *Palette | Array<Color>* --- a named palette, or list of colors to colormap the values
+:``palette``: *Palette | Array<Color>* --- a named palette or list of colors to color-map the values
 :``slice_labels``: *"labels" | "values" | "percentages"* --- what the tooltip should show
 
-By default, plots created ``Bokeh.Charts.pie`` automatically add a tooltip
-and hover policy. Here is some example code that demonstrates the ``pie``
-function, with the plot it generates shown below:
+By default, plots created with ``Bokeh.Charts.pie`` automatically add a tooltip
+and hover policy. Here is an example of a ``pie`` chart and the plot it generates:
 
 .. bokehjs-content::
-    :title: Bokeh Pie Chart
+    :title: Bokeh pie chart
 
     var plt = Bokeh.Plotting;
 
@@ -216,16 +212,15 @@ function, with the plot it generates shown below:
 ``Bokeh.Charts.bar``
 ''''''''''''''''''''
 
-To create bar charts using ``Bokeh.Charts.bar``, the basic usage is:
+The following lets you create basic bar charts with ``Bokeh.Charts.bar``:
 
 .. code-block:: javascript
 
     Bokeh.Charts.bar(data, { options })
 
-Where ``data`` is a JavaScript array that has as elements lists that are
-"rows" from a data table. The first "row" should contain the column headers.
-Here is an example that might represent sales data from different regions for
-different years:
+Where ``data`` is an array with entries representing rows of a data table.
+The first row should contain the column headers. Here is an example of
+some sales data from different regions for different years:
 
 .. code-block:: javascript
 
@@ -238,23 +233,22 @@ different years:
         ['North',  2016,    12000 ],
     ];
 
-Similar to ``pie``, the ``options`` parameter is an object that has any of
-the following optional keys:
+Similar to the ``pie`` chart, the ``options`` parameter is an object that 
+can include any of the following optional keys:
 
 :``width``: *number* --- chart width in pixels
 :``height``: *number* --- chart height in pixels
 :``stacked``: *boolean* --- whether the bars should be stacked or not
 :``orientation``: *"horizontal" | "vertical"* --- how the bars should be oriented
 :``bar_width``: *number* --- width of each bar in pixels
-:``palette``: *Palette | Array<Color>* --- a named palette, or list of colors to colormap the values
+:``palette``: *Palette | Array<Color>* --- a named palette or list of colors to color-map the values
 :``axis_number_format``: *string* --- a format string to use for axis ticks
 
 By default, plots created with ``Bokeh.Charts.bar`` automatically add a tooltip
-and hover policy. Here is some example code that demonstrates the ``bar``
-function, with the plot it generates shown below:
+and hover policy. Here is an example of a ``bar`` chart and the plot it generates:
 
 .. bokehjs-content::
-    :title: Bokeh Bar Chart
+    :title: Bokeh bar chart
 
     var plt = Bokeh.Plotting;
 
@@ -286,11 +280,11 @@ function, with the plot it generates shown below:
 
     plt.show(plt.gridplot([[p1, p2], [p3, p4]], {plot_width:350, plot_height:350}));
 
-Minimal Example
+Minimal example
 ---------------
 
-A minimal example follows, demonstrating a proper import of the libraries,
-and dynamic creation and modification of plots.
+The following basic example shows how to import libraries and 
+create and modify plots.
 
 .. bokehjs-content::
     :title: Minimal Example
@@ -304,7 +298,7 @@ and dynamic creation and modification of plots.
 
     // make a plot with some tools
     var plot = Bokeh.Plotting.figure({
-        title:'Example of Random data',
+        title: 'Example of random data',
         tools: "pan,wheel_zoom,box_zoom,reset,save",
         height: 300,
         width: 300
@@ -324,12 +318,12 @@ and dynamic creation and modification of plots.
         source.data.x.push(Math.random())
         source.data.y.push(Math.random())
 
-        // notify the DataSource of "in-place" changes
+        // update the data source with local changes
         source.change.emit()
     }
 
     var addDataButton = document.createElement("Button");
-    addDataButton.appendChild(document.createTextNode("Add Some Data!!!"));
+    addDataButton.appendChild(document.createTextNode("Some data."));
     document.currentScript.parentElement.appendChild(addDataButton);
     addDataButton.addEventListener("click", addPoint);
 
