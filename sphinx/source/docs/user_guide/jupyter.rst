@@ -5,7 +5,7 @@ Using with Jupyter
 
 .. _userguide_jupyter_notebook:
 
-Working in Notebooks
+Working in notebooks
 --------------------
 
 `Jupyter`_ notebooks are computable documents often used for exploratory work,
@@ -19,14 +19,14 @@ with either.
 
 .. _userguide_jupyter_notebook_inline_plots:
 
-Standalone Output
+Standalone output
 ~~~~~~~~~~~~~~~~~
 
 Standalone Bokeh content doesn't require a Bokeh server and can be embedded
 directly in classic Jupyter notebooks as well as in JupyterLab.
 
-Classic Notebook
-++++++++++++++++
+Classic notebooks
++++++++++++++++++
 
 To display Bokeh plots inline in a classic Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
@@ -48,7 +48,7 @@ multiple times in the input cell. The plots will display in order.
 JupyterLab
 ++++++++++
 
-To embed Bokeh plots inside of JupyterLab, you'll need the following two JupyterLab extensions:
+To embed Bokeh plots in JupyterLab, you'll need the following two JupyterLab extensions:
 
 1. First install *jupyterlab-manager* with this command:
 
@@ -68,7 +68,7 @@ The rest is the same as with classic notebooks above.
     :scale: 25 %
     :align: center
 
-Bokeh Server Applications
+Bokeh server applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can also embed full Bokeh server applications connecting plot events
@@ -140,13 +140,14 @@ instructions above, then continue with the following steps:
 Now the Bokeh graph should load and execute python
 callbacks defined in your JupyterLab environment.
 
-Trusting Notebooks
+Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
 
-Depending on the version of the notebook you use, you may have to
-"trust" the notebook for Bokeh plots to re-render when the
-notebook is closed and re-opened. The "Trust Notebook" option is
-typically located under the "File" menu:
+Depending on the version of the notebook you are using, you may have to
+`trust the notebook <https://jupyter-notebook.readthedocs.io/en/stable/security.html#explicit-trust>`_
+for Bokeh plots to re-render when the notebook is closed and re-
+opened. The **Trust Notebook** option is typically located under the
+**File** menu:
 
 .. image:: /_images/notebook_trust.png
     :scale: 50 %
@@ -154,7 +155,7 @@ typically located under the "File" menu:
 
 .. _userguide_jupyter_notebook_slides:
 
-Notebook Slides
+Notebook slides
 ~~~~~~~~~~~~~~~
 
 You can use a notebook with `Reveal.js`_ to generate slideshows from cells.
@@ -170,7 +171,7 @@ If you want to hide this cell, assign it the *"notes"* slide type.
 
 .. _userguide_jupyter_notebook_notebook_handles:
 
-Notebook Handles
+Notebook handles
 ~~~~~~~~~~~~~~~~
 
 You can update a displayed plot without reloading it. To do so, pass the
@@ -222,7 +223,7 @@ See the following notebooks for more detailed examples of notebook handle use:
 
 .. _userguide_jupyter_notebook_jupyter_interactors:
 
-Jupyter Interactors
+Jupyter interactors
 ~~~~~~~~~~~~~~~~~~~
 
 You can use notebook widgets, known as `interactors`_, to update
@@ -249,7 +250,7 @@ notebook below:
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 .. _Reveal.js: http://lab.hakim.se/reveal-js/#/
 
-More Example Notebooks
+More example notebooks
 ~~~~~~~~~~~~~~~~~~~~~~
 
 You can find many more examples of notebook use in the `bokeh-notebook`_ repository:
@@ -301,7 +302,7 @@ Notebook comms examples:
 
 .. _userguide_jupyter_ipywidgets:
 
-IPyWidgets outside the Notebook
+IPyWidgets outside the notebook
 -------------------------------
 
 Now that you know how to use Bokeh in the JupyterLab and classical notebook environments,
@@ -325,7 +326,7 @@ You don't have to install or enable any other extensions.
 Example
 ~~~~~~~
 
-Let's create an example application with a single Jupyter slider that logs its
+For example, try building an application with a single Jupyter slider that logs its
 adjustments to the console:
 
 1. Start by constructing a widget and configuring an observer:
