@@ -130,14 +130,14 @@ instructions above, then continue with the following steps:
         return full_url
 
 3. Pass the function you defined in step 2 to the |show| function
-   as the notebook_url keyword argument, which Bokeh will call while
-   setting up the server and creating the URL to load a graph:
+   as the ``notebook_url`` keyword argument. Bokeh then calls this
+   function when it sets up the server and creates the URL to load a graph:
 
    .. code-block:: python
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
-Now the Bokeh graph should load and execute python
+Now the Bokeh graph should load and execute Python
 callbacks defined in your JupyterLab environment.
 
 Trusting notebooks
@@ -326,8 +326,8 @@ You don't have to install or enable any other extensions.
 Example
 ~~~~~~~
 
-For example, try building an application with a single Jupyter slider that logs its
-adjustments to the console:
+Follow these steps to build an application with a single Jupyter slider that
+logs its adjustments to the console:
 
 1. Start by constructing a widget and configuring an observer:
 
