@@ -27,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, Instance, List, String
+from .core.properties import AnyRef, Dict, Instance, List, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -263,7 +263,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags: tp.List[tp.Any] = List(Any, help="""
+    tags: tp.List[tp.Any] = List(AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
