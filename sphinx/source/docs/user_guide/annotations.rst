@@ -11,7 +11,7 @@ supplemental information to their visualizations.
 Titles
 ------
 
-|Title| annotations allow descriptive text to be rendered around the edges
+With |Title| annotations, you can add descriptive text to render around the edges
 of a plot.
 
 When using ``bokeh.plotting`` or ``bokeh.Charts``, the quickest way to add
@@ -39,7 +39,7 @@ Note that the alignment is measured along the direction of text. For
 example, for titles on the left side of a plot, "left" will be in the
 lower corner.
 
-In addition to the default title, it is possible to create and add
+In addition to the default title, you can create and add
 additional |Title| objects to plots using the ``add_layout`` method
 of Plots:
 
@@ -61,7 +61,7 @@ visually overlap in a way that is not desirable.
 Legends
 -------
 
-It is possible to create |Legend| annotations easily by specifying legend
+You can create |Legend| annotations easily by specifying legend
 arguments to the glyph methods when creating a plot.
 
 Basic Legend Label
@@ -144,7 +144,7 @@ for the legend item, as shown below.
 Interactive Legends
 ~~~~~~~~~~~~~~~~~~~
 
-It's also possible to configure legends to be interactive, so that clicking
+It is also possible to configure legends to be interactive, so that clicking
 or tapping on legend entries affects the corresponding glyph visibility. See
 the :ref:`userguide_interaction_legends` section of the User Guide for more
 information and examples.
@@ -160,7 +160,7 @@ Color Bars
 ----------
 
 A |ColorBar| can be created using a |ColorMapper| instance, which
-contains a color palette. Both on-plot and off-plot color bars are
+contains a color palette. Both on- and off-plot color bars are
 supported; the desired location can be specified when adding the
 |ColorBar| to the plot.
 
@@ -193,7 +193,7 @@ arrow shaft:
     my_arrow.line_color = "blue"
     my_arrow.line_alpha = 0.6
 
-Arrows may also be configured to refer to additional non-default x-ranges or
+Arrows may also be configured to refer to additional non-default x- or
 y-ranges with the ``x_range`` and ``y_range`` properties, in the same way
 as :ref:`userguide_plotting_twin_axes`.
 
@@ -256,9 +256,8 @@ glyph, use the |LabelSet| annotation, which is configured with a data
 source in which the ``text`` and the ``x`` and ``y`` positions are given as column
 names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
 which specify a distance in screen space units to offset the label positions
-from ``x`` and ``y``. Finally, the render level may be controlled with the
-``level`` property, to place the label above or underneath other renderers:
-
+from ``x`` and ``y``. Finally, the ``level`` property controls the render level,
+to place the label above or underneath other renderers:
 
 .. code-block:: python
 
