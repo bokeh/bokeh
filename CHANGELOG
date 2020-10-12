@@ -1,3 +1,12 @@
+2020-10-12    2.2.2:
+--------------------
+  * bugfixes:
+    - #10453 [component: server] [BUG] KeyError when display certain glyphs on the server
+    - #10521 [component: bokehjs] Selectively update data when CDSView changes
+
+  * tasks:
+    - #10451 [component: bokehjs] Update bokehjs' dependencies
+
 2020-08-31    2.2.1:
 --------------------
   * bugfixes:
