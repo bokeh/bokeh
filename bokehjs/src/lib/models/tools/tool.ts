@@ -22,6 +22,7 @@ import type {LassoSelectTool} from "./gestures/lasso_select_tool"
 import type {BoxZoomTool} from "./gestures/box_zoom_tool"
 import type {HoverTool} from "./inspectors/hover_tool"
 import type {SaveTool} from "./actions/save_tool"
+import type {SaveDataTool} from "./actions/save_data_tool";
 import type {UndoTool} from "./actions/undo_tool"
 import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
@@ -55,6 +56,7 @@ export type ToolAliases = {
   ybox_zoom:    BoxZoomTool
   hover:        HoverTool
   save:         SaveTool
+  save_data:    SaveDataTool
   undo:         UndoTool
   redo:         RedoTool
   reset:        ResetTool

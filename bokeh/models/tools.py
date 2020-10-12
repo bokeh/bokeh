@@ -122,6 +122,7 @@ __all__ = (
     'RedoTool',
     'ResetTool',
     'SaveTool',
+    'SaveDataTool',
     'Scroll',
     'Tap',
     'TapTool',
@@ -483,6 +484,59 @@ class SaveTool(Action):
         :height: 24px
 
     '''
+
+class SaveDataTool(Action):
+    """
+    A tool for downloading data from the plot.
+    """
+
+    source = Instance(ColumnDataSource, help="""
+    The data-source that should be used to extract the data from and download the selected data.
+    """)
+
+    column_formatters = Dict(String, Either(Enum(TooltipFieldFormatter), Tuple(Enum(TooltipFieldFormatter), String)),
+                             default=lambda: dict(), help="""
+    Specify the formatting scheme for data source columns alongside that format's
+    specifications, e.g.
+
+    .. code-block:: python
+
+        tool.formatters = {"@date": ("datetime", "%F %T.%3N")}
+
+    will cause format specifications for the "date" column to be interpreted
+    according to the "datetime" formatting scheme. The following schemes are
+    available:
+
+    :``"numeral"``:
+        Provides a wide variety of formats for numbers, currency, bytes, times,
+        and percentages. The full set of formats can be found in the
+        |NumeralTickFormatter| reference documentation.
+
+    :``"datetime"``:
+        Provides formats for date and time values. The full set of formats is
+        listed in the |DatetimeTickFormatter| reference documentation.
+
+    :``"printf"``:
+        Provides formats similar to C-style "printf" type specifiers. See the
+        |PrintfTickFormatter| reference documentation for complete details.
+
+    If no formatter is specified for a column name, the default ``"numeral"``
+    formatter is assumed.
+
+    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
+    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
+    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+
+    """)
+
+    separator = String(default=",", help="""
+    The separator to use between the columns of the data. Can be used,
+    for example, to extract the tabular data in TSV (Tab-Separated Value)
+    format rather than Comma-Separated""")
+
+    download_selected = Bool(default=True, help="""
+    Whether only the selected data should be downloaded, or all data that's in the data-source.""")
+
 
 class ResetTool(Action):
     ''' *toolbar icon*: |reset_icon|
@@ -1612,6 +1666,7 @@ Tool.register_alias("box_zoom", lambda: BoxZoomTool(dimensions="both"))
 Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
 Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
 Tool.register_alias("save", lambda: SaveTool())
+Tool.register_alias("save_data", lambda: SaveDataTool())
 Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
