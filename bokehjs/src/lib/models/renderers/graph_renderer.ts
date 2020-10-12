@@ -60,6 +60,12 @@ export class GraphRendererView extends DataRendererView {
 
     const {edge_renderer, node_renderer} = this.model
 
+    edge_renderer.glyph.properties.xs.internal = true
+    edge_renderer.glyph.properties.ys.internal = true
+
+    node_renderer.glyph.properties.x.internal = true
+    node_renderer.glyph.properties.y.internal = true
+
     edge_renderer.glyph.xs = {expr: xs_expr}
     edge_renderer.glyph.ys = {expr: ys_expr}
 

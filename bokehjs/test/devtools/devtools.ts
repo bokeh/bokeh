@@ -157,8 +157,10 @@ async function run_tests(): Promise<boolean> {
       await Network.enable()
       await Network.setCacheDisabled({cacheDisabled: true})
 
-      await Runtime.enable()
       await Page.enable()
+      await Page.navigate({url: "about:blank"})
+
+      await Runtime.enable()
       await Log.enable()
 
       async function override_metrics(dpr: number = 1): Promise<void> {
