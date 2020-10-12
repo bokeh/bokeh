@@ -504,7 +504,7 @@ class SaveDataTool(Action):
 
     .. code-block:: python
 
-        tool.formatters = {"@date": ("datetime", "%F %T.%3N")}
+        tool.formatters = {"date": ("datetime", "%F %T.%3N")}
 
     will cause format specifications for the "date" column to be interpreted
     according to the "datetime" formatting scheme. The following schemes are
