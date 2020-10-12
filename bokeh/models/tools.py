@@ -31,6 +31,8 @@ always be active regardless of what other tools are currently active.
 # Boilerplate
 #-----------------------------------------------------------------------------
 import logging # isort:skip
+
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -90,6 +92,7 @@ from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import GlyphRenderer, Renderer
+from . import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
