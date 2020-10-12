@@ -31,6 +31,8 @@ always be active regardless of what other tools are currently active.
 # Boilerplate
 #-----------------------------------------------------------------------------
 import logging # isort:skip
+
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -82,7 +84,7 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
     NO_RANGE_TOOL_RANGES,
 )
-from ..model import Model
+from ..model import Model,
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -90,6 +92,7 @@ from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import GlyphRenderer, Renderer
+from . import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
