@@ -84,7 +84,7 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
     NO_RANGE_TOOL_RANGES,
 )
-from ..model import Model
+from ..model import Model,
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
