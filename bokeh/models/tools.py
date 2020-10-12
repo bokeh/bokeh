@@ -92,7 +92,7 @@ from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import GlyphRenderer, Renderer
-from . import ColumnDataSource
+from .sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
