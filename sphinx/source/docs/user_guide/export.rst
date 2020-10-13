@@ -68,7 +68,7 @@ lower-level function :func:`~bokeh.io.export.get_screenshot_as_png`.
 SVG generation
 --------------
 
-Bokeh can also replace HTML5 Canvas plot output with an Scalable Vector
+Bokeh can also replace the HTML5 Canvas plot output with a Scalable Vector
 Graphics (SVG) element that can be edited in image editing programs such
 as Adobe Illustrator and/or converted to a PDF.
 
