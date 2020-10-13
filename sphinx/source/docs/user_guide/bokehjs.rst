@@ -29,7 +29,7 @@ section of the :ref:`installation` page for more details.
 Low-level models
 ----------------
 
-Generally, the low-level models for plots and applications (e.g. guides,
+Generally, the low-level models for plots and applications (such as guides,
 glyphs, widgets) match the Bokeh Python models exactly. The :ref:`refguide`
 is therefore the primary reference for BokehJS models, even though it
 focuses on Python.
