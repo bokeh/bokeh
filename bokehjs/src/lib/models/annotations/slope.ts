@@ -42,13 +42,13 @@ export class SlopeView extends AnnotationView {
     } else {
       sy_start = frame.bbox.top
       sy_end = sy_start + frame.bbox.height
-  
+
       const y_start = yscale.invert(sy_start)
       const y_end = yscale.invert(sy_end)
-  
+
       const x_start = (y_start - y_intercept) / gradient
       const x_end = (y_end - y_intercept) / gradient
-  
+
       sx_start = xscale.compute(x_start)
       sx_end = xscale.compute(x_end)
     }
