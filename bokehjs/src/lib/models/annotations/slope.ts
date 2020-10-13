@@ -29,10 +29,7 @@ export class SlopeView extends AnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    let sy_start
-    let sy_end
-    let sx_start
-    let sx_end
+    let sy_start, sy_end, sx_start, sx_end
     if (gradient == 0) {
       sy_start = yscale.compute(y_intercept)
       sy_end = sy_start
