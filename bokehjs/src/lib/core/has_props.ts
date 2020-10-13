@@ -193,6 +193,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly destroyed       = new Signal0<this>(this, "destroyed")
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
+  readonly exprchange      = new Signal0<this>(this, "exprchange")
 
   readonly properties: {[key: string]: Property} = {}
 
@@ -296,8 +297,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   finalize(): void {
     for (const prop of this) {
-      if (prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
+      const {transform, expr} = prop.spec
+      if (transform != null)
+        this.connect(transform.change, () => this.transformchange.emit())
+      if (expr != null && "change" in Object(expr))
+        this.connect(expr.change, () => this.exprchange.emit())
     }
 
     this.initialize()
