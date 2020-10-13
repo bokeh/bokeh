@@ -1,3 +1,4 @@
+import {HasProps} from "core/has_props"
 import {Expression} from "./expression"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "core/properties"
@@ -32,6 +33,18 @@ export class CustomJSExpr extends Expression {
       args: [ Dict(Unknown), {} ],
       code: [ String, "" ],
     }))
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    for (const value of values(this.args)) {
+      if (value instanceof HasProps) {
+        value.change.connect(() => {
+          this._result.clear()
+          this.change.emit()
+        })
+      }
+    }
   }
 
   get names(): string[] {

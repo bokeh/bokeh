@@ -3,7 +3,7 @@ import numpy as np
 from bokeh.core.properties import Float, expr
 from bokeh.io import save
 from bokeh.model import DataModel
-from bokeh.models import ColumnDataSource, CustomJSExpr
+from bokeh.models import CustomJSExpr
 from bokeh.plotting import figure
 
 
@@ -32,11 +32,5 @@ y = CustomJSExpr(args=dict(params=params), code="""
 
 plot = figure(tags=[params], y_range=(-5, 5), title="Data models with custom JS expressions")
 plot.line(x, y=expr(y), line_width=3, line_alpha=0.6)
-
-# TODO: callback = emit exprchange
-#params.js_on_change("amp", callback)
-#params.js_on_change("freq", callback)
-#params.js_on_change("phase", callback)
-#params.js_on_change("offset", callback)
 
 save(plot)
