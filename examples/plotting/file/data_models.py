@@ -2,14 +2,12 @@ import numpy as np
 
 from bokeh.core.properties import Float
 from bokeh.io import save
-from bokeh.model import Model
+from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.plotting import figure
 
 
-class Params(Model):
-    __data_model__ = True
-
+class Params(DataModel):
     amp = Float(default=0.1, help="Amplitude")
     freq = Float(default=0.1, help="Frequency")
     phase = Float(default=0, help="Phase")

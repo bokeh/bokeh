@@ -40,6 +40,7 @@ from .util.serialization import make_id
 __all__ = (
     'collect_models',
     'get_class',
+    'DataModel',
     'Model',
 )
 
@@ -778,6 +779,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
+
+@abstract
+class DataModel(Model):
+    __data_model__ = True
 
 #-----------------------------------------------------------------------------
 # Private API
