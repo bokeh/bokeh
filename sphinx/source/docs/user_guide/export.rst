@@ -84,8 +84,8 @@ Limitations
 
 You can't create a single SVG for a layout of plots because each plot will
 produce its own distinct SVG element. You can, however, download an SVG plot
-using a SaveTool from the toolbar although an SVG export of a plot with a
-toolbar will have a blank area where the toolbar was rendered in the browser.
+using a SaveTool from the toolbar. Note that in this case the exported file
+will have a blank area where the toolbar used to be.
 
 Example usage
 ~~~~~~~~~~~~~
