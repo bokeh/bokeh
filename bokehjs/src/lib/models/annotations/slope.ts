@@ -20,7 +20,7 @@ export class SlopeView extends AnnotationView {
   protected _render(): void {
     const gradient = this.model.gradient
     const y_intercept = this.model.y_intercept
-    if(gradient == null || y_intercept == null){
+    if (gradient == null || y_intercept == null) {
       return
     }
 
@@ -29,17 +29,26 @@ export class SlopeView extends AnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    const sy_start = frame.bbox.top
-    const sy_end = sy_start + frame.bbox.height
+    let sy_start, sy_end, sx_start, sx_end
+    if (gradient == 0) {
+      sy_start = yscale.compute(y_intercept)
+      sy_end = sy_start
 
-    const y_start = yscale.invert(sy_start)
-    const y_end = yscale.invert(sy_end)
+      sx_start = frame.bbox.left
+      sx_end = sx_start + frame.bbox.width
+    } else {
+      sy_start = frame.bbox.top
+      sy_end = sy_start + frame.bbox.height
 
-    const x_start = (y_start - y_intercept) / gradient
-    const x_end = (y_end - y_intercept) / gradient
+      const y_start = yscale.invert(sy_start)
+      const y_end = yscale.invert(sy_end)
 
-    const sx_start = xscale.compute(x_start)
-    const sx_end = xscale.compute(x_end)
+      const x_start = (y_start - y_intercept) / gradient
+      const x_end = (y_end - y_intercept) / gradient
+
+      sx_start = xscale.compute(x_start)
+      sx_end = xscale.compute(x_end)
+    }
 
     const {ctx} = this.layer
     ctx.save()
