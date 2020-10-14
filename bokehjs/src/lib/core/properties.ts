@@ -507,6 +507,10 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
+export class ScreenDistanceSpec extends DistanceSpec {
+  get default_units(): enums.SpatialUnits { return "screen" as "screen" }
+}
+
 export class BooleanSpec extends DataSpec<boolean> {
   array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
