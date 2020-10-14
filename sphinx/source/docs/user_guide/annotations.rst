@@ -241,7 +241,7 @@ To create a single text label, use the |Label| annotation. This annotation
 is configured with a ``text`` property containing the text to be displayed,
 as well as ``x`` and ``y`` properties to set the position (in screen or data
 space units). Additionally, a render mode ``"canvas"`` or ``"css"`` may be
-specified. Finally, labels have ``text``, ``border_line`` and
+specified. Finally, labels have ``text``, ``border_line``, and
 ``background_fill`` properties. These control the visual appearance of the
 text, as well as the border and background of the bounding box for the text:
 
