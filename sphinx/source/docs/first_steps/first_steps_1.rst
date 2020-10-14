@@ -3,15 +3,19 @@
 First steps 1: creating a line chart
 ====================================
 
-With just a few lines of Python code, Bokeh enables you to create an
-interactive, JavaScript-powered visualization in your browser.
+With just a few lines of Python code, Bokeh enables you to create
+interactive, JavaScript-powered visualizations in your browser.
+
+The basic idea of Bokeh is a two-step process: First, you select from Bokehs
+building blocks to create your visualization. Second, you customize these
+building blocks to fit your needs.
 
 To do that, Bokeh combines two elements:
 
-1. A Python library for defining the content and interactive functionalities of
-   your visualization.
-2. A JavaScript library called BokehJS for displaying your interactive
-   visualizations in a web browser.
+* A Python library for defining the content and interactive functionalities of
+  your visualization.
+* A JavaScript library called BokehJS that is working in the background to
+  display your interactive visualizations in a web browser.
 
 Based on your Python code, Bokeh automatically generates all the necessary
 JavaScript and HTML code for you.
