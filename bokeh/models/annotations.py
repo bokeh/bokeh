@@ -56,6 +56,7 @@ from ..core.properties import (
     String,
     StringSpec,
     Tuple,
+    field,
     value,
 )
 from ..core.property_mixins import (
@@ -622,15 +623,15 @@ class Band(Annotation):
     See :ref:`userguide_plotting_bands` for information on plotting bands.
 
     '''
-    lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    lower = PropertyUnitsSpec(default=field("lower"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    upper = PropertyUnitsSpec(default=field("upper"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    base = PropertyUnitsSpec(default=field("base"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -1065,7 +1066,7 @@ class Whisker(Annotation):
 
     '''
 
-    lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    lower = PropertyUnitsSpec(default=field("lower"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -1073,7 +1074,7 @@ class Whisker(Annotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    upper = PropertyUnitsSpec(default=field("upper"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -1081,7 +1082,7 @@ class Whisker(Annotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    base = PropertyUnitsSpec(default=field("base"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 

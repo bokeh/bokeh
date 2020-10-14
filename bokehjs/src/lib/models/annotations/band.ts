@@ -1,8 +1,6 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Dimension} from "core/enums"
 import * as p from "core/properties"
 
 export class BandView extends UpperLowerView {
@@ -71,13 +69,7 @@ export class BandView extends UpperLowerView {
 export namespace Band {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UpperLower.Props & {
-    lower: p.DistanceSpec
-    upper: p.DistanceSpec
-    base: p.DistanceSpec
-    dimension: p.Property<Dimension>
-    source: p.Property<ColumnarDataSource>
-  } & Mixins
+  export type Props = UpperLower.Props & Mixins
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 

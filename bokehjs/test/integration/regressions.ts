@@ -2,7 +2,7 @@ import {display, fig, row, column, grid} from "./utils"
 
 import {linspace} from "@bokehjs/core/util/array"
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem,
+  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -223,6 +223,51 @@ describe("Bug", () => {
       }
 
       await display(p, [200, 300])
+    })
+  })
+
+  describe("in issue #10575", () => {
+    const factors: Factor[] = [
+      ["A", "01", "AA"], ["A", "01", "AB"], ["A", "01", "AC"], ["A", "01", "AD"], ["A", "01", "AE"],
+      ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
+    ]
+
+    it("disallows rendering Whisker annotation with a categorical x-range", async () => {
+      const random = new Random(1)
+
+      const x = factors
+      const y = random.floats(factors.length)
+      const upper = y.map((yi) => yi + random.float())
+      const lower = y.map((yi) => yi - random.float())
+
+      const source = new ColumnDataSource({data: {x, y, lower, upper}})
+      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+
+      const x_range = new FactorRange({factors})
+      const p = fig([400, 200], {x_range})
+      p.circle({source})
+      p.add_layout(whisker)
+
+      await display(p, [450, 250])
+    })
+
+    it("disallows rendering Whisker annotation with a categorical y-range", async () => {
+      const random = new Random(1)
+
+      const x = random.floats(factors.length)
+      const y = factors
+      const upper = x.map((xi) => xi + random.float())
+      const lower = x.map((xi) => xi - random.float())
+
+      const source = new ColumnDataSource({data: {x, y, lower, upper}})
+      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+
+      const y_range = new FactorRange({factors})
+      const p = fig([200, 400], {y_range})
+      p.circle({source})
+      p.add_layout(whisker)
+
+      await display(p, [250, 450])
     })
   })
 

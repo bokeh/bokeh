@@ -474,7 +474,7 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
 }
 
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
-  readonly dimension: "x" | "y"
+  abstract get dimension(): "x" | "y"
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
