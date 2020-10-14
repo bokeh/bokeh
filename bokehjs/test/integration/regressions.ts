@@ -9,7 +9,7 @@ import {
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine,
   StaticLayoutProvider,
-  Plot, Slope
+  Plot, Slope,
 } from "@bokehjs/models"
 
 import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
@@ -597,7 +597,7 @@ describe("Bug", () => {
       const p = fig([200, 200], {x_range:[-5, 5], y_range:[-5, 5]})
 
       for (const gradient of [1, -1, 0, 2, -0.5]){
-        const s = new Slope({gradient:gradient, y_intercept:-1})
+        const s = new Slope({gradient, y_intercept:-1})
         p.add_layout(s)
       }
 
