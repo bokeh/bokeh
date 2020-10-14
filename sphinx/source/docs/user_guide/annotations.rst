@@ -11,7 +11,7 @@ supplemental information to their visualizations.
 Titles
 ------
 
-|Title| annotations allow descriptive text to be rendered around the edges
+With |Title| annotations, you can add descriptive text to render around the edges
 of a plot.
 
 When using ``bokeh.plotting`` or ``bokeh.Charts``, the quickest way to add
@@ -21,9 +21,8 @@ any Chart function:
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
     :source-position: above
 
-The default title is normally on the top of a plot, aligned to the left. But
-which side of the plot the default title appears on can be controlled by the
-``title_location`` parameter:
+The default title is normally on the top of a plot, aligned to the left. The
+``title_location`` parameter controls on which side of the plot the title appears:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_location.py
     :source-position: above
@@ -40,7 +39,7 @@ Note that the alignment is measured along the direction of text. For
 example, for titles on the left side of a plot, "left" will be in the
 lower corner.
 
-In addition to the default title, it is possible to create and add
+In addition to the default title, you can create and add
 additional |Title| objects to plots using the ``add_layout`` method
 of Plots:
 
@@ -62,7 +61,7 @@ visually overlap in a way that is not desirable.
 Legends
 -------
 
-It is possible to create |Legend| annotations easily by specifying legend
+You can create |Legend| annotations easily by specifying legend
 arguments to the glyph methods when creating a plot.
 
 Basic Legend Label
@@ -75,7 +74,7 @@ keyword argument:
 
     p.circle('x', 'y', legend_label="some label")
 
-If multiple glyphs are given the same label, they will all be combined into a
+If multiple glyphs are given the same label, all the glyphs will be combined into a
 single legend item with that label.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
@@ -145,7 +144,7 @@ for the legend item, as shown below.
 Interactive Legends
 ~~~~~~~~~~~~~~~~~~~
 
-It's also possible to configure legends to be interactive, so that clicking
+It is also possible to configure legends to be interactive, so that clicking
 or tapping on legend entries affects the corresponding glyph visibility. See
 the :ref:`userguide_interaction_legends` section of the User Guide for more
 information and examples.
@@ -153,7 +152,7 @@ information and examples.
 .. note::
     :ref:`userguide_interaction_legends` features currently work on the first,
     "per-glyph" style legends. Legends that are created by specifying a column
-    to automatically group do no yet support interactive features.
+    to automatically group do not yet support interactive features.
 
 .. _userguide_plotting_color_bars:
 
@@ -254,12 +253,11 @@ text, as well as the border and background of the bounding box for the text:
 
 To create several labels at once, possibly to easily annotate another existing
 glyph, use the |LabelSet| annotation, which is configured with a data
-source in which the ``text`` and ``x`` and ``y`` positions are given as column
+source in which the ``text`` and the ``x`` and ``y`` positions are given as column
 names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
 which specify a distance in screen space units to offset the label positions
-from ``x`` and ``y``. Finally, the render level may be controlled with the
-``level`` property, to place the label above or underneath other renderers:
-
+from ``x`` and ``y``. Finally, the ``level`` property controls the render level,
+to place the label above or underneath other renderers:
 
 .. code-block:: python
 
