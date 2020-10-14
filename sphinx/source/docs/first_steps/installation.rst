@@ -18,7 +18,7 @@ Installing with ``conda`` or ``pip``
 ------------------------------------
 
 The easiest way to install Bokeh is using ``conda``. Conda is part of the
-`Anaconda Python Distribution`_, which was designed with scientific and data analysis
+`Anaconda Python Distribution`_, which is designed with scientific and data analysis
 applications like Bokeh in mind.
 
 If you use Anaconda on your system, installing with ``conda`` is the recommended
@@ -49,8 +49,8 @@ method. Otherwise, use ``pip``.
         pip install bokeh
 
     .. note::
-        On some systems, pip will display an error message about the wheel
-        package when installing tornado. This is a `known issue
+        On some systems, pip displays an error message about the wheel package
+        when installing tornado. This is a `known issue
         <https://github.com/tornadoweb/tornado/issues/1602#issuecomment-163472168>`_,
         you can usually ignore the error.
 
@@ -149,7 +149,7 @@ Installing sample data
 
 Optionally, Bokeh can download and install a collection of sample data. This
 includes a variety of freely available data tables and databases that you can
-use with Bokeh. Because this sample data is rather big, it is not included in
+use with Bokeh. Because this sample data is rather large, it is not included in
 Bokeh's installation packages.
 
 In `Bokeh's GitHub repository`_, you can find a number of examples. Those
@@ -207,7 +207,7 @@ For example, the links for version ``2.0.1`` are:
 * https://cdn.bokeh.org/bokeh/release/bokeh-api-2.0.1.min.js
 
 .. note::
-    You should always set `crossorigin="anonymous"` on script tags that load
+    You should always set ``crossorigin="anonymous"`` on script tags that load
     BokehJS from CDN.
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda

@@ -11,6 +11,8 @@ First steps
     first_steps/installation
     first_steps/*
 
+.. _first_steps_installing:
+
 Installing Bokeh
 ----------------
 
@@ -55,6 +57,18 @@ encounter, go to the :ref:`installation` section.
 
 First steps guides
 ------------------
+
+Follow these guides to quickly learn about the most important features and
+capabilities of Bokeh.
+
+The guides are for anybody who is new to Bokeh. The only prerequisites for
+using the first step guides are a basic understanding of Python and a working
+:ref:`installation<first_steps_installing>` of Bokeh.
+
+The first steps guides include many examples that you can copy to your
+development environment. There are also many links to the more in-depth
+resources of the :ref:`userguide` and :ref:`Reference Guide<refguide>` in case
+you want to learn more about any of the topics.
 
 (placeholders - add thubnails!)
 

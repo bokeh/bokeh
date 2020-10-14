@@ -3,9 +3,6 @@
 Documentation
 =============
 
-TBD: switch order off Narrative Documentation and Source code docs
-in #writing-bokeh-s-documentation section
-
 The Bokeh documentation is an important resource for the entire Bokeh
 community. It helps guide new users, and it is the definitive reference for
 seasoned users and developers. That is why all contributions to Bokeh must
@@ -317,7 +314,7 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _Open Docs Issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
 .. _Google developer documentation style guide: https://developers.google.com/style
 .. _technical writing courses: https://developers.google.com/tech-writing
-.. _pandas: https://pandas.pydata.org/
+.. _pandas: https://pandas.pydata.org/about/citing.html
 .. _Merriam-Webster: https://www.merriam-webster.com/
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility

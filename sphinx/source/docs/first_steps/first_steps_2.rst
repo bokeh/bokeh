@@ -6,19 +6,19 @@ First steps 2: exploring renderers
 In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
 :func:`~bokeh.plotting.figure` function to render line charts.
 
-In this tutorial, you will use different renderers to create various other
-kinds of graphs. You will also use customize what your graphs look like.
+In this section, you will use different renderers to create various other
+kinds of graphs. You will also customize what your graphs look like.
 
-Rendering various glyphs
-------------------------
+Rendering different glyphs
+--------------------------
 
-Bokeh's :ref:`bokeh.plotting <userguide_plotting>` interface supports a number
-of glyphs, such as lines, bars, hex tiles, or other polygons.
+Bokeh's :ref:`plotting <userguide_plotting>` interface supports a number
+of different glyphs, such as lines, bars, hex tiles, or other polygons.
 
-A full list of all supported glyph methods is available in Bokeh's reference
-guide for the :func:`~bokeh.plotting.figure` function. For a detailed
-information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
-guide.
+.. seealso::
+    A full list of all supported glyph methods is available in Bokeh's reference
+    guide for the :func:`~bokeh.plotting.figure` function. For detailed information
+    on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user guide.
 
 Rendering circles
 ^^^^^^^^^^^^^^^^^
@@ -33,30 +33,16 @@ Use the :func:`~bokeh.plotting.Figure.circle` function instead of
 Add the :func:`~bokeh.plotting.Figure.circle` function to your previous
 visualization:
 
-.. bokeh-plot::
-    :source-position: above
+.. literalinclude:: examples/first_steps_2_add_circles.py
+   :language: python
+   :emphasize-lines: 18
 
-    from bokeh.plotting import figure, output_file, show
+.. bokeh-plot:: docs/first_steps/examples/first_steps_2_add_circles.py
+    :source-position: none
 
-    # prepare some data
-    x = [1, 2, 3, 4, 5]
-    y1 = [6, 7, 2, 4, 5]
-    y2 = [2, 3, 4, 5, 6]
-    y3 = [4, 5, 5, 7, 2]
-
-    # set output to static HTML file
-    output_file("lines.html")
-
-    # create a new plot with a title and axis labels
-    p = figure(title="Multiple glyphs example", x_axis_label='x', y_axis_label='y')
-
-    # add multiple renderers
-    p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
-    p.line(x, y2, legend_label="Rate", line_color="red", line_width=2)
-    p.circle(x, y3, legend_label="Objects", line_color="yellow", size=12)
-
-    # show the results
-    show(p)
+.. seealso::
+    To learn more about the different renderers available in Bokeh, see
+    :ref:`userguide_plotting` in the user guide.
 
 Rendering bars
 ^^^^^^^^^^^^^^
@@ -71,38 +57,25 @@ vertical bars:
 Add the :func:`~bokeh.plotting.Figure.vbar` function to your previous
 visualization:
 
-.. bokeh-plot::
-    :source-position: above
+.. literalinclude:: examples/first_steps_2_add_bars.py
+   :language: python
+   :emphasize-lines: 17
 
-    from bokeh.plotting import figure, output_file, show
+.. bokeh-plot:: docs/first_steps/examples/first_steps_2_add_bars.py
+    :source-position: none
 
-    # prepare some data
-    x = [1, 2, 3, 4, 5]
-    y1 = [6, 7, 2, 4, 5]
-    y2 = [2, 3, 4, 5, 6]
-    y3 = [4, 5, 5, 7, 2]
-
-    # set output to static HTML file
-    output_file("lines.html")
-
-    # create a new plot with a title and axis labels
-    p = figure(title="Multiple glyphs example", x_axis_label='x', y_axis_label='y')
-
-    # add multiple renderers
-    p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
-    p.vbar(x=x, top=y2, legend_label="Rate", width=0.5, bottom=0, color="red")
-    p.circle(x, y3, legend_label="Objects", line_color="yellow", size=12)
-
-    # show the results
-    show(p)
+.. seealso::
+    To learn more about bar graphs and other ways Bokeh handles categorical
+    data, see :ref:`userguide_categorical` in the user guide.
 
 Customizing glyphs
 ------------------
 
-The different renderer functions accept different arguments to control what
+The different renderer functions accept various arguments to control what
 your glyphs look like.
 
-[TBD: Example with line function!]
+Defining properties of new glyphs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :func:`~bokeh.plotting.Figure.circle` function, for example, lets you
 define aspects like the color or diameter of the circles:
@@ -110,7 +83,8 @@ define aspects like the color or diameter of the circles:
 * ``fill_color``: the fill color of the circles
 * ``fill_alpha``: the transparency of the fill color
 * ``line_color``: the fill color of the circles' outlines
-* ``size``: the size of the circles (in screen space units)
+* ``size``: the size of the circles (in
+  :ref:`screen space or data-space units<userguide_styling_units>`)
 * ``legend_label``: legend entry for the circles
 
 Create circles with the legend label "Objects" and make the circles appear
@@ -118,28 +92,80 @@ slightly transparent with a red fill color and blue outlines:
 
 .. code-block:: python
 
-    p.circle(x, y3, legend_label="Objects", fill_color="red", fill_alpha=0.2, line_color="blue", size=12)
+    p.circle(x, y3, legend_label="Objects", fill_color="red", fill_alpha=0.5, line_color="blue", size=80)
 
 Use this renderer in your previous visualization:
 
-.. bokeh-plot::
-    :source-position: above
+.. literalinclude:: examples/first_steps_2_style_circle.py
+   :language: python
+   :emphasize-lines: 14
 
-    from bokeh.plotting import figure, output_file, show
+.. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_circle.py
+    :source-position: none
 
-    # prepare some data
-    x = [1, 2, 3, 4, 5]
-    y = [4, 5, 5, 7, 2]
+.. _first_steps_2_altering_existing:
 
-    # set output to static HTML file
-    output_file("lines.html")
+Altering properties of existing glyphs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    # create a new plot with a title and axis labels
-    p = figure(title="Glyphs properties example", x_axis_label='x', y_axis_label='y')
+If you want to change any property after creating an object, you can define
+and overwrite the object's attributes directly.
 
-    # add circle renderer
-    p.circle(x, y, legend_label="Objects", fill_color="red", fill_alpha=0.2, line_color="blue", size=12)
+Take the circles from above, for example. You defined the circles to have a
+red color, by passing the argument ``fill_color="red"``.
 
-    # show the results
-    show(p)
+To change the color of your circles from red to blue, you first need to assign
+a variable name (such as ``circle``) to the new object when you call the
+:func:`~bokeh.plotting.Figure.circle` function.
 
+.. code-block:: python
+
+    circle = p.circle(
+        x,
+        y,
+        legend_label="Objects",
+        fill_color="red",
+        fill_alpha=0.5,
+        line_color="blue",
+        size=80,
+        )
+
+Next, use that variable to access the object's ``glyph`` attribute and change
+its properties:
+
+.. code-block:: python
+
+    glyph = circle.glyph
+    glyph.fill_color = "blue"
+
+Generate red circles once more, but this time change their color to blue before
+outputting the plot:
+
+.. literalinclude:: examples/first_steps_2_style_existing_circle.py
+   :language: python
+   :emphasize-lines: 14,17,18
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_existing_circle.py
+    :source-position: none
+
+.. seealso::
+    For more information about the various visual properties, see the sections
+    :ref:`userguide_styling_glyphs` and :ref:`userguide_styling_visual_properties`
+    in the user guide.
+
+    Each type of glyph has different properties. Refer to
+    :func:`~bokeh.plotting.figure` in the reference guide to see all available
+    properties for each glyph method.
+
+.. panels::
+    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
+
+    .. link-button:: first_steps_1.html
+        :text: Previous
+        :classes: stretched-link
+
+    ---
+    :card: + text-right
+    .. link-button:: first_steps_3.html
+        :text: Next
+        :classes: stretched-link

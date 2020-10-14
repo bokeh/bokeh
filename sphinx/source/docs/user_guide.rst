@@ -28,10 +28,17 @@ User guide
     user_guide/compat
     user_guide/bokehjs
 
-This user guide is intended to walk you through many common tasks that
-you might want to accomplish using Bokeh. You should have completed the steps
-described in TBD TBD Quickstart/Install TBD. The guide is arranged by
-topic:
+In this user guide, you will find detailed descriptions and examples that
+describe many common tasks that you can accomplish with Bokeh. To get started
+with Bokeh, you should first completed the steps described in
+:ref:`first_steps_installing`.
+
+.. tip::
+    See the :ref:`first_steps_overview` for quick tutorials that walk you
+    through Bokeh's basic functionalities and concepts. This is the easiest
+    and quickest way to get going with Bokeh.
+
+This user guide is arranged by topic:
 
 :ref:`userguide_concepts`
     Learn important foundational concepts about how Bokeh is organized.
@@ -103,11 +110,10 @@ topic:
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
 
-The examples in the user guide are written to be as minimal as possible, while
-illustrating how to accomplish a single task within Bokeh. With a handful of
-exceptions, no outside libraries, such as NumPy or Pandas, are required to run the
-examples as written. However, Bokeh works well with NumPy, Pandas, or almost any
-array or table-like data structure.
+The user guide contains a lot of examples. They are as minimal as possible and
+usually focus on highlighting one functionality or concept each. You can copy
+and paste those examples into your own development environment. With only a
+handful of exceptions, you will need no external libraries to run the examples.
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
