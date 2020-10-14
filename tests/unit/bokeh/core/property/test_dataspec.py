@@ -291,7 +291,7 @@ class Test_DataDistanceSpec:
             x = bcpd.DataDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'data'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 
@@ -589,7 +589,7 @@ class Test_UnitSpec:
             x = bcpd.ScreenDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'screen'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 

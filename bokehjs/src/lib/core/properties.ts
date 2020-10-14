@@ -474,7 +474,7 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
 }
 
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
-  readonly dimension: "x" | "y"
+  abstract get dimension(): "x" | "y"
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
@@ -505,6 +505,10 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits { return "data" as "data" }
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
+}
+
+export class ScreenDistanceSpec extends DistanceSpec {
+  get default_units(): enums.SpatialUnits { return "screen" as "screen" }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {

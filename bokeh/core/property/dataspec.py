@@ -381,8 +381,9 @@ class UnitsSpec(NumberSpec):
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
             # notify_change that should not happen will be triggered
-            d = dict(d)
-            d["units"] = self.get_units(obj, name)
+            units = self.get_units(obj, name)
+            if units != self._units_type._default:
+                d = dict(**d, units=units)
         return d
 
 class PropertyUnitsSpec(UnitsSpec):

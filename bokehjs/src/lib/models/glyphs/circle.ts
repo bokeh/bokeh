@@ -284,7 +284,7 @@ export class Circle extends XYGlyph {
 
     this.define<Circle.Props>(({}) => ({
       angle:            [ p.AngleSpec, 0 ],
-      size:             [ p.DistanceSpec, {units: "screen", value: 4} ],
+      size:             [ p.ScreenDistanceSpec, {value: 4} ],
       radius:           [ p.DistanceSpec, undefined, {optional: true} ], // XXX: null
       radius_dimension: [ RadiusDimension, "x" ],
     }))
