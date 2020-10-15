@@ -93,6 +93,27 @@ For example:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_axes_customizing.py
     :source-position: none
 
+Defining axis ranges
+~~~~~~~~~~~~~~~~~~~~
+
+When drawing the axes for your plot, Bokeh automatically determines the range
+each axis needs to cover in order to display all your values. For example, if
+the values on your y axis are between 2 and 17, Bokeh will automatically create
+a y axis that ranges from a little below 2 to a little above 17.
+
+Use :func:`~bokeh.models.plots.Plot.y_range` and
+:func:`~bokeh.models.plots.Plot.y_range` properties of your
+:class:`~bokeh.models.plots.Plot` object or when call the
+:func:`~bokeh.plotting.figure` function to manually define the range for the
+axes:
+
+.. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
+   :language: python
+   :emphasize-lines: 12
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_4_plot_axis_ranges.py
+    :source-position: none
+
 Enabling logarithmic axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -150,7 +171,7 @@ the various ``grid_line`` properties:
 
 .. literalinclude:: examples/first_steps_4_grid_lines.py
    :language: python
-   :emphasize-lines: 17,20,21
+   :emphasize-lines: 22,25,26
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_grid_lines.py
     :source-position: none
@@ -319,6 +340,48 @@ being available:
     detailed information about all tools and their respective properties, see
     :class:`~bokeh.models.tools` and :class:`~bokeh.models.tools.Toolbar` in the
     reference guide.
+
+.. _first_steps_4_tooltips:
+
+Adding tooltips
+---------------
+
+Tooltips are little windows that appear when you hover your mouse over a
+data point or when you tap on a data point:
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_4_tooltips.py
+    :source-position: none
+
+Tooltips are based on the :class:`~bokeh.models.tools.HoverTool` that is part
+of Bokeh's toolbar.
+
+There are several ways to enable tooltips in Bokeh. This is the quickest way:
+
+1. Import the :class:`~bokeh.models.tools.HoverTool` class from
+   :class:`bokeh.models.tools`.
+
+2. Include ``HoverTool()`` in the list passed to the ``tools`` argument when
+   calling the :func:`~bokeh.plotting.figure` function.
+
+3. Also include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument
+   when calling the :func:`~bokeh.plotting.figure` function. This argument
+   accepts a string with a special syntax to define fields: Use the "@" symbol
+   to include the name of the source for the respective data to be displayed.
+   This example includes ``@x`` and ``@y``. Bokeh will replace both those fields
+   with the actual data from the lists ``x`` and ``y`` when the browser displays
+   a tooltip.
+
+This is what the code looks like:
+
+.. literalinclude:: examples/first_steps_4_tooltips.py
+   :language: python
+   :emphasize-lines: 1,14,15
+
+.. seealso::
+    The user guide contains much more information on using the hover tool to
+    create tooltips. See :ref:`userguide_tools_basic_tooltips` for more details.
+    More information is also available at the entry for 
+    :class:`~bokeh.models.tools.HoverTool` in the reference guide.
 
 .. panels::
     :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2

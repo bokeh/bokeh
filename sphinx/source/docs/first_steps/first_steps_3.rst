@@ -74,9 +74,9 @@ There are various ways to style the text for your headline. For example:
 Using annotations
 -----------------
 
-Annotations are additional elements that you add to your plot to make it easier
-to read. More information on the various visual aids is available in the section
-:ref:`userguide_annotations`.
+Annotations are visual elements that you add to your plot to make it easier
+to read. More information on the various kinds of annotations is available in
+the section :ref:`userguide_annotations`.
 
 One example are box annotations. You can use box annotations to highlight
 certain areas of your plot:
@@ -84,8 +84,9 @@ certain areas of your plot:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_box_annotation.py
     :source-position: none
 
-First, import the :class:`~bokeh.models.annotations.BoxAnnotation` class from
-Bokeh's :class:`~bokeh.models` collection:
+To add ox annotations to your plot, you first need to import the
+:class:`~bokeh.models.annotations.BoxAnnotation` class from Bokeh's
+:class:`~bokeh.models` collection:
 
 .. code-block:: python
 

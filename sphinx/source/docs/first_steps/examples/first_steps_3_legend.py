@@ -8,10 +8,10 @@ y2 = [2, 3, 4, 5, 6]
 # set output to static HTML file
 output_file("first_steps.html")
 
-# create a new plot with a specific size
+# create a new plot
 p = figure(title="Legend example")
 
-# add circle renderer with additional arguments
+# add circle renderer with legend_label arguments
 line = p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
 circle = p.circle(
     x,
@@ -23,7 +23,7 @@ circle = p.circle(
     size=80,
 )
 
-# disply legend in top left corner (default is top right corner)
+# display legend in top left corner (default is top right corner)
 p.legend.location = "top_left"
 
 # add a title to your legend
