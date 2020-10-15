@@ -4,13 +4,13 @@ Developing with JavaScript
 ==========================
 
 BokehJS is a client-side library that lets you create interactive plots and
-applications. It takes care of drawing, rendering, and event handling. The 
-Bokeh Python library (and libraries for other languages such as R, Scala, 
-and Julia) enables convenient high-level interaction with BokehJS, so you 
+applications. It takes care of drawing, rendering, and event handling. The
+Bokeh Python library (and libraries for other languages such as R, Scala,
+and Julia) enables convenient high-level interaction with BokehJS, so you
 don't have to worry about JavaScript or web development.
 
-However, BokehJS also has its own API that lets you do pure JavaScript development 
-using BokehJS directly. Additionally, :ref:`userguide_extensions` with custom 
+However, BokehJS also has its own API that lets you do pure JavaScript development
+using BokehJS directly. Additionally, :ref:`userguide_extensions` with custom
 models typically require direct interaction with BokehJS.
 
 .. warning::
@@ -34,12 +34,12 @@ glyphs, widgets) match the Bokeh Python models exactly. The :ref:`refguide`
 is therefore the primary reference for BokehJS models, even though it
 focuses on Python.
 
-Whereas the Python library is organized hierarchically, JavaScript models 
-are all in one flat ``Bokeh`` module. Typically any Python ``ClassName`` 
-is available as ``Bokeh.ClassName`` in JavaScript. For a complete list 
+Whereas the Python library is organized hierarchically, JavaScript models
+are all in one flat ``Bokeh`` module. Typically any Python ``ClassName``
+is available as ``Bokeh.ClassName`` in JavaScript. For a complete list
 of JavaScript models, see :bokeh-tree:`bokehjs/src/lib/api/models.ts`.
 
-When creating models in JavaScript, make a JavaScript object of all the 
+When creating models in JavaScript, make a JavaScript object of all the
 keyword arguments you'd pass to the Python object initializer. Here is an
 example of how to initialize a `Range1d` model in both languages:
 
@@ -61,7 +61,7 @@ example, ``xdr.end = 30`` sets the ``end`` value to 30 on the `Range1d` model
 above in both Python and JavaScript.
 
 Below is an example that creates a plot with axes, grids, and a line glyph
-from scratch. Compare with samples in :bokeh-tree:`examples/models` and 
+from scratch. Compare with samples in :bokeh-tree:`examples/models` and
 you'll see that the code in Python and JavaScript is nearly identical at
 this level:
 
@@ -143,7 +143,7 @@ The JavaScript sample below is very similar to the Python code in
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
 
-The JavaScript ``Bokeh.Charts`` API is a high-level charting interface that 
+The JavaScript ``Bokeh.Charts`` API is a high-level charting interface that
 is unique to BokehJS. The API supports two high-level charts: ``pie`` and ``bar``.
 
 .. _userguide_bokehjs_interfaces_charts_pie:
@@ -233,7 +233,7 @@ some sales data from different regions for different years:
         ['North',  2016,    12000 ],
     ];
 
-Similar to the ``pie`` chart, the ``options`` parameter is an object that 
+Similar to the ``pie`` chart, the ``options`` parameter is an object that
 can include any of the following optional keys:
 
 :``width``: *number* --- chart width in pixels
@@ -283,7 +283,7 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 Minimal example
 ---------------
 
-The following basic example shows how to import libraries and 
+The following basic example shows how to import libraries and
 create and modify plots.
 
 .. bokehjs-content::
