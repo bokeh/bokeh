@@ -20,7 +20,6 @@ jobs:
         run: |
           echo "::add-mask::${{ github.event.client_payload.release_password }}"
           REQUEST_PASSWORD = "${{ github.event.client_payload.release_password }}"
-          echo "::stop-commands::pause-logging"
           if [ "$REQUEST_PASSWORD" == "$RELEASE_PASSWORD" ]; then
             echo "Maintainer release password confirmed, proceeding with release"
           else
