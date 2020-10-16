@@ -14,29 +14,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check Maintainer Authorization
+        env:
+          RELEASE_PASSWORD: ${{ secrets.RELEASE_PASSWORD }}
+          REQUEST_PASSWORD: ${{ github.event.client_payload.release_password }}
+        run:
+          if [ $REQUEST_PASSWORD == $RELEASE_PASSWORD ]; then
+            echo "Maintainer release password confirmed, proceeding with release"
+          else
+            echo "Maintainer release password incorrect, aborting release"
+            exit 1
+          fi
+
       - uses: actions/checkout@v2-beta
-
-      - name: Set up PATH
-        run: |
-          echo "::add-path::${HOME}/work/bin"
-
-      - name: Configure conda
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda install --yes --quiet ${CONDA_BASE_REQS}
-          conda create --yes --prefix="${HOME}/work" ${CONDA_ENV_REQS}
-
-      - name: Install conda packages
-        run: |
-          BUILD_DEPS=`python scripts/deps.py build`
-          conda install --yes --quiet conda ${BUILD_DEPS}
-
-      - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm ci --no-progress
-          popd
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-build.yml
 
       - name: Build Assets
         env:
