@@ -38,7 +38,7 @@ dependencies:
   - ipython
   - isort <5.0
   - mock
-  - mypy
+  - mypy <=0.782
   - nbconvert >=5.4
   - networkx
   - nodejs >=10.13
