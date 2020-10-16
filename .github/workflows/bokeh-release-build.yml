@@ -18,9 +18,14 @@ jobs:
 
     steps:
       - name: Check Maintainer Authorization
+        env:
+          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
         run: |
-          echo ${{github.actor}}
-          exit 1
+          if [[ `grep -q -e '^${{github.actor}}$' << $RELEASE_MAINTAINERS` ]]; then
+            echo "User ${{github.actor}} is not authorized to start release builds"
+            exit 1
+          fi
+          echo ""User ${{github.actor}} is authorized to start release builds""
 
       - uses: actions/checkout@v2-beta
       - uses: goanpeca/setup-miniconda@v1
