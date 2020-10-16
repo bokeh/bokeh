@@ -1,8 +1,11 @@
-name: Bokeh Release
+name: Build Release
 
 on:
-  repository_dispatch:
-    types: [build]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build a release for"
+        required: true
 
 env:
   CONDA_BASE_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
@@ -15,17 +18,9 @@ jobs:
 
     steps:
       - name: Check Maintainer Authorization
-        env:
-          RELEASE_PASSWORD: ${{ secrets.RELEASE_PASSWORD }}
         run: |
-          echo "::add-mask::${{ github.event.client_payload.release_password }}"
-          REQUEST_PASSWORD = "${{ github.event.client_payload.release_password }}"
-          if [ "$REQUEST_PASSWORD" == "$RELEASE_PASSWORD" ]; then
-            echo "Maintainer release password confirmed, proceeding with release"
-          else
-            echo "Maintainer release password incorrect, aborting release"
-            exit 1
-          fi
+          echo ${{github.actor}}
+          exit 1
 
       - uses: actions/checkout@v2-beta
       - uses: goanpeca/setup-miniconda@v1
@@ -41,4 +36,4 @@ jobs:
           BOKEH_VERSION: ${{ github.event.client_payload.version }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
-          python -m release build --notify-slack ${BOKEH_VERSION}
+          echo "build build"
