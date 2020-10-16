@@ -17,9 +17,9 @@ jobs:
       - name: Check Maintainer Authorization
         env:
           RELEASE_PASSWORD: ${{ secrets.RELEASE_PASSWORD }}
-          REQUEST_PASSWORD: ${{ github.event.client_payload.release_password }}
-        run:
-          if [ $REQUEST_PASSWORD == $RELEASE_PASSWORD ]; then
+          REQUEST_PASSWORD:
+        run: |
+          if [ $REQUEST_PASSWORD == "${{ github.event.client_payload.release_password }}" ]; then
             echo "Maintainer release password confirmed, proceeding with release"
           else
             echo "Maintainer release password incorrect, aborting release"
