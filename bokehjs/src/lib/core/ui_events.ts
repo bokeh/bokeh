@@ -174,17 +174,17 @@ export class UIEvents implements EventListenerObject {
     this.hammer.on('press', (e) => this._press(e))
     this.hammer.on('pressup', (e) => this._pressup(e))
 
-    this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
+    this.hammer.get('pan').set({direction: Hammer.DIRECTION_ALL})
     this.hammer.on('panstart', (e) => this._pan_start(e))
     this.hammer.on('pan', (e) => this._pan(e))
     this.hammer.on('panend', (e) => this._pan_end(e))
 
-    this.hammer.get('pinch').set({ enable: true })
+    this.hammer.get('pinch').set({enable: true})
     this.hammer.on('pinchstart', (e) => this._pinch_start(e))
     this.hammer.on('pinch', (e) => this._pinch(e))
     this.hammer.on('pinchend', (e) => this._pinch_end(e))
 
-    this.hammer.get('rotate').set({ enable: true })
+    this.hammer.get('rotate').set({enable: true})
     this.hammer.on('rotatestart', (e) => this._rotate_start(e))
     this.hammer.on('rotate', (e) => this._rotate(e))
     this.hammer.on('rotateend', (e) => this._rotate_end(e))

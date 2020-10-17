@@ -37,10 +37,10 @@ describe("LegendItem", () => {
   describe("_check_data_sources_on_renderers", () => {
 
     it("should return false if field label and different data sources", () => {
-      const gr_1 = new GlyphRenderer({ data_source: new ColumnDataSource() })
-      const gr_2 = new GlyphRenderer({ data_source: new ColumnDataSource() })
+      const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
+      const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -48,17 +48,17 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
     })
 
     it("should return true if value label and different data sources", () => {
-      const gr_1 = new GlyphRenderer({ data_source: new ColumnDataSource() })
-      const gr_2 = new GlyphRenderer({ data_source: new ColumnDataSource() })
+      const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
+      const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: { value: 'label' },
+        label: {value: 'label'},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.true
@@ -72,7 +72,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {foo: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -80,7 +80,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -91,7 +91,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {label: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.true

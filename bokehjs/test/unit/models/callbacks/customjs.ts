@@ -21,7 +21,7 @@ describe("CustomJS", () => {
 
   describe("values property", () => {
     const rng = new Range1d()
-    const r = new CustomJS({args: {foo: rng }})
+    const r = new CustomJS({args: {foo: rng}})
 
     it("should contain the args values", () => {
       expect(r.values).to.be.equal([rng])

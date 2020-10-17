@@ -252,7 +252,7 @@ export class PlotView extends LayoutDOMView {
 
     this.layout.center_panel = this.frame
     this.layout.center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "fit"}),
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
     })
 

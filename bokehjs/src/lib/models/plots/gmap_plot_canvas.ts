@@ -212,15 +212,15 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_map_type(): void {
-    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type] })
+    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type]})
   }
 
   protected _update_scale_control(): void {
-    this.map.setOptions({scaleControl: this.model.map_options.scale_control })
+    this.map.setOptions({scaleControl: this.model.map_options.scale_control})
   }
 
   protected _update_tilt(): void {
-    this.map.setOptions({tilt: this.model.map_options.tilt })
+    this.map.setOptions({tilt: this.model.map_options.tilt})
   }
 
   protected _update_options(): void {
@@ -232,7 +232,7 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_styles(): void {
-    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles) })
+    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles)})
   }
 
   protected _update_zoom(): void {

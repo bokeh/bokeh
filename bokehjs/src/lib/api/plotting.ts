@@ -763,9 +763,9 @@ export class Figure extends Plot {
                 data[field] = value
               }
 
-              attrs[name] = { field }
+              attrs[name] = {field}
             } else if (isNumber(value) || isString(value)) { // or Date?
-              attrs[name] = { value }
+              attrs[name] = {value}
             }
           }
         }
@@ -971,10 +971,10 @@ export class Figure extends Plot {
     let legend_item_label = null
     if (legend != null) {
       if (isString(legend)) {
-        legend_item_label = { value: legend }
+        legend_item_label = {value: legend}
         if (source.columns() != null) {
           if (includes(source.columns(), legend)) {
-            legend_item_label = { field: legend }
+            legend_item_label = {field: legend}
           }
         }
       } else {
@@ -1004,7 +1004,7 @@ export class Figure extends Plot {
       }
     }
     if (!added) {
-      const new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      const new_item = new models.LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }

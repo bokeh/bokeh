@@ -67,6 +67,7 @@
     "prefer-const": ["error", {"destructuring": "all"}],
     "prefer-exponentiation-operator": "error",
     "quote-props": ["error", "as-needed"],
+    "object-curly-spacing": ["error", "never"],
     "space-before-function-paren": ["error", {
       "anonymous": "never",
       "named": "never",

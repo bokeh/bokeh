@@ -326,7 +326,7 @@ describe("ColorBar module", () => {
         title: "I'm a title",
       }, "right")
 
-      expect(view._get_image_offset()).to.be.equal({ x: 10, y: 27 })
+      expect(view._get_image_offset()).to.be.equal({x: 10, y: 27})
     })
 
     it("ColorBarView._get_label_extent method (orientation='vertical')", async () => {

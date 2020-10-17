@@ -268,7 +268,7 @@ export class TileRendererView extends RendererView {
   }
 
   protected _prefetch_tiles(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
     const extent = this.get_extent()
     const h = this.map_frame.bbox.height
     const w = this.map_frame.bbox.width
@@ -296,10 +296,10 @@ export class TileRendererView extends RendererView {
   }
 
   protected _update(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
 
-    const { min_zoom } = tile_source
-    const { max_zoom } = tile_source
+    const {min_zoom} = tile_source
+    const {max_zoom} = tile_source
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])

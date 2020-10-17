@@ -15,11 +15,11 @@ interface GroupDataContext {
 }
 
 function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column<Item>, dataContext: GroupDataContext): string {
-  const { collapsed, level, title } = dataContext
+  const {collapsed, level, title} = dataContext
 
   const toggle = span({
     class: `slick-group-toggle ${collapsed ? 'collapsed' : 'expanded'}`,
-    style: { 'margin-left': `${level * 15}px`},
+    style: {'margin-left': `${level * 15}px`},
   })
   const titleElement = span({
     class: 'slick-group-title',
@@ -32,7 +32,7 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
   return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item) => {
     const spacer = span({
       class: 'slick-group-toggle',
-      style: { 'margin-left': `${(indent ?? 0) * 15}px`},
+      style: {'margin-left': `${(indent ?? 0) * 15}px`},
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
@@ -118,7 +118,7 @@ export class DataCubeProvider extends TableDataProvider {
     const groups: Group<number>[] = []
     const groupsByValue: Map<any, Group<number>> = new Map()
     const level = parentGroup ? parentGroup.level + 1 : 0
-    const { comparer, getter } = this.groupingInfos[level]
+    const {comparer, getter} = this.groupingInfos[level]
 
     rows.forEach((row) => {
       const value = this.source.data[getter][row]
@@ -144,10 +144,10 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   private calculateTotals(group: Group<number>, aggregators: RowAggregator[]): GroupTotals<number> {
-    const totals: GroupTotals<number> = { avg: {}, max: {}, min: {}, sum: {} } as any
-    const { source: { data } } = this
+    const totals: GroupTotals<number> = {avg: {}, max: {}, min: {}, sum: {}} as any
+    const {source: {data}} = this
     const keys = Object.keys(data)
-    const items = group.rows.map(i => keys.reduce((o, c) => ({ ...o, [c]: data[c][i] }), {}))
+    const items = group.rows.map(i => keys.reduce((o, c) => ({...o, [c]: data[c][i]}), {}))
 
     aggregators.forEach((aggregator) => {
       aggregator.init()
@@ -158,7 +158,7 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   private addTotals(groups: Group<number>[], level = 0): void {
-    const { aggregators, collapsed: groupCollapsed } = this.groupingInfos[level]
+    const {aggregators, collapsed: groupCollapsed} = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
     groups.forEach((group) => {
@@ -228,7 +228,7 @@ export class DataCubeProvider extends TableDataProvider {
 
     function adapter(column: Column<Item>): ColumnMetadata<Item> {
       const {field: myField, formatter} = column
-      const aggregator = aggregators.find(({ field_ }) => field_ === myField)
+      const aggregator = aggregators.find(({field_}) => field_ === myField)
 
       if (aggregator) {
         const {key} = aggregator
@@ -246,7 +246,7 @@ export class DataCubeProvider extends TableDataProvider {
         selectable: false,
         focusable: false,
         cssClasses: 'slick-group',
-        columns: [{ formatter: groupCellFormatter }, ...columns.map(adapter)] as any,
+        columns: [{formatter: groupCellFormatter}, ...columns.map(adapter)] as any,
       }
       : {}
   }

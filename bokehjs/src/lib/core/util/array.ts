@@ -140,7 +140,7 @@ export function argmax(array: number[]): number {
 
 export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
   const tmp = array.map((value, index) => {
-    return {value, index, key: key(value) }
+    return {value, index, key: key(value)}
   })
   tmp.sort((left, right) => {
     const a = left.key
