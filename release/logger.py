@@ -73,7 +73,7 @@ class Log:
         for line in lines:
             line = self._scrub_text(line)
             self._record.append(line)
-            print(line)
+            print(line, flush=True)
         return (start, len(self._record))
 
     def clear(self) -> None:

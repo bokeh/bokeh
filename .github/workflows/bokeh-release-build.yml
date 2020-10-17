@@ -42,6 +42,10 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-release.yml
 
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
       - name: Build Assets
         shell: bash -l {0}
         env:
