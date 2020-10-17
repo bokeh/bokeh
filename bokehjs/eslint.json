@@ -74,6 +74,7 @@
       "asyncArrow": "always"
     }],
     "space-in-parens": ["error", "never"],
+    "keyword-spacing": ["error", {"before": true, "after": true}],
     "guard-for-in": ["error"]
   }
 }

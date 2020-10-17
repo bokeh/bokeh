@@ -157,7 +157,7 @@ export class NumericInput extends InputWidget {
   }
 
   pretty(value: number): string {
-    if(this.format!=null)
+    if (this.format!=null)
       return this._formatter(value, this.format)
     else
       return `${value}`

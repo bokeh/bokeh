@@ -162,7 +162,7 @@ export class SidePanel extends ContentLayoutable {
   constructor(readonly side: Side, readonly obj: Panelable) {
     super()
 
-    switch(this.side) {
+    switch (this.side) {
       case "above":
         this._dim = 0
         this._normals = [0, -1]
