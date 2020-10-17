@@ -25,6 +25,8 @@ jobs:
           if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
             echo
             echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
+            git config --global user.email "info@bokeh.org"
+            git config --global user.name "${{github.actor}}"
             exit 0
           fi
           echo
