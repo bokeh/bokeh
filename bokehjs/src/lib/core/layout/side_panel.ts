@@ -155,7 +155,6 @@ export interface Panelable {
 }
 
 export class SidePanel extends ContentLayoutable {
-
   protected _dim: 0 | 1
   protected _normals: [number, number]
 

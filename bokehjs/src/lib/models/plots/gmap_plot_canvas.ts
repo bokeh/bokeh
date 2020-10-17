@@ -88,7 +88,6 @@ export class GMapPlotView extends PlotView {
 
     // ZOOM ---------------------------
     } else if (range_info.factor != null) {
-
       // The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
       if (this.zoom_count !== 10) {
         this.zoom_count += 1

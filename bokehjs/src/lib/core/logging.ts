@@ -10,7 +10,6 @@ export class LogLevel {
 }
 
 export class Logger {
-
   static TRACE = new LogLevel("trace", 0)
   static DEBUG = new LogLevel("debug", 1)
   static INFO  = new LogLevel("info",  2)

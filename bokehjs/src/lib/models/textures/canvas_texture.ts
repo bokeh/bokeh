@@ -41,5 +41,4 @@ export abstract class CanvasTexture extends Texture {
       return ctx.createPattern(canvas, this.repetition)
     }
   }
-
 }

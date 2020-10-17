@@ -57,7 +57,6 @@ export type CoordinateMapper = {
 }
 
 export class BBox implements Rect {
-
   readonly x0: number
   readonly y0: number
   readonly x1: number

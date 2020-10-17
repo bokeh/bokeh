@@ -88,7 +88,6 @@ export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
 
 export class UIEvents implements EventListenerObject {
-
   readonly pan_start:    UISignal<PanEvent> = new Signal(this, 'pan:start')
   readonly pan:          UISignal<PanEvent> = new Signal(this, 'pan')
   readonly pan_end:      UISignal<PanEvent> = new Signal(this, 'pan:end')

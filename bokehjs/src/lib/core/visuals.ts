@@ -169,7 +169,6 @@ function create_hatch_canvas(ctx: Context2d,
 }
 
 export abstract class ContextProperties {
-
   /** @prototype */
   attrs: string[]
 
@@ -218,7 +217,6 @@ export abstract class ContextProperties {
 }
 
 export class Line extends ContextProperties {
-
   readonly line_color:       p.ColorSpec
   readonly line_width:       p.NumberSpec
   readonly line_alpha:       p.NumberSpec
@@ -270,7 +268,6 @@ export class Line extends ContextProperties {
 Line.prototype.attrs = Object.keys(mixins.LineVector)
 
 export class Fill extends ContextProperties {
-
   readonly fill_color: p.ColorSpec
   readonly fill_alpha: p.NumberSpec
 
@@ -301,7 +298,6 @@ export class Fill extends ContextProperties {
 Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
 export class Hatch extends ContextProperties {
-
   readonly hatch_color: p.ColorSpec
   readonly hatch_alpha: p.NumberSpec
   readonly hatch_scale: p.NumberSpec
@@ -382,7 +378,6 @@ export class Hatch extends ContextProperties {
 Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 
 export class Text extends ContextProperties {
-
   readonly text_font:        p.Font
   readonly text_font_size:   p.StringSpec
   readonly text_font_style:  p.Property<FontStyle>

@@ -90,7 +90,6 @@ export abstract class BoxView extends GlyphView {
         ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
         ctx.stroke()
       }
-
     }
   }
 

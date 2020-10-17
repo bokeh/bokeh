@@ -93,7 +93,6 @@ function  _get_column_value(name: string, data_source: ColumnarDataSource, i: In
   // image index
   const data = column[i.index]
   if (isTypedArray(data) || isArray(data)) {
-
     // inspect array of arrays
     if (isArray(data[0])) {
       const row: any = data[i.dim2]
@@ -105,7 +104,6 @@ function  _get_column_value(name: string, data_source: ColumnarDataSource, i: In
 }
 
 export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
-
   if (raw_name[0] == "$") {
     const name = raw_name.substring(1)
     return _get_special_value(name, special_vars)

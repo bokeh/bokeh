@@ -33,7 +33,6 @@ async function color_bar_view(attrs: Partial<ColorBar.Attrs> = {}, place: Place 
 }
 
 describe("ColorBar module", () => {
-
   let _measure_font_stub: sinon.SinonStub
   let _set_canvas_image_spy: sinon.SinonSpy
 

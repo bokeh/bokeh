@@ -3,7 +3,6 @@ import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
-
   top_panel: Layoutable
   bottom_panel: Layoutable
   left_panel: Layoutable

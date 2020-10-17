@@ -105,5 +105,4 @@ export class BasicTickFormatter extends TickFormatter {
     const precision = this.precision == "auto" ? this._auto_precision(ticks, need_sci) : this.precision
     return this._format_with_precision(ticks, need_sci, precision)
   }
-
 }

@@ -37,7 +37,6 @@ describe("events module", () => {
         expect(evt in events).to.be.true
       })
     }
-
   })
 
   describe("ColumnsPatchedEvent", () => {

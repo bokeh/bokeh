@@ -6,7 +6,6 @@ import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
 
 class DashAtlas {
-
   protected readonly _atlas: Map<string, [number, number]> = new Map()
   protected readonly _width = 256
   protected readonly _height = 256

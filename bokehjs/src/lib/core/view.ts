@@ -23,7 +23,6 @@ export namespace View {
 }
 
 export class View implements ISignalable {
-
   readonly removed = new Signal0<this>(this, "removed")
 
   readonly model: HasProps

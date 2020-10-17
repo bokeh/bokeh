@@ -71,7 +71,6 @@ export class WedgeView extends XYGlyphView {
 
       y0 = y - max_diameter
       y1 = y + max_diameter
-
     } else {
       sx0 = sx - max_diameter
       sx1 = sx + max_diameter

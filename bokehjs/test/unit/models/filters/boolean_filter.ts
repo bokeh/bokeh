@@ -4,7 +4,6 @@ import {BooleanFilter} from "@bokehjs/models/filters/boolean_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("BooleanFilter", () => {
-
   const cds = new ColumnDataSource({
     data: {
       x: ["a", "a", "b", "b", "b"],

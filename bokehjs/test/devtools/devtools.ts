@@ -298,7 +298,6 @@ async function run_tests(): Promise<boolean> {
             return ` | 1 ${single}`
           else
             return ` | ${value} ${plural ?? single}`
-
         }
         return {
           failures: format(failures, "failure", "failures"),

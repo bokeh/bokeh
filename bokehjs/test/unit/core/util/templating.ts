@@ -152,11 +152,9 @@ describe("templating module", () => {
       const v2 = tmpl.get_value("@labels", imsource, imindex2, {})
       expect(v2).to.be.equal('test label')
     })
-
   })
 
   describe("replace_placeholders", () => {
-
     const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
 
     it("should replace unknown field names with ???", () => {

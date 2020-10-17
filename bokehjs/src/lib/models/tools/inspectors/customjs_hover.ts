@@ -42,5 +42,4 @@ export class CustomJSHover extends Model {
     const formatter = this._make_code("value", "format", "special_vars", this.code)
     return formatter(...this.values, value, format, special_vars)
   }
-
 }

@@ -161,7 +161,6 @@ export class NumberFormatter extends StringFormatter {
   }
 
   static init_NumberFormatter(): void {
-
     this.define<NumberFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "0,0"   ],
       language:   [ String,           "en"    ],
@@ -205,7 +204,6 @@ export class BooleanFormatter extends CellFormatter {
   }
 
   static init_BooleanFormatter(): void {
-
     this.define<BooleanFormatter.Props>(({String}) => ({
       icon: [ String, "check" ],
     }))
@@ -235,7 +233,6 @@ export class DateFormatter extends StringFormatter {
   }
 
   static init_DateFormatter(): void {
-
     this.define<DateFormatter.Props>(({String, Nullable}) => ({
       format:     [ String,           "ISO-8601" ],
       nan_format: [ Nullable(String), null       ],
@@ -300,7 +297,6 @@ export class HTMLTemplateFormatter extends CellFormatter {
   }
 
   static init_HTMLTemplateFormatter(): void {
-
     this.define<HTMLTemplateFormatter.Props>(({String}) => ({
       template: [ String, '<%= value %>' ],
     }))

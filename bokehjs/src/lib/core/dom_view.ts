@@ -2,7 +2,6 @@ import {View} from "./view"
 import {createElement, remove} from "./dom"
 
 export class DOMView extends View {
-
   tagName: keyof HTMLElementTagNameMap
 
   el: HTMLElement

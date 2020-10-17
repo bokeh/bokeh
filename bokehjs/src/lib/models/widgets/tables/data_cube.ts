@@ -91,7 +91,6 @@ export class GroupingInfo extends Model {
 }
 
 export class DataCubeProvider extends TableDataProvider {
-
   readonly columns: Column<Item>[]
   groupingInfos: GroupingInfo[]
   readonly groupingDelimiter: string

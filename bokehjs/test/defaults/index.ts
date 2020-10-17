@@ -107,7 +107,6 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
       strip_ids(py_v)
 
       if (!is_equal(py_v, js_v)) {
-
         // these two conditionals compare 'foo' and {value: 'foo'}
         if (isPlainObject(js_v) && 'value' in js_v && is_equal(py_v, js_v.value))
           continue

@@ -81,7 +81,6 @@ function asterisk(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill)
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function circle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -96,7 +95,6 @@ function circle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): v
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function circle_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -112,7 +110,6 @@ function circle_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fi
     _one_cross(ctx, r)
     ctx.stroke()
   }
-
 }
 
 function circle_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -133,7 +130,6 @@ function circle_y(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
     _one_y(ctx, r)
     ctx.stroke()
   }
-
 }
 
 function circle_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -149,7 +145,6 @@ function circle_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
     _one_x(ctx, r)
     ctx.stroke()
   }
-
 }
 
 function cross(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
@@ -159,7 +154,6 @@ function cross(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): v
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function diamond(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -174,7 +168,6 @@ function diamond(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): 
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function diamond_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -193,7 +186,6 @@ function diamond_cross(ctx: Context2d, i: number, r: number, line: Line, fill: F
     ctx.lineTo(r/1.5,  0)
     ctx.stroke()
   }
-
 }
 
 function diamond_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -207,7 +199,6 @@ function dot(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): voi
   line.set_vectorize(ctx, i)
   ctx.fillStyle = ctx.strokeStyle // NOTE: dots use line color for fill to match
   ctx.fill()
-
 }
 
 function hex(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -222,7 +213,6 @@ function hex(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function hex_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -244,7 +234,6 @@ function inverted_triangle(ctx: Context2d, i: number, r: number, line: Line, fil
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function plus(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -267,7 +256,6 @@ function plus(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): voi
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function square(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -284,7 +272,6 @@ function square(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): v
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function square_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -309,7 +296,6 @@ function square_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fill
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function square_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -327,7 +313,6 @@ function square_cross(ctx: Context2d, i: number, r: number, line: Line, fill: Fi
     _one_cross(ctx, r)
     ctx.stroke()
   }
-
 }
 
 function square_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -353,7 +338,6 @@ function square_x(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
     ctx.lineTo(r,  r)
     ctx.stroke()
   }
-
 }
 
 function triangle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -368,7 +352,6 @@ function triangle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function triangle_dot(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
@@ -396,7 +379,6 @@ function triangle_pin(ctx: Context2d, i: number, r: number, line: Line, fill: Fi
     line.set_vectorize(ctx, i)
     ctx.stroke()
   }
-
 }
 
 function dash(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {

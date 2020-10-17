@@ -244,5 +244,4 @@ export class Grid extends GuideRenderer {
     }
     return null
   }
-
 }

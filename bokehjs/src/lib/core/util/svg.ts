@@ -900,7 +900,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     }, false)
     this.__defs.appendChild(grad)
     return new CanvasGradient(grad, this)
-
   }
 
   /**

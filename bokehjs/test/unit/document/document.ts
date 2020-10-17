@@ -56,7 +56,6 @@ class SomeModel extends Model {
   }
 
   static init_SomeModel(): void {
-
     this.define<SomeModel.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -83,7 +82,6 @@ class SomeModelWithChildren extends Model {
   }
 
   static init_SomeModelWithChildren(): void {
-
     this.define<SomeModelWithChildren.Props>(({Array, Ref}) => ({
       children: [ Array(Ref(Model)), [] ],
     }))
@@ -116,7 +114,6 @@ class ModelWithConstructTimeChanges extends Model {
   }
 
   static init_ModelWithConstructTimeChanges(): void {
-
     this.define<ModelWithConstructTimeChanges.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -154,7 +151,6 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
   }
 
   static init_ComplicatedModelWithConstructTimeChanges(): void {
-
     this.define<ComplicatedModelWithConstructTimeChanges.Props>(({Array, Dict, Ref}) => ({
       list_prop:         [ Array(Ref(AnotherModel)) ],
       dict_prop:         [ Dict(Ref(AnotherModel)) ],
@@ -167,7 +163,6 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 describe("Document", () => {
-
   let date_stub: sinon.SinonStub
 
   before_each(() => {

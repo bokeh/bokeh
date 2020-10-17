@@ -86,7 +86,6 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   private _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
-
     function flatten(acc: Position[], item: Position[]) {
       return acc.concat([[NaN, NaN, NaN]]).concat(item)
     }

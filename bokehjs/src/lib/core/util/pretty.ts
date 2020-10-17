@@ -17,7 +17,6 @@ export type PrinterOptions = {
 }
 
 export class Printer {
-
   readonly precision?: number
 
   constructor(options?: PrinterOptions) {
