@@ -86,7 +86,7 @@ describe("events module", () => {
   })
 
   describe("ModelChangedEvent", () => {
-    it ("should throw an error if attr=id", () => {
+    it("should throw an error if attr=id", () => {
       const d = new Document()
       const m = new TestModel()
       const evt = new events.ModelChangedEvent(d, m, "id", 1, 2)

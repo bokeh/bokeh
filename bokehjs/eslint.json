@@ -75,6 +75,7 @@
     }],
     "space-in-parens": ["error", "never"],
     "keyword-spacing": ["error", {"before": true, "after": true}],
+    "func-call-spacing": ["error", "never"],
     "guard-for-in": ["error"]
   }
 }
