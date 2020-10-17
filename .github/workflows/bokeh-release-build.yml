@@ -19,12 +19,15 @@ jobs:
     steps:
       - name: Check Maintainer Authorization
         env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
           RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
         run: |
           if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
-            echo "User is authorized to build releases, proceeding with release build for ${{ github.event.inputs.version }}"
+            echo
+            echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
             exit 0
           fi
+          echo
           echo "User is NOT authorized to build releases, aborting..."
           echo
           echo "Please contact @bokeh/core about conducting releases."
@@ -41,7 +44,7 @@ jobs:
         env:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          BOKEH_VERSION: ${{ github.event.client_payload.version }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
-          echo "build build"
+           python -m release build $BOKEH_VERSION
