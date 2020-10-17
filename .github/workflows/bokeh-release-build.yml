@@ -41,6 +41,7 @@ jobs:
           environment-file: ci/environment-build.yml
 
       - name: Build Assets
+        shell: bash -l {0}
         env:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
