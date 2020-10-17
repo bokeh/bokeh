@@ -83,6 +83,11 @@
       "afterColon": true,
       "mode": "minimum"
     }],
+    "space-unary-ops": ["error", {
+      "words": true,
+      "nonwords": false,
+      "overrides": {}
+    }],
     "guard-for-in": ["error"]
   }
 }
