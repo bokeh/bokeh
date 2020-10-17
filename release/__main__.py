@@ -8,9 +8,9 @@
 import sys
 
 from .config import Config
-from .system import System
 from .pipeline import Pipeline
 from .stages import BUILD_CHECKS, BUILD_STEPS
+from .system import System
 
 system = System()
 

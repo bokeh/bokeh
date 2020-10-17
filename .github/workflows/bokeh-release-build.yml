@@ -38,7 +38,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-build.yml
+          environment-file: ci/environment-release.yml
 
       - name: Build Assets
         shell: bash -l {0}
