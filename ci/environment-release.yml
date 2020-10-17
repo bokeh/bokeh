@@ -38,4 +38,4 @@ dependencies:
   - sphinx
   - pip
   - pip:
-    - sphinx-panel
+    - sphinx-panels
