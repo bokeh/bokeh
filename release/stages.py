@@ -77,7 +77,7 @@ BUILD_CHECKS: StepListType = (
     check_release_tag_is_available,
     check_version_order,
     check_release_notes_present,
-    verify_github_credentials,
+    # verify_github_credentials,
     check_milestone_labels,
     check_staging_branch_is_available,
     verify_aws_credentials,
