@@ -21,13 +21,14 @@ jobs:
         env:
           RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
         run: |
-          if [[ `grep -q -e '^${{github.actor}}$' << $RELEASE_MAINTAINERS'` ]]; then
-            echo "User is NOT authorized to start release builds, aborting..."
-            echo
-            echo "Please contact @bokeh/core about conducting releases."
-            exit 1
+          if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
+            echo "User is authorized to build releases, proceeding with release build for ${{ github.event.inputs.version }}"
+            exit 0
           fi
-          echo "User is authorized to start release builds, proceeding with release build for ${{ github.event.inputs.version }}"
+          echo "User is NOT authorized to build releases, aborting..."
+          echo
+          echo "Please contact @bokeh/core about conducting releases."
+          exit 1
 
       - uses: actions/checkout@v2-beta
       - uses: goanpeca/setup-miniconda@v1
