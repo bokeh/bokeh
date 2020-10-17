@@ -897,7 +897,7 @@ class CustomJSHover(Model):
 
             p.add_tools(HoverTool(
                 tooltips=[( 'lat','@y{custom}' )],
-                formatters=dict(y=lat_custom)
+                formatters={'@y':lat_custom}
             ))
 
     .. warning::
