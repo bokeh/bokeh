@@ -530,10 +530,10 @@ export class PlotView extends LayoutDOMView {
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
     }
 
     const {above, below, left, right, center, renderers} = this.model.properties
