@@ -639,10 +639,10 @@ describe("Bug", () => {
   describe("in issue #10541", () => {
     it("prevents Slope with gradient=0", async () => {
 
-      const p = fig([200, 200], {x_range:[-5, 5], y_range:[-5, 5]})
+      const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
 
       for (const gradient of [1, -1, 0, 2, -0.5]){
-        const s = new Slope({gradient, y_intercept:-1})
+        const s = new Slope({gradient, y_intercept: -1})
         p.add_layout(s)
       }
 

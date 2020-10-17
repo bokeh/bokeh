@@ -528,7 +528,7 @@ describe("Document", () => {
     const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
-    const m = new AnotherModel({bar:1})
+    const m = new AnotherModel({bar: 1})
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(1)
@@ -536,7 +536,7 @@ describe("Document", () => {
     const event0 = events[0] as ev.RootAddedEvent
     expect(event0.model).to.be.equal(m)
 
-    const m2 = new AnotherModel({bar:2})
+    const m2 = new AnotherModel({bar: 2})
     d.add_root(m2)
     expect(d.roots().length).to.be.equal(2)
     expect(events.length).to.be.equal(2)

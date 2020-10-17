@@ -20,25 +20,25 @@ describe("column_data_source module", () => {
     })
 
     it("should return start, stop, end for slice object", () => {
-      expect(slice({start:1, stop:10, step:2}, 5)).to.be.equal([1, 10, 2])
-      expect(slice({start:1, stop:10, step:2}, 5)).to.be.equal([1, 10, 2])
-      expect(slice({start:1, stop:10, step:2}, 15)).to.be.equal([1, 10, 2])
+      expect(slice({start: 1, stop: 10, step: 2}, 5)).to.be.equal([1, 10, 2])
+      expect(slice({start: 1, stop: 10, step: 2}, 5)).to.be.equal([1, 10, 2])
+      expect(slice({start: 1, stop: 10, step: 2}, 15)).to.be.equal([1, 10, 2])
     })
 
     it("should return 0 for start when slice start is null", () => {
-      expect(slice({stop:10, step:2}, 5)).to.be.equal([0, 10, 2])
-      expect(slice({stop:10, step:2}, 5)).to.be.equal([0, 10, 2])
-      expect(slice({stop:10, step:2}, 15)).to.be.equal([0, 10, 2])
+      expect(slice({stop: 10, step: 2}, 5)).to.be.equal([0, 10, 2])
+      expect(slice({stop: 10, step: 2}, 5)).to.be.equal([0, 10, 2])
+      expect(slice({stop: 10, step: 2}, 15)).to.be.equal([0, 10, 2])
     })
 
     it("should return 1 for step when slice step is null", () => {
-      expect(slice({start:1, stop:10}, 5)).to.be.equal([1, 10, 1])
-      expect(slice({start:1, stop:10}, 5)).to.be.equal([1, 10, 1])
-      expect(slice({start:1, stop:10}, 15)).to.be.equal([1, 10, 1])
+      expect(slice({start: 1, stop: 10}, 5)).to.be.equal([1, 10, 1])
+      expect(slice({start: 1, stop: 10}, 5)).to.be.equal([1, 10, 1])
+      expect(slice({start: 1, stop: 10}, 15)).to.be.equal([1, 10, 1])
     })
 
     it("should return length for stop when slice stop is null", () => {
-      expect(slice({start:1, step:2}, 11)).to.be.equal([1, 11, 2])
+      expect(slice({start: 1, step: 2}, 11)).to.be.equal([1, 11, 2])
     })
   })
 
@@ -83,39 +83,39 @@ describe("column_data_source module", () => {
 
       it("should patch Arrays to Arrays", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]]])
+        patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]]])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
 
-        patch_to_column(a, [[{start:1, stop:3, step:1}, [99, 102]]])
+        patch_to_column(a, [[{start: 1, stop: 3, step: 1}, [99, 102]]])
         expect(a).to.be.equal(ndarray([1, 99, 102, 101, 5]))
       })
 
       it("should patch typed Arrays to typed Arrays", () => {
         for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
           const a = new typ([1, 2, 3, 4, 5])
-          patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]]])
+          patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]]])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
 
-          patch_to_column(a, [[{start:1, stop:3, step:1}, [99, 102]]])
+          patch_to_column(a, [[{start: 1, stop: 3, step: 1}, [99, 102]]])
           expect(a).to.be.equal(new typ([1, 99, 102, 101, 5]))
         }
       })
 
       it("should handle patch indices with strides", () => {
         const a = ndarray([1, 2, 3, 4, 5], {dtype: "int32"})
-        patch_to_column(a, [[{start:1, stop:5, step:2}, [100, 101]]])
+        patch_to_column(a, [[{start: 1, stop: 5, step: 2}, [100, 101]]])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
       })
 
       it("should handle multi-part patches", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]], [{stop:1, step:1}, [10]], [4, -1]])
+        patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]], [{stop: 1, step: 1}, [10]], [4, -1]])
         expect(a).to.be.equal(ndarray([10, 2, 100, 101, -1]))
       })
 
       it("should return a Set of the patched indices", () => {
         const a = ndarray([1, 2, 3, 4, 5])
-        const s = patch_to_column(a, [[{start:2, stop:4, step:1}, [100, 101]], [{stop:1, step:1}, [10]], [4, -1]])
+        const s = patch_to_column(a, [[{start: 2, stop: 4, step: 1}, [100, 101]], [{stop: 1, step: 1}, [10]], [4, -1]])
         expect(difference(s, new Set([0, 2, 3, 4]))).to.be.equal(new Set())
       })
     })
@@ -127,14 +127,14 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         patch_to_column([a, b, c], [
-          [[0, {start:2, stop:4, step:1}], [100, 101]],
+          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
         expect(b).to.be.equal(ndarray([10, 20, -1, -2, 0, 10]))
         expect(c).to.be.equal(ndarray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
-          [[1, {start:2, stop:4, step:1}], [100, 101]],
+          [[1, {start: 2, stop: 4, step: 1}], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
         expect(b).to.be.equal(ndarray([10, 20, 100, 101, 0, 10]))
@@ -147,14 +147,14 @@ describe("column_data_source module", () => {
           const b = new typ([10, 20, -1, -2, 0, 10], [6])
           const c = new typ([1, 2, 3, 4], [4])
           patch_to_column([a, b, c], [
-            [[0, {start:2, stop:4, step:1}], [100, 101]],
+            [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
           expect(b).to.be.equal(new typ([10, 20, -1, -2, 0, 10]))
           expect(c).to.be.equal(new typ([1, 2, 3, 4]))
 
           patch_to_column([a, b, c], [
-            [[1, {start:2, stop:4, step:1}], [100, 101]],
+            [[1, {start: 2, stop: 4, step: 1}], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 101, 5]))
           expect(b).to.be.equal(new typ([10, 20, 100, 101, 0, 10]))
@@ -167,14 +167,14 @@ describe("column_data_source module", () => {
         const b = new Int32NDArray([10, 20, -1, -2, 0, 10], [6])
         const c = new Int32NDArray([1, 2, 3, 4], [4])
         patch_to_column([a, b, c], [
-          [[0, {start:1, stop:5, step:2}], [100, 101]],
+          [[0, {start: 1, stop: 5, step: 2}], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
         expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10]))
         expect(c).to.be.equal(new Int32NDArray([1, 2, 3, 4]))
 
         patch_to_column([a, b, c], [
-          [[1, {step:3}], [100, 101]],
+          [[1, {step: 3}], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 100, 3, 101, 5]))
         expect(b).to.be.equal(new Int32NDArray([100, 20, -1, 101, 0, 10]))
@@ -186,8 +186,8 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         patch_to_column([a, b, c], [
-          [[0, {start:2, stop:4, step:1}], [100, 101]],
-          [[1, {stop:2, step:1}], [999, 999]],
+          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
+          [[1, {stop: 2, step: 1}], [999, 999]],
           [[1, 5], [6]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 101, 5]))
@@ -200,8 +200,8 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [6]})
         const c = ndarray([1, 2, 3, 4], {shape: [4]})
         const s = patch_to_column([a, b, c], [
-          [[0, {start:2, stop:4, step:1}], [100, 101]],
-          [[1, {stop:2, step:1}], [999, 999]],
+          [[0, {start: 2, stop: 4, step: 1}], [100, 101]],
+          [[1, {stop: 2, step: 1}], [999, 999]],
           [[1, 5], [6]],
         ])
         expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
@@ -220,7 +220,7 @@ describe("column_data_source module", () => {
         expect(c).to.be.equal(ndarray([1, 2], {shape: [1, 2]}))
 
         patch_to_column([a, b, c], [
-          [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
+          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
         expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
@@ -240,7 +240,7 @@ describe("column_data_source module", () => {
           expect(c).to.be.equal(new typ([1, 2], [1, 2]))
 
           patch_to_column([a, b, c], [
-            [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
+            [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
           ])
           expect(a).to.be.equal(new typ([1, 2, 100, 4, 5, 101], [2, 3]))
           expect(b).to.be.equal(new typ([100, 20, 101, -2, 0, 10], [3, 2]))
@@ -253,14 +253,14 @@ describe("column_data_source module", () => {
         const b = new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2])
         const c = new Int32NDArray([1, 2], [1, 2])
         patch_to_column([a, b, c], [
-          [[0, {step:1}, 2], [100, 101]],
+          [[0, {step: 1}, 2], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
         expect(b).to.be.equal(new Int32NDArray([10, 20, -1, -2, 0, 10], [3, 2]))
         expect(c).to.be.equal(new Int32NDArray([1, 2], [1, 2]))
 
         patch_to_column([a, b, c], [
-          [[1, {start:0, stop:3, step:2}, {start:0, stop:1, step:1}], [100, 101]],
+          [[1, {start: 0, stop: 3, step: 2}, {start: 0, stop: 1, step: 1}], [100, 101]],
         ])
         expect(a).to.be.equal(new Int32NDArray([1, 2, 100, 4, 5, 101], [2, 3]))
         expect(b).to.be.equal(new Int32NDArray([100, 20, -1, -2, 101, 10], [3, 2]))
@@ -272,8 +272,8 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
         patch_to_column([a, b, c], [
-          [[0, {step:1}, 2], [100, 101]],
-          [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
+          [[0, {step: 1}, 2], [100, 101]],
+          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
         ])
         expect(a).to.be.equal(ndarray([1, 2, 100, 4, 5, 101], {shape: [2, 3]}))
         expect(b).to.be.equal(ndarray([100, 20, 101, -2, 0, 10], {shape: [3, 2]}))
@@ -285,8 +285,8 @@ describe("column_data_source module", () => {
         const b = ndarray([10, 20, -1, -2, 0, 10], {shape: [3, 2]})
         const c = ndarray([1, 2], {shape: [1, 2]})
         const s = patch_to_column([a, b, c], [
-          [[0, {step:1}, 2], [100, 101]],
-          [[1, {start:0, stop:2, step:1}, {start:0, stop:1, step:1}], [100, 101]],
+          [[0, {step: 1}, 2], [100, 101]],
+          [[1, {start: 0, stop: 2, step: 1}, {start: 0, stop: 1, step: 1}], [100, 101]],
         ])
         expect(difference(s, new Set([0, 1]))).to.be.equal(new Set())
       })
@@ -410,7 +410,7 @@ describe("column_data_source module", () => {
   })
 
   describe("multiple columns added", () => {
-    const r = new ColumnDataSource({data: {foo: [], bar:[]}})
+    const r = new ColumnDataSource({data: {foo: [], bar: []}})
 
     it("should return supplied data", () => {
       expect(r.data).to.be.equal({foo: [], bar: []})
@@ -427,7 +427,7 @@ describe("column_data_source module", () => {
       const r0 = new ColumnDataSource({data: {foo: []}})
       expect(r0.get_length()).to.be.equal(0)
 
-      const r1 = new ColumnDataSource({data: {foo: [], bar:[]}})
+      const r1 = new ColumnDataSource({data: {foo: [], bar: []}})
       expect(r1.get_length()).to.be.equal(0)
     })
 
@@ -435,10 +435,10 @@ describe("column_data_source module", () => {
       const r0 = new ColumnDataSource({data: {foo: [10]}})
       expect(r0.get_length()).to.be.equal(1)
 
-      const r1 = new ColumnDataSource({data: {foo: [10], bar:[10]}})
+      const r1 = new ColumnDataSource({data: {foo: [10], bar: [10]}})
       expect(r1.get_length()).to.be.equal(1)
 
-      const r2 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      const r2 = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       expect(r2.get_length()).to.be.equal(2)
     })
 
@@ -448,7 +448,7 @@ describe("column_data_source module", () => {
         const out0 = trap(() => r0.get_length())
         expect(out0.warn).to.be.equal("")
 
-        const r1 = new ColumnDataSource({data: {foo: [], bar:[]}})
+        const r1 = new ColumnDataSource({data: {foo: [], bar: []}})
         const out1 = trap(() => r1.get_length())
         expect(out1.warn).to.be.equal("")
 
@@ -456,11 +456,11 @@ describe("column_data_source module", () => {
         const out2 = trap(() => r2.get_length())
         expect(out2.warn).to.be.equal("")
 
-        const r3 = new ColumnDataSource({data: {foo: [10], bar:[10]}})
+        const r3 = new ColumnDataSource({data: {foo: [10], bar: [10]}})
         const out3 = trap(() => r3.get_length())
         expect(out3.warn).to.be.equal("")
 
-        const r4 = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+        const r4 = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
         const out4 = trap(() => r4.get_length())
         expect(out4.warn).to.be.equal("")
       })
@@ -482,12 +482,12 @@ describe("column_data_source module", () => {
   describe("columns method", () => {
 
     it("should report .data.keys", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       expect(r.columns()).to.be.equal(keys(r.data))
     })
 
     it("should update if columns update", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       r.data.baz = [11, 21]
       expect(r.columns()).to.be.equal(keys(r.data))
     })
@@ -496,9 +496,9 @@ describe("column_data_source module", () => {
   describe("clear method", () => {
 
     it("should clear plain arrys to plain arrays", () => {
-      const r = new ColumnDataSource({data: {foo: [10, 20], bar:[10, 20]}})
+      const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       r.clear()
-      expect(r.data).to.be.equal({foo: [], bar:[]})
+      expect(r.data).to.be.equal({foo: [], bar: []})
     })
 
     it("should clear typed arrays to typed arrays", () => {

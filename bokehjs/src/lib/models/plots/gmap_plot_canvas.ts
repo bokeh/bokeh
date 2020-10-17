@@ -126,10 +126,10 @@ export class GMapPlotView extends PlotView {
     const {maps} = google
 
     this.map_types = {
-      satellite : maps.MapTypeId.SATELLITE,
-      terrain   : maps.MapTypeId.TERRAIN,
-      roadmap   : maps.MapTypeId.ROADMAP,
-      hybrid    : maps.MapTypeId.HYBRID,
+      satellite: maps.MapTypeId.SATELLITE,
+      terrain: maps.MapTypeId.TERRAIN,
+      roadmap: maps.MapTypeId.ROADMAP,
+      hybrid: maps.MapTypeId.HYBRID,
     }
 
     const mo = this.model.map_options
