@@ -46,7 +46,12 @@ from .credentials import (
     verify_npm_credentials,
     verify_pypi_credentials,
 )
-from .deploy import unpack_deployment_tarball
+from .deploy import (
+    publish_conda_package,
+    publish_documentation,
+    publish_pip_package,
+    unpack_deployment_tarball,
+)
 from .git import (
     checkout_base_branch,
     checkout_staging_branch,
@@ -126,4 +131,4 @@ DEPLOY_CHECKS: StepListType = (
     verify_pypi_credentials,
 )
 
-DEPLOY_STEPS: StepListType = (download_deployment_tarball, unpack_deployment_tarball)
+DEPLOY_STEPS: StepListType = (download_deployment_tarball, publish_conda_package, publish_pip_package, publish_documentation, unpack_deployment_tarball)
