@@ -20,8 +20,8 @@ following:
 
 .. _userguide_export_png:
 
-PNG generation
---------------
+Exporting PNG images
+--------------------
 
 Bokeh can generate RGBA-format Portable Network Graphics (PNG) images from
 layouts using the |export_png| function. This functionality renders the
@@ -31,6 +31,11 @@ have the same dimensions as the source layout.
 To create a PNG with a transparent background set the
 ``Plot.background_fill_color`` and ``Plot.border_fill_color`` properties to
 ``None``.
+
+.. code-block:: python
+
+    plot.background_fill_color = None
+    plot.border_fill_color = None
 
 Sizing variability
 ~~~~~~~~~~~~~~~~~~
@@ -65,30 +70,16 @@ lower-level function :func:`~bokeh.io.export.get_screenshot_as_png`.
 
 .. _userguide_export_svg:
 
-SVG generation
---------------
+Exporting SVG images
+--------------------
 
 Bokeh can also replace the HTML5 Canvas plot output with a Scalable Vector
 Graphics (SVG) element that can be edited in image editing programs such
-as Adobe Illustrator and/or converted to a PDF.
+as Adobe Illustrator and/or converted to PDF.
 
 The SVG output isn't as performant as the default Canvas backend when it comes
-to rendering a large number of glyphs or handling lots of user interactions like
-panning.
-
-To create an SVG with a transparent background, set the ``Plot.background_fill_color``
-and ``Plot.border_fill_color`` properties to ``None``, same as with PNG output.
-
-Limitations
-~~~~~~~~~~~
-
-You can't create a single SVG for a layout of plots because each plot will
-produce its own distinct SVG element. You can, however, download an SVG plot
-using a SaveTool from the toolbar. Note that in this case the exported file
-will have a blank area where the toolbar used to be.
-
-Example usage
-~~~~~~~~~~~~~
+to rendering a large number of glyphs or handling lots of user interactions such
+as panning.
 
 To activate the SVG backend, set the ``Plot.output_backend`` attribute to
 ``"svg"``.
@@ -100,27 +91,42 @@ To activate the SVG backend, set the ``Plot.output_backend`` attribute to
     # option two
     plot.output_backend = "svg"
 
-Exporting an SVG image
-~~~~~~~~~~~~~~~~~~~~~~
+To create an SVG with a transparent background, set the
+``Plot.background_fill_color`` and ``Plot.border_fill_color``
+properties to ``None``, same as for PNG exports.
 
-The simplest way to manually export an SVG plot is to install the
-`SVG-Crowbar`_ bookmarklet. Clicking it adds prompts to download
-each plot as an SVG file. It is compatible with Chrome and should
-work with Firefox in most cases.
+You can export an SVG plot in several ways:
 
-You can also download an SVG plot with the ``SaveTool``, but it won't capture
-the toolbar even though it figures into the plot layout solver calculations.
+• With code:
 
-For headless export, use the |export_svgs| utility function similar to |save|
-and |show|. This function downloads all SVG-enabled plots within a layout as
-separate SVG files.
+  • Use the |export_svg| utility function that lets you
+    save a plot or a layout of plots as a single SVG file.
 
-.. code-block:: python
+    .. code-block:: python
+    
+      from bokeh.io import export_svg
 
-    from bokeh.io import export_svgs
+      export_svg(plot, filename="plot.svg")
 
-    plot.output_backend = "svg"
-    export_svgs(plot, filename="plot.svg")
+  • Use the |export_svgs| utility function that lets you
+    export a layout of plots as a set of independent SVG
+    files.
+
+    .. code-block:: python
+
+      from bokeh.io import export_svgs
+
+      export_svgs(plot, filename="plot.svg")
+
+• From browser:
+
+  • Use the `SVG-Crowbar`_ bookmarklet that adds a prompt to
+    download each plot as an SVG file. This tool is fully
+    compatible with Chrome and should work with Firefox in
+    most cases.
+  • Use the ``SaveTool`` from the toolbar but note that the
+    exported files will have a blank area where the toolbar
+    was.
 
 .. image:: /_images/unemployment.svg
 
