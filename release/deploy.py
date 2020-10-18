@@ -39,7 +39,7 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     try:
         if config.prerelease:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev/ {flags}")
-            system.run('aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev*"')
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev*"')
         else:
             version = config.version
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags}")
