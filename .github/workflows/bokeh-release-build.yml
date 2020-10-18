@@ -1,4 +1,4 @@
-name: Build a Bokeh Release
+name: Release - Build
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Maintainer Authorization
+      - name: Verify Maintainer Authorization
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}

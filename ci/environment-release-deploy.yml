@@ -5,6 +5,7 @@ dependencies:
   - python=3.7
 
   # deploy
+  - boto
   - colorama
   - nodejs>=10.13
   - setuptools
