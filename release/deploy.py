@@ -22,7 +22,7 @@ CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
 
 def publish_conda_package(config: Config, system: System) -> ActionReturn:
     version = config.version
-    path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz"
+    path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz2"
     token = config.secrets["ANACONDA_TOKEN"]
     main_channel = "" if config.prerelease else "-l main"
     try:
