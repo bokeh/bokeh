@@ -24,7 +24,7 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
     version = config.version
     path = f"deployment-{version}/bokeh-{version}-py_0.tar.bz"
     token = config.secrets["ANACONDA_TOKEN"]
-    main_channel = "-l main" if config.prerelease else ""
+    main_channel = "" if config.prerelease else "-l main"
     try:
         system.run(f"anaconda -t {token} upload -u bokeh {path} {main_channel} -l dev --force --no-progress")
         return PASSED("Publish to anaconda.org succeeded")

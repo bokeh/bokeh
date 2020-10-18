@@ -131,4 +131,11 @@ DEPLOY_CHECKS: StepListType = (
     verify_pypi_credentials,
 )
 
-DEPLOY_STEPS: StepListType = (download_deployment_tarball, publish_conda_package, publish_pip_package, publish_documentation, unpack_deployment_tarball)
+DEPLOY_STEPS: StepListType = (
+    download_deployment_tarball,
+    unpack_deployment_tarball,
+    publish_conda_package,
+    publish_pip_package,
+    publish_documentation,
+    unpack_deployment_tarball,
+)
