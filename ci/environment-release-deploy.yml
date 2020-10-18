@@ -5,6 +5,7 @@ dependencies:
   - python=3.7
 
   # deploy
+  - anaconda-client
   - boto
   - colorama
   - nodejs>=10.13
