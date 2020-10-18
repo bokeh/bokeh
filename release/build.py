@@ -123,7 +123,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     for filename in filenames:
         content = json.load(open(filename))
         try:
-            content["version"] = config.js_version
+            content["version"] = config.pep440_version
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
@@ -132,7 +132,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
 
     system.popd()
 
-    return PASSED(f"Updated version to {config.js_version!r} in files: {filenames!r}")
+    return PASSED(f"Updated version to {config.pep440_version!r} in files: {filenames!r}")
 
 
 @skip_for_prerelease
