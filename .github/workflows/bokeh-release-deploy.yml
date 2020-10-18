@@ -1,10 +1,10 @@
-name: Build a Bokeh Release
+name: Deploy a Bokeh Release
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to build a release for"
+        description: "Version to deploy a release for"
         required: true
 
 env:
@@ -24,13 +24,11 @@ jobs:
         run: |
           if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
             echo
-            echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
-            git config --global user.email "info@bokeh.org"
-            git config --global user.name "${{github.actor}}"
+            echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"
             exit 0
           fi
           echo
-          echo "User is NOT authorized to build releases, aborting..."
+          echo "User is NOT authorized to deploy releases, aborting..."
           echo
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
@@ -39,20 +37,18 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
           miniconda-version: 'latest'
-          activate-environment: bk-release-build
-          environment-file: ci/environment-release-build.yml
+          activate-environment: bk-release-deploy
+          environment-file: ci/environment-release-deploy.yml
 
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-      - name: Build Release Tarball
+      - name: Deploy Release Tarball
         shell: bash -l {0}
         env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
         run: |
-           python -m release build $BOKEH_VERSION
+           python -m release deploy $BOKEH_VERSION

@@ -1,0 +1,12 @@
+name: bk-release-deploy
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+
+  # deploy
+  - colorama
+  - nodejs>=10.13
+  - setuptools
+  - twine
+  - yaml

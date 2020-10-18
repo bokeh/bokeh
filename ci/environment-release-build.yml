@@ -1,4 +1,4 @@
-name: bk-test
+name: bk-release-build
 channels:
   - conda-forge
 dependencies:
@@ -20,7 +20,6 @@ dependencies:
   - conda-build=3.18.10
   - conda-verify=3.4.2
   - nodejs>=10.13
-  - packaging
   - ripgrep=0.10.0
   - setuptools
   - yaml
@@ -30,7 +29,6 @@ dependencies:
   - firefox
   - geckodriver
   - networkx
-  - numpy
   - pandas
   - pydot
   - pygments

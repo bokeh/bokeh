@@ -27,7 +27,7 @@ from .system import System
 __all__ = (
     "verify_anaconda_credentials",
     "verify_aws_credentials",
-    "verify_github_credentials",
+    "verify_google_credentials",
     "verify_npm_credentials",
     "verify_pypi_credentials",
 )
@@ -81,14 +81,13 @@ def verify_pypi_credentials(config: Config, system: System, *, token: str) -> No
     pass
 
 
-@collect_credential(token="GITHUB_TOKEN")
-def verify_github_credentials(config: Config, system: System, *, token: str) -> None:
+@collect_credential(token="GOOGLE_API_KEY")
+def verify_google_credentials(config: Config, system: System, *, token: str) -> None:
     """
 
     """
-    out = system.run(f"curl -s -H 'Authorization: token {token}' https://api.github.com")
-    if "Bad credentials" in out:
-        raise RuntimeError(*out.strip().split("\n"))
+    # TODO is there a way to actually test that the creds work?
+    pass
 
 
 @collect_credential(token="NPM_TOKEN")
