@@ -51,8 +51,9 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
 
 
 def publish_pip_package(config: Config, system: System) -> ActionReturn:
-    version = config.version
-    path = f"deployment-{version}/bokeh-{version}.tar.gz"
+    # NOTE: using js_version below because pip already uses "dotted" version like JS
+    # This will eventually be the standard dev/rc version syntax for all packages
+    path = f"deployment-{config.version}/bokeh-{config.js_version}.tar.gz"
     token = config.secrets["ANACONDA_TOKEN"]
     try:
         system.run(f"twine upload -u __token__ -p {token} {path}")
