@@ -5,18 +5,9 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
-# Standard library imports
-from io import BytesIO
-from typing import Any
-
-# External imports
-import boto
-from packaging.version import Version as V
-
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
 from .config import Config
-from .logger import LOG
 from .system import System
 
 __all__ = ("unpack_deployment_tarball",)
