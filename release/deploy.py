@@ -54,9 +54,8 @@ def publish_pip_package(config: Config, system: System) -> ActionReturn:
     # NOTE: using pep440_version below because sdists already uses this syntax
     # This will eventually be the standard dev/rc version syntax for all packages
     path = f"deployment-{config.version}/bokeh-{config.pep440_version}.tar.gz"
-    token = config.secrets["ANACONDA_TOKEN"]
     try:
-        system.run(f"twine upload -u __token__ -p {token} {path}")
+        system.run(f"twine upload -u __token__ -p $PYPI_TOKEN {path}")
         return PASSED("Publish to pypi.org succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to pypi.org", details=e.args)
