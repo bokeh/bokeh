@@ -112,7 +112,5 @@ def verify_aws_credentials(config: Config, system: System, *, access_key_id: str
         ("cdn.bokeh.org", "us-east-1"),
         ("cdn-backup.bokeh.org", "us-west-2"),
     ]:
-        conn = boto.s3.connect_to_region(
-            bucket_region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key, calling_format=calling_format,
-        )
+        conn = boto.s3.connect_to_region(bucket_region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key, calling_format=calling_format,)
         conn.get_bucket(bucket_name)

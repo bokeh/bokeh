@@ -31,7 +31,7 @@ def test_balck() -> None:
 
     '''
     chdir(TOP_PATH)
-    proc = run(["black", "-l", "160", "--diff", "--check", "release"], capture_output=True)
+    proc = run(["black", "-l", "165", "--diff", "--check", "release"], capture_output=True)
     assert proc.returncode == 0, f"black issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------

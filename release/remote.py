@@ -19,7 +19,7 @@ from .config import Config
 from .logger import LOG
 from .system import System
 
-__all__ = ("publish_bokehjs_to_cdn", "upload_deployment_tarball")
+__all__ = ("download_deployment_tarball", "publish_bokehjs_to_cdn", "upload_deployment_tarball")
 
 
 def _upload_file_to_cdn(local_path: str, cdn_path: str, content_type: str, bucket: Any, binary: bool = False) -> None:
@@ -34,6 +34,14 @@ def _upload_file_to_cdn(local_path: str, cdn_path: str, content_type: str, bucke
     key.set_contents_from_file(fp)
 
 
+def download_deployment_tarball(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run(f"aws s3 cp s3://bokeh-deployments/deployment-{config.version}.tgz .")
+        return PASSED("Downloaded deployment tarball")
+    except RuntimeError as e:
+        return FAILED("Could NOT download deployment tarball", details=e.args)
+
+
 def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
     subdir = "dev" if V(config.version).is_prerelease else "release"
     version = config.version
@@ -45,10 +53,7 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
         buckets = []
         for bucket_name, bucket_region in [("cdn.bokeh.org", "us-east-1"), ("cdn-backup.bokeh.org", "us-west-2")]:
             conn = boto.s3.connect_to_region(
-                bucket_region,
-                aws_access_key_id=access_key_id,
-                aws_secret_access_key=secret_access_key,
-                calling_format=boto.s3.connection.OrdinaryCallingFormat(),
+                bucket_region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key, calling_format=boto.s3.connection.OrdinaryCallingFormat(),
             )
             buckets.append(conn.get_bucket(bucket_name))
 

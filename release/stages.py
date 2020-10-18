@@ -46,6 +46,7 @@ from .credentials import (
     verify_npm_credentials,
     verify_pypi_credentials,
 )
+from .deploy import unpack_deployment_tarball
 from .git import (
     checkout_base_branch,
     checkout_staging_branch,
@@ -57,12 +58,17 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .publish import publish_bokehjs_to_cdn, upload_deployment_tarball
+from .remote import (
+    download_deployment_tarball,
+    publish_bokehjs_to_cdn,
+    upload_deployment_tarball,
+)
 
 __all__ = (
     "BUILD_CHECKS",
     "BUILD_STEPS",
     "DEPLOY_CHECKS",
+    "DEPLOY_STEPS",
 )
 
 StepListType = Tuple[StepType, ...]
@@ -119,3 +125,5 @@ DEPLOY_CHECKS: StepListType = (
     verify_npm_credentials,
     verify_pypi_credentials,
 )
+
+DEPLOY_CHECKS: StepListType = (download_deployment_tarball, unpack_deployment_tarball)
