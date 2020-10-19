@@ -81,7 +81,7 @@ def verify_pypi_credentials(config: Config, system: System, *, token: str) -> No
     pass
 
 
-@collect_credential(token="GITHUB_TOKEN")
+@collect_credential(token="GH_TOKEN")
 def verify_github_credentials(config: Config, system: System, *, token: str) -> None:
     """
 
