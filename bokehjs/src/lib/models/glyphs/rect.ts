@@ -175,8 +175,8 @@ export class RectView extends CenterRotatableView {
                                                   scale: Scale): [NumberArray, NumberArray] {
     const n = coord.length
 
-    const pt0 = new NumberArray(n)
-    const pt1 = new NumberArray(n)
+    const pt0 = new Float64Array(n)
+    const pt1 = new Float64Array(n)
 
     for (let i = 0; i < n; i++) {
       pt0[i] = coord[i] - side_length[i]/2
