@@ -1,3 +1,8 @@
+2020-10-19    2.2.3:
+--------------------
+  * bugfixes:
+    - #10488 [component: bokehjs] In python3, rectangle does not appear when x axis is type datetime
+
 2020-10-12    2.2.2:
 --------------------
   * bugfixes:
