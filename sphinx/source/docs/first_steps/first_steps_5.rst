@@ -1,9 +1,62 @@
 .. _first_steps_5:
 
-First steps 5: vectorized Colors and Sizes
-==========================================
+First steps 5: vectorizing glyph properties
+===========================================
 
-Vectorized Colors and Sizes
-https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#vectorized-colors-and-sizes
+In the :ref:`previous first steps guide <first_steps_4>`, you customized
+various aspects of your plot by adding and changing attributes.
 
--> Pandas, ColumnDataSource??
+In this section, you will use vectors of data to influence aspects of your
+plot and its elements.
+
+.. _first_steps_5_colors:
+
+Vectorizing colors
+------------------
+
+So far, you have assigned fixed colors to a glyph by using properties such as
+``fill_color``.
+
+To change colors depending on values in a variable, pass a variable containing
+color information to the ``fill_color`` attribute:
+
+.. literalinclude:: examples/first_steps_5_vectorize_color.py
+   :language: python
+   :emphasize-lines: 11-12,26
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_5_vectorize_color.py
+    :source-position: none
+
+In this example, the color of every circle corresponds to the y value of that
+circle.
+
+.. _first_steps_5_colors_and_radii:
+
+Vectorizing colors and sizes
+----------------------------
+
+To create a plot with colors and sizes in relation to your data, apply the same
+principle to the ``radius`` argument of your renderer:
+
+.. literalinclude:: examples/first_steps_5_vectorize_color_and_size.py
+   :language: python
+   :emphasize-lines: 10,25
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_5_vectorize_color_and_size.py
+    :source-position: none
+
+In this example, the color and diameter of every circle correspond to the y
+value of that circle.
+
+.. panels::
+    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
+
+    .. link-button:: first_steps_4.html
+        :text: Previous
+        :classes: stretched-link
+
+    ---
+    :card: + text-right
+    .. link-button:: first_steps_6.html
+        :text: Next
+        :classes: stretched-link

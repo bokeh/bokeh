@@ -10,7 +10,7 @@ y = random.sample(range(0, 100), 51)
 # set output to static HTML file
 output_file("first_steps.html")
 
-# create a new plot with a specific size
+# create new plot
 p = figure(title="Box annotation example")
 
 # add line renderer

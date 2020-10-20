@@ -1,32 +1,34 @@
-import numpy as np
+import random
+from datetime import datetime, timedelta
 
+from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
 from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.stocks import AAPL
 
-# prepare some data
-aapl = np.array(AAPL["adj_close"])
-aapl_dates = np.array(AAPL["date"], dtype=np.datetime64)
+# generate list of dates (today's date in subsequent weeks)
+dates = [(datetime.now() + timedelta(day * 7)) for day in range(0, 26)]
 
-window_size = 30
-window = np.ones(window_size) / float(window_size)
-aapl_avg = np.convolve(aapl, window, "same")
+# generate 25 random data points
+y = random.sample(range(0, 100), 26)
 
-# output to static HTML file
+# set output to static HTML file
 output_file("first_steps.html")
 
-# create a new plot with a datetime axis type
-p = figure(plot_width=800, plot_height=350, x_axis_type="datetime")
+# create new plot
+p = figure(
+    title="datetime axis example",
+    x_axis_type="datetime",
+    sizing_mode="stretch_width",
+    max_width=500,
+    plot_height=250,
+)
 
 # add renderers
-p.circle(aapl_dates, aapl, size=4, color="darkgrey", alpha=0.2, legend_label="close")
-p.line(aapl_dates, aapl_avg, color="navy", legend_label="avg")
+p.circle(dates, y, size=8)
+p.line(dates, y, color="navy", line_width=1)
 
-# customize by setting attributes
-p.title.text = "AAPL One-Month Average"
-p.legend.location = "top_left"
-p.grid.grid_line_alpha = 0
-p.xaxis.axis_label = "Date"
-p.yaxis.axis_label = "Price"
+# format axes ticks
+p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+p.xaxis[0].formatter = DatetimeTickFormatter(months="%b %Y")
 
 # show the results
 show(p)

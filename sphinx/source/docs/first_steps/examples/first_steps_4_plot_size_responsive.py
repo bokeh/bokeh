@@ -16,16 +16,8 @@ p = figure(
     y_axis_label="y",
 )
 
-# add circle renderer with additional arguments
-circle = p.circle(
-    x,
-    y,
-    legend_label="Objects",
-    fill_color="red",
-    fill_alpha=0.5,
-    line_color="blue",
-    size=80,
-)
+# add circle renderer
+circle = p.circle(x, y, fill_color="red", size=15)
 
 # show the results
 show(p)

@@ -1,3 +1,4 @@
+from bokeh.models import NumeralTickFormatter
 from bokeh.plotting import figure, output_file, show
 
 # prepare some data
@@ -7,17 +8,20 @@ y = [4, 5, 5, 7, 2]
 # set output to static HTML file
 output_file("first_steps.html")
 
-# create a new plot with responsive width
+# create new plot
 p = figure(
-    y_range=(0, 25),
-    title="Axis range example",
+    title="Tick formatter example",
     sizing_mode="stretch_width",
     max_width=500,
     plot_height=250,
 )
 
-# add circle renderer with additional arguments
-circle = p.circle(x, y, size=8)
+# format axes ticks
+p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+
+# add renderers
+p.circle(x, y, size=8)
+p.line(x, y, color="navy", line_width=1)
 
 # show the results
 show(p)

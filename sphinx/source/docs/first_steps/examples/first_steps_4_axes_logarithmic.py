@@ -14,6 +14,7 @@ p = figure(
     title="Logarithmic axes example",
     sizing_mode="stretch_width",
     plot_height=300,
+    max_width=500,
     y_axis_type="log",
     y_range=[0.001, 10 ** 11],
     x_axis_label="sections",

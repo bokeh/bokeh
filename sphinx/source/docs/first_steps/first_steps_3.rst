@@ -30,7 +30,7 @@ customize the legend. For example:
 
 .. literalinclude:: examples/first_steps_3_legend.py
    :language: python
-   :emphasize-lines: 19,22,25-27,30-34
+   :emphasize-lines: 19,27,30,33-35,38-42
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_legend.py
     :source-position: none
@@ -84,7 +84,7 @@ certain areas of your plot:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_box_annotation.py
     :source-position: none
 
-To add ox annotations to your plot, you first need to import the
+To add box annotations to your plot, you first need to import the
 :class:`~bokeh.models.annotations.BoxAnnotation` class from Bokeh's
 :class:`~bokeh.models` collection:
 

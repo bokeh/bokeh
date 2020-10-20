@@ -4,7 +4,7 @@ First steps 1: creating a line chart
 ====================================
 
 With just a few lines of Python code, Bokeh enables you to create
-interactive, JavaScript-powered visualizations in your browser.
+interactive, JavaScript-powered visualizations displayable in a web browser.
 
 The basic idea of Bokeh is a two-step process: First, you select from Bokehs
 building blocks to create your visualization. Second, you customize these
@@ -18,7 +18,9 @@ To do that, Bokeh combines two elements:
   display your interactive visualizations in a web browser.
 
 Based on your Python code, Bokeh automatically generates all the necessary
-JavaScript and HTML code for you.
+JavaScript and HTML code for you. In its default setting, Bokeh automatically
+loads any additional JavaScript code from Bokeh's CDN (content delivery
+network).
 
 .. _first_steps_1_line_chart:
 
@@ -154,26 +156,26 @@ Recap: building visualizations
 You just completed all the basic steps that most visualizations with Bokeh's
 |bokeh.plotting| interface require:
 
-1. Preparing the data:
+1. Preparing the data
     You just used a plain Python list, but NumPy arrays or Pandas series also
     work.
 
-2. Telling Bokeh what to do with the generated output:
+2. Telling Bokeh what to do with the generated output
     You used |output_file| with a filename to safe to a file. Another option
     is to use |output_notebook| to display your visualization directly in a
     Jupyter notebook.
 
-3. Calling the |figure| function:
+3. Calling the |figure| function
     This creates a plot with the most common default options. You
     can customize various properties of your plot, such as its title, tools,
     and axes labels.
 
-4. Adding renderers:
+4. Adding renderers
     You just used |Figure.line| to create a line. Renderers have various
     options which allow you to specify visual attributes such as colors,
     legends, and widths.
 
-5. Asking Bokeh to |show| or |save| the results:
+5. Asking Bokeh to |show| or |save| the results
     These functions either save your plot to an HTML file or display it in a
     browser.
 

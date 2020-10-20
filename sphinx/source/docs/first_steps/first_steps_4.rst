@@ -80,15 +80,14 @@ Setting your axes' appearance
 Options for customizing the appearance of your plot includes:
 
 * setting labels for your axes
-* styling options for the numbers displayed with your axes
+* styling the numbers displayed with your axes
 * defining colors and other layout properties for the axes themselves
 
 For example:
 
-
 .. literalinclude:: examples/first_steps_4_axes_customizing.py
    :language: python
-   :emphasize-lines: 17-19,22-24,27,28
+   :emphasize-lines: 22-24,27-29,32-33
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_axes_customizing.py
     :source-position: none
@@ -114,6 +113,48 @@ axes:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_plot_axis_ranges.py
     :source-position: none
 
+Formatting axis ticks
+~~~~~~~~~~~~~~~~~~~~~
+
+You can format the text that appears alongside your axes with Bokeh's
+``TickFormatter`` objects. Use these formatters to display currency
+symbols on your y axis, for example:
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_4_tick_formatter.py
+    :source-position: none
+
+To display dollar amounts instead of just numbers on your y axis, use the
+:class:`~bokeh.models.formatters.NumeralTickFormatter`.
+
+First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
+Bokehs :class:`~bokeh.models` collection:
+
+.. code-block:: python
+
+    from bokeh.models import NumeralTickFormatter
+
+Then, after creating your plot with the ``figure()`` function, assign the
+``NumeralTickFormatter`` to the ``formatter` property of your plot's ``yaxis``:
+
+.. code-block:: python
+
+    p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+
+The :class:`~bokeh.models.formatters.NumeralTickFormatter` supports different
+formats, including ``"$0.00"`` to generate values such as ``"$7,42"``.
+
+This is what the completed code looks like:
+
+.. literalinclude:: examples/first_steps_4_tick_formatter.py
+   :language: python
+   :emphasize-lines: 1,20
+
+.. seealso::
+    For more information about formatting ticks, see
+    :ref:`userguide_styling_axes_tick_label_formats` in the user guide. For a
+    list of all available tick formatters, see :class:`~bokeh.models.formatters`
+    in the reference guide.
+
 Enabling logarithmic axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -122,7 +163,7 @@ switch to logarithmic axes:
 
 .. literalinclude:: examples/first_steps_4_axes_logarithmic.py
    :language: python
-   :emphasize-lines: 17,18
+   :emphasize-lines: 18,19
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_axes_logarithmic.py
     :source-position: none
@@ -132,19 +173,17 @@ Enabling datetime axes
 
 Set the ``x_axis_type`` or ``y_axis_type`` to ``datetime`` to display date or
 time information on an axis. Bokeh then creates a
-:class:`~bokeh.models.axes.DatetimeAxis`:
+:class:`~bokeh.models.axes.DatetimeAxis`.
+
+To format the ticks of a ``DatetimeAxis``, use the
+:class:`~bokeh.models.formatters.DatetimeTickFormatter`.
 
 .. literalinclude:: examples/first_steps_4_datetime_axis.py
    :language: python
-   :emphasize-lines: 18
+   :emphasize-lines: 18,31
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_datetime_axis.py
     :source-position: none
-
-.. include:: sample_data_note.txt
-
-This example also uses NumPy to process data. Bokeh is able to read the data
-directly from the NumPy arrays.
 
 .. seealso::
     See :ref:`userguide_styling_axes` in the user guide for more information on
@@ -270,7 +309,7 @@ To make your toolbar hide automatically, set
 
 .. literalinclude:: examples/first_steps_4_toolbar_autohide.py
    :language: python
-   :lines: 14
+   :emphasize-lines: 19
 
 With ``autohide`` set to ``True``, Bokeh will hide the toolbar unless the mouse
 is inside the plot area:
@@ -292,15 +331,15 @@ You can customize which tools Bokeh displays in the toolbar. For a detailed
 list of all available tools, see :ref:`userguide_tools` in the
 user guide.
 
-To customize which tools to use, you first need to import the tools you want to
-use. For example:
+To customize which tools to use, you first need to import the relevant tools.
+For example:
 
 .. code-block:: python
 
     from bokeh.models.tools import BoxZoomTool, ResetTool
 
-Define which tools to use when creating a new figure by passing the ``tools``
-attribute to the :func:`~bokeh.plotting.figure` function.
+Next, define which tools to use when creating a new figure by passing the
+``tools`` attribute to the :func:`~bokeh.plotting.figure` function.
 
 The ``tools`` attribute accepts a list of tools. This example enables only the
 :class:`~bokeh.models.tools.BoxZoomTool` and
@@ -328,9 +367,9 @@ both directions.
    :language: python
    :emphasize-lines: 1,14,22
 
-In this example, you are including the box zoom tool and the reset tool when
-creating your function. You then add pan zoom tool, resulting in all three tools
-being available:
+In this example, you first include the box zoom tool and the reset tool when
+creating your function. Next, you add a pan zoom tool. This results in all three
+tools being available:
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_add_tools.py
     :source-position: none
@@ -355,7 +394,7 @@ data point or when you tap on a data point:
 Tooltips are based on the :class:`~bokeh.models.tools.HoverTool` that is part
 of Bokeh's toolbar.
 
-There are several ways to enable tooltips in Bokeh. This is the quickest way:
+There are several ways to enable tooltips in Bokeh. This is the quickest:
 
 1. Import the :class:`~bokeh.models.tools.HoverTool` class from
    :class:`bokeh.models.tools`.
@@ -380,7 +419,7 @@ This is what the code looks like:
 .. seealso::
     The user guide contains much more information on using the hover tool to
     create tooltips. See :ref:`userguide_tools_basic_tooltips` for more details.
-    More information is also available at the entry for 
+    More information is also available at the entry for
     :class:`~bokeh.models.tools.HoverTool` in the reference guide.
 
 .. panels::

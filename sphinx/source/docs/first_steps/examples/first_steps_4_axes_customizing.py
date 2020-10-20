@@ -11,7 +11,7 @@ output_file("first_steps.html")
 p = figure(
     title="Customized axes example",
     sizing_mode="stretch_width",
-    max_width=600,
+    max_width=500,
     plot_height=350,
 )
 
