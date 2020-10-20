@@ -103,7 +103,7 @@ You can export an SVG plot in several ways:
     save a plot or a layout of plots as a single SVG file.
 
     .. code-block:: python
-    
+
       from bokeh.io import export_svg
 
       export_svg(plot, filename="plot.svg")
