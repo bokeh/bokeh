@@ -1,6 +1,6 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import {defer} from "./util/callback"
+import {defer} from "./util/defer"
 import {find, remove_by} from "./util/array"
 
 export type Slot<Args, Sender extends object> = (args: Args, sender: Sender) => void
@@ -181,7 +181,10 @@ const dirty_set = new Set<Connection[]>()
 
 function scheduleCleanup(connections: Connection[]): void {
   if (dirty_set.size === 0) {
-    defer(cleanup_dirty_set)
+    (async () => {
+      await defer()
+      cleanup_dirty_set()
+    })()
   }
   dirty_set.add(connections)
 }
