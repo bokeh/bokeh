@@ -11,6 +11,7 @@ export type ColorArray = Uint32Array
 export const ColorArray = Uint32Array
 
 import {equals, Equals, Comparator} from "core/util/eq"
+import {assert} from "./util/assert"
 
 export class RaggedArray implements Equals {
 
@@ -53,12 +54,18 @@ export class RaggedArray implements Equals {
     }
   }
 
+  private _check_bounds(i: number): void {
+    assert(0 <= i && i < this.length, `Out of bounds: 0 <= ${i} < ${this.length}`)
+  }
+
   get(i: number): NumberArray {
+    this._check_bounds(i)
     const {offsets} = this
     return this.array.subarray(offsets[i], offsets[i + 1])
   }
 
   set(i: number, array: ArrayLike<number>): void {
+    this._check_bounds(i)
     this.array.set(array, this.offsets[i])
   }
 }

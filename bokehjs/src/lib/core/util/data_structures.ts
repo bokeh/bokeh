@@ -72,7 +72,7 @@ export class BitSet implements Equals {
   }
 
   private _check_bounds(k: number): void {
-    assert(0 <= k && k < this.size, "Out of bounds")
+    assert(0 <= k && k < this.size, `Out of bounds: 0 <= ${k} < ${this.size}`)
   }
 
   get(k: number): boolean {

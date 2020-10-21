@@ -215,7 +215,7 @@ export abstract class GlyphView extends View {
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
     const {x_range, y_range} = this.renderer.coordinates
 
-    this._data_size = source.get_length() ?? 1
+    this._data_size = indices.count
 
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec))
@@ -265,7 +265,7 @@ export abstract class GlyphView extends View {
 
   protected _set_data(_indices: number[] | null): void {}
 
-  protected get _index_size(): number {
+  private get _index_size(): number {
     return this.data_size
   }
 
@@ -279,8 +279,8 @@ export abstract class GlyphView extends View {
   }
 
   mask_data(): Indices {
-    // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null || this._mask_data == null)
+    /** Returns subset indices in the viewport. */
+    if (this._mask_data == null)
       return Indices.all_set(this.data_size)
     else
       return this._mask_data()
