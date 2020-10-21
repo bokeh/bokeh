@@ -1,6 +1,6 @@
 .. _first_steps_3:
 
-First steps 3: Adding legends, text, and annotations
+First steps 3: adding legends, text, and annotations
 ====================================================
 
 In the :ref:`previous first steps guide <first_steps_2>`, you generated
@@ -58,7 +58,7 @@ There are various ways to style the text for your headline. For example:
 
 .. literalinclude:: examples/first_steps_3_title.py
    :language: python
-   :emphasize-lines: 17,20,23-26
+   :emphasize-lines: 11,17,20,23-26
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_title.py
     :source-position: none

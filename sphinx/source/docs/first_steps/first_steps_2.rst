@@ -1,7 +1,7 @@
 .. _first_steps_2:
 
-First steps 2: exploring renderers
-==================================
+First steps 2: Adding and customizing renderers
+===============================================
 
 In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
 :func:`~bokeh.plotting.figure` function to render line charts.
@@ -81,24 +81,27 @@ The :func:`~bokeh.plotting.Figure.circle` function, for example, lets you
 define aspects like the color or diameter of the circles:
 
 * ``fill_color``: the fill color of the circles
-* ``fill_alpha``: the transparency of the fill color
+* ``fill_alpha``: the transparency of the fill color (any value between ``0``
+  and ``1``)
 * ``line_color``: the fill color of the circles' outlines
 * ``size``: the size of the circles (in
   :ref:`screen space or data-space units<userguide_styling_units>`)
 * ``legend_label``: legend entry for the circles
 
+In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
+ways:
+
+* Use one of the 147 named SVG colors (for example, ``"firebrick"``)
+* Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
+* Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
+* Use a 4-tuple for RGBa colors (for example ``(100, 100, 255, 0.5)``)
+
 Create circles with the legend label "Objects" and make the circles appear
 slightly transparent with a red fill color and blue outlines:
 
-.. code-block:: python
-
-    p.circle(x, y3, legend_label="Objects", fill_color="red", fill_alpha=0.5, line_color="blue", size=80)
-
-Use this renderer in your previous visualization:
-
 .. literalinclude:: examples/first_steps_2_style_circle.py
    :language: python
-   :emphasize-lines: 14
+   :emphasize-lines: 14-22
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_circle.py
     :source-position: none
@@ -143,7 +146,7 @@ outputting the plot:
 
 .. literalinclude:: examples/first_steps_2_style_existing_circle.py
    :language: python
-   :emphasize-lines: 14,17,18
+   :emphasize-lines: 14,25-26
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_existing_circle.py
     :source-position: none

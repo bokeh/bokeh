@@ -124,10 +124,10 @@ symbols on your y axis, for example:
     :source-position: none
 
 To display dollar amounts instead of just numbers on your y axis, use the
-:class:`~bokeh.models.formatters.NumeralTickFormatter`.
+:class:`~bokeh.models.formatters.NumeralTickFormatter`:
 
 First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
-Bokehs :class:`~bokeh.models` collection:
+Bokeh's :class:`~bokeh.models` collection:
 
 .. code-block:: python
 
@@ -242,7 +242,8 @@ Bands and bonds are more examples of the annotations you learned about in
 Setting background colors
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You have several options to define colors in Bokeh:
+You have several options to :ref:`define colors <userguide_styling_colors>` in
+Bokeh:
 
 * Use one of the 147 named SVG colors (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
@@ -312,7 +313,7 @@ To make your toolbar hide automatically, set
    :emphasize-lines: 19
 
 With ``autohide`` set to ``True``, Bokeh will hide the toolbar unless the mouse
-is inside the plot area:
+is inside the plot area or you tap inside the plot area:
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_toolbar_autohide.py
     :source-position: none
@@ -391,8 +392,8 @@ data point or when you tap on a data point:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_tooltips.py
     :source-position: none
 
-Tooltips are based on the :class:`~bokeh.models.tools.HoverTool` that is part
-of Bokeh's toolbar.
+Tooltips are based on the :class:`~bokeh.models.tools.HoverTool`. The hover tool
+is part of Bokeh's toolbar.
 
 There are several ways to enable tooltips in Bokeh. This is the quickest:
 
@@ -403,12 +404,13 @@ There are several ways to enable tooltips in Bokeh. This is the quickest:
    calling the :func:`~bokeh.plotting.figure` function.
 
 3. Also include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument
-   when calling the :func:`~bokeh.plotting.figure` function. This argument
-   accepts a string with a special syntax to define fields: Use the "@" symbol
-   to include the name of the source for the respective data to be displayed.
-   This example includes ``@x`` and ``@y``. Bokeh will replace both those fields
-   with the actual data from the lists ``x`` and ``y`` when the browser displays
-   a tooltip.
+   when calling the :func:`~bokeh.plotting.figure` function.
+
+The ``tooltips`` argument accepts a string with a special syntax. Use the "@"
+symbol to include the name of the source for the data you want Bokeh to display.
+This example includes ``@x`` and ``@y``. Bokeh will replace both those fields
+with the actual data from the lists ``x`` and ``y`` when the browser displays a
+tooltip.
 
 This is what the code looks like:
 

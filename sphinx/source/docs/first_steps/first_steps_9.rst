@@ -1,15 +1,8 @@
 .. _first_steps_9:
 
-First steps 9: Providing data
-=============================
+First steps 9: Bokeh Server app
+================================
 
-simple lists
-
-csv, db files etc.
-
-ColumnDataSource
-
-pandas df
-numpy array
-
-
+Bokeh Server app
+https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#bokeh-applications
+https://docs.bokeh.org/en/latest/docs/user_guide/server.html

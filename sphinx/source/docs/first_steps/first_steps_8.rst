@@ -1,8 +1,13 @@
 .. _first_steps_8:
 
-First steps 8: interactive: Mouse over / hover boxes
-====================================================
+First steps 8: Providing data
+=============================
 
-interactive: Mouse over / hover boxes, effects, effects
+simple lists
 
-https://docs.bokeh.org/en/latest/docs/user_guide/styling.html#hover-inspections
+csv, db files etc.
+
+ColumnDataSource
+
+pandas df
+numpy array
