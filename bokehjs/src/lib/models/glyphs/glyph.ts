@@ -8,7 +8,8 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, RaggedArray, Indices} from "core/types"
+import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
@@ -215,7 +216,7 @@ export abstract class GlyphView extends View {
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
     const {x_range, y_range} = this.renderer.coordinates
 
-    this._data_size = source.get_length() ?? 1
+    this._data_size = indices.count
 
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec))
@@ -265,7 +266,7 @@ export abstract class GlyphView extends View {
 
   protected _set_data(_indices: number[] | null): void {}
 
-  protected get _index_size(): number {
+  private get _index_size(): number {
     return this.data_size
   }
 
@@ -279,8 +280,8 @@ export abstract class GlyphView extends View {
   }
 
   mask_data(): Indices {
-    // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null || this._mask_data == null)
+    /** Returns subset indices in the viewport. */
+    if (this._mask_data == null)
       return Indices.all_set(this.data_size)
     else
       return this._mask_data()
