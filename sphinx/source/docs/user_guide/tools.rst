@@ -235,13 +235,13 @@ PanTool
 * name: ``'pan'``, ``'xpan'``, ``'ypan'``,
 * icon: |pan_icon|
 
-The pan tool allows the user to pan the plot by left-dragging a mouse or dragging a
-finger across the plot region.
+The pan tool allows the user to pan the plot by left-dragging a mouse or
+dragging a finger across the plot region.
 
-It is also possible to constrain the pan tool to only act on either just the x-axis or
-just the y-axis by setting the ``dimensions`` property to a list containing ``width``
-or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
-respectively.
+It is also possible to constrain the pan tool to only act on either just the
+x-axis or just the y-axis by setting the ``dimensions`` property to either
+``width``, ``height``, or ``both``. Additionally, there are tool aliases
+``'xpan'`` and ``'ypan'``, respectively.
 
 .. _userguide_tools_clicktap:
 
