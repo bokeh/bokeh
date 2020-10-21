@@ -472,3 +472,8 @@ using sphinx_panels */
     width: 25%;
   }
 }
+
+/* customize highlight color for sphinx code blocks */
+.highlight .hll {
+  background-color: rgba(246,169,27,0.3);
+}
