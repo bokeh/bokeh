@@ -3,7 +3,6 @@ import {expect} from "assertions"
 import {color2rgba} from "@bokehjs/core/util/color"
 
 describe("color module", () => {
-
   const halfgray = color2rgba('rgb(128, 128, 128)')
 
   it("should turn 6-element hex colors to tuples", () => {

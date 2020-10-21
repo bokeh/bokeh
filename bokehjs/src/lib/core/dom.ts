@@ -270,7 +270,6 @@ export function children(el: HTMLElement): HTMLElement[] {
 }
 
 export class ClassList {
-
   private readonly classList: DOMTokenList
 
   constructor(readonly el: HTMLElement) {

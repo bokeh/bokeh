@@ -88,7 +88,6 @@ export class GMapPlotView extends PlotView {
 
     // ZOOM ---------------------------
     } else if (range_info.factor != null) {
-
       // The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
       if (this.zoom_count !== 10) {
         this.zoom_count += 1
@@ -127,10 +126,10 @@ export class GMapPlotView extends PlotView {
     const {maps} = google
 
     this.map_types = {
-      satellite : maps.MapTypeId.SATELLITE,
-      terrain   : maps.MapTypeId.TERRAIN,
-      roadmap   : maps.MapTypeId.ROADMAP,
-      hybrid    : maps.MapTypeId.HYBRID,
+      satellite: maps.MapTypeId.SATELLITE,
+      terrain: maps.MapTypeId.TERRAIN,
+      roadmap: maps.MapTypeId.ROADMAP,
+      hybrid: maps.MapTypeId.HYBRID,
     }
 
     const mo = this.model.map_options
@@ -212,15 +211,15 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_map_type(): void {
-    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type] })
+    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type]})
   }
 
   protected _update_scale_control(): void {
-    this.map.setOptions({scaleControl: this.model.map_options.scale_control })
+    this.map.setOptions({scaleControl: this.model.map_options.scale_control})
   }
 
   protected _update_tilt(): void {
-    this.map.setOptions({tilt: this.model.map_options.tilt })
+    this.map.setOptions({tilt: this.model.map_options.tilt})
   }
 
   protected _update_options(): void {
@@ -232,7 +231,7 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_styles(): void {
-    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles) })
+    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles)})
   }
 
   protected _update_zoom(): void {

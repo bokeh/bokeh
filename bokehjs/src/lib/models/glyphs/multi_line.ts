@@ -89,7 +89,7 @@ export class MultiLineView extends GlyphView {
 
       let points: number[] | null = null
       for (let j = 0, endj = sxsi.length - 1; j < endj; j++) {
-        const p0 = {x: sxsi[j],   y: sysi[j]  }
+        const p0 = {x: sxsi[j],   y: sysi[j]}
         const p1 = {x: sxsi[j+1], y: sysi[j+1]}
         const dist = hittest.dist_to_segment(point, p0, p1)
         if (dist < threshold && dist < shortest) {

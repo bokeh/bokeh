@@ -57,7 +57,6 @@ describe("ui_events module", () => {
     })
 
     describe("base_type=move", () => {
-
       let e: UIEvent
       let spy_cursor: sinon.SinonSpy
       before_each(() => {
@@ -160,7 +159,6 @@ describe("ui_events module", () => {
     })
 
     describe("base_type=tap", () => {
-
       let e: UIEvent
       before_each(() => {
         e = {type: "tap", sx: 10, sy: 15, ctrlKey: false, shiftKey: false}
@@ -199,7 +197,6 @@ describe("ui_events module", () => {
     })
 
     describe("base_type=scroll", () => {
-
       let e: UIEvent
       let srcEvent: Event
       let preventDefault: sinon.SinonSpy
@@ -272,7 +269,6 @@ describe("ui_events module", () => {
   })
 
   describe("_bokify methods", () => {
-
     let dom_stub: sinon.SinonStub
     let spy: sinon.SinonSpy
 

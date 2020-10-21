@@ -142,10 +142,10 @@ describe("properties module", () => {
     })
 
     it("should reject bad specs", () => {
-      expect(p.isSpec({expr: "foo", value:"bar"})).to.be.false
-      expect(p.isSpec({expr: "foo", field:"bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value:"bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value:"bar", expr: "baz"})).to.be.false
+      expect(p.isSpec({expr: "foo", value: "bar"})).to.be.false
+      expect(p.isSpec({expr: "foo", field: "bar"})).to.be.false
+      expect(p.isSpec({field: "foo", value: "bar"})).to.be.false
+      expect(p.isSpec({field: "foo", value: "bar", expr: "baz"})).to.be.false
     })
   })
 

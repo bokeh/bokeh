@@ -220,7 +220,6 @@ export class MercatorTileSource extends TileSource {
     let tileY = 0
     const tileZ = quadKey.length
     for (let i = tileZ; i > 0; i--) {
-
       const value = quadKey.charAt(tileZ - i)
       const mask = 1 << (i - 1)
 

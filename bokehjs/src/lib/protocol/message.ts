@@ -12,7 +12,6 @@ export type Header = {
 }
 
 export class Message {
-
   readonly buffers: Map<string, ArrayBuffer> = new Map()
 
   private constructor(readonly header: Header, readonly metadata: any, readonly content: any) {}

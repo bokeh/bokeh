@@ -61,7 +61,6 @@ export class PolySelectToolView extends SelectToolView {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
     this._select(geometry, final, mode)
   }
-
 }
 
 export const DEFAULT_POLY_OVERLAY = () => {

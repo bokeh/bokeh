@@ -22,7 +22,7 @@ describe("CustomJSHover", () => {
 
   describe("values property", () => {
     const rng = new Range1d()
-    const r = new CustomJSHover({args: {foo: rng }})
+    const r = new CustomJSHover({args: {foo: rng}})
 
     it("should contain the args values", () => {
       expect(r.values).to.be.equal([rng])
@@ -43,7 +43,7 @@ describe("CustomJSHover", () => {
 
     it("should update when args changes", () => {
       const rng2 = new Range1d()
-      r.args = {foo: rng2 }
+      r.args = {foo: rng2}
       expect(r.values).to.be.equal([rng2])
     })
   })

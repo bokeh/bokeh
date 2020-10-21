@@ -66,7 +66,6 @@ export const DEFAULT_TITLE = "Bokeh Application"
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document {
-
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 

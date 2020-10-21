@@ -146,10 +146,10 @@ export class LegendView extends AnnotationView {
 
   on_hit(sx: number, sy: number): boolean {
     let yoffset
-    const { glyph_width } = this.model
-    const { legend_padding } = this
+    const {glyph_width} = this.model
+    const {legend_padding} = this
     const legend_spacing = this.model.spacing
-    const { label_standoff } = this.model
+    const {label_standoff} = this.model
 
     let xoffset = (yoffset = legend_padding)
 

@@ -6,7 +6,6 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("Tabs", () => {
-
   function new_tabs(): Tabs {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),

@@ -155,7 +155,6 @@ export class HexTileView extends GlyphView {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
       }
-
     }
   }
 

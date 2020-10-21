@@ -81,7 +81,7 @@ export class LineView extends XYGlyphView {
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
-      const p0 = {x: this.sx[i],     y: this.sy[i]    }
+      const p0 = {x: this.sx[i],     y: this.sy[i]}
       const p1 = {x: this.sx[i + 1], y: this.sy[i + 1]}
       const dist = hittest.dist_to_segment(point, p0, p1)
 

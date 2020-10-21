@@ -172,7 +172,6 @@ describe("Plot", () => {
       p.circle([1, 2, 3], [1, 40, 900], {size: 10})
       await display(p, [300, 300])
     })
-
   })
 
   it("should allow to resize itself when width changes", async () => {

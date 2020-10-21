@@ -67,7 +67,6 @@ export class LassoSelectToolView extends SelectToolView {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
     this._select(geometry, final, mode)
   }
-
 }
 
 export namespace LassoSelectTool {

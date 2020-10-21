@@ -4,7 +4,6 @@ import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("GroupFilter", () => {
-
   const cds = new ColumnDataSource({
     data: {
       x: ["a", "a", "b", "b", "b"],

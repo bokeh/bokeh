@@ -178,7 +178,7 @@ describe("GraphHitTestPolicy", () => {
 
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(edge_source.selected.multiline_indices).to.be.equal({ 0: [ 0 ], 1: [ 0 ] })
+        expect(edge_source.selected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
       })
     })
 
@@ -204,7 +204,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(edge_source.inspected.multiline_indices).to.be.equal({ 0: [ 0 ], 1: [ 0 ] })
+        expect(edge_source.inspected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
       })
     })
   })

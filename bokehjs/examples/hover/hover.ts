@@ -29,7 +29,7 @@ export namespace HoverfulScatter {
     colors.push(plt.color(r, g, 150))
 
   const source = new Bokeh.ColumnDataSource({
-    data: {x: xx, y: yy, radius: radii, colors },
+    data: {x: xx, y: yy, radius: radii, colors},
   })
 
   const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,hover,save"

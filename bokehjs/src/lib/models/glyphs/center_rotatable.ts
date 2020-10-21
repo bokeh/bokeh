@@ -58,6 +58,5 @@ export abstract class CenterRotatable extends XYGlyph {
       width:  [ p.DistanceSpec ],
       height: [ p.DistanceSpec ],
     }))
-
   }
 }
