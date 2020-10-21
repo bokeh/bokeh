@@ -2,14 +2,14 @@ import {display, fig, row, column, grid} from "./utils"
 
 import {linspace} from "@bokehjs/core/util/array"
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Whisker,
+  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, CDSView, BooleanFilter, Selection,
+  ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine,
   StaticLayoutProvider,
-  Plot, Slope,
+  Plot,
 } from "@bokehjs/models"
 
 import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
@@ -645,6 +645,22 @@ describe("Bug", () => {
         const s = new Slope({gradient, y_intercept:-1})
         p.add_layout(s)
       }
+
+      await display(p, [250, 250])
+    })
+  })
+
+  describe("in issue #10589", () => {
+    it("prevents correctly filtering out indices when using MultiLine glyph", async () => {
+      const source = new ColumnDataSource({data: {
+        xs: [[0, 0], [1, 1], [2, 2]],
+        ys: [[0, 1], [0, 1], [0, 1]],
+      }})
+      const filter = new IndexFilter({indices: [0, 2]})
+      const view = new CDSView({source, filters: [filter]})
+
+      const p = fig([200, 200])
+      p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
 
       await display(p, [250, 250])
     })
