@@ -20,21 +20,18 @@ glyphs, use the ``multi_line`` glyph method.
 Observe the following requirements for the data sources belonging
 to these sub-renderers:
 
-- The ``ColumnDataSource`` of the node sub-renderer must have an
+* The ``ColumnDataSource`` of the node sub-renderer must have an
   ``"index"`` column with the unique indices of the nodes.
-- The ``ColumnDataSource`` of the edge sub-renderer must have a
+* The ``ColumnDataSource`` of the edge sub-renderer must have a
   ``"start"`` and ``"end"`` column. These columns contain the node
   indices for the start and end of the edges.
 
 You can add extra meta-data to these sources to enable vectorized
 glyph styling or make data available for callbacks or hover tooltips.
 
-The following code snippet
+Follow the steps bellow to create a simple graph plot with ellipses for nodes:
 
-- replaces a node glyph with an Ellipse,
-- assigns scalar values to the ``height`` and ``width`` attributes of the Ellipse,
-- assigns a vector field to the ``fill_color`` attribute of the Ellipse,
-- and adds the assigned values to the node data source.
+* Import dependencies.
 
 .. code-block:: python
 
@@ -43,40 +40,84 @@ The following code snippet
     from bokeh.models import GraphRenderer, Ellipse
     from bokeh.palettes import Spectral8
 
+* List the nodes and initialize a plot.
+
+.. code-block:: python
+
     N = 8
     node_indices = list(range(N))
 
-    plot = figure(title="Graph Layout Demonstration", x_range=(-1.1,1.1), y_range=(-1.1,1.1),
-                  tools="", toolbar_location=None)
+    plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
+                  y_range=(-1.1,1.1), tools="", toolbar_location=None)
+
+* Initialize the ``GraphRenderer`` model and replace the node glyph with
+  an ellipse, setting its ``height`` and ``width`` as well as ``fill_color``.
+
+.. code-block:: python
 
     graph = GraphRenderer()
 
-    graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2, fill_color="fill_color")
+    graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2,
+                                        fill_color="fill_color")
+
+
+* Assign a vector field to the ``fill_color`` attribute of the ``Ellipse``.
+
+.. code-block:: python
+
     graph.node_renderer.data_source.data = dict(
         index=node_indices,
         fill_color=Spectral8)
+
+* Add the assigned values to the node data source.
+
+.. code-block:: python
 
     graph.edge_renderer.data_source.data = dict(
         start=[0]*N,
         end=node_indices)
 
+* Generate ellipses based on the ``node_indices`` list.
 
-This code snippet doesn't produce a graph because it lacks instructions on how
-to arrange the graph in Cartesian space. You can learn how to implement these
-instructions in the following section.
+.. code-block:: python
 
-Layout providers
-----------------
+    circ = [i*2*math.pi/8 for i in node_indices]
 
-Bokeh uses a separate ``LayoutProvider`` model to provide Cartesian coordinates
-for a graph. The :class:`~bokeh.models.graphs.StaticLayoutProvider` model is
-currently the only built-in provider. It contains a dictionary of (x,y)
-coordinates for nodes.
+* Create lists of x- and y-coordinates.
 
-This example adds a provider to the above code snippet:
+.. code-block:: python
+
+    x = [math.cos(i) for i in circ]
+    y = [math.sin(i) for i in circ]
+
+* Convert the ``x`` and ``y`` lists into a dictionary of Cartesian coordinates
+  and assign each entry to a node on the ``node_indices`` list.
+
+.. code-block:: python
+
+    graph_layout = dict(zip(node_indices, zip(x, y)))
+
+* Use the ``LayoutProvider`` model (:class:`~bokeh.models.graphs.StaticLayoutProvider`)
+  to supply the coordinates to the graph.
+
+.. code-block:: python
+
+    graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
+
+* Finally, render the graph, specify the name of the output file, and display
+  the plot.
+
+.. code-block:: python
+
+    plot.renderers.append(graph)
+
+    output_file('graph.html')
+    show(plot)
+
+Put together, the above code snippets produce the following result:
 
 .. bokeh-plot:: docs/user_guide/examples/graph_customize.py
-    :source-position: above
+    :source-position: none
 
 Explicit paths
 --------------
