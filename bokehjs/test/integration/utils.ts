@@ -1,6 +1,6 @@
 export {describe, it, display} from "../framework"
 
-import {Matrix} from "@bokehjs/core/util/data_structures"
+import {Matrix} from "@bokehjs/core/util/matrix"
 import {Figure, figure} from "@bokehjs/api/plotting"
 import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 

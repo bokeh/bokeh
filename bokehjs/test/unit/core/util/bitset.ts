@@ -1,7 +1,7 @@
 import {expect} from "assertions"
-import {BitSet} from "@bokehjs/core/util/data_structures"
+import {BitSet} from "@bokehjs/core/util/bitset"
 
-describe("core/util/data_structures module", () => {
+describe("core/util/bitset module", () => {
 
   describe("BitSet data structure", () => {
 

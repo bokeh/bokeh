@@ -22,7 +22,7 @@ import {subsets} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
-import {Matrix} from "@bokehjs/core/util/data_structures"
+import {Matrix} from "@bokehjs/core/util/matrix"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
 
 const n_marker_types = [...MarkerType].length

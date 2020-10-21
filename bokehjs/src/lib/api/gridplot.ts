@@ -1,6 +1,6 @@
 import {LayoutDOM, Row, Column, GridBox, ToolbarBox, ProxyToolbar, Plot, Tool, Toolbar} from "./models"
 import {SizingMode, Location} from "../core/enums"
-import {Matrix} from "../core/util/data_structures"
+import {Matrix} from "../core/util/matrix"
 
 export interface GridPlotOpts {
   toolbar_location?: Location | null
