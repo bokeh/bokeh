@@ -90,7 +90,7 @@ Text Properties
 
 .. include:: ../includes/text_props.txt
 
-.. _userguide_styling_colors:
+.. _userguide_visible_property:
 
 Visible property
 ~~~~~~~~~~~~~~~~
@@ -105,6 +105,8 @@ This can be particularly useful in interactive examples with a Bokeh server or C
 
 .. bokeh-plot:: docs/user_guide/examples/styling_visible_annotation_with_interaction.py
     :source-position: above
+
+.. _userguide_styling_colors:
 
 Specifying Colors
 ~~~~~~~~~~~~~~~~~
