@@ -3,19 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-export function delay(func: () => void, wait: number): number {
-  return setTimeout(func, wait)
-}
-
-const _defer = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setImmediate
-
-export function defer<T>(func: () => T): Promise<T> {
-  return new Promise((resolve) => {
-    _defer(() => resolve(func()))
-  })
-}
-
-export interface ThrottleOptions {
+export type ThrottleOptions = {
   leading?: boolean
   trailing?: boolean
 }
