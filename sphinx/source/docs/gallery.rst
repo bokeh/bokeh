@@ -101,7 +101,7 @@ can be processed to trigger more visual updates.
           </a>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6">
-          <p>An updating 3d plot that demonstrates using using Bokeh custom extensions to wrap third-party JavaScript libraries</p>
+          <p>An updating 3d plot that demonstrates using Bokeh custom extensions to wrap third-party JavaScript libraries</p>
           <p><em>Source code: </em><a target="_blank" href="https://github.com/bokeh/bokeh/blob/master/examples/app/surface3d">surface3d</a></p>
         </div>
 
