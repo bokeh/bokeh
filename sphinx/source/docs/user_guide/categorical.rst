@@ -1,12 +1,12 @@
 .. _userguide_categorical:
 
-Handling Categorical Data
+Handling categorical data
 =========================
 
 .. note::
     Several examples in this chapter use `Pandas`_, for ease of presentation
-    and because it is a common tool for data manipulation. However, ``Pandas``
-    is not required to create anything shown here.
+    and because it is a common tool for data manipulation. However, you don't
+    need ``Pandas`` to create anything shown here.
 
 .. _userguide_categorical_bars:
 
@@ -20,65 +20,67 @@ Basic
 
 Bokeh makes it simple to create basic bar charts using the
 :func:`~bokeh.plotting.Figure.hbar` and
-:func:`~bokeh.plotting.Figure.vbar` glyphs methods. In the example
-below, we have the following sequence of simple 1-level factors:
+:func:`~bokeh.plotting.Figure.vbar` glyph methods. The
+example below has a sequence of simple 1-level factors.
 
 .. code-block:: python
 
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
-To inform Bokeh that the x-axis is categorical, we pass this list of factors
-as the ``x_range`` argument to :func:`~bokeh.plotting.figure`:
+To make the x-axis categorical, pass this list of factors
+as the ``x_range`` argument to :func:`~bokeh.plotting.Figure`.
 
 .. code-block:: python
 
     p = figure(x_range=fruits, ... )
 
-Note that passing the list of factors is a convenient shorthand notation for
-creating a :class:`~bokeh.models.ranges.FactorRange`. The equivalent explicit
-notation is:
+Doing so is a convenient shorthand for creating a
+:class:`~bokeh.models.ranges.FactorRange` object.
+The equivalent explicit notation is:
 
 .. code-block:: python
 
     p = figure(x_range=FactorRange(factors=fruits), ... )
 
-This more explicit form is useful when you want to customize the
-``FactorRange``, e.g. by changing the range or category padding.
+This form is useful when you want to customize the
+``FactorRange``, for example, by changing the range
+or category padding.
 
-Next, we can call ``vbar`` with the list of fruit name factors as the ``x``
-coordinate, the bar height as the ``top`` coordinate, and optionally any
-``width`` or other properties that we would like to set:
+Next, call ``vbar`` with the list of fruit names as
+the ``x`` coordinate and the bar height as the ``top``
+coordinate. You can also specify ``width`` or other
+optional properties.
 
 .. code-block:: python
 
     p.vbar(x=fruits, top=[5, 3, 4, 2, 4, 6], width=0.9)
 
-All put together, we see the output:
+Combining the above produces the following output:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_basic.py
     :source-position: above
 
-As usual, the data could also be put into a ``ColumnDataSource`` supplied as
-the ``source`` parameter to ``vbar`` instead of passing the data directly
-as parameters. Later examples will demonstrate this.
+You can also assign the data to a ``ColumnDataSource``
+and supply it as the ``source`` parameter to ``vbar``
+instead of passing the data directly as parameters.
+You will see this in later examples.
 
 .. _userguide_categorical_bars_sorted:
 
-Sorted
-~~~~~~
+Sorting
+~~~~~~~
 
-Since Bokeh displays bars in the order the factors are given for the range,
-"sorting" bars in a bar plot is identical to sorting the factors for the range.
+To order the bars of a given plot, simply sort the factors.
 
-In the example below the fruit factors are sorted in increasing order according
-to their corresponding counts, causing the bars to be sorted:
+The example below sorts the fruit factors in ascending order
+based on counts and rearranges the bars accordingly.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_sorted.py
     :source-position: above
 
 .. _userguide_categorical_bars_filled:
 
-Filled
+Filling
 ~~~~~~~
 
 .. _userguide_categorical_bars_filled_colors:
@@ -86,82 +88,69 @@ Filled
 Colors
 ''''''
 
-Oftentimes we may want to have bars that are shaded some color. This can be
-accomplished in different ways. One way is to supply all the colors up front.
-This can be done by putting all the data, including the colors for each bar,
-in a ``ColumnDataSource``. Then the name of the column containing the colors
-is passed to ``vbar`` as the ``color`` (or ``line_color``/``fill_color``)
-arguments. This is shown below:
+You can color the bars in several ways:
 
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
+* Supply all the colors along with the rest of the data to
+  a ``ColumnDataSource`` and assign the name of the color column
+  to the ``color`` argument of ``vbar``.
+
+  .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
     :source-position: above
 
-Another way to shade the bars is to use a ``CategoricalColorMapper`` that
-colormaps the bars inside the browser. There is a function
-:func:`~bokeh.transform.factor_cmap` that makes this simple to do:
+  You can also use the color column with the ``line_color`` and
+  ``fill_color`` arguments to change outline and fill colors
+  respectively.
 
-.. code-block:: python
+* Use the ``CategoricalColorMapper`` model to map bar colors in a browser.
+  You can do this with the :func:`~bokeh.transform.factor_cmap` function.
 
-    factor_cmap('fruits', palette=Spectral6, factors=fruits)
+  .. code-block:: python
 
-This can be passed to ``vbar`` in the same way as the column name in the
-previous example. Putting everything together, we obtain the same plot in
-a different way:
+      factor_cmap('fruits', palette=Spectral6, factors=fruits)
+
+  You can then pass this to the ``color`` argument of ``vbar`` to achieve
+  the same result.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
     :source-position: above
 
 .. _userguide_categorical_bars_stacked:
 
-Stacked
-~~~~~~~
+Stacking
+~~~~~~~~
 
-Another common operation on bar charts is to stack bars on top of one
-another. Bokeh makes this easy to do with the specialized
-:func:`~bokeh.plotting.Figure.hbar_stack` and
-:func:`~bokeh.plotting.Figure.vbar_stack` functions. The example
-below shows the fruits data from above, but with the bars for each
-fruit type stacked instead of grouped:
+To stack the bars, use the :func:`~bokeh.plotting.Figure.hbar_stack`
+and :func:`~bokeh.plotting.Figure.vbar_stack` functions. The example
+below uses three sets of fruit data, each corresponding to a year. It
+produces a bar chart for each set and overlaps them over one another.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked.py
     :source-position: above
 
-Note that behind the scenes, these functions work by stacking up the
-successive columns in separate calls to ``vbar`` or ``hbar``. This kind of
-operation is akin to the dodge example above (i.e. the data in this case is
-*not* in a "tidy" data format).
-
-Sometimes we may want to stack bars that have both positive and negative
-extents. The example below shows how it is possible to create such a
-stacked bar chart that is split by positive and negative values:
+You can also stack bars that represent both positive and negative
+values.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_split.py
     :source-position: above
 
-Hover Tools
-'''''''''''
+Tooltips
+''''''''
 
-For stacked bar plots, Bokeh provides some special hover variables that are
-useful for common cases.
+Bokeh automatically sets the ``name`` property of each layer to
+its name in the data set. You can use the ``$name`` variable to
+pass this value to hover tools. You can also use the ``@$name``
+hover variable to look up values for each layer in the data set.
 
-When stacking bars, Bokeh automatically sets the ``name`` property for each
-layer in the stack to be the value of the stack column for that layer. This
-name value is accessible to hover tools via the ``$name`` special variable.
-
-Additionally, the hover variable ``@$name`` can be used to look up values from
-the stack column for each layer. For instance, if a user hovers over a stack
-glyph with the name ``"US East"``, then ``@$name`` is equivalent to
-``@{US East}``.
-
-The example below demonstrates both of these hover variables:
+The example below demonstrates both behaviors:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_hover.py
     :source-position: above
 
-Note that it is also possible to override the value of ``name`` by passing it
-manually to ``vbar_stack`` and ``hbar_stack``. In this case, ``$@name`` will
-look up the column names provided by the user.
+You can override the value of ``name`` by passing it manually to
+``vbar_stack`` or ``hbar_stack``. In this case, ``$@name`` will
+correspond to the names you provide.
 
+To have
 It may also sometimes be desirable to have a different hover tool for each
 layer in the stack. For such cases, the ``hbar_stack`` and ``vbar_stack``
 functions return a list of all the renderers created (one for each stack).
