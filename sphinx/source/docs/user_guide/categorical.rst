@@ -279,9 +279,9 @@ to non-grouped categories such as ``'mpg'`` providing, for instance, a mean
 number of miles per gallon in the ``'mpg_mean'`` column.
 
 This also works with multi-level groups. The example below groups the same 
-data by ``('cyl', 'mfr')`` and displays  in a hierarchically
-nested axis. In this case, the index column name ``'cyl_mfr'`` is made by
-joining the names of the grouped columns together.
+data by ``('cyl', 'mfr')`` and displays it in nested categories distributed
+along the x-axis. Here, the index column name ``'cyl_mfr'`` is made by
+joining the names of the grouped columns.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_nested.py
     :source-position: above
@@ -291,13 +291,12 @@ joining the names of the grouped columns together.
 Intervals
 ---------
 
-So far we have seen the bar glyphs used to create bar charts, which imply
-bars drawn from a common baseline. However, the bar glyphs can also be used
-to represent arbitrary intervals across a range.
+Bars can be used for more than just bar charts with a common baseline.
+You can also use them to represent intervals across a range.
 
-The example below uses ``hbar`` with both ``left`` and ``right`` properties
-supplied, to show the spread in times between bronze and gold medalists in
-Olympic sprinting over many years:
+The example below supplies the ``hbar`` function with both ``left`` and
+``right`` properties to show the spread in times between bronze and gold
+medalists in Olympic sprinting over many years.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_intervals.py
     :source-position: above
@@ -315,34 +314,34 @@ Scatters
 Adding Jitter
 ~~~~~~~~~~~~~
 
-When plotting many scatter points in a single categorical category, it is
-common for points to start to visually overlap. In this case, Bokeh provides
-a :func:`~bokeh.transform.jitter` function that can automatically apply
-a random dodge to every point.
+To avoid overlap between numerous scatter points in a single category, use
+the :func:`~bokeh.transform.jitter` function to give each point a random
+offset.
 
-The example below shows a scatter plot of every commit time for a GitHub user
-between 2012 and 2016, grouped by day of the week. A naive plot of this data
-would result in thousands of points overlapping in a narrow line for each day.
-By using ``jitter`` we can differentiate the points to obtain a useful plot:
+The example below shows a scatter plot of every commit time for a GitHub
+user between 2012 and 2016. It groups commits by day of the week. By
+default, this plot would show thousands of points overlapping in a narrow 
+line for each day. The ``jitter`` function lets you differentiate the 
+points to produce a useful plot:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
     :source-position: above
 
 .. _userguide_categorical_offsets:
 
-Categorical Offsets
+Categorical offsets
 -------------------
 
-We've seen above how categorical locations can be modified by operations like
-*dodge* and *jitter*. It is also possible to supply an offset to a categorical
-location explicitly. This is done by adding a numeric value to the end of a
-category, e.g. ``["Jan", 0.2]`` is the category "Jan" offset by a value of 0.2.
-For hierarchical categories, the value is added at the end of the existing
-list, e.g. ``["West", "Sales", -0,2]``. Any numeric value at the end of a
-list of categories is always interpreted as an offset.
+Outside of the ``dodge`` and ``jitter`` function, you can also supply an
+offset to a categorical location explicitly. To do so, add a numeric value
+to the end of a category. For ecample, ``["Jan", 0.2]`` govex the category
+"Jan" an offset of 0.2.
 
-As an example, suppose we took our first example from the beginning and
-modified it like this:
+For multi-level categories, add the value at the end of the existing list:
+``["West", "Sales", -0,2]``. Bokeh interprets any numeric value at the end
+of a list of categories as an offset.
+
+Take the fruit example above and modify it as follows:
 
 .. code-block:: python
 
@@ -355,15 +354,14 @@ modified it like this:
 
     p.vbar(x=x, top=[5, 3, 4, 2, 4, 6], width=0.8)
 
-Then the resulting plot has bars that are horizontally shifted by the amount of
-each corresponding offset:
+This will shift each bar horizontally by the corresponding offset.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_offset.py
     :source-position: none
 
-Below is a more sophisticated example of a Ridge Plot that displays timeseries
-associated with different categories. It uses categorical offsets to specify
-patch coordinates for the timeseries inside each category.
+Below is a more sophisticated example of a ridge plot. It uses
+categorical offsets to specify patch coordinates for inside each
+category.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_ridgeplot.py
     :source-position: below
@@ -373,27 +371,31 @@ patch coordinates for the timeseries inside each category.
 Heatmaps
 --------
 
-In all of the cases above, we have had one categorical axis and one
-continuous axis. It is possible to have plots with two categorical axes. If
-we shade the rectangle that defines each pair of categories, we end up with
-a *Categorical Heatmap*
+If you apply different shades to a rectangle that defines a pair
+of categories, you get a *categorical heatmap*. This is a plot
+with two categorical axes.
 
-The plot below shows such a plot, where the x-axis categories are a list of
-years from 1948 to 2016, and the y-axis categories are the months of the
-years. Each rectangle corresponding to a ``(year, month)`` combination is
-colormapped by the unemployment rate for that month and year. Since the
-unemployment rate is a continuous variable, a ``LinearColorMapper`` is used
-to colormap the plot, and is also passed to a color bar to provide a visual
+The following plot lists years from 1948 to 2016 on its x-axis
+and months of the year on the y-axis. Each rectangle of the plot
+corresponds to a ``(year, month)`` pair. The color of the rectangle
+indicates the rate of unemployment in a given month of a given
+year.
+
+This example uses the ``LinearColorMapper`` to map the colors of
+the plot because the unemployment rate is a continuous variable.
+This mapper is also passed to the color bar to provide a visual
 legend on the right:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_unemployment.py
     :source-position: below
 
-A final example combines many of the techniques in this chapter: color mappers,
-visual dodges, and Pandas DataFrames. These are used to create a different
-sort of "heatmap" that results in a periodic table of the elements. A hover
-tool has also been added so that additional information about each element
-can be inspected:
+The following periodic table is a good example of the techniques
+in this chapter:
+
+* Color mappers
+* Visual offsets
+* Pandas DataFrames
+* Tooltips
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py
     :source-position: below
