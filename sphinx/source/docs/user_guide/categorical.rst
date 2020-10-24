@@ -138,8 +138,9 @@ Tooltips
 
 Bokeh automatically sets the ``name`` property of each layer to
 its name in the data set. You can use the ``$name`` variable to
-pass this value to hover tools. You can also use the ``@$name``
-hover variable to look up values for each layer in the data set.
+display the names on tooltips. You can also use the ``@$name``
+tooltip variable to retrieve values for each item in a layer from
+the data set.
 
 The example below demonstrates both behaviors:
 
@@ -147,14 +148,12 @@ The example below demonstrates both behaviors:
     :source-position: above
 
 You can override the value of ``name`` by passing it manually to
-``vbar_stack`` or ``hbar_stack``. In this case, ``$@name`` will
-correspond to the names you provide.
+the ``vbar_stack`` or ``hbar_stack`` function. In this case, 
+``$@name`` will correspond to the names you provide.
 
-To have
-It may also sometimes be desirable to have a different hover tool for each
-layer in the stack. For such cases, the ``hbar_stack`` and ``vbar_stack``
-functions return a list of all the renderers created (one for each stack).
-These can be used to customize different hover tools for each layer:
+The ``hbar_stack`` and ``vbar_stack`` functions return a list of
+all the renderers (one per bar stack). You can use this list to 
+customize the tooltips for each layer of a bar stack:
 
 .. code-block:: python
 
@@ -171,37 +170,32 @@ These can be used to customize different hover tools for each layer:
 
 .. _userguide_categorical_bars_grouped:
 
-Grouped
-~~~~~~~
+Grouping
+~~~~~~~~
 
-When creating bar charts, it is often desirable to visually display the
-data according to sub-groups. There are two basic methods that can be used,
-depending on your use case: using nested categorical coordinates or
-applying visual dodges.
+Instead of stacking, you may wish to group the bars. Depending on your
+use case, you can achieve this in two ways:
+
+* With nested categories
+* With visual offsets
 
 .. _userguide_categorical_bars_grouped_nested:
 
-Nested Categories
+Nested categories
 '''''''''''''''''
 
-If the coordinates of a plot range and data have two or three levels, then
-Bokeh will automatically group the factors on the axis, including a
-hierarchical tick labeling with separators between the groups. In the case
-of bar charts, this results in bars grouped together by the top-level
-factors. This is probably the most common way to achieve grouped bars,
-especially if you are starting from "tidy" data.
+With several subsets of data, Bokeh automatically groups the bars into
+labeled categories, tags each bar with the name of the subset it
+represents, and adds a separator between the categories.
 
-The example below shows this approach by creating a single column of
-coordinates that are each 2-tuples of the form ``(fruit, year)``. Accordingly,
-the plot groups the axes by fruit type, with a single call to ``vbar``:
+The example below creates a sequence of fruit-year pairs (tuples) and
+groups the bars by fruit name with single call to ``vbar``.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
     :source-position: above
 
-We can also apply a color mapping, similar to the earlier example. To obtain
-the same grouped bar plot of fruits data as above, except with the bars shaded by
-the year, change the ``vbar`` function call to use ``factor_cmap`` for the
-``fill_color``:
+To apply different colors to the bars, use ``factor_cmap`` for
+``fill_color`` in the ``vbar`` function call as follows:
 
 .. code-block:: python
 
@@ -211,104 +205,81 @@ the year, change the ``vbar`` function call to use ``factor_cmap`` for the
            fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
 
 
-Recall that the factors are of the for ``(fruit, year)``. The ``start=1``
-and ``end=2`` in the call to ``factor_cmap`` select the second part of data
-factors to use when color mapping.
+The ``start=1`` and ``end=2`` in the call to ``factor_cmap`` use the 
+year in the ``(fruit, year)`` pair for color mapping.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested_colormapped.py
     :source-position: none
 
 .. _userguide_categorical_bars_grouped_dodged:
 
-Visual Dodge
-''''''''''''
+Visual offset
+'''''''''''''
 
-Another method for achieving grouped bars is to explicitly specify a visual
-displacement for the bars. Such a visual offset is also referred to as a
-*dodge*.
-
-In this scenario, our data is not "tidy". Instead of a single table with
-rows indexed by factors ``(fruit, year)``, we have separate series for each
-year. We can plot all the year series using separate calls to ``vbar``, but
-since every bar in each group has the same ``fruit`` factor, the bars would
-overlap visually. We can prevent this overlap and distinguish the bars
-visually by using the :func:`~bokeh.transform.dodge` function to provide an
-offset for each different call to ``vbar``:
+Take a scenario with separate sequesnces of ``(fruit, year)`` pairs
+instead of a single data table. You can plot the sequences with
+separate calls to ``vbar``. However, since every bar in each group
+belongs to the same ``fruit`` category, the bars will overlap. To 
+avoid this behavior, use the :func:`~bokeh.transform.dodge` function
+to provide an offset for each call to ``vbar``.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_dodged.py
     :source-position: above
 
 .. _userguide_categorical_bars_stacked_and_grouped:
 
-Stacked and Grouped
-~~~~~~~~~~~~~~~~~~~
+Stacking and grouping
+~~~~~~~~~~~~~~~~~~~~~
 
-The above techniques for stacking and grouping may also be used together to
-create a stacked, grouped bar plot.
-
-Continuing the example above with bars grouped by quarter, we might stack each
-individual bar by region.
+You can also combine the above technicques to create plots of stacked and
+grouped bars. Here is an examples that groups bars by quarter and stacks
+them by region:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_grouped.py
     :source-position: above
 
 .. _userguide_categorical_bars_mixed:
 
-Mixed Factors
+Mixed factors
 ~~~~~~~~~~~~~
 
-When dealing with hierarchical categories of two or three levels, it's possible
-to use just the "higher level" portion of a coordinate to position glyphs. For
-example, if you have range with the hierarchical factors
+You can use any level in a multi-level data structure to position glyphs.
 
-.. code-block:: python
-
-    factors = [
-        ("East", "Sales"), ("East", "Marketing"), ("East", "Dev"),
-        ("West", "Sales"), ("West", "Marketing"), ("West", "Dev"),
-    ]
-
-Then it is possible to use just `"Sales"` and `"Marketing"` etc. as positions
-for glyphs. In this case, the position is the center of the entire group. The
-example below shows bars for each month, grouped by financial quarter, and
-also adds a line (perhaps for a quarterly average) at the coordinates for
-``Q1``, ``Q2``, etc.:
+The example below groups bars for each month into financial quarters and
+adds a quarterly average line at the coordinates from ``Q1`` to ``Q4``.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_mixed.py
     :source-position: above
 
-This example also demonstrates that other glyphs such as lines also function
-with categorical coordinates.
+This shows that other glyphs such as lines also work with categorical
+coordinates.
 
 .. _userguide_categorical_bars_pandas:
 
 Pandas
 ~~~~~~
 
-`Pandas`_ is a powerful and common tool for doing data analysis on tabular and
-timeseries data in Python. Although it is not *required* by Bokeh, Bokeh tries
-to make life easier when you do.
+`Pandas`_ is a powerful and popular tool for analysing tabular and time
+series data in Python. While you don't have to use it, it makes working
+with Bokeh easier.
 
-Below is a plot that demonstrates some advantages when using Pandas with
-Bokeh:
+For example, you can use the ``GroupBy`` objects offered by Pandas to
+initialize a ``ColumnDataSource`` and automatically create columns for
+many statistical parameters, such as group mean and count. You can also
+pass these ``GroupBy`` objects as a range argument to ``figure``.
 
-* Pandas ``GroupBy`` objects can be used to initialize a ``ColumnDataSource``,
-  automatically creating columns for many statistical measures such as the
-  group mean or count
-
-* ``GroupBy`` objects may also be passed directly as a range argument to
-  ``figure``.
+Here's how you can leverage `Pandas`_ to your advantage with Bokeh:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
     :source-position: above
 
-Note that in the example above we grouped by the column ``'cyl'``, so our CDS
-has a column ``'cyl'`` for this index. Additionally, other non-grouped columns
-like ``'mpg'`` have had associated columns such as ``'mpg_mean'`` added, that
-give the mean MPG value for each group.
+The example above groups data by the column ``'cyl'``, which is why the
+``ColumnDataSource`` includes this column. It also adds associated columns
+to non-grouped categories such as ``'mpg'`` providing, for instance, a mean
+number of miles per gallon in the ``'mpg_mean'`` column.
 
-This usage also works when the grouping is multi-level. The example below shows
-how grouping the same data by ``('cyl', 'mfr')`` results in a hierarchically
+This also works with multi-level groups. The example below groups the same 
+data by ``('cyl', 'mfr')`` and displays  in a hierarchically
 nested axis. In this case, the index column name ``'cyl_mfr'`` is made by
 joining the names of the grouped columns together.
 
