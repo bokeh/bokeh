@@ -70,7 +70,8 @@ You will see this in later examples.
 Sorting
 ~~~~~~~
 
-To order the bars of a given plot, simply sort the categories.
+To order the bars of a given plot, simply sort the categories by
+value.
 
 The example below sorts the fruit categories in ascending order
 based on counts and rearranges the bars accordingly.

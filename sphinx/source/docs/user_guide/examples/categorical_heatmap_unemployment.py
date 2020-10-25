@@ -23,7 +23,7 @@ source = ColumnDataSource(df)
 colors = ["#75968f", "#a5bab7", "#c9d9d3", "#e2e2e2", "#dfccce", "#ddb7b1", "#cc7878", "#933b41", "#550b1d"]
 mapper = LinearColorMapper(palette=colors, low=df.rate.min(), high=df.rate.max())
 
-p = figure(plot_width=800, plot_height=300, title="US Unemployment 1948—2016",
+p = figure(plot_width=800, plot_height=300, title="US unemployment 1948—2016",
            x_range=list(data.index), y_range=list(reversed(data.columns)),
            toolbar_location=None, tools="", x_axis_location="above")
 
