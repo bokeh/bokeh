@@ -4,9 +4,9 @@ Handling categorical data
 =========================
 
 .. note::
-    Several examples in this chapter use `Pandas`_, for ease of presentation
-    and because it is a common tool for data manipulation. However, you don't
-    need ``Pandas`` to create anything shown here.
+    To help with presentation, several examples in this chapter
+    use `Pandas`_, a common tool for data manipulation. However,
+    you don't need ``Pandas`` to create anything shown here.
 
 .. _userguide_categorical_bars:
 
@@ -18,17 +18,17 @@ Bars
 Basic
 ~~~~~
 
-Bokeh makes it simple to create basic bar charts using the
-:func:`~bokeh.plotting.Figure.hbar` and
+To create a basic bar chart, simply use the
+:func:`~bokeh.plotting.Figure.hbar` or
 :func:`~bokeh.plotting.Figure.vbar` glyph methods. The
-example below has a sequence of simple 1-level factors.
+example below shows a sequence of simple 1-level categories.
 
 .. code-block:: python
 
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
-To make the x-axis categorical, pass this list of factors
-as the ``x_range`` argument to :func:`~bokeh.plotting.Figure`.
+To assign these categories to the x-axis, pass this list as the
+``x_range`` argument to :func:`~bokeh.plotting.Figure`.
 
 .. code-block:: python
 
@@ -70,9 +70,9 @@ You will see this in later examples.
 Sorting
 ~~~~~~~
 
-To order the bars of a given plot, simply sort the factors.
+To order the bars of a given plot, simply sort the categories.
 
-The example below sorts the fruit factors in ascending order
+The example below sorts the fruit categories in ascending order
 based on counts and rearranges the bars accordingly.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_sorted.py
@@ -119,16 +119,15 @@ You can color the bars in several ways:
 Stacking
 ~~~~~~~~
 
-To stack the bars, use the :func:`~bokeh.plotting.Figure.hbar_stack`
-and :func:`~bokeh.plotting.Figure.vbar_stack` functions. The example
-below uses three sets of fruit data, each corresponding to a year. It
-produces a bar chart for each set and overlaps them over one another.
+To stack vertical bars, use the :func:`~bokeh.plotting.Figure.vbar_stack`
+function. The example below uses three sets of fruit data, each
+corresponding to a year. It produces a bar chart for each set and
+overlaps them over one another.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked.py
     :source-position: above
 
-You can also stack bars that represent both positive and negative
-values.
+You can also stack bars that represent positive and negative values.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_split.py
     :source-position: above
@@ -148,12 +147,12 @@ The example below demonstrates both behaviors:
     :source-position: above
 
 You can override the value of ``name`` by passing it manually to
-the ``vbar_stack`` or ``hbar_stack`` function. In this case, 
+the ``vbar_stack`` or ``hbar_stack`` function. In this case,
 ``$@name`` will correspond to the names you provide.
 
 The ``hbar_stack`` and ``vbar_stack`` functions return a list of
-all the renderers (one per bar stack). You can use this list to 
-customize the tooltips for each layer of a bar stack:
+all the renderers (one per bar stack). You can use this list to
+customize the tooltips for each layer.
 
 .. code-block:: python
 
@@ -189,7 +188,7 @@ labeled categories, tags each bar with the name of the subset it
 represents, and adds a separator between the categories.
 
 The example below creates a sequence of fruit-year pairs (tuples) and
-groups the bars by fruit name with single call to ``vbar``.
+groups the bars by fruit name with a single call to ``vbar``.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
     :source-position: above
@@ -219,7 +218,7 @@ Visual offset
 Take a scenario with separate sequesnces of ``(fruit, year)`` pairs
 instead of a single data table. You can plot the sequences with
 separate calls to ``vbar``. However, since every bar in each group
-belongs to the same ``fruit`` category, the bars will overlap. To 
+belongs to the same ``fruit`` category, the bars will overlap. To
 avoid this behavior, use the :func:`~bokeh.transform.dodge` function
 to provide an offset for each call to ``vbar``.
 
@@ -232,7 +231,7 @@ Stacking and grouping
 ~~~~~~~~~~~~~~~~~~~~~
 
 You can also combine the above technicques to create plots of stacked and
-grouped bars. Here is an examples that groups bars by quarter and stacks
+grouped bars. Here is an example that groups bars by quarter and stacks
 them by region:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_grouped.py
@@ -246,13 +245,11 @@ Mixed factors
 You can use any level in a multi-level data structure to position glyphs.
 
 The example below groups bars for each month into financial quarters and
-adds a quarterly average line at the coordinates from ``Q1`` to ``Q4``.
+adds a quarterly average line at the group center coordinates from ``Q1``
+to ``Q4``.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_mixed.py
     :source-position: above
-
-This shows that other glyphs such as lines also work with categorical
-coordinates.
 
 .. _userguide_categorical_bars_pandas:
 
@@ -266,9 +263,9 @@ with Bokeh easier.
 For example, you can use the ``GroupBy`` objects offered by Pandas to
 initialize a ``ColumnDataSource`` and automatically create columns for
 many statistical parameters, such as group mean and count. You can also
-pass these ``GroupBy`` objects as a range argument to ``figure``.
+pass these ``GroupBy`` objects as a ``range`` argument to ``figure``.
 
-Here's how you can leverage `Pandas`_ to your advantage with Bokeh:
+Here's how you can leverage `Pandas`_ to your advantage:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
     :source-position: above
@@ -295,7 +292,7 @@ Bars can be used for more than just bar charts with a common baseline.
 You can also use them to represent intervals across a range.
 
 The example below supplies the ``hbar`` function with both ``left`` and
-``right`` properties to show the spread in times between bronze and gold
+``right`` properties to show the spread in times between gold and bronze
 medalists in Olympic sprinting over many years.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_intervals.py
@@ -311,7 +308,7 @@ Scatters
 
 .. _userguide_categorical_scatters_jitter:
 
-Adding Jitter
+Adding jitter
 ~~~~~~~~~~~~~
 
 To avoid overlap between numerous scatter points in a single category, use
@@ -320,7 +317,7 @@ offset.
 
 The example below shows a scatter plot of every commit time for a GitHub
 user between 2012 and 2016. It groups commits by day of the week. By
-default, this plot would show thousands of points overlapping in a narrow 
+default, this plot would show thousands of points overlapping in a narrow
 line for each day. The ``jitter`` function lets you differentiate the 
 points to produce a useful plot:
 
@@ -332,9 +329,9 @@ points to produce a useful plot:
 Categorical offsets
 -------------------
 
-Outside of the ``dodge`` and ``jitter`` function, you can also supply an
+Outside of the ``dodge`` and ``jitter`` functions, you can also supply an
 offset to a categorical location explicitly. To do so, add a numeric value
-to the end of a category. For ecample, ``["Jan", 0.2]`` govex the category
+to the end of a category. For example, ``["Jan", 0.2]`` gives the category
 "Jan" an offset of 0.2.
 
 For multi-level categories, add the value at the end of the existing list:
@@ -360,7 +357,7 @@ This will shift each bar horizontally by the corresponding offset.
     :source-position: none
 
 Below is a more sophisticated example of a ridge plot. It uses
-categorical offsets to specify patch coordinates for inside each
+categorical offsets to specify patch coordinates for each
 category.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_ridgeplot.py
@@ -371,7 +368,7 @@ category.
 Heatmaps
 --------
 
-If you apply different shades to a rectangle that defines a pair
+If you apply different shades to rectangles that represent a pair
 of categories, you get a *categorical heatmap*. This is a plot
 with two categorical axes.
 
