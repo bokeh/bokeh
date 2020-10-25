@@ -8,7 +8,7 @@ export interface Printable {
   [pretty](printer: Printer): string
 }
 
-function isPrintable<T>(obj: T): obj is T & Printable {
+function is_Printable<T>(obj: T): obj is T & Printable {
   return pretty in Object(obj)
 }
 
@@ -24,7 +24,7 @@ export class Printer {
   }
 
   to_string(obj: unknown): string {
-    if (isPrintable(obj))
+    if (is_Printable(obj))
       return obj[pretty](this)
     else if (isBoolean(obj))
       return this.boolean(obj)

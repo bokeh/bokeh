@@ -9,10 +9,9 @@ import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {difference} from "@bokehjs/core/util/array"
 import {keys, values, entries} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
-import {SerializationError} from "@bokehjs/core/util/serialization"
+import {SerializationError} from "@bokehjs/core/serializer"
 
 import {Models} from "@bokehjs/base"
-import {HasProps} from "@bokehjs/core/has_props"
 import {PropertyAlias} from "@bokehjs/core/properties"
 import {settings} from "@bokehjs/core/settings"
 import {Document} from "@bokehjs/document"
@@ -38,25 +37,6 @@ function safe_stringify(v: unknown): string {
       return `${v}`
     }
   }
-}
-
-function deep_value_to_serializable(_key: string, value: unknown, _optional_parent_object: any): any {
-  if (value instanceof HasProps) {
-    return {type: value.type, attributes: value.attributes_as_json()}
-  } else if (isArray(value)) {
-    const ref_array: any[] = []
-    for (let i = 0; i < value.length; i++) {
-      ref_array.push(deep_value_to_serializable(i.toString(), value[i], value))
-    }
-    return ref_array
-  } else if (isPlainObject(value)) {
-    const ref_obj: {[key: string]: any} = {}
-    for (const [subkey, subvalue] of entries(value)) {
-      ref_obj[subkey] = deep_value_to_serializable(subkey, subvalue, value)
-    }
-    return ref_obj
-  } else
-    return value
 }
 
 type KV = {[key: string]: any}

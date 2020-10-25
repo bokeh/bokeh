@@ -1,8 +1,8 @@
 import {NumberArray} from "../types"
-import {equals, Equals, Comparator} from "./eq"
+import {equals, Equatable, Comparator} from "./eq"
 import {assert} from "./assert"
 
-export class RaggedArray implements Equals {
+export class RaggedArray implements Equatable {
   static [Symbol.toStringTag] = "RaggedArray"
 
   constructor(readonly offsets: Uint32Array, readonly array: NumberArray) {}

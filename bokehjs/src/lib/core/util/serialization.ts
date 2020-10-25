@@ -4,8 +4,6 @@ import {is_little_endian} from "./compat"
 import {DataType, NDArray} from "./ndarray"
 import * as ndarray from "./ndarray"
 
-export class SerializationError extends Error {}
-
 export function buffer_to_base64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
   const chars = Array.from(bytes).map((b) => String.fromCharCode(b))

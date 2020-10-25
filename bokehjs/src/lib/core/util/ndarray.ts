@@ -1,12 +1,14 @@
 import {isObject, isArray} from "./types"
 import {unreachable} from "./assert"
-import {equals, Equals, Comparator} from "./eq"
+import {equals, Equatable, Comparator} from "./eq"
+import {serialize, Serializable, Serializer} from "../serializer"
+import {encode_NDArray} from "./serialization"
 
 export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
 
 const __ndarray__ = Symbol("__ndarray__")
 
-export class Uint8NDArray extends Uint8Array implements Equals {
+export class Uint8NDArray extends Uint8Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "uint8" = "uint8"
   readonly shape: number[]
@@ -21,9 +23,13 @@ export class Uint8NDArray extends Uint8Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Int8NDArray extends Int8Array implements Equals {
+export class Int8NDArray extends Int8Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "int8" = "int8"
   readonly shape: number[]
@@ -38,9 +44,13 @@ export class Int8NDArray extends Int8Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Uint16NDArray extends Uint16Array implements Equals {
+export class Uint16NDArray extends Uint16Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "uint16" = "uint16"
   readonly shape: number[]
@@ -55,9 +65,13 @@ export class Uint16NDArray extends Uint16Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Int16NDArray extends Int16Array implements Equals {
+export class Int16NDArray extends Int16Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "int16" = "int16"
   readonly shape: number[]
@@ -72,9 +86,13 @@ export class Int16NDArray extends Int16Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Uint32NDArray extends Uint32Array implements Equals {
+export class Uint32NDArray extends Uint32Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "uint32" = "uint32"
   readonly shape: number[]
@@ -89,9 +107,13 @@ export class Uint32NDArray extends Uint32Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Int32NDArray extends Int32Array implements Equals {
+export class Int32NDArray extends Int32Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "int32" = "int32"
   readonly shape: number[]
@@ -106,9 +128,13 @@ export class Int32NDArray extends Int32Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Float32NDArray extends Float32Array implements Equals {
+export class Float32NDArray extends Float32Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "float32" = "float32"
   readonly shape: number[]
@@ -123,9 +149,13 @@ export class Float32NDArray extends Float32Array implements Equals {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
   }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
+  }
 }
 
-export class Float64NDArray extends Float64Array implements Equals {
+export class Float64NDArray extends Float64Array implements Equatable, Serializable {
   readonly __ndarray__ = __ndarray__
   readonly dtype: "float64" = "float64"
   readonly shape: number[]
@@ -139,6 +169,10 @@ export class Float64NDArray extends Float64Array implements Equals {
 
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.shape, that.shape) && cmp.arrays(this, that)
+  }
+
+  [serialize](_serializer: Serializer): unknown {
+    return encode_NDArray(this)
   }
 }
 

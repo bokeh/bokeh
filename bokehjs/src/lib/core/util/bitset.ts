@@ -1,8 +1,8 @@
-import {equals, Equals, Comparator} from "./eq"
+import {equals, Equatable, Comparator} from "./eq"
 import {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
 
-export class BitSet implements Equals {
+export class BitSet implements Equatable {
   private readonly _array: Uint32Array
   private readonly _nwords: number
 

@@ -3,6 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
+import {Serializer} from "core/serializer"
 import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
@@ -43,16 +44,16 @@ export class EventManager {
   }
 }
 
-export interface DocJson {
+export type DocJson = {
   version?: string
   title?: string
   roots: {
-    root_ids: string[]
+    root_ids: ID[]
     references: Struct[]
   }
 }
 
-export interface Patch {
+export type Patch = {
   references: Struct[]
   events: DocumentChanged[]
 }
@@ -329,20 +330,8 @@ export class Document {
     }
   }
 
-  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: unknown}): void {
+  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: DocumentChangedEvent}): void {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
-  }
-
-  static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
-    const references_json: Struct[] = []
-    for (const r of references) {
-      const struct = r.struct()
-      struct.attributes = r.attributes_as_json(include_defaults)
-      // server doesn't want id in here since it's already in ref above
-      delete struct.attributes.id
-      references_json.push(struct)
-    }
-    return references_json
   }
 
   static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
@@ -476,7 +465,10 @@ export class Document {
     }
   }
 
-  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
+  //////
+  ///{{{
+
+  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: unknown, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
     const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
     if (!changed_model.property(key).syncable)
       return null
@@ -577,31 +569,38 @@ export class Document {
         events = events.concat(update_model_events)
       }
     }
+
+    const serializer = new Serializer({include_defaults: false})
+    serializer.to_serializable([...value_refs])
+
     return {
-      references: Document._references_json(value_refs, false), // include_defaults=false
+      references: [...serializer.definitions],
       events,
     }
   }
+
+  ///}}}
+  //////
 
   to_json_string(include_defaults: boolean = true): string {
     return JSON.stringify(this.to_json(include_defaults))
   }
 
   to_json(include_defaults: boolean = true): DocJson {
-    const root_ids = this._roots.map((r) => r.id)
-    const root_references = this._all_models.values()
+    const serializer = new Serializer({include_defaults})
+    const roots = serializer.to_serializable(this._roots)
     return {
       version: js_version,
       title: this._title,
       roots: {
-        root_ids,
-        references: Document._references_json(root_references, include_defaults),
+        root_ids: roots.map((r) => r.id),
+        references: [...serializer.definitions],
       },
     }
   }
 
   static from_json_string(s: string): Document {
-    const json: any = JSON.parse(s)
+    const json = JSON.parse(s)
     return Document.from_json(json)
   }
 
@@ -649,18 +648,15 @@ export class Document {
   }
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {
-    const references = new Set<HasProps>()
-    const json_events: DocumentChanged[] = []
     for (const event of events) {
-      if (event.document !== this) {
-        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", this)
+      if (event.document != this)
         throw new Error("Cannot create a patch using events from a different document")
-      }
-      json_events.push(event.json(references))
     }
+
+    const serializer = new Serializer()
     return {
-      events: json_events,
-      references: Document._references_json(references),
+      events: serializer.to_serializable(events),
+      references: [...serializer.definitions],
     }
   }
 
