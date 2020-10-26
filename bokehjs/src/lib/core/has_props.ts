@@ -9,15 +9,16 @@ import * as k from "./kinds"
 import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {max, copy} from "./util/array"
-import {values, entries, clone, extend} from "./util/object"
-import {isPlainObject, isObject, isArray, isString, isFunction} from "./util/types"
+import {max} from "./util/array"
+import {values, entries, extend} from "./util/object"
+import {isPlainObject, isArray, isString, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from './util/eq'
 import {serialize, Serializable, Serializer} from "./serializer"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
+import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
 
 export module HasProps {
@@ -42,7 +43,7 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
-export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable {
+export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   __view_type__: View
 
   readonly id: string
@@ -88,18 +89,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   _mixins: string[]
 
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
-    if (default_value === undefined)
-      return undefined
-    else if (isFunction(default_value))
+    if (default_value === undefined || isFunction(default_value))
       return default_value
-    else if (isArray(default_value))
-      return () => copy(default_value)
-    else if (isPlainObject(default_value))
-      return () => clone(default_value)
-    else if (!isObject(default_value))
+    else if (isPrimitive(default_value))
       return () => default_value
-    else
-      throw new Error(`${default_value} must be explicitly wrapped in a function`)
+    else {
+      const cloner = new Cloner()
+      return () => cloner.clone(default_value)
+    }
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
@@ -132,7 +129,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         options,
       }
 
-      const props = clone(this.prototype._props)
+      const props = {...this.prototype._props}
       props[name] = refined_prop
       this.prototype._props = props
     }
@@ -206,7 +203,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       const value = this.prototype._props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
-      const props = clone(this.prototype._props)
+      const props = {...this.prototype._props}
       props[name] = {...value, default_value}
       this.prototype._props = props
     }
@@ -240,6 +237,16 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       attrs[prop.attr] = prop.get_value()
     }
     return attrs
+  }
+
+  [clone](cloner: Cloner): this {
+    const attrs = new Map<string, unknown>()
+    for (const prop of this) {
+      if (prop.dirty) {
+        attrs.set(prop.attr, cloner.clone(prop.get_value()))
+      }
+    }
+    return new (this.constructor as any)(attrs)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -284,7 +291,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
 
-    const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
+    const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
 
     this.id = (get("id") as string | undefined) ?? uniqueId()
 
@@ -332,9 +339,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this.destroyed.emit()
   }
 
-  // Create a new model with identical attributes to this one.
+  // Create a new model with exact attribute values to this one, but new identity.
   clone(): this {
-    return new (this.constructor as any)(this.attributes)
+    const cloner = new Cloner()
+    return cloner.clone(this)
   }
 
   private _pending: boolean = false
