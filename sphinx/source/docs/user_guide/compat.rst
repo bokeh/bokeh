@@ -1,6 +1,6 @@
 .. _userguide_compat:
 
-Exploring Other Tools
+Exploring other tools
 =====================
 
 Bokeh integrates well with a wide variety of other libraries, allowing
@@ -10,31 +10,27 @@ BokehJS
 -------
 
 Bokeh generates JavaScript, and so Bokeh output can be combined with a
-wide variety of JavaScript libraries, such as `React`_. Listing
-such libraries is beyond the scope of this document; it's best just to
+wide variety of JavaScript libraries, such as `React`_. Listing all
+such libraries is beyond the scope of this document; it's best to just
 try and see!
 
 
 Datashader
 ----------
 
-A major strength of Bokeh is that it copies your data from Python
-directly into the browser, which makes it possible for the user to
-interact with the represented data quickly and responsively, even
-without a live Python process running. However, for plotting millions
-or billions of points, this strength can turn into a liability,
-because current web browsers are very limited in how much data they
-can feasibly work with. Moreover, the visual representation of such
-large datasets is often misleading due to `overplotting`_ and related
-issues.
+Bokeh lets you pass data from Python directly into a browser so you
+can interact with it quickly and responsively, even without a live
+Python process. However, browser data processing limitations may
+become a problem when plotting millions or billions of points.
+Moreover, visual representation of such large datasets often gets
+misleading due to `overplotting`_ and related issues.
 
-`Datashader`_ is a separately available Python library that
-pre-renders even the largest datasets into a fixed-size raster image
-that faithfully represents the data's distribution. Datashader
-includes tools and examples showing how to build interactive Bokeh
-plots that dynamically re-render these images when zooming and panning
-in Bokeh, making it practical to work with arbitrarily large datasets
-in a web browser.
+`Datashader`_ is a separate Python library that renders even the
+largest datasets as fixed-size raster images that faithfully
+represent the data. Datashader gives you the tools to build
+interactive Bokeh plot images that dynamically re-render when you
+zoom and pan. This lets you output arbitrarily large datasets in
+browsers.
 
 .. image:: /_images/ds_sample.png
     :width: 900 px
@@ -43,29 +39,25 @@ in a web browser.
     :alt: Datashader Bokeh example
     :align: center
 
-Datashader works well together with `HoloViews`_ (see below and
-`this_example`_), which allows you to flexibly switch between
-datashaded and non-datashaded versions of a plot, interleave
-datashader-based plots with other Bokeh-based plots, and so on.
+Datashader works well together with `HoloViews`_. This package
+lets you switch between datashaded and non-datashaded versions
+of a plot, interleave Datashader and Bokeh plots, and more. See
+`this_example`_ 
 
 
 HoloViews
 ---------
 
-Bokeh is designed to provide an enormous amount of power and
-flexibility to the Python programmer, making it feasible to develop
-complex visualization-focused applications for deployment on web
-browsers. However, for day-to-day work exploring and visualizing
-data, it can be helpful to have a higher-level API on top of what
-Bokeh provides, to make it simpler to do common visualization tasks
-without specifying each step explicitly.
+Bokeh offers you a lot of versatility when it comes to development
+of complex data visualizations for the web. Even so, a higher-level
+API can make day-to-day visualization tasks easier and less verbose.
 
-`HoloViews`_ is a separately maintained package that provides a
-concise declarative interface for building Bokeh plots. HoloViews is
-particularly focused on interactive use in a Jupyter notebook,
-allowing quick prototyping of figures for data analysis. For
-instance, to build an interactive figure with three linked Bokeh plots
-requires only one line of code in HoloViews:
+`HoloViews`_ is a separate package that provides a concise declarative
+interface for building Bokeh plots. HoloViews is particularly focused
+on interactive use with Jupyter notebooks and enables quick prototyping
+of figures for data analysis. For instance, building an interactive 
+figure with three linked Bokeh plots requires only one line of code in
+HoloViews.
 
 .. image:: /_images/hv_sample.png
  :width: 976 px
