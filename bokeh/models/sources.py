@@ -57,7 +57,7 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'ServerSentDataSource',
-    'WebSource',
+    'WebDataSource',
 )
 
 #-----------------------------------------------------------------------------
@@ -709,7 +709,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     """)
 
 @abstract
-class WebSource(ColumnDataSource):
+class WebDataSource(ColumnDataSource):
     ''' Base class for web column data sources that can update from data
     URLs.
 
@@ -744,13 +744,13 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-class ServerSentDataSource(WebSource):
+class ServerSentDataSource(WebDataSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(WebSource):
+class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 

@@ -71,7 +71,7 @@ from ..core.properties import (
     String,
     StringSpec,
 )
-from ..core.property.dataspec import field
+from ..core.property.dataspec import field, value
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
@@ -393,15 +393,15 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the centers of the horizontal bars.
     """)
 
-    height = NumberSpec(help="""
+    height = NumberSpec(default=value(1), help="""
     The heights of the vertical bars.
     """)
 
-    left = NumberSpec(default=0, help="""
+    left = NumberSpec(default=value(0), help="""
     The x-coordinates of the left edges.
     """)
 
-    right = NumberSpec(help="""
+    right = NumberSpec(default=field("right"), help="""
     The x-coordinates of the right edges.
     """)
 
@@ -934,19 +934,19 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     # functions derived from this class
     _args = ('left', 'right', 'top', 'bottom')
 
-    left = NumberSpec(help="""
+    left = NumberSpec(default=field("left"), help="""
     The x-coordinates of the left edges.
     """)
 
-    right = NumberSpec(help="""
+    right = NumberSpec(default=field("right"), help="""
     The x-coordinates of the right edges.
     """)
 
-    bottom = NumberSpec(help="""
+    bottom = NumberSpec(default=field("bottom"), help="""
     The y-coordinates of the bottom edges.
     """)
 
-    top = NumberSpec(help="""
+    top = NumberSpec(default=field("top"), help="""
     The y-coordinates of the top edges.
     """)
 
@@ -1242,7 +1242,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The x-coordinates of the centers of the vertical bars.
     """)
 
-    width = NumberSpec(help="""
+    width = NumberSpec(default=value(1), help="""
     The widths of the vertical bars.
     """)
 
@@ -1250,7 +1250,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the bottom edges.
     """)
 
-    top = NumberSpec(help="""
+    top = NumberSpec(default=field("top"), help="""
     The y-coordinates of the top edges.
     """)
 

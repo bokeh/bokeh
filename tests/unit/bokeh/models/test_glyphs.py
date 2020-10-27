@@ -46,7 +46,7 @@ from bokeh.core.enums import (
 )
 from bokeh.core.enums import NamedColor as Color
 from bokeh.core.enums import TextAlign, TextBaseline
-from bokeh.core.property.dataspec import field
+from bokeh.core.property.dataspec import field, value
 from bokeh.models.glyphs import (
     Asterisk,
     CircleCross,
@@ -205,9 +205,9 @@ def test_HArea() -> None:
 def test_HBar() -> None:
     glyph = HBar()
     assert glyph.y == field("y")
-    assert glyph.height is None
-    assert glyph.left == 0
-    assert glyph.right is None
+    assert glyph.height == value(1)
+    assert glyph.left == value(0)
+    assert glyph.right == field("right")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
@@ -377,10 +377,10 @@ def test_Patches() -> None:
 
 def test_Quad() -> None:
     glyph = Quad()
-    assert glyph.left is None
-    assert glyph.right is None
-    assert glyph.bottom is None
-    assert glyph.top is None
+    assert glyph.left == field("left")
+    assert glyph.right == field("right")
+    assert glyph.bottom == field("bottom")
+    assert glyph.top == field("top")
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
     check_line_properties(glyph)
@@ -514,8 +514,8 @@ def test_VArea() -> None:
 def test_VBar() -> None:
     glyph = VBar()
     assert glyph.x == field("x")
-    assert glyph.width is None
-    assert glyph.top is None
+    assert glyph.width == value(1)
+    assert glyph.top == field("top")
     assert glyph.bottom == 0
     check_fill_properties(glyph)
     check_hatch_properties(glyph)

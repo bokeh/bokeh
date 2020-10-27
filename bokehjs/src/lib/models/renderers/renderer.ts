@@ -115,7 +115,7 @@ export abstract class Renderer extends Model {
 
   static init_Renderer(): void {
     this.define<Renderer.Props>(({Boolean, String}) => ({
-      level:        [ RenderLevel ],
+      level:        [ RenderLevel, "image" ],
       visible:      [ Boolean, true ],
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],

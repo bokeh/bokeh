@@ -96,7 +96,7 @@ from .renderers import GlyphRenderer, Renderer
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Action',
+    'ActionTool',
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
@@ -108,8 +108,8 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
-    'Inspection',
-    'Gesture',
+    'InspectTool',
+    'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
     'PanTool',
@@ -166,45 +166,55 @@ class Tool(Model):
         cls._known_aliases[name] = constructor
 
 @abstract
-class Action(Tool):
+class ActionTool(Tool):
     ''' A base class for tools that are buttons in the toolbar.
 
     '''
     pass
 
 @abstract
-class Gesture(Tool):
+class GestureTool(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
 
 @abstract
-class Drag(Gesture):
+class Drag(GestureTool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
 
 @abstract
-class Scroll(Gesture):
+class Scroll(GestureTool):
     ''' A base class for tools that respond to scroll events.
 
     '''
     pass
 
 @abstract
-class Tap(Gesture):
+class Tap(GestureTool):
     ''' A base class for tools that respond to tap/click events.
 
     '''
     pass
 
 @abstract
-class SelectTool(Gesture):
+class SelectTool(GestureTool):
     ''' A base class for tools that perfrom "selections", e.g. ``BoxSelectTool``.
 
     '''
+
+    names = List(String, help="""
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
+    """)
+
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset, defaults to
+    all renderers on a plot.
+    """)
 
     mode = Enum(SelectionMode, default="replace", help="""
     Defines what should happen when a new selection is made. The default
@@ -213,7 +223,7 @@ class SelectTool(Gesture):
     """)
 
 @abstract
-class Inspection(Gesture):
+class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
@@ -252,7 +262,7 @@ class Toolbar(ToolbarBase):
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect = Either(Auto, Instance(Inspection), Seq(Instance(Inspection)), help="""
+    active_inspect = Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
@@ -265,7 +275,7 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi = Instance((Gesture), help="""
+    active_multi = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -439,7 +449,7 @@ class WheelZoomTool(Scroll):
     0.001 and 0.09. High values will be clipped. Speed may very between browsers.
     """)
 
-class CustomAction(Action):
+class CustomAction(ActionTool):
     ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
     icon is activated.
 
@@ -469,7 +479,7 @@ class CustomAction(Action):
     object, or an RGB(A) NumPy array.
     """)
 
-class SaveTool(Action):
+class SaveTool(ActionTool):
     ''' *toolbar icon*: |save_icon|
 
     The save tool is an action. When activated, the tool opens a download dialog
@@ -484,7 +494,7 @@ class SaveTool(Action):
 
     '''
 
-class ResetTool(Action):
+class ResetTool(ActionTool):
     ''' *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool resets
@@ -517,16 +527,6 @@ class TapTool(Tap, SelectTool):
         previous selection that might exist.
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
-    """)
 
     behavior = Enum("select", "inspect", default="select", help="""
     This tool can be configured to either make selections or inspections
@@ -565,7 +565,7 @@ class TapTool(Tap, SelectTool):
 
     """)
 
-class CrosshairTool(Inspection):
+class CrosshairTool(InspectTool):
     ''' *toolbar icon*: |crosshair_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on at all
@@ -674,7 +674,7 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-class ZoomInTool(Action):
+class ZoomInTool(ActionTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
@@ -696,7 +696,7 @@ class ZoomInTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class ZoomOutTool(Action):
+class ZoomOutTool(ActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out
@@ -732,16 +732,6 @@ class BoxSelectTool(Drag, SelectTool):
         :height: 24px
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
-    """)
 
     select_every_mousemove = Bool(False, help="""
     Whether a selection computation should happen on every mouse event, or only
@@ -800,16 +790,6 @@ class LassoSelectTool(Drag, SelectTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
-    all renderers on a plot.
-    """)
-
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse event, or only
     once, when the selection region is completed.
@@ -841,16 +821,6 @@ class PolySelectTool(Tap, SelectTool):
         :height: 24px
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that  have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
-    all renderers on a plot.
-    """)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -947,7 +917,7 @@ class CustomJSHover(Model):
             '''
     """)
 
-class HoverTool(Inspection):
+class HoverTool(InspectTool):
     ''' *toolbar icon*: |hover_icon|
 
     The hover tool is a passive inspector tool. It is generally on at all
@@ -1173,7 +1143,7 @@ class HoverTool(Inspection):
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
 
-class HelpTool(Action):
+class HelpTool(ActionTool):
     ''' A button tool to provide a "help" link to users.
 
     The hover text can be customized through the ``help_tooltip`` attribute
@@ -1189,7 +1159,7 @@ class HelpTool(Action):
     Site to be redirected through upon click.
     """)
 
-class UndoTool(Action):
+class UndoTool(ActionTool):
     ''' *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
@@ -1199,7 +1169,7 @@ class UndoTool(Action):
 
     '''
 
-class RedoTool(Action):
+class RedoTool(ActionTool):
     ''' *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.
@@ -1210,7 +1180,7 @@ class RedoTool(Action):
     '''
 
 @abstract
-class EditTool(Gesture):
+class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
     '''
@@ -1238,6 +1208,22 @@ class EditTool(Gesture):
     An explicit list of renderers corresponding to scatter glyphs that may
     be edited.
     """)
+
+@abstract
+class PolyTool(EditTool):
+    ''' A base class for polygon draw/edit tools. '''
+
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the vertices of a selected line or polygon.
+    """)
+
+    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
+    def _check_compatible_vertex_renderer(self):
+        if self.vertex_renderer is None:
+            return
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, XYGlyph):
+            return "glyph type %s found." % type(glyph).__name__
 
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
@@ -1362,7 +1348,7 @@ class PointDrawTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
-class PolyDrawTool(EditTool, Drag, Tap):
+class PolyDrawTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
 
     The PolyDrawTool allows drawing, selecting and deleting ``Patches`` and
@@ -1407,10 +1393,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
     patch or multi-line.
     """)
 
-    vertex_renderer = Instance(GlyphRenderer, help="""
-    The renderer used to render the vertices of a selected line or polygon.
-    """)
-
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1420,14 +1402,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
         if incompatible_renderers:
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        if self.vertex_renderer is None:
-            return
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
@@ -1468,7 +1442,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
-class PolyEditTool(EditTool, Drag, Tap):
+class PolyEditTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
     The PolyEditTool allows editing the vertices of one or more ``Patches`` or
@@ -1498,16 +1472,6 @@ class PolyEditTool(EditTool, Drag, Tap):
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
         :height: 24px
     '''
-
-    vertex_renderer = Instance(GlyphRenderer, help="""
-    The renderer used to render the vertices of a selected line or
-    polygon.""")
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
     @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
     def _check_compatible_renderers(self):
