@@ -1,6 +1,4 @@
 name: bk-release-build
-channels:
-  - conda-forge
 dependencies:
   - python=3.7
 
@@ -17,7 +15,7 @@ dependencies:
   # build
   - boto
   - colorama
-  - conda-build=3.18.10
+  - conda-build=3.20.5
   - conda-verify=3.4.2
   - nodejs>=10.13
   - ripgrep=0.10.0
@@ -34,6 +32,8 @@ dependencies:
   - pygments
   - scipy
   - sphinx
+
+  # not available in defaults
   - pip
   - pip:
     - sphinx-panels
