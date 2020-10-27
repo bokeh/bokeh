@@ -3,7 +3,6 @@ import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 
 import {Enum} from "../kinds"
-import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -113,7 +112,8 @@ export function get_value(raw_name: string, data_source: ColumnarDataSource, i: 
   }
 }
 
-export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string | Node[]  {
+export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,
+    i: Index, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
   let str: string
   let has_html: boolean
 
@@ -140,7 +140,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
 
     // missing value, return ???
     if (value == null)
-      return `${escape("???")}`
+      return encode ? encode("???") : "???"
 
     // 'safe' format, return the value as-is
     if (format == 'safe') {
@@ -150,7 +150,8 @@ export function replace_placeholders(content: string | {html: string}, data_sour
 
     // format and escape everything else
     const formatter = get_formatter(spec, format, formatters)
-    return `${escape(formatter(value, format, special_vars))}`
+    const result = `${formatter(value, format, special_vars)}`
+    return encode ? encode(result) : result
   })
 
   if (!has_html)
