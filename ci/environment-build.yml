@@ -1,9 +1,7 @@
 name: bk-test
-channels:
-  - conda-forge
 dependencies:
-  - python=3.6
-  - conda-build=3.18.10
+  - python=3.8
+  - conda-build=3.20.5
   - conda-verify=3.4.2
   - nodejs>=10.13
   - ripgrep=0.10.0
