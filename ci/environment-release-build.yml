@@ -1,4 +1,6 @@
 name: bk-release-build
+channels:
+  - conda-forge
 dependencies:
   - python=3.7
 
@@ -32,8 +34,4 @@ dependencies:
   - pygments
   - scipy
   - sphinx
-
-  # not available in defaults
-  - pip
-  - pip:
-    - sphinx-panels
+  - sphinx-panels
