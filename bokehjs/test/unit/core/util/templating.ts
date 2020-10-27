@@ -155,7 +155,11 @@ describe("templating module", () => {
   })
 
   describe("replace_placeholders", () => {
-    const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
+    const source = new ColumnDataSource({data: {
+      foo: [10, 1.002, -1],
+      bar: ["a", "<div>b</div>", "'qux'\"quux\""],
+      baz: [1492890671885, 1290460671885, 1090410671285],
+    }})
 
     it("should replace unknown field names with ???", () => {
       const s = tmpl.replace_placeholders("stuff @junk", source, 0)
@@ -173,7 +177,10 @@ describe("templating module", () => {
       expect(s3).to.be.equal("stuff a")
 
       const s4 = tmpl.replace_placeholders("stuff @bar", source, 1)
-      expect(s4).to.be.equal("stuff &lt;div&gt;b&lt;/div&gt;")
+      expect(s4).to.be.equal("stuff <div>b</div>")
+
+      const s5 = tmpl.replace_placeholders("stuff @bar", source, 2)
+      expect(s5).to.be.equal("stuff 'qux'\"quux\"")
     })
 
     it("should replace field names with values as-is with safe format", () => {
@@ -264,6 +271,17 @@ describe("templating module", () => {
     it("should handle special @$name case by using special_vars.name as the column", () => {
       const s = tmpl.replace_placeholders("stuff @$name", source, 0, {}, {name: "foo"})
       expect(s).to.be.equal("stuff 10")
+    })
+
+    it("should allow custom string encoding (e.g. encodeURIComponent)", () => {
+      const s0 = tmpl.replace_placeholders("stuff @bar", source, 0, undefined, undefined, encodeURIComponent)
+      expect(s0).to.be.equal("stuff a")
+
+      const s1 = tmpl.replace_placeholders("stuff @bar", source, 1, undefined, undefined, encodeURIComponent)
+      expect(s1).to.be.equal("stuff %3Cdiv%3Eb%3C%2Fdiv%3E")
+
+      const s2 = tmpl.replace_placeholders("stuff @bar", source, 2, undefined, undefined, encodeURIComponent)
+      expect(s2).to.be.equal("stuff 'qux'%22quux%22")
     })
   })
 })
