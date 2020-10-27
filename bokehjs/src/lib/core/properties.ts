@@ -29,6 +29,13 @@ export function isSpec(obj: any): boolean {
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
 }
 
+export type Spec = {
+  readonly value?: any
+  readonly field?: string
+  readonly expr?: any
+  readonly transform?: any // Transform
+}
+
 //
 // Property base class
 //
@@ -67,13 +74,7 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: { // XXX: too many failures for now
-    readonly value?: any
-    readonly field?: string
-    readonly expr?: any
-    readonly transform?: any // Transform
-    units?: any
-  }
+  /*protected*/ spec: Spec // XXX: too many failures for now
 
   get_value(): T {
     return this.spec.value
@@ -447,23 +448,26 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
+  spec: Spec & {units?: Units}
+
   _update(attr_value: any): void {
     super._update(attr_value)
 
-    if (this.spec.units == null)
-      this.spec.units = this.default_units
-
-    const units = this.spec.units
-    if (!includes(this.valid_units, units))
+    const {units} = this.spec
+    if (units != null && !includes(this.valid_units, units)) {
       throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+    }
   }
 
   get units(): Units {
-    return this.spec.units as Units
+    return this.spec.units ?? this.default_units
   }
 
   set units(units: Units) {
-    this.spec.units = units
+    if (units != this.default_units)
+      this.spec.units = units
+    else
+      delete this.spec.units
   }
 }
 
