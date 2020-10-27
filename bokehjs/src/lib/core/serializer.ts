@@ -35,6 +35,7 @@ export class SerializationError extends Error {}
 export class Serializer {
   private readonly _references: Map<unknown, Ref> = new Map()
   private readonly _definitions: Map<unknown, Struct> = new Map()
+  private readonly _refmap: Map<Ref, Struct> = new Map()
 
   readonly include_defaults: boolean
 
@@ -47,8 +48,10 @@ export class Serializer {
   }
 
   add_def(obj: unknown, def: Struct): void {
-    assert(this._references.has(obj))
+    const ref = this._references.get(obj)
+    assert(ref != null)
     this._definitions.set(obj, def)
+    this._refmap.set(ref, def)
   }
 
   get objects(): Set<unknown> {
@@ -61,6 +64,10 @@ export class Serializer {
 
   get definitions(): Set<Struct> {
     return new Set(this._definitions.values())
+  }
+
+  resolve_ref(ref: Ref): Struct | undefined {
+    return this._refmap.get(ref)
   }
 
   remove_ref(obj: unknown): boolean {
