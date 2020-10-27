@@ -17,7 +17,7 @@ dependencies:
   # build
   - boto
   - colorama
-  - conda-build=3.18.10
+  - conda-build=3.20.5
   - conda-verify=3.4.2
   - nodejs>=10.13
   - ripgrep=0.10.0
@@ -34,6 +34,4 @@ dependencies:
   - pygments
   - scipy
   - sphinx
-  - pip
-  - pip:
-    - sphinx-panels
+  - sphinx-panels
