@@ -1,28 +1,30 @@
 .. _first_steps_6:
 
-First steps 6: Display/Output/Export
-====================================
+First steps 6: Combining plots
+==============================
 
-filename
-title!!!
-output_file("band.html", title="band.py example")
+In the :ref:`previous first steps guides <first_steps_5>`, you created
+individual plots.
 
-standalone html/javascript: once Bokeh has genertated the file, it can run
-independently of your python installation. This means that you only need to 
-publish the html file and do not worry about any python code on your webserver.
-(unless you are using Bokeh as a sever)
+In this section, you will combine several plots into layouts of rows and
+columns.
 
-http://localhost:5009/en/latest/docs/user_guide/concepts.html#output-methods
+Creating rows and columns
+-------------------------
 
-Jupyter
-https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#jupyter-notebooks
+The easiest way to combine individual plots is to assign them to rows or 
+columns.
 
-take html file and publish it / embed it
-https://docs.bokeh.org/en/latest/docs/user_guide/embed.html
+For example:
 
-export png
-https://docs.bokeh.org/en/latest/docs/user_guide/export.html
+.. bokeh-plot:: docs/first_steps/examples/first_steps_6_row_layout.py
+    :source-position: none
 
-json
+seemore: columns, instead of rows, link to user guide, etc.
 
+Gridlayouts...
+-----------
+
+linked panning
+https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#linked-panning-and-brushing
 

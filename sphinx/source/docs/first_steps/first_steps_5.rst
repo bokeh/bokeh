@@ -1,6 +1,6 @@
 .. _first_steps_5:
 
-First steps 5: vectorizing glyph properties
+First steps 5: Vectorizing glyph properties
 ===========================================
 
 In the :ref:`previous first steps guide <first_steps_4>`, you customized

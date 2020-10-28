@@ -1,6 +1,6 @@
 .. _first_steps_3:
 
-First steps 3: adding legends, text, and annotations
+First steps 3: Adding legends, text, and annotations
 ====================================================
 
 In the :ref:`previous first steps guide <first_steps_2>`, you generated

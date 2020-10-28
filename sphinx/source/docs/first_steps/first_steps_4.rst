@@ -1,6 +1,6 @@
 .. _first_steps_4:
 
-First steps 4: customizing your plot
+First steps 4: Customizing your plot
 ====================================
 
 In the :ref:`previous first steps guides <first_steps_3>`, you generated
@@ -49,8 +49,8 @@ any time after its creation:
 Enabling responsive plot sizing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To make your plot automatically adjust to your browser size, use the attribute
-:class:`~bokeh.models.plots.Plot.sizing_mode`:
+To make your plot automatically adjust to your browser or screen size, use the
+attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 
 .. literalinclude:: examples/first_steps_4_plot_size_responsive.py
    :language: python
@@ -62,8 +62,10 @@ To make your plot automatically adjust to your browser size, use the attribute
 .. seealso::
     To learn more about how to control the size of plots, see
     :ref:`userguide_styling_plots` in the user guide and the entry for
-    :class:`~bokeh.models.plots.Plot` in the reference guide. For more
-    information on responsive sizing, see
+    :class:`~bokeh.models.plots.Plot` in the reference guide.
+
+    For more information on responsive sizing, see
+    :ref:`userguide_layout_sizing_mode` in the user guide and
     :class:`~bokeh.models.plots.Plot.sizing_mode` in the reference guide.
 
 .. _first_steps_4_axes:
