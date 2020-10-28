@@ -24,6 +24,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'sphinxext.opengraph',
     'sphinx_panels',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
@@ -89,6 +90,10 @@ intersphinx_mapping = {
 napoleon_include_init_with_doc = True
 
 pygments_style = 'sphinx'
+
+ogp_site_url = 'https://docs.bokeh.org/en/latest/'
+ogp_image = 'https://static.bokeh.org/opengraph/bokeh-logo.png'
+ogp_image_alt = 'Logo of the Bokeh visualization library'
 
 # -- Options for HTML output ---------------------------------------------------
 
