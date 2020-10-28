@@ -37,10 +37,15 @@ export class View implements ISignalable {
 
   protected _has_finished: boolean
 
+  private _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    const new_slot = (args: Args, sender: Sender): void => {
-      const promise = Promise.resolve(slot.call(this, args, sender))
-      this._ready = this._ready.then(() => promise)
+    let new_slot = this._slots.get(slot)
+    if (new_slot == null) {
+      new_slot = (args: Args, sender: Sender): void => {
+        const promise = Promise.resolve(slot.call(this, args, sender))
+        this._ready = this._ready.then(() => promise)
+      }
+      this._slots.set(slot, new_slot)
     }
 
     return signal.connect(new_slot, this)
