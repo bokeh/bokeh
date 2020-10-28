@@ -89,7 +89,7 @@ The demos container here are:
   <tr><td colspan="2">surface3d</td></tr>
   <tr>
     <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/surface3d"><img src="https://docs.bokeh.org/static/surface3d_t.png" width=400></img></a></td>
-    <td> An updating 3d plot that demonstrates using using Bokeh custom extensions to wrap third-party JavaScript libraries</td>
+    <td> An updating 3d plot that demonstrates using Bokeh custom extensions to wrap third-party JavaScript libraries</td>
   </tr>
 
   <tr><td colspan="2">weather</td></tr>

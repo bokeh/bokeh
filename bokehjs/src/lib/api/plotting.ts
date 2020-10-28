@@ -13,6 +13,7 @@ import {some, includes} from "../core/util/array"
 import {clone, keys, entries} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
+import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
 
 import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
@@ -1019,11 +1020,13 @@ declare const $: any
 export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
 export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
 
-export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<T>[]> {
+export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<T> | ViewOf<T>[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
     doc.add_root(item)
+
+  await dom_ready()
 
   let element: HTMLElement
   if (target == null) {
@@ -1042,7 +1045,7 @@ export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLEleme
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = await embed.add_document_standalone(doc, element) as ViewOf<LayoutDOM>[]
+  const views = await embed.add_document_standalone(doc, element) as ViewOf<T>[]
 
   return new Promise((resolve, _reject) => {
     const result = isArray(obj) ? views : views[0]

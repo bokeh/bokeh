@@ -74,6 +74,12 @@ class Config:
         return f"{self.base_version}.{self.ext_type}{self.ext_number}"
 
     @property
+    def js_version(self) -> str:
+        if self.ext is None:
+            return self.version
+        return f"{self.base_version}-{self.ext_type}.{self.ext_number}"
+
+    @property
     def release_level(self) -> str:
         major, minor = self.base_version_tuple[:2]
         return f"{major}.{minor}"

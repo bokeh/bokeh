@@ -31,7 +31,7 @@ export class OpenURL extends Callback {
 
   execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
     const open_url = (i: number) => {
-      const url = replace_placeholders(this.url, source, i)
+      const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURIComponent)
       if (!isString(url))
         throw new Error("HTML output is not supported in this context")
 
