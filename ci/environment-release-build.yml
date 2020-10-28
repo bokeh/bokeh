@@ -35,3 +35,6 @@ dependencies:
   - scipy
   - sphinx
   - sphinx-panels
+  - pip
+  - pip:
+    - sphinxext-opengraph
