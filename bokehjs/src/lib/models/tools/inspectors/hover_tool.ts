@@ -86,16 +86,7 @@ export class HoverToolView extends InspectToolView {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const r of this.computed_renderers) {
-      if (r instanceof GlyphRenderer)
-        this.connect(r.data_source.inspect, this._update)
-      else if (r instanceof GraphRenderer) {
-        this.connect(r.node_renderer.data_source.inspect, this._update)
-        this.connect(r.edge_renderer.data_source.inspect, this._update)
-      }
-    }
-
-    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
+    this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
@@ -139,6 +130,15 @@ export class HoverToolView extends InspectToolView {
       const all_renderers = this.plot_model.data_renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
+
+      for (const r of this._computed_renderers) {
+        if (r instanceof GlyphRenderer)
+          this.connect(r.data_source.inspect, this._update)
+        else if (r instanceof GraphRenderer) {
+          this.connect(r.node_renderer.data_source.inspect, this._update)
+          this.connect(r.edge_renderer.data_source.inspect, this._update)
+        }
+      }
     }
     return this._computed_renderers
   }
