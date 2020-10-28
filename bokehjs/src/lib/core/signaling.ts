@@ -112,7 +112,7 @@ export namespace Signal {
     scheduleCleanup(receivers)
   }
 
-  export function disconnectReceiver(receiver: object): void {
+  export function disconnectReceiver(receiver: object, slot?: Slot<any, any>, except_senders?: Set<object>): void {
     const senders = sendersForReceiver.get(receiver)
     if (senders == null || senders.length === 0)
       return
@@ -121,7 +121,13 @@ export namespace Signal {
       if (connection.signal == null)
         return
 
+      if (slot != null && connection.slot != slot)
+        continue
+
       const sender = connection.signal.sender
+      if (except_senders != null && except_senders.has(sender))
+        continue
+
       connection.signal = null
       scheduleCleanup(receiversForSender.get(sender)!)
     }

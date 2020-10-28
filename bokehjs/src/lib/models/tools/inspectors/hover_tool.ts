@@ -26,6 +26,7 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
 import {bk_tool_icon_hover} from "styles/icons"
 import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
+import {Signal} from "core/signaling"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -130,6 +131,23 @@ export class HoverToolView extends InspectToolView {
       const all_renderers = this.plot_model.data_renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
+
+      const slot = this._slots.get(this._update)
+      if (slot != null) {
+        const {_computed_renderers} = this
+        const except = new Set((function* () {
+          for (const r of _computed_renderers) {
+            if (r instanceof GlyphRenderer)
+              yield r.data_source
+            else if (r instanceof GraphRenderer) {
+              yield r.node_renderer.data_source
+              yield r.edge_renderer.data_source
+            }
+          }
+        })())
+
+        Signal.disconnectReceiver(this, slot, except)
+      }
 
       for (const r of this._computed_renderers) {
         if (r instanceof GlyphRenderer)
