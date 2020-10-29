@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from ..core.has_props import abstract
 from ..core.properties import Float, Include, Override
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
-from .annotations import Annotation
+from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +42,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class ArrowHead(Annotation):
+class ArrowHead(Model):
     ''' Base class for arrow heads.
 
     '''

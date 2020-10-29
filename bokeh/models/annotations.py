@@ -116,7 +116,7 @@ def _DEFAULT_ARROW():
 # This only exists to prevent a circular import.
 def _DEFAULT_TEE():
     from .arrow_heads import TeeHead
-    return TeeHead(level="underlay", size=10)
+    return TeeHead(size=10)
 
 #-----------------------------------------------------------------------------
 # General API
