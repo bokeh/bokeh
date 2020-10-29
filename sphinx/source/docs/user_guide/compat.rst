@@ -46,12 +46,12 @@ web browsers.
 HoloViews
 ---------
 
-Bokeh offers you a lot of versatility when it comes to developmenting
+Bokeh offers you a lot of versatility when it comes to developing
 complex data visualizations for the web. Even so, a higher-level API
 can make day-to-day visualization tasks easier and less verbose.
 
 `HoloViews`_ is a concise declarative interface that helps you build
-Bokeh plots. It is an separately maintained package that focuses on
+Bokeh plots. It is a separately maintained package that focuses on
 interaction with Jupyter notebooks and enables quick prototyping of
 figures for data analysis. For instance, building an interactive
 figure with three linked Bokeh plots requires only one line of code
