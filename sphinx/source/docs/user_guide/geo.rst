@@ -3,18 +3,16 @@
 Mapping geo data
 ================
 
-Bokeh has started adding support for working with geographical data. There are
-a number of powerful features already available. Tell us your use cases through `Discourse`_ or on `GitHub`_ so that we can continue to extend these features to meet your needs.
+Bokeh supports creating map-based visualizations and working with geographical data.
 
 .. _userguide_geo_tile_provider_maps:
 
 Tile provider maps
 ------------------
 
-Bokeh plots can consume XYZ tile services which use the Web Mercator projection.
-The module :ref:`bokeh.tile_providers` contains several pre-configured tile sources with
-appropriate attribution. To add these to a plot use the method 
-:func:`~bokeh.models.plots.Plot.add_tile`.
+Bokeh is compatible with several XYZ tile services that use the Web Mercator projection.
+The module :ref:`bokeh.tile_providers` contains several pre-configured tile sources with appropriate attribution.
+To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
     :source-position: below
@@ -28,8 +26,8 @@ Mercator coordinates.
 Google Maps
 -----------
 
-To plot glyphs over a Google Map use the function :func:`~bokeh.plotting.gmap`.
-For the function to work you must pass it a `Google API Key`_ and configure the Google Map underlay :class:`~bokeh.models.map_plots.GMapOptions`.
+To plot glyphs over a Google Map, use the function :func:`~bokeh.plotting.gmap`.
+For the function to work, you must pass it a `Google API Key`_ and configure the Google Map underlay :class:`~bokeh.models.map_plots.GMapOptions`.
 The Google API Key will be stored in the Bokeh Document JSON.
 
 .. bokeh-plot:: docs/user_guide/examples/geo_gmap.py
@@ -41,8 +39,7 @@ The Google API Key will be stored in the Bokeh Document JSON.
 Google Maps exerts explicit control over aspect ratios at all
 times, which imposes some limitations on ``GMapPlot``:
 
-* Only ``Range1d`` ranges are supported. Attempting to use other range types
-  will result in an error.
+* Only ``Range1d`` ranges are supported. Attempting to use other range types will result in an error.
 
 * Usage of ``BoxZoomTool`` is incompatible with ``GMapPlot`` and adding one will have no effect.
 
