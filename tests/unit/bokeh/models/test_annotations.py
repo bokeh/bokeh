@@ -428,12 +428,10 @@ def test_Whisker() -> None:
     assert whisker.lower_units == 'data'
     assert isinstance(whisker.lower_head, ArrowHead)
     assert whisker.lower_head.size == 10
-    assert whisker.lower_head.level == 'underlay'
     assert whisker.upper == field("upper")
     assert whisker.upper_units == 'data'
     assert isinstance(whisker.upper_head, ArrowHead)
     assert whisker.upper_head.size == 10
-    assert whisker.upper_head.level == 'underlay'
     assert whisker.base == field("base")
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
