@@ -989,11 +989,6 @@ class HoverTool(InspectTool):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
