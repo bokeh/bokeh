@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter} from "path"
+import {join, delimiter, basename, dirname, relative, sep} from "path"
 import os from "os"
 import assert from "assert"
 
@@ -294,8 +294,29 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-function compile(name: string) {
-  compile_typescript(`./test/${name}/tsconfig.json`)
+function compile(name: string, options?: {auto_index?: boolean}) {
+  const base_dir = join("test", name)
+  compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
+    inputs(files) {
+      const imports = ['export * from "../framework"']
+
+      for (const file of files) {
+        if (file.startsWith(base_dir) && file.endsWith(".ts")) {
+          const name = basename(file, ".ts")
+          if (!name.startsWith("_") && !name.endsWith(".d")) {
+            const dir = dirname(relative(base_dir, file))
+            const module = dir == "." ? `./${name}` : [".", ...dir.split(sep), name].join("/")
+            imports.push(`import "${module}"`)
+          }
+        }
+      }
+
+      const index = join(base_dir, "index.ts")
+      const source = imports.join("\n")
+
+      return new Map([[index, source]])
+    },
+  })
 }
 
 async function bundle(name: string): Promise<void> {
@@ -317,7 +338,7 @@ async function bundle(name: string): Promise<void> {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-task("test:compile:unit", async () => compile("unit"))
+task("test:compile:unit", async () => compile("unit", {auto_index: true}))
 const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
 task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
@@ -325,7 +346,7 @@ task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) =>
   return success(undefined)
 })
 
-task("test:compile:integration", async () => compile("integration"))
+task("test:compile:integration", async () => compile("integration", {auto_index: true}))
 const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
