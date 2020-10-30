@@ -12,7 +12,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {FreehandDrawTool, FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
-import {make_pan_event, make_tap_event, make_key_event, make_move_event} from "./utils"
+import {make_pan_event, make_tap_event, make_key_event, make_move_event} from "./_util"
 
 export interface FreehandDrawTestCase {
   data: {[key: string]: (number[] | null)[]}

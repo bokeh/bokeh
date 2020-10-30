@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
 import {NumberArray} from '@bokehjs/core/types'
 
