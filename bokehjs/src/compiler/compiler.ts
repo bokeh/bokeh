@@ -8,7 +8,6 @@ import {Path} from "./sys"
 import {BuildError} from "./error"
 
 export type CompileConfig = {
-  out_dir?: OutDir
   bokehjs_dir?: Path
 }
 
@@ -157,18 +156,7 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
 }
 
 function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
-  const preconfigure: ts.CompilerOptions = (() => {
-    const {out_dir} = config
-    if (out_dir != null) {
-      if (typeof out_dir == "string")
-        return {outDir: out_dir}
-      else
-        return {outDir: out_dir.js, declarationDir: out_dir.dts, declaration: true}
-    } else
-      return {}
-  })()
-
-  const tsconfig = read_tsconfig(tsconfig_path, preconfigure)
+  const tsconfig = read_tsconfig(tsconfig_path)
   if (is_failed(tsconfig))
     return {diagnostics: tsconfig.diagnostics}
 

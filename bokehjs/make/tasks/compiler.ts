@@ -7,7 +7,7 @@ import {Linker} from "@compiler/linker"
 import {src_dir, build_dir} from "../paths"
 
 task("compiler:ts", async () => {
-  compile_typescript(join(src_dir.compiler, "tsconfig.json"), {out_dir: build_dir.compiler})
+  compile_typescript(join(src_dir.compiler, "tsconfig.json"))
 })
 
 task("compiler:build", ["compiler:ts"], async () => {

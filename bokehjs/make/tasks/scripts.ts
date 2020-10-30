@@ -42,9 +42,7 @@ export default css;
 })
 
 task("scripts:compile", ["scripts:styles", "scripts:version"], async () => {
-  compile_typescript(join(paths.src_dir.lib, "tsconfig.json"), {
-    out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
-  })
+  compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
 function min_js(js: string): string {

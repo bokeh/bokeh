@@ -26,7 +26,9 @@
     "target": "ES2017",
     "lib": ["es2017", "dom", "dom.iterable"],
     "types": ["hammerjs", "googlemaps"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "../../build/js/lib",
+    "declarationDir": "../../build/js/types"
   },
   "include": ["./**/*.ts"]
 }
