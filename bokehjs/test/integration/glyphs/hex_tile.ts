@@ -1,4 +1,4 @@
-import {display, fig} from "../utils"
+import {display, fig} from "../_util"
 
 import {repeat} from "@bokehjs/core/util/array"
 

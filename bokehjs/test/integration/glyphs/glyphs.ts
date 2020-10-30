@@ -1,4 +1,4 @@
-import {display, fig, row} from "../utils"
+import {display, fig, row} from "../_util"
 
 import {OutputBackend} from "@bokehjs/core/enums"
 import {hatch_aliases} from "@bokehjs/core/visuals"

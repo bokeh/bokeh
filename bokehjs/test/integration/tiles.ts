@@ -1,4 +1,4 @@
-import {display, fig, row} from "./utils"
+import {display, fig, row} from "./_util"
 
 import {Range1d} from "@bokehjs/models/ranges"
 import {Plot} from "@bokehjs/models/plots"

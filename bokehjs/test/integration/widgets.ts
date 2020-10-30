@@ -1,4 +1,4 @@
-import {display, row} from "./utils"
+import {display, row} from "./_util"
 
 import {range} from "@bokehjs/core/util/array"
 

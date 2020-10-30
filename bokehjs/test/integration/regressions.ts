@@ -1,4 +1,4 @@
-import {display, fig, row, column, grid} from "./utils"
+import {display, fig, row, column, grid} from "./_util"
 
 import {linspace} from "@bokehjs/core/util/array"
 import {
