@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import * as sinon from "sinon"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"

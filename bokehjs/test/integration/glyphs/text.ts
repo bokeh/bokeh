@@ -1,4 +1,4 @@
-import {display, fig} from "../utils"
+import {display, fig} from "../_util"
 
 describe("Text glyph", () => {
   it("should allow to paint text with embedded scripts", async () => {

@@ -1,6 +1,6 @@
-import {display, fig, grid} from "./utils"
+import {display, fig, grid} from "./_util"
 
-import pipeline from "./data"
+import pipeline from "./_data"
 
 import {Plot, Range1d, GlyphRenderer, LinearColorMapper, EqHistColorMapper} from "@bokehjs/models"
 import {Plasma256} from "@bokehjs/api/palettes"

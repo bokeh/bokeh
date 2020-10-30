@@ -14,7 +14,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HasXYGlyph} from "@bokehjs/models/tools/edit/edit_tool"
 import {PolyEditTool, PolyEditToolView} from "@bokehjs/models/tools/edit/poly_edit_tool"
 
-import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface PolyEditTestCase {
   data: {[key: string]: (number[] | null)[]}

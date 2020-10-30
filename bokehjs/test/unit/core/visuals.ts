@@ -1,5 +1,5 @@
 import {expect} from "assertions"
-import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
+import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
 import {Indices} from "@bokehjs/core/types"
 import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"
