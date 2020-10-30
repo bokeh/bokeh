@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter, basename, dirname, relative, sep} from "path"
+import {join, delimiter, basename, dirname} from "path"
 import os from "os"
 import assert from "assert"
 
@@ -295,7 +295,9 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
 })
 
 function compile(name: string, options?: {auto_index?: boolean}) {
-  const base_dir = join("test", name)
+  // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
+  const base_dir = `test/${name}`
+
   compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
     inputs(files) {
       const imports = ['export * from "../framework"']
@@ -304,14 +306,14 @@ function compile(name: string, options?: {auto_index?: boolean}) {
         if (file.startsWith(base_dir) && file.endsWith(".ts")) {
           const name = basename(file, ".ts")
           if (!name.startsWith("_") && !name.endsWith(".d")) {
-            const dir = dirname(relative(base_dir, file))
-            const module = dir == "." ? `./${name}` : [".", ...dir.split(sep), name].join("/")
+            const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
+            const module = [".", ...dir.split("/"), name].join("/")
             imports.push(`import "${module}"`)
           }
         }
       }
 
-      const index = join(base_dir, "index.ts")
+      const index = `${base_dir}/index.ts`
       const source = imports.join("\n")
 
       return new Map([[index, source]])
