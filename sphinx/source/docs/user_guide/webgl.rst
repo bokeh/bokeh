@@ -26,45 +26,45 @@ To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 Support
 -------
 
-Only a subset of Bokeh's objects are capable of rendering in WebGL. Currently
-supported are the circle and :class:`~bokeh.models.glyphs.Line` glyphs, and many markers:
+Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.Figure.line`
+glyph, and most markers:
 
-* :class:`~bokeh.models.markers.Asterisk`
+* :func:`~bokeh.plotting.Figure.asterisk`
 
-* :class:`~bokeh.models.markers.Circle`
+* :func:`~bokeh.plotting.Figure.circle`
 
-* :class:`~bokeh.models.markers.CircleCross`
+* :func:`~bokeh.plotting.Figure.circle_cross`
 
-* :class:`~bokeh.models.markers.CircleX`
+* :func:`~bokeh.plotting.Figure.circle_x`
 
-* :class:`~bokeh.models.markers.Cross`
+* :func:`~bokeh.plotting.Figure.cross`
 
-* :class:`~bokeh.models.markers.Diamond`
+* :func:`~bokeh.plotting.Figure.diamond`
 
-* :class:`~bokeh.models.markers.DiamondCross`
+* :func:`~bokeh.plotting.Figure.diamond_cross`
 
-* :class:`~bokeh.models.markers.Hex`
+* :func:`~bokeh.plotting.Figure.hex`
 
-* :class:`~bokeh.models.markers.InvertedTriangle`
+* :func:`~bokeh.plotting.Figure.inverted_triangle`
 
-* :class:`~bokeh.models.markers.Square`
+* :func:`~bokeh.plotting.Figure.square`
 
-* :class:`~bokeh.models.markers.SquareCross`
+* :func:`~bokeh.plotting.Figure.square_cross`
 
-* :class:`~bokeh.models.markers.SquareX`
+* :func:`~bokeh.plotting.Figure.square_x`
 
-* :class:`~bokeh.models.markers.Triangle`
+* :func:`~bokeh.plotting.Figure.triangle`
 
-* :class:`~bokeh.models.markers.X`
+* :func:`~bokeh.plotting.Figure.x`
 
-You can safely combine multiple glyphs in a plot, even if some are rendered in WebGL,
+You can combine multiple glyphs in a plot, even if some are rendered in WebGL,
 and some are not.
 
 Examples
 --------
 
 Here is an example of plotting ten thousand scatter circles with WebGL enabled.
-Notice that that plot can be panned and zoomed smoothly, even without any
+Notice that the plot can be panned and zoomed smoothly, even without any
 Level-of-Detail downsampling.
 
 .. bokeh-plot:: ../../examples/webgl/scatter10k.py
