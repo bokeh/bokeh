@@ -17,6 +17,51 @@ and others.
 
 See `Developing with JavaScript`_ for more information about BokehJS.
 
+hvPlot
+------
+
+`hvPlot`_ is a concise API that lets you plot in Bokeh with the pandas
+``.plot()`` function and a wide variety of data containers. This API is
+particularly convenient for working with data interactively and lets
+you quickly produce common types of plots.
+
+Panel
+-----
+
+The `Panel`_ library provides a high-level reactive interface that makes
+it easy to build data-intensive dashboards and web applications on top of
+Bokeh. Panel enabless full interoperability between `Jupyter Notebooks`_
+and `Bokeh server`_. This lets you develop or prototype applications in
+a notebook and deploy them on a server. Panel also interfaces with other
+plotting libraries and lets you incorporate multiple data-science
+artifacts into a single Bokeh application. Furthermore, the library
+includes a number of JavaScript templates to let you customize the
+appearance your Bokeh apps.
+
+HoloViews
+---------
+
+Bokeh offers you a lot of versatility when it comes to developing
+complex data visualizations for the web. Even so, a higher-level API
+can make day-to-day visualization tasks easier and less verbose.
+
+`HoloViews`_ is a concise declarative interface that helps you build
+Bokeh plots. It is a separately maintained package that focuses on
+interaction with Jupyter notebooks and enables quick prototyping of
+figures for data analysis. For instance, building an interactive
+figure with three linked Bokeh plots requires only one line of code
+in HoloViews.
+
+.. image:: /_images/hv_sample.png
+ :width: 976 px
+ :height: 510 px
+ :scale: 80 %
+ :alt: HoloViews Bokeh example
+ :align: center
+
+Adding overlaid plots, slider widgets, selector widgets, selection
+tools, and tabs is similarly straightforward.
+
 Datashader
 ----------
 
@@ -43,42 +88,19 @@ web browsers.
     :alt: Datashader Bokeh example
     :align: center
 
-HoloViews
----------
-
-Bokeh offers you a lot of versatility when it comes to developing
-complex data visualizations for the web. Even so, a higher-level API
-can make day-to-day visualization tasks easier and less verbose.
-
-`HoloViews`_ is a concise declarative interface that helps you build
-Bokeh plots. It is a separately maintained package that focuses on
-interaction with Jupyter notebooks and enables quick prototyping of
-figures for data analysis. For instance, building an interactive
-figure with three linked Bokeh plots requires only one line of code
-in HoloViews.
-
-.. image:: /_images/hv_sample.png
- :width: 976 px
- :height: 510 px
- :scale: 80 %
- :alt: HoloViews Bokeh example
- :align: center
-
-Adding overlaid plots, slider widgets, selector widgets, selection
-tools, and tabs is similarly straightforward.
-
-Further synergy
----------------
-
-HoloViews works well with Datashader. This lets you switch
-between base and rendered versions of a plot, interleave Datashader
-and Bokeh plots, and more. Here is an `example`_ of interaction
-between the two.
+Furthermore, Datashader works well with hvPlot and HoloViews.
+This lets you switch between base and rendered versions of a
+plot, interleave Datashader and Bokeh plots, and more. Here
+is an `example`_ of interaction HoloViews.
 
 .. _React: https://reactjs.org
 .. _Angular: https://angular.io
 .. _Vue: https://vuejs.org/
 .. _Developing with Javascript: https://docs.bokeh.org/en/dev/docs/user_guide/bokehjs.html
+.. _hvPlot: https://hvplot.holoviz.org/
+.. _Panel: https://panel.holoviz.org/
+.. _'Jupyter Notebooks': https://docs.bokeh.org/en/latest/docs/user_guide/jupyter.html
+.. _'Bokeh server': https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 .. _Datashader: https://github.com/bokeh/datashader
 .. _overplotting: https://anaconda.org/jbednar/plotting_pitfalls
 .. _HoloViews: http://holoviews.org
