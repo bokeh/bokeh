@@ -27,33 +27,35 @@ Support
 -------
 
 Only a subset of Bokeh's objects are capable of rendering in WebGL. Currently
-supported are the circle and line glyphs, and many markers:
+supported are the circle and :class:`~bokeh.models.glyphs.Line` glyphs, and many markers:
 
-* asterisk
+* :class:`~bokeh.models.markers.Asterisk`
 
-* circle,
+* :class:`~bokeh.models.markers.Circle`
 
-* square
+* :class:`~bokeh.models.markers.CircleCross`
 
-* diamond
+* :class:`~bokeh.models.markers.CircleX`
 
-* triangle
+* :class:`~bokeh.models.markers.Cross`
 
-* inverted_triangle
+* :class:`~bokeh.models.markers.Diamond`
 
-* cross
+* :class:`~bokeh.models.markers.DiamondCross`
 
-* circle_cross
+* :class:`~bokeh.models.markers.Hex`
 
-* square_cross
+* :class:`~bokeh.models.markers.InvertedTriangle`
 
-* diamond_cross
+* :class:`~bokeh.models.markers.Square`
 
-* x
+* :class:`~bokeh.models.markers.SquareCross`
 
-* square_x
+* :class:`~bokeh.models.markers.SquareX`
 
-* circle_x
+* :class:`~bokeh.models.markers.Triangle`
+
+* :class:`~bokeh.models.markers.X`
 
 You can safely combine multiple glyphs in a plot, even if some are rendered in WebGL,
 and some are not.
