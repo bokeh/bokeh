@@ -67,72 +67,72 @@ class Figure(Plot):
     .. hlist::
         :columns: 3
 
-        * :func:`~bokeh.plotting.figure.Figure.annular_wedge`
-        * :func:`~bokeh.plotting.figure.Figure.annulus`
-        * :func:`~bokeh.plotting.figure.Figure.arc`
-        * :func:`~bokeh.plotting.figure.Figure.asterisk`
-        * :func:`~bokeh.plotting.figure.Figure.bezier`
-        * :func:`~bokeh.plotting.figure.Figure.circle`
-        * :func:`~bokeh.plotting.figure.Figure.circle_cross`
-        * :func:`~bokeh.plotting.figure.Figure.circle_dot`
-        * :func:`~bokeh.plotting.figure.Figure.circle_x`
-        * :func:`~bokeh.plotting.figure.Figure.circle_y`
-        * :func:`~bokeh.plotting.figure.Figure.cross`
-        * :func:`~bokeh.plotting.figure.Figure.dash`
-        * :func:`~bokeh.plotting.figure.Figure.diamond`
-        * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
-        * :func:`~bokeh.plotting.figure.Figure.diamond_dot`
-        * :func:`~bokeh.plotting.figure.Figure.dot`
-        * :func:`~bokeh.plotting.figure.Figure.ellipse`
-        * :func:`~bokeh.plotting.figure.Figure.harea`
-        * :func:`~bokeh.plotting.figure.Figure.hbar`
-        * :func:`~bokeh.plotting.figure.Figure.hex`
-        * :func:`~bokeh.plotting.figure.Figure.hex_tile`
-        * :func:`~bokeh.plotting.figure.Figure.image`
-        * :func:`~bokeh.plotting.figure.Figure.image_rgba`
-        * :func:`~bokeh.plotting.figure.Figure.image_url`
-        * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
-        * :func:`~bokeh.plotting.figure.Figure.line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
-        * :func:`~bokeh.plotting.figure.Figure.oval`
-        * :func:`~bokeh.plotting.figure.Figure.patch`
-        * :func:`~bokeh.plotting.figure.Figure.patches`
-        * :func:`~bokeh.plotting.figure.Figure.plus`
-        * :func:`~bokeh.plotting.figure.Figure.quad`
-        * :func:`~bokeh.plotting.figure.Figure.quadratic`
-        * :func:`~bokeh.plotting.figure.Figure.ray`
-        * :func:`~bokeh.plotting.figure.Figure.rect`
-        * :func:`~bokeh.plotting.figure.Figure.segment`
-        * :func:`~bokeh.plotting.figure.Figure.square`
-        * :func:`~bokeh.plotting.figure.Figure.square_cross`
-        * :func:`~bokeh.plotting.figure.Figure.square_dot`
-        * :func:`~bokeh.plotting.figure.Figure.square_pin`
-        * :func:`~bokeh.plotting.figure.Figure.square_x`
-        * :func:`~bokeh.plotting.figure.Figure.step`
-        * :func:`~bokeh.plotting.figure.Figure.text`
-        * :func:`~bokeh.plotting.figure.Figure.triangle`
-        * :func:`~bokeh.plotting.figure.Figure.triangle_dot`
-        * :func:`~bokeh.plotting.figure.Figure.triangle_pin`
-        * :func:`~bokeh.plotting.figure.Figure.varea`
-        * :func:`~bokeh.plotting.figure.Figure.vbar`
-        * :func:`~bokeh.plotting.figure.Figure.wedge`
-        * :func:`~bokeh.plotting.figure.Figure.x`
-        * :func:`~bokeh.plotting.figure.Figure.y`
+        * :func:`~bokeh.plotting.Figure.annular_wedge`
+        * :func:`~bokeh.plotting.Figure.annulus`
+        * :func:`~bokeh.plotting.Figure.arc`
+        * :func:`~bokeh.plotting.Figure.asterisk`
+        * :func:`~bokeh.plotting.Figure.bezier`
+        * :func:`~bokeh.plotting.Figure.circle`
+        * :func:`~bokeh.plotting.Figure.circle_cross`
+        * :func:`~bokeh.plotting.Figure.circle_dot`
+        * :func:`~bokeh.plotting.Figure.circle_x`
+        * :func:`~bokeh.plotting.Figure.circle_y`
+        * :func:`~bokeh.plotting.Figure.cross`
+        * :func:`~bokeh.plotting.Figure.dash`
+        * :func:`~bokeh.plotting.Figure.diamond`
+        * :func:`~bokeh.plotting.Figure.diamond_cross`
+        * :func:`~bokeh.plotting.Figure.diamond_dot`
+        * :func:`~bokeh.plotting.Figure.dot`
+        * :func:`~bokeh.plotting.Figure.ellipse`
+        * :func:`~bokeh.plotting.Figure.harea`
+        * :func:`~bokeh.plotting.Figure.hbar`
+        * :func:`~bokeh.plotting.Figure.hex`
+        * :func:`~bokeh.plotting.Figure.hex_tile`
+        * :func:`~bokeh.plotting.Figure.image`
+        * :func:`~bokeh.plotting.Figure.image_rgba`
+        * :func:`~bokeh.plotting.Figure.image_url`
+        * :func:`~bokeh.plotting.Figure.inverted_triangle`
+        * :func:`~bokeh.plotting.Figure.line`
+        * :func:`~bokeh.plotting.Figure.multi_line`
+        * :func:`~bokeh.plotting.Figure.multi_polygons`
+        * :func:`~bokeh.plotting.Figure.oval`
+        * :func:`~bokeh.plotting.Figure.patch`
+        * :func:`~bokeh.plotting.Figure.patches`
+        * :func:`~bokeh.plotting.Figure.plus`
+        * :func:`~bokeh.plotting.Figure.quad`
+        * :func:`~bokeh.plotting.Figure.quadratic`
+        * :func:`~bokeh.plotting.Figure.ray`
+        * :func:`~bokeh.plotting.Figure.rect`
+        * :func:`~bokeh.plotting.Figure.segment`
+        * :func:`~bokeh.plotting.Figure.square`
+        * :func:`~bokeh.plotting.Figure.square_cross`
+        * :func:`~bokeh.plotting.Figure.square_dot`
+        * :func:`~bokeh.plotting.Figure.square_pin`
+        * :func:`~bokeh.plotting.Figure.square_x`
+        * :func:`~bokeh.plotting.Figure.step`
+        * :func:`~bokeh.plotting.Figure.text`
+        * :func:`~bokeh.plotting.Figure.triangle`
+        * :func:`~bokeh.plotting.Figure.triangle_dot`
+        * :func:`~bokeh.plotting.Figure.triangle_pin`
+        * :func:`~bokeh.plotting.Figure.varea`
+        * :func:`~bokeh.plotting.Figure.vbar`
+        * :func:`~bokeh.plotting.Figure.wedge`
+        * :func:`~bokeh.plotting.Figure.x`
+        * :func:`~bokeh.plotting.Figure.y`
 
     There is a scatter function that can be parameterized by marker type:
 
-    * :func:`~bokeh.plotting.figure.Figure.scatter`
+    * :func:`~bokeh.plotting.Figure.scatter`
 
     There are also specialized methods for stacking bars:
 
-    * bars: :func:`~bokeh.plotting.figure.Figure.hbar_stack`, :func:`~bokeh.plotting.figure.Figure.vbar_stack`
-    * lines: :func:`~bokeh.plotting.figure.Figure.hline_stack`, :func:`~bokeh.plotting.figure.Figure.vline_stack`
-    * areas: :func:`~bokeh.plotting.figure.Figure.harea_stack`, :func:`~bokeh.plotting.figure.Figure.varea_stack`
+    * bars: :func:`~bokeh.plotting.Figure.hbar_stack`, :func:`~bokeh.plotting.Figure.vbar_stack`
+    * lines: :func:`~bokeh.plotting.Figure.hline_stack`, :func:`~bokeh.plotting.Figure.vline_stack`
+    * areas: :func:`~bokeh.plotting.Figure.harea_stack`, :func:`~bokeh.plotting.Figure.varea_stack`
 
     As well as one specialized method for making simple hexbin plots:
 
-    * :func:`~bokeh.plotting.figure.Figure.hexbin`
+    * :func:`~bokeh.plotting.Figure.hexbin`
 
     In addition to all the ``Figure`` property attributes, the following
     options are also accepted:
