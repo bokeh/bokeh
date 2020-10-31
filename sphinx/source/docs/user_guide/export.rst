@@ -6,17 +6,28 @@ Exporting plots
 Additional dependencies
 -----------------------
 
-You may need additional dependencies to use the |export| functions.
-You can install these dependencies in several ways, including the
-following:
+You will need the following additional dependencies to use the |export|
+functions:
 
-• Using Conda:
+* Selenium
+* And either of the following:
 
-.. code-block:: sh
+  * GeckoDriver for Firefox, OR
+  * ChromeDriver for Chrome / Chromium
 
-    conda install selenium geckodriver firefox -c conda-forge
+You can install these dependencies from `Conda`_ as follows:
 
-• Using ChromeDriver and the Chromium browser or a suitable alternative.
+* For Selenium with GeckoDriver:
+
+  .. code-block:: sh
+
+    conda install selenium geckodriver -c conda-forge
+
+* For Selenium with ChromeDriver:
+
+  .. code-block:: sh
+
+    conda install selenium python-chromedriver-binary -c conda-forge
 
 .. _userguide_export_png:
 
@@ -97,9 +108,9 @@ properties to ``None``, same as for PNG exports.
 
 You can export an SVG plot in several ways:
 
-• With code:
+* With code:
 
-  • Use the |export_svg| utility function that lets you
+  * Use the |export_svg| utility function that lets you
     save a plot or a layout of plots as a single SVG file.
 
     .. code-block:: python
@@ -108,7 +119,7 @@ You can export an SVG plot in several ways:
 
       export_svg(plot, filename="plot.svg")
 
-  • Use the |export_svgs| utility function that lets you
+  * Use the |export_svgs| utility function that lets you
     export a layout of plots as a set of independent SVG
     files.
 
@@ -118,13 +129,13 @@ You can export an SVG plot in several ways:
 
       export_svgs(plot, filename="plot.svg")
 
-• From browser:
+* From browser:
 
-  • Use the `SVG-Crowbar`_ bookmarklet that adds a prompt to
+  * Use the `SVG-Crowbar`_ bookmarklet that adds a prompt to
     download each plot as an SVG file. This tool is fully
     compatible with Chrome and should work with Firefox in
     most cases.
-  • Use the ``SaveTool`` from the toolbar but note that the
+  * Use the ``SaveTool`` from the toolbar but note that the
     exported files will have a blank area where the toolbar
     was.
 
@@ -136,4 +147,5 @@ You can export an SVG plot in several ways:
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
+.. _Conda: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html?highlight=conda#id4
 .. _SVG-Crowbar: http://nytimes.github.io/svg-crowbar/
