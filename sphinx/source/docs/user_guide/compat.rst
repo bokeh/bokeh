@@ -99,8 +99,8 @@ is an `example`_ of interaction HoloViews.
 .. _Developing with Javascript: https://docs.bokeh.org/en/dev/docs/user_guide/bokehjs.html
 .. _hvPlot: https://hvplot.holoviz.org/
 .. _Panel: https://panel.holoviz.org/
-.. _'Jupyter Notebooks': https://docs.bokeh.org/en/latest/docs/user_guide/jupyter.html
-.. _'Bokeh server': https://docs.bokeh.org/en/latest/docs/user_guide/server.html
+.. _Jupyter Notebooks: https://docs.bokeh.org/en/latest/docs/user_guide/jupyter.html
+.. _Bokeh server: https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 .. _Datashader: https://github.com/bokeh/datashader
 .. _overplotting: https://anaconda.org/jbednar/plotting_pitfalls
 .. _HoloViews: http://holoviews.org
