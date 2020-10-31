@@ -110,15 +110,18 @@ class Property(PropertyDescriptorFactory):
         ''' Generate a sphinx :class: link to this property.
 
         '''
-        # extra space at the end is unfortunately necessary to appease Sphinx
-        return ":class:`~bokeh.core.properties.%s` " % cls.__name__
+        # (double) escaped space at the end is to appease Sphinx
+        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+        return ":class:`~bokeh.core.properties.%s`\\ " % cls.__name__
 
     @staticmethod
     def _sphinx_model_link(name):
         ''' Generate a sphinx :class: link to given named model.
 
         '''
-        return ":class:`~%s` " % name
+        # (double) escaped space at the end is to appease Sphinx
+        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+        return ":class:`~%s`\\ " % name
 
     def _sphinx_type(self):
         ''' Generate a Sphinx-style reference to this type for documentation
