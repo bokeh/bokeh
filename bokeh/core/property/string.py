@@ -83,13 +83,14 @@ class Regex(String):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.regex.pattern!r})"
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
         if not (value is None or self.regex.match(value) is not None):
-            msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
+            msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
             raise ValueError(msg)
 
 class Base64String(String):

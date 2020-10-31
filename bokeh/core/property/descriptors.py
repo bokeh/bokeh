@@ -134,7 +134,7 @@ class PropertyDescriptor:
         **Subclasses must implement this to serve their specific needs.**
 
         '''
-        return "PropertyDescriptor(%s)" % (self.name)
+        return f"PropertyDescriptor({self.name})"
 
     def __get__(self, obj, owner):
         ''' Implement the getter for the Python `descriptor protocol`_.
@@ -247,7 +247,7 @@ class PropertyDescriptor:
         from .dataspec import DataSpec
         name = self.name
         if name in new_class_attrs:
-            raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
+            raise RuntimeError(f"Two property generators both created {class_name}.{name}")
         new_class_attrs[name] = self
 
         if self.has_ref:
@@ -453,7 +453,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         Delegates to ``self.property.__str__``
 
         '''
-        return "%s" % self.property
+        return f"{self.property}"
 
     def __get__(self, obj, owner):
         ''' Implement the getter for the Python `descriptor protocol`_.
@@ -530,11 +530,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         '''
         if not hasattr(obj, '_property_values'):
             # Initial values should be passed in to __init__, not set directly
-            raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
-                               (self.name, obj.__class__.__name__))
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
         if self.property._readonly:
-            raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
         self._internal_set(obj, value, setter=setter)
 
@@ -682,8 +683,8 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         '''
         if not hasattr(obj, '_property_values'):
-            raise RuntimeError("Cannot get a property value '%s' from a %s instance before HasProps.__init__" %
-                               (self.name, obj.__class__.__name__))
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"Cannot get a property value {self.name!r} from a {class_name} instance before HasProps.__init__")
 
         if self.name not in obj._property_values:
             return self._get_default(obj)
@@ -959,11 +960,12 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         '''
         if not hasattr(obj, '_property_values'):
             # Initial values should be passed in to __init__, not set directly
-            raise RuntimeError("Cannot set a property value '%s' on a %s instance before HasProps.__init__" %
-                               (self.name, obj.__class__.__name__))
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
         if self.property._readonly:
-            raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
+            class_name = obj.__class__.__name__
+            raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
         if isinstance(value, PropertyValueColumnData):
             raise ValueError(_CDS_SET_FROM_CDS_ERROR)

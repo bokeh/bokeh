@@ -112,7 +112,7 @@ class Property(PropertyDescriptorFactory):
         '''
         # (double) escaped space at the end is to appease Sphinx
         # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return ":class:`~bokeh.core.properties.%s`\\ " % cls.__name__
+        return f":class:`~bokeh.core.properties.{cls.__name__}`\\ "
 
     @staticmethod
     def _sphinx_model_link(name):
@@ -121,7 +121,7 @@ class Property(PropertyDescriptorFactory):
         '''
         # (double) escaped space at the end is to appease Sphinx
         # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return ":class:`~%s`\\ " % name
+        return f":class:`~{name}`\\ "
 
     def _sphinx_type(self):
         ''' Generate a Sphinx-style reference to this type for documentation
@@ -420,7 +420,7 @@ class ParameterizedProperty(Property):
         elif isinstance(type_param, Property):
             return type_param
 
-        raise ValueError("expected a Property as type parameter, got %s" % type_param)
+        raise ValueError(f"expected a Property as type parameter, got {type_param}")
 
     @property
     def type_params(self):
@@ -452,18 +452,22 @@ class PrimitiveProperty(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, self._underlying_type)):
-            msg = "" if not detail else "expected a value of type %s, got %s of type %s" % (
-                nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__
-            )
-            raise ValueError(msg)
+        if value is None or isinstance(value, self._underlying_type):
+            return
+
+        if not detail:
+            raise ValueError("")
+
+        expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
+        msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
+        raise ValueError(msg)
 
     def from_json(self, json, models=None):
         if json is None or isinstance(json, self._underlying_type):
             return json
-        else:
-            expected = nice_join([ cls.__name__ for cls in self._underlying_type ])
-            raise DeserializationError("%s expected %s, got %s of type %s" % (self, expected, json, type(json).__name__))
+        expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
+        msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
+        raise DeserializationError(msg)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()

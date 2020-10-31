@@ -55,7 +55,7 @@ class RGB(Property):
         super().validate(value, detail)
 
         if not (value is None or isinstance(value, colors.RGB)):
-            msg = "" if not detail else "expected RGB value, got %r" % (value,)
+            msg = "" if not detail else f"expected RGB value, got {value!r}"
             raise ValueError(msg)
 
 

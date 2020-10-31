@@ -122,7 +122,7 @@ def notify_owner(func):
         result = func(self, *args, **kwargs)
         self._notify_owners(old)
         return result
-    wrapper.__doc__ = "Container method ``%s`` instrumented to notify property owners" % func.__name__
+    wrapper.__doc__ = f"Container method ``{func.__name__}`` instrumented to notify property owners"
     return wrapper
 
 class PropertyValueContainer:

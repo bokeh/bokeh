@@ -188,7 +188,7 @@ class DataSpec(Either):
         # Check for None value; this means "the whole thing is
         # unset," not "the value is None."
         if val is None:
-            return None
+            return
 
         # Check for spec type value
         try:
@@ -291,7 +291,7 @@ class FontSizeSpec(DataSpec):
         super().validate(value, detail)
         if isinstance(value, str):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
-                msg = "" if not detail else "%r is not a valid font size value" % value
+                msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
 class HatchPatternSpec(DataSpec):
@@ -350,7 +350,8 @@ class UnitsSpec(NumberSpec):
         self._units_type._serialized = False
 
     def __str__(self):
-        return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
+        units_default = self._units_type._default
+        return f"{self.__class__.__name__}(units_default={units_default!r})"
 
     def get_units(self, obj, name):
         raise NotImplementedError()

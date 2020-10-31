@@ -66,12 +66,13 @@ class Struct(ParameterizedProperty):
             else:
                 return
 
-        msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)
 
     def __str__(self):
-        fields = [ "%s=%s" % (name, type) for name, type in self._fields.items() ]
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(fields))
+        class_name = self.__class__.__name__
+        fields = ", ".join(f"{name}={typ}" for name, typ in self._fields.items())
+        return f"{class_name}({fields})"
 
 #-----------------------------------------------------------------------------
 # Dev API

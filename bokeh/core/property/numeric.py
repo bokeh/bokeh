@@ -47,7 +47,7 @@ class NonNegativeInt(Int):
         super().validate(value, detail)
 
         if not (value is None or value >= 0):
-            raise ValueError("expected non-negative integer, got %r" % (value))
+            raise ValueError(f"expected non-negative integer, got {value!r}")
 
 class PositiveInt(Int):
     """ Accept positive integers. """
@@ -56,7 +56,7 @@ class PositiveInt(Int):
         super().validate(value, detail)
 
         if not (value is None or value > 0):
-            raise ValueError("expected positive integer, got %r" % (value))
+            raise ValueError(f"expected positive integer, got {value!r}")
 
 
 class Interval(ParameterizedProperty):
@@ -107,7 +107,8 @@ class Interval(ParameterizedProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.interval_type}, {self.start!r}, {self.end!r})"
 
     @property
     def type_params(self):
@@ -117,7 +118,7 @@ class Interval(ParameterizedProperty):
         super().validate(value, detail)
 
         if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
+            msg = "" if not detail else f"expected a value of type {self.interval_type} in range [{self.start}, {self.end}], got {value!r}"
             raise ValueError(msg)
 
 class Byte(Interval):
@@ -187,7 +188,7 @@ class Size(Float):
         super().validate(value, detail)
 
         if not (value is None or 0.0 <= value):
-            msg = "" if not detail else "expected a non-negative number, got %r" % value
+            msg = "" if not detail else f"expected a non-negative number, got {value!r}"
             raise ValueError(msg)
 
 class Percent(Float):
@@ -239,7 +240,7 @@ class Percent(Float):
         super().validate(value, detail)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
+            msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
             raise ValueError(msg)
 
 class Angle(Float):

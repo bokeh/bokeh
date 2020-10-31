@@ -68,7 +68,7 @@ class JSON(String):
             import json
             json.loads(value)
         except ValueError:
-            msg = "" if not detail else "expected JSON text, got %r" % value
+            msg = "" if not detail else f"expected JSON text, got {value!r}"
             raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

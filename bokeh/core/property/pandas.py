@@ -51,7 +51,7 @@ class PandasDataFrame(Property):
         if pd and isinstance(value, pd.DataFrame):
             return
 
-        msg = "" if not detail else "expected Pandas DataFrame, got %r" % value
+        msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
         raise ValueError(msg)
 
 class PandasGroupBy(Property):
@@ -68,7 +68,7 @@ class PandasGroupBy(Property):
         if pd and isinstance(value, pd.core.groupby.GroupBy):
             return
 
-        msg = "" if not detail else "expected Pandas GroupBy, got %r" % value
+        msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"
         raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

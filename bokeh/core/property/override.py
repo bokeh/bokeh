@@ -92,7 +92,7 @@ class Override:
         if self.default_overridden:
             self.default = kwargs.pop('default')
         if len(kwargs) > 0:
-            raise ValueError("Unknown keyword args to Override: %r" % (kwargs))
+            raise ValueError(f"Unknown keyword args to Override: {kwargs!r}")
 
 #-----------------------------------------------------------------------------
 # Dev API

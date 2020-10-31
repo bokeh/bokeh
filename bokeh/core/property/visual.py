@@ -116,7 +116,7 @@ class FontSize(String):
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
             elif self._font_size_re.match(value) is None:
-                msg = "" if not detail else "%r is not a valid font size value" % value
+                msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
 class HatchPatternType(Either):
@@ -162,12 +162,12 @@ class Image(Property):
             valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
 
         if not valid:
-            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
+            msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
             raise ValueError(msg)
 
     def transform(self, value):
         if value is None:
-            return None
+            return
 
         import numpy as np
         if isinstance(value, np.ndarray):
@@ -180,9 +180,10 @@ class Image(Property):
             out = BytesIO()
             fmt = value.format or "PNG"
             value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
+            encoded = base64.b64encode(out.getvalue()).decode('ascii')
+            return f"data:image/{fmt.lower()};base64,{encoded}"
 
-        raise ValueError("Could not transform %r" % value)
+        raise ValueError(f"Could not transform {value!r}")
 
 class MinMaxBounds(Either):
     ''' Accept (min, max) bounds tuples for use with Ranges.

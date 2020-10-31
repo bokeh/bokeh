@@ -57,7 +57,7 @@ class Seq(ContainerProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.item_type)
+        return f"{self.__class__.__name__}({self.item_type})"
 
     @property
     def type_params(self):
@@ -69,7 +69,7 @@ class Seq(ContainerProperty):
         elif isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
-            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a list or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
@@ -81,10 +81,10 @@ class Seq(ContainerProperty):
                     for item in value:
                         if not self.item_type.is_valid(item):
                             invalid.append(item)
-                    msg = "" if not detail else "expected an element of %s, got seq with invalid items %r" % (self, invalid)
+                    msg = "" if not detail else f"expected an element of {self}, got seq with invalid items {invalid!r}"
                     raise ValueError(msg)
                 else:
-                    msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                    msg = "" if not detail else f"expected an element of {self}, got {value!r}"
                     raise ValueError(msg)
 
     @classmethod
@@ -102,7 +102,9 @@ class Seq(ContainerProperty):
         return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % self.item_type._sphinx_type()
+        prop_link = self._sphinx_prop_link()
+        item_type = self.item_type._sphinx_type()
+        return f"{prop_link}({item_type})"
 
 class List(Seq):
     ''' Accept Python list values.
@@ -161,7 +163,7 @@ class Dict(ContainerProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
+        return f"{self.__class__.__name__}({self.keys_type}, {self.values_type})"
 
     @property
     def type_params(self):
@@ -173,7 +175,7 @@ class Dict(ContainerProperty):
         elif isinstance(json, dict):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a dict or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -181,7 +183,7 @@ class Dict(ContainerProperty):
         if value is not None:
             if not (isinstance(value, dict) and \
                     all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())):
-                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                msg = "" if not detail else f"expected an element of {self}, got {value!r}"
                 raise ValueError(msg)
 
     @classmethod
@@ -198,7 +200,10 @@ class Dict(ContainerProperty):
             return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s, %s )" % (self.keys_type._sphinx_type(), self.values_type._sphinx_type())
+        prop_link = self._sphinx_prop_link()
+        key_type = self.keys_type._sphinx_type()
+        value_type = self.values_type._sphinx_type()
+        return f"{prop_link}({key_type}, {value_type})"
 
 class ColumnData(Dict):
     ''' Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -232,7 +237,7 @@ class ColumnData(Dict):
         if json is None:
             return None
         elif not isinstance(json, dict):
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a dict or None, got {json}")
         new_data = {}
         for key, value in json.items():
             key = self.keys_type.from_json(key, models)
@@ -276,7 +281,8 @@ class Tuple(ContainerProperty):
         super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
+        item_types = ", ".join(str(x) for x in self.type_params)
+        return f"{self.__class__.__name__}({item_types})"
 
     @property
     def type_params(self):
@@ -288,7 +294,7 @@ class Tuple(ContainerProperty):
         elif isinstance(json, list):
             return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
-            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a list or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
@@ -296,7 +302,7 @@ class Tuple(ContainerProperty):
         if value is not None:
             if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
                     all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
-                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                msg = "" if not detail else f"expected an element of {self}, got {value!r}"
                 raise ValueError(msg)
 
     def transform(self, value):
@@ -318,7 +324,9 @@ class Tuple(ContainerProperty):
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
+        prop_link = self._sphinx_prop_link()
+        item_types = ", ".join(x._sphinx_type() for x in self.type_params)
+        return f"{prop_link}({item_types})"
 
 
 
