@@ -13,7 +13,7 @@ What is WebGL?
 using hardware acceleration from a Graphics Processing Unit (GPU).
 WebGL is standardized and available in all modern browsers.
 
-How to Enable WebGL
+How to enable WebGL
 -------------------
 
 To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
@@ -26,23 +26,51 @@ To enable WebGL in Bokeh, set the plot's ``output_backend`` property to
 Support
 -------
 
-Only a subset of Bokeh's objects are capable of rendering in WebGL. Currently
-supported are the circle and line glyphs, and many markers: asterisk, circle,
-square, diamond, triangle, inverted_triangle, cross, circle_cross, square_cross,
-diamond_cross, x, square_x, and circle_x. You can safely combine multiple glyphs
-in a plot, even if some are rendered in WebGL, and some are not.
+Bokeh's WebGL support covers a subset of glyphs. This includes the :func:`~bokeh.plotting.Figure.line`
+glyph, and most markers:
+
+* :func:`~bokeh.plotting.Figure.asterisk`
+
+* :func:`~bokeh.plotting.Figure.circle`
+
+* :func:`~bokeh.plotting.Figure.circle_cross`
+
+* :func:`~bokeh.plotting.Figure.circle_x`
+
+* :func:`~bokeh.plotting.Figure.cross`
+
+* :func:`~bokeh.plotting.Figure.diamond`
+
+* :func:`~bokeh.plotting.Figure.diamond_cross`
+
+* :func:`~bokeh.plotting.Figure.hex`
+
+* :func:`~bokeh.plotting.Figure.inverted_triangle`
+
+* :func:`~bokeh.plotting.Figure.square`
+
+* :func:`~bokeh.plotting.Figure.square_cross`
+
+* :func:`~bokeh.plotting.Figure.square_x`
+
+* :func:`~bokeh.plotting.Figure.triangle`
+
+* :func:`~bokeh.plotting.Figure.x`
+
+You can combine multiple glyphs in a plot, even if some are rendered in WebGL,
+and some are not.
 
 Examples
 --------
 
 Here is an example of plotting ten thousand scatter circles with WebGL enabled.
-Notice that that plot can be panned and zoomed smoothly, even without any
+Notice that the plot can be panned and zoomed smoothly, even without any
 Level-of-Detail downsampling.
 
 .. bokeh-plot:: ../../examples/webgl/scatter10k.py
     :source-position: above
 
-Simlilary, the plot below demonstrates plotting a single line with ten thousand
+Similarly, the plot below demonstrates plotting a single line with ten thousand
 points.
 
 .. bokeh-plot:: ../../examples/webgl/line10k.py
