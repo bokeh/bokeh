@@ -21,7 +21,7 @@ counts = sum(zip(data['2015'], data['2016'], data['2017']), ()) # like an hstack
 
 source = ColumnDataSource(data=dict(x=x, counts=counts))
 
-p = figure(x_range=FactorRange(*x), plot_height=250, title="Fruit Counts by Year",
+p = figure(x_range=FactorRange(*x), plot_height=250, title="Fruit counts by year",
            toolbar_location=None, tools="")
 
 p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
