@@ -29,9 +29,12 @@ to these sub-renderers:
 You can add extra meta-data to these sources to enable vectorized
 glyph styling or make data available for callbacks or hover tooltips.
 
-Follow the steps bellow to create a simple graph plot with ellipses for nodes:
+The following code snippet
 
-* Import dependencies.
+* replaces a node glyph with an Ellipse,
+* assigns scalar values to the ``height`` and ``width`` attributes of the Ellipse,
+* assigns a palette to the ``fill_color`` attribute of the Ellipse,
+* and adds the assigned values to the node data source.
 
 .. code-block:: python
 
@@ -40,78 +43,60 @@ Follow the steps bellow to create a simple graph plot with ellipses for nodes:
     from bokeh.models import GraphRenderer, Ellipse
     from bokeh.palettes import Spectral8
 
-* List the nodes and initialize a plot.
-
-.. code-block:: python
-
+    ### list the nodes and initialize a plot
     N = 8
     node_indices = list(range(N))
 
     plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
                   y_range=(-1.1,1.1), tools="", toolbar_location=None)
 
-* Initialize the ``GraphRenderer`` model and replace the node glyph with
-  an ellipse, setting its ``height`` and ``width`` as well as ``fill_color``.
-
-.. code-block:: python
-
     graph = GraphRenderer()
 
+    ### replace the node glyph with an ellipse
+    ### set its height, width, and fill_color
     graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2,
                                         fill_color="fill_color")
 
-
-* Assign a vector field to the ``fill_color`` attribute of the ``Ellipse``.
-
-.. code-block:: python
-
+    ### assign a palette to ``fill_color`` and add it to the data source
     graph.node_renderer.data_source.data = dict(
         index=node_indices,
         fill_color=Spectral8)
 
-* Add the assigned values to the node data source.
-
-.. code-block:: python
-
+    ### add the rest of the assigned values to the data source
     graph.edge_renderer.data_source.data = dict(
         start=[0]*N,
         end=node_indices)
 
-* Generate ellipses based on the ``node_indices`` list.
+Bokeh comes with a built-in ``LayoutProvider`` model that includes
+a dictionary of (x,y) coordinates for nodes. This lets you arrange
+plot elements in Cartesian space. 
+
+The following codes snippet uses this provider model to produce a
+plot based on the setup above.
 
 .. code-block:: python
 
+    ### generate ellipses based on the ``node_indices`` list
     circ = [i*2*math.pi/8 for i in node_indices]
 
-* Create lists of x- and y-coordinates.
-
-.. code-block:: python
-
+    ### create lists of x- and y-coordinates
     x = [math.cos(i) for i in circ]
     y = [math.sin(i) for i in circ]
 
-* Convert the ``x`` and ``y`` lists into a dictionary of Cartesian coordinates
-  and assign each entry to a node on the ``node_indices`` list.
-
-.. code-block:: python
-
+    ### convert the ``x`` and ``y`` lists into a dictionary of 2D-coordinates
+    ### and assign each entry to a node on the ``node_indices`` list
     graph_layout = dict(zip(node_indices, zip(x, y)))
 
-* Use the ``LayoutProvider`` model (:class:`~bokeh.models.graphs.StaticLayoutProvider`)
-  to supply the coordinates to the graph.
-
-.. code-block:: python
-
+    ### use the provider model to supply coourdinates to the graph
     graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
-* Finally, render the graph, specify the name of the output file, and display
-  the plot.
-
-.. code-block:: python
-
+    ### render the graph
     plot.renderers.append(graph)
-
+    
+    ### specify the name of the output file
     output_file('graph.html')
+    
+    ### display the plot
     show(plot)
 
 Put together, the above code snippets produce the following result:
