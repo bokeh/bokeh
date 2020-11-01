@@ -64,7 +64,7 @@ export namespace Plot {
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
 
-    lod_factor: p.Property<number>
+    lod_factor: p.Property<number | "auto">
     lod_interval: p.Property<number>
     lod_threshold: p.Property<number>
     lod_timeout: p.Property<number>
@@ -124,7 +124,7 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Auto}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
@@ -154,7 +154,7 @@ export class Plot extends LayoutDOM {
       x_scale:           [ Ref(Scale), () => new LinearScale() ],
       y_scale:           [ Ref(Scale), () => new LinearScale() ],
 
-      lod_factor:        [ Number, 10 ],
+      lod_factor:        [ Or(Number, Auto), 10 ],
       lod_interval:      [ Number, 300 ],
       lod_threshold:     [ Number, 2000 ],
       lod_timeout:       [ Number, 500 ],

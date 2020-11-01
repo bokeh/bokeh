@@ -12,7 +12,7 @@ colors = [
 
 TOOLS="hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,undo,redo,reset,tap,save,box_select,poly_select,lasso_select,"
 
-p = figure(tools=TOOLS)
+p = figure(tools=TOOLS, lod_factor="auto")
 
 p.scatter(x, y, radius=radii,
           fill_color=colors, fill_alpha=0.6,

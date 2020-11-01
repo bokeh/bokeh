@@ -168,13 +168,6 @@ export class GlyphRendererView extends DataRendererView {
 
     this._update_masked_indices()
 
-    const {lod_factor} = this.plot_model
-    const n = this.all_indices.count
-    this.decimated = new Indices(n)
-    for (let i = 0; i < n; i += lod_factor) {
-      this.decimated.set(i)
-    }
-
     this.plot_view.invalidate_dataranges = true
 
     if (request_render) {
@@ -249,6 +242,21 @@ export class GlyphRendererView extends DataRendererView {
     if ((this.model.document != null ? this.model.document.interactive_duration() > 0 : false)
         && !glsupport && lod_threshold != null && all_indices.length > lod_threshold) {
       // Render decimated during interaction if too many elements and not using GL
+      let {lod_factor} = this.plot_model
+      if (lod_factor == "auto") {
+        const N = all_indices.length
+        const ti = this.glyph._render_time_per_index ?? 0
+        const T = N*ti
+        const Tf = 1000/60
+        lod_factor = T <= Tf ? 1 : Math.ceil(T/Tf)
+      }
+
+      const n = this.all_indices.count
+      this.decimated = new Indices(n)
+      for (let i = 0; i < n; i += lod_factor) {
+        this.decimated.set(i)
+      }
+
       indices = [...this.decimated]
       glyph = this.decimated_glyph
       nonselection_glyph = this.decimated_glyph

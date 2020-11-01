@@ -84,8 +84,18 @@ export abstract class GlyphView extends View {
         return
     }
 
+    const t0 = performance.now()
     this._render(ctx, indices, data)
+    const t1 = performance.now()
+
+    if (indices.length > 0) {
+      const ti = this._render_time_per_index
+      const tj = (t1 - t0)/indices.length
+      this._render_time_per_index = ti != null ? (ti + tj)/2 : tj
+    }
   }
+
+  /*private*/ _render_time_per_index?: number
 
   protected abstract _render(ctx: Context2d, indices: number[], data: any): void
 

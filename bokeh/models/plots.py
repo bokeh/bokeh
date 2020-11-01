@@ -24,8 +24,10 @@ import warnings
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import (
+    Auto,
     Bool,
     Dict,
+    Either,
     Enum,
     Float,
     Include,
@@ -637,8 +639,10 @@ class Plot(LayoutDOM):
     it will override ``min_border``.
     """)
 
-    lod_factor = Int(10, help="""
-    Decimation factor to use when applying level-of-detail decimation.
+    lod_factor = Either(Int, Auto, default=10, help="""
+    Decimation factor to use when applying level-of-detail decimation. If
+    set to ``"auto"``, live rendering time will be used to determine the
+    factor.
     """)
 
     lod_threshold = Int(2000, help="""
