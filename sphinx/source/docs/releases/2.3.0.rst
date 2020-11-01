@@ -20,3 +20,22 @@ And several other bug fixes and docs additions. For full details see the
 intended to work like one and didn't fully implement its protocol. After this
 change you won't be able to use properties like ``level``, ``x_range_name``,
 etc., but those wheren't respected by renderers anyway.
+
+Renamed bokeh's base models
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Certain base models were renamed to unify naming convention with bokehjs:
+
++---------------+-------------------+
+| Old name      | New name          |
++===============+===================+
+| ``WebSource`` | ``WebDataSource`` |
++---------------+-------------------+
+| ``Action``    | ``ActionTool``    |
++---------------+-------------------+
+| ``Gesture``   | ``GestureTool``   |
++---------------+-------------------+
+| ``Inspect``   | ``InspectTool``   |
++---------------+-------------------+
+
+Old names are deprecated and will be removed in bokeh 3.0.
