@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide (optional) Pandas properties.
+""" Provide (optional) Pandas properties.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -38,37 +38,37 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class PandasDataFrame(Property):
-    ''' Accept Pandas DataFrame values.
+    """ Accept Pandas DataFrame values.
 
     This property only exists to support type validation, e.g. for "accepts"
     clauses. It is not serializable itself, and is not useful to add to
     Bokeh models directly.
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
         if pd and isinstance(value, pd.DataFrame):
             return
 
-        msg = "" if not detail else "expected Pandas DataFrame, got %r" % value
+        msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
         raise ValueError(msg)
 
 class PandasGroupBy(Property):
-    ''' Accept Pandas DataFrame values.
+    """ Accept Pandas DataFrame values.
 
     This property only exists to support type validation, e.g. for "accepts"
     clauses. It is not serializable itself, and is not useful to add to
     Bokeh models directly.
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
         if pd and isinstance(value, pd.core.groupby.GroupBy):
             return
 
-        msg = "" if not detail else "expected Pandas GroupBy, got %r" % value
+        msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"
         raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

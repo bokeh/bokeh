@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide color related properties.
+""" Provide color related properties.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -47,20 +47,22 @@ __all__ = (
 
 
 class RGB(Property):
-    ''' Accept colors.RGB values.
+    """ Accept colors.RGB values.
 
-    '''
+    """
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, colors.RGB)):
-            msg = "" if not detail else "expected RGB value, got %r" % (value,)
-            raise ValueError(msg)
+        if value is None or isinstance(value, colors.RGB):
+            return
+
+        msg = "" if not detail else f"expected RGB value, got {value!r}"
+        raise ValueError(msg)
 
 
 class Color(Either):
-    ''' Accept color values in a variety of ways.
+    """ Accept color values in a variety of ways.
 
     For colors, because we support named colors and hex values prefaced
     with a "#", when we are handed a string value, there is a little
@@ -93,7 +95,7 @@ class Color(Either):
 
             >>> m.prop = (100.2, 57.3, 10.2) # ValueError !!
 
-    '''
+    """
 
     def __init__(self, default=None, help=None):
         types = (Enum(enums.NamedColor),
@@ -121,12 +123,12 @@ class Color(Either):
 
 
 class ColorHex(Color):
-    ''' ref Color
+    """ ref Color
 
     The only difference with Color is it's transform in hexadecimal string
     when send to javascript side
 
-    '''
+    """
 
     def transform(self, value):
         if isinstance(value, str):

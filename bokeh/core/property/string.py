@@ -4,11 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Regex property.
+""" Provide the Regex property.
 
 
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -41,7 +41,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Regex(String):
-    ''' Accept strings that match a given regular expression.
+    """ Accept strings that match a given regular expression.
 
     Args:
         default (string or None, optional) :
@@ -77,25 +77,28 @@ class Regex(String):
 
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
-    '''
+    """
     def __init__(self, regex, default=None, help=None):
         self.regex = re.compile(regex)
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.regex.pattern!r})"
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or self.regex.match(value) is not None):
-            msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
-            raise ValueError(msg)
+        if value is None or self.regex.match(value):
+            return
+
+        msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
+        raise ValueError(msg)
 
 class Base64String(String):
 
     def serialize_value(self, value):
-        ''' Encode a ascii string using Base64.
+        """ Encode a ascii string using Base64.
 
         Args:
             value : a string to encode
@@ -103,7 +106,7 @@ class Base64String(String):
         Returns:
             string
 
-        '''
+        """
         if isinstance(value, str):
             value = base64.b64encode(value.encode("utf-8")).decode("utf-8")
         return value

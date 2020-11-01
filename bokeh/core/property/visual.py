@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide properties for various visual attrributes.
+""" Provide properties for various visual attrributes.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -58,7 +58,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class DashPattern(Either):
-    ''' Accept line dash specifications.
+    """ Accept line dash specifications.
 
     Express patterns that describe line dashes.  ``DashPattern`` values
     can be specified in a variety of ways:
@@ -73,7 +73,7 @@ class DashPattern(Either):
 
     .. _HTML5 Canvas dash specification style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
 
-    '''
+    """
 
     _dash_patterns = {
         "solid": [],
@@ -115,17 +115,17 @@ class FontSize(String):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
-            elif self._font_size_re.match(value) is None:
-                msg = "" if not detail else "%r is not a valid font size value" % value
+            elif not self._font_size_re.match(value):
+                msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
 class HatchPatternType(Either):
-    ''' Accept built-in fill hatching specifications.
+    """ Accept built-in fill hatching specifications.
 
     Accepts either "long" names, e.g. "horizontal-wave" or the single letter
     abbreviations, e.g. "v"
 
-    '''
+    """
 
     def __init__(self, default=[], help=None):
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
@@ -138,7 +138,7 @@ class HatchPatternType(Either):
         return self._sphinx_prop_link()
 
 class Image(Property):
-    ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
+    """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
 
@@ -148,26 +148,24 @@ class Image(Property):
 
     In all cases, the image data is serialized as a Base64 encoded string.
 
-    '''
+    """
 
     def validate(self, value, detail=True):
         import numpy as np
 
-        valid = False
-
         if value is None or isinstance(value, (str, PIL.Image.Image)):
-            valid = True
+            return
 
         if isinstance(value, np.ndarray):
-            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
+            if value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4):
+                return
 
-        if not valid:
-            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
-            raise ValueError(msg)
+        msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
+        raise ValueError(msg)
 
     def transform(self, value):
         if value is None:
-            return None
+            return
 
         import numpy as np
         if isinstance(value, np.ndarray):
@@ -180,12 +178,13 @@ class Image(Property):
             out = BytesIO()
             fmt = value.format or "PNG"
             value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
+            encoded = base64.b64encode(out.getvalue()).decode('ascii')
+            return f"data:image/{fmt.lower()};base64,{encoded}"
 
-        raise ValueError("Could not transform %r" % value)
+        raise ValueError(f"Could not transform {value!r}")
 
 class MinMaxBounds(Either):
-    ''' Accept (min, max) bounds tuples for use with Ranges.
+    """ Accept (min, max) bounds tuples for use with Ranges.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
     increasing or decreasing, the first item should be the minimum value of the range and the
@@ -193,7 +192,7 @@ class MinMaxBounds(Either):
 
     Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
     want to constrain one end of the plot, you can set min or max to
-    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` '''
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
     def __init__(self, accept_datetime=False, default='auto', help=None):
         if accept_datetime:
@@ -215,10 +214,10 @@ class MinMaxBounds(Either):
         super().validate(value, detail)
 
         if value is None:
-            return True
+            return
 
         if value[0] is None or value[1] is None:
-            return True
+            return
 
         value = list(value)
 
@@ -229,19 +228,19 @@ class MinMaxBounds(Either):
         if isinstance(value[1], datetime.datetime):
             value[1] = convert_datetime_type(value[1])
 
-        if value[0] >= value[1]:
-            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
-            raise ValueError(msg)
+        if value[0] < value[1]:
+            return
 
-        return True
+        msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+        raise ValueError(msg)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
 class MarkerType(Enum):
-    '''
+    """
 
-    '''
+    """
     def __init__(self, **kw):
         super().__init__(enums.MarkerType, **kw)
 
