@@ -216,7 +216,7 @@ year in the ``(fruit, year)`` pair for color mapping.
 Visual offset
 '''''''''''''
 
-Take a scenario with separate sequesnces of ``(fruit, year)`` pairs
+Take a scenario with separate sequences of ``(fruit, year)`` pairs
 instead of a single data table. You can plot the sequences with
 separate calls to ``vbar``. However, since every bar in each group
 belongs to the same ``fruit`` category, the bars will overlap. To
@@ -231,7 +231,7 @@ to provide an offset for each call to ``vbar``.
 Stacking and grouping
 ~~~~~~~~~~~~~~~~~~~~~
 
-You can also combine the above technicques to create plots of stacked and
+You can also combine the above techniques to create plots of stacked and
 grouped bars. Here is an example that groups bars by quarter and stacks
 them by region:
 
@@ -257,7 +257,7 @@ to ``Q4``.
 Pandas
 ~~~~~~
 
-`Pandas`_ is a powerful and popular tool for analysing tabular and time
+`Pandas`_ is a powerful and popular tool for analyzing tabular and time
 series data in Python. While you don't have to use it, it makes working
 with Bokeh easier.
 
