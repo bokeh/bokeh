@@ -71,7 +71,7 @@ from ..core.properties import (
     String,
     StringSpec,
 )
-from ..core.property.dataspec import field, value
+from ..core.property.dataspec import field
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
@@ -393,11 +393,11 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the centers of the horizontal bars.
     """)
 
-    height = NumberSpec(default=value(1), help="""
+    height = NumberSpec(default=1, help="""
     The heights of the vertical bars.
     """)
 
-    left = NumberSpec(default=value(0), help="""
+    left = NumberSpec(default=0, help="""
     The x-coordinates of the left edges.
     """)
 
@@ -1242,7 +1242,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The x-coordinates of the centers of the vertical bars.
     """)
 
-    width = NumberSpec(default=value(1), help="""
+    width = NumberSpec(default=1, help="""
     The widths of the vertical bars.
     """)
 
