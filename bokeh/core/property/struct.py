@@ -60,6 +60,7 @@ class Struct(ParameterizedProperty):
             return
 
         if isinstance(value, dict) and len(value) <= len(self._fields):
+            # note use of for-else loop here
             for name, type in self._fields.items():
                 if not type.is_valid(value.get(name, None)):
                     break

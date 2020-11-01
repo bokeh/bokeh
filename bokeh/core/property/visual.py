@@ -115,7 +115,7 @@ class FontSize(String):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
-            elif self._font_size_re.match(value) is None:
+            elif not self._font_size_re.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 
@@ -153,17 +153,15 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        valid = False
-
         if value is None or isinstance(value, (str, PIL.Image.Image)):
-            valid = True
+            return
 
         if isinstance(value, np.ndarray):
-            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
+            if value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4):
+                return
 
-        if not valid:
-            msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
-            raise ValueError(msg)
+        msg = "" if not detail else f"invalid value: {value!r}; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays"
+        raise ValueError(msg)
 
     def transform(self, value):
         if value is None:
@@ -216,10 +214,10 @@ class MinMaxBounds(Either):
         super().validate(value, detail)
 
         if value is None:
-            return True
+            return
 
         if value[0] is None or value[1] is None:
-            return True
+            return
 
         value = list(value)
 
@@ -230,11 +228,11 @@ class MinMaxBounds(Either):
         if isinstance(value[1], datetime.datetime):
             value[1] = convert_datetime_type(value[1])
 
-        if value[0] >= value[1]:
-            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
-            raise ValueError(msg)
+        if value[0] < value[1]:
+            return
 
-        return True
+        msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+        raise ValueError(msg)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()

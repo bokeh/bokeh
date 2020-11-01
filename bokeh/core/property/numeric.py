@@ -239,9 +239,11 @@ class Percent(Float):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or 0.0 <= value <= 1.0):
-            msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
-            raise ValueError(msg)
+        if value is None or 0.0 <= value <= 1.0:
+            return
+
+        msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
+        raise ValueError(msg)
 
 class Angle(Float):
     ''' Accept floating point angle values.

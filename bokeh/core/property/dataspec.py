@@ -289,8 +289,9 @@ class FontSizeSpec(DataSpec):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
         super().validate(value, detail)
+
         if isinstance(value, str):
-            if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
+            if len(value) == 0 or value[0].isdigit() and not FontSize._font_size_re.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
 

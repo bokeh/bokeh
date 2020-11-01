@@ -74,18 +74,22 @@ class Seq(ContainerProperty):
     def validate(self, value, detail=True):
         super().validate(value, True)
 
-        if value is not None:
-            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                if self._is_seq(value):
-                    invalid = []
-                    for item in value:
-                        if not self.item_type.is_valid(item):
-                            invalid.append(item)
-                    msg = "" if not detail else f"expected an element of {self}, got seq with invalid items {invalid!r}"
-                    raise ValueError(msg)
-                else:
-                    msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-                    raise ValueError(msg)
+        if value is None:
+            return
+
+        if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
+            return
+
+        if self._is_seq(value):
+            invalid = []
+            for item in value:
+                if not self.item_type.is_valid(item):
+                    invalid.append(item)
+            msg = "" if not detail else f"expected an element of {self}, got seq with invalid items {invalid!r}"
+            raise ValueError(msg)
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     @classmethod
     def _is_seq(cls, value):
@@ -180,11 +184,16 @@ class Dict(ContainerProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is not None:
-            if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())):
-                msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-                raise ValueError(msg)
+        if value is None:
+            return
+
+        key_is_valid = self.keys_type.is_valid
+        value_is_valid = self.values_type.is_valid
+        if isinstance(value, dict) and all(key_is_valid(key) and value_is_valid(val) for key, val in value.items()):
+            return
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     @classmethod
     def wrap(cls, value):
@@ -299,11 +308,15 @@ class Tuple(ContainerProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is not None:
-            if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
-                    all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
-                msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-                raise ValueError(msg)
+        if value is None:
+            return
+
+        if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
+            if all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value)):
+                return
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     def transform(self, value):
         ''' Change the value into a JSON serializable format.

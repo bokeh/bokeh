@@ -54,9 +54,11 @@ class RGB(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, colors.RGB)):
-            msg = "" if not detail else f"expected RGB value, got {value!r}"
-            raise ValueError(msg)
+        if value is None or isinstance(value, colors.RGB):
+            return
+
+        msg = "" if not detail else f"expected RGB value, got {value!r}"
+        raise ValueError(msg)
 
 
 class Color(Either):

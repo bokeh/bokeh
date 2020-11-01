@@ -89,9 +89,11 @@ class Regex(String):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or self.regex.match(value) is not None):
-            msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
-            raise ValueError(msg)
+        if value is None or self.regex.match(value):
+            return
+
+        msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"
+        raise ValueError(msg)
 
 class Base64String(String):
 
