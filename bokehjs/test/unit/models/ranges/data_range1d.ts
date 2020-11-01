@@ -341,7 +341,7 @@ describe("datarange1d module", () => {
   describe("update", () => {
 
     it("should update its start and end values", () => {
-      const g = new GlyphRenderer({id: "id"})
+      const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({plots: [p]})
 
@@ -354,7 +354,7 @@ describe("datarange1d module", () => {
     })
 
     it("should not update its start or end values to NaN when log", () => {
-      const g = new GlyphRenderer({id: "id"})
+      const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({scale_hint: "log", plots: [p]})
 

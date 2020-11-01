@@ -47,14 +47,14 @@ class ArrowHead(Model):
 
     '''
 
+    size = Float(default=25, help="""
+    The size, in pixels, of the arrow head.
+    """)
+
 class OpenHead(ArrowHead):
     ''' Render an open-body arrow head.
 
     '''
-
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
 
@@ -65,10 +65,6 @@ class NormalHead(ArrowHead):
     ''' Render a closed-body arrow head.
 
     '''
-
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
@@ -85,10 +81,6 @@ class TeeHead(ArrowHead):
 
     '''
 
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
@@ -97,10 +89,6 @@ class VeeHead(ArrowHead):
     ''' Render a vee-style arrow head.
 
     '''
-
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.

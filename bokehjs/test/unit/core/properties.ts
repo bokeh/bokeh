@@ -499,19 +499,19 @@ describe("properties module", () => {
       it("should default to data units", () => {
         const obj = new Some({distance_spec: {value: 10}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("data")
+        expect(prop.units).to.be.equal("data")
       })
 
       it("should accept screen units", () => {
         const obj = new Some({distance_spec: {value: 10, units: "screen"}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("screen")
+        expect(prop.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
         const obj = new Some({distance_spec: {value: 10, units: "data"}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("data")
+        expect(prop.units).to.be.equal("data")
       })
 
       it("should throw an Error on bad units", () => {

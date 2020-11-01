@@ -8,7 +8,7 @@ import {Circle, MultiLine} from "@bokehjs/models/glyphs"
 import {Plot} from "@bokehjs/models/plots"
 import {Document} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
-import {SerializationError} from "@bokehjs/core/util/serialization"
+import {SerializationError} from "@bokehjs/core/serializer"
 
 describe("GraphRendererView", () => {
   it("should have node_renderer and edge_renderer glyphs serializable after initialization", async () => {

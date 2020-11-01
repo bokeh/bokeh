@@ -1,5 +1,3 @@
-import {logger} from "core/logging"
-
 import {Plot} from "./plot"
 import * as p from "core/properties"
 import {Model} from "../../model"
@@ -80,6 +78,8 @@ export interface GMapPlot extends GMapPlot.Attrs {}
 export class GMapPlot extends Plot {
   properties: GMapPlot.Props
 
+  use_map = true
+
   constructor(attrs?: Partial<GMapPlot.Attrs>) {
     super(attrs)
   }
@@ -99,12 +99,5 @@ export class GMapPlot extends Plot {
       x_range: () => new Range1d(),
       y_range: () => new Range1d(),
     })
-  }
-
-  initialize(): void {
-    super.initialize()
-    this.use_map = true
-    if (!this.api_key)
-      logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
   }
 }

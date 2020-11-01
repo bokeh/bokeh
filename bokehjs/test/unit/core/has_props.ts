@@ -6,7 +6,6 @@ import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {BYTE_ORDER} from "@bokehjs/core/util/serialization"
 
 class TestModel extends HasProps {}
 
@@ -130,38 +129,38 @@ describe("core/has_props module", () => {
 
   describe("creation", () => {
 
-    it("should have only id property", () => {
+    it("empty model should have no properties", () => {
       const obj = new TestModel()
-      expect(keys(obj.properties)).to.be.equal(['id'])
-      expect(keys(obj.attributes)).to.be.equal(['id'])
+      expect(keys(obj.properties)).to.be.equal([])
+      expect(keys(obj.attributes)).to.be.equal([])
     })
 
     it("should combine props from subclasses", () => {
       const obj = new SubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['id', 'foo', 'bar'])
+      expect(keys(obj.properties)).to.be.equal(['foo', 'bar'])
     })
 
     it("should combine props from sub-subclasses", () => {
       const obj = new SubSubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['id', 'foo', 'bar', 'baz'])
+      expect(keys(obj.properties)).to.be.equal(['foo', 'bar', 'baz'])
     })
 
     it("should combine mixins from subclasses", () => {
       const obj = new SubclassWithMixins()
       const props = keys(mixins.Line)
-      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine mixins from sub-subclasses", () => {
       const obj = new SubSubclassWithMixins()
       const props = [...keys(mixins.Line), ...keys(mixins.Fill).map((key) => `foo_${key}`)]
-      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine multiple mixins from subclasses", () => {
       const obj = new SubclassWithMultipleMixins()
       const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
-      expect(keys(obj.properties)).to.be.equal(['id'].concat(props))
+      expect(keys(obj.properties)).to.be.equal(props)
     })
   })
 
@@ -219,50 +218,6 @@ describe("core/has_props module", () => {
       expect(struct.id).to.be.equal(obj.id)
       expect(struct.type).to.be.equal(obj.type)
       expect(struct.subtype).to.be.equal("bar")
-    })
-  })
-
-  describe("HasProps._value_to_json()", () => {
-    it("should support primitive values", () => {
-      expect(HasProps._value_to_json(1)).to.be.equal(1)
-      expect(HasProps._value_to_json("a")).to.be.equal("a")
-    })
-
-    it("should support HasProps instances", () => {
-      const obj0 = new TestModel()
-      expect(HasProps._value_to_json(obj0)).to.be.equal({id: obj0.id})
-
-      const obj1 = new SubSubclassWithProps({foo: 17})
-      expect(HasProps._value_to_json(obj1)).to.be.equal({id: obj1.id})
-    })
-
-    it("should support ndarrays", () => {
-      const nd0 = ndarray([1, 2, 3, 4, 5, 6], {dtype: "int32", shape: [2, 3]})
-
-      expect(HasProps._value_to_json(nd0)).to.be.equal({
-        __ndarray__: "AQAAAAIAAAADAAAABAAAAAUAAAAGAAAA",
-        order: BYTE_ORDER,
-        dtype: "int32",
-        shape: [2, 3],
-      })
-    })
-
-    it("should support typed arrays", () => {
-      expect(HasProps._value_to_json(new Float32Array([1, 2, 3]))).to.be.equal([1, 2, 3])
-    })
-
-    it("should support arrays and typed arrays", () => {
-      const obj0 = new TestModel()
-
-      expect(HasProps._value_to_json([1, 2, 3])).to.be.equal([1, 2, 3])
-      expect(HasProps._value_to_json([1, 2, obj0])).to.be.equal([1, 2, {id: obj0.id}])
-    })
-
-    it("should support plain objects", () => {
-      const obj0 = new TestModel()
-
-      expect(HasProps._value_to_json({a: 1, b: 2})).to.be.equal({a: 1, b: 2})
-      expect(HasProps._value_to_json({a: 1, b: obj0})).to.be.equal({a: 1, b: {id: obj0.id}})
     })
   })
 })

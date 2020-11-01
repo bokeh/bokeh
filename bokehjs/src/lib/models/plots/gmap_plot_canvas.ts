@@ -1,3 +1,4 @@
+import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
@@ -57,6 +58,11 @@ export class GMapPlotView extends PlotView {
     this.initial_zoom = zoom
     this.initial_lat = lat
     this.initial_lng = lng
+
+    if (!this.model.api_key) {
+      const url = "https://developers.google.com/maps/documentation/javascript/get-api-key"
+      logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
+    }
 
     if (typeof google === "undefined" || google.maps == null) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {

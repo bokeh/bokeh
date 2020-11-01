@@ -30,7 +30,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs, markers
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
 from ._decorators import glyph_method
@@ -1605,7 +1605,7 @@ class FigureOptions(Options):
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 

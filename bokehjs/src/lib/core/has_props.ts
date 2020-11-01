@@ -9,26 +9,23 @@ import * as k from "./kinds"
 import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {max, copy} from "./util/array"
-import {values, entries, clone, extend} from "./util/object"
-import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isFunction} from "./util/types"
+import {max} from "./util/array"
+import {values, entries, extend} from "./util/object"
+import {isPlainObject, isArray, isString, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from './util/eq'
+import {serialize, Serializable, Serializer} from "./serializer"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
-import {is_NDArray} from "./util/ndarray"
-import {encode_NDArray, SerializationError} from "./util/serialization"
-import {equals, Equals, Comparator} from "./util/eq"
+import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
+import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
+  export type Props = {}
 
-  export type Props = {
-    id: p.Property<string>
-  }
-
-  export interface SetOptions {
+  export type SetOptions = {
     check_eq?: boolean
     silent?: boolean
     no_change?: boolean
@@ -42,16 +39,14 @@ export interface HasProps extends HasProps.Attrs, ISignalable {
     __module__?: string
     __qualified__: string
   }
-
-  // XXX: this may indicate a bug in the compiler, because --project and
-  // --build disagree whether this is necessary or not (it shouldn't).
-  id: string
 }
 
 export type PropertyGenerator = Generator<Property, void, undefined>
 
-export abstract class HasProps extends Signalable() implements Equals, Printable {
+export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   __view_type__: View
+
+  readonly id: string
 
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
@@ -78,10 +73,6 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   static init_HasProps(): void {
     this.prototype._props = {}
     this.prototype._mixins = []
-
-    this.define<HasProps.Props>(({String}) => ({
-      id: [ String, () => uniqueId() ],
-    }))
   }
 
   /** @prototype */
@@ -98,18 +89,14 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
   _mixins: string[]
 
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
-    if (default_value === undefined)
-      return undefined
-    else if (isFunction(default_value))
+    if (default_value === undefined || isFunction(default_value))
       return default_value
-    else if (isArray(default_value))
-      return () => copy(default_value)
-    else if (isPlainObject(default_value))
-      return () => clone(default_value)
-    else if (!isObject(default_value))
+    else if (isPrimitive(default_value))
       return () => default_value
-    else
-      throw new Error(`${default_value} must be explicitly wrapped in a function`)
+    else {
+      const cloner = new Cloner()
+      return () => cloner.clone(default_value)
+    }
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
@@ -142,7 +129,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         options,
       }
 
-      const props = clone(this.prototype._props)
+      const props = {...this.prototype._props}
       props[name] = refined_prop
       this.prototype._props = props
     }
@@ -216,7 +203,7 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       const value = this.prototype._props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
-      const props = clone(this.prototype._props)
+      const props = {...this.prototype._props}
       props[name] = {...value, default_value}
       this.prototype._props = props
     }
@@ -252,6 +239,16 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return attrs
   }
 
+  [clone](cloner: Cloner): this {
+    const attrs = new Map<string, unknown>()
+    for (const prop of this) {
+      if (prop.dirty) {
+        attrs.set(prop.attr, cloner.clone(prop.get_value()))
+      }
+    }
+    return new (this.constructor as any)(attrs)
+  }
+
   [equals](that: this, cmp: Comparator): boolean {
     for (const p0 of this) {
       const p1 = that.property(p0.attr)
@@ -276,17 +273,38 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
   }
 
+  [serialize](serializer: Serializer): Ref {
+    const ref = this.ref()
+    serializer.add_ref(this, ref)
+
+    const struct = this.struct()
+    for (const prop of this) {
+      if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
+        struct.attributes[prop.attr] = serializer.to_serializable(prop.get_value())
+      }
+    }
+    serializer.add_def(this, struct)
+
+    return ref
+  }
+
   constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
 
-    const get = attrs instanceof Map ? attrs.get : (name: string) => attrs[name]
+    const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
+
+    this.id = (get("id") as string | undefined) ?? uniqueId()
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>
 
-      if (type instanceof p.PropertyAlias)
-        property = this.properties[type.attr]
-      else if (type instanceof k.Kind)
+      if (type instanceof p.PropertyAlias) {
+        property = new Proxy(this.properties[type.attr], {
+          get(target, member) {
+            return member == "attr" ? name : target[member as keyof typeof target]
+          },
+        })
+      } else if (type instanceof k.Kind)
         property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
         property = new type(this, name, k.Any, default_value, get(name), options)
@@ -325,9 +343,10 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     this.destroyed.emit()
   }
 
-  // Create a new model with identical attributes to this one.
+  // Create a new model with exact attribute values to this one, but new identity.
   clone(): this {
-    return new (this.constructor as any)(this.attributes)
+    const cloner = new Cloner()
+    return cloner.clone(this)
   }
 
   private _pending: boolean = false
@@ -461,43 +480,6 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
     return attrs
   }
 
-  static _value_to_json(value: unknown): unknown {
-    if (value instanceof HasProps)
-      return value.ref()
-    else if (is_NDArray(value))
-      return encode_NDArray(value)
-    else if (isArray(value) || isTypedArray(value)) {
-      const n = value.length
-      const ref_array: unknown[] = new Array(n)
-      for (let i = 0; i < n; i++) {
-        const v = value[i]
-        ref_array[i] = HasProps._value_to_json(v)
-      }
-      return ref_array
-    } else if (isPlainObject(value)) {
-      const ref_obj: Attrs = {}
-      for (const [subkey, subvalue] of entries(value)) {
-        ref_obj[subkey] = HasProps._value_to_json(subvalue)
-      }
-      return ref_obj
-    } else if (value === null || isBoolean(value) || isNumber(value) || isString(value)) {
-      return value
-    } else
-      throw new SerializationError(`${Object.prototype.toString.call(value)} is not serializable`)
-  }
-
-  // Convert attributes to "shallow" JSON (values which are themselves models
-  // are included as just references)
-  attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): Attrs {
-    const attributes: Attrs = {} // Object.create(null)
-    for (const prop of this) {
-      if (prop.syncable && (include_defaults || prop.dirty)) {
-        attributes[prop.attr] = value_to_json(prop.get_value())
-      }
-    }
-    return attributes
-  }
-
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
   static _json_record_references(doc: Document, v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
@@ -526,9 +508,10 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
       if (!refs.has(v)) {
         refs.add(v)
         if (recursive) {
-          const immediate = v._immediate_references()
-          for (const obj of immediate)
-            HasProps._value_record_references(obj, refs, {recursive: true})
+          for (const prop of v.syncable_properties()) {
+            const value = prop.get_value()
+            HasProps._value_record_references(value, refs, {recursive})
+          }
         }
       }
     } else if (isArray(v)) {
@@ -539,17 +522,6 @@ export abstract class HasProps extends Signalable() implements Equals, Printable
         HasProps._value_record_references(elem, refs, {recursive})
       }
     }
-  }
-
-  // Get models that are immediately referenced by our properties
-  // (do not recurse, do not include ourselves)
-  protected _immediate_references(): Set<HasProps> {
-    const refs = new Set<HasProps>()
-    for (const prop of this.syncable_properties()) {
-      const value = prop.get_value()
-      HasProps._value_record_references(value, refs, {recursive: false})
-    }
-    return refs
   }
 
   references(): Set<HasProps> {

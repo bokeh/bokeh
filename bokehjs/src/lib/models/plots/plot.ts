@@ -107,7 +107,7 @@ export class Plot extends LayoutDOM {
   properties: Plot.Props
   __view_type__: PlotView
 
-  use_map?: boolean
+  readonly use_map: boolean = false
 
   reset: Signal0<this>
 

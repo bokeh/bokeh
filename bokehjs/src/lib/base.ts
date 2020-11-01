@@ -54,7 +54,7 @@ Models.register_models = (models, force = false, errorFn?) => {
 
 export const register_models = Models.register_models
 
-Models.registered_names = () => Array.from(_all_models.keys())
+Models.registered_names = () => [..._all_models.keys()]
 
 // TODO: this doesn't belong here, but it's easier this way for backwards compatibility
 import * as AllModels from "./models"
