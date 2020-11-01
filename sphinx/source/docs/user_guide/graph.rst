@@ -69,7 +69,7 @@ The following code snippet
 
 Bokeh comes with a built-in ``LayoutProvider`` model that includes
 a dictionary of (x,y) coordinates for nodes. This lets you arrange
-plot elements in Cartesian space. 
+plot elements in Cartesian space.
 
 The following codes snippet uses this provider model to produce a
 plot based on the setup above.
@@ -92,10 +92,10 @@ plot based on the setup above.
 
     ### render the graph
     plot.renderers.append(graph)
-    
+
     ### specify the name of the output file
     output_file('graph.html')
-    
+
     ### display the plot
     show(plot)
 
