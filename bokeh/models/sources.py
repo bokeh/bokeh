@@ -58,6 +58,7 @@ __all__ = (
     'GeoJSONDataSource',
     'ServerSentDataSource',
     'WebDataSource',
+    'WebSource',
 )
 
 #-----------------------------------------------------------------------------
@@ -743,6 +744,9 @@ class WebDataSource(ColumnDataSource):
     data_url = String(help="""
     A URL to to fetch data from.
     """)
+
+# TODO: deprecated, remove at bokeh 3.0
+WebSource = WebDataSource
 
 class ServerSentDataSource(WebDataSource):
     ''' A data source that can populate columns by receiving server sent

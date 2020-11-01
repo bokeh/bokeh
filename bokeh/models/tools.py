@@ -96,6 +96,7 @@ from .renderers import GlyphRenderer, Renderer
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Action',
     'ActionTool',
     'BoxEditTool',
     'BoxSelectTool',
@@ -108,7 +109,9 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
+    'Inspect',
     'InspectTool',
+    'Gesture',
     'GestureTool',
     'LassoSelectTool',
     'LineEditTool',
@@ -172,12 +175,18 @@ class ActionTool(Tool):
     '''
     pass
 
+# TODO: deprecated, remove at bokeh 3.0
+Action = ActionTool
+
 @abstract
 class GestureTool(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
+
+# TODO: deprecated, remove at bokeh 3.0
+Gesture = GestureTool
 
 @abstract
 class Drag(GestureTool):
@@ -232,6 +241,9 @@ class InspectTool(GestureTool):
     inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
+
+# TODO: deprecated, remove at bokeh 3.0
+Inspect = InspectTool
 
 @abstract
 class ToolbarBase(Model):
