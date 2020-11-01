@@ -4,12 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Instance property.
+""" Provide the Instance property.
 
 The Instance property is used to construct object graphs of Bokeh models,
 where one Bokeh model refers to another.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -40,14 +40,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Instance(Property):
-    ''' Accept values that are instances of |HasProps|.
+    """ Accept values that are instances of |HasProps|.
 
     Args:
         readonly (bool, optional) :
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")

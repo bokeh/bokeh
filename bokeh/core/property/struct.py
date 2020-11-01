@@ -5,9 +5,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Struct property.
+""" Provide the Struct property.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -35,10 +35,10 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Struct(ParameterizedProperty):
-    ''' Accept values that are structures.
+    """ Accept values that are structures.
 
 
-    '''
+    """
     def __init__(self, **fields):
         default = fields.pop("default", None)
         help = fields.pop("help", None)

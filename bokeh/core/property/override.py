@@ -4,14 +4,14 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the ``Override`` class, for overriding base class property
+""" Provide the ``Override`` class, for overriding base class property
 attributes.
 
 .. note::
     This class should normally be imported from ``bokeh.core.properties``
     instead of directly from this module.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -36,7 +36,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Override:
-    ''' Override attributes of Bokeh property in derived Models.
+    """ Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the
     attributes of the property itself, from those on the base class. This is
@@ -83,7 +83,7 @@ class Override:
             >>> c.foo
             20
 
-    '''
+    """
 
     def __init__(self, **kwargs):
         if len(kwargs) == 0:

@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the DataSpec properties and helpers.
+""" Provide the DataSpec properties and helpers.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -67,7 +67,7 @@ _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "uni
 #-----------------------------------------------------------------------------
 
 class DataSpec(Either):
-    ''' Base class for properties that accept either a fixed value, or a
+    """ Base class for properties that accept either a fixed value, or a
     string name that references a column in a
     :class:`~bokeh.models.sources.ColumnDataSource`.
 
@@ -149,7 +149,7 @@ class DataSpec(Either):
 
             color = ColorSpec(help="docs for color") # defaults to None
 
-    '''
+    """
     def __init__(self, key_type, value_type, default, help=None):
         super().__init__(
             String,
@@ -169,7 +169,7 @@ class DataSpec(Either):
     # TODO (bev) add stricter validation on keys
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``DataSpecPropertyDescriptor`` instances to
+        """ Return a list of ``DataSpecPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
 
@@ -181,7 +181,7 @@ class DataSpec(Either):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         return [ DataSpecPropertyDescriptor(base_name, self) ]
 
     def to_serializable(self, obj, name, val):
@@ -209,7 +209,7 @@ class DataSpec(Either):
 
 
 class NumberSpec(DataSpec):
-    ''' A |DataSpec| property that accepts numeric and datetime fixed values.
+    """ A |DataSpec| property that accepts numeric and datetime fixed values.
 
     By default, date and datetime values are immediately converted to
     milliseconds since epoch. It is possible to disable processing of datetime
@@ -227,7 +227,7 @@ class NumberSpec(DataSpec):
 
         m.location = "foo" # field
 
-    '''
+    """
     def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
         super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
@@ -237,7 +237,7 @@ class NumberSpec(DataSpec):
 
 
 class StringSpec(DataSpec):
-    ''' A |DataSpec| property that accepts string fixed values.
+    """ A |DataSpec| property that accepts string fixed values.
 
     Because acceptable fixed values and field names are both strings, it can
     be necessary explicitly to disambiguate these possibilities. By default,
@@ -250,7 +250,7 @@ class StringSpec(DataSpec):
 
         m.title = "foo"        # field
 
-    '''
+    """
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, List(String), default=default, help=help)
 
@@ -262,7 +262,7 @@ class StringSpec(DataSpec):
         return super().prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
-    ''' A |DataSpec| property that accepts font-size fixed values.
+    """ A |DataSpec| property that accepts font-size fixed values.
 
     The ``FontSizeSpec`` property attempts to first interpret string values as
     font sizes (i.e. valid CSS length values). Otherwise string values are
@@ -280,7 +280,7 @@ class FontSizeSpec(DataSpec):
 
     https://drafts.csswg.org/css-values/#lengths
 
-    '''
+    """
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, FontSize, default=default, help=help)
@@ -296,7 +296,7 @@ class FontSizeSpec(DataSpec):
                 raise ValueError(msg)
 
 class HatchPatternSpec(DataSpec):
-    ''' A |DataSpec| property that accepts hatch pattern types as fixed values.
+    """ A |DataSpec| property that accepts hatch pattern types as fixed values.
 
     The ``HatchPatternSpec`` property attempts to first interpret string values
     as hatch pattern types. Otherwise string values are interpreted as field
@@ -310,13 +310,13 @@ class HatchPatternSpec(DataSpec):
 
         m.font_size = "foo"  # field
 
-    '''
+    """
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, HatchPatternType, default=default, help=help)
 
 class MarkerSpec(DataSpec):
-    ''' A |DataSpec| property that accepts marker types as fixed values.
+    """ A |DataSpec| property that accepts marker types as fixed values.
 
     The ``MarkerSpec`` property attempts to first interpret string values as
     marker types. Otherwise string values are interpreted as field names.
@@ -330,17 +330,17 @@ class MarkerSpec(DataSpec):
 
         m.font_size = "foo"    # field
 
-    '''
+    """
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, MarkerType, default=default, help=help)
 
 
 class UnitsSpec(NumberSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values, and also
+    """ A |DataSpec| property that accepts numeric fixed values, and also
     serializes associated units values.
 
-    '''
+    """
     def __init__(self, default, units_type, units_default, help=None):
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
@@ -358,7 +358,7 @@ class UnitsSpec(NumberSpec):
         raise NotImplementedError()
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
         Unlike simpler property types, ``UnitsSpec`` returns multiple
@@ -373,7 +373,7 @@ class UnitsSpec(NumberSpec):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         units_props = self._units_type.make_descriptors("unused")
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
@@ -389,15 +389,15 @@ class UnitsSpec(NumberSpec):
         return d
 
 class PropertyUnitsSpec(UnitsSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values, and also
+    """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store units information.
 
-    '''
+    """
     def get_units(self, obj, name):
         return getattr(obj, name+"_units")
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
         Unlike simpler property types, ``UnitsSpec`` returns multiple
@@ -412,28 +412,28 @@ class PropertyUnitsSpec(UnitsSpec):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         units_name = base_name + "_units"
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
 class AngleSpec(PropertyUnitsSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values, and also
+    """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store angle units.
 
     Acceptable values for units are ``"rad"`` and ``"deg"``.
 
-    '''
+    """
     def __init__(self, default=None, units_default="rad", help=None):
         super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values or strings
+    """ A |DataSpec| property that accepts numeric fixed values or strings
     that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`,
     and also provides an associated units property to store units information.
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
-    '''
+    """
     def __init__(self, default=None, units_default="data", help=None):
         super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
@@ -462,23 +462,23 @@ class _FixedUnitsDistanceSpec(UnitsSpec):
         return super().prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values for screen-space
+    """ A |DataSpec| property that accepts numeric fixed values for screen-space
     distances, and also provides an associated units property that reports
     ``"screen"`` as the units.
 
-    '''
+    """
     _units = "screen"
 
 class DataDistanceSpec(_FixedUnitsDistanceSpec):
-    ''' A |DataSpec| property that accepts numeric fixed values for data-space
+    """ A |DataSpec| property that accepts numeric fixed values for data-space
     distances, and also provides an associated units property that reports
     ``"data"`` as the units.
 
-    '''
+    """
     _units = "data"
 
 class ColorSpec(DataSpec):
-    ''' A |DataSpec| property that accepts |Color| fixed values.
+    """ A |DataSpec| property that accepts |Color| fixed values.
 
     The ``ColorSpec`` property attempts to first interpret string values as
     colors. Otherwise, string values are interpreted as field names. For
@@ -501,13 +501,13 @@ class ColorSpec(DataSpec):
 
         m.color = field("firebrick")       # field (named "firebrick")
 
-    '''
+    """
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, Color, default=default, help=help)
 
     @classmethod
     def isconst(cls, val):
-        ''' Whether the value is a string color literal.
+        """ Whether the value is a string color literal.
 
         Checks for a well-formed hexadecimal color value or a named color.
 
@@ -517,7 +517,7 @@ class ColorSpec(DataSpec):
         Returns:
             True, if the value is a string color literal
 
-        '''
+        """
         return isinstance(val, str) and \
                ((len(val) == 7 and val[0] == "#") or val in enums.NamedColor)
 
@@ -563,7 +563,7 @@ class ColorSpec(DataSpec):
 # DataSpec helpers ------------------------------------------------------------
 
 def expr(expression, transform=None):
-    ''' Convenience function to explicitly return an "expr" specification for
+    """ Convenience function to explicitly return an "expr" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
@@ -579,14 +579,14 @@ def expr(expression, transform=None):
         This function is included for completeness. String values for
         property specifications are by default interpreted as field names.
 
-    '''
+    """
     if transform:
         return dict(expr=expression, transform=transform)
     return dict(expr=expression)
 
 
 def field(name, transform=None):
-    ''' Convenience function to explicitly return a "field" specification for
+    """ Convenience function to explicitly return a "field" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
@@ -602,13 +602,13 @@ def field(name, transform=None):
         This function is included for completeness. String values for
         property specifications are by default interpreted as field names.
 
-    '''
+    """
     if transform:
         return dict(field=name, transform=transform)
     return dict(field=name)
 
 def value(val, transform=None):
-    ''' Convenience function to explicitly return a "value" specification for
+    """ Convenience function to explicitly return a "value" specification for
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
@@ -633,7 +633,7 @@ def value(val, transform=None):
             p.text("x", "y", text="text_column",
                    text_font_size=value("16px"), source=source)
 
-    '''
+    """
     if transform:
         return dict(value=val, transform=transform)
     return dict(value=val)

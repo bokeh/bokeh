@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide date and time related properties
+""" Provide date and time related properties
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -48,9 +48,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Date(Property):
-    ''' Accept Date (but not DateTime) values.
+    """ Accept Date (but not DateTime) values.
 
-    '''
+    """
     def transform(self, value):
         value = super().transform(value)
 
@@ -82,9 +82,9 @@ class Date(Property):
             raise ValueError(msg)
 
 class Datetime(Property):
-    ''' Accept Datetime values.
+    """ Accept Datetime values.
 
-    '''
+    """
 
     def __init__(self, default=None, help=None):
         super().__init__(default=default, help=help)
@@ -127,9 +127,9 @@ class Datetime(Property):
         raise ValueError(msg)
 
     def serialize_value(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         if isinstance(value, datetime.date):
             value = convert_date_to_datetime(value)
         return value
@@ -139,9 +139,9 @@ class Datetime(Property):
         return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
 
 class TimeDelta(Property):
-    ''' Accept TimeDelta values.
+    """ Accept TimeDelta values.
 
-    '''
+    """
 
     def __init__(self, default=datetime.timedelta(), help=None):
         super().__init__(default=default, help=help)

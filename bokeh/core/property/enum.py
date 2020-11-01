@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Enum property.
+""" Provide the Enum property.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -36,14 +36,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Enum(String):
-    ''' Accept values from enumerations.
+    """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the
     ``default`` keyword argument is used.
 
     See :ref:`bokeh.core.enums` for more information.
 
-    '''
+    """
     def __init__(self, enum, *values, **kwargs):
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)

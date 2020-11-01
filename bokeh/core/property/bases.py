@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide base classes for the Bokeh property system.
+""" Provide base classes for the Bokeh property system.
 
 .. note::
     These classes form part of the very low-level machinery that implements
@@ -12,7 +12,7 @@
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -64,7 +64,7 @@ class DeserializationError(Exception):
     pass
 
 class Property(PropertyDescriptorFactory):
-    ''' Base class for Bokeh property instances, which can be added to Bokeh
+    """ Base class for Bokeh property instances, which can be added to Bokeh
     Models.
 
     Args:
@@ -85,7 +85,7 @@ class Property(PropertyDescriptorFactory):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
 
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
@@ -107,31 +107,31 @@ class Property(PropertyDescriptorFactory):
 
     @classmethod
     def _sphinx_prop_link(cls):
-        ''' Generate a sphinx :class: link to this property.
+        """ Generate a sphinx :class: link to this property.
 
-        '''
+        """
         # (double) escaped space at the end is to appease Sphinx
         # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
         return f":class:`~bokeh.core.properties.{cls.__name__}`\\ "
 
     @staticmethod
     def _sphinx_model_link(name):
-        ''' Generate a sphinx :class: link to given named model.
+        """ Generate a sphinx :class: link to given named model.
 
-        '''
+        """
         # (double) escaped space at the end is to appease Sphinx
         # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
         return f":class:`~{name}`\\ "
 
     def _sphinx_type(self):
-        ''' Generate a Sphinx-style reference to this type for documentation
+        """ Generate a Sphinx-style reference to this type for documentation
         automation purposes.
 
-        '''
+        """
         return self._sphinx_prop_link()
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``BasicPropertyDescriptor`` instances to install
+        """ Return a list of ``BasicPropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
 
         Args:
@@ -142,42 +142,42 @@ class Property(PropertyDescriptorFactory):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         return [ BasicPropertyDescriptor(base_name, self) ]
 
     def _may_have_unstable_default(self):
-        ''' False if we have a default that is immutable, and will be the
+        """ False if we have a default that is immutable, and will be the
         same every time (some defaults are generated on demand by a function
         to be called).
 
-        '''
+        """
         return isinstance(self._default, types.FunctionType)
 
     @classmethod
     def _copy_default(cls, default):
-        ''' Return a copy of the default, or a new value if the default
+        """ Return a copy of the default, or a new value if the default
         is specified by a function.
 
-        '''
+        """
         if not isinstance(default, types.FunctionType):
             return copy(default)
         else:
             return default()
 
     def _raw_default(self):
-        ''' Return the untransformed default value.
+        """ Return the untransformed default value.
 
         The raw_default() needs to be validated and transformed by
         prepare_value() before use, and may also be replaced later by
         subclass overrides or by themes.
 
-        '''
+        """
         return self._copy_default(self._default)
 
     def themed_default(self, cls, name, theme_overrides):
-        ''' The default, transformed by prepare_value() and the theme overrides.
+        """ The default, transformed by prepare_value() and the theme overrides.
 
-        '''
+        """
         overrides = theme_overrides
         if overrides is None or name not in overrides:
             overrides = cls._overridden_defaults()
@@ -190,25 +190,25 @@ class Property(PropertyDescriptorFactory):
 
     @property
     def serialized(self):
-        ''' Whether the property should be serialized when serializing an object.
+        """ Whether the property should be serialized when serializing an object.
 
         This would be False for a "virtual" or "convenience" property that duplicates
         information already available in other properties, for example.
-        '''
+        """
         return self._serialized
 
     @property
     def readonly(self):
-        ''' Whether this property is read-only.
+        """ Whether this property is read-only.
 
         Read-only properties may only be modified by the client (i.e., by BokehJS
         in the browser).
 
-        '''
+        """
         return self._readonly
 
     def matches(self, new, old):
-        ''' Whether two parameters match values.
+        """ Whether two parameters match values.
 
         If either ``new`` or ``old`` is a NumPy array or Pandas Series or Index,
         then the result of ``np.array_equal`` will determine if the values match.
@@ -218,7 +218,7 @@ class Property(PropertyDescriptorFactory):
         Returns:
             True, if new and old match, False otherwise
 
-        '''
+        """
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
@@ -248,21 +248,21 @@ class Property(PropertyDescriptorFactory):
             return False
 
     def from_json(self, json, models=None):
-        ''' Convert from JSON-compatible values into a value for this property.
+        """ Convert from JSON-compatible values into a value for this property.
 
         JSON-compatible values are: list, dict, number, string, bool, None
 
-        '''
+        """
         return json
 
     def serialize_value(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         return value
 
     def transform(self, value):
-        ''' Change the value into the canonical format for this property.
+        """ Change the value into the canonical format for this property.
 
         Args:
             value (obj) : the value to apply transformation to.
@@ -270,11 +270,11 @@ class Property(PropertyDescriptorFactory):
         Returns:
             obj: transformed value
 
-        '''
+        """
         return value
 
     def validate(self, value, detail=True):
-        ''' Determine whether we can set this property from this value.
+        """ Determine whether we can set this property from this value.
 
         Validation happens before transform()
 
@@ -293,11 +293,11 @@ class Property(PropertyDescriptorFactory):
         Raises:
             ValueError if the value is not valid for this property type
 
-        '''
+        """
         pass
 
     def is_valid(self, value):
-        ''' Whether the value passes validation
+        """ Whether the value passes validation
 
         Args:
             value (obj) : the value to validate against this property type
@@ -305,7 +305,7 @@ class Property(PropertyDescriptorFactory):
         Returns:
             True if valid, False otherwise
 
-        '''
+        """
         try:
             if validation_on():
                 self.validate(value, False)
@@ -316,9 +316,9 @@ class Property(PropertyDescriptorFactory):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         return value
 
     def prepare_value(self, obj_or_cls, name, value):
@@ -359,7 +359,7 @@ class Property(PropertyDescriptorFactory):
         return False
 
     def accepts(self, tp, converter):
-        ''' Declare that other types may be converted to this property type.
+        """ Declare that other types may be converted to this property type.
 
         Args:
             tp (Property) :
@@ -373,14 +373,14 @@ class Property(PropertyDescriptorFactory):
         Returns:
             self
 
-        '''
+        """
 
         tp = ParameterizedProperty._validate_type_param(tp)
         self.alternatives.append((tp, converter))
         return self
 
     def asserts(self, fn, msg_or_fn):
-        ''' Assert that prepared values satisfy given conditions.
+        """ Assert that prepared values satisfy given conditions.
 
         Assertions are intended in enforce conditions beyond simple value
         type validation. For instance, this method can be use to assert that
@@ -400,15 +400,15 @@ class Property(PropertyDescriptorFactory):
         Returns:
             self
 
-        '''
+        """
         self.assertions.append((fn, msg_or_fn))
         return self
 
 class ParameterizedProperty(Property):
-    ''' A base class for Properties that have type parameters, e.g.
+    """ A base class for Properties that have type parameters, e.g.
     ``List(String)``.
 
-    '''
+    """
 
     @staticmethod
     def _validate_type_param(type_param):
@@ -431,7 +431,7 @@ class ParameterizedProperty(Property):
         return any(type_param.has_ref for type_param in self.type_params)
 
 class PrimitiveProperty(Property):
-    ''' A base class for simple property types.
+    """ A base class for simple property types.
 
     Subclasses should define a class attribute ``_underlying_type`` that is
     a tuple of acceptable type values for the property.
@@ -445,7 +445,7 @@ class PrimitiveProperty(Property):
             class Float(PrimitiveProperty):
                 _underlying_type = (numbers.Real,)
 
-    '''
+    """
 
     _underlying_type = None
 
@@ -473,21 +473,21 @@ class PrimitiveProperty(Property):
         return self._sphinx_prop_link()
 
 class ContainerProperty(ParameterizedProperty):
-    ''' A base class for Container-like type properties.
+    """ A base class for Container-like type properties.
 
-    '''
+    """
 
     def _may_have_unstable_default(self):
         # all containers are mutable, so the default can be modified
         return True
 
 def validation_on():
-    ''' Check if property validation is currently active
+    """ Check if property validation is currently active
 
     Returns:
         bool
 
-    '''
+    """
     return Property._should_validate
 
 #-----------------------------------------------------------------------------

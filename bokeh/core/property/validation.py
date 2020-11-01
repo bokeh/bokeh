@@ -4,12 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Instance property.
+""" Provide the Instance property.
 
 The Instance property is used to construct object graphs of Bokeh models,
 where one Bokeh model refers to another.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -41,7 +41,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class validate:
-    ''' Control validation of bokeh properties
+    """ Control validation of bokeh properties
 
     This can be used as a context manager, or as a normal callable
 
@@ -61,7 +61,7 @@ class validate:
 
         :func:`~bokeh.core.properties.without_property_validation`: function decorator
 
-    '''
+    """
     def __init__(self, value):
         self.old = Property._should_validate
         Property._should_validate = value
@@ -74,7 +74,7 @@ class validate:
 
 
 def without_property_validation(input_function):
-    ''' Turn off property validation during update callbacks
+    """ Turn off property validation during update callbacks
 
     Example:
         .. code-block:: python
@@ -86,7 +86,7 @@ def without_property_validation(input_function):
     See Also:
         :class:`~bokeh.core.properties.validate`: context mangager for more fine-grained control
 
-    '''
+    """
     @wraps(input_function)
     def func(*args, **kwargs):
         with validate(False):

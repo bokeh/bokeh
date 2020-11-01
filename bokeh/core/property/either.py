@@ -4,12 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Either property.
+""" Provide the Either property.
 
 The Either property is used to construct properties that an accept any of
 multiple possible types.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -38,7 +38,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Either(ParameterizedProperty):
-    ''' Accept values according to a sequence of other property types.
+    """ Accept values according to a sequence of other property types.
 
         Example:
 
@@ -60,7 +60,7 @@ class Either(ParameterizedProperty):
 
             >>> m.prop = "foo"  # ValueError !!
 
-    '''
+    """
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))

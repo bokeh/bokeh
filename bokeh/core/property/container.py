@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+"""
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -48,9 +48,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Seq(ContainerProperty):
-    ''' Accept non-string ordered sequences of values, e.g. list, tuple, array.
+    """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
-    '''
+    """
 
     def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
@@ -111,9 +111,9 @@ class Seq(ContainerProperty):
         return f"{prop_link}({item_type})"
 
 class List(Seq):
-    ''' Accept Python list values.
+    """ Accept Python list values.
 
-    '''
+    """
 
     def __init__(self, item_type, default=[], help=None):
         # todo: refactor to not use mutable objects as default values.
@@ -123,9 +123,9 @@ class List(Seq):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, list):
             if isinstance(value, PropertyValueList):
                 return value
@@ -139,9 +139,9 @@ class List(Seq):
         return isinstance(value, list)
 
 class Array(Seq):
-    ''' Accept NumPy array values.
+    """ Accept NumPy array values.
 
-    '''
+    """
 
     @classmethod
     def _is_seq(cls, value):
@@ -154,12 +154,12 @@ class Array(Seq):
 
 
 class Dict(ContainerProperty):
-    ''' Accept Python dict values.
+    """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
-    '''
+    """
 
     def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
@@ -197,9 +197,9 @@ class Dict(ContainerProperty):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, dict):
             if isinstance(value, PropertyValueDict):
                 return value
@@ -215,16 +215,16 @@ class Dict(ContainerProperty):
         return f"{prop_link}({key_type}, {value_type})"
 
 class ColumnData(Dict):
-    ''' Accept a Python dictionary suitable as the ``data`` attribute of a
+    """ Accept a Python dictionary suitable as the ``data`` attribute of a
     :class:`~bokeh.models.sources.ColumnDataSource`.
 
     This class is a specialization of ``Dict`` that handles efficiently
     encoding columns that are NumPy arrays.
 
-    '''
+    """
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``ColumnDataPropertyDescriptor`` instances to
+        """ Return a list of ``ColumnDataPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
 
@@ -236,13 +236,13 @@ class ColumnData(Dict):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
 
     def from_json(self, json, models=None):
-        ''' Decodes column source data encoded as lists or base64 strings.
-        '''
+        """ Decodes column source data encoded as lists or base64 strings.
+        """
         if json is None:
             return None
         elif not isinstance(json, dict):
@@ -270,9 +270,9 @@ class ColumnData(Dict):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, dict):
             if isinstance(value, PropertyValueColumnData):
                 return value
@@ -282,9 +282,9 @@ class ColumnData(Dict):
             return value
 
 class Tuple(ContainerProperty):
-    ''' Accept Python tuple values.
+    """ Accept Python tuple values.
 
-    '''
+    """
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
@@ -319,18 +319,18 @@ class Tuple(ContainerProperty):
         raise ValueError(msg)
 
     def transform(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         if value is None:
             return None
 
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
     def serialize_value(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         if value is None:
             return None
 
@@ -344,9 +344,9 @@ class Tuple(ContainerProperty):
 
 
 class RelativeDelta(Dict):
-    ''' Accept RelativeDelta dicts for time delta values.
+    """ Accept RelativeDelta dicts for time delta values.
 
-    '''
+    """
 
     def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")

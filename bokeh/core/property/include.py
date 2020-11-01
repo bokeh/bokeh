@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+"""
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -40,11 +40,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Include(PropertyDescriptorFactory):
-    ''' Include "mix-in" property collection in a Bokeh model.
+    """ Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.
 
-    '''
+    """
 
     def __init__(self, delegate, help="", use_prefix=True):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):

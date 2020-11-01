@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Auto property.
+""" Provide the Auto property.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -34,7 +34,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Auto(Enum):
-    ''' Accepts only the string "auto".
+    """ Accepts only the string "auto".
 
     Useful for properties that can be configured to behave "automatically".
 
@@ -59,7 +59,7 @@ class Auto(Enum):
 
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
-    '''
+    """
     def __init__(self):
         super().__init__("auto")
 

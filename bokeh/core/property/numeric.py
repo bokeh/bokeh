@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the numeric properties.
+""" Provide the numeric properties.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -60,7 +60,7 @@ class PositiveInt(Int):
 
 
 class Interval(ParameterizedProperty):
-    ''' Accept numeric values that are contained within a given interval.
+    """ Accept numeric values that are contained within a given interval.
 
     Args:
         interval_type (numeric property):
@@ -96,7 +96,7 @@ class Interval(ParameterizedProperty):
 
             >>> m.prop = "foo" # ValueError !!
 
-    '''
+    """
     def __init__(self, interval_type, start, end, default=None, help=None):
         self.interval_type = self._validate_type_param(interval_type)
         # Make up a property name for validation purposes
@@ -122,7 +122,7 @@ class Interval(ParameterizedProperty):
             raise ValueError(msg)
 
 class Byte(Interval):
-    ''' Accept integral byte values (0-255).
+    """ Accept integral byte values (0-255).
 
     Example:
 
@@ -140,12 +140,12 @@ class Byte(Interval):
 
             >>> m.prop = 10.3 # ValueError !!
 
-    '''
+    """
     def __init__(self, default=0, help=None):
         super().__init__(Int, 0, 255, default=default, help=help)
 
 class Size(Float):
-    ''' Accept non-negative numeric values.
+    """ Accept non-negative numeric values.
 
     Args:
         default (float or None, optional) :
@@ -183,7 +183,7 @@ class Size(Float):
 
             >>> m.prop = "foo" # ValueError !!
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
@@ -192,7 +192,7 @@ class Size(Float):
             raise ValueError(msg)
 
 class Percent(Float):
-    ''' Accept floating point percentage values.
+    """ Accept floating point percentage values.
 
     ``Percent`` can be useful and semantically meaningful for specifying
     things like alpha values and extents.
@@ -235,7 +235,7 @@ class Percent(Float):
 
             >>> m.prop = 5   # ValueError !!
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
@@ -246,7 +246,7 @@ class Percent(Float):
         raise ValueError(msg)
 
 class Angle(Float):
-    ''' Accept floating point angle values.
+    """ Accept floating point angle values.
 
     ``Angle`` is equivalent to :class:`~bokeh.core.properties.Float` but is
     provided for cases when it is more semantically meaningful.
@@ -269,7 +269,7 @@ class Angle(Float):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     pass
 
 #-----------------------------------------------------------------------------
