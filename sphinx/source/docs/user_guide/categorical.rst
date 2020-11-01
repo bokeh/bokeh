@@ -205,7 +205,7 @@ To apply different colors to the bars, use ``factor_cmap`` for
            fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
 
 
-The ``start=1`` and ``end=2`` in the call to ``factor_cmap`` use the 
+The ``start=1`` and ``end=2`` in the call to ``factor_cmap`` use the
 year in the ``(fruit, year)`` pair for color mapping.
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested_colormapped.py
@@ -276,7 +276,7 @@ The example above groups data by the column ``'cyl'``, which is why the
 to non-grouped categories such as ``'mpg'`` providing, for instance, a mean
 number of miles per gallon in the ``'mpg_mean'`` column.
 
-This also works with multi-level groups. The example below groups the same 
+This also works with multi-level groups. The example below groups the same
 data by ``('cyl', 'mfr')`` and displays it in nested categories distributed
 along the x-axis. Here, the index column name ``'cyl_mfr'`` is made by
 joining the names of the grouped columns.
@@ -319,7 +319,7 @@ offset.
 The example below shows a scatter plot of every commit time for a GitHub
 user between 2012 and 2016. It groups commits by day of the week. By
 default, this plot would show thousands of points overlapping in a narrow
-line for each day. The ``jitter`` function lets you differentiate the 
+line for each day. The ``jitter`` function lets you differentiate the
 points to produce a useful plot:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
