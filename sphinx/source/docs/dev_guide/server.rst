@@ -1,6 +1,6 @@
 .. _devguide_server:
 
-Server Architecture
+Server architecture
 ===================
 
 This chapter is a "deep dive" into Bokeh server's internals. It assumes you're
@@ -19,7 +19,7 @@ to import from ``bokeh.server`` at all. An application developer would only use
 the ``Server`` class if it is doing something specialized, such as a custom
 or embedded server process.
 
-Applications, Sessions, and Connections
+Applications, sessions, and connections
 ---------------------------------------
 
 Each server contains one or more applications; you can think of an application
@@ -109,11 +109,8 @@ some quick things to know:
   time someone moves a slider, and ten users are doing this at
   once, users could easily see 10*100ms=1s of lag with only
   ten users.
-- In Tornado, non-blocking code is modeled with functions or
-  methods that return an instance of the ``Future`` class. You
-  may have seen the ``@gen.coroutine`` decorator. This decorator
-  transforms the decorated method into a method which returns a
-  ``Future``.
+- In Tornado, non-blocking code is implemented with Python native
+  coroutrines, i.e. ``async def``.
 - When no code is running, Tornado waits in its ``IOLoop``
   (sometimes called a "main loop" or "event loop"), which means
   it's waiting for something to happen. When something happens,
@@ -218,16 +215,12 @@ It executes a provided function with
 the document lock held, passing the document to that function.
 
 .. warning::
-  The lock is held while the function runs *even if the function is asynchronous*! If the
-  function returns a ``Future``, the lock is held until the ``Future``
-  completes.
+  It is very easy to modify the server code in such a way that you're
+  touching the document without holding the lock. If you do this, things will
+  break in subtle and painful-to-debug ways. When you touch the session document,
+  triple-check that the lock is held.
 
-**It is very easy to modify the server code in such a way that you're
-touching the document without holding the lock. If you do this, things will
-break in subtle and painful-to-debug ways. When you touch the session document,
-triple-check that the lock is held.**
-
-Session Security
+Session security
 ^^^^^^^^^^^^^^^^
 
 We rely on session IDs being cryptographically random and difficult to guess.
@@ -235,17 +228,13 @@ If an attacker knows someone's session ID, they can eavesdrop on or modify
 the session. If you're writing a larger web app with a Bokeh app embedded
 inside, this may affect how you design your larger app.
 
-When hacking on the server, for the most part session IDs are opaque strings,
-and after initially validating the ID, it doesn't matter to the server code
-what the ID is.
-
-Session Timeout
+Session timeout
 ^^^^^^^^^^^^^^^^
 
 To avoid resource exhaustion, unused sessions will time out according to code
 in ``application_context.py``
 
-Websocket Protocol
+Websocket protocol
 ------------------
 
 The server has a websocket connection open to each client (each browser tab,
@@ -307,7 +296,7 @@ Typically, when opening a connection, one side will pull or push
 the entire document; after the initial pull or push, the two sides
 stay in sync using ``PATCH-DOC`` messages.
 
-Some Current Protocol Caveats
+Some current protocol caveats
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. In the current protocol, conflicts where both sides change the
@@ -328,19 +317,7 @@ Some Current Protocol Caveats
    send the whole giant dictionary whenever any entry in it
    changes.
 
-3. At the moment, we do not optimize binary data by sending it
-   over binary websocket frames. However, NumPy arrays of
-   dtype ``float32``, ``float64``, and integer types smaller than ``int32``
-   are base64 encoded in a content frame to avoid performance
-   limitations of naive JSON string serialization.
-   JavaScript's lack of native 64-bit integer support precludes
-   them from inclusion in this optimization.
-   The base64 encoding should be entirely transparent to all
-   but those who look at the actual wire protocol. For more
-   information, refer to ``bokah.util.serialization``.
-
-
-HTTP Endpoints
+HTTP endpoints
 --------------
 
 The server only supports a few HTTP routes; you can find them in
@@ -359,7 +336,7 @@ Bokeh server isn't intended to be a general-purpose web framework. You can,
 however, pass new endpoints to ``Server`` using the ``extra_patterns`` parameter
 and the Tornado APIs.
 
-Additional Details
+Additional details
 ------------------
 
 Events
