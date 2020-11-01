@@ -1,5 +1,4 @@
-import Hammer, {Input} from "hammerjs"
-type HammerEvent = typeof Input
+import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
 import {logger} from "./logging"
@@ -17,6 +16,15 @@ import type {CanvasView} from "../models/canvas/canvas"
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
+}
+
+type HammerEvent = {
+  type: string
+  deltaX: number
+  deltaY: number
+  scale: number
+  rotation: number
+  srcEvent: TouchEvent | MouseEvent | PointerEvent
 }
 
 export type ScreenCoord = {sx: number, sy: number}
