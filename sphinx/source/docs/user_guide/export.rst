@@ -143,6 +143,7 @@ You can export an SVG plot in several ways:
 
 .. |export|          replace:: :func:`~bokeh.io.export`
 .. |export_png|      replace:: :func:`~bokeh.io.export_png`
+.. |export_svg|      replace:: :func:`~bokeh.io.export_svg`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
