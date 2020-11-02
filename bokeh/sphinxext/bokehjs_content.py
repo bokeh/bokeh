@@ -127,9 +127,8 @@ class BokehJSContent(CodeBlock):
                 nlines = len(code.split('\n'))
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
-                    log.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (nlines, self.options['emphasize-lines']),
-                                   location=location)
+                    emph_lines = self.options['emphasize-lines']
+                    log.warning(__(f"line number spec is out of range(1-{nlines}): {emph_lines!r}"), location=location)
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
             except ValueError as err:
@@ -176,13 +175,13 @@ class BokehJSContent(CodeBlock):
             raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
         if js_file:
-            log.debug("[bokehjs-content] handling external example in %r: %s", env.docname, js_file)
+            log.debug(f"[bokehjs-content] handling external example in {env.docname!r}: {js_file}")
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
             js_source = open(path).read()
         else:
-            log.debug("[bokehjs-content] handling inline example in %r", env.docname)
+            log.debug(f"[bokehjs-content] handling inline example in {env.docname!r}")
             js_source = '\n'.join(self.content)
 
         return js_source
@@ -210,7 +209,8 @@ class BokehJSContent(CodeBlock):
         rst_source = self.state_machine.node.document['source']
         rst_filename = basename(rst_source)
 
-        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('ccb'))
+        serial_no = env.new_serialno('ccb')
+        target_id = f"{rst_filename}.ccb-{serial_no}"
         target_id = target_id.replace(".", "-")
         target_node = nodes.target('', '', ids=[target_id])
 

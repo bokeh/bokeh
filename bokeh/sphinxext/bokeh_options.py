@@ -93,7 +93,7 @@ class BokehOptionsDirective(BokehDirective):
 
         m = py_sig_re.match(sig)
         if m is None:
-            raise SphinxError("Unable to parse signature for bokeh-options: %r" % sig)
+            raise SphinxError(f"Unable to parse signature for bokeh-options: {sig!r}")
         name_prefix, options_name, arglist, retann = m.groups()
 
         module_name = self.options['module']
@@ -101,14 +101,14 @@ class BokehOptionsDirective(BokehDirective):
         try:
             module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" % (options_name, module_name))
+            raise SphinxError(f"Unable to generate options reference docs for {options_name}, couldn't import module {module_name}")
 
         options = getattr(module, options_name, None)
         if options is None:
-            raise SphinxError("Unable to generate reference docs for %s, no options '%s' in %s" % (options_name, options_name, module_name))
+            raise SphinxError(f"Unable to generate options reference docs: no options {options_name} in module {module_name}")
 
         if not issubclass(options, Options):
-            raise SphinxError("Unable to generate reference docs for %s, options '%s' is not a subclass of Options" % (options_name, options_name))
+            raise SphinxError(f"Unable to generate options reference docs: {options_name} is not a subclass of Options")
 
         options_obj = options({})
 

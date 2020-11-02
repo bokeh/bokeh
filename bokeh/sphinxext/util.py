@@ -53,8 +53,8 @@ def get_sphinx_resources(include_bokehjs_api=False):
         # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
         # a one-off location "en/newthing" on the docs site
         elif docs_cdn.startswith("test:"):
-            resources = Resources(
-                mode="server", root_url="/en/%s/" % docs_cdn.split(":")[1])
+            version = docs_cdn.split(":")[1]
+            resources = Resources(mode="server", root_url=f"/en/{version}/")
 
         # Otherwise assume it is a dev/rc/full release version and use CDN for it
         else:

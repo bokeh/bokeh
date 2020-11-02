@@ -58,7 +58,7 @@ def html_page_context(app, pagename, templatename, context, doctree):
     '''
     site = context['SITEMAP_BASE_URL']
     version = context['version']
-    app.sitemap_links.add(site + version + '/' + pagename + ".html")
+    app.sitemap_links.add(f"{site}{version}/{pagename}.html")
 
 def build_finished(app, exception):
     ''' Generate a ``sitemap.txt`` from the collected HTML page links.
@@ -76,10 +76,10 @@ def build_finished(app, exception):
         with open(filename, 'w') as f:
             f.write(_header)
             for link in links_iter:
-                f.write(_item % escape(link.strip().replace("https://", "http://")))
+                f.write(_item % escape(link.strip().replace("https://", "http://")))  # TODO (bev) get rid of old style string subsitution
             f.write(_footer)
     except OSError as e:
-        raise SphinxError('cannot write sitemap.txt, reason: %s' % e)
+        raise SphinxError(f"cannot write sitemap.txt, reason: {e}")
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''

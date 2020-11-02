@@ -94,16 +94,18 @@ class BokehPropDirective(BokehDirective):
 
     def run(self):
 
-        model_name, prop_name = self.arguments[0].rsplit('.')
+        full_name = self.arguments[0]
+        model_name, prop_name = full_name.rsplit('.')
+        module_name = self.options['module']
 
         try:
-            module = importlib.import_module(self.options['module'])
+            module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Could not generate reference docs for %r: could not import module %r" % (self.arguments[0], self.options['module']))
+            raise SphinxError(f"Could not generate reference docs for {full_name}: could not import module {module_name}")
 
         model = getattr(module, model_name, None)
         if model is None:
-            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (self.arguments[0], model_name, self.options['module']))
+            raise SphinxError(f"Unable to generate reference docs for {full_name}: no model {model_name} in module {module_name}")
 
         # We may need to instantiate deprecated objects as part of documenting
         # them in the reference guide. Suppress any warnings here to keep the
@@ -115,7 +117,7 @@ class BokehPropDirective(BokehDirective):
         try:
             descriptor = model_obj.lookup(prop_name)
         except AttributeError:
-            raise SphinxError("Unable to generate reference docs for %s, no property '%s' in %s" % (self.arguments[0], prop_name, model_name))
+            raise SphinxError("Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,

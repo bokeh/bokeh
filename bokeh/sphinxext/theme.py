@@ -78,16 +78,12 @@ class BootstrapHTML5Translator(HTML5Translator):
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
     def visit_table(self, node: nodes.Element) -> None:
-        # copy of sphinx source to *not* add 'docutils' and 'align-default' classes
-        # but add 'table' class
+        # copy of sphinx source to *not* add 'docutils' and 'align-default' classes but add 'table' class
         self.generate_targets_for_table(node)
 
         self._table_row_index = 0
 
         classes = [cls.strip(" \t\n") for cls in self.settings.table_style.split(",")]
-        # classes.insert(0, "docutils")  # compat
-        # if 'align' in node:
-        #     classes.append('align-%s' % node['align'])
         tag = self.starttag(node, "table", CLASS=" ".join(classes))
         self.body.append(tag)
 

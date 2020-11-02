@@ -74,7 +74,7 @@ class BokehSettingsDirective(BokehDirective):
 
         m = py_sig_re.match(sig)
         if m is None:
-            raise SphinxError("Unable to parse signature for bokeh-model: %r" % sig)
+            raise SphinxError(f"Unable to parse signature for bokeh-model: {sig!r}")
         name_prefix, obj_name, arglist, retann = m.groups()
 
         module_name = self.options['module']
@@ -82,11 +82,11 @@ class BokehSettingsDirective(BokehDirective):
         try:
             module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" % (obj_name, module_name))
+            raise SphinxError(f"Unable to generate reference docs for {obj_name}: couldn't import module {module_name}")
 
         obj = getattr(module, obj_name, None)
         if obj is None:
-            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (obj_name, obj_name, module_name))
+            raise SphinxError(f"Unable to generate reference docs for {obj_name}: no model {obj_name} in module {module_name}")
 
         settings = []
         for x in obj.__class__.__dict__.values():

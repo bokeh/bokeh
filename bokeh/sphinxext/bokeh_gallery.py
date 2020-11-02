@@ -62,7 +62,7 @@ class BokehGalleryDirective(BokehDirective):
 
         gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
         if not exists(gallery_dir) and isdir(gallery_dir):
-            raise SphinxError("gallery dir %r missing for gallery file %r" % (gallery_dir, gallery_file))
+            raise SphinxError(f"gallery dir {gallery_dir!r} missing for gallery file {gallery_file!r}")
 
         spec = json.load(open(gallery_file))
         names = [detail['name']for detail in spec['details']]
@@ -73,10 +73,10 @@ class BokehGalleryDirective(BokehDirective):
 
 def config_inited_handler(app, config):
     gallery_dir = join(app.srcdir, config.bokeh_gallery_dir)
-    gallery_file = gallery_dir + ".json"
+    gallery_file = f"{gallery_dir}.json"
 
     if not exists(gallery_file) and isfile(gallery_file):
-        raise SphinxError("could not find gallery file %r for configured gallery dir %r" % (gallery_file, gallery_dir))
+        raise SphinxError(f"could not find gallery file {gallery_file!r} for configured gallery dir {gallery_dir!r}")
 
     gallery_file_mtime = getmtime(gallery_file)
 
@@ -92,7 +92,7 @@ def config_inited_handler(app, config):
 
     names = {x["name"] for x in details}
     if len(names) < len(details):
-        raise SphinxError("gallery file %r has duplicate names" % gallery_file)
+        raise SphinxError(f"gallery file {gallery_file!r} has duplicate names")
 
     details_iter = status_iterator(details,
                                    'creating gallery file entries... ',

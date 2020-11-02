@@ -89,7 +89,8 @@ def html_visit_bokeh_palette_group(self, node):
     self.body.append('<div class="container-fluid"><div class="row">')
     group = getattr(bp, node['group'], None)
     if not isinstance(group, dict):
-        raise SphinxError("invalid palette group name %r" % node['group'])
+        group_name = node["group"]
+        raise SphinxError(f"invalid palette group name {group_name}")
     names = sorted(group)
     for name in names:
         palettes = group[name]

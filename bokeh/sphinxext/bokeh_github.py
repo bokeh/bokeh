@@ -62,6 +62,8 @@ __all__ = (
     'setup',
 )
 
+BOKEH_GH = "https://github.com/bokeh/bokeh"
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -96,9 +98,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
         if issue_num <= 0:
             raise ValueError
     except ValueError:
-        msg = inliner.reporter.error(
-            'Github issue number must be a number greater than or equal to 1; '
-            '"%s" is invalid.' % text, line=lineno)
+        msg = inliner.reporter.error(f"Github issue number must be a number greater than or equal to 1; {text!r} is invalid.", line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     node = _make_gh_link_node(app, rawtext, 'issue', '#', 'issues', str(issue_num), options)
@@ -118,9 +118,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
         if issue_num <= 0:
             raise ValueError
     except ValueError:
-        msg = inliner.reporter.error(
-            'Github pull request number must be a number greater than or equal to 1; '
-            '"%s" is invalid.' % text, line=lineno)
+        msg = inliner.reporter.error(f"Github pull request number must be a number greater than or equal to 1; {text!r} is invalid.", line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
     node = _make_gh_link_node(app, rawtext, 'pull', 'pull request ', 'pull', str(issue_num), options)
@@ -149,7 +147,7 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     if '-' in tag:
         tag = 'master'
 
-    url = "%s/tree/%s/%s" % (_BOKEH_GH, tag, text)
+    url = f"{BOKEH_GH}/tree/{tag}/{text}"
     options = options or {}
     set_classes(options)
     node = nodes.reference(rawtext, text, refuri=url, **options)
@@ -166,8 +164,6 @@ def setup(app):
 # Private API
 #-----------------------------------------------------------------------------
 
-_BOKEH_GH = "https://github.com/bokeh/bokeh"
-
 def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     ''' Return a link to a Bokeh Github resource.
 
@@ -181,11 +177,10 @@ def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
         options (dict) : options dictionary passed to role function
 
     '''
-    url = "%s/%s/%s" % (_BOKEH_GH, api_type, id)
+    url = f"{BOKEH_GH}/{api_type}/{id}"
     options = options or {}
     set_classes(options)
-    node = nodes.reference(
-        rawtext, kind + utils.unescape(id), refuri=url, **options)
+    node = nodes.reference(rawtext, f"{kind}{utils.unescape(id)}", refuri=url, **options)
     return node
 
 #-----------------------------------------------------------------------------

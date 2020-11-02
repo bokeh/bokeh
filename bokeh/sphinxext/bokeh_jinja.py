@@ -77,11 +77,11 @@ class BokehJinjaDirective(BokehDirective):
         try:
             module = importlib.import_module(module_path)
         except ImportError:
-            SphinxError("Unable to import Bokeh template module: %s" % module_path)
+            SphinxError(f"Unable to import Bokeh template module: {module_path}")
 
         template = getattr(module, template_name, None)
         if template is None:
-            SphinxError("Unable to find Bokeh template: %s" % template_path)
+            SphinxError(f"Unable to find Bokeh template: {template_path}")
 
         template_text = open(template.filename).read()
         m = _DOCPAT.match(template_text)

@@ -92,7 +92,8 @@ class CollapsibleCodeBlock(CodeBlock):
         rst_source = self.state_machine.node.document['source']
         rst_filename = basename(rst_source)
 
-        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('ccb'))
+        serial_no = env.new_serialno('ccb')
+        target_id = f"{rst_filename}.ccb-{serial_no}"
         target_id = target_id.replace(".", "-")
         target_node = nodes.target('', '', ids=[target_id])
 

@@ -99,7 +99,7 @@ class BokehModelDirective(BokehDirective):
 
         m = py_sig_re.match(sig)
         if m is None:
-            raise SphinxError("Unable to parse signature for bokeh-model: %r" % sig)
+            raise SphinxError(f"Unable to parse signature for bokeh-model: {sig!r}")
         name_prefix, model_name, arglist, retann = m.groups()
 
         module_name = self.options['module']
@@ -107,14 +107,14 @@ class BokehModelDirective(BokehDirective):
         try:
             module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Unable to generate reference docs for %s, couldn't import module '%s'" % (model_name, module_name))
+            raise SphinxError(f"Unable to generate model reference docs for {model_name}, couldn't import module {module_name}")
 
         model = getattr(module, model_name, None)
         if model is None:
-            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (model_name, model_name, module_name))
+            raise SphinxError(f"Unable to generate model reference docs: no model for {model_name} in module {module_name}")
 
         if not issubclass(model, Model):
-            raise SphinxError("Unable to generate reference docs for %s, model '%s' is a subclass of Model" % (model_name, model_name))
+            raise SphinxError(f"Unable to generate model reference docs: {model_name}, is not a subclass of Model")
 
         # We may need to instantiate deprecated objects as part of documenting
         # them in the reference guide. Suppress any warnings here to keep the
