@@ -114,7 +114,7 @@ class BokehOptionsDirective(BokehDirective):
 
         opts = [];
         for prop_name in sorted(options_obj.properties()):
-            descriptor = getattr(options_obj.__class__, prop_name)
+            descriptor = options_obj.lookup(prop_name)
             opts.append(dict(
                 name=prop_name,
                 type=descriptor.property._sphinx_type(),
