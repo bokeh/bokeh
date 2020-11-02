@@ -27,6 +27,7 @@ from collections import Counter
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (
+    Auto,
     Bool,
     Datetime,
     Either,
@@ -152,9 +153,13 @@ class DataRange(Range):
     A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used
     for autoranging.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
-    renderers = List(Instance(Renderer), help="""
+    renderers = Either(List(Instance(Renderer)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
     defaults to all renderers on a plot.
     """)

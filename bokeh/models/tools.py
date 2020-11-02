@@ -218,6 +218,10 @@ class SelectTool(GestureTool):
     names = List(String, help="""
     A list of names to query for. If set, only renderers that have a matching
     value for their ``name`` attribute will be used.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
@@ -992,6 +996,10 @@ class HoverTool(InspectTool):
     names = List(String, help="""
     A list of names to query for. If set, only renderers that have a matching
     value for their ``name`` attribute will be used.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
     renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""

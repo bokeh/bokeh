@@ -16,7 +16,7 @@ export class Signal<Args, Sender extends object> {
 
     const receivers = receiversForSender.get(this.sender)!
 
-    if (findConnection(receivers, this, slot, context) != null) {
+    if (find_connection(receivers, this, slot, context) != null) {
       return false
     }
 
@@ -41,7 +41,7 @@ export class Signal<Args, Sender extends object> {
       return false
     }
 
-    const connection = findConnection(receivers, this, slot, context)
+    const connection = find_connection(receivers, this, slot, context)
     if (connection == null) {
       return false
     }
@@ -50,8 +50,8 @@ export class Signal<Args, Sender extends object> {
     const senders = sendersForReceiver.get(receiver)!
 
     connection.signal = null
-    scheduleCleanup(receivers)
-    scheduleCleanup(senders)
+    schedule_cleanup(receivers)
+    schedule_cleanup(senders)
 
     return true
   }
@@ -74,7 +74,7 @@ export class Signal0<Sender extends object> extends Signal<void, Sender> {
 }
 
 export namespace Signal {
-  export function disconnectBetween(sender: object, receiver: object): void {
+  export function disconnect_between(sender: object, receiver: object): void {
     const receivers = receiversForSender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
@@ -91,11 +91,11 @@ export namespace Signal {
         connection.signal = null
     }
 
-    scheduleCleanup(receivers)
-    scheduleCleanup(senders)
+    schedule_cleanup(receivers)
+    schedule_cleanup(senders)
   }
 
-  export function disconnectSender(sender: object): void {
+  export function disconnect_sender(sender: object): void {
     const receivers = receiversForSender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
@@ -106,13 +106,13 @@ export namespace Signal {
 
       const receiver = connection.context ?? connection.slot
       connection.signal = null
-      scheduleCleanup(sendersForReceiver.get(receiver)!)
+      schedule_cleanup(sendersForReceiver.get(receiver)!)
     }
 
-    scheduleCleanup(receivers)
+    schedule_cleanup(receivers)
   }
 
-  export function disconnectReceiver(receiver: object): void {
+  export function disconnect_receiver(receiver: object, slot?: Slot<any, any>, except_senders?: Set<object>): void {
     const senders = sendersForReceiver.get(receiver)
     if (senders == null || senders.length === 0)
       return
@@ -121,21 +121,27 @@ export namespace Signal {
       if (connection.signal == null)
         return
 
+      if (slot != null && connection.slot != slot)
+        continue
+
       const sender = connection.signal.sender
+      if (except_senders != null && except_senders.has(sender))
+        continue
+
       connection.signal = null
-      scheduleCleanup(receiversForSender.get(sender)!)
+      schedule_cleanup(receiversForSender.get(sender)!)
     }
 
-    scheduleCleanup(senders)
+    schedule_cleanup(senders)
   }
 
-  export function disconnectAll(obj: object): void {
+  export function disconnect_all(obj: object): void {
     const receivers = receiversForSender.get(obj)
     if (receivers != null && receivers.length !== 0) {
       for (const connection of receivers) {
         connection.signal = null
       }
-      scheduleCleanup(receivers)
+      schedule_cleanup(receivers)
     }
 
     const senders = sendersForReceiver.get(obj)
@@ -143,9 +149,21 @@ export namespace Signal {
       for (const connection of senders) {
         connection.signal = null
       }
-      scheduleCleanup(senders)
+      schedule_cleanup(senders)
     }
   }
+
+  /** @deprecated */
+  export const disconnectBetween = disconnect_between
+
+  /** @deprecated */
+  export const disconnectSender = disconnect_sender
+
+  /** @deprecated */
+  export const disconnectReceiver = disconnect_receiver
+
+  /** @deprecated */
+  export const disconnectAll = disconnect_all
 }
 
 export interface ISignalable {
@@ -164,7 +182,7 @@ export function Signalable() {
   }
 }
 
-interface Connection {
+type Connection = {
   signal: Signal<any, object> | null
   readonly slot: Slot<any, any>
   readonly context: object | null
@@ -173,13 +191,13 @@ interface Connection {
 const receiversForSender = new WeakMap<object, Connection[]>()
 const sendersForReceiver = new WeakMap<object, Connection[]>()
 
-function findConnection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
+function find_connection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
   return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
 }
 
 const dirty_set = new Set<Connection[]>()
 
-function scheduleCleanup(connections: Connection[]): void {
+function schedule_cleanup(connections: Connection[]): void {
   if (dirty_set.size === 0) {
     (async () => {
       await defer()

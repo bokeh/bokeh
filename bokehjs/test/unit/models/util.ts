@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {compute_renderers} from "@bokehjs/models/tools/util"
+import {compute_renderers} from "@bokehjs/models/util"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 
