@@ -94,6 +94,10 @@ pygments_style = 'sphinx'
 # configuration for sphinxext.opengraph
 ogp_site_url = 'https://docs.bokeh.org/en/latest/'
 ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />'
+    '<meta property="twitter:site" content="@bokeh" />',
+]
 
 # -- Options for HTML output ---------------------------------------------------
 
