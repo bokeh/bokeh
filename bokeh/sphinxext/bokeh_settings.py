@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """ Thoroughly document Bokeh settings.
 
 The ``bokeh-model`` directive will automatically document all the attributes
@@ -18,15 +18,16 @@ This directive takes the name of a module attribute
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib
@@ -43,31 +44,30 @@ from bokeh.settings import PrioritizedSetting, _Unset
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import SETTINGS_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehSettingsDirective',
-    'setup',
+    "BokehSettingsDirective",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehSettingsDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
     optional_arguments = 1
-    option_spec = {
-        'module': unchanged
-    }
+    option_spec = {"module": unchanged}
 
     def run(self):
         sig = " ".join(self.arguments)
@@ -77,7 +77,7 @@ class BokehSettingsDirective(BokehDirective):
             raise SphinxError(f"Unable to parse signature for bokeh-model: {sig!r}")
         name_prefix, obj_name, arglist, retann = m.groups()
 
-        module_name = self.options['module']
+        module_name = self.options["module"]
 
         try:
             module = importlib.import_module(module_name)
@@ -94,30 +94,28 @@ class BokehSettingsDirective(BokehDirective):
                 continue
             # help = [line.strip() for line in x.help.strip().split("\n")]
             setting = {
-                'name': x.name,
-                'env_var': x.env_var,
-                'type': x.convert_type,
-                'help': textwrap.dedent(x.help),
-                'default': "(Unset)" if x.default is _Unset else repr(x.default),
-                'dev_default': "(Unset)" if x.dev_default is _Unset else repr(x.dev_default),
+                "name": x.name,
+                "env_var": x.env_var,
+                "type": x.convert_type,
+                "help": textwrap.dedent(x.help),
+                "default": "(Unset)" if x.default is _Unset else repr(x.default),
+                "dev_default": "(Unset)" if x.dev_default is _Unset else repr(x.dev_default),
             }
             settings.append(setting)
 
-        rst_text = SETTINGS_DETAIL.render(
-            name=obj_name,
-            module_name=module_name,
-            settings=settings
-        )
+        rst_text = SETTINGS_DETAIL.render(name=obj_name, module_name=module_name, settings=settings)
         return self._parse(rst_text, "<bokeh-settings>")
+
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_directive_to_domain('py', 'bokeh-settings', BokehSettingsDirective)
+    app.add_directive_to_domain("py", "bokeh-settings", BokehSettingsDirective)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """ Generate an inline visual representations of a single color palette.
 
 The ``:bokeh-palette:`` role can be used with by providing any of the
@@ -48,15 +48,16 @@ Will generate the output:
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from docutils import nodes
@@ -65,22 +66,23 @@ from sphinx.errors import SphinxError
 # Bokeh imports
 from .templates import PALETTE_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'bokeh_palette',
-    'setup',
+    "bokeh_palette",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=None):
     """ Generate an inline visual representations of a single color palette.
@@ -102,25 +104,27 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
         exec(f"palette = {text}", _globals)
     except Exception as e:
         raise SphinxError(f"cannot evaluate palette expression {text!r}, reason: {e}")
-    p = _globals.get('palette', None)
+    p = _globals.get("palette", None)
     if not isinstance(p, (list, tuple)) or not all(isinstance(x, str) for x in p):
         raise SphinxError(f"palette expression {text!r} generated invalid or no output: {p}")
     w = 20 if len(p) < 15 else 10 if len(p) < 32 else 5 if len(p) < 64 else 2 if len(p) < 128 else 1
     html = PALETTE_DETAIL.render(palette=p, width=w)
-    node = nodes.raw('', html, format="html")
+    node = nodes.raw("", html, format="html")
     return [node], []
+
 
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_role('bokeh-palette', bokeh_palette)
+    app.add_role("bokeh-palette", bokeh_palette)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 _globals = {}
 exec("from bokeh.palettes import *", _globals)

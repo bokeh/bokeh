@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """ Simplify linking to Bokeh Github resources.
 
 This module proved four new roles that can be uses to easily link to various
@@ -36,41 +36,43 @@ updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 from docutils import nodes, utils
 from docutils.parsers.rst.roles import set_classes
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'bokeh_commit',
-    'bokeh_issue',
-    'bokeh_pull',
-    'bokeh_tree',
-    'setup',
+    "bokeh_commit",
+    "bokeh_issue",
+    "bokeh_pull",
+    "bokeh_tree",
+    "setup",
 )
 
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
     """ Link to a Bokeh Github issue.
@@ -81,8 +83,9 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
 
     """
     app = inliner.document.settings.env.app
-    node = _make_gh_link_node(app, rawtext, 'commit', 'commit ', 'commit', text, options)
+    node = _make_gh_link_node(app, rawtext, "commit", "commit ", "commit", text, options)
     return [node], []
+
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
     """ Link to a Bokeh Github issue.
@@ -101,8 +104,9 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
         msg = inliner.reporter.error(f"Github issue number must be a number greater than or equal to 1; {text!r} is invalid.", line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = _make_gh_link_node(app, rawtext, 'issue', '#', 'issues', str(issue_num), options)
+    node = _make_gh_link_node(app, rawtext, "issue", "#", "issues", str(issue_num), options)
     return [node], []
+
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
     """ Link to a Bokeh Github issue.
@@ -121,8 +125,9 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
         msg = inliner.reporter.error(f"Github pull request number must be a number greater than or equal to 1; {text!r} is invalid.", line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]
-    node = _make_gh_link_node(app, rawtext, 'pull', 'pull request ', 'pull', str(issue_num), options)
+    node = _make_gh_link_node(app, rawtext, "pull", "pull request ", "pull", str(issue_num), options)
     return [node], []
+
 
 def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
     """ Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
@@ -143,9 +148,9 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     """
     app = inliner.document.settings.env.app
 
-    tag = app.env.config['version']
-    if '-' in tag:
-        tag = 'master'
+    tag = app.env.config["version"]
+    if "-" in tag:
+        tag = "master"
 
     url = f"{BOKEH_GH}/tree/{tag}/{text}"
     options = options or {}
@@ -153,16 +158,19 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     node = nodes.reference(rawtext, text, refuri=url, **options)
     return [node], []
 
+
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_role('bokeh-commit', bokeh_commit)
-    app.add_role('bokeh-issue', bokeh_issue)
-    app.add_role('bokeh-pull', bokeh_pull)
-    app.add_role('bokeh-tree', bokeh_tree)
+    app.add_role("bokeh-commit", bokeh_commit)
+    app.add_role("bokeh-issue", bokeh_issue)
+    app.add_role("bokeh-pull", bokeh_pull)
+    app.add_role("bokeh-tree", bokeh_tree)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     """ Return a link to a Bokeh Github resource.
@@ -183,6 +191,7 @@ def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     node = nodes.reference(rawtext, f"{kind}{utils.unescape(id)}", refuri=url, **options)
     return node
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """ Thoroughly document Bokeh property attributes.
 
 The ``bokeh-prop`` directive generates documentation for Bokeh model properties,
@@ -40,15 +40,16 @@ in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib
@@ -66,37 +67,36 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehPropDirective',
-    'setup',
+    "BokehPropDirective",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehPropDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
     optional_arguments = 1
-    option_spec = {
-        'module': unchanged
-    }
+    option_spec = {"module": unchanged}
 
     def run(self):
 
         full_name = self.arguments[0]
-        model_name, prop_name = full_name.rsplit('.')
-        module_name = self.options['module']
+        model_name, prop_name = full_name.rsplit(".")
+        module_name = self.options["module"]
 
         try:
             module = importlib.import_module(module_name)
@@ -121,22 +121,24 @@ class BokehPropDirective(BokehDirective):
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,
-            module=self.options['module'],
-            default = repr(descriptor.instance_default(model_obj)),
+            module=self.options["module"],
+            default=repr(descriptor.instance_default(model_obj)),
             type_info=descriptor.property._sphinx_type(),
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
         return self._parse(rst_text, "<bokeh-prop>")
 
+
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)
+    app.add_directive_to_domain("py", "bokeh-prop", BokehPropDirective)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

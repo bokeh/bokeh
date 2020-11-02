@@ -1,9 +1,9 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 """ Automatically document Bokeh Jinja2 templates.
 
 This directive takes the module path to an attribute name that defines a Jinja2
@@ -22,15 +22,16 @@ generate the following output:
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib
@@ -45,34 +46,35 @@ from sphinx.errors import SphinxError
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehJinjaDirective',
-    'setup',
+    "BokehJinjaDirective",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehJinjaDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
     option_spec = {
-        'noindex': lambda x: True, # directives.flag weirdly returns None
+        "noindex": lambda x: True,  # directives.flag weirdly returns None
     }
 
     def run(self):
         template_path = self.arguments[0]
-        module_path, template_name = template_path.rsplit('.', 1)
+        module_path, template_name = template_path.rsplit(".", 1)
 
         try:
             module = importlib.import_module(module_path)
@@ -85,15 +87,17 @@ class BokehJinjaDirective(BokehDirective):
 
         template_text = open(template.filename).read()
         m = _DOCPAT.match(template_text)
-        if m: doc = m.group(1)
-        else: doc = None
+        if m:
+            doc = m.group(1)
+        else:
+            doc = None
 
         filename = basename(template.filename)
         rst_text = JINJA_DETAIL.render(
             name=template_name,
             module=module_path,
             objrepr=repr(template),
-            noindex=self.options.get('noindex', False),
+            noindex=self.options.get("noindex", False),
             doc="" if doc is None else textwrap.dedent(doc),
             filename=filename,
             template_text=_DOCPAT.sub("", template_text),
@@ -101,16 +105,18 @@ class BokehJinjaDirective(BokehDirective):
 
         return self._parse(rst_text, "<bokeh-jinja>")
 
+
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_directive_to_domain('py', 'bokeh-jinja', BokehJinjaDirective)
+    app.add_directive_to_domain("py", "bokeh-jinja", BokehJinjaDirective)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-_DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
+_DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE | re.DOTALL)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
