@@ -41,18 +41,30 @@
     </script>
   </head>
   <body>
-    <div style="visibility: hidden;">
-      <!-- Preload fonts. Rmove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
-      <span style="font-family: Bokeh;     font-style: normal; font-weight: normal;">Ab01_</span>
-      <span style="font-family: Bokeh;     font-style: normal; font-weight: bold;"  >Ab01_</span>
-      <span style="font-family: Bokeh;     font-style: italic; font-weight: normal;">Ab01_</span>
-      <span style="font-family: BokehMono; font-style: normal; font-weight: normal;">Ab01_</span>
-    </div>
+    <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
+    <script type="text/javascript">
+      async function preload_fonts() {
+        for (let i = 5; i < 36; i++) {
+          await document.fonts.load(`normal ${i}px Bokeh`)
+          await document.fonts.load(`bold ${i}px Bokeh`)
+          await document.fonts.load(`italic normal ${i}px Bokeh`)
+          await document.fonts.load(`italic bold ${i}px Bokeh`)
+          await document.fonts.load(`normal ${i}px BokehMono`)
+        }
+      }
+    </script>
     <script type="text/javascript" src="/static/test/{{ main }}"></script>
     {%- if run %}
     <script>
-      const params = new URLSearchParams(location.search)
-      Tests.run_all(params.get("k"))
+      (async () => {
+        await preload_fonts()
+        const params = new URLSearchParams(location.search)
+        await Tests.run_all(params.get("k"))
+      })()
+    </script>
+    {% else %}
+    <script>
+      preload_fonts()
     </script>
     {% endif -%}
   </body>

@@ -28,10 +28,7 @@ export function measure_font(font: string): FontMetrics {
     const height = offset(block).top - offset(text).top
 
     const result = {height, ascent, descent: height - ascent}
-
-    const {fonts} = document
-    if (fonts == null || fonts.check(font))
-      _font_cache.set(font, result)
+    _font_cache.set(font, result)
 
     return result
   } finally {
