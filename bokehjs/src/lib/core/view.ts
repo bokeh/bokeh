@@ -37,7 +37,9 @@ export class View implements ISignalable {
 
   protected _has_finished: boolean
 
+  /** @internal */
   protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
+
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
     let new_slot = this._slots.get(slot)
     if (new_slot == null) {
@@ -108,7 +110,7 @@ export class View implements ISignalable {
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {

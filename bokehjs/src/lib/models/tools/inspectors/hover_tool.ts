@@ -26,6 +26,7 @@ import {ImageIndex} from "../../selections/selection"
 import {bk_tool_icon_hover} from "styles/icons"
 import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
 import {Signal} from "core/signaling"
+import {compute_renderers} from "../../util"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -136,7 +137,7 @@ export class HoverToolView extends InspectToolView {
     const slot = this._slots.get(this._update)
     if (slot != null) {
       const except = new Set(glyph_renderers.map((r) => r.data_source))
-      Signal.disconnectReceiver(this, slot, except)
+      Signal.disconnect_receiver(this, slot, except)
     }
 
     for (const r of glyph_renderers) {
@@ -145,8 +146,9 @@ export class HoverToolView extends InspectToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    const {renderers} = this.model
-    return renderers == "auto" ? this.plot_model.data_renderers : renderers
+    const {renderers, names} = this.model
+    const all_renderers = this.plot_model.data_renderers
+    return compute_renderers(renderers, all_renderers, names)
   }
 
   get ttmodels(): Map<GlyphRenderer, Tooltip> {
@@ -506,6 +508,8 @@ export namespace HoverTool {
     tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<DataRenderer[] | "auto">
+    /** @deprecated */
+    names: p.Property<string[]>
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
     point_policy: p.Property<PointPolicy>
@@ -538,6 +542,7 @@ export class HoverTool extends InspectTool {
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
       renderers:    [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+      names:        [ Array(String), [] ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],
       point_policy: [ PointPolicy, "snap_to_data" ],

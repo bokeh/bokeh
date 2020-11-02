@@ -39,3 +39,10 @@ Certain base models were renamed to unify naming convention with bokehjs:
 +---------------+-------------------+
 
 Old names are deprecated and will be removed in bokeh 3.0.
+
+``names`` properties were deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``DataRange.names``, ``SelectTool.names`` and ``HoverTool.names`` were deprecated
+and will be removed in bokeh 3.0. Use respective ``renderers`` properties instead,
+possibly in combination with ``plot.select(name="renderer name")``.
