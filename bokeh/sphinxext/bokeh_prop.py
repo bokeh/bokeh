@@ -113,13 +113,14 @@ class BokehPropDirective(BokehDirective):
             model_obj = model()
 
         try:
-            descriptor = getattr(model_obj.__class__, prop_name)
+            descriptor = model_obj.lookup(prop_name)
         except AttributeError:
             raise SphinxError("Unable to generate reference docs for %s, no property '%s' in %s" % (self.arguments[0], prop_name, model_name))
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,
             module=self.options['module'],
+            default = repr(descriptor.instance_default(model_obj)),
             type_info=descriptor.property._sphinx_type(),
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
