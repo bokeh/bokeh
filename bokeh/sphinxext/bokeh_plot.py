@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Include Bokeh plots in Sphinx HTML documentation.
+""" Include Bokeh plots in Sphinx HTML documentation.
 
 For other output types, the placeholder text ``[graph]`` will
 be generated.
@@ -69,7 +69,7 @@ The inline example code above produces the following output:
 
     show(p)
 
-'''
+"""
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ def build_finished(app, exception):
             raise SphinxError(f"cannot copy local file {file!r}, reason: {e}")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive('bokeh-plot', BokehPlotDirective)
     app.add_config_value('bokeh_missing_google_api_key_ok', True, 'html')
     app.connect('builder-inited', builder_inited)

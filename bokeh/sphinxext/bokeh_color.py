@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Document Bokeh named colors.
+""" Document Bokeh named colors.
 
 The ``bokeh-color`` directive accepts a named color as its argument:
 
@@ -19,7 +19,7 @@ and generates a labeled color swatch as output.
 The ``bokeh-color`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -75,7 +75,7 @@ class BokehColorDirective(BokehDirective):
         return [node]
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-color', BokehColorDirective)
 
 #-----------------------------------------------------------------------------

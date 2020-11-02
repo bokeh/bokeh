@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Make javascript code blocks also include a live link to codepen.io for instant experiementation.
+""" Make javascript code blocks also include a live link to codepen.io for instant experiementation.
 
 This directive takes a title to use for the codepen example:
 
@@ -39,7 +39,7 @@ The inline example code above produces the following output:
 
     alert('this is called in the codepen');
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -261,7 +261,7 @@ def html_depart_bokehjs_content(self, node):
     ))
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_node(
         bokehjs_content,
         html=(

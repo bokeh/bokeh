@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Display code blocks in collapsible sections when outputting to HTML.
+""" Display code blocks in collapsible sections when outputting to HTML.
 
 This directive takes a heading to use for the collapsible code block:
 
@@ -34,7 +34,7 @@ The inline example code above produces the following output:
 
         print("Hello, Bokeh!")
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -119,7 +119,7 @@ def html_depart_collapsible_code_block(self, node):
     self.body.append(CCB_EPILOGUE.render())
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_node(
         collapsible_code_block,
         html=(

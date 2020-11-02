@@ -4,10 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Install some functions for the bokeh theme to make use of.
+""" Install some functions for the bokeh theme to make use of.
 
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate

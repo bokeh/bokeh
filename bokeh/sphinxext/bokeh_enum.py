@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh enumerations
+""" Thoroughly document Bokeh enumerations
 
 The ``bokeh-enum`` directive generates useful documentation for enumerations,
 including all the allowable values. If the number of values is large, the full
@@ -39,7 +39,7 @@ the same output above will be generated directly from the following code:
     #: Specify a baz style
     baz = enumeration("a", "b", "c")
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -120,7 +120,7 @@ class BokehEnumDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-enum>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-enum', BokehEnumDirective)
 
 #-----------------------------------------------------------------------------

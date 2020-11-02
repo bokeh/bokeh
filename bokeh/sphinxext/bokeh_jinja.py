@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Automatically document Bokeh Jinja2 templates.
+""" Automatically document Bokeh Jinja2 templates.
 
 This directive takes the module path to an attribute name that defines a Jinja2
 template:
@@ -20,7 +20,7 @@ generate the following output:
     .. bokeh-jinja:: bokeh.core.templates.FILE
         :noindex:
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -102,7 +102,7 @@ class BokehJinjaDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-jinja>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-jinja', BokehJinjaDirective)
 
 #-----------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Generate visual representations of palettes in Bokeh palette groups.
+""" Generate visual representations of palettes in Bokeh palette groups.
 
 The ``bokeh.palettes`` modules expose attributes such as ``mpl``, ``brewer``,
 and ``d3`` that provide groups of palettes. The ``bokeh-palette-group``
@@ -26,7 +26,7 @@ Generates the output:
    case for the Bokeh documentation theme). If using this theme outside the
    Bokeh documentation, be sure to include those resources by hand.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -102,7 +102,7 @@ def html_visit_bokeh_palette_group(self, node):
     raise nodes.SkipNode
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_node(bokeh_palette_group, html=(html_visit_bokeh_palette_group, None))
     app.add_directive('bokeh-palette-group', BokehPaletteGroupDirective)
 

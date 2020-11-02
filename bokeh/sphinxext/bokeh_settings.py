@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh settings.
+""" Thoroughly document Bokeh settings.
 
 The ``bokeh-model`` directive will automatically document all the attributes
 (including Bokeh PrioritizedSettings) of an object.
@@ -16,7 +16,7 @@ This directive takes the name of a module attribute
     .. bokeh-settings:: settings
         :module: bokeh.settings
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -111,7 +111,7 @@ class BokehSettingsDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-settings>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-settings', BokehSettingsDirective)
 
 #-----------------------------------------------------------------------------

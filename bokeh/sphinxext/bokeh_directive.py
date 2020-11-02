@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a base class and useful functions for Bokeh Sphinx directives.
+""" Provide a base class and useful functions for Bokeh Sphinx directives.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -33,12 +33,12 @@ from sphinx.util.nodes import nested_parse_with_titles
 
 # taken from Sphinx autodoc
 py_sig_re = re.compile(
-    r'''^ ([\w.]*\.)?            # class name(s)
+    r"""^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
           (?: \((.*)\)           # optional: arguments
            (?:\s* -> \s* (.*))?  # return annotation
           )? $                   # and nothing more
-          ''', re.VERBOSE)
+          """, re.VERBOSE)
 
 __all__ = (
     'BokehDirective',

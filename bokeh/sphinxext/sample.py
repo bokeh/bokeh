@@ -4,10 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' This modules simply provides some sample code for the documentation of
+""" This modules simply provides some sample code for the documentation of
 ``bokeh.sphinxext`` itself.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate

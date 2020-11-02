@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Generate an inline visual representations of a single color palette.
+""" Generate an inline visual representations of a single color palette.
 
 The ``:bokeh-palette:`` role can be used with by providing any of the
 following:
@@ -46,7 +46,7 @@ Will generate the output:
 
     :bokeh-palette:`viridis(256)`
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -83,7 +83,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=None):
-    ''' Generate an inline visual representations of a single color palette.
+    """ Generate an inline visual representations of a single color palette.
 
     This function evaluates the expression ``f"palette = {text}"``, in the
     context of a ``globals`` namespace that has previously imported all of
@@ -97,7 +97,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
 
     http://docutils.sourceforge.net/docs/howto/rst-roles.html#define-the-role-function
 
-    '''
+    """
     try:
         exec(f"palette = {text}", _globals)
     except Exception as e:
@@ -111,7 +111,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
     return [node], []
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_role('bokeh-palette', bokeh_palette)
 
 #-----------------------------------------------------------------------------

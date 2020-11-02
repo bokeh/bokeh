@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh model classes.
+""" Thoroughly document Bokeh model classes.
 
 The ``bokeh-model`` directive will automatically document all the attributes
 (including Bokeh properties) of a Bokeh Model subclass. A JSON prototype showing
@@ -26,12 +26,11 @@ For the following definition of ``bokeh.sphinxext.sample.Foo``:
 .. code-block:: python
 
     class Foo(Model):
-        """ This is a Foo model. """
+        ''' This is a Foo model. '''
         index = Either(Auto, Enum('abc', 'def', 'xzy'), help="doc for index")
         value = Tuple(Float, Float, help="doc for value")
 
-
-the above usage yields the output:
+usage yields the output:
 
     .. bokeh-model:: Foo
         :module: bokeh.sphinxext.sample
@@ -39,7 +38,7 @@ the above usage yields the output:
 The ``bokeh-model`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -139,7 +138,7 @@ class BokehModelDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-model>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
 
 #-----------------------------------------------------------------------------

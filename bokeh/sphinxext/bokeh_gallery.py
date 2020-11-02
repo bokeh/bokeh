@@ -120,7 +120,7 @@ def config_inited_handler(app, config):
         os.remove(join(gallery_dir, extra_file))
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_config_value('bokeh_gallery_dir', join("docs", "gallery"), 'html')
     app.connect('config-inited', config_inited_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)

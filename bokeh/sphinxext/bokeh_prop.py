@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh property attributes.
+""" Thoroughly document Bokeh property attributes.
 
 The ``bokeh-prop`` directive generates documentation for Bokeh model properties,
 including cross links to the relevant property types. Additionally, any
@@ -26,7 +26,7 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``:
 .. code-block:: python
 
     class Bar(Model):
-        """ This is a Bar model. """
+        ''' This is a Bar model. '''
         thing = List(Int, help="doc for thing")
 
 the above usage yields the output:
@@ -38,7 +38,7 @@ the above usage yields the output:
 The ``bokeh-prop`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -130,7 +130,7 @@ class BokehPropDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-prop>")
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
+    """ Required Sphinx extension setup function. """
     app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)
 
 #-----------------------------------------------------------------------------
