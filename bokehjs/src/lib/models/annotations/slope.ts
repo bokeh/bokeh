@@ -1,16 +1,11 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Color} from "core/types"
 import * as p from "core/properties"
 
 export class SlopeView extends AnnotationView {
   model: Slope
   visuals: Slope.Visuals
-
-  initialize(): void {
-    super.initialize()
-  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -18,11 +13,9 @@ export class SlopeView extends AnnotationView {
   }
 
   protected _render(): void {
-    const gradient = this.model.gradient
-    const y_intercept = this.model.y_intercept
-    if (gradient == null || y_intercept == null) {
+    const {gradient, y_intercept} = this.model
+    if (gradient == null || y_intercept == null)
       return
-    }
 
     const {frame} = this.plot_view
 
@@ -69,10 +62,6 @@ export namespace Slope {
   export type Props = Annotation.Props & {
     gradient: p.Property<number | null>
     y_intercept: p.Property<number | null>
-
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_alpha: p.Property<number>
   } & Mixins
 
   export type Mixins = mixins.Line/*Scalar*/

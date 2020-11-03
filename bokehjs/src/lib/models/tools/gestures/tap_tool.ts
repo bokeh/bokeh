@@ -39,7 +39,7 @@ export class TapToolView extends SelectToolView {
       }
 
       this._emit_selection_event(geometry)
-      this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
+      this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
     } else {
       for (const r of this.computed_renderers) {
         const rv = this.plot_view.renderer_view(r)

@@ -5,9 +5,11 @@ import * as p from "core/properties"
 import {div, canvas, append} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {extend} from "core/util/object"
+import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx} from "core/util/canvas"
 import {SVGRenderingContext2D} from "core/util/svg"
+import {PlotView} from "../plots/plot"
 
 export type FrameBox = [number, number, number, number]
 
@@ -156,6 +158,8 @@ export class CanvasView extends DOMView {
   overlays_el: HTMLElement
   events_el: HTMLElement
 
+  ui_event_bus: UIEventBus
+
   initialize(): void {
     super.initialize()
 
@@ -181,7 +185,12 @@ export class CanvasView extends DOMView {
     extend(this.el.style, style)
     append(this.el, ...elements)
 
-    logger.debug("CanvasView initialized")
+    this.ui_event_bus = new UIEventBus(this)
+  }
+
+  remove(): void {
+    this.ui_event_bus.destroy()
+    super.remove()
   }
 
   add_underlay(el: HTMLElement): void {
@@ -227,17 +236,7 @@ export class CanvasView extends DOMView {
       // Setup blending
       gl.enable(gl.BLEND)
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
-    }
-  }
-
-  clear_webgl(): void {
-    const {webgl} = this
-    if (webgl != null) {
-      // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      this._clear_webgl()
     }
   }
 
@@ -258,6 +257,18 @@ export class CanvasView extends DOMView {
         ctx.scale(ratio, ratio)
         ctx.translate(0.5, 0.5)
       }
+      this._clear_webgl()
+    }
+  }
+
+  protected _clear_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      // Prepare GL for drawing
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     }
   }
 
@@ -274,6 +285,13 @@ export class CanvasView extends DOMView {
   to_blob(): Promise<Blob> {
     return this.compose().to_blob()
   }
+
+  plot_views: PlotView[]
+  /*
+  get plot_views(): PlotView[] {
+    return [] // XXX
+  }
+  */
 }
 
 export namespace Canvas {

@@ -53,7 +53,7 @@ export class BoxSelectToolView extends SelectToolView {
 
     this._base_point = null
 
-    this.plot_view.push_state('box_select', {selection: this.plot_view.get_selection()})
+    this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
