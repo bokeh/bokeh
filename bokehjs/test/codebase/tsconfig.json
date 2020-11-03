@@ -24,7 +24,7 @@
     "skipLibCheck": true,
     "target": "ES2017",
     "lib": ["es2017"],
-    "types": ["node", "mocha"],
+    "types": ["node"],
     "baseUrl": ".",
     "outDir": "../../build/test/codebase"
   },
