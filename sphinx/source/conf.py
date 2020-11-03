@@ -97,6 +97,7 @@ ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
 ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image" />',
     '<meta property="twitter:site" content="@bokeh" />',
+    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
 ]
 
 # -- Options for HTML output ---------------------------------------------------
