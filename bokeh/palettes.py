@@ -1246,7 +1246,7 @@ del small_palettes["Cividis"][256]
 del small_palettes["Turbo"][256]
 
 def linear_palette(palette: Palette, n: int) -> Palette:
-    ''' Generate a new palette as a subset of a given palette.
+    """ Generate a new palette as a subset of a given palette.
 
     Given an input ``palette``, take ``n`` colors from it by dividing its
     length into ``n`` (approximately) evenly spaced indices.
@@ -1260,15 +1260,15 @@ def linear_palette(palette: Palette, n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if ``n > len(palette)``
+        ValueError if n > len(palette)
 
-    '''
+    """
     if n > len(palette):
-        raise ValueError("Requested %(r)s colors, function can only return colors up to the base palette's length (%(l)s)" % dict(r=n, l=len(palette)))
+        raise ValueError(f"Requested {n} colors, function can only return colors up to the base palette's length ({len(palette)})")
     return tuple( palette[int(math.floor(i))] for i in np.linspace(0, len(palette)-1, num=n) )
 
 def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: float = 0.5) -> Palette:
-    ''' Generate a new palette by combining exactly two input palettes.
+    """ Generate a new palette by combining exactly two input palettes.
 
     Given an input ``palette1`` and ``palette2``, take a combined ``n`` colors,
     and combine input palettes at the relative ``midpoint``.
@@ -1296,8 +1296,8 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
             seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the possible combined length the input palettes
-    '''
+        ValueError if n is greater than the possible combined length the input palettes
+    """
 
     # flip palette2 so that perceptually light colors are joined
     palette2 = palette2[::-1]
@@ -1310,7 +1310,7 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
 
 def magma(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Magma palette.
+    """ Generate a palette of colors or from the Magma palette.
 
     The full Magma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1324,7 +1324,7 @@ def magma(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1335,11 +1335,11 @@ def magma(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`magma(6)`
 
-    '''
+    """
     return linear_palette(Magma256, n)
 
 def inferno(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Inferno palette.
+    """ Generate a palette of colors or from the Inferno palette.
 
     The full Inferno palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1353,7 +1353,7 @@ def inferno(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1364,11 +1364,11 @@ def inferno(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`inferno(6)`
 
-    '''
+    """
     return linear_palette(Inferno256, n)
 
 def plasma(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Plasma palette.
+    """ Generate a palette of colors or from the Plasma palette.
 
     The full Plasma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1382,7 +1382,7 @@ def plasma(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1393,11 +1393,11 @@ def plasma(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`plasma(6)`
 
-    '''
+    """
     return linear_palette(Plasma256, n)
 
 def viridis(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Viridis palette.
+    """ Generate a palette of colors or from the Viridis palette.
 
     The full Viridis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1411,7 +1411,7 @@ def viridis(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1422,11 +1422,11 @@ def viridis(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`viridis(6)`
 
-    '''
+    """
     return linear_palette(Viridis256, n)
 
 def cividis(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Cividis palette.
+    """ Generate a palette of colors or from the Cividis palette.
 
     The full Cividis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1440,7 +1440,7 @@ def cividis(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1451,11 +1451,11 @@ def cividis(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`cividis(6)`
 
-    '''
+    """
     return linear_palette(Cividis256, n)
 
 def turbo(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Turbo palette.
+    """ Generate a palette of colors or from the Turbo palette.
 
     Turbo is described here:
 
@@ -1473,7 +1473,7 @@ def turbo(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1484,11 +1484,11 @@ def turbo(n: int) -> Palette:
 
     The resulting palette looks like: :bokeh-palette:`turbo(6)`
 
-    '''
+    """
     return linear_palette(Turbo256, n)
 
 def grey(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Greys palette.
+    """ Generate a palette of colors or from the Greys palette.
 
     The full Greys palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1502,7 +1502,7 @@ def grey(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1516,11 +1516,11 @@ def grey(n: int) -> Palette:
     .. note::
         This function also has the alternate spelling ``gray``
 
-    '''
+    """
     return linear_palette(Greys256, n)
 
 def gray(n: int) -> Palette:
-    ''' Generate a palette of colors or from the Greys palette.
+    """ Generate a palette of colors or from the Greys palette.
 
     The full Greys palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1534,7 +1534,7 @@ def gray(n: int) -> Palette:
         seq[str] : a sequence of hex RGB color strings
 
     Raises:
-        ``ValueError`` if n is greater than the base palette length of 256
+        ValueError if n is greater than the base palette length of 256
 
     Examples:
 
@@ -1548,7 +1548,7 @@ def gray(n: int) -> Palette:
     .. note::
         This function also has the alternate spelling ``grey``
 
-    '''
+    """
     return linear_palette(Greys256, n)
 
 #-----------------------------------------------------------------------------
