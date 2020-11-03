@@ -8,7 +8,7 @@ from bokeh.plotting import figure
 N = 8
 node_indices = list(range(N))
 
-plot = figure(title='Graph Layout Demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
+plot = figure(title='Graph layout demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
               tools='', toolbar_location=None)
 
 graph = GraphRenderer()
