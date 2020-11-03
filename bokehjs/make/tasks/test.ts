@@ -55,34 +55,15 @@ async function find_port(port: number): Promise<number> {
   return port
 }
 
-function mocha(files: string[]): Promise<void> {
-  let args = ["node_modules/mocha/bin/_mocha"]
-
-  if (argv.debug) {
-    if (argv.debug === true)
-      args.unshift("--inspect-brk")
-    else
-      args.unshift(`--inspect-brk=${argv.debug}`)
-  }
-
-  if (argv.k)
-    args.push("--grep", argv.k as string)
-
-  args = args.concat(
-    ["--reporter", (argv.reporter as string | undefined) ?? "spec"],
-    ["--slow", "5s"],
-    ["--exit"],
-    files,
-  )
-
+function node(files: string[]): Promise<void> {
   const env = {
     ...process.env,
     NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
+  const proc = spawn(process.execPath, files, {stdio: "inherit", env})
 
-  process.once('exit',    () => proc.kill())
+  process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
@@ -93,7 +74,7 @@ function mocha(files: string[]): Promise<void> {
         resolve()
       else {
         const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
-        reject(new BuildError("mocha", `tests ${comment}`))
+        reject(new BuildError("node", `tests ${comment}`))
       }
     })
   })
@@ -103,8 +84,8 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:size", ["test:codebase:compile"], async () => {
-  await mocha(["./build/test/codebase/size.js"])
+task("test:codebase", ["test:codebase:compile"], async () => {
+  await node(["./build/test/codebase/index.js"])
 })
 
 function sys_path(): string {
@@ -253,7 +234,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
       args.unshift(`--inspect-brk=${argv.debug}`)
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit'})
+  const proc = spawn(process.execPath, args, {stdio: "inherit"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
@@ -368,4 +349,4 @@ task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integrati
 task("test:build", ["test:bundle"])
 
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:size", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib"])
