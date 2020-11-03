@@ -24,6 +24,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'sphinxext.opengraph',
     'sphinx_panels',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
@@ -89,6 +90,15 @@ intersphinx_mapping = {
 napoleon_include_init_with_doc = True
 
 pygments_style = 'sphinx'
+
+# configuration for sphinxext.opengraph
+ogp_site_url = 'https://docs.bokeh.org/en/latest/'
+ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta property="twitter:site" content="@bokeh" />',
+    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
+]
 
 # -- Options for HTML output ---------------------------------------------------
 
