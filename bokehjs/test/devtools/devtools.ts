@@ -185,8 +185,9 @@ async function run_tests(): Promise<boolean> {
       }
 
       await Page.loadEventFired()
-      const ready = await is_ready()
+      await evaluate("preload_fonts()")
 
+      const ready = await is_ready()
       if (!ready) {
         fail(`failed to render ${url}`)
       }

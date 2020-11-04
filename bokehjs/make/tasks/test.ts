@@ -288,7 +288,7 @@ function compile(name: string, options?: {auto_index?: boolean}) {
           const name = basename(file, ".ts")
           if (!name.startsWith("_") && !name.endsWith(".d")) {
             const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
-            const module = [".", ...dir.split("/"), name].join("/")
+            const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
             imports.push(`import "${module}"`)
           }
         }

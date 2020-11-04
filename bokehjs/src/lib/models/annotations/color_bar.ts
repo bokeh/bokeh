@@ -1,8 +1,11 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {ContinuousTicker} from "../tickers/continuous_ticker"
+import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
+import {LogTicker} from "../tickers/log_ticker"
+import {LogTickFormatter} from "../formatters/log_tick_formatter"
+import {BinnedTicker} from "../tickers/binned_ticker"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper} from "../mappers"
 import {LinearScale} from "../scales/linear_scale"
@@ -41,36 +44,53 @@ export class ColorBarView extends AnnotationView {
 
   protected image: HTMLCanvasElement
 
+  protected _ticker: Ticker
+  protected _formatter: TickFormatter
+
   initialize(): void {
     super.initialize()
+
+    const {ticker, formatter, color_mapper} = this.model
+
+    this._ticker = ticker != "auto" ? ticker : (() => {
+      switch (true) {
+        case color_mapper instanceof LogColorMapper:
+          return new LogTicker()
+        case color_mapper instanceof ScanningColorMapper:
+          return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
+        default:
+          return new BasicTicker()
+      }
+    })()
+
+    this._formatter = formatter != "auto" ? formatter : (() => {
+      switch (true) {
+        case this._ticker instanceof LogTicker:
+          return new LogTickFormatter()
+        default:
+          return new BasicTickFormatter()
+      }
+    })()
+
     this._set_canvas_image()
   }
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.ticker.change, () => this.plot_view.request_render())
-    this.connect(this.model.formatter.change, () => this.plot_view.request_render())
-    if (this.model.color_mapper != null) {
-      this.connect(this.model.color_mapper.change, () => {
-        this._set_canvas_image()
-        this.plot_view.request_render()
-      })
-    }
+    this.connect(this._ticker.change, () => this.plot_view.request_render())
+    this.connect(this._formatter.change, () => this.plot_view.request_render())
+    this.connect(this.model.color_mapper.change, () => {
+      this._set_canvas_image()
+      this.plot_view.request_render()
+    })
   }
 
   protected _get_size(): Size {
-    if (this.model.color_mapper == null)
-      return {width: 0, height: 0}
-    else {
-      const {width, height} = this.compute_legend_dimensions()
-      return {width, height}
-    }
+    const {width, height} = this.compute_legend_dimensions()
+    return {width, height}
   }
 
   protected _set_canvas_image(): void {
-    if (this.model.color_mapper == null)
-      return
-
     let {palette} = this.model.color_mapper
 
     if (this.model.orientation == 'vertical')
@@ -190,9 +210,6 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _render(): void {
-    if (this.model.color_mapper == null)
-      return
-
     const {ctx} = this.layer
     ctx.save()
 
@@ -367,7 +384,8 @@ export class ColorBarView extends AnnotationView {
   }
 
   _title_extent(): number {
-    const font_value = this.model.title_text_font + " " + this.model.title_text_font_size + " " + this.model.title_text_font_style
+    const {title_text_font_style, title_text_font_size, title_text_font} = this.model
+    const font_value = `${title_text_font_style} ${title_text_font_size} ${title_text_font}`
     const title_extent = this.model.title ? text_util.measure_font(font_value).height + this.model.title_standoff : 0
     return title_extent
   }
@@ -452,11 +470,12 @@ export class ColorBarView extends AnnotationView {
     Note: the type of color_mapper has to match the type of scale (i.e.
     a LinearColorMapper will require a corresponding LinearScale instance).
     */
+    const {color_mapper} = this.model
 
     const ranges = {
       source_range: new Range1d({
-        start: this.model.color_mapper.metrics.min,
-        end: this.model.color_mapper.metrics.max,
+        start: color_mapper.metrics.min,
+        end: color_mapper.metrics.max,
       }),
       target_range: new Range1d({
         start: 0,
@@ -464,7 +483,6 @@ export class ColorBarView extends AnnotationView {
       }),
     }
 
-    const {color_mapper} = this.model
     if (color_mapper instanceof LinearColorMapper)
       return new LinearScale(ranges)
     else if (color_mapper instanceof LogColorMapper)
@@ -481,7 +499,7 @@ export class ColorBarView extends AnnotationView {
   protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {
     // XXX: passing null as cross_loc probably means MercatorTickFormatters, etc
     // will not function properly in conjunction with colorbars
-    const formatted_labels = this.model.formatter.doFormat(initial_labels, {loc: NaN})
+    const formatted_labels = this._formatter.doFormat(initial_labels, {loc: NaN})
 
     for (let i = 0, end = major_ticks.length; i < end; i++) {
       if (major_ticks[i] in this.model.major_label_overrides)
@@ -510,7 +528,7 @@ export class ColorBarView extends AnnotationView {
     const [i, j] = this._normals()
     const [start, end] = [this.model.color_mapper.metrics.min, this.model.color_mapper.metrics.max]
 
-    const ticks = this.model.ticker.get_ticks_no_defaults(start, end, NaN, this.model.ticker.desired_num_ticks)
+    const ticks = this._ticker.get_ticks(start, end, scale.source_range, NaN)
 
     const majors = ticks.major
     const minors = ticks.minor
@@ -569,8 +587,8 @@ export namespace ColorBar {
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
     scale_alpha: p.Property<number>
-    ticker: p.Property<ContinuousTicker>
-    formatter: p.Property<TickFormatter>
+    ticker: p.Property<Ticker | "auto">
+    formatter: p.Property<TickFormatter | "auto">
     major_label_overrides: p.Property<{[key: string]: string}>
     color_mapper: p.Property<ContinuousColorMapper>
     label_standoff: p.Property<number>
@@ -633,8 +651,8 @@ export class ColorBar extends Annotation {
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],
       scale_alpha:           [ Alpha, 1.0 ],
-      ticker:                [ Ref(ContinuousTicker), () => new BasicTicker() ],
-      formatter:             [ Ref(TickFormatter), () => new BasicTickFormatter() ],
+      ticker:                [ Or(Ref(Ticker), Auto), () => new BasicTicker() ],               // TODO: obj -> "auto"
+      formatter:             [ Or(Ref(TickFormatter), Auto), () => new BasicTickFormatter() ], // TODO: obj -> "auto"
       major_label_overrides: [ Dict(String), {} ],
       color_mapper:          [ Ref(ContinuousColorMapper) ],
       label_standoff:        [ Number, 5 ],

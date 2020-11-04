@@ -3,7 +3,7 @@ import {div, span, offset} from "../dom"
 
 const _font_cache: Map<string, FontMetrics> = new Map()
 
-export interface FontMetrics {
+export type FontMetrics = {
   height: number
   ascent: number
   descent: number
@@ -17,7 +17,7 @@ export function measure_font(font: string): FontMetrics {
   const text = span({style: {font}}, "Hg")
   const block = div({style: {display: "inline-block", width: "1px", height: "0px"}})
 
-  const elem = div({}, text, block)
+  const elem = div({class: "bk-root"}, text, block)
   document.body.appendChild(elem)
 
   try {
