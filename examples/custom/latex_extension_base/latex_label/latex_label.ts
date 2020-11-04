@@ -1,4 +1,5 @@
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
+import * as p from "@bokehjs/core/properties"
 
 declare namespace katex {
   function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
