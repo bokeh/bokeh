@@ -119,7 +119,7 @@ Setting the active tools
 ------------------------
 
 Bokeh toolbars can have at most one active tool from each kind of gesture
-(drag, scroll, tap). 
+(drag, scroll, tap).
 
 However, it is possible to exert control over which tool is active. At the
 lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
@@ -486,14 +486,14 @@ Field names that begin with ``@`` are associated with columns in a
 values from the ``"price"`` column whenever a hover is triggered. If the hover
 is for the 17th glyph, then the hover tooltip will display the 17th price value.
 
-Note that if a column name contains spaces, it must be surrounded by 
+Note that if a column name contains spaces, it must be surrounded by
 curly braces; e.g. ``@{adjusted close}`` will display values
 from a column named ``"adjusted close"``.
 
 Sometimes, especially with stacked charts, it is desirable to allow the
-name of the column to be specified indirectly. In this case, the field name 
-``@$name`` will look up the ``name`` field on the hovered glyph renderer, and use 
-that value as the column name. For instance, if a user hovers with the name 
+name of the column to be specified indirectly. In this case, the field name
+``@$name`` will look up the ``name`` field on the hovered glyph renderer, and use
+that value as the column name. For instance, if a user hovers with the name
 ``"US East"``, then ``@$name`` is equivalent to ``@{US East}``.
 
 Here is a complete example of how to configure and use the hover tool by setting
@@ -505,7 +505,7 @@ the ``tooltips`` argument to ``figure``:
 Hit-Testing behavior
 ''''''''''''''''''''
 
-The hover tool displays tooltips associated with individual glyphs. These 
+The hover tool displays tooltips associated with individual glyphs. These
 tooltips can be configured to activate in different ways with a ``mode`` property:
 
 :``"mouse"``:
@@ -694,7 +694,7 @@ the first supplied renderer.
 It is often useful to limit the number of elements that can be
 drawn, e.g. when specifying a specific number of regions of interest.
 Using the ``num_objects`` property, you can ensure that once the limit
-has been reached, the oldest box will be popped off the queue to make 
+has been reached, the oldest box will be popped off the queue to make
 space for the newest box being added.
 
 .. raw:: html
@@ -966,7 +966,7 @@ Controlling level of detail
 
 Although the HTML canvas can comfortably display tens or even hundreds of
 thousands of glyphs, doing so can have adverse effects on interactive
-performance. In order to accommodate large data sizes, Bokeh plots offer 
+performance. In order to accommodate large data sizes, Bokeh plots offer
 "Level of Detail" (LOD) capability in the client.
 
 .. note::
@@ -975,8 +975,8 @@ performance. In order to accommodate large data sizes, Bokeh plots offer
     browser. Such an approach is unavoidable past a certain data size. See
     :ref:`userguide_server` for more information.
 
-To maintain performance while handling large data sizes, the plot only draws 
-a small fraction of data points during interactive operations (e.g. panning 
+To maintain performance while handling large data sizes, the plot only draws
+a small fraction of data points during interactive operations (e.g. panning
 or zooming). There are four properties on |Plot| objects that control LOD behavior:
 
 .. bokeh-prop:: Plot.lod_factor
