@@ -82,7 +82,7 @@ describe("GraphHitTestPolicy", () => {
     edge_stub.restore()
   })
 
-    describe("EdgesOnly", () => {
+  describe("EdgesOnly", () => {
 
     describe("hit_test method", () => {
 
