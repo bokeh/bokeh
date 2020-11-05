@@ -55,6 +55,52 @@ export abstract class GraphHitTestPolicy extends Model {
   }
 }
 
+export namespace EdgesOnly {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = GraphHitTestPolicy.Props
+}
+
+export interface EdgesOnly extends EdgesOnly.Attrs {}
+
+export class EdgesOnly extends GraphHitTestPolicy {
+  properties: EdgesOnly.Props
+
+  constructor(attrs?: Partial<EdgesOnly.Attrs>) {
+    super(attrs)
+  }
+
+  hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
+    return this._hit_test_edges(geometry, graph_view)
+  }
+
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const edge_selection = graph.edge_renderer.data_source.selected
+    edge_selection.update(hit_test_result, final, mode)
+    graph.edge_renderer.data_source._select.emit()
+
+    return !edge_selection.is_empty()
+  }
+
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const {edge_renderer} = graph_view.model
+    const edge_inspection = edge_renderer.get_selection_manager().get_or_create_inspector(graph_view.edge_view.model)
+    edge_inspection.update(hit_test_result, final, mode)
+
+    // silently set inspected attr to avoid triggering data_source.change event and rerender
+    graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view.model, {geometry}])
+
+    return !edge_inspection.is_empty()
+  }
+}
+
 export namespace NodesOnly {
   export type Attrs = p.AttrsOf<Props>
 
@@ -89,7 +135,8 @@ export class NodesOnly extends GraphHitTestPolicy {
     if (hit_test_result == null)
       return false
 
-    const node_inspection = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
+    const  {node_renderer} = graph_view.model
+    const node_inspection = node_renderer.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, mode)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender

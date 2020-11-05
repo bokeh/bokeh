@@ -7,7 +7,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 import {Circle} from "@bokehjs/models/glyphs/circle"
 import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
-import {NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
+import {EdgesOnly, NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
 import {LayoutProvider} from "@bokehjs/models/graphs/layout_provider"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
@@ -80,6 +80,79 @@ describe("GraphHitTestPolicy", () => {
   after_each(() => {
     node_stub.restore()
     edge_stub.restore()
+  })
+
+  describe("EdgesOnly", () => {
+
+    describe("hit_test method", () => {
+
+      it("should return null if GlyphView doesn't have hit-testing and returns null", () => {
+        edge_stub.returns(null)
+        const policy = new EdgesOnly()
+        expect(policy.hit_test({type: "point", sx: 0, sy: 0}, gv)).to.be.null
+      })
+
+      it("should return the Selection that the GlyphView hit-testing returns", () => {
+        edge_stub.returns(new Selection({indices: [1, 2]}))
+        const policy = new EdgesOnly()
+        const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
+        expect(result).to.not.be.null
+        expect(result!.indices).to.be.equal([1, 2])
+      })
+    })
+
+    describe("do_selection method", () => {
+
+      it("should return false if called with null hit_test_result", () => {
+        const policy = new EdgesOnly()
+        expect(policy.do_selection(null, gr, true, "replace")).to.be.false
+      })
+
+      it("should return false and clear selections if hit_test_result is empty", () => {
+        const initial_selection = new Selection({indices: [1, 2]})
+        edge_source.selected = initial_selection
+
+        const hit_test_result = new Selection()
+        const policy = new EdgesOnly()
+        const did_hit = policy.do_selection(hit_test_result, gr, true, "replace")
+
+        expect(did_hit).to.be.false
+        expect(edge_source.selected.is_empty()).to.be.true
+      })
+
+      it("should return true if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [0, 1]})
+        const policy = new EdgesOnly()
+
+        expect(policy.do_selection(hit_test_result, gr, true, "replace")).to.be.true
+        expect(edge_source.selected.is_empty()).to.be.false
+      })
+    })
+
+    describe("do_inspection method", () => {
+
+      it("should return false and clear inspections if hit_test_result is empty", () => {
+        // create initial inspection to clear
+        const initial_inspection = new Selection({indices: [1, 2]})
+        edge_source.inspected = initial_inspection
+
+        const hit_test_result = new Selection()
+        const policy = new EdgesOnly()
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+
+        expect(did_hit).to.be.false
+        expect(edge_source.inspected.is_empty()).to.be.true
+      })
+
+      it("should return true if hit_test_result is not empty", () => {
+        const hit_test_result = new Selection({indices: [0, 1]})
+        const policy = new EdgesOnly()
+
+        const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
+        expect(did_hit).to.be.true
+        expect(edge_source.inspected.is_empty()).to.be.false
+      })
+    })
   })
 
   describe("NodesOnly", () => {
