@@ -13,8 +13,8 @@ export const Anchor = Enum(
   "bottom_left", "bottom_center", "bottom_right",
 )
 
-export type AngleUnits = "deg" | "rad"
-export const AngleUnits = Enum("deg", "rad")
+export type AngleUnits = "deg" | "rad" | "grad" | "turn"
+export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
