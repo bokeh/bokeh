@@ -43,12 +43,17 @@ export class Serializer {
     this.include_defaults = options?.include_defaults ?? true
   }
 
+  get_ref(obj: unknown): Ref | undefined {
+    return this._references.get(obj)
+  }
+
   add_ref(obj: unknown, ref: Ref): void {
+    assert(!this._references.has(obj))
     this._references.set(obj, ref)
   }
 
   add_def(obj: unknown, def: Struct): void {
-    const ref = this._references.get(obj)
+    const ref = this.get_ref(obj)
     assert(ref != null)
     this._definitions.set(obj, def)
     this._refmap.set(ref, def)
@@ -82,7 +87,10 @@ export class Serializer {
   to_serializable(obj: unknown): unknown
 
   to_serializable(obj: unknown): unknown {
-    if (is_Serializable(obj))
+    const ref = this.get_ref(obj)
+    if (ref != null)
+      return ref
+    else if (is_Serializable(obj))
       return obj[serialize](this)
     else if (isArray(obj) || isTypedArray(obj)) {
       const n = obj.length
