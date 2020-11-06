@@ -17,7 +17,7 @@ import {NumberArray} from "core/types"
 import {color2hex} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
-import {isString, isArray, isFunction, isNumber} from "core/util/types"
+import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
@@ -72,10 +72,6 @@ export class HoverToolView extends InspectToolView {
     super.initialize()
     this._ttmodels = new Map()
     this._ttviews = new Map()
-    const {tooltips} = this.model
-    if (isArray(tooltips)) {
-      this._template_el = this._create_template(tooltips)
-    }
   }
 
   async lazy_initialize(): Promise<void> {
@@ -93,6 +89,7 @@ export class HoverToolView extends InspectToolView {
 
     const plot_renderers = this.plot_model.properties.renderers
     const {renderers, tooltips} = this.model.properties
+    this.on_change(tooltips, () => delete this._template_el)
     this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
   }
 
@@ -488,14 +485,15 @@ export class HoverToolView extends InspectToolView {
   }
 
   _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
-    const tooltips = this.model.tooltips
+    const {tooltips} = this.model
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips != null) {
-      return this._render_template(this._template_el!, tooltips, ds, i, vars)
+      const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
+      return this._render_template(template, tooltips, ds, i, vars)
     } else
       return null
   }
