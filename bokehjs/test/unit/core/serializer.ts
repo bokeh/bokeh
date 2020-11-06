@@ -20,6 +20,7 @@ namespace SomeModel {
     array: p.Property<number[]>
     dict: p.Property<{[key: string]: number}>
     map: p.Property<Map<string, number>>
+    obj: p.Property<SomeModel | null>
   }
 }
 
@@ -33,10 +34,11 @@ class SomeModel extends HasProps {
   }
 
   static init_SomeModel(): void {
-    this.define<SomeModel.Props>(({Number, Array, Dict}) => ({
+    this.define<SomeModel.Props>(({Number, Array, Dict, Ref, Nullable}) => ({
       value: [ Number, 1 ],
       array: [ Array(Number), [] ],
       dict: [ Dict(Number), {} ],
+      obj: [ Nullable(Ref(SomeModel)), null ],
     }))
   }
 }
@@ -97,6 +99,24 @@ describe("core/serializer module", () => {
         },
         json: `{"__ndarray__":"AQAAAAIAAAADAAAA","order":"${BYTE_ORDER}","dtype":"int32","shape":[1,3]}`,
       })
+    })
+
+    it("should support circular references", () => {
+      const obj0 = new SomeModel({value: 10})
+      const obj1 = new SomeModel({value: 20, obj: obj0})
+      const obj2 = new SomeModel({value: 30, obj: obj1})
+      obj0.obj = obj2
+
+      const serializer = new Serializer()
+      const repr = serializer.to_serializable(obj2)
+      const defs = [...serializer.definitions]
+
+      expect(repr).to.be.equal({id: obj2.id})
+      expect(defs).to.be.equal([
+        {type: "SomeModel", id: obj0.id, attributes: {value: 10, array: [], dict: {}, obj: {id: obj2.id}}},
+        {type: "SomeModel", id: obj1.id, attributes: {value: 20, array: [], dict: {}, obj: {id: obj0.id}}},
+        {type: "SomeModel", id: obj2.id, attributes: {value: 30, array: [], dict: {}, obj: {id: obj1.id}}},
+      ])
     })
   })
 })
