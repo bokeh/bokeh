@@ -143,7 +143,7 @@ class Test_bce:
         )
 
     def test_AngleUnits(self) -> None:
-        assert tuple(bce.AngleUnits) == ('deg', 'rad')
+        assert tuple(bce.AngleUnits) == ("deg", "rad", "grad", "turn")
 
     def test_ButtonType(self) -> None:
         assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")

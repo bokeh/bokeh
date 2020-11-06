@@ -6,6 +6,7 @@ import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
+import {angle_conversion_coeff} from "./util/math"
 import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
@@ -499,10 +500,8 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
-    if (this.spec.units == "deg")
-      values = map(values, (x: number) => x * Math.PI/180.0)
-    values = map(values, (x: number) => -x)
-    return super.normalize(values)
+    const c = angle_conversion_coeff(this.units)
+    return super.normalize(map(values, (x) => c*x))
   }
 }
 

@@ -421,7 +421,7 @@ class AngleSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store angle units.
 
-    Acceptable values for units are ``"rad"`` and ``"deg"``.
+    Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
 
     """
     def __init__(self, default=None, units_default="rad", help=None):
