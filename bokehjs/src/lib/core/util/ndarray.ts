@@ -8,8 +8,15 @@ export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32
 
 const __ndarray__ = Symbol("__ndarray__")
 
-export class Uint8NDArray extends Uint8Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export interface NDArrayType extends Equatable, Serializable {
+  readonly [__ndarray__]: boolean
+  readonly dtype: DataType
+  readonly shape: number[]
+  readonly dimension: number
+}
+
+export class Uint8NDArray extends Uint8Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "uint8" = "uint8"
   readonly shape: number[]
   readonly dimension: number
@@ -29,8 +36,8 @@ export class Uint8NDArray extends Uint8Array implements Equatable, Serializable 
   }
 }
 
-export class Int8NDArray extends Int8Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Int8NDArray extends Int8Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "int8" = "int8"
   readonly shape: number[]
   readonly dimension: number
@@ -50,8 +57,8 @@ export class Int8NDArray extends Int8Array implements Equatable, Serializable {
   }
 }
 
-export class Uint16NDArray extends Uint16Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Uint16NDArray extends Uint16Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "uint16" = "uint16"
   readonly shape: number[]
   readonly dimension: number
@@ -71,8 +78,8 @@ export class Uint16NDArray extends Uint16Array implements Equatable, Serializabl
   }
 }
 
-export class Int16NDArray extends Int16Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Int16NDArray extends Int16Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "int16" = "int16"
   readonly shape: number[]
   readonly dimension: number
@@ -92,8 +99,8 @@ export class Int16NDArray extends Int16Array implements Equatable, Serializable 
   }
 }
 
-export class Uint32NDArray extends Uint32Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Uint32NDArray extends Uint32Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "uint32" = "uint32"
   readonly shape: number[]
   readonly dimension: number
@@ -113,8 +120,8 @@ export class Uint32NDArray extends Uint32Array implements Equatable, Serializabl
   }
 }
 
-export class Int32NDArray extends Int32Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Int32NDArray extends Int32Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "int32" = "int32"
   readonly shape: number[]
   readonly dimension: number
@@ -134,8 +141,8 @@ export class Int32NDArray extends Int32Array implements Equatable, Serializable 
   }
 }
 
-export class Float32NDArray extends Float32Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Float32NDArray extends Float32Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "float32" = "float32"
   readonly shape: number[]
   readonly dimension: number
@@ -155,8 +162,8 @@ export class Float32NDArray extends Float32Array implements Equatable, Serializa
   }
 }
 
-export class Float64NDArray extends Float64Array implements Equatable, Serializable {
-  readonly __ndarray__ = __ndarray__
+export class Float64NDArray extends Float64Array implements NDArrayType {
+  readonly [__ndarray__] = true
   readonly dtype: "float64" = "float64"
   readonly shape: number[]
   readonly dimension: number
@@ -189,7 +196,7 @@ export type NDArray =
   Float32NDArray | Float64NDArray
 
 export function is_NDArray(v: unknown): v is NDArray {
-  return isObject(v) && (v as any).__ndarray__ == __ndarray__
+  return isObject(v) && __ndarray__ in v
 }
 
 export type NDArrayTypes = {
