@@ -8,59 +8,55 @@ Defining Key Concepts
 Glossary
 --------
 
-In order to make the best use of this User Guide, it is important to have
-context for some high-level concepts and terms. Here is a small glossary of
-some of the most important concepts in Bokeh.
+The following glossary contains some of the most important concepts in Bokeh
+to help you navigate this user guide.
 
 ----
 
 Application
-    A Bokeh application is a recipe for generating Bokeh documents. Typically,
-    this is Python code run by a Bokeh server when new sessions are created.
+    A piece of Python code that the Bokeh server runs when a new session is
+    created.
 
 BokehJS
-    The JavaScript client library that actually renders the visuals and
-    handles the UI interactions for Bokeh plots and widgets in the browser.
-    Typically, users will not have to think about this aspect of Bokeh
-    much *("We write the JavaScript, so you don't have to!")* but it is
-    good to have basic knowledge of this dichotomy. For full details, see
-    the :ref:`devguide_bokehjs` chapter of the :ref:`devguide` Guide.
+    The JavaScript library that renders visuals and handles UI interactions
+	for Bokeh plots and widgets in the browser. You don't have to write any
+	JavaScript yourself. For more details, see the :ref:`devguide_bokehjs`
+	chapter of the :ref:`devguide`.
 
-Documents
-    An organizing data structure for Bokeh applications. Documents
-    contain all the Bokeh Models and data needed to render an interactive
-    visualization or application in the browser.
+Document
+    An organizing data structure for Bokeh applications. Documents contain
+	all the models and data you need to render interactive visualizations
+	or applications in the browser.
 
 Embedding
-    Various methods of including Bokeh plots and widgets into web apps and
-    pages, or the IPython notebook. See :ref:`userguide_embed` for more
+    Various methods of including Bokeh plots and widgets in web apps and
+    pages, or in Jupyter notebooks. See :ref:`userguide_embed` for more
     details.
 
 Glyphs
-    The basic visual building blocks of Bokeh plots, e.g. lines, rectangles,
-    squares, wedges, patches, etc. The ``bokeh.plotting`` interface provides
-    a convenient way to create plots centered around glyphs. See
-    :ref:`userguide_plotting` for more information.
+    Basic plot building blocks such as lines, rectangles, squares, wedges,
+	or patches. The ``bokeh.plotting`` interface provides a convenient way
+	to create plots centered around glyphs. See :ref:`userguide_plotting`
+	for more information.
 
 Models
-    The lowest-level objects that comprise Bokeh "scenegraphs". These live
-    in the ``bokeh.models`` interface. *Most users will not use this level
-    of interface to assemble plots directly.* However, ultimately all Bokeh
-    plots consist of collections of models, so it is important to understand
-    them enough to configure their attributes and properties. See
-    :ref:`userguide_styling` for more information.
+    Low-level objects that make up a Bokeh plot. You can access models via
+	the ``bokeh.models`` interface. You don't have to manipulate models
+	directly to create plots but knowing how they work is important	since
+	all plots consist of collections of models. See	:ref:`userguide_styling`
+	for more information.
 
 Server
-    The Bokeh server is an optional component that can be used for sharing
-    and publishing Bokeh plots and apps, for handling streaming of large data
-    sets, or for enabling sophisticated user interactions based off of widgets
-    and selections. See :ref:`userguide_server` for more explanation.
+	The Bokeh server is an optional component you can use to share and
+	publish Bokeh plots and apps, stream large data sets, or enable complex
+	user interactions based on widgets and selections. See
+	:ref:`userguide_server` for more information.
 
 Widgets
-    User interface elements outside of a Bokeh plot such as sliders, drop down
-    menus, buttons, etc. Events and updates from widgets can inform additional
-    computations, or cause Bokeh plots to update. Widgets can be used in both
-    standalone applications or with the Bokeh server. For examples and
+	User interface elements outside of a Bokeh plot such as sliders, drop down
+    menus, and buttons. Events and updates from widgets can inform additional
+    computations or update Bokeh plots. Widgets can be used both in standalone
+	applications or with the Bokeh server. For examples and additional
     information, see :ref:`userguide_interaction`.
 
 ----

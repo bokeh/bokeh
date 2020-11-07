@@ -1,14 +1,12 @@
 .. _userguide_cli:
 
-Using the Command Line
+Using the command cine
 ======================
 
-It is possible to generate various kinds of output from Bokeh
-programmatically. The use of ``output_file``, ``output_notebook``, etc.
-has been demonstrated previously in many areas of the User Guide.
-However, Bokeh also provides a command line tool ``bokeh`` that can
-often offer a more flexible way to generate different kinds of output
-from the same source code, as well as making it easier to and faster
-to iterate.
+You can produce a wide range of Bokeh outputs programmatically
+with functions such as ``output_file`` and ``output_notebook``.
+However, this isn't the only way to work with the library. The
+``bokeh`` command line tool often offers better flexibility and
+makes iteration easier and faster.
 
 See the Reference Guide section :ref:`bokeh.command` for details.
