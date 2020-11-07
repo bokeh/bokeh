@@ -2,6 +2,8 @@
 
 import {PlainObject} from "../types"
 
+const {hasOwnProperty} = Object.prototype
+
 export const equals = Symbol("equals")
 
 export interface Equatable {
@@ -175,7 +177,7 @@ export class Comparator {
       return false
 
     for (const key of keys) {
-      if (!b.hasOwnProperty(key) || !this.eq(a[key], b[key]))
+      if (!hasOwnProperty.call(b, key) || !this.eq(a[key], b[key]))
         return false
     }
 

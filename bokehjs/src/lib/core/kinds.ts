@@ -6,6 +6,8 @@ import {size} from "./util/object"
 type ESMap<K, V> = Map<K, V>
 const ESMap = window.Map
 
+const {hasOwnProperty} = Object.prototype
+
 export abstract class Kind<T> {
   __type__: T
 
@@ -120,8 +122,8 @@ export namespace Kinds {
         return false
 
       for (const key in struct_type) {
-        if (struct_type.hasOwnProperty(key)) {
-          if (!value.hasOwnProperty(key))
+        if (hasOwnProperty.call(struct_type, key)) {
+          if (!hasOwnProperty.call(value, key))
             return false
 
           const item_type = struct_type[key]
@@ -212,7 +214,7 @@ export namespace Kinds {
         return false
 
       for (const key in value) {
-        if (value.hasOwnProperty(key)) {
+        if (hasOwnProperty.call(value, key)) {
           const item = value[key]
           if (!this.item_type.valid(item))
             return false

@@ -25,6 +25,8 @@ import {Legend} from "models/annotations/legend"
 export {gridplot} from "./gridplot"
 export {rgb2hex as color} from "../core/util/color"
 
+const {hasOwnProperty} = Object.prototype
+
 export type ToolName = keyof ToolAliases
 
 const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "reset", "help"]
@@ -691,14 +693,14 @@ export class Figure extends Plot {
     }
 
     defaults = {...defaults}
-    if (!defaults.hasOwnProperty('text_color')) {
+    if (!hasOwnProperty.call(defaults, 'text_color')) {
       defaults.text_color = 'black'
     }
     const trait_defaults: Attrs = {}
-    if (!trait_defaults.hasOwnProperty('color')) {
+    if (!hasOwnProperty.call(trait_defaults, 'color')) {
       trait_defaults.color = _default_color
     }
-    if (!trait_defaults.hasOwnProperty('alpha')){
+    if (!hasOwnProperty.call(trait_defaults, 'alpha')){
       trait_defaults.alpha = _default_alpha
     }
 
@@ -707,19 +709,19 @@ export class Figure extends Plot {
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
-        if (props.hasOwnProperty(prefix+pname)) {
+        if (hasOwnProperty.call(props, prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype._props.hasOwnProperty(trait) && props.hasOwnProperty(prefix+trait)) {
+        } else if (!hasOwnProperty.call(cls.prototype._props, trait) && hasOwnProperty.call(props, prefix+trait)) {
           result[pname] = props[prefix+trait]
-        } else if (override_defaults.hasOwnProperty(trait)) {
+        } else if (hasOwnProperty.call(override_defaults, trait)) {
           result[pname] = override_defaults[trait]
-        } else if (defaults.hasOwnProperty(pname)) {
+        } else if (hasOwnProperty.call(defaults, pname)) {
           result[pname] = defaults[pname]
-        } else if (trait_defaults.hasOwnProperty(trait)) {
+        } else if (hasOwnProperty.call(trait_defaults, trait)) {
           result[pname] = trait_defaults[trait]
         }
-        if (!cls.prototype._props.hasOwnProperty(trait)) {
+        if (!hasOwnProperty.call(cls.prototype._props, trait)) {
           traits.add(trait)
         }
       }
