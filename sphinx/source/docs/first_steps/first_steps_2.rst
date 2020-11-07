@@ -6,8 +6,8 @@ First steps 2: Adding and customizing renderers
 In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
 :func:`~bokeh.plotting.figure` function to render line charts.
 
-In this section, you will use different renderers to create various other
-kinds of graphs. You will also customize what your graphs look like.
+In this section, you will use different renderer functions to create various
+other kinds of graphs. You will also customize what your graphs look like.
 
 Rendering different glyphs
 --------------------------
@@ -17,8 +17,9 @@ of different glyphs, such as lines, bars, hex tiles, or other polygons.
 
 .. seealso::
     A full list of all supported glyph methods is available in Bokeh's reference
-    guide for the :func:`~bokeh.plotting.figure` function. For detailed information
-    on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user guide.
+    guide for the :func:`~bokeh.plotting.figure` function. For detailed
+    information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
+    guide.
 
 Rendering circles
 ^^^^^^^^^^^^^^^^^

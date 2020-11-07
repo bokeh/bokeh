@@ -136,7 +136,7 @@ Bokeh's :class:`~bokeh.models` collection:
     from bokeh.models import NumeralTickFormatter
 
 Then, after creating your plot with the ``figure()`` function, assign the
-``NumeralTickFormatter`` to the ``formatter` property of your plot's ``yaxis``:
+``NumeralTickFormatter`` to the ``formatter`` property of your plot's ``yaxis``:
 
 .. code-block:: python
 
