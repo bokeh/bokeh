@@ -377,7 +377,7 @@ class AutocompleteInput(TextInput):
     fuzzy_threshold = PositiveInt(
         default=10,
         help="""
-        The number of character difference to calculate Levensthein distance.
+    The number of character difference to calculate Levensthein distance.
     """,
     )
 
