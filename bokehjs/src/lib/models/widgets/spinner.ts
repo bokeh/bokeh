@@ -52,7 +52,7 @@ export class SpinnerView extends NumericInputView {
   }
   private _counter: number
   private _interval: number
-  
+
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
     yield this.btn_down_el
