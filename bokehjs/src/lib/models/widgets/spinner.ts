@@ -60,10 +60,7 @@ export class SpinnerView extends NumericInputView {
 
   initialize(): void {
     super.initialize()
-    this._handles = {
-      interval: undefined,
-      timeout: undefined
-    }
+    this._handles = {interval: undefined, timeout: undefined}
     this._interval = 200
   }
 
