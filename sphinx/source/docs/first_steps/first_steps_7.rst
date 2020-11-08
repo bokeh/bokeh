@@ -6,7 +6,7 @@ First steps 7: Displaying and exporting
 In the :ref:`previous first steps guides <first_steps_6>`, you created and
 customized, and combined visualizations.
 
-In this section, you will use different methods to display and export your
+In this section, you will use various methods to display and export your
 visualizations.
 
 .. _first_steps_7_html_file:
@@ -70,32 +70,49 @@ inside your notebook:
 
 .. _first_steps_7_export_png_svg:
 
-Exporting to PNG and SVG
-------------------------
+Exporting PNG files
+-------------------
 
 To export PNG or SVG files, you might need to install additional dependencies.
 
-In order to 
+In order to create PNG and SVG files, Bokeh uses
+`Selenium <https://github.com/SeleniumHQ/selenium>`_. Selenium allows Bokeh to
+run in a browser without a graphical user interface (GUI). Bokeh uses this
+browser to render the PNG or SVG files. In order for this to work, Selenium
+needs to be able to access either a Firefox browser (through a package called
+geckodriver) or a Chromium browser (through the chromedriver package).
 
-* If you are using conda:
+Depending on wether you are using ``conda`` or ``pip``, on of run the following
+commands to make sure you have all required packages installed:
+
+.. panels::
+
+    Installing with ``conda``
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
     .. code-block:: sh
 
-        from bokeh.plotting import figure, output_file, show
+        conda install selenium geckodriver firefox -c conda-forge
 
-PREREQUISITES additional packages (required for png and scg files!!)
+    ---
 
-PNG
+    Installing with ``pip``
+    ^^^^^^^^^^^^^^^^^^^^^^^
 
-SVGs
+    .. code-block:: sh
 
-SVG
-if you have a gridplot layout of several plots, svgs will give you individual
-files. Use export_svg to get one file with all of them...
+        pip install selenium geckodriver firefox
 
-export png
-https://docs.bokeh.org/en/latest/docs/user_guide/export.html
+Once the requirements are installed, you can use the
+:func:`~bokeh.io.export_png` function to export your plot into a PNG file:
 
+.. literalinclude:: examples/first_steps_7_export_png.py
+   :language: python
+   :emphasize-lines: 1,15
 
+.. seealso::
+    For information on how to export PNG and SVG files, see
+    :ref:`userguide_export` in the user guide.
 
 .. panels::
     :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
