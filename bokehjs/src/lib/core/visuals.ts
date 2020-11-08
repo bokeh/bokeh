@@ -13,6 +13,8 @@ import {Texture} from "models/textures/texture"
 import {SVGRenderingContext2D} from "core/util/svg"
 import {CanvasLayer} from "models/canvas/canvas"
 
+const {hasOwnProperty} = Object.prototype
+
 function color2css(color: Color | number, alpha: number): string {
   const [r, g, b, a] = isString(color) ? color2rgba(color) : decode_rgba(color)
   return `rgba(${r*255}, ${g*255}, ${b*255}, ${a == 1.0 ? alpha : a})`
@@ -314,7 +316,7 @@ export class Hatch extends ContextProperties {
       const weight = this.cache_select("hatch_weight", i)
 
       const {hatch_extra} = this.cache
-      if (hatch_extra != null && hatch_extra.hasOwnProperty(pattern)) {
+      if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern)) {
         const custom: Texture = hatch_extra[pattern]
         this.cache.pattern = custom.get_pattern(color, alpha, scale, weight)
       } else {
@@ -336,7 +338,7 @@ export class Hatch extends ContextProperties {
 
   private _try_defer(defer_func: () => void): void {
     const {hatch_pattern, hatch_extra} = this.cache
-    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
+    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, hatch_pattern)) {
       const custom = hatch_extra[hatch_pattern]
       custom.onload(defer_func)
     }
@@ -468,7 +470,7 @@ export class Visuals {
 
   warm_cache(source?: ColumnarDataSource, all_indices?: Indices): void {
     for (const name in this) {
-      if (this.hasOwnProperty(name)) {
+      if (hasOwnProperty.call(this, name)) {
         const prop: any = this[name]
         if (prop instanceof ContextProperties)
           prop.warm_cache(source, all_indices)
