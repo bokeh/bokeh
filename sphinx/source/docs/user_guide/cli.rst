@@ -9,4 +9,4 @@ However, this isn't the only way to work with the library. The
 ``bokeh`` command line tool often offers better flexibility and
 makes iteration easier and faster.
 
-See the Reference Guide section :ref:`bokeh.command` for details.
+See :ref:`bokeh.command` for more information.
