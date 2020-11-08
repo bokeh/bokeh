@@ -19,14 +19,14 @@ Application
 
 BokehJS
     The JavaScript library that renders visuals and handles UI interactions
-	for Bokeh plots and widgets in the browser saving you the neeed write any
-	JavaScript yourself. For more details, see the :ref:`devguide_bokehjs`
-	chapter of the :ref:`devguide`.
+    for Bokeh plots and widgets in the browser saving you the neeed write any
+    JavaScript yourself. For more details, see the :ref:`devguide_bokehjs`
+    chapter of the :ref:`devguide`.
 
 Document
     An organizing data structure for Bokeh applications. Documents contain
-	all the models and data you need to render interactive visualizations
-	or applications in the browser.
+    all the models and data you need to render interactive visualizations
+    or applications in the browser.
 
 Embedding
     Various methods of including Bokeh plots and widgets in web apps and
@@ -35,29 +35,29 @@ Embedding
 
 Glyphs
     Basic plot building blocks such as lines, rectangles, squares, wedges,
-	or patches. The ``bokeh.plotting`` interface provides a convenient way
-	to create plots centered around glyphs. See :ref:`userguide_plotting`
-	for more information.
+    or patches. The ``bokeh.plotting`` interface provides a convenient way
+    to create plots centered around glyphs. See :ref:`userguide_plotting`
+    for more information.
 
 Models
     Low-level objects that make up Bokeh plots. You can access models via
-	the ``bokeh.models`` interface. You don't have to manipulate models
-	directly to create plots but knowing how to configure their attributes
-	and properties can be useful. See :ref:`userguide_styling` for more
-	information.
+    the ``bokeh.models`` interface. You don't have to manipulate models
+    directly to create plots but knowing how to configure their attributes
+    and properties can be useful. See :ref:`userguide_styling` for more
+    information.
 
 Server
-	The Bokeh server is an optional component you can use to share and
-	publish Bokeh plots and apps, stream large data sets, or enable complex
-	user interactions based on widgets and selections. See
-	:ref:`userguide_server` for more information.
+    The Bokeh server is an optional component you can use to share and
+    publish Bokeh plots and apps, stream large data sets, or enable complex
+    user interactions based on widgets and selections. See
+    :ref:`userguide_server` for more information.
 
 Widgets
-	User interface elements outside of a Bokeh plot such as sliders, drop down
+    User interface elements outside of a Bokeh plot such as sliders, drop down
     menus, and buttons. Events and updates from widgets can inform additional
     computations or update Bokeh plots. Widgets can be used both in standalone
-	applications or with the Bokeh server. See :ref:`userguide_interaction` for
-	examples and additional information.
+    applications or with the Bokeh server. See :ref:`userguide_interaction` for
+    examples and additional information.
 
 ----
 
@@ -153,7 +153,7 @@ Bokeh consists of two libraries:
 
 The JavaScript library, BokehJS, runs in the browser. This library handles
 rendering and user interactions. It takes a collection of declarative JSON
-objects as its input and uses them as instructions on how to handle everything: 
+objects as its input and uses them as instructions on how to handle everything:
 
 * plots and widgets,
 * layouts and arrangements,
@@ -187,7 +187,7 @@ You can generally configure all Bokeh models this way. Since all Bokeh
 interfaces ultimately produce collections of Bokeh models, this lets you
 style and configure plots and widgets the same way regardless of the
 interface.
-   
+
 The |bokeh.models| interface lets you combine and configure Bokeh plots and
 widgets any way you want. However, it doesn't help you assemble the models in
 meaningful or correct ways. It is entirely up to you to put them together.
@@ -207,7 +207,7 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 
 Bokeh also provides a **mid-level** general purpose |bokeh.plotting| interface.
 It lets you focus on relating glyphs to data and assembles sensible plots with
-default axes, grids, and tools for you. 
+default axes, grids, and tools for you.
 
 The |figure| function is at the core of the |bokeh.plotting| interface. This
 function creates a |Figure| model that includes methods for adding different
