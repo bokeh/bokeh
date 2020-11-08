@@ -1,14 +1,14 @@
-import {TextInput, TextInputView} from "./text_input"
+import { TextInput, TextInputView } from "./text_input"
 
-import {empty, display, undisplay, div, Keys} from "core/dom"
+import { empty, display, undisplay, div, Keys } from "core/dom"
 import * as p from "core/properties"
-import {clamp} from "core/util/math"
+import { clamp } from "core/util/math"
 
-import {bk_below, bk_active} from "styles/mixins"
-import {bk_menu} from "styles/menus"
+import { bk_below, bk_active } from "styles/mixins"
+import { bk_menu } from "styles/menus"
 
 import menus_css from "styles/menus.css"
-
+import comparison from "fuzzy-comparison"
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
@@ -30,7 +30,7 @@ export class AutocompleteInputView extends TextInputView {
     this.input_el.addEventListener("keydown", (event) => this._keydown(event))
     this.input_el.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menu = div({class: [bk_menu, bk_below]})
+    this.menu = div({ class: [bk_menu, bk_below] })
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
     this.el.appendChild(this.menu)
@@ -68,7 +68,7 @@ export class AutocompleteInputView extends TextInputView {
       display(this.menu)
 
       const listener = (event: MouseEvent) => {
-        const {target} = event
+        const { target } = event
         if (target instanceof HTMLElement && !this.el.contains(target)) {
           document.removeEventListener("click", listener)
           this._hide_menu()
@@ -96,7 +96,7 @@ export class AutocompleteInputView extends TextInputView {
   protected _menu_hover(event: MouseEvent): void {
     if (event.target != event.currentTarget && event.target instanceof Element) {
       let i = 0
-      for (i = 0; i<this.menu.children.length; i++) {
+      for (i = 0; i < this.menu.children.length; i++) {
         if (this.menu.children[i].textContent! == event.target.textContent!)
           break
       }
@@ -108,12 +108,12 @@ export class AutocompleteInputView extends TextInputView {
     const n_children = this.menu.children.length
     if (this._open && n_children > 0) {
       this.menu.children[this._hover_index].classList.remove(bk_active)
-      this._hover_index = clamp(new_index, 0, n_children-1)
+      this._hover_index = clamp(new_index, 0, n_children - 1)
       this.menu.children[this._hover_index].classList.add(bk_active)
     }
   }
 
-  _keydown(_event: KeyboardEvent): void {}
+  _keydown(_event: KeyboardEvent): void { }
 
   _keyup(event: KeyboardEvent): void {
     switch (event.keyCode) {
@@ -126,11 +126,11 @@ export class AutocompleteInputView extends TextInputView {
         break
       }
       case Keys.Up: {
-        this._bump_hover(this._hover_index-1)
+        this._bump_hover(this._hover_index - 1)
         break
       }
       case Keys.Down: {
-        this._bump_hover(this._hover_index+1)
+        this._bump_hover(this._hover_index + 1)
         break
       }
       default: {
@@ -142,7 +142,8 @@ export class AutocompleteInputView extends TextInputView {
         }
 
         const completions: string[] = []
-        const {case_sensitive} = this.model
+        const { case_sensitive } = this.model
+
         let acnorm: (t: string) => string
         if (case_sensitive) {
           acnorm = (t) => t
@@ -150,8 +151,18 @@ export class AutocompleteInputView extends TextInputView {
           acnorm = (t) => t.toLowerCase()
         }
 
+        const { fuzzy_comparison } = this.model
+        const { fuzzy_threshold } = this.model
+
+        let fuzzy: (v1: string, v2: string, thr: number) => boolean
+        if (fuzzy_comparison) {
+          fuzzy = (v1, v2, thr) => comparison(v1, v2, { threshold: thr })
+        } else {
+          fuzzy = () => false
+        }
+
         for (const text of this.model.completions) {
-          if (acnorm(text).startsWith(acnorm(value))) {
+          if (fuzzy(acnorm(value), acnorm(text), fuzzy_threshold)) {
             completions.push(text)
           }
         }
@@ -174,11 +185,13 @@ export namespace AutocompleteInput {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
     case_sensitive: p.Property<boolean>
+    fuzzy_comparison: p.Property<boolean>
+    fuzzy_threshold: p.Property<number>
     restrict: p.Property<boolean>
   }
 }
 
-export interface AutocompleteInput extends AutocompleteInput.Attrs {}
+export interface AutocompleteInput extends AutocompleteInput.Attrs { }
 
 export class AutocompleteInput extends TextInput {
   properties: AutocompleteInput.Props
@@ -191,11 +204,13 @@ export class AutocompleteInput extends TextInput {
   static init_AutocompleteInput(): void {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array}) => ({
-      completions:    [ Array(String), [] ],
-      min_characters: [ Int, 2 ],
-      case_sensitive: [ Boolean, true ],
-      restrict: [ Boolean, true ],
+    this.define<AutocompleteInput.Props>(({ Boolean, Int, String, Array }) => ({
+      completions: [Array(String), []],
+      min_characters: [Int, 2],
+      case_sensitive: [Boolean, true],
+      fuzzy_comparison: [Boolean, true],
+      fuzzy_threshold: [Int, 10],
+      restrict: [Boolean, true],
     }))
   }
 }
