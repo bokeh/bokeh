@@ -10,9 +10,9 @@ json_url = (
 resp = requests.get(url=json_url)
 completions = resp.json()
 
-
+completions = ["100001", "aAaaaa", "aAaBbb", "AAAaAA", "aAaBbB"]
 autocomplete_input = AutocompleteInput(
-    placeholder="Enter value (auto-complete) ...", completions=completions, fuzzy_threshold=100, case_sensitive=False
+    placeholder="Enter value (auto-complete) ...", completions=completions, fuzzy_threshold=2, case_sensitive=False
 )
 
 autocomplete_input.js_on_change(
