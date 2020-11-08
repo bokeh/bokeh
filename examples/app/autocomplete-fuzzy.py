@@ -1,8 +1,8 @@
-from bokeh.io import curdoc
-from bokeh.models import AutocompleteInput
-from bokeh.layouts import row
 import requests
-from bokeh.models import CustomJS
+
+from bokeh.io import curdoc
+from bokeh.layouts import row
+from bokeh.models import AutocompleteInput, CustomJS
 
 json_url = (
     "https://raw.githubusercontent.com/jeancroy/FuzzySearch/master/demo/movies.json"
