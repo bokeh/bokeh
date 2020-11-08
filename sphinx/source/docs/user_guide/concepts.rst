@@ -19,7 +19,7 @@ Application
 
 BokehJS
     The JavaScript library that renders visuals and handles UI interactions
-    for Bokeh plots and widgets in the browser saving you the neeed write any
+    for Bokeh plots and widgets in the browser saving you the need write any
     JavaScript yourself. For more details, see the :ref:`devguide_bokehjs`
     chapter of the :ref:`devguide`.
 
@@ -31,7 +31,7 @@ Document
 Embedding
     Various methods of including Bokeh plots and widgets in web apps and
     pages, or in Jupyter notebooks. See :ref:`userguide_embed` for more
-    informations.
+    information.
 
 Glyphs
     Basic plot building blocks such as lines, rectangles, squares, wedges,
@@ -192,7 +192,7 @@ The |bokeh.models| interface lets you combine and configure Bokeh plots and
 widgets any way you want. However, it doesn't help you assemble the models in
 meaningful or correct ways. It is entirely up to you to put them together.
 
-Therefore, unless you have special applicatшons that require finer control,
+Therefore, unless you have special applications that require finer control,
 you will probably want to use the |bokeh.plotting| interface described below.
 For more information on Bokeh models, consult the :ref:`refguide`.
 
@@ -226,7 +226,7 @@ have to worry about axes and grids (although you can configure them if you
 want to), and you only need to list the tools you want to add. Just use an
 output function to display your plot.
 
-The interface offers many more possbilities such as:
+The interface offers many more possibilities such as:
 
 * saving the plot instead of showing it,
 * styling and removing axes and grids,
