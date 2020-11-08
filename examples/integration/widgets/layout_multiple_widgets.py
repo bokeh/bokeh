@@ -35,6 +35,7 @@ layout = column(
     AutocompleteInput(placeholder="AutocompleteInput 1 ...", completions=["aaa", "aab", "aac", "baa", "caa"]),
     AutocompleteInput(placeholder="AutocompleteInput 2 ...", completions=["AAA", "AAB", "AAC", "BAA", "CAA"]),
     AutocompleteInput(placeholder="AutocompleteInput 3 ...", completions=["000", "001", "002", "100", "200"]),
+    AutocompleteInput(placeholder="AutocompleteInput 4 ...", completions=["foo", "foobar", "fuzzymatch", "foozzy"], fuzzy_threshold=4),
 
     DatePicker(value=date(2018, 9, 1)),
     DatePicker(value=date(2018, 9, 2)),
