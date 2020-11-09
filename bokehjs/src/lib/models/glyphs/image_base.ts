@@ -145,27 +145,15 @@ export abstract class ImageBaseView extends XYGlyphView {
   }
 
   protected _map_data(): void {
-    switch (this.model.properties.dw.units) {
-      case "data": {
-        this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sw = this._dw
-        break
-      }
-    }
+    if (this.model.properties.dw.units == "data")
+      this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
+    else
+      this.sw = this._dw
 
-    switch (this.model.properties.dh.units) {
-      case "data": {
-        this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sh = this._dh
-        break
-      }
-    }
+    if (this.model.properties.dh.units == "data")
+      this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
+    else
+      this.sh = this._dh
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {

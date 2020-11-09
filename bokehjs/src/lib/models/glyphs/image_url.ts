@@ -146,27 +146,15 @@ export class ImageURLView extends XYGlyphView {
     const ws = this.model.w != null ? this._w : map(this._x, () => NaN)
     const hs = this.model.h != null ? this._h : map(this._x, () => NaN)
 
-    switch (this.model.properties.w.units) {
-      case "data": {
-        this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sw = ws
-        break
-      }
-    }
+    if (this.model.properties.w.units == "data")
+      this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
+    else
+      this.sw = ws
 
-    switch (this.model.properties.h.units) {
-      case "data": {
-        this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sh = hs
-        break
-      }
-    }
+    if (this.model.properties.h.units == "data")
+      this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
+    else
+      this.sh = hs
   }
 
   protected _render(ctx: Context2d, indices: number[],
