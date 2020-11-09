@@ -95,9 +95,9 @@ export namespace Step {
     mode: p.Property<StepMode>
   } & Mixins
 
-  export type Mixins = Line/*Vector*/
+  export type Mixins = Line/*Scalar*/
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Vector*/}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Step extends Step.Attrs {}
@@ -113,7 +113,7 @@ export class Step extends XYGlyph {
   static init_Step(): void {
     this.prototype.default_view = StepView
 
-    this.mixins<Step.Mixins>(Line/*Vector*/)
+    this.mixins<Step.Mixins>(Line/*Scalar*/)
     this.define<Step.Props>(() => ({
       mode: [ StepMode, "before"],
     }))

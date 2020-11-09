@@ -1137,7 +1137,7 @@ class Step(XYGlyph, LineGlyph):
     The y-coordinates for the steps.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the steps.
     """)
 
