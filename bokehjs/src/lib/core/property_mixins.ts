@@ -223,190 +223,25 @@ export const TextVector: p.DefineOf<TextVector> = {
   text_line_height: [ k.Number, 1.2 ],
 }
 
-// Common property mixins used in models. This duplication is currently unavoidable.
-// Remove this when https://github.com/Microsoft/TypeScript/issues/12754 is fixed.
+type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
 
-export type LabelText = {
-  label_text_color: Text["text_color"]
-  label_text_alpha: Text["text_alpha"]
-  label_text_font: Text["text_font"]
-  label_text_font_size: Text["text_font_size"]
-  label_text_font_style: Text["text_font_style"]
-  label_text_align: Text["text_align"]
-  label_text_baseline: Text["text_baseline"]
-  label_text_line_height: Text["text_line_height"]
-}
-
-export type InactiveFill = {
-  inactive_fill_color: Fill["fill_color"]
-  inactive_fill_alpha: Fill["fill_alpha"]
-}
-
-export type BorderLine = {
-  border_line_color: Line["line_color"]
-  border_line_alpha: Line["line_alpha"]
-  border_line_width: Line["line_width"]
-  border_line_join: Line["line_join"]
-  border_line_cap: Line["line_cap"]
-  border_line_dash: Line["line_dash"]
-  border_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BackgroundFill = {
-  background_fill_color: Fill["fill_color"]
-  background_fill_alpha: Fill["fill_alpha"]
-}
-
-export type MajorLabelText = {
-  major_label_text_color: Text["text_color"]
-  major_label_text_alpha: Text["text_alpha"]
-  major_label_text_font: Text["text_font"]
-  major_label_text_font_size: Text["text_font_size"]
-  major_label_text_font_style: Text["text_font_style"]
-  major_label_text_align: Text["text_align"]
-  major_label_text_baseline: Text["text_baseline"]
-  major_label_text_line_height: Text["text_line_height"]
-}
-
-export type TitleText = {
-  title_text_color: Text["text_color"]
-  title_text_alpha: Text["text_alpha"]
-  title_text_font: Text["text_font"]
-  title_text_font_size: Text["text_font_size"]
-  title_text_font_style: Text["text_font_style"]
-  title_text_align: Text["text_align"]
-  title_text_baseline: Text["text_baseline"]
-  title_text_line_height: Text["text_line_height"]
-}
-
-export type MajorTickLine = {
-  major_tick_line_color: Line["line_color"]
-  major_tick_line_alpha: Line["line_alpha"]
-  major_tick_line_width: Line["line_width"]
-  major_tick_line_join: Line["line_join"]
-  major_tick_line_cap: Line["line_cap"]
-  major_tick_line_dash: Line["line_dash"]
-  major_tick_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type MinorTickLine = {
-  minor_tick_line_color: Line["line_color"]
-  minor_tick_line_alpha: Line["line_alpha"]
-  minor_tick_line_width: Line["line_width"]
-  minor_tick_line_join: Line["line_join"]
-  minor_tick_line_cap: Line["line_cap"]
-  minor_tick_line_dash: Line["line_dash"]
-  minor_tick_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BarLine = {
-  bar_line_color: Line["line_color"]
-  bar_line_alpha: Line["line_alpha"]
-  bar_line_width: Line["line_width"]
-  bar_line_join: Line["line_join"]
-  bar_line_cap: Line["line_cap"]
-  bar_line_dash: Line["line_dash"]
-  bar_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type AxisLine = {
-  axis_line_color: Line["line_color"]
-  axis_line_alpha: Line["line_alpha"]
-  axis_line_width: Line["line_width"]
-  axis_line_join: Line["line_join"]
-  axis_line_cap: Line["line_cap"]
-  axis_line_dash: Line["line_dash"]
-  axis_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type AxisLabelText = {
-  axis_label_text_color: Text["text_color"]
-  axis_label_text_alpha: Text["text_alpha"]
-  axis_label_text_font: Text["text_font"]
-  axis_label_text_font_size: Text["text_font_size"]
-  axis_label_text_font_style: Text["text_font_style"]
-  axis_label_text_align: Text["text_align"]
-  axis_label_text_baseline: Text["text_baseline"]
-  axis_label_text_line_height: Text["text_line_height"]
-}
-
-export type GridLine = {
-  grid_line_color: Line["line_color"]
-  grid_line_alpha: Line["line_alpha"]
-  grid_line_width: Line["line_width"]
-  grid_line_join: Line["line_join"]
-  grid_line_cap: Line["line_cap"]
-  grid_line_dash: Line["line_dash"]
-  grid_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type MinorGridLine = {
-  minor_grid_line_color: Line["line_color"]
-  minor_grid_line_alpha: Line["line_alpha"]
-  minor_grid_line_width: Line["line_width"]
-  minor_grid_line_join: Line["line_join"]
-  minor_grid_line_cap: Line["line_cap"]
-  minor_grid_line_dash: Line["line_dash"]
-  minor_grid_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BandFill = {
-  band_fill_color: Fill["fill_color"]
-  band_fill_alpha: Fill["fill_alpha"]
-}
-
-export type BandHatch = {
-  band_hatch_color: Hatch["hatch_color"]
-  band_hatch_alpha: Hatch["hatch_alpha"]
-  band_hatch_scale: Hatch["hatch_scale"]
-  band_hatch_pattern: Hatch["hatch_pattern"]
-  band_hatch_weight: Hatch["hatch_weight"]
-  band_hatch_extra: Hatch["hatch_extra"]
-}
-
-export type OutlineLine = {
-  outline_line_color: Line["line_color"]
-  outline_line_alpha: Line["line_alpha"]
-  outline_line_width: Line["line_width"]
-  outline_line_join: Line["line_join"]
-  outline_line_cap: Line["line_cap"]
-  outline_line_dash: Line["line_dash"]
-  outline_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BorderFill = {
-  border_fill_color: Fill["fill_color"]
-  border_fill_alpha: Fill["fill_alpha"]
-}
-
-export type SeparatorLine = {
-  separator_line_color: Line["line_color"]
-  separator_line_alpha: Line["line_alpha"]
-  separator_line_width: Line["line_width"]
-  separator_line_join: Line["line_join"]
-  separator_line_cap: Line["line_cap"]
-  separator_line_dash: Line["line_dash"]
-  separator_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type GroupText = {
-  group_text_color: Text["text_color"]
-  group_text_alpha: Text["text_alpha"]
-  group_text_font: Text["text_font"]
-  group_text_font_size: Text["text_font_size"]
-  group_text_font_style: Text["text_font_style"]
-  group_text_align: Text["text_align"]
-  group_text_baseline: Text["text_baseline"]
-  group_text_line_height: Text["text_line_height"]
-}
-
-export type SubGroupText = {
-  subgroup_text_color: Text["text_color"]
-  subgroup_text_alpha: Text["text_alpha"]
-  subgroup_text_font: Text["text_font"]
-  subgroup_text_font_size: Text["text_font_size"]
-  subgroup_text_font_style: Text["text_font_style"]
-  subgroup_text_align: Text["text_align"]
-  subgroup_text_baseline: Text["text_baseline"]
-  subgroup_text_line_height: Text["text_line_height"]
-}
+export type AxisLabelText = Prefixed<"axis_label", Text>
+export type AxisLine = Prefixed<"axis", Line>
+export type BackgroundFill = Prefixed<"background", Fill>
+export type BandFill = Prefixed<"band", Fill>
+export type BandHatch = Prefixed<"band", Hatch>
+export type BarLine = Prefixed<"bar", Line>
+export type BorderFill = Prefixed<"border", Fill>
+export type BorderLine = Prefixed<"border", Line>
+export type GridLine = Prefixed<"grid", Line>
+export type GroupText = Prefixed<"group", Text>
+export type InactiveFill = Prefixed<"inactive", Fill>
+export type LabelText = Prefixed<"label", Text>
+export type MajorLabelText = Prefixed<"major_label", Text>
+export type MajorTickLine = Prefixed<"major_tick", Line>
+export type MinorGridLine = Prefixed<"minor_grid", Line>
+export type MinorTickLine = Prefixed<"minor_tick", Line>
+export type OutlineLine = Prefixed<"outline", Line>
+export type SeparatorLine = Prefixed<"separator", Line>
+export type SubGroupText = Prefixed<"subgroup", Text>
+export type TitleText = Prefixed<"title", Text>
