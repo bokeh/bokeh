@@ -153,7 +153,7 @@ export namespace Text {
 
   export type Mixins = TextVector
 
-  export type Visuals = XYGlyph.Visuals & {text: visuals.Text}
+  export type Visuals = XYGlyph.Visuals & {text: visuals.TextVector}
 }
 
 export interface Text extends Text.Attrs {}

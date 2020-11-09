@@ -1,5 +1,5 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
@@ -165,7 +165,7 @@ export namespace Bezier {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Bezier extends Bezier.Attrs {}

@@ -3,7 +3,7 @@ import {ArrowHead, ArrowHeadView, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Arrayable} from "core/types"
 import {build_view} from "core/build_views"
@@ -167,7 +167,7 @@ export namespace Arrow {
 
   export type Mixins = LineVector
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.LineVector}
 }
 
 export interface Arrow extends Arrow.Attrs {}

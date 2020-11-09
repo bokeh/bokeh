@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Arrayable, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
@@ -71,7 +71,7 @@ export namespace Patch {
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
 }
 
 export interface Patch extends Patch.Attrs {}

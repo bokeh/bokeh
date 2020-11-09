@@ -7,7 +7,7 @@ import {LineVector, FillVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {HexTileOrientation} from "core/enums"
 import {inplace} from "core/util/projections"
 
@@ -221,7 +221,7 @@ export namespace HexTile {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface HexTile extends HexTile.Attrs { }

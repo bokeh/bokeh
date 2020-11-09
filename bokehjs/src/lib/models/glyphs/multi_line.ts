@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, RaggedArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -169,7 +169,7 @@ export namespace MultiLine {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}

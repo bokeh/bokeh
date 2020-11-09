@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Text, Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
@@ -164,9 +164,9 @@ export namespace TextAnnotation {
   }
 
   export type Visuals = Annotation.Visuals & {
-    text: Text
-    border_line: Line
-    background_fill: Fill
+    text: visuals.Text
+    border_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 

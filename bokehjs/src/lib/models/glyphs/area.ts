@@ -1,6 +1,6 @@
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
-import {Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
@@ -26,7 +26,7 @@ export namespace Area {
 
   export type Mixins = mixins.Fill/*Scalar*/ & mixins.HatchVector
 
-  export type Visuals = Glyph.Visuals & {fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {fill: visuals.Fill/*Scalar*/, hatch: visuals.HatchVector}
 }
 
 export interface Area extends Area.Attrs {}

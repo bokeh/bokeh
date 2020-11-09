@@ -1,11 +1,11 @@
-import {Visuals, Line, Fill, Hatch} from "core/visuals"
+import {LineVector, FillVector, HatchVector} from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/types"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 
-export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_line_legend(visuals: {line: LineVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -17,7 +17,7 @@ export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Contex
   ctx.restore()
 }
 
-export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_area_legend(visuals: {line?: LineVector, fill: FillVector, hatch?: HatchVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)
@@ -34,12 +34,12 @@ export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: H
     ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
   }
 
-  if (visuals.hatch != null && visuals.hatch.doit) {
+  if (visuals.hatch?.doit) {
     visuals.hatch.set_vectorize(ctx, index)
     ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
   }
 
-  if (visuals.line && visuals.line.doit) {
+  if (visuals.line?.doit) {
     ctx.beginPath()
     ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
     visuals.line.set_vectorize(ctx, index)

@@ -7,7 +7,7 @@ import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -312,7 +312,7 @@ export namespace MultiPolygons {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface MultiPolygons extends MultiPolygons.Attrs {}

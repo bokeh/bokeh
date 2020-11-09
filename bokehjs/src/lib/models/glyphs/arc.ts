@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -65,7 +65,7 @@ export namespace Arc {
 
   export type Mixins = LineVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Arc extends Arc.Attrs {}

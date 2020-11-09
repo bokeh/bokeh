@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class SlopeView extends AnnotationView {
@@ -66,7 +66,7 @@ export namespace Slope {
 
   export type Mixins = mixins.Line/*Scalar*/
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Slope extends Slope.Attrs {}

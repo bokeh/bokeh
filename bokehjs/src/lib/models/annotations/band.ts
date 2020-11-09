@@ -1,6 +1,6 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class BandView extends UpperLowerView {
@@ -73,7 +73,7 @@ export namespace Band {
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 
-  export type Visuals = UpperLower.Visuals & {line: Line, fill: Fill}
+  export type Visuals = UpperLower.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
 }
 
 export interface Band extends Band.Attrs {}

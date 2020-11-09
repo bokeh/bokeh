@@ -2,7 +2,7 @@ import {UpperLower, UpperLowerView} from "./upper_lower"
 import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
 import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
@@ -79,7 +79,7 @@ export namespace Whisker {
 
   export type Mixins = LineVector
 
-  export type Visuals = UpperLower.Visuals & {line: Line}
+  export type Visuals = UpperLower.Visuals & {line: visuals.LineVector}
 }
 
 export interface Whisker extends Whisker.Attrs {}

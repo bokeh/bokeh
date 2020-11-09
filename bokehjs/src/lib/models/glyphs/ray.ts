@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -72,7 +72,7 @@ export namespace Ray {
 
   export type Mixins = LineVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Ray extends Ray.Attrs {}

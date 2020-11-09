@@ -218,7 +218,7 @@ export abstract class ContextProperties {
   protected abstract _set_vectorize(ctx: Context2d, i: number): void
 }
 
-export class Line extends ContextProperties {
+class _Line extends ContextProperties {
   readonly line_color:       p.ColorSpec
   readonly line_width:       p.NumberSpec
   readonly line_alpha:       p.NumberSpec
@@ -267,9 +267,9 @@ export class Line extends ContextProperties {
   }
 }
 
-Line.prototype.attrs = Object.keys(mixins.LineVector)
+_Line.prototype.attrs = Object.keys(mixins.LineVector)
 
-export class Fill extends ContextProperties {
+class _Fill extends ContextProperties {
   readonly fill_color: p.ColorSpec
   readonly fill_alpha: p.NumberSpec
 
@@ -297,9 +297,9 @@ export class Fill extends ContextProperties {
   }
 }
 
-Fill.prototype.attrs = Object.keys(mixins.FillVector)
+_Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
-export class Hatch extends ContextProperties {
+class _Hatch extends ContextProperties {
   readonly hatch_color: p.ColorSpec
   readonly hatch_alpha: p.NumberSpec
   readonly hatch_scale: p.NumberSpec
@@ -377,9 +377,9 @@ export class Hatch extends ContextProperties {
   }
 }
 
-Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
+_Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 
-export class Text extends ContextProperties {
+class _Text extends ContextProperties {
   readonly text_font:        p.Font
   readonly text_font_size:   p.StringSpec
   readonly text_font_style:  p.Property<FontStyle>
@@ -448,7 +448,7 @@ export class Text extends ContextProperties {
   }
 }
 
-Text.prototype.attrs = Object.keys(mixins.TextVector)
+_Text.prototype.attrs = Object.keys(mixins.TextVector)
 
 export class Visuals {
 
@@ -478,3 +478,19 @@ export class Visuals {
     }
   }
 }
+
+export class Line extends _Line {}
+//export class LineScalar extends _Line {}
+export class LineVector extends _Line {}
+
+export class Fill extends _Fill {}
+//export class FillScalar extends _Fill {}
+export class FillVector extends _Fill {}
+
+export class Text extends _Text {}
+//export class TextScalar extends _Text {}
+export class TextVector extends _Text {}
+
+export class Hatch extends _Hatch {}
+//export class HatchScalar extends _Hatch {}
+export class HatchVector extends _Hatch {}

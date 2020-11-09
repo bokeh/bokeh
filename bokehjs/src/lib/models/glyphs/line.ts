@@ -138,7 +138,7 @@ export namespace Line {
 
   export type Mixins = mixins.Line/*Scalar*/
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Line extends Line.Attrs {}

@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Rect} from "core/types"
 import {StepMode} from "core/enums"
@@ -97,7 +97,7 @@ export namespace Step {
 
   export type Mixins = LineVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Step extends Step.Attrs {}

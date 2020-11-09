@@ -1,7 +1,7 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import {Anchor} from "core/enums"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -151,7 +151,7 @@ export namespace Box {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Box extends Box.Attrs {}

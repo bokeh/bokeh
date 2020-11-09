@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -132,7 +132,7 @@ export namespace Wedge {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Wedge extends Wedge.Attrs {}

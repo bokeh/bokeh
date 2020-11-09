@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {MarkerGL, CircleGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray, Indices} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
@@ -264,7 +264,7 @@ export namespace Circle {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Circle extends Circle.Attrs {}

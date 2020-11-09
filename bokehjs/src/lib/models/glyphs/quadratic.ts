@@ -1,5 +1,5 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
@@ -109,7 +109,7 @@ export namespace Quadratic {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}

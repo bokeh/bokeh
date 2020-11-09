@@ -2,7 +2,7 @@ import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Arrayable, Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
@@ -158,7 +158,7 @@ export namespace Segment {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Segment extends Segment.Attrs {}

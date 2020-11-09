@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Rect, NumberArray} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/compat"
@@ -144,7 +144,7 @@ export namespace Annulus {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Annulus extends Annulus.Attrs {}
