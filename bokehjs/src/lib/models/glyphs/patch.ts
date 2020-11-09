@@ -40,7 +40,7 @@ export class PatchView extends XYGlyphView {
       this._inner_loop(ctx, indices, sx, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
+    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
@@ -48,8 +48,8 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_area_legend(this.visuals, ctx, bbox)
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

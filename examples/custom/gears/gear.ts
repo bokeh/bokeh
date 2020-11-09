@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "models/glyphs/xy_glyph"
-import {generic_area_legend} from "models/glyphs/utils"
+import {generic_area_vector_legend} from "models/glyphs/utils"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Arrayable, Rect} from "core/types"
@@ -142,7 +142,7 @@ export class GearView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 

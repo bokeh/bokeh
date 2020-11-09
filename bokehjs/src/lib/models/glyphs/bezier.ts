@@ -4,7 +4,7 @@ import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
@@ -141,7 +141,7 @@ export class BezierView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {

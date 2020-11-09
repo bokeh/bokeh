@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
@@ -58,7 +58,7 @@ export class RayView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 

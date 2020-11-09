@@ -126,8 +126,8 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_line_legend(this.visuals, ctx, bbox)
   }
 }
 

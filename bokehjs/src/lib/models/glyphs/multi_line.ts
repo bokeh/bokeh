@@ -10,7 +10,7 @@ import {minmax} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface MultiLineData extends GlyphData {
@@ -151,7 +151,7 @@ export class MultiLineView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {

@@ -1,5 +1,5 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, NumberArray} from "core/types"
@@ -222,7 +222,7 @@ export class RectView extends CenterRotatableView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   protected _bounds({x0, x1, y0, y1}: types.Rect): types.Rect {

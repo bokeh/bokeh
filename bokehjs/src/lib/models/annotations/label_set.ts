@@ -2,6 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
@@ -199,7 +200,11 @@ export namespace LabelSet {
     mixins.Prefixed<"border", mixins.LineVector> &
     mixins.Prefixed<"background", mixins.FillVector>
 
-  export type Visuals = TextAnnotation.Visuals
+  export type Visuals = TextAnnotation.Visuals & {
+    text: visuals.TextVector
+    border_line: visuals.LineVector
+    background_fill: visuals.FillVector
+  }
 }
 
 export interface LabelSet extends LabelSet.Attrs {}

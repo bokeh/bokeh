@@ -2,7 +2,7 @@ import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
 import {Indices} from "@bokehjs/core/types"
-import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"
+import {Fill, FillVector, Line, Text, Visuals} from "@bokehjs/core/visuals"
 import {Context2d} from "@bokehjs/core/util/canvas"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
@@ -168,7 +168,7 @@ describe("Visuals", () => {
     const attrs = {fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}}
 
     const circle = new Circle(attrs)
-    const visuals = new Visuals(circle) as Visuals & {fill: Fill}
+    const visuals = new Visuals(circle) as Visuals & {fill: FillVector}
 
     visuals.warm_cache(source)
 
@@ -182,7 +182,7 @@ describe("Visuals", () => {
     const attrs = {fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}}
 
     const circle = new Circle(attrs)
-    const visuals = new Visuals(circle) as Visuals & {fill: Fill}
+    const visuals = new Visuals(circle) as Visuals & {fill: FillVector}
 
     const subset = Indices.from_indices(3, [1, 2])
     visuals.warm_cache(source, subset)

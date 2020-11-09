@@ -58,7 +58,7 @@ export class HAreaView extends AreaView {
       this._inner(ctx, sx1, sx2, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
+    this.visuals.hatch.doit2(ctx, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

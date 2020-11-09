@@ -14,8 +14,8 @@ export abstract class AreaView extends GlyphView {
   model: Area
   visuals: Area.Visuals
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_area_legend(this.visuals, ctx, bbox)
   }
 }
 
@@ -24,9 +24,9 @@ export namespace Area {
 
   export type Props = Glyph.Props & Mixins
 
-  export type Mixins = mixins.Fill/*Scalar*/ & mixins.HatchVector
+  export type Mixins = mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
 
-  export type Visuals = Glyph.Visuals & {fill: visuals.Fill/*Scalar*/, hatch: visuals.HatchVector}
+  export type Visuals = Glyph.Visuals & {fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
 }
 
 export interface Area extends Area.Attrs {}
@@ -40,6 +40,6 @@ export class Area extends Glyph {
   }
 
   static init_Area(): void {
-    this.mixins<Area.Mixins>([mixins.Fill/*Scalar*/, mixins.HatchVector])
+    this.mixins<Area.Mixins>([mixins.Fill/*Scalar*/, mixins.Hatch/*Scalar*/])
   }
 }

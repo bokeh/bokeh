@@ -11,7 +11,7 @@ import * as visuals from "core/visuals"
 import {HexTileOrientation} from "core/enums"
 import {inplace} from "core/util/projections"
 
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export type Vertices = [number, number, number, number, number, number]
@@ -203,7 +203,7 @@ export class HexTileView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 

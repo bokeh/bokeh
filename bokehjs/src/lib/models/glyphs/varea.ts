@@ -58,7 +58,7 @@ export class VAreaView extends AreaView {
       this._inner(ctx, sx, sy1, sy2, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx, sy1, sy2, ctx.fill), () => this.renderer.request_render())
+    this.visuals.hatch.doit2(ctx, () => this._inner(ctx, sx, sy1, sy2, ctx.fill), () => this.renderer.request_render())
   }
 
   scenterxy(i: number): [number, number] {

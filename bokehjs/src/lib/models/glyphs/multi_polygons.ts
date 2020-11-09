@@ -1,6 +1,6 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
 import {Arrayable, Rect, NumberArray, Indices} from "core/types"
@@ -298,7 +298,7 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
