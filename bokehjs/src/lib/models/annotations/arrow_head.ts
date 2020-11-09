@@ -26,7 +26,7 @@ export namespace ArrowHead {
     size: p.Property<number>
   }
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}

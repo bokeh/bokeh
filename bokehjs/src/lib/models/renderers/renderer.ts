@@ -100,7 +100,7 @@ export namespace Renderer {
     y_range_name: p.Property<string>
   }
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface Renderer extends Renderer.Attrs {}

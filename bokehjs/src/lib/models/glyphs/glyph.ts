@@ -320,7 +320,7 @@ export namespace Glyph {
 
   export type Props = Model.Props
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface Glyph extends Glyph.Attrs {}
