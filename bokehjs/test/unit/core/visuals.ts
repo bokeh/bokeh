@@ -19,7 +19,8 @@ describe("Fill", () => {
         fill_alpha: 0.5,
       }
       const model = new Circle(attrs)
-      const fill = new Fill(model)
+      const view = new SomeView({model})
+      const fill = new Fill(view)
 
       const ctx = {} as Context2d
       fill.set_value(ctx)
@@ -32,21 +33,24 @@ describe("Fill", () => {
     it("should be false if fill_color is null", () => {
       const attrs = {fill_alpha: {value: 1}, fill_color: {value: null}}
       const model = new Circle(attrs)
-      const fill = new Fill(model)
+      const view = new SomeView({model})
+      const fill = new Fill(view)
       expect(fill.doit).to.be.false
     })
 
     it("should be false if fill_alpha is 0", () => {
       const attrs = {fill_alpha: {value: 0}, fill_color: {value: "red"}}
       const model = new Circle(attrs)
-      const fill = new Fill(model)
+      const view = new SomeView({model})
+      const fill = new Fill(view)
       expect(fill.doit).to.be.false
     })
 
     it("should be true otherwise", () => {
       const attrs = {fill_alpha: {value: 1}, fill_color: {value: "red"}}
       const model = new Circle(attrs)
-      const fill = new Fill(model)
+      const view = new SomeView({model})
+      const fill = new Fill(view)
       expect(fill.doit).to.be.true
     })
   })
@@ -66,7 +70,8 @@ describe("Line", () => {
         line_dash_offset: 2,
       }
       const model = new Circle(attrs)
-      const line = new Line(model)
+      const view = new SomeView({model})
+      const line = new Line(view)
 
       const ctx = {} as Context2d
       line.set_value(ctx)
@@ -84,28 +89,32 @@ describe("Line", () => {
     it("should be false if line_color is null", () => {
       const attrs = {line_alpha: {value: 1}, line_color: {value: null}, line_width: {value: 1}}
       const model = new Circle(attrs)
-      const line = new Line(model)
+      const view = new SomeView({model})
+      const line = new Line(view)
       expect(line.doit).to.be.false
     })
 
     it("should be false if line_width is 0", () => {
       const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 0}}
       const model = new Circle(attrs)
-      const line = new Line(model)
+      const view = new SomeView({model})
+      const line = new Line(view)
       expect(line.doit).to.be.false
     })
 
     it("should be false if line_alpha is 0", () => {
       const attrs = {line_alpha: {value: 0}, line_color: {value: "red"}, line_width: {value: 1}}
       const model = new Circle(attrs)
-      const line = new Line(model)
+      const view = new SomeView({model})
+      const line = new Line(view)
       expect(line.doit).to.be.false
     })
 
     it("should be true otherwise", () => {
       const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 1}}
       const model = new Circle(attrs)
-      const line = new Line(model)
+      const view = new SomeView({model})
+      const line = new Line(view)
       expect(line.doit).to.be.true
     })
   })
@@ -125,7 +134,8 @@ describe("Text", () => {
         text_baseline: "bottom" as "bottom",
       }
       const model = new text_glyph.Text(attrs)
-      const text = new Text(model)
+      const view = new SomeView({model})
+      const text = new Text(view)
 
       const ctx = {} as Context2d
       text.set_value(ctx)

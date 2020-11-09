@@ -65,7 +65,7 @@ export abstract class GlyphView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {

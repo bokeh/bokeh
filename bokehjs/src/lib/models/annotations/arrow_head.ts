@@ -11,7 +11,7 @@ export abstract class ArrowHeadView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
   }
 
   abstract render(ctx: Context2d, i: number): void

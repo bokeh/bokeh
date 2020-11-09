@@ -24,7 +24,7 @@ export abstract class RendererView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
     this._initialize_coordinates()
   }
