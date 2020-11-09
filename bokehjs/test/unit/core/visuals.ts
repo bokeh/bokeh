@@ -185,17 +185,17 @@ describe("core/visuals", () => {
 
     describe("interacting with GlyphViews", () => {
 
-      it("warm_cache(..., all_indices) should be called by the glyph view", async () => {
+      it("should get initialized with appropriate indices", async () => {
         const circle = new Circle({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
         const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.5, 1]}
         const renderer_view = await create_glyph_renderer_view(circle, data)
 
         const filter = new IndexFilter({indices: [1, 2]})
         renderer_view.model.view = new CDSView({source: renderer_view.model.data_source, filters: [filter]})
-        //need to manually set_data because signals for renderer aren't connected by create_glyph_view util
+        // XXX: need to manually set_data because signals for renderer aren't connected by create_glyph_view util
         renderer_view.set_data()
 
-        const {ctx} = renderer_view.layer
+        const ctx = {} as Context2d
         const glyph_view = renderer_view.glyph as CircleView
         glyph_view.visuals.fill.set_vectorize(ctx, 1)
 

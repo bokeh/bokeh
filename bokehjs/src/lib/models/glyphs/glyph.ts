@@ -11,6 +11,7 @@ import {logger} from "core/logging"
 import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
+import {values} from "core/util/object"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -66,13 +67,6 @@ export abstract class GlyphView extends View {
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
-  }
-
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    this.visuals.warm_cache(source, indices)
-
-    if (this.glglyph != null)
-      this.glglyph.set_visuals_changed()
   }
 
   render(ctx: Context2d, indices: number[], data: any): void {
@@ -213,13 +207,38 @@ export abstract class GlyphView extends View {
 
   protected _project_data(): void {}
 
+  private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
+    for (const visual of values<visuals.ContextProperties>(this.visuals)) {
+      for (const prop of visual) {
+        if (prop instanceof p.VectorSpec)
+          yield prop
+      }
+    }
+  }
+
+  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+    const self = this as any
+
+    for (const prop of this._iter_visuals()) {
+      const base_array = prop.array(source)
+      const array = indices.select(base_array)
+      self[`_${prop.attr}`] = array
+    }
+
+    this.glglyph?.set_visuals_changed()
+  }
+
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
     const {x_range, y_range} = this.renderer.coordinates
 
     this._data_size = indices.count
 
+    const visual_props = new Set(this._iter_visuals())
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec))
+        continue
+
+      if (visual_props.has(prop)) // let set_visuals() do the work
         continue
 
       // this skips optional properties like radius for circles

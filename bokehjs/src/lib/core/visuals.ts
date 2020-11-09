@@ -186,9 +186,20 @@ export abstract class ContextProperties {
 
   protected readonly cache: {[key: string]: any} = {}
 
+  private readonly _props: p.Property<unknown>[]
+
+  *[Symbol.iterator](): Generator<p.Property<unknown>, void, undefined> {
+    yield* this._props
+  }
+
   constructor(readonly obj: View, readonly prefix: string = "") {
-    for (const attr of this.attrs)
-      (this as any)[attr] = obj.model.properties[prefix + attr]
+    const self = this as any
+    this._props = []
+    for (const attr of this.attrs) {
+      const prop = obj.model.properties[prefix + attr]
+      self[attr] = prop
+      this._props.push(prop)
+    }
   }
 
   cache_select(prop: p.Property<unknown>, i: number): any {
