@@ -1,19 +1,17 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Arrayable, Attrs} from "./types"
+import {Attrs} from "./types"
 import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {max} from "./util/array"
 import {values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from './util/eq'
 import {serialize, Serializable, Serializer} from "./serializer"
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document, DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document"
 import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
@@ -563,26 +561,6 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         event = new DocumentEventBatch(document, events, setter_id)
       document._trigger_on_change(event)
     }
-  }
-
-  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: Arrayable<unknown> | number} {
-    // Note: this should be moved to a function separate from HasProps
-    const data: {[key: string]: Arrayable<unknown> | number} = {}
-    for (const prop of this) {
-      if (!(prop instanceof p.VectorSpec))
-        continue
-      // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !prop.dirty)
-        continue
-
-      const name = prop.attr
-      const array = prop.array(source)
-
-      data[`_${name}`] = array
-      if (prop instanceof p.DistanceSpec)
-        data[`max_${name}`] = max(array as Arrayable<number>)
-    }
-    return data
   }
 
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
