@@ -384,9 +384,8 @@ export class ColorBarView extends AnnotationView {
   }
 
   _title_extent(): number {
-    const {title_text_font_style, title_text_font_size, title_text_font} = this.model
-    const font_value = `${title_text_font_style} ${title_text_font_size} ${title_text_font}`
-    const title_extent = this.model.title ? text_util.measure_font(font_value).height + this.model.title_standoff : 0
+    const font = this.visuals.title_text.font_value()
+    const title_extent = this.model.title ? text_util.measure_font(font).height + this.model.title_standoff : 0
     return title_extent
   }
 
