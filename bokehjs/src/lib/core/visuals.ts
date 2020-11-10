@@ -209,8 +209,8 @@ export abstract class ContextProperties {
       return (this.obj as any)[`_${prop.attr}`][i]
   }
 
-  get_array(attr: string): Arrayable {
-    return (this.obj as any)[`_${attr}`]
+  get_array(prop: p.Property<unknown>): Arrayable {
+    return (this.obj as any)[`_${prop.attr}`]
   }
 
   abstract get doit(): boolean

@@ -1,5 +1,6 @@
 import {svg_colors, is_svg_color} from "./svg_colors"
 import {includes} from "./array"
+import {uint32} from "../types"
 
 export function is_color(value: string): boolean {
   return is_svg_color(value.toLowerCase()) || value.substring(0, 1) == "#" || valid_rgb(value)
@@ -34,13 +35,13 @@ export function color2hex(color: string): string {
 }
 
 // each component is in [0, 1] range
-export type RGBA = [number, number, number, number]
+export type RGBAf = [number, number, number, number]
 
-export function encode_rgba([r, g, b, a]: RGBA): number {
+export function encode_rgba([r, g, b, a]: RGBAf): uint32 {
   return (r*255 | 0) << 24 | (g*255 | 0) << 16 | (b*255 | 0) << 8 | (a*255 | 0)
 }
 
-export function decode_rgba(rgba: number): RGBA {
+export function decode_rgba(rgba: uint32): RGBAf {
   const r = ((rgba >> 24) & 0xff) / 255
   const g = ((rgba >> 16) & 0xff) / 255
   const b = ((rgba >>  8) & 0xff) / 255
@@ -48,7 +49,7 @@ export function decode_rgba(rgba: number): RGBA {
   return [r, g, b, a]
 }
 
-export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
+export function color2rgba(color: string | null, alpha: number = 1.0): RGBAf {
   if (!color)  // NaN, null, '', etc.
     return [0, 0, 0, 0]  // transparent
   // Convert to hex and then to clean version of 6 or 8 chars
@@ -64,7 +65,7 @@ export function color2rgba(color: string | null, alpha: number = 1.0): RGBA {
     rgba.push(0)
   if (rgba.length < 4)
     rgba.push(alpha)
-  return rgba.slice(0, 4) as RGBA
+  return rgba.slice(0, 4) as RGBAf
 }
 
 export function valid_rgb(value: string): boolean {
