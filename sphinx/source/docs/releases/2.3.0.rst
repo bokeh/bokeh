@@ -46,3 +46,11 @@ Old names are deprecated and will be removed in bokeh 3.0.
 ``DataRange.names``, ``SelectTool.names`` and ``HoverTool.names`` were deprecated
 and will be removed in bokeh 3.0. Use respective ``renderers`` properties instead,
 possibly in combination with ``plot.select(name="renderer name")``.
+
+bokehjs' visuals have different semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously ``Line``, ``Fill``, ``Text`` and ``Hatch`` visuals were used in primitive,
+scalar and vector contexts. Those were split and now context-specific visuals, e.g.,
+``Line``, ``LineScalar`` and ``LineVector`` have to used in respective contexts. This
+aligns visuals with mixins, among other things.
