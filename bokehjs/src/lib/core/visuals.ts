@@ -203,7 +203,7 @@ export abstract class ContextProperties {
   }
 
   cache_select(prop: p.Property<unknown>, i: number): any {
-    if (prop.spec.value !== undefined) // TODO (bev) better test?
+    if (prop.is_value)
       return prop.spec.value
     else
       return (this.obj as any)[`_${prop.attr}`][i]
