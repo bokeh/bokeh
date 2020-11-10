@@ -51,13 +51,13 @@ class SubSubclassWithProps extends SubclassWithProps {
 
 // TODO {{{
 class SubclassWithMixins extends HasProps {}
-SubclassWithMixins.mixins(['line'])
+SubclassWithMixins.mixins([mixins.Line])
 
 class SubSubclassWithMixins extends SubclassWithMixins {}
-SubSubclassWithMixins.mixins(['fill:foo_'])
+SubSubclassWithMixins.mixins([["foo_", mixins.Fill]])
 
 class SubclassWithMultipleMixins extends HasProps {}
-SubclassWithMultipleMixins.mixins(['line', 'text:bar_'])
+SubclassWithMultipleMixins.mixins([mixins.Line, ["bar_", mixins.Text]])
 // }}}
 
 namespace SubclassWithNumberSpec {

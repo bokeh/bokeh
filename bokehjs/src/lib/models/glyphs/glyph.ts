@@ -332,6 +332,4 @@ export abstract class Glyph extends Model {
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
-
-  static init_Glyph(): void {}
 }

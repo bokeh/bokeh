@@ -223,7 +223,7 @@ export const TextVector: p.DefineOf<TextVector> = {
   text_line_height: [ k.Number, 1.2 ],
 }
 
-type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
+export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
 
 export type AxisLabelText = Prefixed<"axis_label", Text>
 export type AxisLine = Prefixed<"axis", Line>

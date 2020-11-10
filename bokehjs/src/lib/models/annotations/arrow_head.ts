@@ -82,7 +82,7 @@ export namespace OpenHead {
 
   export type Mixins = LineVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.Line}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector}
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
@@ -148,7 +148,7 @@ export namespace NormalHead {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.Line, fill: visuals.Fill}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
@@ -220,7 +220,7 @@ export namespace VeeHead {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.Line, fill: visuals.Fill}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
@@ -269,7 +269,7 @@ export namespace TeeHead {
 
   export type Mixins = LineVector
 
-  export type Visuals = ArrowHead.Visuals & {line: visuals.Line}
+  export type Visuals = ArrowHead.Visuals & {line: visuals.LineVector}
 }
 
 export interface TeeHead extends TeeHead.Attrs {}

@@ -1,9 +1,9 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
@@ -132,7 +132,7 @@ export class AnnularWedgeView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(i: number): [number, number] {
@@ -157,7 +157,7 @@ export namespace AnnularWedge {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}

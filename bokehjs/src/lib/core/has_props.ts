@@ -6,12 +6,11 @@ import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
-import * as mixins from "./property_mixins"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max} from "./util/array"
 import {values, entries, extend} from "./util/object"
-import {isPlainObject, isArray, isString, isFunction, isPrimitive} from "./util/types"
+import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from './util/eq'
 import {serialize, Serializable, Serializer} from "./serializer"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -86,7 +85,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }}
 
   /** @prototype */
-  _mixins: string[]
+  _mixins: [string, object][]
 
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
     if (default_value === undefined || isFunction(default_value))
@@ -144,21 +143,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this.define(_object)
   }
 
-  static mixins<_T>(defs: Attrs | string[] | (Attrs | [string, Attrs])[]): void {
-    if (!isArray(defs))
-      defs = [defs]
-
-    function resolve(kind: string): any {
-      switch (kind) {
-        case "line":  return mixins.LineVector
-        case "fill":  return mixins.FillVector
-        case "hatch": return mixins.HatchVector
-        case "text":  return mixins.TextVector
-        default:
-          throw new Error(`Unknown property mixin kind '${kind}'`)
-      }
-    }
-
+  static mixins<_T>(defs: Attrs | (Attrs | [string, Attrs])[]): void {
     function rename(prefix: string, mixin: Attrs): Attrs {
       const result: Attrs = {}
       for (const [name, prop] of entries(mixin)) {
@@ -167,34 +152,23 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       return result
     }
 
-    function kind_of(mixin: Attrs): string {
-      const [key] = Object.keys(mixin)
-      const [kind] = key.split("_", 1)
-      return kind
-    }
-
     const mixin_defs: Attrs = {}
-    const names: string[] = []
-    for (const def of defs) {
-      if (isString(def)) {
-        // TODO: remove this branch in 3.0
-        const [kind, prefix = ""] = def.split(":")
-        const mixin = resolve(kind)
-        names.push(def)
-        extend(mixin_defs, rename(prefix, mixin))
-      } else if (isArray(def)) {
+    const mixins: [string, Attrs][] = []
+
+    for (const def of isArray(defs) ? defs : [defs]) {
+      if (isArray(def)) {
         const [prefix, mixin] = def
-        names.push(`${kind_of(mixin)}:${prefix}`)
         extend(mixin_defs, rename(prefix, mixin))
+        mixins.push([prefix, mixin])
       } else {
         const mixin = def
-        names.push(kind_of(mixin))
         extend(mixin_defs, mixin)
+        mixins.push(["", mixin])
       }
     }
 
     this.define(mixin_defs as any)
-    this.prototype._mixins = [...this.prototype._mixins, ...names]
+    this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
 
   static override<T>(obj: Partial<p.DefaultsOf<T>>): void {

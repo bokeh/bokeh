@@ -2,7 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
-import {LineJoin, LineCap} from "core/enums"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
@@ -193,24 +193,18 @@ export namespace LabelSet {
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
-
-    // line:border_ v
-    border_line_color: p.ColorSpec
-    border_line_width: p.NumberSpec
-    border_line_alpha: p.NumberSpec
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-
-    // fill:background_ v
-    background_fill_color: p.ColorSpec
-    background_fill_alpha: p.NumberSpec
   } & Mixins
 
-  export type Mixins = mixins.TextVector
+  export type Mixins =
+    mixins.TextVector &
+    mixins.Prefixed<"border", mixins.LineVector> &
+    mixins.Prefixed<"background", mixins.FillVector>
 
-  export type Visuals = TextAnnotation.Visuals
+  export type Visuals = TextAnnotation.Visuals & {
+    text: visuals.TextVector
+    border_line: visuals.LineVector
+    background_fill: visuals.FillVector
+  }
 }
 
 export interface LabelSet extends LabelSet.Attrs {}

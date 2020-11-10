@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, RaggedArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -10,7 +10,7 @@ import {minmax} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface MultiLineData extends GlyphData {
@@ -151,7 +151,7 @@ export class MultiLineView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {
@@ -169,7 +169,7 @@ export namespace MultiLine {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}

@@ -2,7 +2,6 @@ import * as mixins from "./property_mixins"
 import * as p from "./properties"
 import {color2rgba, decode_rgba} from "./util/color"
 import {Context2d} from "./util/canvas"
-import {Class} from "./class"
 import {Arrayable, Color, Indices} from "./types"
 import {isString} from "./util/types"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
@@ -59,6 +58,18 @@ export const hatch_aliases: {[key: string]: mixins.HatchPattern} = {
   v: "horizontal_wave",
   ">": "vertical_wave",
   "*": "criss_cross",
+}
+
+function get_pattern(pattern: mixins.HatchPattern, color: Color, alpha: number, scale: number, weight: number) {
+  return (ctx: Context2d) => {
+    // TODO: this needs a canvas provider instead of trying to guess what to use
+    const output_backend = ctx instanceof SVGRenderingContext2D ? "svg" : "canvas"
+    const region = new CanvasLayer(output_backend, true)
+    region.resize(scale, scale)
+    region.prepare()
+    create_hatch_canvas(region.ctx, pattern, color, alpha, scale, weight)
+    return ctx.createPattern(region.canvas, "repeat")!
+  }
 }
 
 function create_hatch_canvas(ctx: Context2d,
@@ -211,14 +222,13 @@ export abstract class ContextProperties {
     return this.cache[attr + "_array"] as Arrayable
   }
 
-  set_vectorize(ctx: Context2d, i: number): void {
-    this._set_vectorize(ctx, i)
-  }
-
   protected abstract _set_vectorize(ctx: Context2d, i: number): void
+  protected abstract _set_value(ctx: Context2d): void
 }
 
-export class Line extends ContextProperties {
+class _Line extends ContextProperties {
+  name = "line"
+
   readonly line_color:       p.ColorSpec
   readonly line_width:       p.NumberSpec
   readonly line_alpha:       p.NumberSpec
@@ -227,7 +237,7 @@ export class Line extends ContextProperties {
   readonly line_dash:        p.Array
   readonly line_dash_offset: p.Number
 
-  set_value(ctx: Context2d): void {
+  protected _set_value(ctx: Context2d): void {
     const color = this.line_color.value()
     const alpha = this.line_alpha.value()
 
@@ -267,13 +277,15 @@ export class Line extends ContextProperties {
   }
 }
 
-Line.prototype.attrs = Object.keys(mixins.LineVector)
+_Line.prototype.attrs = Object.keys(mixins.LineVector)
 
-export class Fill extends ContextProperties {
+class _Fill extends ContextProperties {
+  name = "fill"
+
   readonly fill_color: p.ColorSpec
   readonly fill_alpha: p.NumberSpec
 
-  set_value(ctx: Context2d): void {
+  protected _set_value(ctx: Context2d): void {
     const color = this.fill_color.value()
     const alpha = this.fill_alpha.value()
 
@@ -297,9 +309,11 @@ export class Fill extends ContextProperties {
   }
 }
 
-Fill.prototype.attrs = Object.keys(mixins.FillVector)
+_Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
-export class Hatch extends ContextProperties {
+class _Hatch extends ContextProperties {
+  name = "hatch"
+
   readonly hatch_color: p.ColorSpec
   readonly hatch_alpha: p.NumberSpec
   readonly hatch_scale: p.NumberSpec
@@ -316,27 +330,17 @@ export class Hatch extends ContextProperties {
       const weight = this.cache_select("hatch_weight", i)
 
       const {hatch_extra} = this.cache
-      if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern)) {
-        const custom: Texture = hatch_extra[pattern]
-        this.cache.pattern = custom.get_pattern(color, alpha, scale, weight)
-      } else {
-        this.cache.pattern = (ctx: Context2d) => {
-          // TODO: this needs a canvas provider instead of trying to guess what to use
-          const output_backend = ctx instanceof SVGRenderingContext2D ? "svg" : "canvas"
-          const region = new CanvasLayer(output_backend, true)
-          region.resize(scale, scale)
-          region.prepare()
-          create_hatch_canvas(region.ctx, pattern, color, alpha, scale, weight)
-          return ctx.createPattern(region.canvas, "repeat")!
-        }
-      }
+      if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
+        this.cache.pattern = (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
+      else
+        this.cache.pattern = get_pattern(pattern, color, alpha, scale, weight)
     } else
       value = super.cache_select(name, i)
 
     return value
   }
 
-  private _try_defer(defer_func: () => void): void {
+  protected _try_defer(defer_func: () => void): void {
     const {hatch_pattern, hatch_extra} = this.cache
     if (hatch_extra != null && hasOwnProperty.call(hatch_extra, hatch_pattern)) {
       const custom = hatch_extra[hatch_pattern]
@@ -352,24 +356,28 @@ export class Hatch extends ContextProperties {
              this.hatch_pattern.spec.value === null)
   }
 
-  doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
-    if (!this.doit) {
-      return
-    }
-
-    this.cache_select("pattern", i)
-    const pattern = this.cache.pattern(ctx)
-    if (pattern == null) {
-      this._try_defer(defer_func)
-    } else {
-      this.set_vectorize(ctx, i)
-      ready_func()
-    }
-  }
-
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("pattern", i)
-    ctx.fillStyle = this.cache.pattern(ctx)
+    ctx.fillStyle = this.cache.pattern(ctx) // XXX: any, so the same problem as below
+  }
+
+  protected _set_value(ctx: Context2d): void {
+    const pattern = this.pattern(ctx)
+    ctx.fillStyle = pattern != null ? pattern : "" // XXX: deal with null
+  }
+
+  get pattern(): (ctx: Context2d) => CanvasPattern | null {
+    const color = this.hatch_color.value()
+    const alpha = this.hatch_alpha.value()
+    const scale = this.hatch_scale.value()
+    const pattern = this.hatch_pattern.value()
+    const weight = this.hatch_weight.value()
+
+    const {hatch_extra} = this.cache
+    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
+      return (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
+    else
+      return get_pattern(pattern, color, alpha, scale, weight)
   }
 
   color_value(): string {
@@ -377,9 +385,11 @@ export class Hatch extends ContextProperties {
   }
 }
 
-Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
+_Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
 
-export class Text extends ContextProperties {
+class _Text extends ContextProperties {
+  name = "text"
+
   readonly text_font:        p.Font
   readonly text_font_size:   p.StringSpec
   readonly text_font_style:  p.Property<FontStyle>
@@ -419,7 +429,7 @@ export class Text extends ContextProperties {
     return value
   }
 
-  set_value(ctx: Context2d): void {
+  protected _set_value(ctx: Context2d): void {
     const color = this.text_color.value()
     const alpha = this.text_alpha.value()
 
@@ -448,23 +458,32 @@ export class Text extends ContextProperties {
   }
 }
 
-Text.prototype.attrs = Object.keys(mixins.TextVector)
+_Text.prototype.attrs = Object.keys(mixins.TextVector)
 
 export class Visuals {
 
   constructor(model: HasProps) {
-    for (const mixin of model._mixins) {
-      const [name, prefix=""] = mixin.split(":")
-      let cls: Class<ContextProperties>
-      switch (name) {
-        case "line":  cls = Line;  break
-        case "fill":  cls = Fill;  break
-        case "hatch": cls = Hatch; break
-        case "text":  cls = Text;  break
-        default:
-          throw new Error(`unknown visual: ${name}`)
-      }
-      (this as any)[prefix + name] = new cls(model, prefix)
+    const self = this as any
+    for (const [prefix, mixin] of model._mixins) {
+      const visual = (() => {
+        switch (mixin) {
+          case mixins.Line:        return new Line(model, prefix)
+          case mixins.LineScalar:  return new LineScalar(model, prefix)
+          case mixins.LineVector:  return new LineVector(model, prefix)
+          case mixins.Fill:        return new Fill(model, prefix)
+          case mixins.FillScalar:  return new FillScalar(model, prefix)
+          case mixins.FillVector:  return new FillVector(model, prefix)
+          case mixins.Text:        return new Text(model, prefix)
+          case mixins.TextScalar:  return new TextScalar(model, prefix)
+          case mixins.TextVector:  return new TextVector(model, prefix)
+          case mixins.Hatch:       return new Hatch(model, prefix)
+          case mixins.HatchScalar: return new HatchScalar(model, prefix)
+          case mixins.HatchVector: return new HatchVector(model, prefix)
+          default:
+            throw new Error("unknown visual")
+        }
+      })()
+      self[prefix + visual.name] = visual
     }
   }
 
@@ -475,6 +494,81 @@ export class Visuals {
         if (prop instanceof ContextProperties)
           prop.warm_cache(source, all_indices)
       }
+    }
+  }
+}
+
+export class Line extends _Line {
+  set_value(ctx: Context2d): void {
+    this._set_value(ctx)
+  }
+}
+export class LineScalar extends Line {}
+export class LineVector extends _Line {
+  set_vectorize(ctx: Context2d, i: number): void {
+    this._set_vectorize(ctx, i)
+  }
+}
+
+export class Fill extends _Fill {
+  set_value(ctx: Context2d): void {
+    this._set_value(ctx)
+  }
+}
+export class FillScalar extends Fill {}
+export class FillVector extends _Fill {
+  set_vectorize(ctx: Context2d, i: number): void {
+    this._set_vectorize(ctx, i)
+  }
+}
+
+export class Text extends _Text {
+  set_value(ctx: Context2d): void {
+    this._set_value(ctx)
+  }
+}
+export class TextScalar extends Text {}
+export class TextVector extends _Text {
+  set_vectorize(ctx: Context2d, i: number): void {
+    this._set_vectorize(ctx, i)
+  }
+}
+
+export class Hatch extends _Hatch {
+  set_value(ctx: Context2d): void {
+    this._set_value(ctx)
+  }
+
+  doit2(ctx: Context2d, ready_func: () => void, defer_func: () => void): void {
+    if (!this.doit)
+      return
+
+    const pattern = this.pattern(ctx)
+    if (pattern == null) {
+      this._try_defer(defer_func)
+    } else {
+      this._set_value(ctx)
+      ready_func()
+    }
+  }
+}
+export class HatchScalar extends Hatch {}
+export class HatchVector extends _Hatch {
+  set_vectorize(ctx: Context2d, i: number): void {
+    this._set_vectorize(ctx, i)
+  }
+
+  doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
+    if (!this.doit)
+      return
+
+    this.cache_select("pattern", i)
+    const pattern = this.cache.pattern(ctx)
+    if (pattern == null) {
+      this._try_defer(defer_func)
+    } else {
+      this._set_vectorize(ctx, i)
+      ready_func()
     }
   }
 }
