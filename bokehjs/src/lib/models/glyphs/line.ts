@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
@@ -127,7 +127,7 @@ export class LineView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox)
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 

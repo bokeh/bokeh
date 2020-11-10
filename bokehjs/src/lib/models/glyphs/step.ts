@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_scalar_legend} from "./utils"
 import {Line} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -84,7 +84,7 @@ export class StepView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox)
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 

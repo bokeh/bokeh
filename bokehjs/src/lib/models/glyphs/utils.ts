@@ -5,7 +5,7 @@ import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 
-export function generic_line_legend(visuals: {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+export function generic_line_scalar_legend(visuals: {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -29,7 +29,7 @@ export function generic_line_vector_legend(visuals: {line: LineVector}, ctx: Con
   ctx.restore()
 }
 
-export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+export function generic_area_scalar_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)
@@ -88,6 +88,9 @@ export function generic_area_vector_legend(visuals: {line?: LineVector, fill: Fi
     ctx.stroke()
   }
 }
+
+export {generic_line_vector_legend as generic_line_legend}
+export {generic_area_vector_legend as generic_area_legend}
 
 export function line_interpolation(renderer: GlyphRendererView, geometry: PointGeometry | SpanGeometry, x2: number, y2: number, x3: number, y3: number): [number, number] {
   const {sx, sy} = geometry

@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_scalar_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import * as visuals from "core/visuals"
 import {Arrayable, Rect} from "core/types"
@@ -49,7 +49,7 @@ export class PatchView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox)
+    generic_area_scalar_legend(this.visuals, ctx, bbox)
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
