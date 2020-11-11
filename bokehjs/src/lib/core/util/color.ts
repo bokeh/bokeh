@@ -49,9 +49,21 @@ export function decode_rgba(rgba: uint32): RGBAf {
   return [r, g, b, a]
 }
 
+function transparent(): RGBAf {
+  return [0, 0, 0, 0]
+}
+
+let _last_color = "transparent"
+let _last_alpha = 1.0
+let _last_rgbaf = transparent()
+
 export function color2rgba(color: string | null, alpha: number = 1.0): RGBAf {
-  if (!color)  // NaN, null, '', etc.
-    return [0, 0, 0, 0]  // transparent
+  if (!color || color == "transparent")  // NaN, null, '', etc.
+    return transparent()
+
+  if (color == _last_color && alpha == _last_alpha)
+    return [..._last_rgbaf]
+
   // Convert to hex and then to clean version of 6 or 8 chars
   let hex = color2hex(color)
   hex = hex.replace(/ |#/g, '')
@@ -65,7 +77,12 @@ export function color2rgba(color: string | null, alpha: number = 1.0): RGBAf {
     rgba.push(0)
   if (rgba.length < 4)
     rgba.push(alpha)
-  return rgba.slice(0, 4) as RGBAf
+
+  const rgbaf = rgba.slice(0, 4) as RGBAf
+  _last_color = color
+  _last_alpha = alpha
+  _last_rgbaf = rgbaf
+  return rgbaf
 }
 
 export function valid_rgb(value: string): boolean {
