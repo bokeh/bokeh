@@ -12,6 +12,7 @@ import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
 import {values} from "core/util/object"
+import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -216,10 +217,25 @@ export abstract class GlyphView extends View {
     }
   }
 
+  protected base?: this
+  set_base<T extends this>(base: T): void {
+    if (base != this && base instanceof this.constructor)
+      this.base = base
+  }
+
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     const self = this as any
 
     for (const prop of this._iter_visuals()) {
+      const {base} = this
+      if (base != null) {
+        const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
+        if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
+          self[`_${prop.attr}`] = (base as any)[`_${prop.attr}`]
+          continue
+        }
+      }
+
       const base_array = prop.array(source)
       const array = indices.select(base_array)
       self[`_${prop.attr}`] = array
@@ -238,7 +254,7 @@ export abstract class GlyphView extends View {
       if (!(prop instanceof p.VectorSpec))
         continue
 
-      if (visual_props.has(prop)) // let set_visuals() do the work
+      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
 
       // this skips optional properties like radius for circles
