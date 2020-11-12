@@ -38,11 +38,14 @@ right of the plot to explore:
 
 * |pan_tool| Use the **pan tool** to move the graph within your plot.
 * |box_zoom| Use the **box zoom tool** to zoom into an area of your plot.
-* |wheel_zoom| Use the **wheel zoom tool** to zoom in and out with a mouse wheel.
-* |save_tool| Use the **save tool** to export the current view of your plot as a PNG
-  file.
-* |reset| Use the **reset tool** to return your view to the plot's default settings.
-* |help| Use the **help symbol** to learn more about the tools available in Bokeh.
+* |wheel_zoom| Use the **wheel zoom tool** to zoom in and out with a mouse
+  wheel.
+* |save_tool| Use the **save tool** to export the current view of your plot as a
+  PNG file.
+* |reset| Use the **reset tool** to return your view to the plot's default
+  settings.
+* |help| Use the **help symbol** to learn more about the tools available in
+  Bokeh.
 
 Follow these steps to recreate this simple line chart:
 
@@ -71,8 +74,10 @@ Follow these steps to recreate this simple line chart:
    :class:`~bokeh.plotting.figure` object. Pass the following arguments:
 
    * ``title``: the title of your line chart
-   * ``x_axis_label``: which data to use to generate labels for the chart's x axis
-   * ``y_axis_label``: which data to use to generate labels for the chart's y axis
+   * ``x_axis_label``: which data to use to generate labels for the chart's x
+     axis
+   * ``y_axis_label``: which data to use to generate labels for the chart's y
+     axis
 
     .. code-block:: python
 
@@ -91,8 +96,8 @@ Follow these steps to recreate this simple line chart:
         # add a line renderer with legend and line thickness to the plot
         p.line(x, y, legend_label="Temp.", line_width=2)
 
-6. Finally, use the :func:`~bokeh.plotting.show` function to generate your graph and
-   open a web browser to display the generated HTML file.
+6. Finally, use the :func:`~bokeh.plotting.show` function to generate your graph
+   and open a web browser to display the generated HTML file.
 
     .. code-block:: python
 
