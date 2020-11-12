@@ -18,7 +18,7 @@ All examples so far have used the :func:`~bokeh.io.output_file` function to
 save your visualization to an HTML file. This HTML file contains all necessary
 information to display your plot.
 
-``output_file()`` accepts various arguments. For exaple:
+``output_file()`` accepts various arguments. For example:
 
 * ``filename``: the filename for the HTML file
 * ``title``: the title for you document (to be used in the HTML's ``<title>``
