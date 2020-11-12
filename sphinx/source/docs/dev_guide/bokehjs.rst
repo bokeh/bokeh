@@ -74,7 +74,7 @@ Some guidelines to adhere to when working on BokehJS:
 Requirements
 ~~~~~~~~~~~~
 
-* node 12.* or 14.*
+* node 14.*
 * npm 7+ (most recent version)
 * chromium browser 85+ or equivalent
 
@@ -94,7 +94,7 @@ Upgrade your npm after installing or updating nodejs, or whenever asked by npm:
 
 Officially supported platforms are as follows:
 
-* Linux Ubuntu 18.04+ or equivalent
+* Linux Ubuntu 20.04+ or equivalent
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 

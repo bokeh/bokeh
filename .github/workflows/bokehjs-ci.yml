@@ -20,7 +20,7 @@ jobs:
       max-parallel: 3
       matrix:
         os: [ubuntu-20.04, macos-latest, windows-latest]
-        node-version: [12.x]
+        node-version: [14.x]
 
     steps:
       - name: Checkout the repository

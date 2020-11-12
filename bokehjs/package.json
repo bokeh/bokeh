@@ -17,8 +17,8 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "engines": {
-    "node": ">=12.12",
-    "npm": ">=7.0"
+    "node": ">=14",
+    "npm": ">=7"
   },
   "files": [
     "build/js/bokeh*.min.js",
