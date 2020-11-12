@@ -523,7 +523,7 @@ The default configuration is ``mode = "mouse"``. See this in the
 Formatting tooltip fields
 '''''''''''''''''''''''''
 
-By default, values for fields (e.g. ``@foo``) are displayed in a basic numeric
+By default, values for fields (``@foo``, for example) are displayed in a basic numeric
 format. To control the formatting of values, you can modify fields by appending
 a specified format to the end in curly braces. Some examples are below.
 
