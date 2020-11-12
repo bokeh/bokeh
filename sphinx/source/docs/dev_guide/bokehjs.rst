@@ -90,7 +90,7 @@ Upgrade your npm after installing or updating nodejs, or whenever asked by npm:
 
 .. code-block:: sh
 
-    $ npm install -g npm
+    $ npm install -g npm@7
 
 Officially supported platforms are as follows:
 
