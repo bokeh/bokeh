@@ -79,6 +79,6 @@ in-depth information about all aspects of Bokeh, see the :ref:`refguide`.
 For more examples of what you can do with Bokeh, check the :ref:`gallery` and
 the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
 
-On the `Bokeh community page<https://bokeh.org/community/>`_, you can find links
+On the `Bokeh community page <https://bokeh.org/community/>`_, you can find links
 and information about asking for help and contributing to Bokeh and the Bokeh
 community.
