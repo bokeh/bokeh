@@ -8,7 +8,7 @@ dependencies:
   - anaconda-client
   - boto
   - colorama
-  - nodejs>=10.13
+  - nodejs 14.*
   - setuptools
   - twine
   - yaml
