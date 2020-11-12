@@ -79,10 +79,11 @@ export class MultiLineView extends GlyphView {
   protected _hit_point(geometry: PointGeometry): Selection {
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
+    const {line_width} = this.model.properties
 
     const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = this.sxs.length; i < end; i++) {
-      const threshold = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)
+      const threshold = Math.max(2, this.visuals.line.cache_select(line_width, i) / 2)
 
       const sxsi = this.sxs.get(i)
       const sysi = this.sys.get(i)

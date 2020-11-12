@@ -13,10 +13,6 @@ export abstract class UpperLowerView extends AnnotationView {
   protected _upper: Arrayable<number>
   protected _base:  Arrayable<number>
 
-  protected max_lower: number
-  protected max_upper: number
-  protected max_base:  number
-
   protected _lower_sx: Arrayable<number>
   protected _lower_sy: Arrayable<number>
   protected _upper_sx: Arrayable<number>
@@ -29,7 +25,6 @@ export abstract class UpperLowerView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.visuals.warm_cache(source)
     this.plot_view.request_render()
   }
 

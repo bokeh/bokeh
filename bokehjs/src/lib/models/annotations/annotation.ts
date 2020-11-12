@@ -1,8 +1,10 @@
 import {SidePanel} from "core/layout/side_panel"
 import {Size} from "core/layout"
+import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
+import * as p from "core/properties"
 import * as proj from "core/util/projections"
-import {extend} from "core/util/object"
+import {max} from "core/util/array"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -36,11 +38,23 @@ export abstract class AnnotationView extends RendererView {
   }
 
   set_data(source: ColumnarDataSource): void {
-    const data = this.model.materialize_dataspecs(source)
-    extend(this as any, data)
+    const self = this as any
+
+    for (const prop of this.model) {
+      if (!(prop instanceof p.VectorSpec))
+        continue
+
+      // this skips optional properties like radius for circles
+      if (prop.optional && prop.spec.value == null && !prop.dirty)
+        continue
+
+      const array = prop.array(source)
+      self[`_${prop.attr}`] = array
+      if (prop instanceof p.DistanceSpec)
+        self[`max_${prop.attr}`] = max(array as Arrayable<number>)
+    }
 
     if (this.plot_model.use_map) {
-      const self = this as any
       if (self._x != null)
         [self._x, self._y] = proj.project_xy(self._x, self._y)
       if (self._xs != null)
