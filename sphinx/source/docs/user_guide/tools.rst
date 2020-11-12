@@ -3,13 +3,13 @@
 Configuring plot tools
 ======================
 
-Bokeh comes with a number of interactive tools that can be used to report
+Bokeh comes with a number of interactive tools that you can use to report
 information, to change plot parameters such as zoom level or range extents,
 or to add, edit, or delete glyphs. Tools can be grouped into four basic
 categories:
 
 Gestures
-    These are tools that respond to single gestures, such as a pan movement.
+    These tools respond to single gestures, such as a pan movement.
     The types of gesture tools are:
 
     - :ref:`userguide_tools_pandrag`
@@ -31,22 +31,20 @@ Gestures
 :ref:`userguide_tools_edit`
     These are sophisticated multi-gesture tools that can add, delete, or modify
     glyphs on a plot. Since they may respond to several gestures at once, an
-    edit tool will potentially deactivate multiple single-gesture tools at once
-    when it is activated.
+    edit tool when activated will potentially deactivate multiple single-gesture tools.
 
-In addition to information about all the individual tools, this chapter
-describes how the toolbar may be configured.
+This chapter contains information about all the individual tools and describes how 
+the toolbar may be configured.
 
 .. _userguide_tools_toolbar:
 
 Positioning the toolbar
 -----------------------
 
-By default, Bokeh plots come with a toolbar above the plot. In this section,
-you will learn how to specify a different location for the toolbar, or how to
-remove it entirely.
+By default, Bokeh plots come with a toolbar above the plot. You can change the
+location of the toolbar or remove it. 
 
-The toolbar location can be specified by passing the ``toolbar_location``
+You can specify the toolbar location by passing the ``toolbar_location``
 parameter to the |figure| function. Valid values are:
 
 * ``"above"``
@@ -56,7 +54,7 @@ parameter to the |figure| function. Valid values are:
 
 If you would like to hide the toolbar entirely, pass ``None``.
 
-Below is some code that positions the toolbar below the plot. Try
+The code below positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
 
 .. bokeh-plot:: docs/user_guide/examples/tools_position_toolbar_clash.py
@@ -74,8 +72,8 @@ outside of the area where the axis is drawn.
 Specifying tools
 ----------------
 
-At the lowest ``bokeh.models`` level, tools are added to a ``Plot`` by
-passing instances of ``Tool`` objects to the ``add_tools`` method:
+At the lowest ``bokeh.models`` level, you can add tools to a ``Plot`` by
+passing instances of ``Tool`` objects to the ``add_tools()`` method:
 
 .. code-block:: python
 
@@ -83,17 +81,17 @@ passing instances of ``Tool`` objects to the ``add_tools`` method:
     plot.add_tools(LassoSelectTool())
     plot.add_tools(WheelZoomTool())
 
-This explicit way of adding tools works with any Bokeh ``Plot`` or
-``Plot`` subclass, such as ``Figure``.
+This way of adding tools works with any Bokeh ``Plot`` or ``Plot`` subclass,
+such as ``Figure``.
 
-Tools can be specified by passing the ``tools`` parameter to the |figure|
-function. The tools parameter accepts a list of tool objects, for instance:
+You can specify tools by passing the ``tools`` parameter to the |figure|
+function. The tools parameter accepts a list of tool objects, for example:
 
 .. code-block:: python
 
     tools = [BoxZoomTool(), ResetTool()]
 
-Tools can also be supplied conveniently with a comma-separated string
+You can also add multiple tools with a comma-separated string
 containing tool shortcut names:
 
 .. code-block:: python
@@ -102,9 +100,9 @@ containing tool shortcut names:
 
 This method does not allow setting properties of the tools.
 
-Finally, it is possible to add new tools to a plot by passing
-a tool object to the ``add_tools`` method of a plot. This can be done
-in conjunction with the ``tools`` keyword described above:
+Finally, you can add new tools to a plot by passing a tool object
+to the ``add_tools()`` method of a plot. You can combine the add_tools()
+method with the figure() function's tools argument:
 
 .. code-block:: python
 
@@ -122,7 +120,7 @@ Bokeh toolbars can have at most one active tool from each kind of gesture
 (drag, scroll, tap).
 
 However, it is possible to exert control over which tool is active. At the
-lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
+lowest ``bokeh.models`` level, you can do this by using the ``active_drag``,
 ``active_inspect``, ``active_scroll``, and ``active_tap`` properties of
 ``Toolbar``. These properties can take the following values:
 
@@ -152,7 +150,7 @@ As an example:
 
 The default value for all of these properties is ``"auto"``.
 
-Active tools can be specified by passing these properties as keyword
+You can specify active tools by passing these properties as keyword
 arguments to the |figure| function. It is also possible to pass any one of
 the string names:
 
@@ -166,7 +164,7 @@ the string names:
 Pan/Drag tools
 --------------
 
-These tools are employed by panning (on touch devices) or left-dragging (on
+You can use these tools by panning (on touch devices) or left-dragging (on
 mouse devices). Only one pan/drag tool may be active at a time. Where
 applicable, Pan/Drag tools will respect any max and min values set on ranges.
 
@@ -176,9 +174,9 @@ BoxSelectTool
 * name: ``'box_select'``
 * icon: |box_select_icon|
 
-The box selection tool allows the user to define a rectangular selection
-region by left-dragging a mouse, or dragging a finger across the plot area.
-The box select tool may be configured to select across only one dimension by
+The box selection tool allows you to define a rectangular selection
+by left-dragging a mouse, or dragging a finger across the plot area.
+You can configure the box select tool to select across only one dimension by
 setting the ``dimensions`` property to ``width`` or ``height`` instead of the
 default ``both``.
 
@@ -201,8 +199,8 @@ BoxZoomTool
 * name: ``'box_zoom'``
 * icon: |box_zoom_icon|
 
-The box zoom tool allows the user to define a rectangular region to zoom the
-plot bounds to. This is done by left-dragging a mouse, or dragging a finger across the
+The box zoom tool allows you to define a rectangular region to zoom the
+plot bounds to by left-dragging a mouse, or dragging a finger across the
 plot area.
 
 LassoSelectTool
@@ -211,7 +209,7 @@ LassoSelectTool
 * name: ``'lasso_select'``
 * icon: |lasso_select_icon|
 
-The lasso selection tool allows the user to define an arbitrary region for
+The lasso selection tool allows you to define an arbitrary region for
 selection by left-dragging a mouse, or dragging a finger across the plot area.
 
 After a selection is made, the indices of the selected points are available
@@ -233,12 +231,12 @@ PanTool
 * name: ``'pan'``, ``'xpan'``, ``'ypan'``,
 * icon: |pan_icon|
 
-The pan tool allows the user to pan the plot by left-dragging a mouse or dragging a
+The pan tool allows you to pan the plot by left-dragging a mouse or dragging a
 finger across the plot region.
 
-It is also possible to constrain the pan tool to only act on either just the x-axis or
-just the y-axis by setting the ``dimensions`` property to a list containing ``width``
-or ``height``. Additionally, there are tool aliases ``'xpan'`` and ``'ypan'``,
+You can configure the pan tool to act only on either the x-axis or
+the y-axis by setting the ``dimensions`` property to a list containing ``width``
+or ``height``. Additionally, there are tool names ``'xpan'`` and ``'ypan'``,
 respectively.
 
 .. _userguide_tools_clicktap:
@@ -246,7 +244,7 @@ respectively.
 Click/Tap tools
 ---------------
 
-These tools are employed by tapping (on touch devices) or left-clicking (on
+Use these tools by tapping (on touch devices) or left-clicking (on
 mouse devices). Only one click/tap tool may be active at a time.
 
 PolySelectTool
@@ -255,7 +253,7 @@ PolySelectTool
 * name: ``'poly_select'``
 * icon: |poly_select_icon|
 
-The polygon selection tool allows the user to define an arbitrary polygonal
+The polygon selection tool allows you to define an arbitrary polygonal
 region for selection by left-clicking a mouse, or tapping a finger at different
 locations.
 
@@ -279,8 +277,8 @@ TapTool
 * name: ``'tap'``
 * icon: |tap_icon|
 
-The tap selection tool allows the user to select single points by clicking
-a left mouse button, or tapping with a finger.
+The tap selection tool allows you to select single points by clicking
+the left mouse button, or tapping with a finger.
 
 After a selection is made, the indices of the selected points are available
 from properties on the |Selection| object for a glyph data source. For example:
@@ -300,7 +298,7 @@ will hold the selected indices in the common case of a "scatter" type glyph.
 Scroll/Pinch tools
 ------------------
 
-These tools are employed by pinching (on touch devices) or scrolling (on
+Use these tools by pinching (on touch devices) or scrolling (on
 mouse devices). Only one scroll/pinch tool may be active at a time.
 
 WheelZoomTool
@@ -309,13 +307,13 @@ WheelZoomTool
 * name: ``'wheel_zoom'``, ``'xwheel_zoom'``, ``'ywheel_zoom'``
 * icon: |wheel_zoom_icon|
 
-The wheel zoom tool will zoom the plot in and out, centered on the current
+You can use the wheel zoom tool to zoom the plot in and out, centering on the current
 mouse location. It will respect any min and max values and ranges, preventing
 zooming in and out beyond these values.
 
-It is also possible to constrain the wheel zoom tool to act only on either
+You can configure the wheel zoom tool to act only on either
 the x-axis or the y-axis by setting the ``dimensions`` property to
-a list containing ``width`` or ``height``. Additionally, there are tool aliases
+a list containing ``width`` or ``height``. Additionally, there are tool names
 ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 WheelPanTool
@@ -324,8 +322,8 @@ WheelPanTool
 * name: ``'xwheel_pan'``, ``'ywheel_pan'``
 * icon: |wheel_pan_icon|
 
-The wheel pan tool will translate the plot window along the specified
-dimension without changing the window's aspect ratio. The tool will respect any
+The wheel pan tool translates the plot window along a specified
+dimension without changing the window's aspect ratio. It will respect any
 min and max values and ranges, preventing panning beyond these values.
 
 .. _userguide_tools_actions:
@@ -366,7 +364,7 @@ SaveTool
 * name: ``'save'``
 * icon: |save_icon|
 
-The save tool pops up a modal dialog that allows the user to save a PNG image
+The save tool pops up a modal dialog that allows you to save a PNG image
 of the plot.
 
 ZoomInTool
@@ -378,9 +376,9 @@ ZoomInTool
 The zoom-in tool increases the zoom of the plot. It will respect any min and max
 values and ranges, preventing zooming in and out beyond these.
 
-It is also possible to constrain the wheel zoom tool to act only on either
+You can configure the wheel zoom tool to act only on either
 the x-axis or the y-axis by setting the ``dimensions`` property to
-a list containing ``width`` or ``height``. Additionally, there are tool aliases
+a list containing ``width`` or ``height``. Additionally, there are tool names
 ``'xzoom_in'`` and ``'yzoom_in'``, respectively.
 
 ZoomOutTool
@@ -392,9 +390,9 @@ ZoomOutTool
 The zoom-out tool decreases the zoom level of the plot. It will respect any min and
 max values and ranges, preventing zooming in and out beyond these values.
 
-It is also possible to constrain the wheel zoom tool to act only on either
+You can configure the wheel zoom tool to act only on either
 the x-axis or the y-axis by setting the ``dimensions`` property to
-a list containing ``width`` or ``height``. Additionally, there are tool aliases
+a list containing ``width`` or ``height``. Additionally, there are tool names
 ``'xzoom_in'`` and ``'yzoom_in'``, respectively.
 
 .. _userguide_tools_inspectors:
@@ -404,8 +402,8 @@ Inspectors
 
 Inspectors are passive tools that annotate or report information about
 the plot based on the current cursor position. Multiple inspectors may be
-active at any given time. The inspectors menu in the toolbar allows users to
-toggle the active state of an inspector.
+active at any given time. You can toggle the active state of an inspector
+in the inspectors menu in the toolbar.
 
 CrosshairTool
 ~~~~~~~~~~~~~
@@ -413,10 +411,9 @@ CrosshairTool
 * name: ``'crosshair'``
 * menu icon: |crosshair_icon|
 
-Th crosshair tool draws a crosshair annotation over the plot, centered on
-the current mouse position. The crosshair tool dimensions may be
-configured by setting the ``dimensions`` property to one of the
-enumerated values ``width``, ``height``, or ``both``.
+The crosshair tool draws a crosshair annotation over the plot, centered on
+the current mouse position. You can configure the crosshair tool dimensions
+by setting the ``dimensions`` property to ``width``, ``height``, or ``both``.
 
 HoverTool
 ~~~~~~~~~
@@ -424,15 +421,15 @@ HoverTool
 * name: ``'hover'``
 * menu icon: |hover_icon|
 
-The hover tool is a passive inspector tool. It is generally on at all times,
-but can be configured in the inspector’s menu in the toolbar.
+The hover tool is a passive inspector tool. It defaults to be on at all times,
+but you can change this in the inspector’s menu in the toolbar.
 
 .. _userguide_tools_basic_tooltips:
 
 Basic Tooltips
 ''''''''''''''
 
-By default, the hover tool will generate a "tabular" tooltip where each row
+By default, the hover tool generates a "tabular" tooltip where each row
 contains a label and its associated value. The labels and values are supplied
 as a list of *(label, value)* tuples. For instance, the tooltip below on the
 left was created with the accompanying ``tooltips`` definition on the right.
@@ -461,7 +458,7 @@ left was created with the accompanying ``tooltips`` definition on the right.
     +--------------------+-----------------------------------------------------------+
 
 Field names that begin with ``$`` are "special fields". These often correspond
-to values that are intrinsic to the plot, such as the coordinates of the mouse
+to values that are part of the plot, such as the coordinates of the mouse
 in data or screen space. These special fields are listed here:
 
 :``$index``:
@@ -484,16 +481,16 @@ in data or screen space. These special fields are listed here:
 Field names that begin with ``@`` are associated with columns in a
 ``ColumnDataSource``. For instance, the field name ``"@price"`` will display
 values from the ``"price"`` column whenever a hover is triggered. If the hover
-is for the 17th glyph, then the hover tooltip will display the 17th price value.
+is for the 17th glyph instance, then the hover tooltip will display the 17th price value.
 
 Note that if a column name contains spaces, it must be surrounded by
-curly braces; e.g. ``@{adjusted close}`` will display values
+curly braces. For example, configuring ``@{adjusted close}`` will display values
 from a column named ``"adjusted close"``.
 
 Sometimes, especially with stacked charts, it is desirable to allow the
-name of the column to be specified indirectly. In this case, the field name
-``@$name`` will look up the ``name`` field on the hovered glyph renderer, and use
-that value as the column name. For instance, if a user hovers with the name
+name of the column to be specified indirectly. In this case, use the field name
+``@$name`` to look up the ``name`` field on the hovered glyph renderer, and use
+that value as the column name. For instance, if you hover with the name
 ``"US East"``, then ``@$name`` is equivalent to ``@{US East}``.
 
 Here is a complete example of how to configure and use the hover tool by setting
@@ -505,8 +502,8 @@ the ``tooltips`` argument to ``figure``:
 Hit-Testing behavior
 ''''''''''''''''''''
 
-The hover tool displays tooltips associated with individual glyphs. These
-tooltips can be configured to activate in different ways with a ``mode`` property:
+The hover tool displays tooltips associated with individual glyphs. You can configure
+these tooltips to activate in different ways with a ``mode`` property:
 
 :``"mouse"``:
     only when the mouse is directly over a glyph
@@ -517,10 +514,9 @@ tooltips can be configured to activate in different ways with a ``mode`` propert
 :``"hline"``:
     whenever a horizontal line from the mouse position intersects a glyph
 
-The default configuration is ``mode = "mouse"``. This can be observed in the
+The default configuration is ``mode = "mouse"``. See this in the
 :ref:`userguide_tools_basic_tooltips` example above. The example below in
-:ref:`userguide_tools_formatting_tooltip_fields` demonstrates an example that
-sets ``mode = "vline"``.
+:ref:`userguide_tools_formatting_tooltip_fields` demonstrates ``mode = "vline"``.
 
 .. _userguide_tools_formatting_tooltip_fields:
 
@@ -528,9 +524,8 @@ Formatting tooltip fields
 '''''''''''''''''''''''''
 
 By default, values for fields (e.g. ``@foo``) are displayed in a basic numeric
-format. However, it is possible to control the formatting of values more
-precisely. Fields can be modified by appending a format specified to the end
-in curly braces. Some examples are below.
+format. To control the formatting of values, you can modify fields by appending
+a specified format to the end in curly braces. Some examples are below.
 
 .. code-block:: python
 
@@ -541,8 +536,7 @@ in curly braces. Some examples are below.
     "@foo{($ 0.00 a)}" # formats 1230974 as: $ 1.23 m
 
 The examples above all use the default formatting scheme. There are
-other formatting schemes that can be specified for interpreting format
-strings:
+other formatting schemes you can specify:
 
 :``"numeral"``:
     Provides a wide variety of formats for numbers, currency, bytes, times,
@@ -557,7 +551,7 @@ strings:
     Provides formats similar to C-style "printf" type specifiers. See the
     |PrintfTickFormatter| reference documentation for complete details.
 
-These are supplied by configuring the ``formatters`` property of a hover
+You can add these by configuring the ``formatters`` property of a hover
 tool. This property maps tooltip variables to format schemes. For example, to
 use the ``"datetime"`` scheme for formatting a column ``"@{close date}"``,
 set the value:
@@ -566,21 +560,21 @@ set the value:
 
     hover_tool.formatters = { "@{close date}": "datetime"}
 
-Formatters may also be supplied for "special variables" such as ``"$x"``:
+You can also supply formatters for "special variables" such as ``"$x"``:
 
 .. code-block:: python
 
     hover_tool.formatters = { "$x": "datetime"}
 
-If no formatter is specified for a column name, the default ``"numeral"``
+If a formatter is not specified for a column name, the default ``"numeral"``
 formatter is assumed.
 
 Note that format specifications are also compatible with column names that
 have spaces. For example, ``@{adjusted close}{($ 0.00 a)}`` applies a format
 to a column named "adjusted close".
 
-The example code below shows explicitly configuring a ``HoverTool`` with
-different formatters for different fields:
+The example code below configures a ``HoverTool`` with different formatters
+for different fields:
 
 .. code-block:: python
 
@@ -601,22 +595,21 @@ different formatters for different fields:
         mode='vline'
     )
 
-You can see the output generated by this configuration by hovering the mouse
+You can see the output generated from this configuration by hovering the mouse
 over the plot below:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltip_formatting.py
     :source-position: none
 
-Using the |CustomJSHover| model, it is also possible to use JavaScript
-to specify a custom formatter that can display derived quantities in the
-tooltip.
+The |CustomJSHover| model allows you to use JavaScript to specify a custom
+formatter that can display derived quantities in the tooltip.
 
 .. _userguide_tools_image_hover:
 
 Image hover
 '''''''''''
 
-The hover tool can be used to inspect image glyphs which may contain
+You can use the hover tool to inspect image glyphs which may contain
 layers of data in the corresponding ``ColumnDataSource``:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips_image.py
@@ -632,12 +625,12 @@ cursor, as well as the corresponding value and value squared.
 Custom tooltip
 ''''''''''''''
 
-It is possible to supply a custom HTML template for a tooltip. To do
+You can supply a custom HTML template for a tooltip. To do
 this, pass an HTML string with the Bokeh tooltip field name symbols wherever
-substitutions are desired. All of the information above regarding formats, etc.
+substitutions are desired. All of the information above regarding formats
 still applies. Note that you can also use the ``{safe}`` format after the
-column name to disable the escaping of HTML in the data source. An example is
-shown below:
+column name to disable the escaping of HTML in the data source. See the example
+below:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_custom_tooltip.py
     :source-position: above
@@ -673,10 +666,10 @@ BoxEditTool
 * name: ``'box_edit'``
 * menu icon: |box_edit_icon|
 
-The BoxEditTool allows drawing, dragging, and deleting ``Rect`` glyphs
-on one or more renderers by editing the underlying
-``ColumnDataSource`` data. Like other drawing tools, the renderers
-that are to be edited must be supplied explicitly as a list:
+The BoxEditTool() allows you to draw, drag, and delete ``Rect`` glyphs
+on one or more renderers by editing the underlying ``ColumnDataSource``
+data. Like other drawing tools, you must pass the renderers to be edited
+as a list:
 
 .. code-block:: python
 
@@ -684,15 +677,15 @@ that are to be edited must be supplied explicitly as a list:
     r2 = p.rect('x', 'y', 'width', 'height', source=source2)
     tool = BoxEditTool(renderers=[r1, r2])
 
-The tool automatically modifies the columns on the data source
+The tool automatically modifies the columns of the data source
 corresponding to the ``x``, ``y``, ``width``, and ``height`` values of
-the glyph. Any additional columns in the data source will be padded
-with the declared ``empty_value`` when adding a new box. When drawing
-a new box, the data will always be added to the ``ColumnDataSource`` on
-the first supplied renderer.
+the glyph. Any additional columns in the data source will be padded with
+the declared ``empty_value`` when adding a new point. Any newly added
+points will be inserted in the ``ColumnDataSource`` of the first supplied
+renderer.
 
 It is often useful to limit the number of elements that can be
-drawn, e.g. when specifying a specific number of regions of interest.
+drawn. For example, when specifying a certain number of regions of interest.
 Using the ``num_objects`` property, you can ensure that once the limit
 has been reached, the oldest box will be popped off the queue to make
 space for the newest box being added.
@@ -741,11 +734,10 @@ FreehandDrawTool
 * name: ``'freehand_draw'``
 * menu icon: |freehand_draw_icon|
 
-The ``FreehandDrawTool`` allows freehand drawing of lines and polygons
+The ``FreehandDrawTool()`` allows freehand drawing of lines and polygons
 using the ``Patches`` and ``MultiLine`` glyphs, by editing the
-underlying ``ColumnDataSource`` data. Like other drawing tools, the
-renderers that are to be edited must be supplied explicitly as a
-list:
+underlying ``ColumnDataSource`` data. Like other drawing tools,
+you must pass the renderers to be edited as a list:
 
 .. code-block:: python
 
@@ -755,12 +747,12 @@ list:
 The tool automatically modifies the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
 additional columns in the data source will be padded with the declared
-``empty_value``, when adding a new point. Any newly added patch or
-multi-line will be inserted on the ``ColumnDataSource`` of the first
-supplied renderer.
+``empty_value`` when adding a new point. Any newly added points will
+be inserted in the ``ColumnDataSource`` of the first supplied
+renderer.
 
 It is also often useful to limit the number of elements that can be
-drawn, e.g. when specifying a specific number of regions of interest.
+drawn. For example, when specifying a specific number of regions of interest.
 Using the ``num_objects`` property, you can ensure that once the limit
 has been reached, the oldest patch/multi-line will be popped off the
 queue to make space for the new patch/multi-line being added.
@@ -777,7 +769,7 @@ showing the pressed keys. The ``PolyDrawTool`` can **Draw** and
 
 Draw patch/multi-line
   Click and drag to start drawing and release the mouse button to
-  finish drawing
+  finish drawing.
 
 Delete patch/multi-line
   Tap a line or patch to select it then press the BACKSPACE key while the
@@ -795,11 +787,10 @@ PointDrawTool
 * name: ``'point_draw'``
 * menu icon: |point_draw_icon|
 
-The ``PointDrawTool`` allows adding, dragging, and deleting point-like
+The ``PointDrawTool()`` allows you to add, drag, and delete point-like
 glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
-underlying ``ColumnDataSource`` data. Like other drawing tools, the
-renderers that are to be edited must be supplied explicitly as a
-list:
+underlying ``ColumnDataSource`` data. Like other drawing tools,
+you must pass the renderers to be edited as a list:
 
 .. code-block:: python
 
@@ -810,19 +801,19 @@ list:
 The tool automatically modifies the columns on the data source
 corresponding to the ``x`` and ``y`` values of the glyph. Any
 additional columns in the data source will be padded with the declared
-``empty_value``, when adding a new point. Any newly added points will
-be inserted on the ``ColumnDataSource`` of the first supplied
+``empty_value`` when adding a new point. Any newly added points will
+be inserted in the ``ColumnDataSource`` of the first supplied
 renderer.
 
 It is also often useful to limit the number of elements that can be
-drawn. Using the ``num_objects`` property, we can ensure that once the
+drawn. Using the ``num_objects`` property, you can ensure that once the
 limit has been reached, the oldest point will be popped off the queue
 to make space for the new point being added.
 
 .. raw:: html
 
     <img src="https://docs.bokeh.org/static/point_draw_keyboard_optimized.gif"
-     width='400px' alt="Animation showing point draw, drag, select and delete actions">
+     width='400px' alt="Animation showing point draw, drag, select, and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor, and key strokes by
@@ -861,11 +852,10 @@ PolyDrawTool
 * name: ``'poly_draw'``
 * menu icon: |poly_draw_icon|
 
-The ``PolyDrawTool`` allows drawing, selecting, and deleting
+The ``PolyDrawTool()`` allows you to draw, select, and delete
 ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-editing the underlying ``ColumnDataSource`` data. Like other drawing
-tools, the renderers that are to be edited must be supplied explicitly
-as a list.
+editing the underlying ``ColumnDataSource`` data. Like other drawing tools,
+you must pass the renderers to be edited as a list.
 
 The tool automatically modifies the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
@@ -875,8 +865,8 @@ multi-line will be inserted on the ``ColumnDataSource`` of the first
 supplied renderer.
 
 It is also often useful to limit the number of elements that can be
-drawn, e.g. when specifying a specific number of regions of interest.
-Using the ``num_objects`` property, we can ensure that once the limit
+drawn. For example, when specifying a specific number of regions of interest.
+Using the ``num_objects`` property, you can ensure that once the limit
 has been reached the oldest patch/multi-line will be popped off the
 queue to make space for the new patch/multi-line being added.
 
@@ -888,7 +878,7 @@ ability to snap to existing vertices while drawing.
 .. raw:: html
 
     <img src="https://docs.bokeh.org/static/poly_draw_keyboard_optimized.gif"
-     width='400px' alt="Animation showing polygon draw, select and delete actions">
+     width='400px' alt="Animation showing polygon draw, select, and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor, and key strokes by
@@ -918,10 +908,10 @@ PolyEditTool
 * name: ``'poly_edit'``
 * menu icon: |poly_edit_icon|
 
-The PolyEditTool allows editing the vertices of one or more
-``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
-be defined via the ``renderers`` property. The renderer for the
-vertices can be defined via the ``vertex_renderer``, which must
+The PolyEditTool() allows you to edit the vertices of one or more
+``Patches`` or ``MultiLine`` glyphs. You can define the glyphs to be
+edited with the ``renderers`` property. You can define the renderer
+for the vertices with the ``vertex_renderer``. It must
 render a point-like Glyph (of ``XYGlyph`` type).
 
 The tool automatically modifies the columns on the data source
@@ -932,7 +922,7 @@ additional columns in the data source will be padded with the declared
 .. raw:: html
 
     <img src="https://docs.bokeh.org/static/poly_edit_keyboard_optimized.gif"
-     width='400px' alt="Animation showing polygon and vertex drag, select and delete actions">
+     width='400px' alt="Animation showing polygon and vertex drag, select, and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor, and key strokes by
@@ -940,7 +930,7 @@ showing the pressed keys. The ``PolyEditTool`` can **Add**, **Move**,
 and **Delete** vertices on existing patches and multi-lines:
 
 Show vertices
-  Double tap an existing patch or multi-line
+  Double tap an existing patch or multi-line.
 
 Add vertex
   Double tap an existing vertex to select it. The tool will draw the
@@ -976,8 +966,8 @@ performance. In order to accommodate large data sizes, Bokeh plots offer
     :ref:`userguide_server` for more information.
 
 To maintain performance while handling large data sizes, the plot only draws
-a small fraction of data points during interactive operations (e.g. panning
-or zooming). There are four properties on |Plot| objects that control LOD behavior:
+a small fraction of data points during interactive operations (panning
+or zooming, for example). There are four properties on |Plot| objects that control LOD behavior:
 
 .. bokeh-prop:: Plot.lod_factor
     :module: bokeh.models.plots
