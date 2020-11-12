@@ -134,4 +134,3 @@ This is what the finished code looks like:
     .. link-button:: first_steps_4.html
         :text: Next
         :classes: stretched-link
-

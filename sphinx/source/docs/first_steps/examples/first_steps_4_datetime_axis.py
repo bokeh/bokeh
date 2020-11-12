@@ -1,7 +1,7 @@
 import random
 from datetime import datetime, timedelta
 
-from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
+from bokeh.models import DatetimeTickFormatter, NumeralTickFormatter
 from bokeh.plotting import figure, output_file, show
 
 # generate list of dates (today's date in subsequent weeks)

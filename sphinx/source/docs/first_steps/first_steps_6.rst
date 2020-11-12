@@ -78,4 +78,3 @@ Panel is a separate Python library that uses Bokeh in the background.
     .. link-button:: first_steps_7.html
         :text: Next
         :classes: stretched-link
-
