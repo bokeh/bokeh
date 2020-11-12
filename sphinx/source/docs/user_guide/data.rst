@@ -304,17 +304,23 @@ returns that are relative to the first data point:
 Filtering data
 --------------
 
-It's often desirable to focus in on a portion of data that has been subsampled or filtered
-from a larger dataset. Bokeh allows you to specify a view of a data source that represents
-a subset of data. By having a view of the data source, the underlying data doesn't need to
-be changed and can be shared across plots. The view consists of one or more filters that
-select the rows of the data source that should be bound to a specific glyph.
+Bokeh uses a concept called "view" to select subsets of data. Views are
+represented by Bokeh's |CDSView| class. When you use a view, you can use one or
+more filters to select specific data points without changing the underlying
+data. You can also share those views between different plots.
 
-To plot with a subset of data, you can create a |CDSView| and pass it in as a ``view``
-argument to the renderer-adding methods on the |Figure|, such as ``figure.circle``. The
-|CDSView| has two properties, ``source`` and ``filters``. ``source`` is the |ColumnDataSource|
-that the view is associated with. ``filters`` is a list of |Filter| objects, listed and
-described below.
+To plot with a filtered subset of data, pass a |CDSView| to the ``view``
+argument of any renderer methods that are part of Bokeh's |Figure| class.
+
+A |CDSView| has two properties, ``source`` and ``filters``:
+
+* ``source`` is the |ColumnDataSource| that the you want to apply the filters to
+* ``filters`` is a list of |Filter| objects, listed and described below.
+
+In this example, you create a |CDSView| called ``view`` which uses the
+ColumnDataSource ``source`` and a list of two filters, ``filter1`` and
+``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.Figure.circle`
+renderer function:
 
 .. code-block:: python
 
@@ -330,8 +336,9 @@ described below.
 IndexFilter
 ~~~~~~~~~~~
 
-The |IndexFilter| is the simplest filter type. It has an ``indices`` property which is a
-list of integers that are the indices of the data you want to be included in the plot.
+The |IndexFilter| is the simplest filter type. It has an ``indices`` property
+which is a list of integers that are the indices of the data you want to include
+in your plot.
 
 .. bokeh-plot:: docs/user_guide/examples/data_filtering_index_filter.py
     :source-position: above
@@ -340,8 +347,8 @@ list of integers that are the indices of the data you want to be included in the
 BooleanFilter
 ~~~~~~~~~~~~~
 
-A |BooleanFilter| selects rows from a data source through a list of True or False values
-in its ``booleans`` property.
+A |BooleanFilter| selects rows from a data source using a list of ``True`` or
+``False`` values in its ``booleans`` property.
 
 .. bokeh-plot:: docs/user_guide/examples/data_filtering_boolean_filter.py
     :source-position: above
@@ -349,12 +356,19 @@ in its ``booleans`` property.
 GroupFilter
 ~~~~~~~~~~~
 
-The |GroupFilter| allows you to select rows from a dataset that have a specific value for
-a categorical variable. The |GroupFilter| has two properties, ``column_name``, the name of
-the column in the |ColumnDataSource|, and ``group``, the value of the column to select for.
+The |GroupFilter| is a filter for categorical data. With this filter, you can
+select rows from a dataset that are members of a specific category.
 
-In the example below, ``flowers`` contains a categorical variable ``species`` which is
-either ``setosa``, ``versicolor``, or ``virginica``.
+The |GroupFilter| has two properties:
+* ``column_name``: the name of the column in the |ColumnDataSource| to apply the
+  filter to
+* ``group``: the name of the category to select for
+
+In the example below, the data set ``flowers`` contains a categorical variable
+called ``species``. All data belongs to one of the three species categories
+``setosa``, ``versicolor``, or ``virginica``. The second plot in this example
+uses a |GroupFilter| to only display data points that are a member of the
+category ``setosa``:
 
 .. bokeh-plot:: docs/user_guide/examples/data_filtering_group_filter.py
     :source-position: above
@@ -362,10 +376,11 @@ either ``setosa``, ``versicolor``, or ``virginica``.
 CustomJSFilter
 ~~~~~~~~~~~~~~
 
-You can also create a |CustomJSFilter| with your own functionality. To do this,
-use JavaScript or TypeScript to write code that returns either a list of indices
-or a list of booleans that represents the filtered subset. The |ColumnDataSource|
-that is associated with the |CDSView| this filter is added to will be available
+You can also use your own JavaScript or TypeScript code to create customized
+filters. To include your own custom filter code, use Bokeh's |CustomJSFilter|
+class.
+
+The |ColumnDataSource| that is associated with the |CDSView| this filter is added to will be available
 at render time with the variable ``source``.
 
 JavaScript
