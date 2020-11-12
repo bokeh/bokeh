@@ -693,7 +693,7 @@ space for the newest box being added.
 .. raw:: html
 
     <img src="https://docs.bokeh.org/static/box_edit_keyboard_optimized.gif"
-     width='400px' alt="Animation showing box draw, select and delete actions">
+     width='400px' alt="Animation showing box draw, select, and delete actions">
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor, and key strokes by
