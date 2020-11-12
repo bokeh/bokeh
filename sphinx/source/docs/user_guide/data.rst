@@ -1,19 +1,22 @@
 .. _userguide_data:
 
-Providing Data
+Providing data
 ==============
 
-No data visualization is possible without the underlying data to be represented.
-In this section, the various ways of providing data for plots are explained, from
-passing data values directly to creating a |ColumnDataSource| and filtering using
-a |CDSView|.
+The basis for any data visualization is the underlying data. This section
+describes the various ways to provide data to Bokeh, from passing data values
+directly, to creating a |ColumnDataSource| (CDS) and filtering the data with a
+|CDSView|.
 
-Providing Data Directly
------------------------
+Providing data with Python lists
+--------------------------------
 
-In Bokeh, it is possible to pass lists of values directly into plotting functions.
-In the example below, the data, ``x_values`` and ``y_values``, are passed directly
-to the ``circle`` plotting method (see :ref:`userguide_plotting` for more examples).
+Use standard Python lists of data to pass values directly into a plotting
+function.
+
+In this example, the lists ``x_values`` and ``y_values`` pass data
+to the :func:`~bokeh.plotting.Figure.circle`
+:ref:`plotting function <userguide_plotting>`:
 
 .. code-block:: python
 
@@ -25,69 +28,90 @@ to the ``circle`` plotting method (see :ref:`userguide_plotting` for more exampl
     p = figure()
     p.circle(x=x_values, y=y_values)
 
-When you pass in data like this, Bokeh works behind the scenes to make a
-|ColumnDataSource| for you. But learning to create and use the |ColumnDataSource|
-will enable you to access more advanced capabilities, such as streaming data,
-sharing data between plots, and filtering data.
+When you pass data like this, Bokeh automatically creates a |ColumnDataSource|
+for you.
 
-ColumnDataSource
-----------------
+However, learning to create and use a |ColumnDataSource| yourself gives you
+access to more advanced options, such as streaming data, sharing data between
+plots, and filtering data.
 
-The |ColumnDataSource| is the core of most Bokeh plots, providing the data
-that is visualized by the glyphs of the plot. With the |ColumnDataSource|,
-it is easy to share data between multiple plots and widgets, such as the
-|DataTable|. When the same |ColumnDataSource| is used to drive multiple
-renderers, selections of the data source are also shared. Thus, it is possible
-to use a select tool to choose data points from one plot and have them automatically
-highlighted in a second plot (:ref:`userguide_data_linked_selection`).
+Providing data as a ColumnDataSource
+------------------------------------
 
-At the most basic level, a |ColumnDataSource| is simply a mapping between column
-names and lists of data. The |ColumnDataSource| takes a ``data`` parameter which is a dict,
-with string column names as keys and lists (or arrays) of data values as values. If one positional
-argument is passed to the |ColumnDataSource| initializer, it will be taken as ``data``. Once the
-|ColumnDataSource| has been created, it can be passed into the ``source`` parameter of
-plotting methods which allows you to pass a column's name as a stand-in for the data values:
+The |ColumnDataSource| (CDS) is the core of most Bokeh plots. It provides the
+data to the glyphs of your plot.
+
+Using a |ColumnDataSource| allows you to share data between multiple plots
+and widgets. For example: If you use a single |ColumnDataSource| together with
+multiple renderers, those renderers also share information about data you
+select with a select tool from Bokeh's toolbar (see
+:ref:`userguide_data_linked_selection`).
+
+Think of a |ColumnDataSource| as a collection of lists of data that each have
+their own, unique column name.
+
+To create a |ColumnDataSource| object, you need a Python dictionary. The column
+names are the key of this dictionary, while the data values are the
+dictionary's value. Once you have a |ColumnDataSource| set up, you can pass it
+to a plotting function with the ``source`` argument:
 
 .. code-block:: python
 
     from bokeh.plotting import figure
     from bokeh.models import ColumnDataSource
 
+    # generate a Python dict as the basis of your ColumnDataSource
     data = {'x_values': [1, 2, 3, 4, 5],
             'y_values': [6, 7, 2, 3, 6]}
 
+    # generate a ColumnDataSource by passing the dict
     source = ColumnDataSource(data=data)
 
+    # create a plot using the ColumnDataSource's two columns
     p = figure()
     p.circle(x='x_values', y='y_values', source=source)
 
+In order to use a ColumnDataSource with a plotting function, you need to pass
+at least these three arguments:
+
+* ``x``: the name of the ColumnDataSource's column that contains the data for
+  the x values of your plot
+* ``y``: the name of the ColumnDataSource's column that contains the data for
+  the y values of your plot
+* ``source``: the name of the ColumnDataSource that contains the columns you
+  just referenced for the ``x`` and ``y`` arguments.
+
 .. note::
-    There is an implicit assumption that all the columns in a given ``ColumnDataSource``
-    all have the same length at all times. For this reason, it is usually preferable to
-    update the ``.data`` property of a data source "all at once".
+    Bokeh assumes that all columns in a ``ColumnDataSource`` each have the
+    same length at all times. For this reason, make sure to always update all
+    columns of a ColumnDataSource at the same time.
 
+Using a pandas DataFrame
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pandas
-~~~~~~
-
-The ``data`` parameter can also be a Pandas ``DataFrame`` or ``GroupBy`` object.
+The ``data`` parameter can also be a pandas ``DataFrame`` or ``GroupBy`` object:.:
 
 .. code-block:: python
 
    source = ColumnDataSource(df)
 
-If a ``DataFrame`` is used, the CDS will have columns corresponding to the columns of
-the ``DataFrame``. The index of the ``DataFrame`` will be reset, so if the ``DataFrame``
-has a named index column, then CDS will also have a column with this name. However,
-if the index name is ``None``, then the CDS will be assigned a generic name.
-It will be ``index`` if it is available, and ``level_0`` otherwise.
+If you use a pandas ``DataFrame``, the resulting CDS in Bokeh will have columns
+that correspond to the columns of the ``DataFrame``. The naming of the columns
+follows these rules:
 
-Pandas MultiIndex
-~~~~~~~~~~~~~~~~~
-All ``MultiIndex`` columns and indices will be flattened before forming the
-``ColumnsDataSource``. For the index, an index of tuples will be created, and the
-names of the ``MultiIndex`` joined with an underscore. The column names will also
-be joined with an underscore. For example:
+* The index of the ``DataFrame`` will be reset, so if the ``DataFrame`` has a
+  named index column, the CDS will also have a column with this name.
+* If the index name is ``None``, then the CDS will be assigned a
+  generic name: It will be ``index`` if it is available, otherwise it will be
+  ``level_0``.
+
+Using a pandas MultiIndex
+~~~~~~~~~~~~~~~~~~~~~~~~~
+If you use a pandas ``MultiIndex`` as the basis for a Bokeh
+``ColumnsDataSource``, Bokeh will flatten the columns and indices before
+creating the CDS. For the index, an index of tuples will be created, and the
+names of the ``MultiIndex`` will be joined with an underscore. The column names
+will also be joined with an underscore. For example:
 
 .. code-block:: python
 
@@ -96,37 +120,52 @@ be joined with an underscore. For example:
                        ('b', 'b'): {('A', 'D'): 9, ('A', 'B'): 10}})
     cds = ColumnDataSource(df)
 
-will result in a column named ``index`` with ``[(A, B), (A, C), (A, D)]`` and columns
-named ``a_b``, ``b_a``, and ``b_b``. This process will fail for non-string column names,
-so flatten the ``DataFrame`` manually in that case.
+This will result in a column named ``index`` with ``[(A, B), (A, C), (A, D)]``,
+as well as columns named ``a_b``, ``b_a``, and ``b_b``.
 
-Pandas GroupBy
-~~~~~~~~~~~~~~
+This process only works with column names that are strings. If you are using
+non-string column names, you need to flatten the ``DataFrame`` manually before
+you can use it as the basis of a Bokeh ``ColumnsDataSource``.
+
+Using pandas GroupBy
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
     group = df.groupby(('colA', 'ColB'))
     source = ColumnDataSource(group)
 
-If a ``GroupBy`` object is used, the CDS will have columns corresponding to the result of
-calling ``group.describe()``. The ``describe`` method generates columns for statistical measures
-such as ``mean`` and ``count`` for all the non-grouped original columns. The resulting ``DataFrame``
-has ``MultiIndex`` columns with the original column name and the computed measure, so it
-will be flattened using the aforementioned scheme. For example, if a
-``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
-to a CDS will result in columns such as ``'mpg_mean'``
+If you use a pandas ``GroupBy`` object, the columns of the CDS correspond to the
+result of calling ``group.describe()``. The ``describe`` method generates
+columns for statistical measures such as ``mean`` and ``count`` for all the
+non-grouped original columns.
 
-Note this capability to adapt ``GroupBy`` objects may only work with Pandas ``>=0.20.0``.
+The resulting ``DataFrame`` has ``MultiIndex`` columns with the original column
+name and the computed measure, so it will be flattened using the rules described
+above.
+
+For example: If a ``DataFrame`` has the columns ``'year'`` and ``'mpg'``,
+passing ``df.groupby('year')`` to a CDS will result in columns such as
+``'mpg_mean'``.
+
+.. note::
+    Adapting ``GroupBy`` objects requires pandas version 0.20.0 or above.
 
 Streaming
 ~~~~~~~~~
 
-|ColumnDataSource| streaming is an efficient way to append new data to a CDS. By using the
-``stream`` method, Bokeh only sends new data to the browser instead of the entire dataset.
-The ``stream`` method takes a ``new_data`` parameter containing a dict mapping column names
-to sequences of data to be appended to the respective columns. It additionally takes an optional
-argument ``rollover``, which is the maximum length of data to keep (data from the beginning of the
-column will be discarded). The default ``rollover`` value of None allows data to grow unbounded.
+|ColumnDataSource| streaming is an efficient way to append new data to a CDS.
+When you use the :func:`~bokeh.models.sources.ColumnDataSource.stream` method,
+Bokeh only sends new data to the browser, instead of sending the entire dataset.
+
+The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
+``new_data`` parameter. This parameter contains a dict which maps column names
+to sequences of data to be appended to the respective columns.
+
+The method takes an additional, optional argument ``rollover``. This is the
+maximum length of data to keep (data from the beginning of the column will be
+discarded). The default ``rollover`` value of ``None`` allows data to grow
+unbounded.
 
 .. code-block:: python
 
@@ -145,12 +184,16 @@ For an example that uses streaming, see :bokeh-tree:`examples/app/ohlc`.
 Patching
 ~~~~~~~~
 
-|ColumnDataSource| patching is an efficient way to update slices of a data source. By using the
-``patch`` method, Bokeh only needs to send new data to the browser instead of the entire dataset.
-The ``patch`` method should be passed a dict mapping column names to list of tuples that represent
-a patch change to apply.
+|ColumnDataSource| patching is an efficient way to update slices of a data
+source. By using the :func:`~bokeh.models.sources.ColumnDataSource.patch`
+method, Bokeh only sends new data to the browser instead of the entire
+dataset.
 
-The tuples that describe patch changes are of the form:
+The :func:`~bokeh.models.sources.ColumnDataSource.patch` requires a dict which
+maps column names to list of tuples that represent a patch change to apply.
+
+Examples of tuples to be used with
+:func:`~bokeh.models.sources.ColumnDataSource.patch`:
 
 .. code-block:: python
 
@@ -162,69 +205,79 @@ The tuples that describe patch changes are of the form:
 
 For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
 
-Transforming Data
+Transforming data
 -----------------
 
-We have seen above how data can be added to a ``ColumnDataSource`` to drive
-Bokeh plots. This can include raw data or data that we explicitly transform
-ourselves, for example a column of colors created to control how the Markers
-in a scatter plot should be shaded. It is also possible to specify transforms
-that only occur in the browser. This can be useful to reduce both code (i.e.
-not having to color map data by hand) as well as the amount of data that has to
-be sent into the browser (only the raw data is sent, and colormapping occurs
-in the client).
+So far, you have added data to a ``ColumnDataSource`` to control Bokeh plots.
+However, you can also perform some data operations directly in the browser.
 
-In this section we examine some of the different transform objects that are
+Dynamically calculating color maps in the browser, for example, can reduce the
+amount of Python code. If the necessary calculations for color mapping happen
+directly in the browser, you will also need to send less data.
+
+This section provides an overview over the different transform objects that are
 available.
 
-Colors
-~~~~~~
+Client-side color mapping
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To perform linear colormapping in the browser, the
-:func:`~bokeh.transform.linear_cmap` function may be used. It accepts the name
-of a ``ColumnDataSource`` column to colormap, a palette (which can be a built-in
-palette name or an actual list of colors), and min/max values for the color
-mapping range. The result can be passed to a color property on glyphs:
+Use the :func:`~bokeh.transform.linear_cmap` function to perform linear
+color mapping directly in the browser. This function accepts the following
+arguments:
+
+* The name of a ``ColumnDataSource`` column containing the data to map colors to
+* A palette (which can be a :ref:`built-in palette name<bokeh.palettes>` or a
+  list of colors)
+* ``min`` and ``max`` values for the color mapping range.
+
+The result can be passed as a ``color`` property of a glyph:
 
 .. code-block:: python
 
      fill_color=linear_cmap('counts', 'Viridis256', min=0, max=10)
 
-A complete example is shown here:
+For example:
 
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_colors.py
     :source-position: above
 
-Besides :func:`~bokeh.transform.linear_cmap` there is also
-:func:`~bokeh.transform.log_cmap` to perform color mapping on a log scale, as
-well as :func:`~bokeh.transform.factor_cmap` to colormap categorical data (see
+In addition to :func:`~bokeh.transform.linear_cmap`, there are two similar
+functions:
+
+* :func:`~bokeh.transform.log_cmap` for color mapping on a log scale
+* :func:`~bokeh.transform.factor_cmap` for color mapping categorical data (see
 the example below).
 
-Markers
-~~~~~~~
+Mapping marker types
+~~~~~~~~~~~~~~~~~~~~
 
-It is also possible to map categorical data to marker types. The example
-below shows the use of :func:`~bokeh.transform.factor_mark` to display different
-markers or different categories in the input data. It also demonstrates the use
-of :func:`~bokeh.transform.factor_cmap` to colormap those same categories:
+When you use categorical data, you can use different markers for each of the
+categories in your data. Use the :func:`~bokeh.transform.factor_mark`
+function to automatically assign different markers to different categories:
 
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_markers.py
     :source-position: above
+
+This example also uses :func:`~bokeh.transform.factor_cmap` to color map those
+same categories.
 
 .. note::
     The :func:`~bokeh.transform.factor_mark` transform is primarily only useful
     with the ``scatter`` glyph method, since only the ``Scatter`` glyph can be
     parameterized by marker type.
 
-CustomJSTransform
-~~~~~~~~~~~~~~~~~
+Including JavaScript code with CustomJSTransform
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the built-in transforms above, there is also a ``CustomJSTransform``
-that allows for specifying arbitrary JavaScript code to perform a transform step
-on ColumnDataSource data. Typically, the ``v_func`` (for "vectorized" function)
-is provided (less commonly, a scalar equivalent ``func`` may also be needed).
-The ``v_func`` code should expect an array of inputs in the variable ``xs``, and
-return a JavaScript array with the transformed values:
+In addition to the built-in transformation functions above, you can use your own
+JavaScript code. Use the :func:`~bokeh.models.transforms.CustomJSTransform`
+function to add custom JavaScript code that is executed in the browser.
+
+The example below uses the :func:`~bokeh.models.transforms.CustomJSTransform`
+function with the argument ``v_func``. ``v_func`` is short for "vectorized
+function". The JavaScript code you supply to ``v_func`` needs to expect an array
+of inputs in the variable ``xs``, and return a JavaScript array with the
+transformed values:
 
 .. code-block:: python
 
@@ -241,14 +294,14 @@ return a JavaScript array with the transformed values:
     plot.line(x='aapl_date', y=transform('aapl_close', normalize), line_width=2,
               color='#cf3c4d', alpha=0.6,legend="Apple", source=aapl_source)
 
-The above code converts raw price data into a sequence of normalized returns
-relative to the first data point. The full result is shown below:
+The code in this example converts raw price data into a sequence of normalized
+returns that are relative to the first data point:
 
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_customjs_transform.py
     :source-position: none
 
 
-Filtering Data
+Filtering data
 --------------
 
 It's often desirable to focus in on a portion of data that has been subsampled or filtered
@@ -315,7 +368,7 @@ or a list of booleans that represents the filtered subset. The |ColumnDataSource
 that is associated with the |CDSView| this filter is added to will be available
 at render time with the variable ``source``.
 
-Javascript
+JavaScript
 ''''''''''
 
 To create a |CustomJSFilter| with custom functionality written in JavaScript,
@@ -379,7 +432,7 @@ A full example (shown below) can be seen at
 
 .. _userguide_data_linked_selection:
 
-Linked Selection
+Linked selection
 ----------------
 
 Using the same |ColumnDataSource| in the two plots below allows their selections to be
@@ -390,7 +443,7 @@ shared.
 
 .. _userguide_data_linked_selection_with_filtering:
 
-Linked Selection with Filtered Data
+Linked selection with filtered data
 -----------------------------------
 
 With the ability to specify a subset of data to be used for each glyph renderer, it is
@@ -406,7 +459,7 @@ the corresponding point in the other plot if it exists.
 .. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
 
-Other Data Types
+Other data types
 ----------------
 
 Bokeh also has the capability to render network graph data and geographical data.
