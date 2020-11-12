@@ -70,89 +70,82 @@ development environment. There are also many links to the more in-depth
 resources of the :ref:`userguide` and :ref:`Reference Guide<refguide>` in case
 you want to learn more about any of the topics.
 
-(placeholders - add thubnails!)
+(TBD - add descriptions and thubnails!)
 
 .. panels::
     :container: container-fluid pb-3
-    :column: col-lg-3 col-md-4 col-sm-6 col-xs-12 p-2
+    :column: col-lg-4 col-md-4 col-sm-6 col-xs-12 p-2
 
     :header: bg-bokeh-one
 
-    Tutorial 1
-    ^^^^^^^^^^
+    Guide 1
+    ^^^^^^^
 
-    Create a simple line graph.
+    Creating a line chart
 
     ---
     :header: bg-bokeh-two
 
-    Tutorial 2
-    ^^^^^^^^^^
+    Guide 2
+    ^^^^^^^
 
-    Combine several line graphs.
+    Adding and customizing renderers
 
     ---
     :header: bg-bokeh-three
 
-    Tutorial 3
-    ^^^^^^^^^^
+    Guide 3
+    ^^^^^^^
 
-    Try different outputs
+     Adding legends, text, and annotations
 
     ---
     :header: bg-bokeh-four
 
-    Tutorial 4
-    ^^^^^^^^^^
+    Guide 4
+    ^^^^^^^
 
-    Add headlines and other text.
+    Customizing your plot
 
     ---
     :header: bg-bokeh-five
 
-    Tutorial 5
-    ^^^^^^^^^^
+    Guide 5
+    ^^^^^^^
 
-    Vectorize colors and shapes
+    Vectorizing glyph properties
 
     ---
     :header: bg-bokeh-six
 
-    Tutorial 6
-    ^^^^^^^^^^
+    Guide 6
+    ^^^^^^^
 
-    Create html popup windows
+    Combining plots
 
     ---
     :header: bg-bokeh-seven
 
-    Tutorial 7
-    ^^^^^^^^^^
+    Guide 7
+    ^^^^^^^
 
-    Add headlines and other text.
+    Displaying and exporting
 
     ---
     :header: bg-bokeh-one
 
-    Tutorial 8
-    ^^^^^^^^^^
+    Guide 8
+    ^^^^^^^
 
-    Combine plots with gridplot
+    Providing data
 
+    ---
+    :header: bg-bokeh-one
 
-List of tutorials as bootstrap boxes:
+    Guide 9
+    ^^^^^^^
 
-* Tutorial 1: Simple line graph
-* Tutorial 2: Combining lines
-* Tutorial X: Try different outputs (Jupyter Notebook, file export)
-  * [do I need to install jupyter stuff manually?]
-  * [do I need to install any firefox/gecko/selenium manually??? -> Update install.rst!!]
-* Tutorial X: Vectorize color/shape
-* Tutorial X: Add headlines and other text
-* Tutorial X: Create html popup windows
-* Tutorial X: Style everything
-* Tutorial X: Combine plots with gridplot
-* Tutorial X Create a server app
+    Bokeh Server app
 
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html

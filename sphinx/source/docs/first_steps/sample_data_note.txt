@@ -1,4 +1,0 @@
-.. note::
-    This example uses data that is part of Bokeh's sample data collection. To
-    make this example work in your local environment, you need to download and
-    install the necessary data by following :ref:`install_sampledata`.
