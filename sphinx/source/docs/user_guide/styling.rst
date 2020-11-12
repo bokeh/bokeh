@@ -90,7 +90,7 @@ Text Properties
 
 .. include:: ../includes/text_props.txt
 
-.. _userguide_visible_property:
+.. _userguide_styling_visible_property:
 
 Visible property
 ~~~~~~~~~~~~~~~~
