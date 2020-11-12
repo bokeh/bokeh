@@ -74,9 +74,9 @@ Some guidelines to adhere to when working on BokehJS:
 Requirements
 ~~~~~~~~~~~~
 
-* node 12.*
-* npm 6.14+ (most recent version)
-* chromium browser 80+ or equivalent
+* node 12.* or 14.*
+* npm 7+ (most recent version)
+* chromium browser 85+ or equivalent
 
 You can install nodejs with conda:
 
