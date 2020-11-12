@@ -33,7 +33,7 @@ Gestures
     glyphs on a plot. Since they may respond to several gestures at once, an
     edit tool when activated will potentially deactivate multiple single-gesture tools.
 
-This chapter contains information about all the individual tools and describes how 
+This chapter contains information about all the individual tools and describes how
 the toolbar may be configured.
 
 .. _userguide_tools_toolbar:
@@ -42,7 +42,7 @@ Positioning the toolbar
 -----------------------
 
 By default, Bokeh plots come with a toolbar above the plot. You can change the
-location of the toolbar or remove it. 
+location of the toolbar or remove it.
 
 You can specify the toolbar location by passing the ``toolbar_location``
 parameter to the |figure| function. Valid values are:
