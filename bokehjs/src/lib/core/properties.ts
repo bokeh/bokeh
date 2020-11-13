@@ -529,6 +529,26 @@ export class NumberSpec extends DataSpec<number> {
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
+  /*
+    // uint8[N, 3]
+    // uint8[N, 4]
+    // uint32[]
+    // Color[]
+
+    if (is_NDArray(colors)) {
+      if (colors.dtype == "uint32" && colors.dimension == 1) {
+        const [N] = colors.shape
+      } else if (colors.dtype == "uint8" && colors.dimension == 2) {
+        const [N, d] = colors.shape
+        if (d == 3) {
+        } else if (d == 4) {
+        }
+      }
+    } else {
+    }
+  */
+
+
   array(source: ColumnarDataSource): ColorArray {
     const colors = super.array(source)
     const n = colors.length
