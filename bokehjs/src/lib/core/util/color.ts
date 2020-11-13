@@ -1,9 +1,9 @@
-import {svg_colors, is_svg_color} from "./svg_colors"
+import {css_colors, is_css_color} from "./svg_colors"
 import {includes} from "./array"
 import {uint32} from "../types"
 
 export function is_color(value: string): boolean {
-  return is_svg_color(value.toLowerCase()) || value.substring(0, 1) == "#" || valid_rgb(value)
+  return is_css_color(value.toLowerCase()) || value.substring(0, 1) == "#" || valid_rgb(value)
 }
 
 function _component2hex(v: number | string): string {
@@ -22,8 +22,8 @@ export function color2hex(color: string): string {
   color = color + ''
   if (color.indexOf('#') == 0)
     return color
-  else if (is_svg_color(color))
-    return svg_colors[color]
+  else if (is_css_color(color))
+    return css_colors[color]
   else if (color.indexOf('rgb') == 0) {
     const rgb = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',')
     let hex = rgb.slice(0, 3).map(_component2hex).join('')

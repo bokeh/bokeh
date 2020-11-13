@@ -1,4 +1,4 @@
-export const svg_colors = {
+export const css_colors = {
   aliceblue: "#F0F8FF",
   antiquewhite: "#FAEBD7",
   aqua: "#00FFFF",
@@ -118,6 +118,7 @@ export const svg_colors = {
   plum: "#DDA0DD",
   powderblue: "#B0E0E6",
   purple: "#800080",
+  rebeccapurple: "#663399",
   red: "#FF0000",
   rosybrown: "#BC8F8F",
   royalblue: "#4169E1",
@@ -148,8 +149,8 @@ export const svg_colors = {
   yellowgreen: "#9ACD32",
 }
 
-export type SVGColor = keyof typeof svg_colors
+export type CSSColor = keyof typeof css_colors
 
-export function is_svg_color(color: string): color is SVGColor {
-  return color in svg_colors
+export function is_css_color(color: string): color is CSSColor {
+  return color in css_colors
 }
