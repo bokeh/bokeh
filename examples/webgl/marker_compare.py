@@ -4,18 +4,25 @@ This covers all markers supported by scatter. The plots are put in tabs,
 so that you can easily switch to compare positioning and appearance.
 
 """
+import numpy as np
+
 from bokeh.core.enums import MarkerType
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, Panel, Tabs
 from bokeh.plotting import figure, output_file, show
-from bokeh.sampledata.iris import flowers
 
-source = ColumnDataSource(flowers)
+N = 100
+
+x = np.random.random(size=N)
+y = np.random.random(size=N)
+
+colors = np.random.randint(0, 255, size=(N, 3), dtype="uint8")
+
+source = ColumnDataSource(data=dict(x=x, y=y, colors=colors))
 
 def make_plot(title, marker, backend):
     p = figure(title=title, plot_width=350, plot_height=350, output_backend=backend)
-    p.scatter("petal_length", "petal_width", source=source,
-              color='blue', fill_alpha=0.2, size=12, marker=marker)
+    p.scatter("x", "y", marker=marker, color="colors", fill_alpha=0.2, size=12, source=source)
     return p
 
 tabs = []
