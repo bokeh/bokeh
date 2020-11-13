@@ -23,7 +23,7 @@ export function color2hex(color: string): string {
   if (color.indexOf('#') == 0)
     return color
   else if (is_css_color(color))
-    return css_colors[color]
+    return rgb2hex(...css_colors[color])
   else if (color.indexOf('rgb') == 0) {
     const rgb = color.replace(/^rgba?\(|\s+|\)$/g, '').split(',')
     let hex = rgb.slice(0, 3).map(_component2hex).join('')
