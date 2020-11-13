@@ -9,7 +9,7 @@ y = np.random.random(size=N) * 100
 
 # generate radii and colors based on data
 radii = y / 100 * 2
-colors = ["#%02x%02x%02x" % (255, round(value * 255 / 100), 255) for value in y]
+colors = ["#%02x%02x%02x" % (255, int(round(value * 255 / 100)), 255) for value in y]
 
 # set output to static HTML file
 output_file("first_steps.html")
