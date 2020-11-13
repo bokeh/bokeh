@@ -1,6 +1,6 @@
 .. _userguide_embed:
 
-Embedding Bokeh Content
+Embedding Bokeh content
 =======================
 
 Bokeh provides a variety of ways to embed plots and data into HTML documents.
