@@ -5,8 +5,8 @@ import * as enums from "./enums"
 import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
-import {map} from "./util/arrayable"
-import {angle_conversion_coeff} from "./util/math"
+import {mul} from "./util/arrayable"
+import {to_radians_coeff} from "./util/math"
 import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
@@ -501,8 +501,9 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
-    const c = angle_conversion_coeff(this.units)
-    return super.normalize(map(values, (x) => c*x))
+    const coeff = -to_radians_coeff(this.units)
+    mul(values, coeff, values)
+    return super.normalize(values)
   }
 }
 

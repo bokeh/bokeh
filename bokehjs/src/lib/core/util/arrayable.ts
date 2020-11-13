@@ -82,6 +82,15 @@ export function subselect<T>(array: Arrayable<T>, indices: Arrayable<number>): A
   return result
 }
 
+export function mul<T extends Arrayable<number>>(array: T, coeff: number, output?: T): T {
+  const n = array.length
+  const result: T = output ?? new (array.constructor as any)(n)
+  for (let i = 0; i < n; i++) {
+    result[i] = array[i]*coeff
+  }
+  return result
+}
+
 export function map(array: Float64Array, fn: (item: number, i: number, array: Float64Array) => number): Float64Array
 export function map(array: Float32Array, fn: (item: number, i: number, array: Float32Array) => number): Float32Array
 export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
