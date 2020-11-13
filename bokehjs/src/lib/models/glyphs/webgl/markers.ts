@@ -6,8 +6,8 @@ import {ScatterView} from "../scatter"
 import {CircleView} from "../circle"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
-import {MarkerType} from "core/enums"
-import {color2rgba, decode_rgba, RGBAf} from "core/util/color"
+import {MarkerType, uint8} from "core/enums"
+import {color2rgba, RGBAf, decode_rgba_i, RGBAi} from "core/util/color"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
@@ -37,11 +37,14 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
   // Attach the color attribute to the program. If there's just one color,
   // then use this single color for all vertices (no VBO). Otherwise we
   // create an array and upload that to the VBO, which we attahce to the prog.
-  const m = 4
-
   function compose(color: RGBAf, alpha: number): RGBAf {
     const [r, g, b, a] = color
     return a == 1.0 ? [r, g, b, alpha] : color
+  }
+
+  function compose_i(color: RGBAi, alpha: uint8): RGBAi {
+    const [r, g, b, a] = color
+    return a == 255 ? [r, g, b, alpha] : color
   }
 
   if (!visual.doit) {
@@ -59,16 +62,19 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
     const colors = visual.get_array(color_prop)
     const alphas = visual.get_array(alpha_prop)
 
-    // Create array of rgbs
-    const a = new Float32Array(n*m)
-    for (let i = 0, end = n; i < end; i++) {
-      const rgba = compose(decode_rgba(colors[i]), alphas[i])
-      a.set(rgba, i*m)
+    const m = 4
+    const sizeof = 1
+
+    const array = new Uint8Array(n*m)
+    for (let i = 0; i < n; i++) {
+      const rgba = compose_i(decode_rgba_i(colors[i]), Math.round(alphas[i]*255))
+      array.set(rgba, i*m)
     }
+
     // Attach vbo
-    vbo.set_size(n*m*4)
-    vbo.set_data(0, a)
-    prog.set_attribute(att_name, 'vec4', vbo)
+    vbo.set_size(n*m*sizeof)
+    vbo.set_data(0, array)
+    prog.set_attribute(att_name, 'vec4_uint8', vbo, 0, 0, true)
   }
 }
 

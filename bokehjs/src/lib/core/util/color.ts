@@ -164,6 +164,18 @@ function transparent_i(): RGBAi {
   return [0, 0, 0, 0]
 }
 
+export function encode_rgba_i([r, g, b, a]: RGBAi): uint32 {
+  return r << 24 | g << 16 | b << 8 | a
+}
+
+export function decode_rgba_i(rgba: uint32): RGBAi {
+  const r = (rgba >> 24) & 0xff
+  const g = (rgba >> 16) & 0xff
+  const b = (rgba >>  8) & 0xff
+  const a =  rgba        & 0xff
+  return [r, g, b, a]
+}
+
 const rgb_modern = /^rgba?\(\s*(?<r>.+?)\s+(?<g>.+?)\s+(?<b>.+?)(?:\s*\/\s*(?<a>.+?))?\s*\)$/
 const rgb_legacy = /^rgba?\(\s*(?<r>.+?)\s*,\s*(?<g>.+?)\s*,\s*(?<b>.+?)(?:\s*,\s*(?<a>.+?))?\s*\)$/
 
