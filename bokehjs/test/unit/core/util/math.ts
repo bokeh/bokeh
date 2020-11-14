@@ -10,7 +10,6 @@ describe("math module", () => {
 
     it("should return 0 for 0", () => {
       expect(math.angle_norm(0)).to.be.equal(0)
-
     })
 
     it("should return angle normalized between 0 and 2*PI inclusive", () => {
@@ -21,7 +20,6 @@ describe("math module", () => {
     it("should return 2*PI for -2*PI", () => {
       expect(math.angle_norm(2*PI)).to.be.similar(2*PI)
     })
-
   })
 
   describe("angle_dist", () => {
@@ -35,7 +33,6 @@ describe("math module", () => {
       expect(math.angle_dist(0, 2*PI)).to.be.similar(2*PI)
       expect(math.angle_dist(2*PI, 0)).to.be.similar(2*PI)
     })
-
   })
 
   describe("angle_between", () => {
@@ -65,7 +62,6 @@ describe("math module", () => {
       expect(math.angle_between(1, 0, 2*PI, true)).to.be.true
       expect(math.angle_between(-1, 0, 2*PI, true)).to.be.true
     })
-
   })
 
   describe("atan2", () => {
@@ -77,7 +73,6 @@ describe("math module", () => {
       expect(math.atan2([0, 0], [-1, 0])).to.be.similar(PI) // horizontal left
       expect(math.atan2([1, 1], [2, 2])).to.be.similar(PI/4)
     })
-
   })
 
   describe("clamp", () => {
@@ -96,6 +91,5 @@ describe("math module", () => {
       expect(math.clamp(2, 1, 2)).to.be.equal(2)
       expect(math.clamp(3, 1, 2)).to.be.equal(2)
     })
-
   })
 })

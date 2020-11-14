@@ -199,13 +199,11 @@ export class RangeToolView extends GestureToolView {
 
     this.last_dx = ev.deltaX
     this.last_dy = ev.deltaY
-
   }
 
   _pan_end(_ev: PanEvent): void {
     this.side = Side.None
   }
-
 }
 
 const DEFAULT_RANGE_OVERLAY = () => {
@@ -254,7 +252,6 @@ export class RangeTool extends GestureTool {
       y_interaction: [ Boolean, true ],
       overlay:       [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],
     }))
-
   }
 
   initialize(): void {

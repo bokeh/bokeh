@@ -6,6 +6,7 @@ import {Arrayable, NumberArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
+import {angle_conversion_coeff} from "./util/math"
 import {is_color, color2rgba, encode_rgba} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
@@ -27,6 +28,13 @@ export function isSpec(obj: any): boolean {
           ((obj.value === undefined ? 0 : 1) +
            (obj.field === undefined ? 0 : 1) +
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
+}
+
+export type Spec = {
+  readonly value?: any
+  readonly field?: string
+  readonly expr?: any
+  readonly transform?: any // Transform
 }
 
 //
@@ -67,13 +75,7 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: { // XXX: too many failures for now
-    readonly value?: any
-    readonly field?: string
-    readonly expr?: any
-    readonly transform?: any // Transform
-    units?: any
-  }
+  /*protected*/ spec: Spec // XXX: too many failures for now
 
   get_value(): T {
     return this.spec.value
@@ -97,8 +99,9 @@ export abstract class Property<T = unknown> {
 
   readonly change: Signal0<HasProps>
 
-  readonly internal: boolean
+  /*readonly*/ internal: boolean
   readonly optional: boolean
+
   on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
@@ -446,23 +449,26 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
+  spec: Spec & {units?: Units}
+
   _update(attr_value: any): void {
     super._update(attr_value)
 
-    if (this.spec.units == null)
-      this.spec.units = this.default_units
-
-    const units = this.spec.units
-    if (!includes(this.valid_units, units))
+    const {units} = this.spec
+    if (units != null && !includes(this.valid_units, units)) {
       throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+    }
   }
 
   get units(): Units {
-    return this.spec.units as Units
+    return this.spec.units ?? this.default_units
   }
 
   set units(units: Units) {
-    this.spec.units = units
+    if (units != this.default_units)
+      this.spec.units = units
+    else
+      delete this.spec.units
   }
 }
 
@@ -473,7 +479,7 @@ export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
 }
 
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
-  readonly dimension: "x" | "y"
+  abstract get dimension(): "x" | "y"
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
@@ -494,16 +500,18 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
-    if (this.spec.units == "deg")
-      values = map(values, (x: number) => x * Math.PI/180.0)
-    values = map(values, (x: number) => -x)
-    return super.normalize(values)
+    const c = angle_conversion_coeff(this.units)
+    return super.normalize(map(values, (x) => c*x))
   }
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits { return "data" as "data" }
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
+}
+
+export class ScreenDistanceSpec extends DistanceSpec {
+  get default_units(): enums.SpatialUnits { return "screen" as "screen" }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {

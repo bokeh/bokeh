@@ -8,8 +8,11 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, RaggedArray, Indices} from "core/types"
+import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
+import {values} from "core/util/object"
+import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -64,14 +67,7 @@ export abstract class GlyphView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
-  }
-
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    this.visuals.warm_cache(source, indices)
-
-    if (this.glglyph != null)
-      this.glglyph.set_visuals_changed()
+    this.visuals = new visuals.Visuals(this)
   }
 
   render(ctx: Context2d, indices: number[], data: any): void {
@@ -212,13 +208,53 @@ export abstract class GlyphView extends View {
 
   protected _project_data(): void {}
 
+  private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
+    for (const visual of values<visuals.ContextProperties>(this.visuals)) {
+      for (const prop of visual) {
+        if (prop instanceof p.VectorSpec)
+          yield prop
+      }
+    }
+  }
+
+  protected base?: this
+  set_base<T extends this>(base: T): void {
+    if (base != this && base instanceof this.constructor)
+      this.base = base
+  }
+
+  set_visuals(source: ColumnarDataSource, indices: Indices): void {
+    const self = this as any
+
+    for (const prop of this._iter_visuals()) {
+      const {base} = this
+      if (base != null) {
+        const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
+        if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
+          self[`_${prop.attr}`] = (base as any)[`_${prop.attr}`]
+          continue
+        }
+      }
+
+      const base_array = prop.array(source)
+      const array = indices.select(base_array)
+      self[`_${prop.attr}`] = array
+    }
+
+    this.glglyph?.set_visuals_changed()
+  }
+
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
     const {x_range, y_range} = this.renderer.coordinates
 
-    this._data_size = source.get_length() ?? 1
+    this._data_size = indices.count
 
+    const visual_props = new Set(this._iter_visuals())
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec))
+        continue
+
+      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
 
       // this skips optional properties like radius for circles
@@ -265,7 +301,7 @@ export abstract class GlyphView extends View {
 
   protected _set_data(_indices: number[] | null): void {}
 
-  protected get _index_size(): number {
+  private get _index_size(): number {
     return this.data_size
   }
 
@@ -279,8 +315,8 @@ export abstract class GlyphView extends View {
   }
 
   mask_data(): Indices {
-    // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null || this._mask_data == null)
+    /** Returns subset indices in the viewport. */
+    if (this._mask_data == null)
       return Indices.all_set(this.data_size)
     else
       return this._mask_data()
@@ -319,7 +355,7 @@ export namespace Glyph {
 
   export type Props = Model.Props
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface Glyph extends Glyph.Attrs {}
@@ -331,6 +367,4 @@ export abstract class Glyph extends Model {
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
-
-  static init_Glyph(): void {}
 }

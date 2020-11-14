@@ -570,6 +570,7 @@ export class Linker {
         case ".json": return "json"
         case ".css": return "css"
         case ".mjs": return "js"
+        case ".cjs": return "js"
         case ".js": return "js"
         default:
           throw new BuildError("linker", `unsupported extension of ${file}`)

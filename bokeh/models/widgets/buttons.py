@@ -68,7 +68,7 @@ class AbstractButton(Widget, ButtonLike):
 
     '''
 
-    label = String("", help="""
+    label = String("Button", help="""
     The text label for the button to display.
     """)
 

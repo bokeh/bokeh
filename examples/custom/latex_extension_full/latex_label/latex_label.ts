@@ -1,9 +1,7 @@
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
+import * as p from "@bokehjs/core/properties"
 
 import * as katex from "katex"
-
-//"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js"
-//"https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css"
 
 export class LatexLabelView extends LabelView {
   model: LatexLabel

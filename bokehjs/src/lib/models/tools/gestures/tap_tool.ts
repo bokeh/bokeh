@@ -5,6 +5,7 @@ import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
 import {TapBehavior, SelectionMode} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {DataRendererView} from "../../renderers/data_renderer"
 import {bk_tool_icon_tap_select} from "styles/icons"
 
 export class TapToolView extends SelectToolView {
@@ -24,7 +25,9 @@ export class TapToolView extends SelectToolView {
 
       for (const [, renderers] of renderers_by_source) {
         const sm = renderers[0].get_selection_manager()
-        const r_views = renderers.map((r) => this.plot_view.renderer_view(r)!)
+        const r_views = renderers
+          .map((r) => this.plot_view.renderer_view(r))
+          .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
         const did_hit = sm.select(r_views, geometry, final, mode)
 
         if (did_hit && callback != null) {
@@ -36,10 +39,13 @@ export class TapToolView extends SelectToolView {
       }
 
       this._emit_selection_event(geometry)
-      this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
+      this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
     } else {
       for (const r of this.computed_renderers) {
-        const rv = this.plot_view.renderer_view(r)!
+        const rv = this.plot_view.renderer_view(r)
+        if (rv == null)
+          continue
+
         const sm = r.get_selection_manager()
         const did_hit = sm.inspect(rv, geometry)
 

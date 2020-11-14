@@ -9,7 +9,7 @@ import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
-import {difference, includes} from "core/util/array"
+import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -61,9 +61,12 @@ export class GlyphRendererView extends DataRendererView {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
-    const has_fill = includes(base_glyph._mixins, "fill")
-    const has_line = includes(base_glyph._mixins, "line")
-    const glyph_attrs = clone(base_glyph.attributes)
+    this.glyph = await this.build_glyph_view(base_glyph)
+
+    const has_fill = "fill" in this.glyph.visuals
+    const has_line = "line" in this.glyph.visuals
+
+    const glyph_attrs = {...base_glyph.attributes}
     delete glyph_attrs.id
 
     function mk_glyph(defaults: Defaults): typeof base_glyph {
@@ -72,8 +75,6 @@ export class GlyphRendererView extends DataRendererView {
       if (has_line) extend(attrs, defaults.line)
       return new (base_glyph.constructor as any)(attrs)
     }
-
-    this.glyph = await this.build_glyph_view(base_glyph)
 
     let {selection_glyph} = this.model
     if (selection_glyph == null)
@@ -99,6 +100,12 @@ export class GlyphRendererView extends DataRendererView {
 
     const decimated_glyph = mk_glyph(decimated_defaults)
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
+
+    this.selection_glyph.set_base(this.glyph)
+    this.nonselection_glyph.set_base(this.glyph)
+    this.hover_glyph?.set_base(this.glyph)
+    this.muted_glyph?.set_base(this.glyph)
+    this.decimated_glyph.set_base(this.glyph)
 
     this.set_data(false)
   }

@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Signal0} from "core/signaling"
 import * as p from "core/properties"
@@ -77,7 +77,7 @@ export namespace PolyAnnotation {
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}

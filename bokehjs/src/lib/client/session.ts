@@ -4,7 +4,6 @@ import {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
 export class ClientSession {
-
   protected _document_listener = (event: DocumentEvent) => {
     this._document_changed(event)
   }

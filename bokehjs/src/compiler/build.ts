@@ -136,7 +136,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
   if (setup.interactive) {
     const rl = readline.createInterface({input: process.stdin, output: process.stdout})
 
-    async function ask(question: string, default_value?: string): Promise<string> {
+    async function ask(question: string, default_value: string): Promise<string> {
       return new Promise((resolve, _reject) => {
         rl.question(`${question} `, (answer) => {
           resolve(answer.length != 0 ? answer : default_value)

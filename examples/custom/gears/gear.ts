@@ -1,10 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "models/glyphs/xy_glyph"
-import {generic_area_legend} from "models/glyphs/utils"
+import {generic_area_vector_legend} from "models/glyphs/utils"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Arrayable, Rect} from "core/types"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 import {Draw, gear_tooth, internal_gear_tooth}  from "./gear_utils"
@@ -142,7 +142,7 @@ export class GearView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -160,7 +160,7 @@ export namespace Gear {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Gear extends Gear.Attrs {}

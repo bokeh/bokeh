@@ -265,7 +265,6 @@ export class LayoutItem extends Layoutable {
 }
 
 export abstract class ContentLayoutable extends Layoutable {
-
   /*
   protected _min_size(): SizeHint {
     return content_size.expanded_to(this.sizing.min_size)

@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide properties for Python primitive types.
+""" Provide properties for Python primitive types.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -50,7 +50,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Bool(PrimitiveProperty):
-    ''' Accept boolean values.
+    """ Accept boolean values.
 
     Args:
         default (obj or None, optional) :
@@ -86,11 +86,11 @@ class Bool(PrimitiveProperty):
 
             >>> m.prop = 10  # ValueError !!
 
-    '''
+    """
     _underlying_type = bokeh_bool_types
 
 class Complex(PrimitiveProperty):
-    ''' Accept complex floating point values.
+    """ Accept complex floating point values.
 
     Args:
         default (complex or None, optional) :
@@ -110,11 +110,11 @@ class Complex(PrimitiveProperty):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     _underlying_type = (numbers.Complex,)
 
 class Int(PrimitiveProperty):
-    ''' Accept signed integer values.
+    """ Accept signed integer values.
 
     Args:
         default (int or None, optional) :
@@ -150,11 +150,11 @@ class Int(PrimitiveProperty):
 
             >>> m.prop = 10.3  # ValueError !!
 
-    '''
+    """
     _underlying_type = bokeh_integer_types
 
 class Float(PrimitiveProperty):
-    ''' Accept floating point values.
+    """ Accept floating point values.
 
     Args:
         default (float or None, optional) :
@@ -191,11 +191,11 @@ class Float(PrimitiveProperty):
             >>> m.prop = "foo"  # ValueError !!
 
 
-    '''
+    """
     _underlying_type = (numbers.Real,)
 
 class String(PrimitiveProperty):
-    ''' Accept string values.
+    """ Accept string values.
 
     Args:
         default (string or None, optional) :
@@ -231,7 +231,7 @@ class String(PrimitiveProperty):
 
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
-    '''
+    """
     _underlying_type = (str,)
 
 #-----------------------------------------------------------------------------

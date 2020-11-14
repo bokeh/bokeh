@@ -1,11 +1,11 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import {Anchor} from "core/enums"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
@@ -35,12 +35,12 @@ export abstract class BoxView extends GlyphView {
     const bottom = Math.max(this.sbottom[i], this.stop[i])  //
 
     switch (anchor) {
-      case "top_left":      return {x: left,             y: top             }
-      case "top_center":    return {x: (left + right)/2, y: top             }
-      case "top_right":     return {x: right,            y: top             }
-      case "bottom_left":   return {x: left,             y: bottom          }
-      case "bottom_center": return {x: (left + right)/2, y: bottom          }
-      case "bottom_right":  return {x: right,            y: bottom          }
+      case "top_left":      return {x: left,             y: top}
+      case "top_center":    return {x: (left + right)/2, y: top}
+      case "top_right":     return {x: right,            y: top}
+      case "bottom_left":   return {x: left,             y: bottom}
+      case "bottom_center": return {x: (left + right)/2, y: bottom}
+      case "bottom_right":  return {x: right,            y: bottom}
       case "center_left":   return {x: left,             y: (top + bottom)/2}
       case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
       case "center_right":  return {x: right,            y: (top + bottom)/2}
@@ -90,7 +90,6 @@ export abstract class BoxView extends GlyphView {
         ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
         ctx.stroke()
       }
-
     }
   }
 
@@ -141,7 +140,7 @@ export abstract class BoxView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -152,7 +151,7 @@ export namespace Box {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Box extends Box.Attrs {}

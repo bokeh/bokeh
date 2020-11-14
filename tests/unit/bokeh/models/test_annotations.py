@@ -232,11 +232,11 @@ def test_BoxAnnotation() -> None:
 def test_Band() -> None:
     band = Band()
     assert band.level == 'annotation'
-    assert band.lower is None
+    assert band.lower == field("lower")
     assert band.lower_units == 'data'
-    assert band.upper is None
+    assert band.upper == field("upper")
     assert band.upper_units == 'data'
-    assert band.base is None
+    assert band.base == field("base")
     assert band.dimension == 'height'
     assert isinstance(band.source, ColumnDataSource)
     assert band.x_range_name == 'default'
@@ -424,17 +424,15 @@ def test_Title() -> None:
 def test_Whisker() -> None:
     whisker = Whisker()
     assert whisker.level == 'underlay'
-    assert whisker.lower is None
+    assert whisker.lower == field("lower")
     assert whisker.lower_units == 'data'
     assert isinstance(whisker.lower_head, ArrowHead)
     assert whisker.lower_head.size == 10
-    assert whisker.lower_head.level == 'underlay'
-    assert whisker.upper is None
+    assert whisker.upper == field("upper")
     assert whisker.upper_units == 'data'
     assert isinstance(whisker.upper_head, ArrowHead)
     assert whisker.upper_head.size == 10
-    assert whisker.upper_head.level == 'underlay'
-    assert whisker.base is None
+    assert whisker.base == field("base")
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
     assert whisker.x_range_name == 'default'

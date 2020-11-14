@@ -2,13 +2,13 @@ import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Arrayable, Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export interface SegmentData extends GlyphData {
@@ -79,8 +79,10 @@ export class SegmentView extends GlyphView {
     const candidates = this.index.indices({x0, y0, x1, y1})
     const indices = []
 
+    const {line_width} = this.model.properties
+
     for (const i of candidates) {
-      const threshold2 = Math.max(2, this.visuals.line.cache_select('line_width', i) / 2)**2
+      const threshold2 = Math.max(2, this.visuals.line.cache_select(line_width, i) / 2)**2
       const p0 = {x: this.sx0[i], y: this.sy0[i]}
       const p1 = {x: this.sx1[i], y: this.sy1[i]}
       const dist2 = hittest.dist_to_segment_squared(point, p0, p1)
@@ -113,11 +115,13 @@ export class SegmentView extends GlyphView {
     const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
     const candidates = this.index.indices({x0, y0, x1, y1})
 
+    const {line_width} = this.model.properties
+
     for (const i of candidates) {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
         indices.push(i)
 
-      const threshold = 1.5 + (this.visuals.line.cache_select('line_width', i) / 2)// Maximum pixel difference to detect hit
+      const threshold = 1.5 + (this.visuals.line.cache_select(line_width, i) / 2)// Maximum pixel difference to detect hit
 
       if (v0[i] == v1[i]) {
         if (geometry.direction == 'h') {
@@ -142,7 +146,7 @@ export class SegmentView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -158,7 +162,7 @@ export namespace Segment {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Segment extends Segment.Attrs {}

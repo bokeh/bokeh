@@ -36,7 +36,7 @@ from typing_extensions import Literal
 
 # Bokeh imports
 from ..models import HoverTool, Plot, Tool, Toolbar
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,7 +58,7 @@ __all__ = (
 # TODO: str should be literal union of e.g. pan | xpan | ypan
 Auto = Literal["auto"]
 ActiveDrag = Union[Drag, Auto, str, None]
-ActiveInspect = Union[List[Inspection], Inspection, Auto, str, None]
+ActiveInspect = Union[List[InspectTool], InspectTool, Auto, str, None]
 ActiveScroll = Union[Scroll, Auto, str, None]
 ActiveTap = Union[Tap, Auto, str, None]
 

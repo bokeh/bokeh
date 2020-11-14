@@ -58,7 +58,6 @@ export class AutocompleteInputView extends TextInputView {
     }
     if (completions.length > 0)
       this.menu.children[0].classList.add(bk_active)
-
   }
 
   protected _show_menu(): void {

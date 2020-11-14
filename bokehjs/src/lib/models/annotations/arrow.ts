@@ -1,11 +1,12 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {ArrowHead, OpenHead} from "./arrow_head"
+import {ArrowHead, ArrowHeadView, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Arrayable} from "core/types"
+import {build_view} from "core/build_views"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
 import {Context2d} from "core/util/canvas"
@@ -21,9 +22,29 @@ export class ArrowView extends AnnotationView {
   protected _x_end: Arrayable<number>
   protected _y_end: Arrayable<number>
 
+  protected start: ArrowHeadView | null
+  protected end: ArrowHeadView | null
+
   initialize(): void {
     super.initialize()
     this.set_data(this.model.source)
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {start, end} = this.model
+    const {parent} = this
+    if (start != null)
+      this.start = await build_view(start, {parent})
+    if (end != null)
+      this.end = await build_view(end, {parent})
+  }
+
+  remove(): void {
+    this.start?.remove()
+    this.end?.remove()
+    super.remove()
   }
 
   connect_signals(): void {
@@ -36,7 +57,6 @@ export class ArrowView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.visuals.warm_cache(source)
     this.plot_view.request_render()
   }
 
@@ -71,20 +91,20 @@ export class ArrowView extends AnnotationView {
     // Order in this function is important. First we draw all the arrow heads.
     const [start, end] = this._map_data()
 
-    if (this.model.end != null)
-      this._arrow_head(ctx, "render", this.model.end, start, end)
-    if (this.model.start != null)
-      this._arrow_head(ctx, "render", this.model.start, end, start)
+    if (this.end != null)
+      this._arrow_head(ctx, "render", this.end, start, end)
+    if (this.start != null)
+      this._arrow_head(ctx, "render", this.start, end, start)
 
     // Next we call .clip on all the arrow heads, inside an initial canvas sized
     // rect, to create an "inverted" clip region for the arrow heads
     ctx.beginPath()
     const {x, y, width, height} = this.plot_view.frame.bbox
     ctx.rect(x, y, width, height)
-    if (this.model.end != null)
-      this._arrow_head(ctx, "clip", this.model.end, start, end)
-    if (this.model.start != null)
-      this._arrow_head(ctx, "clip", this.model.start, end, start)
+    if (this.end != null)
+      this._arrow_head(ctx, "clip", this.end, start, end)
+    if (this.start != null)
+      this._arrow_head(ctx, "clip", this.start, end, start)
     ctx.closePath()
     ctx.clip()
 
@@ -95,7 +115,7 @@ export class ArrowView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _arrow_head(ctx: Context2d, action: "render" | "clip", head: ArrowHead, start: Coords, end: Coords): void {
+  protected _arrow_head(ctx: Context2d, action: "render" | "clip", head: ArrowHeadView, start: Coords, end: Coords): void {
     for (let i = 0, _end = this._x_start.length; i < _end; i++) {
       // arrow head runs orthogonal to arrow body
       const angle = Math.PI/2 + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]])
@@ -146,7 +166,7 @@ export namespace Arrow {
 
   export type Mixins = LineVector
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.LineVector}
 }
 
 export interface Arrow extends Arrow.Attrs {}

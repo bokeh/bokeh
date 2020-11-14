@@ -56,7 +56,6 @@ class SomeModel extends Model {
   }
 
   static init_SomeModel(): void {
-
     this.define<SomeModel.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -83,7 +82,6 @@ class SomeModelWithChildren extends Model {
   }
 
   static init_SomeModelWithChildren(): void {
-
     this.define<SomeModelWithChildren.Props>(({Array, Ref}) => ({
       children: [ Array(Ref(Model)), [] ],
     }))
@@ -116,7 +114,6 @@ class ModelWithConstructTimeChanges extends Model {
   }
 
   static init_ModelWithConstructTimeChanges(): void {
-
     this.define<ModelWithConstructTimeChanges.Props>(({Number, Ref, Nullable}) => ({
       foo:   [ Number, 2 ],
       child: [ Nullable(Ref(Model)), null ],
@@ -148,13 +145,12 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
   initialize(): void {
     super.initialize()
     this.list_prop = [new AnotherModel()]
-    this.dict_prop = { foo: new AnotherModel() }
+    this.dict_prop = {foo: new AnotherModel()}
     this.obj_prop = new ModelWithConstructTimeChanges()
-    this.dict_of_list_prop = { foo: [new AnotherModel()] }
+    this.dict_of_list_prop = {foo: [new AnotherModel()]}
   }
 
   static init_ComplicatedModelWithConstructTimeChanges(): void {
-
     this.define<ComplicatedModelWithConstructTimeChanges.Props>(({Array, Dict, Ref}) => ({
       list_prop:         [ Array(Ref(AnotherModel)) ],
       dict_prop:         [ Dict(Ref(AnotherModel)) ],
@@ -167,7 +163,6 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 
 describe("Document", () => {
-
   let date_stub: sinon.SinonStub
 
   before_each(() => {
@@ -281,7 +276,7 @@ describe("Document", () => {
     expect(d._all_models.size).to.be.equal(0)
     const m = new SomeModelWithChildren()
     const m3 = new AnotherModel()
-    const m2 = new SomeModel({ child: m3 })
+    const m2 = new SomeModel({child: m3})
     m.children = [m2]
     expect(m.children).to.be.equal([ m2 ])
 
@@ -317,8 +312,8 @@ describe("Document", () => {
 
   it("lets us get_model_by_name", () => {
     const d = new Document()
-    const m = new SomeModel({ name: "foo" })
-    const m2 = new AnotherModel({ name: "bar" })
+    const m = new SomeModel({name: "foo"})
+    const m2 = new AnotherModel({name: "bar"})
     m.child = m2
     d.add_root(m)
     expect(d.get_model_by_name(m.name!)).to.be.equal(m)
@@ -328,7 +323,7 @@ describe("Document", () => {
 
   it("lets us get_model_by_name after changing name", () => {
     const d = new Document()
-    const m = new SomeModel({ name: "foo" })
+    const m = new SomeModel({name: "foo"})
     d.add_root(m)
     expect(d.get_model_by_name("foo")).to.be.equal(m)
     expect(d.get_model_by_name("bar")).to.be.null
@@ -339,8 +334,8 @@ describe("Document", () => {
 
   it("throws on get_model_by_name with duplicate name", () => {
     const d = new Document()
-    const m = new SomeModel({ name: "foo" })
-    const m2 = new AnotherModel({ name: "foo" })
+    const m = new SomeModel({name: "foo"})
+    const m2 = new AnotherModel({name: "foo"})
     d.add_root(m)
     d.add_root(m2)
     expect(() => d.get_model_by_name('foo')).to.throw(Error, /Multiple models/)
@@ -533,7 +528,7 @@ describe("Document", () => {
     const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
-    const m = new AnotherModel({bar:1})
+    const m = new AnotherModel({bar: 1})
     d.add_root(m)
     expect(d.roots().length).to.be.equal(1)
     expect(events.length).to.be.equal(1)
@@ -541,7 +536,7 @@ describe("Document", () => {
     const event0 = events[0] as ev.RootAddedEvent
     expect(event0.model).to.be.equal(m)
 
-    const m2 = new AnotherModel({bar:2})
+    const m2 = new AnotherModel({bar: 2})
     d.add_root(m2)
     expect(d.roots().length).to.be.equal(2)
     expect(events.length).to.be.equal(2)
@@ -742,9 +737,9 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
 
-    const root1 = new SomeModel({ foo: 42 })
-    const root2 = new SomeModel({ foo: 43 })
-    const child1 = new SomeModel({ foo: 44 })
+    const root1 = new SomeModel({foo: 42})
+    const root2 = new SomeModel({foo: 43})
+    const child1 = new SomeModel({foo: 44})
     root1.child = child1
     root2.child = child1
     d.add_root(root1)
@@ -769,11 +764,11 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
 
-    const root1 = new SomeModel({ foo: 42 })
-    const root2 = new SomeModel({ foo: 43 })
-    const child1 = new SomeModel({ foo: 44 })
-    const child2 = new SomeModel({ foo: 45 })
-    const child3 = new SomeModel({ foo: 46, child: child2})
+    const root1 = new SomeModel({foo: 42})
+    const root2 = new SomeModel({foo: 43})
+    const child1 = new SomeModel({foo: 44})
+    const child2 = new SomeModel({foo: 45})
+    const child3 = new SomeModel({foo: 46, child: child2})
     root1.child = child1
     root2.child = child1
     d.add_root(root1)
@@ -815,13 +810,13 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
 
-    const root1 = new SomeModel({ foo: 42 })
-    const child1 = new SomeModel({ foo: 43 })
+    const root1 = new SomeModel({foo: 42})
+    const child1 = new SomeModel({foo: 43})
     root1.child = child1
     d.add_root(root1)
     expect(d.roots().length).to.be.equal(1)
 
-    const child2 = new SomeModel({ foo: 44 })
+    const child2 = new SomeModel({foo: 44})
 
     const event1 = new ev.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
     const event2 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child2)
@@ -839,8 +834,8 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
 
-    const root1 = new SomeModel({ foo: 42 })
-    const child1 = new SomeModel({ foo: 44 })
+    const root1 = new SomeModel({foo: 42})
+    const child1 = new SomeModel({foo: 44})
     d.add_root(root1)
     expect(d.roots().length).to.be.equal(1)
 
@@ -928,10 +923,10 @@ describe("Document", () => {
     const serialized_values = {
       name: 'foo',
       tags: ['bar'],
-      list_prop: [new AnotherModel({ bar: 42 })],
-      dict_prop: { foo: new AnotherModel({ bar: 43 }) },
+      list_prop: [new AnotherModel({bar: 42})],
+      dict_prop: {foo: new AnotherModel({bar: 43})},
       obj_prop: new ModelWithConstructTimeChanges(),
-      dict_of_list_prop: { foo: [new AnotherModel({ bar: 44 })] },
+      dict_of_list_prop: {foo: [new AnotherModel({bar: 44})]},
     }
     root1.setv(serialized_values)
 

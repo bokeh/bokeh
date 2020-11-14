@@ -1,3 +1,4 @@
 Plot bbox=[0, 0, 300, 300]
-  LinearAxis bbox=[25, 275, 270, 25]
-  LinearAxis bbox=[0, 5, 25, 270]
+  LinearAxis bbox=[25, 232, 270, 25]
+  ColorBar bbox=[25, 257, 270, 43]
+  LinearAxis bbox=[0, 5, 25, 227]

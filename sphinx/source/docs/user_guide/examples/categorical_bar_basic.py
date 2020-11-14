@@ -6,7 +6,7 @@ output_file("bars.html")
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 counts = [5, 3, 4, 2, 4, 6]
 
-p = figure(x_range=fruits, plot_height=250, title="Fruit Counts",
+p = figure(x_range=fruits, plot_height=250, title="Fruit counts",
            toolbar_location=None, tools="")
 
 p.vbar(x=fruits, top=counts, width=0.9)

@@ -1,6 +1,5 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
@@ -14,16 +13,6 @@ export interface EllipseOvalView extends EllipseOvalData {}
 export abstract class EllipseOvalView extends CenterRotatableView  {
   model: EllipseOval
   visuals: EllipseOval.Visuals
-
-  protected _set_data(): void {
-    this.max_w2 = 0
-    if (this.model.properties.width.units == "data")
-      this.max_w2 = this.max_width/2
-
-    this.max_h2 = 0
-    if (this.model.properties.height.units == "data")
-      this.max_h2 = this.max_height/2
-  }
 
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
@@ -118,21 +107,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
 
     this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
   }
-
-  protected _bounds({x0, x1, y0, y1}: Rect): Rect {
-    return {
-      x0: x0 - this.max_w2,
-      x1: x1 + this.max_w2,
-      y0: y0 - this.max_h2,
-      y1: y1 + this.max_h2,
-    }
-  }
 }
 
 export namespace EllipseOval {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = CenterRotatable.Props & LineVector & FillVector
+  export type Props = CenterRotatable.Props
 
   export type Visuals = CenterRotatable.Visuals
 }

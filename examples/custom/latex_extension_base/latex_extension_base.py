@@ -8,9 +8,8 @@ from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, output_file, show
 from latex_label import LatexLabel
 
-build("latex_label")
-
-
+if not build("latex_label"):
+    raise RuntimeError("unable to build latex_label extension")
 
 output_file('latex_extension.html')
 

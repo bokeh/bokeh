@@ -42,9 +42,15 @@ from .checks import (
 from .credentials import (
     verify_anaconda_credentials,
     verify_aws_credentials,
-    verify_github_credentials,
+    verify_google_credentials,
     verify_npm_credentials,
     verify_pypi_credentials,
+)
+from .deploy import (
+    publish_conda_package,
+    publish_documentation,
+    publish_pip_package,
+    unpack_deployment_tarball,
 )
 from .git import (
     checkout_base_branch,
@@ -57,11 +63,17 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .publish import publish_bokehjs_to_cdn, upload_deployment_tarball
+from .remote import (
+    download_deployment_tarball,
+    publish_bokehjs_to_cdn,
+    upload_deployment_tarball,
+)
 
 __all__ = (
     "BUILD_CHECKS",
     "BUILD_STEPS",
+    "DEPLOY_CHECKS",
+    "DEPLOY_STEPS",
 )
 
 StepListType = Tuple[StepType, ...]
@@ -77,10 +89,10 @@ BUILD_CHECKS: StepListType = (
     check_release_tag_is_available,
     check_version_order,
     check_release_notes_present,
-    verify_github_credentials,
     check_milestone_labels,
     check_staging_branch_is_available,
     verify_aws_credentials,
+    verify_google_credentials,
 )
 
 BUILD_STEPS: StepListType = (
@@ -107,7 +119,7 @@ BUILD_STEPS: StepListType = (
     delete_staging_branch,
 )
 
-PUBLISH_CHECKS: StepListType = (
+DEPLOY_CHECKS: StepListType = (
     check_aws_present,
     check_anaconda_present,
     check_git_present,
@@ -115,7 +127,15 @@ PUBLISH_CHECKS: StepListType = (
     check_twine_present,
     verify_anaconda_credentials,
     verify_aws_credentials,
-    verify_github_credentials,
     verify_npm_credentials,
     verify_pypi_credentials,
+)
+
+DEPLOY_STEPS: StepListType = (
+    download_deployment_tarball,
+    unpack_deployment_tarball,
+    publish_conda_package,
+    publish_pip_package,
+    publish_documentation,
+    unpack_deployment_tarball,
 )

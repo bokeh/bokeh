@@ -3,7 +3,7 @@ import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
-import {compute_renderers, RendererSpec} from "../util"
+import {compute_renderers} from "../../util"
 import * as p from "core/properties"
 import {KeyEvent, UIEvent} from "core/ui_events"
 import {SelectionMode} from "core/enums"
@@ -23,9 +23,8 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    const renderers = this.model.renderers
+    const {renderers, names} = this.model
     const all_renderers = this.plot_model.data_renderers
-    const names = this.model.names
     return compute_renderers(renderers, all_renderers, names)
   }
 
@@ -142,7 +141,8 @@ export namespace SelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    renderers: p.Property<RendererSpec>
+    renderers: p.Property<DataRenderer[] | "auto">
+    /** @deprecated */
     names: p.Property<string[]>
     mode: p.Property<SelectionMode>
   }
@@ -166,8 +166,8 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static init_SelectTool(): void {
-    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto, Null}) => ({
-      renderers: [ Or(Array(Ref(DataRenderer)), Auto, Null), "auto" ],
+    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
+      renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
       names:     [ Array(String), [] ],
       mode:      [ SelectionMode, "replace" ],
     }))

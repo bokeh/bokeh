@@ -1,4 +1,4 @@
-import {display, fig, row, column, grid} from "./utils"
+import {display, fig, row, column, grid} from "./_util"
 
 import {Spacer, Tabs, Panel} from "@bokehjs/models/layouts"
 import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
@@ -6,7 +6,7 @@ import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
-import {Matrix} from "@bokehjs/core/util/data_structures"
+import {Matrix} from "@bokehjs/core/util/matrix"
 import {figure, gridplot, color} from "@bokehjs/api/plotting"
 
 const spacer =

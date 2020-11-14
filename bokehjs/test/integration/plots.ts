@@ -1,4 +1,4 @@
-import {display, fig, row} from "./utils"
+import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
 import {Location} from "@bokehjs/core/enums"
@@ -172,7 +172,6 @@ describe("Plot", () => {
       p.circle([1, 2, 3], [1, 40, 900], {size: 10})
       await display(p, [300, 300])
     })
-
   })
 
   it("should allow to resize itself when width changes", async () => {

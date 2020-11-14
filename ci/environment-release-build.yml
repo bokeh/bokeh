@@ -1,0 +1,40 @@
+name: bk-release-build
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+
+  # runtime
+  - jinja2 >=2.7
+  - numpy >=1.11.3
+  - packaging >=16.8
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado >=5
+  - typing_extensions >=3.7.4
+
+  # build
+  - boto
+  - colorama
+  - conda-build=3.20.5
+  - conda-verify=3.4.2
+  - nodejs>=10.13
+  - ripgrep=0.10.0
+  - setuptools
+  - yaml
+
+  # docs
+  - colorcet
+  - firefox
+  - geckodriver
+  - networkx
+  - pandas
+  - pydot
+  - pygments
+  - scipy
+  - sphinx
+  - sphinx-panels
+  - pip
+  - pip:
+    - sphinxext-opengraph

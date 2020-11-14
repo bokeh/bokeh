@@ -22,5 +22,4 @@ export class ZoomInTool extends ZoomBaseTool {
   sign = 1
   tool_name = "Zoom In"
   icon = bk_tool_icon_zoom_in
-
 }

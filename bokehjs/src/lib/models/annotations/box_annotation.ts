@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import {Signal0} from "core/signaling"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {BBox, CoordinateMapper} from "core/util/bbox"
@@ -127,7 +127,7 @@ export namespace BoxAnnotation {
 
   export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}

@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Enum property.
+""" Provide the Enum property.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -36,14 +36,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Enum(String):
-    ''' Accept values from enumerations.
+    """ Accept values from enumerations.
 
     The first value in enumeration is used as the default value, unless the
     ``default`` keyword argument is used.
 
     See :ref:`bokeh.core.enums` for more information.
 
-    '''
+    """
     def __init__(self, enum, *values, **kwargs):
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
@@ -56,7 +56,9 @@ class Enum(String):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
+        class_name = self.__class__.__name__
+        allowed_values = ", ".join(repr(x) for x in self.allowed_values)
+        return f"{class_name}({allowed_values})"
 
     @property
     def allowed_values(self):
@@ -65,19 +67,22 @@ class Enum(String):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or value in self._enum):
-            msg = "" if not detail else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
-            raise ValueError(msg)
+        if value is None or value in self._enum:
+            return
+
+        msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"
+        raise ValueError(msg)
 
     def _sphinx_type(self):
         # try to return a link to a proper enum in bokeh.core.enums if possible
         if self._enum in enums.__dict__.values():
             for name, obj in enums.__dict__.items():
                 if self._enum is obj:
-                    val = self._sphinx_model_link("%s.%s" % (self._enum.__module__, name))
-        else:
-            val = str(self._enum)
-        return self._sphinx_prop_link() + "( %s )" % val
+                    val = self._sphinx_model_link(f"{self._enum.__module__}.{name}")
+                    return f"{self._sphinx_prop_link()}({val})"
+
+        # otherwise just a basic str name format
+        return f"{self._sphinx_prop_link()}({self._enum})"
 
 #-----------------------------------------------------------------------------
 # Dev API

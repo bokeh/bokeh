@@ -55,5 +55,4 @@ export abstract class RangeTransform extends Transform {
   }
 
   protected abstract _compute(x: number): number
-
 }

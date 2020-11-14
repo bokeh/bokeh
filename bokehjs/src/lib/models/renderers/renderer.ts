@@ -24,7 +24,7 @@ export abstract class RendererView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
     this._initialize_coordinates()
   }
@@ -84,6 +84,10 @@ export abstract class RendererView extends View {
   }
 
   protected abstract _render(): void
+
+  renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
+    return undefined
+  }
 }
 
 export namespace Renderer {
@@ -96,7 +100,7 @@ export namespace Renderer {
     y_range_name: p.Property<string>
   }
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface Renderer extends Renderer.Attrs {}
@@ -111,7 +115,7 @@ export abstract class Renderer extends Model {
 
   static init_Renderer(): void {
     this.define<Renderer.Props>(({Boolean, String}) => ({
-      level:        [ RenderLevel ],
+      level:        [ RenderLevel, "image" ],
       visible:      [ Boolean, true ],
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],

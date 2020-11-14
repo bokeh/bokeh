@@ -1,11 +1,11 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import * as p from "core/properties"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -87,7 +87,7 @@ export class QuadraticView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {
@@ -109,7 +109,7 @@ export namespace Quadratic {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}

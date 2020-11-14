@@ -3,7 +3,6 @@ import {Context2d} from "core/util/canvas"
 import {GlyphView} from "../glyph"
 
 export abstract class BaseGLGlyph {
-
   protected nvertices: number = 0
   protected size_changed: boolean = false
   protected data_changed: boolean = false

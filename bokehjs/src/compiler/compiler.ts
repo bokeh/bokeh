@@ -8,8 +8,8 @@ import {Path} from "./sys"
 import {BuildError} from "./error"
 
 export type CompileConfig = {
-  out_dir?: OutDir
   bokehjs_dir?: Path
+  inputs?(files: Path[]): Inputs
 }
 
 export type Inputs = Map<Path, string>
@@ -157,27 +157,18 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
 }
 
 function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
-  const preconfigure: ts.CompilerOptions = (() => {
-    const {out_dir} = config
-    if (out_dir != null) {
-      if (typeof out_dir == "string")
-        return {outDir: out_dir}
-      else
-        return {outDir: out_dir.js, declarationDir: out_dir.dts, declaration: true}
-    } else
-      return {}
-  })()
-
-  const tsconfig = read_tsconfig(tsconfig_path, preconfigure)
+  const tsconfig = read_tsconfig(tsconfig_path)
   if (is_failed(tsconfig))
     return {diagnostics: tsconfig.diagnostics}
 
   const {files, options} = tsconfig
 
   const transformers = default_transformers(tsconfig.options)
-  const host = compiler_host(new Map(), options, config.bokehjs_dir)
+  const inputs = config.inputs?.(files) ?? new Map()
+  const host = compiler_host(inputs, options, config.bokehjs_dir)
 
-  return compile_files(files, options, transformers, host)
+  const input_files = [...inputs.keys(), ...files]
+  return compile_files(input_files, options, transformers, host)
 }
 
 export function compile_typescript(tsconfig_path: Path, config: CompileConfig = {}): void {

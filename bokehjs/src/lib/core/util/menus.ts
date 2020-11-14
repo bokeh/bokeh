@@ -22,7 +22,6 @@ export type MenuOptions = {
 }
 
 export class ContextMenu {
-
   readonly el: HTMLElement = div()
   protected _open: boolean = false
 

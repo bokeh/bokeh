@@ -169,7 +169,6 @@ abstract class AbstractBaseSliderView extends ControlView {
 }
 
 export abstract class AbstractSliderView extends AbstractBaseSliderView {
-
   protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
@@ -188,7 +187,6 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView {
 }
 
 export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
-
   protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,

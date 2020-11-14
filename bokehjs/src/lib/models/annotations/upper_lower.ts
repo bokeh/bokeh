@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {Arrayable} from "core/types"
-import {Dimension} from "core/enums"
+import {Dimension, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends AnnotationView {
@@ -12,10 +12,6 @@ export abstract class UpperLowerView extends AnnotationView {
   protected _lower: Arrayable<number>
   protected _upper: Arrayable<number>
   protected _base:  Arrayable<number>
-
-  protected max_lower: number
-  protected max_upper: number
-  protected max_base:  number
 
   protected _lower_sx: Arrayable<number>
   protected _lower_sy: Arrayable<number>
@@ -29,7 +25,6 @@ export abstract class UpperLowerView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.visuals.warm_cache(source)
     this.plot_view.request_render()
   }
 
@@ -59,7 +54,7 @@ export abstract class UpperLowerView extends AnnotationView {
       _upper_sx = limit_view.v_compute(this._upper)
 
     let _base_sx
-    if (this.model.properties.base.units  == "data")
+    if (this.model.properties.base.units == "data")
       _base_sx  = base_scale.v_compute(this._base)
     else
       _base_sx  = base_view.v_compute(this._base)
@@ -77,14 +72,29 @@ export abstract class UpperLowerView extends AnnotationView {
   }
 }
 
+export class XOrYCoordinateSpec extends p.CoordinateSpec {
+  readonly obj: UpperLower
+
+  spec: p.Spec & {units: SpatialUnits}
+
+  get dimension(): "x" | "y" {
+    return this.obj.dimension == "width" ? "x" : "y"
+  }
+
+  // XXX: a hack to make a coordinate & unit spec
+  get units(): SpatialUnits {
+    return this.spec.units ?? "data"
+  }
+}
+
 export namespace UpperLower {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    lower: p.DistanceSpec
-    upper: p.DistanceSpec
-    base: p.DistanceSpec
     dimension: p.Property<Dimension>
+    lower: XOrYCoordinateSpec
+    upper: XOrYCoordinateSpec
+    base: XOrYCoordinateSpec
     source: p.Property<ColumnarDataSource>
   }
 
@@ -102,10 +112,10 @@ export class UpperLower extends Annotation {
 
   static init_UpperLower(): void {
     this.define<UpperLower.Props>(({Ref}) => ({
-      lower:     [ p.DistanceSpec ],
-      upper:     [ p.DistanceSpec ],
-      base:      [ p.DistanceSpec ],
       dimension: [ Dimension, "height" ],
+      lower:     [ XOrYCoordinateSpec, {field: "lower"} ],
+      upper:     [ XOrYCoordinateSpec, {field: "upper"} ],
+      base:      [ XOrYCoordinateSpec, {field: "base"} ],
       source:    [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
     }))
   }

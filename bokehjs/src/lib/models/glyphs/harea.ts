@@ -53,14 +53,12 @@ export class HAreaView extends AreaView {
   }
 
   protected _render(ctx: Context2d, _indices: number[], {sx1, sx2, sy}: HAreaData): void {
-
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner(ctx, sx1, sx2, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
-
+    this.visuals.hatch.doit2(ctx, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

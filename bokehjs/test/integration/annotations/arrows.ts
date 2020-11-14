@@ -1,4 +1,4 @@
-import {display, fig, row, column} from "../utils"
+import {display, fig, row, column} from "../_util"
 
 import {Arrow, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
 import {OutputBackend} from "@bokehjs/core/enums"

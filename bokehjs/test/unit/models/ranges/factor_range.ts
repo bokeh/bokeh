@@ -1136,7 +1136,7 @@ describe("factor_range module", () => {
       })
 
       it("should update start/end when changed", () => {
-        const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']], group_padding: 0, subgroup_padding: 0, range_padding:0.1})
+        const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']], group_padding: 0, subgroup_padding: 0, range_padding: 0.1})
         expect(r.start).to.be.equal(-0.2)
         expect(r.end).to.be.equal(4.2)
 

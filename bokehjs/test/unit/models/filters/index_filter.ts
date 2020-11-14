@@ -4,7 +4,6 @@ import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("IndexFilter", () => {
-
   const cds = new ColumnDataSource({
     data: {
       x: ["a", "a", "b", "b", "b"],

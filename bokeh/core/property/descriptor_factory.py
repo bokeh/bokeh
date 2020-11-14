@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a Base class for all Bokeh properties.
+""" Provide a Base class for all Bokeh properties.
 
 Bokeh properties work by contributing Python descriptor objects to
 ``HasProps`` classes. These descriptors then delegate attribute access back
@@ -43,7 +43,7 @@ details around validation, serialization, and documentation.
     classes or their methods will be applicable to any standard usage or to
     anyone who is not directly developing on Bokeh's own infrastructure.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -72,7 +72,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class PropertyDescriptorFactory:
-    ''' Base class for all Bokeh properties.
+    """ Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"
     portion, such as ``Int``, ``String``, etc., as well as an associated
@@ -103,11 +103,11 @@ class PropertyDescriptorFactory:
         >>> m.foo
         10
 
-    '''
+    """
 
     @classmethod
     def autocreate(cls):
-        ''' Called by the ``MetaHasProps`` metaclass to create a new instance
+        """ Called by the ``MetaHasProps`` metaclass to create a new instance
         of this descriptor when the property is assigned using only the
         property type. For example:
 
@@ -117,11 +117,11 @@ class PropertyDescriptorFactory:
 
                 bar = String   # no parens used here
 
-        '''
+        """
         return cls()
 
     def make_descriptors(self, name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
         Args:
@@ -137,7 +137,7 @@ class PropertyDescriptorFactory:
         implementing this function to return descriptors specific to their
         needs.
 
-        '''
+        """
         raise NotImplementedError("make_descriptors not implemented")
 
 #-----------------------------------------------------------------------------

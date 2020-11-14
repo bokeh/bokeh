@@ -183,8 +183,8 @@ export class TileRendererView extends RendererView {
       const extent = this.get_extent()
       const zoom_level = this.model.tile_source.get_level_by_extent(extent, this.map_frame.bbox.height, this.map_frame.bbox.width)
       const new_extent = this.model.tile_source.snap_to_zoom_level(extent, this.map_frame.bbox.height, this.map_frame.bbox.width, zoom_level)
-      this.x_range.setv({start:new_extent[0], end: new_extent[2]})
-      this.y_range.setv({start:new_extent[1], end: new_extent[3]})
+      this.x_range.setv({start: new_extent[0], end: new_extent[2]})
+      this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent
       this._last_height = this.map_frame.bbox.height
       this._last_width = this.map_frame.bbox.width
@@ -268,7 +268,7 @@ export class TileRendererView extends RendererView {
   }
 
   protected _prefetch_tiles(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
     const extent = this.get_extent()
     const h = this.map_frame.bbox.height
     const w = this.map_frame.bbox.width
@@ -296,10 +296,10 @@ export class TileRendererView extends RendererView {
   }
 
   protected _update(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
 
-    const { min_zoom } = tile_source
-    const { max_zoom } = tile_source
+    const {min_zoom} = tile_source
+    const {max_zoom} = tile_source
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])

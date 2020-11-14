@@ -1,10 +1,10 @@
-import {display, fig, row, column, grid} from "./utils"
+import {display, fig, row, column, grid} from "./_util"
 
 import {linspace} from "@bokehjs/core/util/array"
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem,
+  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
-  ColumnDataSource, CDSView, BooleanFilter, Selection,
+  ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine,
@@ -12,7 +12,7 @@ import {
   Plot,
 } from "@bokehjs/models"
 
-import {MultiChoice, MultiSelect} from "@bokehjs/models/widgets"
+import {Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -22,7 +22,7 @@ import {subsets} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
-import {Matrix} from "@bokehjs/core/util/data_structures"
+import {Matrix} from "@bokehjs/core/util/matrix"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
 
 const n_marker_types = [...MarkerType].length
@@ -223,6 +223,51 @@ describe("Bug", () => {
       }
 
       await display(p, [200, 300])
+    })
+  })
+
+  describe("in issue #10575", () => {
+    const factors: Factor[] = [
+      ["A", "01", "AA"], ["A", "01", "AB"], ["A", "01", "AC"], ["A", "01", "AD"], ["A", "01", "AE"],
+      ["B", "02", "AA"], ["B", "02", "AB"], ["B", "02", "AC"], ["B", "02", "AD"], ["B", "02", "AE"],
+    ]
+
+    it("disallows rendering Whisker annotation with a categorical x-range", async () => {
+      const random = new Random(1)
+
+      const x = factors
+      const y = random.floats(factors.length)
+      const upper = y.map((yi) => yi + random.float())
+      const lower = y.map((yi) => yi - random.float())
+
+      const source = new ColumnDataSource({data: {x, y, lower, upper}})
+      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+
+      const x_range = new FactorRange({factors})
+      const p = fig([400, 200], {x_range})
+      p.circle({source})
+      p.add_layout(whisker)
+
+      await display(p, [450, 250])
+    })
+
+    it("disallows rendering Whisker annotation with a categorical y-range", async () => {
+      const random = new Random(1)
+
+      const x = random.floats(factors.length)
+      const y = factors
+      const upper = x.map((xi) => xi + random.float())
+      const lower = x.map((xi) => xi - random.float())
+
+      const source = new ColumnDataSource({data: {x, y, lower, upper}})
+      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+
+      const y_range = new FactorRange({factors})
+      const p = fig([200, 400], {y_range})
+      p.circle({source})
+      p.add_layout(whisker)
+
+      await display(p, [250, 450])
     })
   })
 
@@ -587,6 +632,52 @@ describe("Bug", () => {
       })
       const {view} = await display(box, [600, 300])
       box.cols = {0: 100, 1: 500}
+      await view.ready
+    })
+  })
+
+  describe("in issue #10541", () => {
+    it("prevents Slope with gradient=0", async () => {
+
+      const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
+
+      for (const gradient of [1, -1, 0, 2, -0.5]){
+        const s = new Slope({gradient, y_intercept: -1})
+        p.add_layout(s)
+      }
+
+      await display(p, [250, 250])
+    })
+  })
+
+  describe("in issue #10589", () => {
+    it("prevents correctly filtering out indices when using MultiLine glyph", async () => {
+      const source = new ColumnDataSource({data: {
+        xs: [[0, 0], [1, 1], [2, 2]],
+        ys: [[0, 1], [0, 1], [0, 1]],
+      }})
+      const filter = new IndexFilter({indices: [0, 2]})
+      const view = new CDSView({source, filters: [filter]})
+
+      const p = fig([200, 200])
+      p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
+
+      await display(p, [250, 250])
+    })
+  })
+
+  describe("in issue #10407", () => {
+    it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
+      const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})
+      const {view} = await display(widget, [250, 100])
+      widget.options = ["1", "2"]
+      await view.ready
+    })
+
+    it.allowing(2)("displays out-of-range value in Select widget when options change", async () => {
+      const widget = new Select({options: ["1", "2", "3"], value: "3", width: 200})
+      const {view} = await display(widget, [250, 100])
+      widget.options = ["1", "2"]
       await view.ready
     })
   })

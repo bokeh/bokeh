@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh enumerations
+# -----------------------------------------------------------------------------
+""" Thoroughly document Bokeh enumerations
 
 The ``bokeh-enum`` directive generates useful documentation for enumerations,
 including all the allowable values. If the number of values is large, the full
@@ -39,17 +39,18 @@ the same output above will be generated directly from the following code:
     #: Specify a baz style
     baz = enumeration("a", "b", "c")
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib
@@ -63,71 +64,70 @@ from sphinx.errors import SphinxError
 from .bokeh_directive import BokehDirective
 from .templates import ENUM_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehEnumDirective',
-    'setup',
+    "BokehEnumDirective",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehEnumDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
     option_spec = {
-        'module': unchanged,
-        'noindex': lambda x: True, # directives.flag weirdly returns None
+        "module": unchanged,
+        "noindex": lambda x: True,  # directives.flag weirdly returns None
     }
 
     def run(self):
-        name = self.arguments[0]
+        enum_name = self.arguments[0]
+        module_name = self.options["module"]
 
         try:
-            module = importlib.import_module(self.options['module'])
+            module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Could not generate reference docs for %r: could not import module %r" % (self.arguments[0], self.options['module']))
+            raise SphinxError(f"Could not generate reference docs for {enum_name!r}: could not import module {module_name}")
 
-        enum = getattr(module, name, None)
+        enum = getattr(module, enum_name, None)
 
         fullrepr = repr(enum)
         if len(fullrepr) > 180:
-            shortrepr = fullrepr[:40] + " .... " + fullrepr[-40:]
+            shortrepr = f"{fullrepr[:40]} .... {fullrepr[-40:]}"
             fullrepr = _wrapper.wrap(fullrepr)
         else:
             shortrepr = fullrepr
             fullrepr = None
 
         rst_text = ENUM_DETAIL.render(
-            name=name,
-            module=self.options['module'],
-            noindex=self.options.get('noindex', False),
-            content=self.content,
-            shortrepr=shortrepr,
-            fullrepr=fullrepr,
+            name=enum_name, module=self.options["module"], noindex=self.options.get("noindex", False), content=self.content, shortrepr=shortrepr, fullrepr=fullrepr,
         )
 
         return self._parse(rst_text, "<bokeh-enum>")
 
+
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.add_directive_to_domain('py', 'bokeh-enum', BokehEnumDirective)
+    """ Required Sphinx extension setup function. """
+    app.add_directive_to_domain("py", "bokeh-enum", BokehEnumDirective)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-_wrapper = textwrap.TextWrapper(subsequent_indent='    ')
+_wrapper = textwrap.TextWrapper(subsequent_indent="    ")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -20,33 +20,33 @@ describe("Toolbar", () => {
     })
 
     it("should set inspect tools as array on Toolbar.inspector property", () => {
-      const toolbar = new Toolbar({tools:[hover_1, hover_2, hover_3]})
+      const toolbar = new Toolbar({tools: [hover_1, hover_2, hover_3]})
       expect(toolbar.inspectors).to.be.equal([hover_1, hover_2, hover_3])
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {
-      new Toolbar({tools:[hover_1, hover_2, hover_3], active_inspect: 'auto'})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: 'auto'})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.true
     })
 
     it("should have arg inspect tool active when active_inspect=tool instance", () => {
-      new Toolbar({tools:[hover_1, hover_2, hover_3], active_inspect: hover_1})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: hover_1})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
     })
 
     it("should have args inspect tools active when active_inspect=Array(tools)", () => {
-      new Toolbar({tools:[hover_1, hover_2, hover_3], active_inspect: [hover_1, hover_2]})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: [hover_1, hover_2]})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.false
     })
 
     it("should have none inspect tools active when active_inspect=null)", () => {
-      new Toolbar({tools:[hover_1, hover_2, hover_3], active_inspect: null})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: null})
       expect(hover_1.active).to.be.false
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
@@ -76,21 +76,21 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
 
     it("should have multi inactive after initialization", () => {
-      new Toolbar({tools:[multi, tap, pan]})
+      new Toolbar({tools: [multi, tap, pan]})
       expect(multi.active).to.be.false
       expect(pan.active).to.be.true
       expect(tap.active).to.be.true
     })
 
     it("should have multi active if active_tap", () => {
-      new Toolbar({tools:[multi, tap, pan], active_tap: multi})
+      new Toolbar({tools: [multi, tap, pan], active_tap: multi})
       expect(multi.active).to.be.true
       expect(pan.active).to.be.false
       expect(tap.active).to.be.false
     })
 
     it("should have gestures inactive after toggling multi active", () => {
-      new Toolbar({tools:[multi, tap, pan]})
+      new Toolbar({tools: [multi, tap, pan]})
       expect(multi.active).to.be.false
       expect(pan.active).to.be.true
       expect(tap.active).to.be.true
@@ -101,7 +101,7 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
 
     it("should have multi inactive after toggling tap active", () => {
-      new Toolbar({tools:[multi, tap], active_tap: multi})
+      new Toolbar({tools: [multi, tap], active_tap: multi})
       expect(multi.active).to.be.true
       expect(tap.active).to.be.false
       tap.active = true
@@ -110,7 +110,7 @@ describe("Toolbar Multi Gesture Tool", () => {
     })
 
     it("should have multi inactive after toggling pan active", () => {
-      new Toolbar({tools:[multi, pan], active_drag: multi})
+      new Toolbar({tools: [multi, pan], active_drag: multi})
       expect(multi.active).to.be.true
       expect(pan.active).to.be.false
       pan.active = true

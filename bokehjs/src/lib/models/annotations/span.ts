@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import * as p from "core/properties"
 import {CoordinateMapper} from "core/util/bbox"
@@ -76,7 +76,7 @@ export namespace Span {
 
   export type Mixins = mixins.Line/*Scalar*/
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Span extends Span.Attrs {}
