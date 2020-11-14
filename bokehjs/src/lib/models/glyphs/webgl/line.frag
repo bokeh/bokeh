@@ -1,4 +1,3 @@
-export const fragment_shader: string = `
 precision mediump float;
 
 const float PI = 3.14159265358979323846264;
@@ -314,4 +313,3 @@ void main()
         gl_FragColor = vec4(color.rgb, exp(-d*d)*color.a);
     }
 }
-`

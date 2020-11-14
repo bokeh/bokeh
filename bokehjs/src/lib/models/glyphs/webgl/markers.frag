@@ -1,7 +1,21 @@
-export const fragment_shader = (marker_code: string): string => `
 precision mediump float;
+
 const float SQRT_2 = 1.4142135623730951;
 const float PI = 3.14159265358979323846264;
+
+// asterisk
+float marker(vec2 P, float size)
+{
+    // Masks
+    float diamond = max(abs(SQRT_2 / 2.0 * (P.x - P.y)), abs(SQRT_2 / 2.0 * (P.x + P.y))) - size / (2.0 * SQRT_2);
+    float square = max(abs(P.x), abs(P.y)) - size / (2.0 * SQRT_2);
+    // Shapes
+    float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
+    float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
+    // Result is union of masked shapes
+    return min(max(X, diamond), max(cross, square));
+}
+
 //
 uniform float u_antialias;
 //
@@ -10,8 +24,6 @@ varying vec4  v_bg_color;
 varying float v_linewidth;
 varying float v_size;
 varying vec2  v_rotation;
-
-${marker_code}
 
 vec4 outline(float distance, float linewidth, float antialias, vec4 fg_color, vec4 bg_color)
 {
@@ -53,23 +65,21 @@ void main()
     float distance = marker(P*point_size, v_size);
     gl_FragColor = outline(distance, v_linewidth, u_antialias, v_fg_color, v_bg_color);
 }
-`
 
-export const circle = `
+/*
+// circle
 float marker(vec2 P, float size)
 {
     return length(P) - size/2.0;
 }
-`
 
-export const square = `
+// square
 float marker(vec2 P, float size)
 {
     return max(abs(P.x), abs(P.y)) - size/2.0;
 }
-`
 
-export const diamond = `
+// diamond
 float marker(vec2 P, float size)
 {
     float x = SQRT_2 / 2.0 * (P.x * 1.5 - P.y);
@@ -77,17 +87,15 @@ float marker(vec2 P, float size)
     float r1 = max(abs(x), abs(y)) - size / (2.0 * SQRT_2);
     return r1 / SQRT_2;
 }
-`
 
-export const hex = `
+// hex
 float marker(vec2 P, float size)
 {
     vec2 q = abs(P);
     return max(q.y * 0.57735 + q.x - 1.0 * size/2.0, q.y - 0.866 * size/2.0);
 }
-`
 
-export const triangle = `
+// triangle
 float marker(vec2 P, float size)
 {
     P.y -= size * 0.3;
@@ -97,9 +105,8 @@ float marker(vec2 P, float size)
     float r2 = P.y;
     return max(r1 / SQRT_2, r2);  // Intersect diamond with rectangle
 }
-`
 
-export const invertedtriangle = `
+// invertedtriangle
 float marker(vec2 P, float size)
 {
     P.y += size * 0.3;
@@ -109,18 +116,16 @@ float marker(vec2 P, float size)
     float r2 = - P.y;
     return max(r1 / SQRT_2, r2);  // Intersect diamond with rectangle
 }
-`
 
-export const cross = `
+// cross
 float marker(vec2 P, float size)
 {
     float square = max(abs(P.x), abs(P.y)) - size / 2.5;   // 2.5 is a tweak
     float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
     return max(square, cross);
 }
-`
 
-export const circlecross = `
+// circlecross
 float marker(vec2 P, float size)
 {
     // Define quadrants
@@ -138,9 +143,8 @@ float marker(vec2 P, float size)
     // Union
     return min(min(min(c1, c2), c3), c4);
 }
-`
 
-export const squarecross = `
+// squarecross
 float marker(vec2 P, float size)
 {
     // Define quadrants
@@ -158,9 +162,8 @@ float marker(vec2 P, float size)
     // Union
     return min(min(min(c1, c2), c3), c4);
 }
-`
 
-export const diamondcross = `
+// diamondcross
 float marker(vec2 P, float size)
 {
     // Define quadrants
@@ -181,18 +184,16 @@ float marker(vec2 P, float size)
     // Union
     return min(min(min(c1, c2), c3), c4);
 }
-`
 
-export const x = `
+// x
 float marker(vec2 P, float size)
 {
     float circle = length(P) - size / 1.6;
     float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
     return max(circle, X);
 }
-`
 
-export const circlex = `
+// circlex
 float marker(vec2 P, float size)
 {
     float x = P.x - P.y;
@@ -216,9 +217,8 @@ float marker(vec2 P, float size)
     float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
     return min(max(X, Xmask), almost);
 }
-`
 
-export const squarex = `
+// squarex
 float marker(vec2 P, float size)
 {
     float x = P.x - P.y;
@@ -238,18 +238,4 @@ float marker(vec2 P, float size)
     // Union
     return min(min(min(c1, c2), c3), c4);
 }
-`
-
-export const asterisk = `
-float marker(vec2 P, float size)
-{
-    // Masks
-    float diamond = max(abs(SQRT_2 / 2.0 * (P.x - P.y)), abs(SQRT_2 / 2.0 * (P.x + P.y))) - size / (2.0 * SQRT_2);
-    float square = max(abs(P.x), abs(P.y)) - size / (2.0 * SQRT_2);
-    // Shapes
-    float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
-    float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
-    // Result is union of masked shapes
-    return min(max(X, diamond), max(cross, square));
-}
-`
+*/
