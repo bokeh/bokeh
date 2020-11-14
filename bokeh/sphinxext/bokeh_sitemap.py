@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Generate a ``sitemap.txt`` to aid with search indexing.
+# -----------------------------------------------------------------------------
+""" Generate a ``sitemap.txt`` to aid with search indexing.
 
 ``sitemap.txt`` is a plain text list of all the pages in the docs site.
 Each URL is listed on a line in the text file. It is machine readable
@@ -14,17 +14,18 @@ All that is required to generate the sitemap is to list this module
 ``bokeh.sphinxext.sitemap`` in the list of extensions in the Sphinx
 configuration file ``conf.py``.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from html import escape
@@ -34,81 +35,81 @@ from os.path import join
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'build_finished',
-    'html_page_context',
-    'setup',
+    "build_finished",
+    "html_page_context",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 def html_page_context(app, pagename, templatename, context, doctree):
-    ''' Collect page names for the sitemap as HTML pages are built.
+    """ Collect page names for the sitemap as HTML pages are built.
 
-    '''
-    site = context['SITEMAP_BASE_URL']
-    version = context['version']
-    app.sitemap_links.add(site + version + '/' + pagename + ".html")
+    """
+    site = context["SITEMAP_BASE_URL"]
+    version = context["version"]
+    app.sitemap_links.add(f"{site}{version}/{pagename}.html")
+
 
 def build_finished(app, exception):
-    ''' Generate a ``sitemap.txt`` from the collected HTML page links.
+    """ Generate a ``sitemap.txt`` from the collected HTML page links.
 
-    '''
+    """
     filename = join(app.outdir, "sitemap.xml")
 
-    links_iter = status_iterator(sorted(app.sitemap_links),
-                                 'adding links to sitemap... ',
-                                 'brown',
-                                 len(app.sitemap_links),
-                                 app.verbosity)
+    links_iter = status_iterator(sorted(app.sitemap_links), "adding links to sitemap... ", "brown", len(app.sitemap_links), app.verbosity)
 
     try:
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write(_header)
             for link in links_iter:
-                f.write(_item % escape(link.strip().replace("https://", "http://")))
+                f.write(_item % escape(link.strip().replace("https://", "http://")))  # TODO (bev) get rid of old style string subsitution
             f.write(_footer)
     except OSError as e:
-        raise SphinxError('cannot write sitemap.txt, reason: %s' % e)
+        raise SphinxError(f"cannot write sitemap.txt, reason: {e}")
+
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.connect('html-page-context', html_page_context)
-    app.connect('build-finished',    build_finished)
+    """ Required Sphinx extension setup function. """
+    app.connect("html-page-context", html_page_context)
+    app.connect("build-finished", build_finished)
     app.sitemap_links = set()
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-_header = '''\
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+_header = """\
 <?xml version="1.0" encoding="UTF-8"?>
 
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-'''
+"""
 
-_item = '''\
+_item = """\
    <url>
       <loc>%s</loc>
    </url>
 
-'''
+"""
 
-_footer = '''\
+_footer = """\
 </urlset>
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

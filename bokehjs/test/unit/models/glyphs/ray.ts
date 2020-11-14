@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {Ray} from "@bokehjs/models/glyphs/ray"
 import {SpatialUnits} from "@bokehjs/core/enums"
 import {NumberArray} from '@bokehjs/core/types'

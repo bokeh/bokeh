@@ -13,6 +13,8 @@ import "es6-symbol/implement"
 
 import "es6-promise/auto"
 
+import "proxy-polyfill"
+
 if (typeof Object.is === "undefined") {
   Object.is = function(a: any, b: any): boolean {
     if (a === b)

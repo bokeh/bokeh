@@ -12,9 +12,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Signal0} from "core/signaling"
 import {build_view, build_views, remove_views} from "core/build_views"
-import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
@@ -30,15 +28,7 @@ import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 import {BBox} from "core/util/bbox"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
-
-export type StateInfo = {
-  range?: RangeInfo
-  selection: Map<DataRenderer, Selection>
-  dimensions: {
-    width: number
-    height: number
-  }
-}
+import {StateInfo, StateManager} from "./state_manager"
 
 export class PlotView extends LayoutDOMView {
   model: Plot
@@ -61,33 +51,39 @@ export class PlotView extends LayoutDOMView {
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
+  protected _state_manager: StateManager
   protected _range_manager: RangeManager
+
+  get state(): StateManager {
+    return this._state_manager
+  }
 
   set invalidate_dataranges(value: boolean) {
     this._range_manager.invalidate_dataranges = value
   }
 
-  state_changed: Signal0<this>
   visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
 
   protected lod_started: boolean
 
-  protected _initial_state_info: StateInfo
-
-  protected state: {
-    history: {type: string, info: StateInfo}[]
-    index: number
-  }
+  protected _initial_state: StateInfo
 
   protected throttled_paint: () => void
-  protected ui_event_bus: UIEvents
 
   computed_renderers: Renderer[]
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    return this.renderer_views.get(renderer)
+    const view = this.renderer_views.get(renderer)
+    if (view == null) {
+      for (const [, renderer_view] of this.renderer_views) {
+        const view = renderer_view.renderer_view(renderer)
+        if (view != null)
+          return view
+      }
+    }
+    return view
   }
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
@@ -142,7 +138,7 @@ export class PlotView extends LayoutDOMView {
 
   reset(): void {
     if (this.model.reset_policy == "standard") {
-      this.clear_state()
+      this.state.clear()
       this.reset_range()
       this.reset_selection()
     }
@@ -150,7 +146,6 @@ export class PlotView extends LayoutDOMView {
   }
 
   remove(): void {
-    this.ui_event_bus.destroy()
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
     this.canvas_view.remove()
@@ -169,18 +164,14 @@ export class PlotView extends LayoutDOMView {
 
     super.initialize()
 
-    this.state_changed = new Signal0(this, "state_changed")
-
     this.lod_started = false
-    this.visuals = new Visuals(this.model) as any // XXX
+    this.visuals = new Visuals(this) as Plot.Visuals
 
-    this._initial_state_info = {
+    this._initial_state = {
       selection: new Map(),               // XXX: initial selection?
       dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
-
-    this.state = {history: [], index: -1}
 
     this.renderer_views = new Map()
     this.tool_views = new Map()
@@ -198,6 +189,7 @@ export class PlotView extends LayoutDOMView {
     )
 
     this._range_manager = new RangeManager(this)
+    this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => this.repaint(), 1000/60)
 
@@ -217,7 +209,7 @@ export class PlotView extends LayoutDOMView {
     await super.lazy_initialize()
 
     this.canvas_view = await build_view(this.canvas, {parent: this})
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
+    this.canvas_view.plot_views = [this]
 
     await this.build_renderer_views()
     await this.build_tool_views()
@@ -244,7 +236,7 @@ export class PlotView extends LayoutDOMView {
 
     this.layout.center_panel = this.frame
     this.layout.center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "fit"}),
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
     })
 
@@ -368,55 +360,9 @@ export class PlotView extends LayoutDOMView {
     return views
   }
 
-  set_cursor(cursor: string = "default"): void {
-    this.canvas_view.el.style.cursor = cursor
-  }
-
   set_toolbar_visibility(visible: boolean): void {
     for (const callback of this.visibility_callbacks)
       callback(visible)
-  }
-
-  push_state(type: string, new_info: Partial<StateInfo>): void {
-    const {history, index} = this.state
-
-    const prev_info = history[index] != null ? history[index].info : {}
-    const info = {...this._initial_state_info, ...prev_info, ...new_info}
-
-    this.state.history = this.state.history.slice(0, this.state.index + 1)
-    this.state.history.push({type, info})
-    this.state.index = this.state.history.length - 1
-
-    this.state_changed.emit()
-  }
-
-  clear_state(): void {
-    this.state = {history: [], index: -1}
-    this.state_changed.emit()
-  }
-
-  can_undo(): boolean {
-    return this.state.index >= 0
-  }
-
-  can_redo(): boolean {
-    return this.state.index < this.state.history.length - 1
-  }
-
-  undo(): void {
-    if (this.can_undo()) {
-      this.state.index -= 1
-      this._do_state_change(this.state.index)
-      this.state_changed.emit()
-    }
-  }
-
-  redo(): void {
-    if (this.can_redo()) {
-      this.state.index += 1
-      this._do_state_change(this.state.index)
-      this.state_changed.emit()
-    }
   }
 
   update_range(range_info: RangeInfo | null, options?: RangeOptions): void {
@@ -429,32 +375,17 @@ export class PlotView extends LayoutDOMView {
     this.update_range(null)
   }
 
-  protected _do_state_change(index: number): void {
-    const info = this.state.history[index] != null ? this.state.history[index].info : this._initial_state_info
-
-    if (info.range != null)
-      this.update_range(info.range)
-
-    if (info.selection != null)
-      this.update_selection(info.selection)
-  }
-
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
-    for (const renderer of this.model.renderers) {
-      if (renderer instanceof DataRenderer) {
-        const {selected} = renderer.selection_manager.source
-        selection.set(renderer, selected)
-      }
+    for (const renderer of this.model.data_renderers) {
+      const {selected} = renderer.selection_manager.source
+      selection.set(renderer, selected)
     }
     return selection
   }
 
   update_selection(selections: Map<DataRenderer, Selection> | null): void {
-    for (const renderer of this.model.renderers) {
-      if (!(renderer instanceof DataRenderer))
-        continue
-
+    for (const renderer of this.model.data_renderers) {
       const ds = renderer.selection_manager.source
       if (selections != null) {
         const selection = selections.get(renderer)
@@ -488,32 +419,39 @@ export class PlotView extends LayoutDOMView {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
   }
 
-  async build_renderer_views(): Promise<void> {
-    this.computed_renderers = []
-
+  protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
-    this.computed_renderers.push(...above, ...below, ...left, ...right, ...center, ...renderers)
+
+    yield* above
+    yield* below
+    yield* left
+    yield* right
+    yield* center
+    yield* renderers
 
     if (this._title != null)
-      this.computed_renderers.push(this._title)
+      yield this._title
 
     if (this._toolbar != null)
-      this.computed_renderers.push(this._toolbar)
+      yield this._toolbar
 
     for (const tool of this.model.toolbar.tools) {
       if (tool.overlay != null)
-        this.computed_renderers.push(tool.overlay)
+        yield tool.overlay
 
-      this.computed_renderers.push(...tool.synthetic_renderers)
+      yield* tool.synthetic_renderers
     }
+  }
 
+  async build_renderer_views(): Promise<void> {
+    this.computed_renderers = [...this._compute_renderers()]
     await build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
   async build_tool_views(): Promise<void> {
     const tool_models = this.model.toolbar.tools
-    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
-    new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
+    const new_tool_views = await build_views(this.tool_views, tool_models, {parent: this})
+    new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
   connect_signals(): void {
@@ -522,10 +460,10 @@ export class PlotView extends LayoutDOMView {
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
     }
 
     const {above, below, left, right, center, renderers} = this.model.properties
@@ -655,7 +593,6 @@ export class PlotView extends LayoutDOMView {
     if (do_primary) {
       primary.prepare()
       this.canvas_view.prepare_webgl(frame_box)
-      this.canvas_view.clear_webgl()
 
       this._map_hook(primary.ctx, frame_box)
       this._paint_empty(primary.ctx, frame_box)
@@ -675,8 +612,8 @@ export class PlotView extends LayoutDOMView {
       overlays.finish()
     }
 
-    if (this._initial_state_info.range == null) {
-      this._initial_state_info.range = this._range_manager.compute_initial() ?? undefined
+    if (this._initial_state.range == null) {
+      this._initial_state.range = this._range_manager.compute_initial() ?? undefined
     }
 
     this._needs_paint = false
@@ -701,7 +638,6 @@ export class PlotView extends LayoutDOMView {
 
       if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
         this.canvas_view.blit_webgl(ctx)
-        this.canvas_view.clear_webgl()
       }
     }
   }

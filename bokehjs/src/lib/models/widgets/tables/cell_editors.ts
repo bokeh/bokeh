@@ -120,7 +120,7 @@ export abstract class CellEditorView extends DOMView {
       }
     }
 
-    return { valid: true, msg: null }
+    return {valid: true, msg: null}
   }
 
   validate(): any {
@@ -358,7 +358,7 @@ export class IntEditorView extends CellEditorView {
 
   validateValue(value: any): any {
     if (isNaN(value))
-      return { valid: false, msg: "Please enter a valid integer" }
+      return {valid: false, msg: "Please enter a valid integer"}
     else
       return super.validateValue(value)
   }
@@ -417,7 +417,7 @@ export class NumberEditorView extends CellEditorView {
 
   validateValue(value: any): any {
     if (isNaN(value))
-      return { valid: false, msg: "Please enter a valid number" }
+      return {valid: false, msg: "Please enter a valid number"}
     else
       return super.validateValue(value)
   }

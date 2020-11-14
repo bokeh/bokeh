@@ -1,4 +1,4 @@
-import {display, fig, row} from "../utils"
+import {display, fig, row} from "../_util"
 
 import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"

@@ -1,2 +1,0 @@
-import "./document"
-import "./events"

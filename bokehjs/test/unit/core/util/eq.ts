@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {is_equal, equals, Equals, Comparator} from "@bokehjs/core/util/eq"
+import {is_equal, equals, Equatable, Comparator} from "@bokehjs/core/util/eq"
 
 describe("core/util/eq module", () => {
   describe("implements is_equal() function", () => {
@@ -132,8 +132,8 @@ describe("core/util/eq module", () => {
     })
   })
 
-  it("that supports Equals interface", () => {
-    class X implements Equals {
+  it("that supports Equatable interface", () => {
+    class X implements Equatable {
       constructor(readonly f: number) {}
 
       [equals](that: this, cmp: Comparator): boolean {

@@ -80,6 +80,11 @@ export class EqHistColorMapper extends ScanningColorMapper {
       if (finite_bins != n)
         logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
     }
+
+    // XXX: should this be guaranteed by the above algorithm?
+    binning[0] = low
+    binning[binning.length-1] = high
+
     return {min: low, max: high, binning}
   }
 }

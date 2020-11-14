@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter} from "path"
+import {join, delimiter, basename, dirname} from "path"
 import os from "os"
 import assert from "assert"
 
@@ -55,34 +55,15 @@ async function find_port(port: number): Promise<number> {
   return port
 }
 
-function mocha(files: string[]): Promise<void> {
-  let args = ["node_modules/mocha/bin/_mocha"]
-
-  if (argv.debug) {
-    if (argv.debug === true)
-      args.unshift("--inspect-brk")
-    else
-      args.unshift(`--inspect-brk=${argv.debug}`)
-  }
-
-  if (argv.k)
-    args.push("--grep", argv.k as string)
-
-  args = args.concat(
-    ["--reporter", (argv.reporter as string | undefined) ?? "spec"],
-    ["--slow", "5s"],
-    ["--exit"],
-    files,
-  )
-
+function node(files: string[]): Promise<void> {
   const env = {
     ...process.env,
     NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
+  const proc = spawn(process.execPath, files, {stdio: "inherit", env})
 
-  process.once('exit',    () => proc.kill())
+  process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
   process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
@@ -93,7 +74,7 @@ function mocha(files: string[]): Promise<void> {
         resolve()
       else {
         const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
-        reject(new BuildError("mocha", `tests ${comment}`))
+        reject(new BuildError("node", `tests ${comment}`))
       }
     })
   })
@@ -103,8 +84,8 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:size", ["test:codebase:compile"], async () => {
-  await mocha(["./build/test/codebase/size.js"])
+task("test:codebase", ["test:codebase:compile"], async () => {
+  await node(["./build/test/codebase/index.js"])
 })
 
 function sys_path(): string {
@@ -253,7 +234,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
       args.unshift(`--inspect-brk=${argv.debug}`)
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit'})
+  const proc = spawn(process.execPath, args, {stdio: "inherit"})
 
   process.once("exit",    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
@@ -294,8 +275,31 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-function compile(name: string) {
-  compile_typescript(`./test/${name}/tsconfig.json`)
+function compile(name: string, options?: {auto_index?: boolean}) {
+  // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
+  const base_dir = `test/${name}`
+
+  compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
+    inputs(files) {
+      const imports = ['export * from "../framework"']
+
+      for (const file of files) {
+        if (file.startsWith(base_dir) && file.endsWith(".ts")) {
+          const name = basename(file, ".ts")
+          if (!name.startsWith("_") && !name.endsWith(".d")) {
+            const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
+            const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
+            imports.push(`import "${module}"`)
+          }
+        }
+      }
+
+      const index = `${base_dir}/index.ts`
+      const source = imports.join("\n")
+
+      return new Map([[index, source]])
+    },
+  })
 }
 
 async function bundle(name: string): Promise<void> {
@@ -317,7 +321,7 @@ async function bundle(name: string): Promise<void> {
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
 }
 
-task("test:compile:unit", async () => compile("unit"))
+task("test:compile:unit", async () => compile("unit", {auto_index: true}))
 const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
 task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
@@ -325,7 +329,7 @@ task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) =>
   return success(undefined)
 })
 
-task("test:compile:integration", async () => compile("integration"))
+task("test:compile:integration", async () => compile("integration", {auto_index: true}))
 const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
 task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
@@ -345,4 +349,4 @@ task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integrati
 task("test:build", ["test:bundle"])
 
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:size", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib"])

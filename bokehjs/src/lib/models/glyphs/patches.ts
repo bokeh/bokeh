@@ -1,12 +1,12 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
 import {Arrayable, Rect, RaggedArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -194,7 +194,7 @@ export class PatchesView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -208,7 +208,7 @@ export namespace Patches {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Patches extends Patches.Attrs {}

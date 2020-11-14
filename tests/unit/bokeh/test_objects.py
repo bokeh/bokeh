@@ -270,7 +270,7 @@ class TestModel:
         json = obj.to_json(include_defaults=True)
         assert 'start_angle' in json
         assert 'start_angle_units' not in json
-        assert dict(units='rad', field='fieldname') == json['start_angle']
+        assert dict(field='fieldname') == json['start_angle']
 
     def test_dataspec_value_in_json(self) -> None:
         from bokeh.models import AnnularWedge
@@ -279,7 +279,7 @@ class TestModel:
         json = obj.to_json(include_defaults=True)
         assert 'start_angle' in json
         assert 'start_angle_units' not in json
-        assert dict(units='rad', value=60) == json['start_angle']
+        assert dict(value=60) == json['start_angle']
 
     def test_list_default(self) -> None:
         class HasListDefault(Model):

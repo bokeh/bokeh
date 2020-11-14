@@ -69,7 +69,7 @@ describe("LinearColorMapper module", () => {
 
     it("Should map data NaN to nan_color value", () => {
       const palette = ["red", "green", "blue"]
-      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette, nan_color: "gray" })
+      const color_mapper = new LinearColorMapper({low: 1, high: 3, palette, nan_color: "gray"})
 
       const vals = color_mapper.v_compute([1, NaN, 3])
       expect(vals).to.be.equal(["red", "gray", "blue"])

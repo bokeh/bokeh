@@ -23,14 +23,14 @@ describe("protocol/message module", () => {
         expect(m.complete()).to.be.true
 
         expect(m.header).to.be.equal({msgid: '10', msgtype: 'FOO'})
-        expect(m.metadata).to.be.equal({bar:2})
-        expect(m.content).to.be.equal({baz:3})
+        expect(m.metadata).to.be.equal({bar: 2})
+        expect(m.content).to.be.equal({baz: 3})
         expect(m.buffers).to.be.equal(new Map())
       })
     })
 
     describe("assemble_buffer method", () => {
-      const m = Message.create("FOO", {bar:2}, {baz:3})
+      const m = Message.create("FOO", {bar: 2}, {baz: 3})
       m.header.num_buffers = 2
 
       it("should append a new buffer", () => {
@@ -50,7 +50,7 @@ describe("protocol/message module", () => {
     })
 
     describe("create method", () => {
-      const m = Message.create("FOO", {bar:2}, {baz:3})
+      const m = Message.create("FOO", {bar: 2}, {baz: 3})
 
       it("should return a complete Message", () => {
         expect(m).to.be.instanceof(Message)
@@ -63,8 +63,8 @@ describe("protocol/message module", () => {
       })
 
       it("and metadata and content as-is", () => {
-        expect(m.metadata).to.be.equal({bar:2})
-        expect(m.content).to.be.equal({baz:3})
+        expect(m.metadata).to.be.equal({bar: 2})
+        expect(m.content).to.be.equal({baz: 3})
       })
 
       it("and no buffers", () => {
@@ -125,8 +125,8 @@ describe("protocol/message module", () => {
         m.send(s)
         expect(s.sent.length).to.be.equal(3)
         expect(JSON.parse(s.sent[0])).to.be.equal({msgid: "10", msgtype: "FOO"})
-        expect(JSON.parse(s.sent[1])).to.be.equal({bar:2})
-        expect(JSON.parse(s.sent[2])).to.be.equal({baz:3})
+        expect(JSON.parse(s.sent[1])).to.be.equal({bar: 2})
+        expect(JSON.parse(s.sent[2])).to.be.equal({baz: 3})
       })
 
       /* XXX: ???

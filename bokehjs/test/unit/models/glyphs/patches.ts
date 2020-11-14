@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {Patches} from "@bokehjs/models/glyphs/patches"
 import {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"

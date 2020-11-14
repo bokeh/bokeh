@@ -20,6 +20,7 @@ from ..model import Model
 
 __all__ = (
     'EdgesAndLinkedNodes',
+    'EdgesOnly',
     'GraphHitTestPolicy',
     'LayoutProvider',
     'NodesAndLinkedEdges',
@@ -65,6 +66,15 @@ class StaticLayoutProvider(LayoutProvider):
 @abstract
 class GraphHitTestPolicy(Model):
     '''
+
+    '''
+
+    pass
+
+class EdgesOnly(GraphHitTestPolicy):
+    '''
+    With the ``EdgesOnly`` policy, only graph edges are able to be selected and
+    inspected. There is no selection or inspection of graph nodes.
 
     '''
 

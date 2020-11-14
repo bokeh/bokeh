@@ -3,11 +3,12 @@ import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
+import {concat} from "core/util/array"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {includes} from "core/util/array"
 import type {Plot} from "../plots/plot"
+import {compute_renderers} from "../util"
 
 export type Dim = 0 | 1
 export type Bounds = Map<Renderer, Rect>
@@ -93,24 +94,9 @@ export class DataRange1d extends DataRange {
 
   computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
-    const names = this.names
-    let renderers = this.renderers
-
-    if (renderers.length == 0) {
-      for (const plot of this.plots) {
-        renderers = renderers.concat(plot.data_renderers)
-      }
-    }
-
-    if (names.length > 0)
-      renderers = renderers.filter((r) => includes(names, r.name))
-
-    logger.debug(`computed ${renderers.length} renderers for ${this}`)
-    for (const renderer of renderers) {
-      logger.trace(` - ${renderer}`)
-    }
-
-    return renderers
+    const {renderers, names} = this
+    const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers, names)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {

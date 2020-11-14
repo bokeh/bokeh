@@ -1,4 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {resolve_angle} from "core/util/math"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
@@ -7,11 +8,6 @@ import * as p from "core/properties"
 export class LabelView extends TextAnnotationView {
   model: Label
   visuals: Label.Visuals
-
-  initialize(): void {
-    super.initialize()
-    this.visuals.warm_cache()
-  }
 
   protected _get_size(): Size {
     const {ctx} = this.layer
@@ -22,18 +18,8 @@ export class LabelView extends TextAnnotationView {
   }
 
   protected _render(): void {
-    // Here because AngleSpec does units transform and label doesn't support specs
-    let angle: number
-    switch (this.model.angle_units) {
-      case "rad": {
-        angle = -this.model.angle
-        break
-      }
-      case "deg": {
-        angle = (-this.model.angle*Math.PI)/180.0
-        break
-      }
-    }
+    const {angle, angle_units} = this.model
+    const rotation = resolve_angle(angle, angle_units)
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
 
@@ -47,7 +33,7 @@ export class LabelView extends TextAnnotationView {
     sy -= this.model.y_offset
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.layer.ctx, this.model.text, sx, sy, angle)
+    draw(this.layer.ctx, this.model.text, sx, sy, rotation)
   }
 }
 

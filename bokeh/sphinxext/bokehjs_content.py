@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Make javascript code blocks also include a live link to codepen.io for instant experiementation.
+# -----------------------------------------------------------------------------
+""" Make javascript code blocks also include a live link to codepen.io for instant experiementation.
 
 This directive takes a title to use for the codepen example:
 
@@ -39,17 +39,18 @@ The inline example code above produces the following output:
 
     alert('this is called in the codepen');
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os.path import basename, join
@@ -74,25 +75,26 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'bokehjs_content',
-    'BokehJSContent',
-    'html_depart_bokehjs_content',
-    'html_visit_bokehjs_content',
-    'setup',
+    "bokehjs_content",
+    "BokehJSContent",
+    "html_depart_bokehjs_content",
+    "html_visit_bokehjs_content",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class bokehjs_content(nodes.General, nodes.Element):
     pass
@@ -121,15 +123,14 @@ class BokehJSContent(CodeBlock):
         document = self.state.document
         location = self.state_machine.get_source_and_line(self.lineno)
 
-        linespec = self.options.get('emphasize-lines')
+        linespec = self.options.get("emphasize-lines")
         if linespec:
             try:
-                nlines = len(code.split('\n'))
+                nlines = len(code.split("\n"))
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
-                    log.warning(__('line number spec is out of range(1-%d): %r') %
-                                   (nlines, self.options['emphasize-lines']),
-                                   location=location)
+                    emph_lines = self.options["emphasize-lines"]
+                    log.warning(__(f"line number spec is out of range(1-{nlines}): {emph_lines!r}"), location=location)
 
                 hl_lines = [x + 1 for x in hl_lines if x < nlines]
             except ValueError as err:
@@ -137,25 +138,24 @@ class BokehJSContent(CodeBlock):
         else:
             hl_lines = None
 
-        if 'dedent' in self.options:
+        if "dedent" in self.options:
             location = self.state_machine.get_source_and_line(self.lineno)
-            lines = code.split('\n')
-            lines = dedent_lines(lines, self.options['dedent'], location=location)
-            code = '\n'.join(lines)
+            lines = code.split("\n")
+            lines = dedent_lines(lines, self.options["dedent"], location=location)
+            code = "\n".join(lines)
 
         literal = nodes.literal_block(code, code)
-        literal['language'] = language
-        literal['linenos'] = 'linenos' in self.options or \
-                             'lineno-start' in self.options
-        literal['classes'] += self.options.get('class', [])
-        extra_args = literal['highlight_args'] = {}
+        literal["language"] = language
+        literal["linenos"] = "linenos" in self.options or "lineno-start" in self.options
+        literal["classes"] += self.options.get("class", [])
+        extra_args = literal["highlight_args"] = {}
         if hl_lines is not None:
-            extra_args['hl_lines'] = hl_lines
-        if 'lineno-start' in self.options:
-            extra_args['linenostart'] = self.options['lineno-start']
+            extra_args["hl_lines"] = hl_lines
+        if "lineno-start" in self.options:
+            extra_args["linenostart"] = self.options["lineno-start"]
         set_source_info(self, literal)
 
-        caption = self.options.get('caption')
+        caption = self.options.get("caption")
         if caption:
             try:
                 literal = container_wrapper(self, literal, caption)
@@ -176,14 +176,14 @@ class BokehJSContent(CodeBlock):
             raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
         if js_file:
-            log.debug("[bokehjs-content] handling external example in %r: %s", env.docname, js_file)
+            log.debug(f"[bokehjs-content] handling external example in {env.docname!r}: {js_file}")
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
             js_source = open(path).read()
         else:
-            log.debug("[bokehjs-content] handling inline example in %r", env.docname)
-            js_source = '\n'.join(self.content)
+            log.debug(f"[bokehjs-content] handling inline example in {env.docname!r}")
+            js_source = "\n".join(self.content)
 
         return js_source
 
@@ -194,87 +194,70 @@ class BokehJSContent(CodeBlock):
         js_source = self.get_js_source()
         if self.options.get("include_html", False):
             resources = get_sphinx_resources(include_bokehjs_api=True)
-            html_source = BJS_HTML.render(
-                css_files=resources.css_files,
-                js_files=resources.js_files,
-                hashes=resources.hashes,
-                bjs_script=js_source)
+            html_source = BJS_HTML.render(css_files=resources.css_files, js_files=resources.js_files, hashes=resources.hashes, bjs_script=js_source)
             return [html_source, "html"]
         else:
             return [js_source, "javascript"]
 
-
     def run(self):
         env = self.state.document.settings.env
 
-        rst_source = self.state_machine.node.document['source']
+        rst_source = self.state_machine.node.document["source"]
         rst_filename = basename(rst_source)
 
-        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('ccb'))
+        serial_no = env.new_serialno("ccb")
+        target_id = f"{rst_filename}.ccb-{serial_no}"
         target_id = target_id.replace(".", "-")
-        target_node = nodes.target('', '', ids=[target_id])
+        target_node = nodes.target("", "", ids=[target_id])
 
         node = bokehjs_content()
-        node['target_id'] = target_id
-        node['title'] = self.options.get("title", "bokehjs example")
-        node['include_bjs_header'] = False
-        node['disable_codepen'] = self.options.get("disable_codepen", False)
-        node['js_source'] = self.get_js_source()
+        node["target_id"] = target_id
+        node["title"] = self.options.get("title", "bokehjs example")
+        node["include_bjs_header"] = False
+        node["disable_codepen"] = self.options.get("disable_codepen", False)
+        node["js_source"] = self.get_js_source()
 
         source_doc = self.state_machine.node.document
-        if not hasattr(source_doc, 'bjs_seen'):
-            #we only want to inject the CODEPEN_INIT on one
-            #bokehjs-content block per page, here we check to see if
-            #bjs_seen exists, if not set it to true, and set
-            #node['include_bjs_header'] to true.  This way the
-            #CODEPEN_INIT is only injected once per document (html
-            #page)
+        if not hasattr(source_doc, "bjs_seen"):
+            # we only want to inject the CODEPEN_INIT on one
+            # bokehjs-content block per page, here we check to see if
+            # bjs_seen exists, if not set it to true, and set
+            # node['include_bjs_header'] to true.  This way the
+            # CODEPEN_INIT is only injected once per document (html
+            # page)
             source_doc.bjs_seen = True
-            node['include_bjs_header'] = True
+            node["include_bjs_header"] = True
         code_content, language = self.get_code_language()
-        cb = self.get_codeblock_node(
-            code_content, language)
+        cb = self.get_codeblock_node(code_content, language)
         node.setup_child(cb[0])
         node.children.append(cb[0])
         return [target_node, node]
 
-def html_visit_bokehjs_content(self, node):
-    if node['include_bjs_header']:
-        #we only want to inject the CODEPEN_INIT on one
-        #bokehjs-content block per page
-        resources = get_sphinx_resources(include_bokehjs_api=True)
-        self.body.append(BJS_CODEPEN_INIT.render(
-            css_files=resources.css_files,
-            js_files=resources.js_files))
 
-    self.body.append(
-        BJS_PROLOGUE.render(
-            id=node['target_id'],
-            title=node['title'],
-        ))
+def html_visit_bokehjs_content(self, node):
+    if node["include_bjs_header"]:
+        # we only want to inject the CODEPEN_INIT on one
+        # bokehjs-content block per page
+        resources = get_sphinx_resources(include_bokehjs_api=True)
+        self.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
+
+    self.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"],))
+
 
 def html_depart_bokehjs_content(self, node):
-    self.body.append(BJS_EPILOGUE.render(
-        title=node['title'],
-        enable_codepen=not node['disable_codepen'],
-        js_source=node['js_source']
-    ))
+    self.body.append(BJS_EPILOGUE.render(title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]))
+
 
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.add_node(
-        bokehjs_content,
-        html=(
-            html_visit_bokehjs_content,
-            html_depart_bokehjs_content
-        )
-    )
-    app.add_directive('bokehjs-content', BokehJSContent)
+    """ Required Sphinx extension setup function. """
+    app.add_node(bokehjs_content, html=(html_visit_bokehjs_content, html_depart_bokehjs_content))
+    app.add_directive("bokehjs-content", BokehJSContent)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

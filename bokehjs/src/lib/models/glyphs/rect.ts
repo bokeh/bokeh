@@ -1,7 +1,6 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, NumberArray} from "core/types"
 import * as types from "core/types"
 import * as p from "core/properties"
@@ -22,16 +21,6 @@ export class RectView extends CenterRotatableView {
   model: Rect
   visuals: Rect.Visuals
 
-  protected _set_data(): void {
-    this.max_w2 = 0
-    if (this.model.properties.width.units == "data")
-      this.max_w2 = this.max_width/2
-
-    this.max_h2 = 0
-    if (this.model.properties.height.units == "data")
-      this.max_h2 = this.max_height/2
-  }
-
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale)
@@ -49,7 +38,7 @@ export class RectView extends CenterRotatableView {
     else {
       this.sh = this._height
 
-      const n =  this.sy.length
+      const n = this.sy.length
       this.sy1 = new NumberArray(n)
       for (let i = 0; i < n; i++)
         this.sy1[i] = this.sy[i] - this.sh[i]/2
@@ -222,23 +211,14 @@ export class RectView extends CenterRotatableView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
-  }
-
-  protected _bounds({x0, x1, y0, y1}: types.Rect): types.Rect {
-    return {
-      x0: x0 - this.max_w2,
-      x1: x1 + this.max_w2,
-      y0: y0 - this.max_h2,
-      y1: y1 + this.max_h2,
-    }
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
 export namespace Rect {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = CenterRotatable.Props & LineVector & FillVector & {
+  export type Props = CenterRotatable.Props & {
     dilate: p.Property<boolean>
   }
 

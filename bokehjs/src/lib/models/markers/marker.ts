@@ -3,7 +3,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
 import type {MarkerGL} from "../glyphs/webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Arrayable, Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -181,7 +181,7 @@ export namespace Marker {
 
   export type Mixins = LineVector & FillVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Marker extends Marker.Attrs {}
@@ -197,7 +197,7 @@ export abstract class Marker extends XYGlyph {
   static init_Marker(): void {
     this.mixins<Marker.Mixins>([LineVector, FillVector])
     this.define<Marker.Props>(({}) => ({
-      size:  [ p.DistanceSpec, {units: "screen", value: 4} ],
+      size:  [ p.ScreenDistanceSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
     }))
   }

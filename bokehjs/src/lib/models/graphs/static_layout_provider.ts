@@ -27,7 +27,7 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_node_coordinates(node_source: ColumnarDataSource): [NumberArray, NumberArray] {
-    const index = node_source.data.index
+    const index = node_source.data.index ?? []
     const n = index.length
     const xs = new NumberArray(n)
     const ys = new NumberArray(n)
@@ -41,9 +41,9 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const starts = edge_source.data.start
-    const ends = edge_source.data.end
-    const n = starts.length
+    const starts = edge_source.data.start ?? []
+    const ends = edge_source.data.end ?? []
+    const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
     const has_paths = edge_source.data.xs != null && edge_source.data.ys != null

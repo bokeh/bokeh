@@ -231,13 +231,13 @@ Anchor = enumeration(
     "bottom_left", "bottom_center", "bottom_right")
 
 #: Specify the units for an angle value
-AngleUnits = enumeration("deg", "rad")
+AngleUnits = enumeration("deg", "rad", "grad", "turn")
 
 #: Specify autosize mode for DataTable
 AutosizeMode = enumeration("fit_columns", "fit_viewport", "force_fit", "none")
 
 #: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger", "light")
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")

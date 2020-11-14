@@ -1,12 +1,16 @@
+import {AngleUnits} from "../enums"
+
+const {PI} = Math
+
 export function angle_norm(angle: number): number {
   if (angle == 0) {
     return 0
   }
   while (angle <= 0) {
-    angle += 2*Math.PI
+    angle += 2*PI
   }
-  while (angle > 2*Math.PI) {
-    angle -= 2*Math.PI
+  while (angle > 2*PI) {
+    angle -= 2*PI
   }
   return angle
 }
@@ -19,7 +23,7 @@ export function angle_between(mid: number, lhs: number, rhs: number, anticlock: 
   const d = angle_dist(lhs, rhs)
   if (d == 0)
     return false
-  if (d == 2*Math.PI)
+  if (d == 2*PI)
     return true
   const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
@@ -48,11 +52,25 @@ export function atan2(start: [number, number], end: [number, number]): number {
 }
 
 export function radians(degrees: number): number {
-  return degrees*(Math.PI/180)
+  return degrees*(PI/180)
 }
 
 export function degrees(radians: number): number {
-  return radians/(Math.PI/180)
+  return radians/(PI/180)
+}
+
+export function resolve_angle(angle: number, units: AngleUnits): number {
+  /** Convert CCW angle with units to CW radians (canvas). */
+  return angle_conversion_coeff(units)*angle
+}
+
+export function angle_conversion_coeff(units: AngleUnits): number {
+  switch (units) {
+    case "deg":  return -PI/180
+    case "rad":  return -1
+    case "grad": return -PI/200
+    case "turn": return -2*PI
+  }
 }
 
 // http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)

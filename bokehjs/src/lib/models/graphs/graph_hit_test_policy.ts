@@ -31,27 +31,73 @@ export abstract class GraphHitTestPolicy extends Model {
   abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean
 
   _hit_test_nodes(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    if(!graph_view.model.visible)
+    if (!graph_view.model.visible)
       return null
 
     const hit_test_result = graph_view.node_view.glyph.hit_test(geometry)
 
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return null
     else
       return graph_view.node_view.model.view.convert_selection_from_subset(hit_test_result)
   }
 
   _hit_test_edges(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    if(!graph_view.model.visible)
+    if (!graph_view.model.visible)
       return null
 
     const hit_test_result = graph_view.edge_view.glyph.hit_test(geometry)
 
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return null
     else
       return graph_view.edge_view.model.view.convert_selection_from_subset(hit_test_result)
+  }
+}
+
+export namespace EdgesOnly {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = GraphHitTestPolicy.Props
+}
+
+export interface EdgesOnly extends EdgesOnly.Attrs {}
+
+export class EdgesOnly extends GraphHitTestPolicy {
+  properties: EdgesOnly.Props
+
+  constructor(attrs?: Partial<EdgesOnly.Attrs>) {
+    super(attrs)
+  }
+
+  hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
+    return this._hit_test_edges(geometry, graph_view)
+  }
+
+  do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const edge_selection = graph.edge_renderer.data_source.selected
+    edge_selection.update(hit_test_result, final, mode)
+    graph.edge_renderer.data_source._select.emit()
+
+    return !edge_selection.is_empty()
+  }
+
+  do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
+    if (hit_test_result == null)
+      return false
+
+    const {edge_renderer} = graph_view.model
+    const edge_inspection = edge_renderer.get_selection_manager().get_or_create_inspector(graph_view.edge_view.model)
+    edge_inspection.update(hit_test_result, final, mode)
+
+    // silently set inspected attr to avoid triggering data_source.change event and rerender
+    graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view.model, {geometry}])
+
+    return !edge_inspection.is_empty()
   }
 }
 
@@ -75,7 +121,7 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
     const node_selection = graph.node_renderer.data_source.selected
@@ -86,10 +132,11 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
-    const node_inspection = graph_view.model.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
+    const  {node_renderer} = graph_view.model
+    const node_inspection = node_renderer.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, mode)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
@@ -121,14 +168,14 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
   get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
     let node_indices = []
-    if(mode == 'selection'){
+    if (mode == 'selection'){
       node_indices = node_source.selected.indices.map((i: number) => node_source.data.index[i])
-    }else if (mode == 'inspection'){
+    } else if (mode == 'inspection'){
       node_indices = node_source.inspected.indices.map((i: number) => node_source.data.index[i])
     }
     const edge_indices = []
-    for(let i = 0; i < edge_source.data.start.length; i++){
-      if(contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i]))
+    for (let i = 0; i < edge_source.data.start.length; i++){
+      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i]))
         edge_indices.push(i)
     }
 
@@ -142,7 +189,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
     const node_selection = graph.node_renderer.data_source.selected
@@ -158,7 +205,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
@@ -198,12 +245,12 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
   get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
     let edge_indices: number[] = []
-    if(mode == 'selection')
+    if (mode == 'selection')
       edge_indices = edge_source.selected.indices
     else if (mode == 'inspection')
       edge_indices = edge_source.inspected.indices
     const nodes = []
-    for(const i of edge_indices){
+    for (const i of edge_indices){
       nodes.push(edge_source.data.start[i])
       nodes.push(edge_source.data.end[i])
     }
@@ -213,7 +260,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
     const edge_selection = graph.edge_renderer.data_source.selected
@@ -229,7 +276,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if(hit_test_result == null)
+    if (hit_test_result == null)
       return false
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)

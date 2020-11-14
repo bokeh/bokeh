@@ -57,6 +57,7 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'ServerSentDataSource',
+    'WebDataSource',
     'WebSource',
 )
 
@@ -709,7 +710,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     """)
 
 @abstract
-class WebSource(ColumnDataSource):
+class WebDataSource(ColumnDataSource):
     ''' Base class for web column data sources that can update from data
     URLs.
 
@@ -744,13 +745,16 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-class ServerSentDataSource(WebSource):
+# TODO: deprecated, remove at bokeh 3.0
+WebSource = WebDataSource
+
+class ServerSentDataSource(WebDataSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(WebSource):
+class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 

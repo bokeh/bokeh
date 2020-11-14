@@ -7,7 +7,7 @@ import {SpatialIndex} from "@bokehjs/core/util/spatial"
 import {Context2d} from "@bokehjs/core/util/canvas"
 import {with_log_level} from "@bokehjs/core/logging"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {trap} from "../../../util"
 
 describe("glyph module", () => {

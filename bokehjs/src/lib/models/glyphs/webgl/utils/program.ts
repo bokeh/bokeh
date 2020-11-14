@@ -2,7 +2,6 @@ import {IndexBuffer, VertexBuffer} from "./buffer"
 import {Texture2d} from "./texture"
 
 export class Program {
-
   UTYPEMAP: {[key: string]: string} = {
     float: "uniform1fv",
     vec2: "uniform2fv",

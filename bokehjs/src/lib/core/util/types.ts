@@ -24,6 +24,12 @@ export function isString(obj: unknown): obj is string {
   return toString.call(obj) === "[object String]"
 }
 
+export type Primitive = null | boolean | number | string
+
+export function isPrimitive(obj: unknown): obj is Primitive {
+  return obj === null || isBoolean(obj) || isNumber(obj) || isString(obj)
+}
+
 export function isFunction(obj: unknown): obj is Function {
   return toString.call(obj) === "[object Function]"
 }
@@ -53,7 +59,7 @@ export function isObject(obj: unknown): obj is object {
   return tp === 'function' || tp === 'object' && !!obj
 }
 
-export function isPlainObject(obj: unknown): obj is {[key: string]: unknown} {
+export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }
 

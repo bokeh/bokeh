@@ -7,11 +7,11 @@ export class RedoToolView extends ActionToolView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.plot_view.state_changed, () => this.model.disabled = !this.plot_view.can_redo())
+    this.connect(this.plot_view.state.changed, () => this.model.disabled = !this.plot_view.state.can_redo)
   }
 
   doit(): void {
-    this.plot_view.redo()
+    this.plot_view.state.redo()
   }
 }
 

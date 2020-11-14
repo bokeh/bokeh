@@ -82,7 +82,6 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
   let patched_range = false
 
   for (const [ind, val] of patch) {
-
     // make the single index case look like the length-3 multi-index case
     let shape: number[]
     let item: Arrayable

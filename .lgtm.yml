@@ -2,6 +2,7 @@ extraction:
   javascript:
     index:
       exclude:
+        - bokehjs/src/lib/core/property_mixins.ts
         - bokeh/core/_templates
         - bokeh/sphinxext/_templates
   python:

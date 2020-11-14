@@ -5,7 +5,7 @@ import * as bbox from "@bokehjs/core/util/bbox"
 describe("bbox module", () => {
   describe("empty", () => {
     it("should be an unbounded box", () => {
-      expect(bbox.empty()).to.be.equal({x0: Infinity, y0: Infinity, x1: -Infinity, y1:-Infinity})
+      expect(bbox.empty()).to.be.equal({x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity})
     })
   })
 
@@ -24,8 +24,8 @@ describe("bbox module", () => {
   describe("union", () => {
     const empty    = bbox.empty()
     const outside  = {x0: 0, x1: 10, y0:  0, y1: 10}
-    const inside   = {x0: 4, x1:  5, y0:  4, y1: 5 }
-    const overlaps = {x0:-5, x1:  5, y0: -5, y1: 5 }
+    const inside   = {x0: 4, x1:  5, y0:  4, y1: 5}
+    const overlaps = {x0: -5, x1:  5, y0: -5, y1: 5}
 
     it("should return empty when inputs are empty", () => {
       expect(bbox.union(empty, empty)).to.be.equal(empty)

@@ -12,7 +12,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PointDrawTool, PointDrawToolView} from "@bokehjs/models/tools/edit/point_draw_tool"
 
-import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}

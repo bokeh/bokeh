@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+"""
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -48,16 +48,16 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Seq(ContainerProperty):
-    ''' Accept non-string ordered sequences of values, e.g. list, tuple, array.
+    """ Accept non-string ordered sequences of values, e.g. list, tuple, array.
 
-    '''
+    """
 
     def __init__(self, item_type, default=None, help=None):
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.item_type)
+        return f"{self.__class__.__name__}({self.item_type})"
 
     @property
     def type_params(self):
@@ -69,23 +69,27 @@ class Seq(ContainerProperty):
         elif isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
-            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a list or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
 
-        if value is not None:
-            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
-                if self._is_seq(value):
-                    invalid = []
-                    for item in value:
-                        if not self.item_type.is_valid(item):
-                            invalid.append(item)
-                    msg = "" if not detail else "expected an element of %s, got seq with invalid items %r" % (self, invalid)
-                    raise ValueError(msg)
-                else:
-                    msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
-                    raise ValueError(msg)
+        if value is None:
+            return
+
+        if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
+            return
+
+        if self._is_seq(value):
+            invalid = []
+            for item in value:
+                if not self.item_type.is_valid(item):
+                    invalid.append(item)
+            msg = "" if not detail else f"expected an element of {self}, got seq with invalid items {invalid!r}"
+            raise ValueError(msg)
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     @classmethod
     def _is_seq(cls, value):
@@ -102,12 +106,14 @@ class Seq(ContainerProperty):
         return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % self.item_type._sphinx_type()
+        prop_link = self._sphinx_prop_link()
+        item_type = self.item_type._sphinx_type()
+        return f"{prop_link}({item_type})"
 
 class List(Seq):
-    ''' Accept Python list values.
+    """ Accept Python list values.
 
-    '''
+    """
 
     def __init__(self, item_type, default=[], help=None):
         # todo: refactor to not use mutable objects as default values.
@@ -117,9 +123,9 @@ class List(Seq):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, list):
             if isinstance(value, PropertyValueList):
                 return value
@@ -133,9 +139,9 @@ class List(Seq):
         return isinstance(value, list)
 
 class Array(Seq):
-    ''' Accept NumPy array values.
+    """ Accept NumPy array values.
 
-    '''
+    """
 
     @classmethod
     def _is_seq(cls, value):
@@ -148,12 +154,12 @@ class Array(Seq):
 
 
 class Dict(ContainerProperty):
-    ''' Accept Python dict values.
+    """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
-    '''
+    """
 
     def __init__(self, keys_type, values_type, default={}, help=None):
         self.keys_type = self._validate_type_param(keys_type)
@@ -161,7 +167,7 @@ class Dict(ContainerProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
+        return f"{self.__class__.__name__}({self.keys_type}, {self.values_type})"
 
     @property
     def type_params(self):
@@ -173,22 +179,27 @@ class Dict(ContainerProperty):
         elif isinstance(json, dict):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a dict or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is not None:
-            if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())):
-                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
-                raise ValueError(msg)
+        if value is None:
+            return
+
+        key_is_valid = self.keys_type.is_valid
+        value_is_valid = self.values_type.is_valid
+        if isinstance(value, dict) and all(key_is_valid(key) and value_is_valid(val) for key, val in value.items()):
+            return
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, dict):
             if isinstance(value, PropertyValueDict):
                 return value
@@ -198,19 +209,22 @@ class Dict(ContainerProperty):
             return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s, %s )" % (self.keys_type._sphinx_type(), self.values_type._sphinx_type())
+        prop_link = self._sphinx_prop_link()
+        key_type = self.keys_type._sphinx_type()
+        value_type = self.values_type._sphinx_type()
+        return f"{prop_link}({key_type}, {value_type})"
 
 class ColumnData(Dict):
-    ''' Accept a Python dictionary suitable as the ``data`` attribute of a
+    """ Accept a Python dictionary suitable as the ``data`` attribute of a
     :class:`~bokeh.models.sources.ColumnDataSource`.
 
     This class is a specialization of ``Dict`` that handles efficiently
     encoding columns that are NumPy arrays.
 
-    '''
+    """
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``ColumnDataPropertyDescriptor`` instances to
+        """ Return a list of ``ColumnDataPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
 
@@ -222,17 +236,17 @@ class ColumnData(Dict):
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
-        '''
+        """
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
 
     def from_json(self, json, models=None):
-        ''' Decodes column source data encoded as lists or base64 strings.
-        '''
+        """ Decodes column source data encoded as lists or base64 strings.
+        """
         if json is None:
             return None
         elif not isinstance(json, dict):
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a dict or None, got {json}")
         new_data = {}
         for key, value in json.items():
             key = self.keys_type.from_json(key, models)
@@ -256,9 +270,9 @@ class ColumnData(Dict):
 
     @classmethod
     def wrap(cls, value):
-        ''' Some property types need to wrap their values in special containers, etc.
+        """ Some property types need to wrap their values in special containers, etc.
 
-        '''
+        """
         if isinstance(value, dict):
             if isinstance(value, PropertyValueColumnData):
                 return value
@@ -268,15 +282,16 @@ class ColumnData(Dict):
             return value
 
 class Tuple(ContainerProperty):
-    ''' Accept Python tuple values.
+    """ Accept Python tuple values.
 
-    '''
+    """
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
+        item_types = ", ".join(str(x) for x in self.type_params)
+        return f"{self.__class__.__name__}({item_types})"
 
     @property
     def type_params(self):
@@ -288,44 +303,50 @@ class Tuple(ContainerProperty):
         elif isinstance(json, list):
             return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
-            raise DeserializationError("%s expected a list or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a list or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is not None:
-            if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
-                    all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
-                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
-                raise ValueError(msg)
+        if value is None:
+            return
+
+        if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
+            if all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value)):
+                return
+
+        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
+        raise ValueError(msg)
 
     def transform(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         if value is None:
             return None
 
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
     def serialize_value(self, value):
-        ''' Change the value into a JSON serializable format.
+        """ Change the value into a JSON serializable format.
 
-        '''
+        """
         if value is None:
             return None
 
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
+        prop_link = self._sphinx_prop_link()
+        item_types = ", ".join(x._sphinx_type() for x in self.type_params)
+        return f"{prop_link}({item_types})"
 
 
 
 class RelativeDelta(Dict):
-    ''' Accept RelativeDelta dicts for time delta values.
+    """ Accept RelativeDelta dicts for time delta values.
 
-    '''
+    """
 
     def __init__(self, default={}, help=None):
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")

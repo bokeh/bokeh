@@ -84,7 +84,6 @@ export type ColsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | C
 type Span = {r0: number, c0: number, r1: number, c1: number}
 
 class Container<T> {
-
   private readonly _items: {span: Span, data: T}[] = []
 
   private _nrows: number = 0
@@ -138,7 +137,6 @@ class Container<T> {
 }
 
 export class Grid extends Layoutable {
-
   rows: RowsSizing = "auto"
   cols: ColsSizing = "auto"
 

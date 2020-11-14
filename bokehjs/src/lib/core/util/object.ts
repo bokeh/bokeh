@@ -1,6 +1,8 @@
 import {PlainObject} from "../types"
 import {concat, union} from "./array"
 
+const {hasOwnProperty} = Object.prototype
+
 export const {keys, values, entries, assign: extend} = Object
 
 export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
@@ -16,8 +18,8 @@ export function merge<T>(obj1: PlainObject<T[]>, obj2: PlainObject<T[]>): PlainO
   const keys = concat([Object.keys(obj1), Object.keys(obj2)])
 
   for (const key of keys){
-    const arr1 = obj1.hasOwnProperty(key) ? obj1[key] : []
-    const arr2 = obj2.hasOwnProperty(key) ? obj2[key] : []
+    const arr1 = hasOwnProperty.call(obj1, key) ? obj1[key] : []
+    const arr2 = hasOwnProperty.call(obj2, key) ? obj2[key] : []
     result[key] = union(arr1, arr2)
   }
 

@@ -43,7 +43,7 @@ export class GridView extends GuideRendererView {
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
 
-      this.visuals.band_hatch.doit2(ctx, i, () => {
+      this.visuals.band_hatch.doit2(ctx, () => {
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
       }, () => this.request_render())
     }
@@ -244,5 +244,4 @@ export class Grid extends GuideRenderer {
     }
     return null
   }
-
 }

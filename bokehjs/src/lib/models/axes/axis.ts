@@ -285,14 +285,10 @@ export class AxisView extends GuideRendererView {
     const ctx = this.layer.ctx
     visuals.set_value(ctx)
 
-    let hscale: number
     let angle: number
-
     if (isString(orient)) {
-      hscale = 1
       angle = this.panel.get_label_angle_heuristic(orient)
     } else {
-      hscale = 2
       angle = -orient
     }
     angle = Math.abs(angle)
@@ -309,9 +305,9 @@ export class AxisView extends GuideRendererView {
       let val: number
 
       if (side == "above" || side == "below")
-        val = w*s + (h/hscale)*c
+        val = w*s + h*c
       else
-        val = w*c + (h/hscale)*s
+        val = w*c + h*s
 
       // update extent if current value is larger
       if (val > extent)

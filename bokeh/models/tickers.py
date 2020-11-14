@@ -22,10 +22,11 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
-from ..core.properties import Enum, Float, Instance, Int, Override, Seq
+from ..core.properties import Auto, Either, Enum, Float, Instance, Int, Override, Seq
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
+from .mappers import ScanningColorMapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -33,6 +34,7 @@ from ..model import Model
 
 __all__ = (
     'Ticker',
+    'BinnedTicker',
     'ContinuousTicker',
     'FixedTicker',
     'AdaptiveTicker',
@@ -272,6 +274,18 @@ class DatetimeTicker(CompositeTicker):
 
         YearsTicker(),
     ])
+
+class BinnedTicker(Ticker):
+    """Ticker that aligns ticks exactly at bin boundaries of a scanning color mapper. """
+
+    mapper = Instance(ScanningColorMapper, help="""
+    A scanning color mapper (e.g. ``EqHistColorMapper``) to use.
+    """)
+
+    num_major_ticks = Either(Int, Auto, default=8, help="""
+    The number of major tick positions to show or "auto" to use the
+    number of bins provided by the mapper.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

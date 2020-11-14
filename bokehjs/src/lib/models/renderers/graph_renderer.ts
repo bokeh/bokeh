@@ -1,5 +1,6 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
+import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
@@ -74,6 +75,12 @@ export class GraphRendererView extends DataRendererView {
       throw new Error(`${this}.node_renderer.glyph must be a XYGlyph glyph`)
     }
 
+    edge_renderer.glyph.properties.xs.internal = true
+    edge_renderer.glyph.properties.ys.internal = true
+
+    node_renderer.glyph.properties.x.internal = true
+    node_renderer.glyph.properties.y.internal = true
+
     edge_renderer.glyph.xs = {expr: xs_expr}
     edge_renderer.glyph.ys = {expr: ys_expr}
 
@@ -103,6 +110,16 @@ export class GraphRendererView extends DataRendererView {
   protected _render(): void {
     this.edge_view.render()
     this.node_view.render()
+  }
+
+  renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
+    if (renderer instanceof GlyphRenderer) {
+      if (renderer == this.edge_view.model)
+        return this.edge_view
+      if (renderer == this.node_view.model)
+        return this.node_view
+    }
+    return super.renderer_view(renderer)
   }
 }
 

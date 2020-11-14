@@ -1,13 +1,13 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
 import {Arrayable, Rect, NumberArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -149,7 +149,6 @@ export class MultiPolygonsView extends GlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
-
       for (const i of indices) {
         const [sx, sy] = [sxs[i], sys[i]]
 
@@ -299,7 +298,7 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -313,7 +312,7 @@ export namespace MultiPolygons {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface MultiPolygons extends MultiPolygons.Attrs {}

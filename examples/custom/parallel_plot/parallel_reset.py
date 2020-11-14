@@ -1,7 +1,7 @@
-from bokeh.models import Action
+from bokeh.models import ActionTool
 
 
-class ParallelResetTool(Action):
+class ParallelResetTool(ActionTool):
     """ Tool to reset only plot axes and not selections
     """
 

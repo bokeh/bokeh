@@ -13,7 +13,7 @@ describe("enums module", () => {
   })
 
   it("should have AngleUnits", () => {
-    expect([...enums.AngleUnits]).to.be.equal(["deg", "rad"])
+    expect([...enums.AngleUnits]).to.be.equal(["deg", "rad", "grad", "turn"])
   })
 
   it("should have BoxOrigin", () => {
@@ -21,7 +21,7 @@ describe("enums module", () => {
   })
 
   it("should have ButtonType", () => {
-    expect([...enums.ButtonType]).to.be.equal(["default", "primary", "success", "warning", "danger"])
+    expect([...enums.ButtonType]).to.be.equal(["default", "primary", "success", "warning", "danger", "light"])
   })
 
   it("should have Dimension", () => {

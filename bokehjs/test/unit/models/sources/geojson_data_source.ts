@@ -100,7 +100,7 @@ describe("geojson_data_source module", () => {
     const geo = new GeoJSONDataSource({geojson})
 
     it("should add xs,ys to data", () => {
-      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs:[[125.6, 100.1]], ys:[[10.1, 9.2]], zs: [[NaN, NaN]]}
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
       expect(geo.data).to.be.equal(expected_data)
     })
   })
@@ -119,7 +119,7 @@ describe("geojson_data_source module", () => {
     const geo = new GeoJSONDataSource({geojson})
 
     it("should add xs,ys to data", () => {
-      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs:[[125.6, 100.1]], ys:[[10.1, 9.2]], zs: [[NaN, NaN]]}
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
       expect(geo.data).to.be.equal(expected_data)
     })
   })
@@ -140,7 +140,7 @@ describe("geojson_data_source module", () => {
 
     it("should add xs,ys to data", () => {
       // Also puts a warning about only using exterior ring
-      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs:[[125.6, 100.1]], ys:[[10.1, 9.2]], zs: [[NaN, NaN]]}
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1]], ys: [[10.1, 9.2]], zs: [[NaN, NaN]]}
       expect(geo.data).to.be.equal(expected_data)
     })
   })
@@ -178,7 +178,7 @@ describe("geojson_data_source module", () => {
     const geo = new GeoJSONDataSource({geojson})
 
     it("should add xs,ys to datai with NaN in between", () => {
-      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs:[[125.6, 100.1, NaN, 125.4, 100.2]], ys:[[10.1, 9.2, NaN, 10.2, 9.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[125.6, 100.1, NaN, 125.4, 100.2]], ys: [[10.1, 9.2, NaN, 10.2, 9.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
       expect(geo.data).to.be.equal(expected_data)
     })
   })
@@ -202,7 +202,7 @@ describe("geojson_data_source module", () => {
     const geo = new GeoJSONDataSource({geojson})
 
     it("should add xs,ys to datai with NaN in between", () => {
-      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs:[[102.0, 103.0, NaN, 100.0, 101.0]], ys:[[2.0, 2.1, NaN, 0, 0.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
+      const expected_data = {x: [NaN], y: [NaN], z: [NaN], xs: [[102.0, 103.0, NaN, 100.0, 101.0]], ys: [[2.0, 2.1, NaN, 0, 0.1]], zs: [[NaN, NaN, NaN, NaN, NaN]]}
       expect(geo.data).to.be.equal(expected_data)
     })
   })

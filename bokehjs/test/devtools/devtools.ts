@@ -185,8 +185,9 @@ async function run_tests(): Promise<boolean> {
       }
 
       await Page.loadEventFired()
-      const ready = await is_ready()
+      await evaluate("preload_fonts()")
 
+      const ready = await is_ready()
       if (!ready) {
         fail(`failed to render ${url}`)
       }
@@ -298,7 +299,6 @@ async function run_tests(): Promise<boolean> {
             return ` | 1 ${single}`
           else
             return ` | ${value} ${plural ?? single}`
-
         }
         return {
           failures: format(failures, "failure", "failures"),

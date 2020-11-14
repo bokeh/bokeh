@@ -57,7 +57,7 @@ __all__ = (
     'ContinuousColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
-    'EqHistColorMapper'
+    'EqHistColorMapper',
 )
 
 #-----------------------------------------------------------------------------
@@ -254,9 +254,12 @@ class LogColorMapper(ContinuousColorMapper):
 
     '''
 
-class EqHistColorMapper(ContinuousColorMapper):
-    bins = Int(default=256*256, help="Number of histogram bins")
+@abstract
+class ScanningColorMapper(ContinuousColorMapper):
+    pass
 
+class EqHistColorMapper(ScanningColorMapper):
+    bins = Int(default=256*256, help="Number of histogram bins")
 
 #-----------------------------------------------------------------------------
 # Dev API

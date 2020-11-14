@@ -24,6 +24,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'sphinxext.opengraph',
     'sphinx_panels',
     'sphinx_reredirects',
     'sphinx.ext.autodoc',

@@ -1,7 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {Size} from "core/layout"
-import {Text} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
@@ -11,7 +11,7 @@ export class TitleView extends TextAnnotationView {
 
   initialize(): void {
     super.initialize()
-    this.visuals.text = new Text(this.model)
+    this.visuals.text = new visuals.Text(this)
   }
 
   protected _get_location(): [number, number] {

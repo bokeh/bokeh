@@ -1,11 +1,23 @@
-import {Visuals, Line, Fill, Hatch} from "core/visuals"
+import {Line, LineVector, Fill, FillVector, Hatch, HatchVector} from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/types"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 
-export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_line_scalar_legend(visuals: {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+  ctx.save()
+  ctx.beginPath()
+  ctx.moveTo(x0, (y0 + y1) /2)
+  ctx.lineTo(x1, (y0 + y1) /2)
+  if (visuals.line.doit) {
+    visuals.line.set_value(ctx)
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
+export function generic_line_vector_legend(visuals: {line: LineVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -17,7 +29,37 @@ export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Contex
   ctx.restore()
 }
 
-export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_area_scalar_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+  const w = Math.abs(x1 - x0)
+  const dw = w*0.1
+  const h = Math.abs(y1 - y0)
+  const dh = h*0.1
+
+  const sx0 = x0 + dw
+  const sx1 = x1 - dw
+
+  const sy0 = y0 + dh
+  const sy1 = y1 - dh
+
+  if (visuals.fill.doit) {
+    visuals.fill.set_value(ctx)
+    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+  }
+
+  if (visuals.hatch?.doit) {
+    visuals.hatch.set_value(ctx)
+    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+  }
+
+  if (visuals.line?.doit) {
+    ctx.beginPath()
+    ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+    visuals.line.set_value(ctx)
+    ctx.stroke()
+  }
+}
+
+export function generic_area_vector_legend(visuals: {line?: LineVector, fill: FillVector, hatch?: HatchVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)
@@ -34,18 +76,21 @@ export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: H
     ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
   }
 
-  if (visuals.hatch != null && visuals.hatch.doit) {
+  if (visuals.hatch?.doit) {
     visuals.hatch.set_vectorize(ctx, index)
     ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
   }
 
-  if (visuals.line && visuals.line.doit) {
+  if (visuals.line?.doit) {
     ctx.beginPath()
     ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
     visuals.line.set_vectorize(ctx, index)
     ctx.stroke()
   }
 }
+
+export {generic_line_vector_legend as generic_line_legend}
+export {generic_area_vector_legend as generic_area_legend}
 
 export function line_interpolation(renderer: GlyphRendererView, geometry: PointGeometry | SpanGeometry, x2: number, y2: number, x3: number, y3: number): [number, number] {
   const {sx, sy} = geometry

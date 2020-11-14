@@ -8,7 +8,6 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
-import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
@@ -18,7 +17,7 @@ import {NumberArray} from "core/types"
 import {color2hex} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
-import {isString, isArray, isFunction, isNumber} from "core/util/types"
+import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
@@ -26,6 +25,8 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
 import {bk_tool_icon_hover} from "styles/icons"
 import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
+import {Signal} from "core/signaling"
+import {compute_renderers} from "../../util"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -64,18 +65,18 @@ export class HoverToolView extends InspectToolView {
   model: HoverTool
 
   protected _ttviews: Map<Tooltip, TooltipView>
-  protected _ttmodels: Map<GlyphRenderer, Tooltip> | null
-  protected _computed_renderers: DataRenderer[] | null
+  protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
 
   initialize(): void {
     super.initialize()
-    this._ttmodels = null
+    this._ttmodels = new Map()
     this._ttviews = new Map()
-    const {tooltips} = this.model
-    if (isArray(tooltips)) {
-      this._template_el = this._create_template(tooltips)
-    }
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await this._update_ttmodels()
   }
 
   remove(): void {
@@ -86,25 +87,17 @@ export class HoverToolView extends InspectToolView {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const r of this.computed_renderers) {
-      if (r instanceof GlyphRenderer)
-        this.connect(r.data_source.inspect, this._update)
-      else if (r instanceof GraphRenderer) {
-        this.connect(r.node_renderer.data_source.inspect, this._update)
-        this.connect(r.edge_renderer.data_source.inspect, this._update)
-      }
-    }
-
-    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
+    const plot_renderers = this.plot_model.properties.renderers
+    const {renderers, tooltips} = this.model.properties
+    this.on_change(tooltips, () => delete this._template_el)
+    this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
   }
 
-  protected _compute_ttmodels(): Map<GlyphRenderer, Tooltip> {
-    const ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
-    const tooltips = this.model.tooltips
+  protected async _update_ttmodels(): Promise<void> {
+    const {_ttmodels, computed_renderers} = this
+    _ttmodels.clear()
 
+    const {tooltips} = this.model
     if (tooltips != null) {
       for (const r of this.computed_renderers) {
         const tooltip = new Tooltip({
@@ -114,38 +107,48 @@ export class HoverToolView extends InspectToolView {
         })
 
         if (r instanceof GlyphRenderer) {
-          ttmodels.set(r, tooltip)
+          _ttmodels.set(r, tooltip)
         } else if (r instanceof GraphRenderer) {
-          ttmodels.set(r.node_renderer, tooltip)
-          ttmodels.set(r.edge_renderer, tooltip)
+          _ttmodels.set(r.node_renderer, tooltip)
+          _ttmodels.set(r.edge_renderer, tooltip)
         }
       }
     }
 
-    // XXX: move this to lazy_initialize()
-    (async () => {
-      const views = await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
-      for (const ttview of views) {
-        ttview.render()
-      }
-    })()
+    const views = await build_views(this._ttviews, [..._ttmodels.values()], {parent: this.plot_view})
+    for (const ttview of views) {
+      ttview.render()
+    }
 
-    return ttmodels
+    const glyph_renderers = [...(function* () {
+      for (const r of computed_renderers) {
+        if (r instanceof GlyphRenderer)
+          yield r
+        else if (r instanceof GraphRenderer) {
+          yield r.node_renderer
+          yield r.edge_renderer
+        }
+      }
+    })()]
+
+    const slot = this._slots.get(this._update)
+    if (slot != null) {
+      const except = new Set(glyph_renderers.map((r) => r.data_source))
+      Signal.disconnect_receiver(this, slot, except)
+    }
+
+    for (const r of glyph_renderers) {
+      this.connect(r.data_source.inspect, this._update)
+    }
   }
 
   get computed_renderers(): DataRenderer[] {
-    if (this._computed_renderers == null) {
-      const renderers = this.model.renderers
-      const all_renderers = this.plot_model.data_renderers
-      const names = this.model.names
-      this._computed_renderers = compute_renderers(renderers, all_renderers, names)
-    }
-    return this._computed_renderers
+    const {renderers, names} = this.model
+    const all_renderers = this.plot_model.data_renderers
+    return compute_renderers(renderers, all_renderers, names)
   }
 
   get ttmodels(): Map<GlyphRenderer, Tooltip> {
-    if (this._ttmodels == null)
-      this._ttmodels = this._compute_ttmodels()
     return this._ttmodels
   }
 
@@ -182,7 +185,9 @@ export class HoverToolView extends InspectToolView {
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
-      sm.inspect(this.plot_view.renderer_view(r)!, geometry)
+      const rview = this.plot_view.renderer_view(r)
+      if (rview != null)
+        sm.inspect(rview, geometry)
     }
 
     this._emit_callback(geometry)
@@ -216,7 +221,9 @@ export class HoverToolView extends InspectToolView {
     }
 
     const ds = selection_manager.source
-    const renderer_view = this.plot_view.renderer_view(renderer)!
+    const renderer_view = this.plot_view.renderer_view(renderer)
+    if (renderer_view == null)
+      return
 
     const {sx, sy} = geometry
     const xscale = renderer_view.coordinates.x_scale
@@ -392,7 +399,10 @@ export class HoverToolView extends InspectToolView {
       if (!(renderer instanceof GlyphRenderer))
         continue
 
-      const glyph_renderer_view = this.plot_view.renderer_view(renderer)!
+      const glyph_renderer_view = this.plot_view.renderer_view(renderer)
+      if (glyph_renderer_view == null)
+        continue
+
       const {x_scale, y_scale} = glyph_renderer_view.coordinates
       const x = x_scale.invert(geometry.sx)
       const y = y_scale.invert(geometry.sy)
@@ -475,14 +485,15 @@ export class HoverToolView extends InspectToolView {
   }
 
   _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement | null {
-    const tooltips = this.model.tooltips
+    const {tooltips} = this.model
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips != null) {
-      return this._render_template(this._template_el!, tooltips, ds, i, vars)
+      const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
+      return this._render_template(template, tooltips, ds, i, vars)
     } else
       return null
   }
@@ -494,7 +505,8 @@ export namespace HoverTool {
   export type Props = InspectTool.Props & {
     tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
-    renderers: p.Property<RendererSpec>
+    renderers: p.Property<DataRenderer[] | "auto">
+    /** @deprecated */
     names: p.Property<string[]>
     mode: p.Property<HoverMode>
     muted_policy: p.Property<MutedPolicy>
@@ -520,14 +532,14 @@ export class HoverTool extends InspectTool {
   static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Null, Nullable}) => ({
+    this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
       tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
-      renderers:    [ Or(Array(Ref(DataRenderer)), Auto, Null), "auto" ],
+      renderers:    [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
       names:        [ Array(String), [] ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

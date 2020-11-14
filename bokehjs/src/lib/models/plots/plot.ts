@@ -94,7 +94,7 @@ export namespace Plot {
     mixins.BackgroundFill &
     mixins.BorderFill
 
-  export type Visuals = visuals.Visuals & {
+  export type Visuals = {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     border_fill: visuals.Fill
@@ -107,7 +107,7 @@ export class Plot extends LayoutDOM {
   properties: Plot.Props
   __view_type__: PlotView
 
-  use_map?: boolean
+  readonly use_map: boolean = false
 
   reset: Signal0<this>
 

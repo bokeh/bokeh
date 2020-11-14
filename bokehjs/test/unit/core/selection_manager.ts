@@ -7,7 +7,7 @@ import {Selection} from "@bokehjs/models/selections/selection"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 
-import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
+import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
 describe("SelectionManager", () => {
   let glyph: Rect

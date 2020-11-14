@@ -86,7 +86,6 @@ export namespace FileInput {
 export interface FileInput extends FileInput.Attrs {}
 
 export abstract class FileInput extends Widget {
-
   properties: FileInput.Props
   __view_type__: FileInputView
 

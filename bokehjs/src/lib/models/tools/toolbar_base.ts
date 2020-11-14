@@ -196,16 +196,16 @@ export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 function create_gesture_map(): GesturesMap {
   return {
-    pan:       { tools: [], active: null },
-    scroll:    { tools: [], active: null },
-    pinch:     { tools: [], active: null },
-    tap:       { tools: [], active: null },
-    doubletap: { tools: [], active: null },
-    press:     { tools: [], active: null },
-    pressup:   { tools: [], active: null },
-    rotate:    { tools: [], active: null },
-    move:      { tools: [], active: null },
-    multi:     { tools: [], active: null },
+    pan:       {tools: [], active: null},
+    scroll:    {tools: [], active: null},
+    pinch:     {tools: [], active: null},
+    tap:       {tools: [], active: null},
+    doubletap: {tools: [], active: null},
+    press:     {tools: [], active: null},
+    pressup:   {tools: [], active: null},
+    rotate:    {tools: [], active: null},
+    move:      {tools: [], active: null},
+    multi:     {tools: [], active: null},
   }
 }
 

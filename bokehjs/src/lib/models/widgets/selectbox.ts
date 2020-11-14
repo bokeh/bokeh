@@ -20,18 +20,25 @@ export class SelectView extends InputWidgetView {
     this.on_change(options, () => {
       empty(this.input_el)
       append(this.input_el, ...this.options_el())
+      this._update_value()
     })
   }
 
-  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[]  {
+  private _known_values = new Set<string>()
+
+  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[] {
+    const {_known_values} = this
+    _known_values.clear()
+
     function build_options(values: (string | [string, string])[]): HTMLOptionElement[] {
       return values.map((el) => {
         let value, label
         if (isString(el))
-          value = label  = el
+          value = label = el
         else
           [value, label] = el
 
+        _known_values.add(value)
         return option({value}, label)
       })
     }
@@ -66,9 +73,10 @@ export class SelectView extends InputWidgetView {
 
   protected _update_value(): void {
     const {value} = this.model
-    if (value != null && value.length != 0) {
-      this.input_el.value = this.model.value
-    }
+    if (this._known_values.has(value))
+      this.input_el.value = value
+    else
+      this.input_el.removeAttribute("value")
   }
 }
 

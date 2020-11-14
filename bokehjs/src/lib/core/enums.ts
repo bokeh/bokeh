@@ -13,14 +13,14 @@ export const Anchor = Enum(
   "bottom_left", "bottom_center", "bottom_right",
 )
 
-export type AngleUnits = "deg" | "rad"
-export const AngleUnits = Enum("deg", "rad")
+export type AngleUnits = "deg" | "rad" | "grad" | "turn"
+export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
-export const ButtonType = Enum("default", "primary", "success", "warning", "danger")
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "light"
+export const ButtonType = Enum("default", "primary", "success", "warning", "danger", "light")
 
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")

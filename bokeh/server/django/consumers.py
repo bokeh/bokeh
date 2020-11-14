@@ -229,7 +229,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
         await self.accept("bokeh")
 
     async def disconnect(self, close_code):
-        pass
+        self.connection.session.destroy()
 
     async def receive(self, text_data) -> None:
         fragment = text_data

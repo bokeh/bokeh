@@ -1,9 +1,10 @@
-import {display, fig, row} from "../utils"
+import {display, fig, row, column} from "../_util"
 
-import {OutputBackend} from "@bokehjs/core/enums"
+import {Range1d} from "@bokehjs/models"
+import {Direction, OutputBackend} from "@bokehjs/core/enums"
+import {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals"
 import {entries} from "@bokehjs/core/util/object"
-// import {radians} from "@bokehjs/core/util/math"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -273,5 +274,59 @@ describe("Glyph models", () => {
       return p
     }
     await display(row([p("canvas"), p("svg")]), [850, 850])
+  })
+
+  it("should support rotation with all angle units", async () => {
+    function p(sign: -1 | 1, output_backend: OutputBackend) {
+      const x_range = new Range1d({start: -1, end: 7})
+      const y_range = new Range1d({start: -1, end: 1})
+
+      const p = fig([400, 150], {output_backend, title: output_backend, x_range, y_range})
+
+      const y = 0
+      const inner_radius = 0.5
+      const outer_radius = 1
+      const alpha = 0.6
+
+      function f(direction: Direction, color: Color) {
+        p.annular_wedge({
+          x: 0, y, inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          start_angle: {value: sign*Math.PI/2, units: "rad"},
+          end_angle: {value: sign*Math.PI/4, units: "rad"},
+          direction,
+        })
+        p.annular_wedge({
+          x: 2, y,
+          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          start_angle: {value: sign*90, units: "deg"},
+          end_angle: {value: sign*45, units: "deg"},
+          direction,
+        })
+        p.annular_wedge({
+          x: 4, y,
+          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          start_angle: {value: sign*100, units: "grad"},
+          end_angle: {value: sign*50, units: "grad"},
+          direction,
+        })
+        p.annular_wedge({
+          x: 6, y,
+          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          start_angle: {value: sign*0.25, units: "turn"},
+          end_angle: {value: sign*0.125, units: "turn"},
+          direction,
+        })
+      }
+
+      f("anticlock", "green")
+      f("clock", "blue")
+
+      return p
+    }
+
+    const r0 = row([p(+1, "canvas"), p(+1, "svg")])
+    const r1 = row([p(-1, "canvas"), p(-1, "svg")])
+
+    await display(column([r0, r1]), [850, 350])
   })
 })

@@ -27,7 +27,7 @@ from ..models import (
     Title,
     Tool,
 )
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..util.options import Options
 from ._tools import process_active_tools, process_tools_arg
 from .figure import Figure
@@ -272,7 +272,7 @@ class GMapFigureOptions(Options):
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 

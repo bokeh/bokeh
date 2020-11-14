@@ -143,7 +143,7 @@ export class BoxZoomToolView extends GestureToolView {
 
     const zoom_info = {xrs, yrs}
 
-    this.plot_view.push_state('box_zoom', {range: zoom_info})
+    this.plot_view.state.push("box_zoom", {range: zoom_info})
     this.plot_view.update_range(zoom_info)
   }
 }

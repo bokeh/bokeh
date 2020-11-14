@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
@@ -81,7 +81,7 @@ export class LineView extends XYGlyphView {
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
-      const p0 = {x: this.sx[i],     y: this.sy[i]    }
+      const p0 = {x: this.sx[i],     y: this.sy[i]}
       const p1 = {x: this.sx[i + 1], y: this.sy[i + 1]}
       const dist = hittest.dist_to_segment(point, p0, p1)
 
@@ -126,8 +126,8 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 
@@ -138,7 +138,7 @@ export namespace Line {
 
   export type Mixins = mixins.Line/*Scalar*/
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Line extends Line.Attrs {}

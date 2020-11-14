@@ -7,11 +7,11 @@ export class UndoToolView extends ActionToolView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.plot_view.state_changed, () => this.model.disabled = !this.plot_view.can_undo())
+    this.connect(this.plot_view.state.changed, () => this.model.disabled = !this.plot_view.state.can_undo)
   }
 
   doit(): void {
-    this.plot_view.undo()
+    this.plot_view.state.undo()
   }
 }
 

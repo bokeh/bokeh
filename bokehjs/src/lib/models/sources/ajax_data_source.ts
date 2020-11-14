@@ -8,7 +8,7 @@ export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = WebDataSource.Props & {
-    polling_interval: p.Property<number>
+    polling_interval: p.Property<number | null>
     content_type: p.Property<string>
     http_headers: p.Property<{[key: string]: string}>
     method: p.Property<HTTPMethod>
@@ -26,8 +26,8 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   static init_AjaxDataSource(): void {
-    this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict}) => ({
-      polling_interval: [ Int ],
+    this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
+      polling_interval: [ Nullable(Int), null ],
       content_type:     [ String, "application/json" ],
       http_headers:     [ Dict(String), {} ],
       method:           [ HTTPMethod, "POST" ],
@@ -48,7 +48,7 @@ export class AjaxDataSource extends WebDataSource {
     if (!this.initialized) {
       this.initialized = true
       this.get_data(this.mode)
-      if (this.polling_interval) {
+      if (this.polling_interval != null) {
         const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
         this.interval = setInterval(callback, this.polling_interval)
       }

@@ -29,7 +29,6 @@ export function parse_token(token: string): Token {
 }
 
 export class ClientConnection {
-
   protected readonly _number = _connection_count++
 
   socket: WebSocket | null = null

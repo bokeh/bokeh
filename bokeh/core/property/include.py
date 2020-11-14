@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+"""
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -40,15 +40,15 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Include(PropertyDescriptorFactory):
-    ''' Include "mix-in" property collection in a Bokeh model.
+    """ Include "mix-in" property collection in a Bokeh model.
 
     See :ref:`bokeh.core.property_mixins` for more details.
 
-    '''
+    """
 
     def __init__(self, delegate, help="", use_prefix=True):
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
-            raise ValueError("expected a subclass of HasProps, got %r" % delegate)
+            raise ValueError(f"expected a subclass of HasProps, got {delegate!r}")
 
         self.delegate = delegate
         self.help = help
@@ -73,7 +73,7 @@ class Include(PropertyDescriptorFactory):
             if isinstance(subprop_descriptor, BasicPropertyDescriptor):
                 prop = copy(subprop_descriptor.property)
                 if "%s" in self.help:
-                    doc = self.help % subpropname.replace('_', ' ')
+                    doc = self.help % subpropname.replace('_', ' ')  # TODO (bev) get rid of old-style string formatting
                 else:
                     doc = self.help
                 prop.__doc__ = doc

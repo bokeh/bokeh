@@ -127,7 +127,7 @@ Testing
 BokehJS testing is performed with the ``node make test`` command. You can run individual
 test suites with ``node make test:suite_name``. Known tests suites are:
 
-* ``node make test:size``
+* ``node make test:codebase``
 * ``node make test:defaults``
 * ``node make test:unit``
 * ``node make test:integration``

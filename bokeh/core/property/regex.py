@@ -4,11 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Regex property.
+""" Provide the Regex property.
 
 
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate

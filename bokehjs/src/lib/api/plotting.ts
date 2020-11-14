@@ -13,6 +13,7 @@ import {some, includes} from "../core/util/array"
 import {clone, keys, entries} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
+import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
 
 import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
@@ -23,6 +24,8 @@ import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
 export {rgb2hex as color} from "../core/util/color"
+
+const {hasOwnProperty} = Object.prototype
 
 export type ToolName = keyof ToolAliases
 
@@ -690,14 +693,14 @@ export class Figure extends Plot {
     }
 
     defaults = {...defaults}
-    if (!defaults.hasOwnProperty('text_color')) {
+    if (!hasOwnProperty.call(defaults, 'text_color')) {
       defaults.text_color = 'black'
     }
     const trait_defaults: Attrs = {}
-    if (!trait_defaults.hasOwnProperty('color')) {
+    if (!hasOwnProperty.call(trait_defaults, 'color')) {
       trait_defaults.color = _default_color
     }
-    if (!trait_defaults.hasOwnProperty('alpha')){
+    if (!hasOwnProperty.call(trait_defaults, 'alpha')){
       trait_defaults.alpha = _default_alpha
     }
 
@@ -706,19 +709,19 @@ export class Figure extends Plot {
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
-        if (props.hasOwnProperty(prefix+pname)) {
+        if (hasOwnProperty.call(props, prefix+pname)) {
           result[pname] = props[prefix+pname]
           delete props[prefix+pname]
-        } else if (!cls.prototype._props.hasOwnProperty(trait) && props.hasOwnProperty(prefix+trait)) {
+        } else if (!hasOwnProperty.call(cls.prototype._props, trait) && hasOwnProperty.call(props, prefix+trait)) {
           result[pname] = props[prefix+trait]
-        } else if (override_defaults.hasOwnProperty(trait)) {
+        } else if (hasOwnProperty.call(override_defaults, trait)) {
           result[pname] = override_defaults[trait]
-        } else if (defaults.hasOwnProperty(pname)) {
+        } else if (hasOwnProperty.call(defaults, pname)) {
           result[pname] = defaults[pname]
-        } else if (trait_defaults.hasOwnProperty(trait)) {
+        } else if (hasOwnProperty.call(trait_defaults, trait)) {
           result[pname] = trait_defaults[trait]
         }
-        if (!cls.prototype._props.hasOwnProperty(trait)) {
+        if (!hasOwnProperty.call(cls.prototype._props, trait)) {
           traits.add(trait)
         }
       }
@@ -763,9 +766,9 @@ export class Figure extends Plot {
                 data[field] = value
               }
 
-              attrs[name] = { field }
+              attrs[name] = {field}
             } else if (isNumber(value) || isString(value)) { // or Date?
-              attrs[name] = { value }
+              attrs[name] = {value}
             }
           }
         }
@@ -971,10 +974,10 @@ export class Figure extends Plot {
     let legend_item_label = null
     if (legend != null) {
       if (isString(legend)) {
-        legend_item_label = { value: legend }
+        legend_item_label = {value: legend}
         if (source.columns() != null) {
           if (includes(source.columns(), legend)) {
-            legend_item_label = { field: legend }
+            legend_item_label = {field: legend}
           }
         }
       } else {
@@ -1004,7 +1007,7 @@ export class Figure extends Plot {
       }
     }
     if (!added) {
-      const new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
+      const new_item = new models.LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }
@@ -1019,11 +1022,13 @@ declare const $: any
 export async function show<T extends LayoutDOM>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
 export async function show<T extends LayoutDOM>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
 
-export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<LayoutDOM> | ViewOf<T>[]> {
+export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLElement | string): Promise<ViewOf<T> | ViewOf<T>[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
     doc.add_root(item)
+
+  await dom_ready()
 
   let element: HTMLElement
   if (target == null) {
@@ -1042,7 +1047,7 @@ export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLEleme
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = await embed.add_document_standalone(doc, element) as ViewOf<LayoutDOM>[]
+  const views = await embed.add_document_standalone(doc, element) as ViewOf<T>[]
 
   return new Promise((resolve, _reject) => {
     const result = isArray(obj) ? views : views[0]

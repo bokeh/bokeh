@@ -32,7 +32,6 @@ export const AutosizeModes = {
 }
 
 export class TableDataProvider implements DataProvider<Item> {
-
   index: number[]
   source: ColumnDataSource
   view: CDSView

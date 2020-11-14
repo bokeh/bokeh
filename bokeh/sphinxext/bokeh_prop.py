@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Thoroughly document Bokeh property attributes.
+# -----------------------------------------------------------------------------
+""" Thoroughly document Bokeh property attributes.
 
 The ``bokeh-prop`` directive generates documentation for Bokeh model properties,
 including cross links to the relevant property types. Additionally, any
@@ -26,7 +26,7 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``:
 .. code-block:: python
 
     class Bar(Model):
-        """ This is a Bar model. """
+        ''' This is a Bar model. '''
         thing = List(Int, help="doc for thing")
 
 the above usage yields the output:
@@ -38,17 +38,18 @@ the above usage yields the output:
 The ``bokeh-prop`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 import importlib
@@ -66,44 +67,45 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from .bokeh_directive import BokehDirective
 from .templates import PROP_DETAIL
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'BokehPropDirective',
-    'setup',
+    "BokehPropDirective",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class BokehPropDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
     optional_arguments = 1
-    option_spec = {
-        'module': unchanged
-    }
+    option_spec = {"module": unchanged}
 
     def run(self):
 
-        model_name, prop_name = self.arguments[0].rsplit('.')
+        full_name = self.arguments[0]
+        model_name, prop_name = full_name.rsplit(".")
+        module_name = self.options["module"]
 
         try:
-            module = importlib.import_module(self.options['module'])
+            module = importlib.import_module(module_name)
         except ImportError:
-            raise SphinxError("Could not generate reference docs for %r: could not import module %r" % (self.arguments[0], self.options['module']))
+            raise SphinxError(f"Could not generate reference docs for {full_name}: could not import module {module_name}")
 
         model = getattr(module, model_name, None)
         if model is None:
-            raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (self.arguments[0], model_name, self.options['module']))
+            raise SphinxError(f"Unable to generate reference docs for {full_name}: no model {model_name} in module {module_name}")
 
         # We may need to instantiate deprecated objects as part of documenting
         # them in the reference guide. Suppress any warnings here to keep the
@@ -113,27 +115,30 @@ class BokehPropDirective(BokehDirective):
             model_obj = model()
 
         try:
-            descriptor = getattr(model_obj.__class__, prop_name)
+            descriptor = model_obj.lookup(prop_name)
         except AttributeError:
-            raise SphinxError("Unable to generate reference docs for %s, no property '%s' in %s" % (self.arguments[0], prop_name, model_name))
+            raise SphinxError("Unable to generate reference docs for {full_name}: no property {prop_name} on model {model_name}")
 
         rst_text = PROP_DETAIL.render(
             name=prop_name,
-            module=self.options['module'],
+            module=self.options["module"],
+            default=repr(descriptor.instance_default(model_obj)),
             type_info=descriptor.property._sphinx_type(),
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 
         return self._parse(rst_text, "<bokeh-prop>")
 
+
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.add_directive_to_domain('py', 'bokeh-prop', BokehPropDirective)
+    """ Required Sphinx extension setup function. """
+    app.add_directive_to_domain("py", "bokeh-prop", BokehPropDirective)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

@@ -67,12 +67,27 @@
     "prefer-const": ["error", {"destructuring": "all"}],
     "prefer-exponentiation-operator": "error",
     "quote-props": ["error", "as-needed"],
+    "object-curly-spacing": ["error", "never"],
     "space-before-function-paren": ["error", {
       "anonymous": "never",
       "named": "never",
       "asyncArrow": "always"
     }],
     "space-in-parens": ["error", "never"],
+    "keyword-spacing": ["error", {"before": true, "after": true}],
+    "func-call-spacing": ["error", "never"],
+    "no-whitespace-before-property": ["error"],
+    "block-spacing": ["error", "always"],
+    "key-spacing": ["error", {
+      "beforeColon": false,
+      "afterColon": true,
+      "mode": "minimum"
+    }],
+    "space-unary-ops": ["error", {
+      "words": true,
+      "nonwords": false,
+      "overrides": {}
+    }],
     "guard-for-in": ["error"]
   }
 }

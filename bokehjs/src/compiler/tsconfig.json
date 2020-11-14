@@ -25,7 +25,8 @@
     "target": "ES2017",
     "lib": ["es2017", "dom", "dom.iterable"],
     "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "../../build/js/compiler"
   },
   "include": ["./**/*.ts"]
 }

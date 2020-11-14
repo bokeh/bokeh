@@ -52,14 +52,14 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
 // helper function to map canvas-textAlign to svg-textAnchor
 function getTextAnchor(textAlign: string): string {
   // TODO: support rtl languages
-  const mapping: KV<string> = {left:"start", right:"end", center:"middle", start:"start", end:"end"}
+  const mapping: KV<string> = {left: "start", right: "end", center: "middle", start: "start", end: "end"}
   return mapping[textAlign] ?? mapping.start
 }
 
 // helper function to map canvas-textBaseline to svg-dominantBaseline
 function getDominantBaseline(textBaseline: string): string {
   // INFO: not supported in all browsers
-  const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top:"text-before-edge", bottom:"text-after-edge", middle:"central"}
+  const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top: "text-before-edge", bottom: "text-after-edge", middle: "central"}
   return mapping[textBaseline] ?? mapping.alphabetic
 }
 
@@ -120,37 +120,37 @@ type StyleState = {[key in StyleAttr]: Style}
 
 // Some basic mappings for attributes and default values.
 const STYLES: StyleState = {
-  strokeStyle:{
+  strokeStyle: {
     svgAttr: "stroke", // corresponding svg attribute
     canvas: "#000000", // canvas default
     svg: "none",       // svg default
     apply: "stroke",   // apply on stroke() or fill()
   },
-  fillStyle:{
+  fillStyle: {
     svgAttr: "fill",
     canvas: "#000000",
     svg: null, // svg default is black, but we need to special case this to handle canvas stroke without fill
     apply: "fill",
   },
-  lineCap:{
+  lineCap: {
     svgAttr: "stroke-linecap",
     canvas: "butt",
     svg: "butt",
     apply: "stroke",
   },
-  lineJoin:{
+  lineJoin: {
     svgAttr: "stroke-linejoin",
     canvas: "miter",
     svg: "miter",
     apply: "stroke",
   },
-  miterLimit:{
+  miterLimit: {
     svgAttr: "stroke-miterlimit",
     canvas: 10,
     svg: 4,
     apply: "stroke",
   },
-  lineWidth:{
+  lineWidth: {
     svgAttr: "stroke-width",
     canvas: 1,
     svg: 1,
@@ -162,26 +162,26 @@ const STYLES: StyleState = {
     svg: 1,
     apply: "fill stroke",
   },
-  font:{
+  font: {
     // font converts to multiple svg attributes, there is custom logic for this
     canvas: "10px sans-serif",
   },
-  shadowColor:{
+  shadowColor: {
     canvas: "#000000",
   },
-  shadowOffsetX:{
+  shadowOffsetX: {
     canvas: 0,
   },
-  shadowOffsetY:{
+  shadowOffsetY: {
     canvas: 0,
   },
-  shadowBlur:{
+  shadowBlur: {
     canvas: 0,
   },
-  textAlign:{
+  textAlign: {
     canvas: "start",
   },
-  textBaseline:{
+  textBaseline: {
     canvas: "alphabetic",
   },
   lineDash: {
@@ -893,14 +893,13 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       id: randomString(this.__ids),
       cx: `${tx1}px`,
       cy: `${ty1}px`,
-      r : `${r1}px`,
+      r: `${r1}px`,
       fx: `${tx0}px`,
       fy: `${ty0}px`,
       gradientUnits: "userSpaceOnUse",
     }, false)
     this.__defs.appendChild(grad)
     return new CanvasGradient(grad, this)
-
   }
 
   /**
