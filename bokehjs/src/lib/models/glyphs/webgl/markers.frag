@@ -1,4 +1,3 @@
-export const fragment_shader: string = `
 precision mediump float;
 const float SQRT_2 = 1.4142135623730951;
 const float PI = 3.14159265358979323846264;
@@ -281,4 +280,3 @@ void main()
 
     gl_FragColor = outline(distance, v_linewidth, u_antialias, v_fg_color, v_bg_color);
 }
-`
