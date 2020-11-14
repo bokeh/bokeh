@@ -35,7 +35,7 @@ HTML files
 
 Bokeh can generate complete HTML pages for Bokeh documents using the
 |file_html| function. This function can emit HTML from its own generic
-template, or from a template you provide. These HTML files contain plot
+template or from a template you provide. These HTML files contain plot
 data and are fully portable while still providing interactive tools
 (pan, zoom, etc.) for your plot. Here is an example:
 
@@ -87,14 +87,14 @@ The ``Bokeh.embed.embed_item`` function can then use this output on a web page:
 
 This renders the plot in the ``<div>`` with the ID *"myplot"*.
 
-You can also omit the target id when calling |json_item|:
+You can also omit the target ID when calling |json_item|:
 
 .. code-block:: python
 
         p = figure()
         p.circle(x, y)
 
-        item_text = json.dumps(json_item(p)) # no target_id given
+        item_text = json.dumps(json_item(p)) # no target ID given
 
 You can then specify the ID in JavaScript:
 
@@ -321,7 +321,7 @@ Here's an example of how you could use a multiple plot generator:
     print(script)
     print(div)
 
-Running ``python scatter.py`` prints out:
+Running ``python scatter.py`` prints out the following:
 
 .. code-block:: shell
 
@@ -350,8 +350,8 @@ Running ``python scatter.py`` prints out:
             'Red': '\n<div class="bk-root" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
         }
 
-You can then insert the resulting script and ``<div>`` elements into the
-following boilerplate:
+You can then insert the resulting script and ``<div>`` elements into a
+boilerplate such as the following:
 
 .. code-block:: html
 
@@ -389,14 +389,14 @@ Autoloading scripts
 
 You can also embed standalone documents with the |autoload_static| function.
 This function provides a ``<script>`` tag that replaces itself with a Bokeh
-plot. This script also checks for BokehJS and loads it, if necessary. This
+plot. This script also checks for BokehJS and loads it if necessary. This
 function let's you embed a plot with nothing but this ``<script>`` tag.
 
 This function takes a Bokeh model, such as a plot, that you want to display, a
 ``Resources`` object, and a path to load a script from. Then |autoload_static|
 returns a self-contained ``<script>`` tag and a block of JavaScript code. The
-JavaScript code saves to the path you provide and the ``<script>`` tag loads
-and runs it to display your plot on a web page.
+JavaScript code saves to the path you provide and the ``<script>`` loads and
+runs it to display your plot on a web page.
 
 Here is how you might use |autoload_static| with a simple plot:
 
@@ -451,7 +451,7 @@ time it loads.
 
 You can achieve this with the help of the |server_document| function. This
 function accepts the URL to a Bokeh server application and returns a script
-that embeds a new sessions from that server every time the script executes.
+that embeds a new session from that server every time the script executes.
 
 Here is an example of the |server_document| function in use:
 
