@@ -26,6 +26,7 @@ dependencies:
   - pip
   - pip:
     - sphinx-panels
+    - sphinx-reredirects
 
   # tests
   - beautifulsoup4

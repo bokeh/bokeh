@@ -25,6 +25,7 @@ exclude_patterns = ['docs/releases/*']
 
 extensions = [
     'sphinx_panels',
+    'sphinx_reredirects',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -89,6 +90,12 @@ intersphinx_mapping = {
 napoleon_include_init_with_doc = True
 
 pygments_style = 'sphinx'
+
+redirects = {
+    "docs/installation": "first_steps/installation.html",
+    "docs/user_guide/quickstart": "../first_steps.html",
+}
+
 
 # -- Options for HTML output ---------------------------------------------------
 

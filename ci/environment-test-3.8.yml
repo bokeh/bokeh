@@ -51,6 +51,7 @@ dependencies:
   - pip
   - pip:
     - sphinx-panels
+    - sphinx-reredirects
 
   # examples
   - flask >=1.0
