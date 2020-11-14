@@ -36,12 +36,35 @@ declare const css: string;
 export default css;
 `
 
-    write(rename(join(js_base, sub_path), {ext: ".css.js"}), js)
-    write(rename(join(dts_base, sub_path), {ext: ".css.dts"}), dts)
+    write(join(js_base, sub_path) + ".js", js)
+    write(join(dts_base, sub_path) + ".d.ts", dts)
   }
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:version"], async () => {
+task("scripts:glsl", async () => {
+  const lib_base = paths.src_dir.lib
+
+  const js_base = paths.build_dir.lib
+  const dts_base = paths.build_dir.types
+
+  for (const glsl_path of scan(lib_base, [".vert", ".frag"])) {
+    const sub_path = relative(lib_base, glsl_path)
+
+    const js = `\
+const shader = \`\n${read(glsl_path)}\`;
+export default shader;
+`
+    const dts = `\
+declare const shader: string;
+export default shader;
+`
+
+    write(join(js_base, sub_path) + ".js", js)
+    write(join(dts_base, sub_path) + ".d.ts", dts)
+  }
+})
+
+task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
