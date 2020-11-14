@@ -12,10 +12,12 @@ attribute float a_sx;
 attribute float a_sy;
 attribute float a_size;
 attribute float a_angle;  // in radians
+attribute float a_marker_type;
 attribute float a_linewidth;
 attribute vec4  a_fg_color;
 attribute vec4  a_bg_color;
 //
+varying float v_marker_type;
 varying float v_linewidth;
 varying float v_size;
 varying vec4  v_fg_color;
@@ -25,6 +27,7 @@ varying vec2  v_rotation;
 void main (void)
 {
     v_size = a_size * u_pixel_ratio;
+    v_marker_type = a_marker_type;
     v_linewidth = a_linewidth * u_pixel_ratio;
     v_fg_color = a_fg_color;
     v_bg_color = a_bg_color;

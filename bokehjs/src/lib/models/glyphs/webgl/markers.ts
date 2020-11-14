@@ -4,8 +4,8 @@ import {vertex_shader} from "./markers.vert"
 import {fragment_shader} from "./markers.frag"
 import {MarkerView} from "../../markers/marker"
 import {CircleView} from "../circle"
-import {Class} from "core/class"
 import {map} from "core/util/arrayable"
+import {isNumber} from "core/util/types"
 import {logger} from "core/logging"
 import {color2rgba, decode_rgba, RGBAf} from "core/util/color"
 import * as visuals from "core/visuals"
@@ -72,10 +72,8 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
 
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
-export abstract class MarkerGL extends BaseGLGlyph {
+export class MarkerGL extends BaseGLGlyph {
   readonly glyph: MarkerView | CircleView
-
-  protected abstract get _marker_code(): string
 
   protected prog: Program
   protected vbo_sx: VertexBuffer
@@ -85,6 +83,7 @@ export abstract class MarkerGL extends BaseGLGlyph {
   protected vbo_linewidth: VertexBuffer & {used?: boolean}
   protected vbo_fg_color: VertexBuffer & {used?: boolean}
   protected vbo_bg_color: VertexBuffer & {used?: boolean}
+  protected vbo_marker_type: VertexBuffer & {used?: boolean}
   protected index_buffer: IndexBuffer
 
   protected last_trans: Transform
@@ -95,7 +94,7 @@ export abstract class MarkerGL extends BaseGLGlyph {
     const {gl} = this
 
     const vert = vertex_shader
-    const frag = fragment_shader(this._marker_code)
+    const frag = fragment_shader
 
     // The program
     this.prog = new Program(gl)
@@ -110,6 +109,8 @@ export abstract class MarkerGL extends BaseGLGlyph {
     this.vbo_a = new VertexBuffer(gl)
     this.prog.set_attribute('a_angle', 'float', this.vbo_a)
     // VBO's for attributes (they may not be used if value is singleton)
+    this.vbo_marker_type = new VertexBuffer(gl)
+    //this.prog.set_attribute('a_marker_type', 'uint8', this.vbo_marker_type)
     this.vbo_linewidth = new VertexBuffer(gl)
     this.vbo_fg_color = new VertexBuffer(gl)
     this.vbo_bg_color = new VertexBuffer(gl)
@@ -147,6 +148,9 @@ export abstract class MarkerGL extends BaseGLGlyph {
     this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy)
     this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s)
     this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a)
+    if (this.vbo_marker_type.used) {
+      this.prog.set_attribute('a_marker_type', 'uint8', this.vbo_marker_type)
+    }
 
     // Draw directly or using indices. Do not handle indices if they do not
     // fit in a uint16; WebGL 1.0 does not support uint32.
@@ -190,6 +194,9 @@ export abstract class MarkerGL extends BaseGLGlyph {
         this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy, 0, offset)
         this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset)
         this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset)
+        if (this.vbo_marker_type.used) {
+          this.prog.set_attribute('a_marker_type', 'uint8', this.vbo_marker_type, 0, offset)
+        }
         if (this.vbo_linewidth.used) {
           this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset)
         }
@@ -223,6 +230,17 @@ export abstract class MarkerGL extends BaseGLGlyph {
       this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
     else
       this.vbo_s.set_data(0, new Float32Array(this.glyph._size))
+
+    const marker_type = this.glyph.get_marker_type()
+    if (isNumber(marker_type)) {
+      this.vbo_marker_type.used = false
+      this.prog.set_attribute("a_marker_type", "float" /*"uint8"*/, [marker_type])
+    } else {
+      //this.vbo_marker_type.used = true
+      this.vbo_marker_type.set_size(nvertices)
+      this.vbo_marker_type.set_data(0, marker_type)
+      this.prog.set_attribute("a_marker_type", "uint8", this.vbo_marker_type)
+    }
   }
 
   protected _set_visuals(nvertices: number): void {
@@ -235,27 +253,31 @@ export abstract class MarkerGL extends BaseGLGlyph {
   }
 }
 
-function mk_marker(code: string): Class<MarkerGL> {
-  return class extends MarkerGL {
-    protected get _marker_code(): string {
-      return code
-    }
-  }
+export const marker_type_gl = {
+  "asterisk": true,
+  "circle": true,
+  "circle_cross": true,
+  "circle_dot": false,
+  "circle_x": true,
+  "circle_y": false,
+  "cross": true,
+  "dash": false,
+  "diamond": true,
+  "diamond_cross": true,
+  "diamond_dot": false,
+  "dot": false,
+  "hex": true,
+  "hex_dot": false,
+  "inverted_triangle": true,
+  "plus": false,
+  "square": true,
+  "square_cross": true,
+  "square_dot": false,
+  "square_pin": false,
+  "square_x": true,
+  "triangle": true,
+  "triangle_dot": false,
+  "triangle_pin": false,
+  "x": true,
+  "y": false,
 }
-
-import * as glsl from "./markers.frag"
-
-export const AsteriskGL = mk_marker(glsl.asterisk)
-export const CircleGL = mk_marker(glsl.circle)
-export const CircleCrossGL = mk_marker(glsl.circlecross)
-export const CircleXGL = mk_marker(glsl.circlex)
-export const CrossGL = mk_marker(glsl.cross)
-export const DiamondGL = mk_marker(glsl.diamond)
-export const DiamondCrossGL = mk_marker(glsl.diamondcross)
-export const HexGL = mk_marker(glsl.hex)
-export const InvertedTriangleGL = mk_marker(glsl.invertedtriangle)
-export const SquareGL = mk_marker(glsl.square)
-export const SquareCrossGL = mk_marker(glsl.squarecross)
-export const SquareXGL = mk_marker(glsl.squarex)
-export const TriangleGL = mk_marker(glsl.triangle)
-export const XGL = mk_marker(glsl.x)

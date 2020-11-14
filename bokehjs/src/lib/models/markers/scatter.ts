@@ -1,18 +1,56 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
 import {MarkerType} from "core/enums"
+import {marker_type_gl} from "../glyphs/webgl/markers"
 import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export interface ScatterData extends MarkerData {
   _marker: Arrayable<MarkerType>
+  _marker_enum: Uint8Array
 }
 
 export interface ScatterView extends ScatterData {}
 
 export class ScatterView extends MarkerView {
   model: Scatter
+
+  protected _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const use_webgl = (() => {
+      const types = new Set(this._marker)
+      for (const type of types) {
+        if (!marker_type_gl[type])
+          return false
+      }
+      return true
+    })()
+
+    if (use_webgl) {
+      if (this.glglyph == null)
+        this._init_glglyph()
+    } else
+      delete this.glglyph
+
+    const marker_map = new Map<MarkerType, number>()
+    let k = 0
+    for (const marker_type of MarkerType) {
+      marker_map.set(marker_type, k++)
+    }
+
+    const n = this._marker.length
+    this._marker_enum = new Uint8Array(n)
+    for (let i = 0; i < n; i++) {
+      const marker_type = this._marker[i]
+      this._marker_enum[i] = marker_map.get(marker_type)!
+    }
+  }
+
+  get_marker_type(): number | Uint8Array {
+    return this._marker_enum
+  }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle, _marker}: ScatterData): void {
     for (const i of indices) {

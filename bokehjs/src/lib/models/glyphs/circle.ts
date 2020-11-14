@@ -1,10 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {MarkerGL, CircleGL} from "./webgl/markers"
+import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {Rect, NumberArray, Indices} from "core/types"
-import {RadiusDimension} from "core/enums"
+import {RadiusDimension, MarkerType} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -38,8 +38,12 @@ export class CircleView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      this.glglyph = new CircleGL(webgl.gl, this)
+      this.glglyph = new MarkerGL(webgl.gl, this)
     }
+  }
+
+  get_marker_type(): number {
+    return [...MarkerType].indexOf("circle")
   }
 
   protected _map_data(): void {

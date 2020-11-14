@@ -31,6 +31,7 @@ export class Program {
   }
 
   ATYPEINFO: {[key: string]: [number, number]} = {
+    uint8: [1, 5121],
     float: [1, 5126],
     vec2: [2, 5126],
     vec3: [3, 5126],
@@ -318,7 +319,7 @@ export class Program {
 
   _validate(): void {
     if (this._unset_variables.size) {
-      console.log(`Program has unset variables: ${this._unset_variables}`)
+      console.log(`Program has unset variables: ${[...this._unset_variables]}`)
     }
     this.gl.validateProgram(this.handle)
     if (!this.gl.getProgramParameter(this.handle, this.gl.VALIDATE_STATUS)) {
