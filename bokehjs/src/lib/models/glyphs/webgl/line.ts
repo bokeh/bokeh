@@ -1,7 +1,7 @@
 import {Program, VertexBuffer, IndexBuffer, Texture2d} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
-import {vertex_shader} from "./line.vert"
-import {fragment_shader} from "./line.frag"
+import vertex_shader from "./line.vert"
+import fragment_shader from "./line.frag"
 import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
 
