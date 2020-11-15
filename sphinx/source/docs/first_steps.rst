@@ -83,6 +83,13 @@ you want to learn more about any of the topics.
 
     Creating a line chart
 
+    +++
+
+    .. link-button:: first_steps/first_steps_1
+        :text: Go to section 1
+        :type: ref
+        :classes: btn-info btn-block stretched-link
+
     ---
     :header: bg-bokeh-two
 
@@ -91,13 +98,27 @@ you want to learn more about any of the topics.
 
     Adding and customizing renderers
 
+    +++
+
+    .. link-button:: first_steps/first_steps_2
+        :text: Go to section 2
+        :type: ref
+        :classes: btn-info btn-block stretched-link
+
     ---
     :header: bg-bokeh-three
 
     Guide 3
     ^^^^^^^
 
-     Adding legends, text, and annotations
+    Adding legends, text, and annotations
+
+    +++
+
+    .. link-button:: first_steps/first_steps_3
+        :text: Go to section 3
+        :type: ref
+        :classes: btn-info btn-block stretched-link
 
     ---
     :header: bg-bokeh-four
@@ -107,6 +128,13 @@ you want to learn more about any of the topics.
 
     Customizing your plot
 
+    +++
+
+    .. link-button:: first_steps/first_steps_4
+        :text: Go to section 4
+        :type: ref
+        :classes: btn-info btn-block stretched-link
+
     ---
     :header: bg-bokeh-five
 
@@ -115,6 +143,12 @@ you want to learn more about any of the topics.
 
     Vectorizing glyph properties
 
+    +++
+
+    .. link-button:: first_steps/first_steps_5
+        :text: Go to section 5
+        :type: ref
+        :classes: btn-info btn-block stretched-link
     ---
     :header: bg-bokeh-six
 
@@ -122,6 +156,13 @@ you want to learn more about any of the topics.
     ^^^^^^^
 
     Combining plots
+
+    +++
+
+    .. link-button:: first_steps/first_steps_6
+        :text: Go to section 6
+        :type: ref
+        :classes: btn-info btn-block stretched-link
 
     ---
     :header: bg-bokeh-seven
@@ -131,6 +172,12 @@ you want to learn more about any of the topics.
 
     Displaying and exporting
 
+    +++
+
+    .. link-button:: first_steps/first_steps_7
+        :text: Go to section 7
+        :type: ref
+        :classes: btn-info btn-block stretched-link
     ---
     :header: bg-bokeh-one
 
@@ -139,6 +186,13 @@ you want to learn more about any of the topics.
 
     Providing data
 
+    +++
+
+    .. link-button:: first_steps/first_steps_8
+        :text: Go to section 8
+        :type: ref
+        :classes: btn-info btn-block stretched-link
+
     ---
     :header: bg-bokeh-one
 
@@ -146,6 +200,13 @@ you want to learn more about any of the topics.
     ^^^^^^^
 
     Bokeh Server app
+
+    +++
+
+    .. link-button:: first_steps/first_steps_9
+        :text: Go to section 9
+        :type: ref
+        :classes: btn-info btn-block stretched-link
 
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
