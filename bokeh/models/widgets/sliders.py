@@ -52,6 +52,7 @@ __all__ = (
     'RangeSlider',
     'DateSlider',
     'DateRangeSlider',
+    'DatetimeRangeSlider',
 )
 
 #-----------------------------------------------------------------------------
@@ -269,6 +270,76 @@ class DateRangeSlider(AbstractSlider):
     """)
 
     format = Override(default="%d %b %Y")
+
+
+class DatetimeRangeSlider(AbstractSlider):
+    """ Slider-based datetime range selection widget. """
+
+    @property
+    def value_as_datetime(self):
+        ''' Convenience property to retrieve the value tuple as a tuple of
+        datetime objects.
+
+        Added in version 1.1
+        '''
+        if self.value is None:
+            return None
+        v1, v2 = self.value
+        if isinstance(v1, numbers.Number):
+            d1 = datetime.utcfromtimestamp(v1 / 1000)
+        else:
+            d1 = v1
+        if isinstance(v2, numbers.Number):
+            d2 = datetime.utcfromtimestamp(v2 / 1000)
+        else:
+            d2 = v2
+        return d1, d2
+
+    @property
+    def value_as_date(self):
+        ''' Convenience property to retrieve the value tuple as a tuple of
+        date objects.
+
+        Added in version 1.1
+        '''
+        if self.value is None:
+            return None
+        v1, v2 = self.value
+        if isinstance(v1, numbers.Number):
+            dt = datetime.utcfromtimestamp(v1 / 1000)
+            d1 = date(*dt.timetuple()[:3])
+        else:
+            d1 = v1
+        if isinstance(v2, numbers.Number):
+            dt = datetime.utcfromtimestamp(v2 / 1000)
+            d2 = date(*dt.timetuple()[:3])
+        else:
+            d2 = v2
+        return d1, d2
+
+    value = Tuple(Datetime, Datetime, help="""
+    Initial or selected range.
+    """)
+
+    value_throttled = Tuple(Datetime, Datetime, help="""
+    Initial or selected value, throttled to report only on mouseup.
+    """)
+
+    start = Datetime(help="""
+    The minimum allowable value.
+    """)
+
+    end = Datetime(help="""
+    The maximum allowable value.
+    """)
+
+    step = Int(default=1, help="""
+    The step between consecutive values.
+    """)
+
+    format = Override(default="%d %b %Y %H:%M:%S")
+
+
 
 #-----------------------------------------------------------------------------
 # Private API
