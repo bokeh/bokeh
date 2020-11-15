@@ -29,7 +29,7 @@ export class DatetimeRangeSlider extends AbstractSlider {
     this.prototype.default_view = DatetimeRangeSliderView
 
     this.override<DatetimeRangeSlider.Props>({
-      format: "%d %b %Y %H:%M:%S" ,
+      format: "%d %b %Y %H:%M:%S",
     })
   }
 
