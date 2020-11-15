@@ -124,7 +124,7 @@ the final BokehJS scripts.
       static __name__ = "Surface3d"
 
       static init_Custom(): void {
-        // If there is an associated view, it's typically a boilerplate.
+        // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 
         // The this.define() block adds corresponding "properties" to the JS
