@@ -19,7 +19,7 @@ dependencies:
   - colorama
   - conda-build=3.20.5
   - conda-verify=3.4.2
-  - nodejs>=10.13
+  - nodejs 14.*
   - ripgrep=0.10.0
   - setuptools
   - yaml

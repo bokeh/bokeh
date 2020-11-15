@@ -35,7 +35,7 @@ RUN conda config --get channels
 # install build time dependencies
 RUN conda install --yes --quiet `python scripts/deps.py build`
 # install NPM dependencies
-RUN npm install -g npm
+RUN npm install -g npm@7
 WORKDIR $BOKEH_SOURCE_DIR/bokehjs
 # build BokehJS
 RUN npm ci --no-progress
