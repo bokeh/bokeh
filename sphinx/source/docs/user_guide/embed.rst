@@ -123,7 +123,7 @@ This produces JavaScript code that looks either like this:
         .then(function(item) { return Bokeh.embed.embed_item(item) })
     </script>
 
-Or, with modern syntax, like that:
+Or, with modern syntax, like this:
 
 .. code-block:: html
 
@@ -211,16 +211,16 @@ the ``x.y.z``:
 The ``"-widgets"`` and ``"-tables"`` files are only necessary if your document
 includes Bokeh widgets and data tables.
 
-For example, to use version ``1.4.0`` with support for widgets and tables,
+For example, to use version ``2.2.0`` with support for widgets and tables,
 include the following in your HTML:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-1.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.2.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-1.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.2.0.min.js"
             crossorigin="anonymous"></script>
 
 .. note::
@@ -237,20 +237,20 @@ hashes can be obtained by calling
 
     In [1]: import bokeh.resources
 
-    In [2]: bokeh.resources.get_sri_hashes_for_version("2.0.0")
+    In [2]: bokeh.resources.get_sri_hashes_for_version("2.2.0")
     Out[2]:
-    {'bokeh-2.0.0.js': 'TQAjsk2/lDn1NHjYoe8HIascd3/Cw4EWdk6GNtYXVVyAiUkbEZiuP7fEgbSwM37Y',
+    {'bokeh-2.2.0.js': 'TQAjsk2/lDn1NHjYoe8HIascd3/Cw4EWdk6GNtYXVVyAiUkbEZiuP7fEgbSwM37Y',
 
     ...
 
-    'bokeh-widgets-2.0.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
+    'bokeh-widgets-2.2.0.min.js': '2ltAd1cQhavmLeBEZXGgnna8fjbw+FjvDq9m2dig4+8KVS8JcYFUQaALvLT//qHE'}
 
 These are bare hashes, and you have to prefix them with `sha384-` to use. For
 example:
 
 .. code-block:: html
 
-     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.0.min.js"
+     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"
              integrity="sha384-5Y+xuMRAbgBj/2WKUiL8yzV4fBFic1HJPo2hT3pq2IsEzbsJjj8kT2i0b1lZ7C2N"
              crossorigin="anonymous"></script>
 
@@ -361,7 +361,7 @@ boilerplate such as the following:
             <meta charset="utf-8">
             <title>Bokeh Scatter Plots</title>
 
-            <script src="https://cdn.bokeh.org/bokeh/release/bokeh-1.1.0.min.js"></script>
+            <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.0.min.js"></script>
 
             <!-- COPY/PASTE SCRIPT HERE -->
 
@@ -373,8 +373,6 @@ boilerplate such as the following:
 
 Note that this doesn't include JavaScript and CSS files for ``"-widgets"``
 because the document doesn't use any Bokeh widgets.
-
-CDN resources are also available as HTTPS URLs if required.
 
 You can see an example of multiple plot generation by executing the following:
 
@@ -449,9 +447,9 @@ URL, you will typically want to embed the entire application in a web page.
 This way, the page will create a new session and display it to the user every
 time it loads.
 
-You can achieve this with the help of the |server_document| function. This
-function accepts the URL to a Bokeh server application and returns a script
-that embeds a new session from that server every time the script executes.
+You can achieve this with the |server_document| function. This function
+accepts the URL to a Bokeh server application and returns a script that
+embeds a new session from that server every time the script executes.
 
 Here is an example of the |server_document| function in use:
 
