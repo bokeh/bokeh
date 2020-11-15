@@ -6,7 +6,7 @@ import {Color, Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
-import {Location} from "../core/enums"
+import {Location, MarkerType} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {is_equal} from "../core/util/eq"
 import {some, includes} from "../core/util/array"
@@ -16,7 +16,7 @@ import {ViewOf} from "core/view"
 import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
 
-import {Glyph, Marker, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
+import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
 import {ToolAliases} from "../models/tools/tool"
 
 import {LayoutDOM} from "models/layouts/layout_dom"
@@ -524,160 +524,164 @@ export class Figure extends Plot {
     return this._glyph(models.Wedge, "x,y,radius,start_angle,end_angle", args)
   }
 
-  asterisk(args: Partial<MarkerArgs>): GlyphRenderer
-  asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  asterisk(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Asterisk, args)
-  }
-
-  circle_cross(args: Partial<MarkerArgs>): GlyphRenderer
-  circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_cross(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.CircleCross, args)
-  }
-
-  circle_dot(args: Partial<MarkerArgs>): GlyphRenderer
-  circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.CircleDot, args)
-  }
-
-  circle_x(args: Partial<MarkerArgs>): GlyphRenderer
-  circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_x(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.CircleX, args)
-  }
-
-  circle_y(args: Partial<MarkerArgs>): GlyphRenderer
-  circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_y(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.CircleY, args)
-  }
-
-  cross(args: Partial<MarkerArgs>): GlyphRenderer
-  cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  cross(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Cross, args)
-  }
-
-  dash(args: Partial<MarkerArgs>): GlyphRenderer
-  dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  dash(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Dash, args)
-  }
-
-  diamond(args: Partial<MarkerArgs>): GlyphRenderer
-  diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  diamond(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Diamond, args)
-  }
-
-  diamond_cross(args: Partial<MarkerArgs>): GlyphRenderer
-  diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  diamond_cross(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.DiamondCross, args)
-  }
-
-  diamond_dot(args: Partial<MarkerArgs>): GlyphRenderer
-  diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  diamond_dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.DiamondDot, args)
-  }
-
-  dot(args: Partial<MarkerArgs>): GlyphRenderer
-  dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Dot, args)
-  }
-
-  hex(args: Partial<MarkerArgs>): GlyphRenderer
-  hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  hex(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Hex, args)
-  }
-
-  hex_dot(args: Partial<MarkerArgs>): GlyphRenderer
-  hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  hex_dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.HexDot, args)
-  }
-
-  inverted_triangle(args: Partial<MarkerArgs>): GlyphRenderer
-  inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  inverted_triangle(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.InvertedTriangle, args)
-  }
-
-  plus(args: Partial<MarkerArgs>): GlyphRenderer
-  plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  plus(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Plus, args)
-  }
-
-  square(args: Partial<MarkerArgs>): GlyphRenderer
-  square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Square, args)
-  }
-
-  square_cross(args: Partial<MarkerArgs>): GlyphRenderer
-  square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_cross(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.SquareCross, args)
-  }
-
-  square_dot(args: Partial<MarkerArgs>): GlyphRenderer
-  square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.SquareDot, args)
-  }
-
-  square_pin(args: Partial<MarkerArgs>): GlyphRenderer
-  square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_pin(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.SquarePin, args)
-  }
-
-  square_x(args: Partial<MarkerArgs>): GlyphRenderer
-  square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_x(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.SquareX, args)
-  }
-
-  triangle(args: Partial<MarkerArgs>): GlyphRenderer
-  triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  triangle(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Triangle, args)
-  }
-
-  triangle_dot(args: Partial<MarkerArgs>): GlyphRenderer
-  triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  triangle_dot(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.TriangleDot, args)
-  }
-
-  triangle_pin(args: Partial<MarkerArgs>): GlyphRenderer
-  triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  triangle_pin(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.TrianglePin, args)
-  }
-
-  x(args: Partial<MarkerArgs>): GlyphRenderer
-  x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  x(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.X, args)
-  }
-
-  y(args: Partial<MarkerArgs>): GlyphRenderer
-  y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  y(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Y, args)
+  protected _scatter(args: unknown[], marker?: MarkerType): GlyphRenderer {
+    return this._glyph(models.Scatter, "x,y", args, marker != null ? {marker} : undefined)
   }
 
   scatter(args: Partial<ScatterArgs>): GlyphRenderer
   scatter(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<ScatterArgs>): GlyphRenderer
   scatter(...args: unknown[]): GlyphRenderer {
-    return this._marker(models.Scatter, args)
+    return this._scatter(args)
+  }
+
+  asterisk(args: Partial<MarkerArgs>): GlyphRenderer
+  asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  asterisk(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "asterisk")
+  }
+
+  circle_cross(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_cross(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "circle_cross")
+  }
+
+  circle_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "circle_dot")
+  }
+
+  circle_x(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_x(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "circle_x")
+  }
+
+  circle_y(args: Partial<MarkerArgs>): GlyphRenderer
+  circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  circle_y(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "circle_y")
+  }
+
+  cross(args: Partial<MarkerArgs>): GlyphRenderer
+  cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  cross(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "cross")
+  }
+
+  dash(args: Partial<MarkerArgs>): GlyphRenderer
+  dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  dash(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "dash")
+  }
+
+  diamond(args: Partial<MarkerArgs>): GlyphRenderer
+  diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  diamond(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "diamond")
+  }
+
+  diamond_cross(args: Partial<MarkerArgs>): GlyphRenderer
+  diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  diamond_cross(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "diamond_cross")
+  }
+
+  diamond_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  diamond_dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "diamond_dot")
+  }
+
+  dot(args: Partial<MarkerArgs>): GlyphRenderer
+  dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "dot")
+  }
+
+  hex(args: Partial<MarkerArgs>): GlyphRenderer
+  hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  hex(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "hex")
+  }
+
+  hex_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  hex_dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "hex_dot")
+  }
+
+  inverted_triangle(args: Partial<MarkerArgs>): GlyphRenderer
+  inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  inverted_triangle(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "inverted_triangle")
+  }
+
+  plus(args: Partial<MarkerArgs>): GlyphRenderer
+  plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  plus(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "plus")
+  }
+
+  square(args: Partial<MarkerArgs>): GlyphRenderer
+  square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "square")
+  }
+
+  square_cross(args: Partial<MarkerArgs>): GlyphRenderer
+  square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_cross(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "square_cross")
+  }
+
+  square_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "square_dot")
+  }
+
+  square_pin(args: Partial<MarkerArgs>): GlyphRenderer
+  square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_pin(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "square_pin")
+  }
+
+  square_x(args: Partial<MarkerArgs>): GlyphRenderer
+  square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  square_x(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "square_x")
+  }
+
+  triangle(args: Partial<MarkerArgs>): GlyphRenderer
+  triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  triangle(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "triangle")
+  }
+
+  triangle_dot(args: Partial<MarkerArgs>): GlyphRenderer
+  triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  triangle_dot(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "triangle_dot")
+  }
+
+  triangle_pin(args: Partial<MarkerArgs>): GlyphRenderer
+  triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  triangle_pin(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "triangle_pin")
+  }
+
+  x(args: Partial<MarkerArgs>): GlyphRenderer
+  x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  x(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "x")
+  }
+
+  y(args: Partial<MarkerArgs>): GlyphRenderer
+  y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
+  y(...args: unknown[]): GlyphRenderer {
+    return this._scatter(args, "y")
   }
 
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
@@ -776,7 +780,7 @@ export class Figure extends Plot {
     }
   }
 
-  _glyph(cls: Class<Glyph>, params_string: string, args: unknown[]): GlyphRenderer {
+  _glyph(cls: Class<Glyph>, params_string: string, args: unknown[], overrides?: object): GlyphRenderer {
     const params = params_string.split(",")
 
     let attrs: Attrs
@@ -793,6 +797,10 @@ export class Figure extends Plot {
       for (const [param, i] of enumerate(params)) {
         attrs[param] = args[i]
       }
+    }
+
+    if (overrides != null) {
+      attrs = {...attrs, ...overrides}
     }
 
     const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new models.ColumnDataSource()
@@ -846,10 +854,6 @@ export class Figure extends Plot {
 
     this.add_renderers(glyph_renderer)
     return glyph_renderer
-  }
-
-  _marker(cls: Class<Marker>, args: unknown[]): GlyphRenderer {
-    return this._glyph(cls, "x,y", args)
   }
 
   static _get_range(range?: Range | [number, number] | string[]): Range {
