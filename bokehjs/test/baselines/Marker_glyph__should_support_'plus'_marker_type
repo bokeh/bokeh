@@ -1,7 +1,5 @@
-Row bbox=[0, 0, 450, 150]
+Row bbox=[0, 0, 300, 150]
   Plot bbox=[0, 0, 150, 150]
     Title bbox=[5, 0, 140, 28]
   Plot bbox=[150, 0, 150, 150]
-    Title bbox=[5, 0, 140, 28]
-  Plot bbox=[300, 0, 150, 150]
     Title bbox=[5, 0, 140, 28]
