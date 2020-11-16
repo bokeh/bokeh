@@ -130,6 +130,8 @@ export class ScientificFormatter extends StringFormatter {
 
     if ((value == null || isNaN(value)) && this.nan_format != null)
       value = this.nan_format
+    else if (value == 0)
+      value = to_fixed(value, 1)
     else if (need_sci)
       value = value.toExponential(precision)
     else
