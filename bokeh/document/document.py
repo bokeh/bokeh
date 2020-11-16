@@ -548,7 +548,8 @@ class Document:
             Document :
 
         '''
-        roots_json = json['roots']
+        doc_json=json['doc']
+        roots_json = doc_json['roots']
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
@@ -559,7 +560,7 @@ class Document:
         for r in root_ids:
             doc.add_root(references[r])
 
-        doc.title = json['title']
+        doc.title = doc_json['title']
 
         return doc
 
