@@ -8,7 +8,7 @@ Bokeh applications into web pages. First, here's how standalone documents
 differ from applications:
 
 :ref:`userguide_embed_standalone`
-    These documents don't need a Bokeh server to be useful. They may have many
+    These documents don't require a Bokeh server to work. They may have many
     tools and interactions such as custom JavaScript callbacks but are
     otherwise nothing but HTML, CSS, and JavaScript. These documents can be
     embedded into other HTML pages as one large document or as a set of
@@ -16,7 +16,7 @@ differ from applications:
 
 :ref:`userguide_embed_apps`
     These applications require a Bokeh server to work. Having a Bokeh server
-    let's you connect events and tools to real-time Python callbacks that
+    lets you connect events and tools to real-time Python callbacks that
     execute on the server. For more information about creating and running
     Bokeh apps, see :ref:`userguide_server`.
 
@@ -34,8 +34,8 @@ HTML files
 ~~~~~~~~~~
 
 Bokeh can generate complete HTML pages for Bokeh documents using the
-|file_html| function. This function can emit HTML from its own generic
-template or from a template you provide. These HTML files contain plot
+|file_html| function. This function can create an HTML document from its own
+generic template or from a template you provide. These HTML files contain plot
 data and are fully portable while still providing interactive tools
 (pan, zoom, etc.) for your plot. Here is an example:
 
@@ -58,9 +58,10 @@ see the |file_html| documentation.
 This is a low-level, explicit way to generate an HTML file, which can be
 useful for web applications such as Flask apps.
 
-In scripts and Jupyter notebooks employing the |bokeh.plotting| interface users
-typically call the |output_file| function in conjunction with |show| or |save|
-instead.
+In scripts and Jupyter notebooks employing the |bokeh.plotting| interface, you
+can call the |output_file| function in conjunction with |show| or |save|
+instead. The |show| function creates an HTML document and displays it in a
+web browser whereas |save| creates an HTML document and saves it locally.
 
 .. _userguide_embed_json_items:
 
@@ -78,7 +79,8 @@ Bokeh model (for example, a plot) and an optional ID of the target ``<div>``.
 
         item_text = json.dumps(json_item(p, "myplot"))
 
-The ``Bokeh.embed.embed_item`` function can then use this output on a web page:
+The :func:`~Bokeh.embed.embed_item` function can then use this output
+on a web page:
 
 .. code-block:: javascript
 
@@ -388,7 +390,7 @@ Autoloading scripts
 You can also embed standalone documents with the |autoload_static| function.
 This function provides a ``<script>`` tag that replaces itself with a Bokeh
 plot. This script also checks for BokehJS and loads it if necessary. This
-function let's you embed a plot with nothing but this ``<script>`` tag.
+function lets you embed a plot with nothing but this ``<script>`` tag.
 
 This function takes a Bokeh model, such as a plot, that you want to display, a
 ``Resources`` object, and a path to load a script from. Then |autoload_static|
