@@ -1,8 +1,9 @@
 import {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
-import fs = require("fs")
-import path = require("path")
+import fs from "fs"
+import path from "path"
+import readline from "readline"
 import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
@@ -10,6 +11,22 @@ import {Bar, Presets} from "cli-progress"
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
+
+if (process.platform == "win32") {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  rl.on("SIGINT", () => {
+    process.emit("SIGINT", "SIGINT")
+  })
+}
+
+process.on("SIGINT", () => {
+  console.log()
+  process.exit(130)
+})
 
 const url = argv._[0]
 const port = parseInt(argv.port as string | undefined ?? "9222")
