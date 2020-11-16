@@ -133,7 +133,7 @@ describe("cell_formatters module", () => {
         expect(df.doFormat(0, 0, 10, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">10</div>')
       })
 
-      it("should apply to_fixed if value is 1e-8", () => {
+      it("should apply toExponential if value is 1e-8", () => {
         const df = new ScientificFormatter({precision: 1e-8})
         expect(df.doFormat(0, 0, 1e-8, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">1.0e-8</div>')
       })
