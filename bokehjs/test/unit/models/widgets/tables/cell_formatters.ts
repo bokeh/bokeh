@@ -124,21 +124,25 @@ describe("cell_formatters module", () => {
       })
 
       it("should apply to_fixed if value is zero", () => {
-        const df = new ScientificFormatter({precision: 0})
-        expect(df.doFormat(0, 0, 0, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">0</div>')
+        const df = new ScientificFormatter({ precision: 0 })
+        expect(df.doFormat(0, 0, 0, {}, {})).to.be.equal(
+          '<div class="bk" style="text-align: left;">0</div>'
+        )
       })
 
       it("should apply to_fixed if value is 10", () => {
-        const df = new ScientificFormatter({precision: 10})
-        expect(df.doFormat(0, 0, 10, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">10</div>')
+        const df = new ScientificFormatter({ precision: 10 })
+        expect(df.doFormat(0, 0, 10, {}, {})).to.be.equal(
+          '<div class="bk" style="text-align: left;">10</div>'
+        )
       })
 
       it("should apply toExponential if value is 1e-8", () => {
-        const df = new ScientificFormatter({precision: 1e-8})
-        expect(df.doFormat(0, 0, 1e-8, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">1.0e-8</div>')
+        const df = new ScientificFormatter({ precision: 1e-8 })
+        expect(df.doFormat(0, 0, 1e-8, {}, {})).to.be.equal(
+          '<div class="bk" style="text-align: left;">1.0e-8</div>'
+        )
       })
-
-
     })
   })
 })
