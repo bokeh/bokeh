@@ -548,7 +548,11 @@ class Document:
             Document :
 
         '''
-        roots_json = json['roots']
+        try:
+            roots_json = json['roots']
+        except:
+            json=json['doc']
+            roots_json = json['roots']
         root_ids = roots_json['root_ids']
         references_json = roots_json['references']
 
