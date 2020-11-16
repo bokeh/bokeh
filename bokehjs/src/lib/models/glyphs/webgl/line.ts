@@ -98,8 +98,6 @@ const caps: {[key: string]: number} = {
 }
 
 export class LineGL extends BaseGLGlyph {
-  readonly glyph: LineView
-
   protected prog: Program
   protected index_buffer: IndexBuffer
   protected vbo_position: VertexBuffer
@@ -126,8 +124,9 @@ export class LineGL extends BaseGLGlyph {
 
   protected cumsum: number
 
-  protected init(): void {
-    const {gl} = this
+  constructor(gl: WebGLRenderingContext, readonly glyph: LineView) {
+    super(gl, glyph)
+
     this._scale_aspect = 0  // keep track, so we know when we need to update segment data
 
     const vert = vertex_shader
