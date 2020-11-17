@@ -17,8 +17,8 @@ Use standard Python lists of data to pass values directly into a plotting
 function.
 
 In this example, the lists ``x_values`` and ``y_values`` pass data
-to the :func:`~bokeh.plotting.Figure.circle`
-:ref:`plotting function <userguide_plotting>`:
+to the :func:`~bokeh.plotting.Figure.circle` function (see
+:ref:`plotting function <userguide_plotting>` for more examples):
 
 .. code-block:: python
 
@@ -30,12 +30,26 @@ to the :func:`~bokeh.plotting.Figure.circle`
     p = figure()
     p.circle(x=x_values, y=y_values)
 
-When you pass data like this, Bokeh automatically creates a |ColumnDataSource|
-for you.
+.. _userguide_data_numpy:
 
-However, learning to create and use a |ColumnDataSource| yourself gives you
-access to more advanced options, such as streaming data, sharing data between
-plots, and filtering data.
+Providing NumPy data
+--------------------
+
+Similarly to using Python lists and arrays, you can also work with NumPy data
+structures in Bokeh:
+
+.. code-block:: python
+
+    import numpy as np
+    from bokeh.plotting import figure
+
+    x = [1, 2, 3, 4, 5]
+    random = np.random.standard_normal(5)
+    cosine = np.cos(x)
+
+    p = figure()
+    p.circle(x=x, y=random)
+    p.line(x=x, y=cosine)
 
 .. _userguide_data_cds:
 
@@ -45,30 +59,42 @@ Providing data as a ColumnDataSource
 The |ColumnDataSource| (CDS) is the core of most Bokeh plots. It provides the
 data to the glyphs of your plot.
 
-Using a |ColumnDataSource| allows you to share data between multiple plots
-and widgets. For example: If you use a single ColumnDataSource together with
+When you pass sequences like Python lists or NumPy arrays to a Bokeh renderer,
+Bokeh automatically converts those data structures into ColumnDataSources.
+Working with ColumnDataSources directly gives you access to more advanced
+options, compared to using standard data sequences like lists and arrays.
+
+For example: Using a |ColumnDataSource| allows you to share data between
+multiple plots and widgets. If you use a single ColumnDataSource together with
 multiple renderers, those renderers also share information about data you
 select with a select tool from Bokeh's toolbar (see
 :ref:`userguide_data_linked_selection`).
 
-Think of a ColumnDataSource as a collection of lists of data that each have
+Think of a ColumnDataSource as a collection of sequences of data that each have
 their own, unique column name.
 
-To create a |ColumnDataSource| object, you need a Python dictionary. The column
-names are the key of this dictionary, while the data values are the
-dictionary's value. Once you have a ColumnDataSource set up, you can pass it
-to a plotting function with the ``source`` argument:
+To create a |ColumnDataSource| object, you need a Python dictionary to pass to
+the object's ``data`` parameter:
+
+* Bokeh uses the dictionary's keys as column names.
+* The dictionary's values are used as the data values for your ColumnDataSource.
+
+The data that you pass as part of your dict can be any non-string ordered
+sequences of values, such as lists or arrays (including NumPy arrays).
+
+Once you have a ColumnDataSource set up, pass it to a plotting function using
+the ``source`` argument:
 
 .. code-block:: python
 
     from bokeh.plotting import figure
     from bokeh.models import ColumnDataSource
 
-    # generate a Python dict as the basis of your ColumnDataSource
+    # create a Python dict as the basis of your ColumnDataSource
     data = {'x_values': [1, 2, 3, 4, 5],
             'y_values': [6, 7, 2, 3, 6]}
 
-    # generate a ColumnDataSource by passing the dict
+    # create a ColumnDataSource by passing the dict
     source = ColumnDataSource(data=data)
 
     # create a plot using the ColumnDataSource's two columns
@@ -89,6 +115,11 @@ at least these three arguments:
     Bokeh assumes that all columns in a ColumnDataSource each have the same
     length at all times. For this reason, make sure to always update all columns
     of a ColumnDataSource at the same time.
+
+Using NumPy data
+----------------
+
+Bokeh
 
 .. _userguide_data_cds_pandas_data_frame:
 
