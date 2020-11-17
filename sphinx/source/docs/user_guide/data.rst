@@ -5,7 +5,7 @@ Providing data
 
 The basis for any data visualization is the underlying data. This section
 describes the various ways to provide data to Bokeh, from passing data values
-directly, to creating a |ColumnDataSource| (CDS) and filtering the data with a
+directly to creating a |ColumnDataSource| (CDS) and filtering the data with a
 |CDSView|.
 
 .. _userguide_data_python_lists:
@@ -61,7 +61,7 @@ data to the glyphs of your plot.
 
 When you pass sequences like Python lists or NumPy arrays to a Bokeh renderer,
 Bokeh automatically converts those data structures into ColumnDataSources.
-Working with ColumnDataSources directly gives you access to more advanced
+Directly working with ColumnDataSources gives you access to more advanced
 options, compared to using standard data sequences like lists and arrays.
 
 For example: Using a |ColumnDataSource| allows you to share data between
@@ -79,8 +79,8 @@ the object's ``data`` parameter:
 * Bokeh uses the dictionary's keys as column names.
 * The dictionary's values are used as the data values for your ColumnDataSource.
 
-The data that you pass as part of your dict can be any non-string ordered
-sequences of values, such as lists or arrays (including NumPy arrays).
+The data you pass as part of your dict can be any non-string ordered sequences
+of values, such as lists or arrays (including NumPy arrays).
 
 Once you have a ColumnDataSource set up, pass it to a plotting function using
 the ``source`` argument:
@@ -101,8 +101,8 @@ the ``source`` argument:
     p = figure()
     p.circle(x='x_values', y='y_values', source=source)
 
-In order to use a ColumnDataSource with a plotting function, you need to pass
-at least these three arguments:
+To use a ColumnDataSource with a plotting function, you need to pass at least
+these three arguments:
 
 * ``x``: the name of the ColumnDataSource's column that contains the data for
   the x values of your plot
@@ -115,11 +115,6 @@ at least these three arguments:
     Bokeh assumes that all columns in a ColumnDataSource each have the same
     length at all times. For this reason, make sure to always update all columns
     of a ColumnDataSource at the same time.
-
-Using NumPy data
-----------------
-
-Bokeh
 
 .. _userguide_data_cds_pandas_data_frame:
 
@@ -140,16 +135,16 @@ the columns follows these rules:
   named index column, the ColumnDataSource will also have a column with this
   name.
 * If the index name is ``None``, the ColumnDataSource will have a generic name:
-  either ``index`` (if that name is available), or ``level_0``.
+  either ``index`` (if that name is available) or ``level_0``.
 
 .. _userguide_data_cds_pandas_multi_index:
 
 Using a pandas MultiIndex
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 If you use a pandas ``MultiIndex`` as the basis for a Bokeh
-``ColumnsDataSource``, Bokeh flattens the columns and indices before creating
-the ColumnDataSource. For the index, Bokeh creates an index of tuples joins the
-names of the ``MultiIndex`` with an underscore. The column names will also be
+``ColumnDataSource``, Bokeh flattens the columns and indices before creating
+the ColumnDataSource. For the index, Bokeh creates an index of tuples and joins
+the names of the ``MultiIndex`` with an underscore. The column names will also be
 joined with an underscore. For example:
 
 .. code-block:: python
@@ -163,8 +158,8 @@ This will result in a column named ``index`` with ``[(A, B), (A, C), (A, D)]``,
 as well as columns named ``a_b``, ``b_a``, and ``b_b``.
 
 This process only works with column names that are strings. If you are using
-non-string column names, you need to flatten the ``DataFrame`` manually before
-you can use it as the basis of a Bokeh ``ColumnsDataSource``.
+non-string column names, you need to manually flatten the ``DataFrame`` before
+using it as the basis of a Bokeh ``ColumnDataSource``.
 
 .. _userguide_data_cds_pandas_group_by:
 
@@ -176,18 +171,18 @@ Using pandas GroupBy
     group = df.groupby(('colA', 'ColB'))
     source = ColumnDataSource(group)
 
-If you use a pandas ``GroupBy`` object, the columns of the CDS correspond to the
-result of calling ``group.describe()``. The ``describe`` method generates
-columns for statistical measures such as ``mean`` and ``count`` for all the
-non-grouped original columns.
+If you use a pandas ``GroupBy`` object, the columns of the ColumnDataSource
+correspond to the result of calling ``group.describe()``. The ``describe``
+method generates columns for statistical measures such as ``mean`` and ``count``
+for all the non-grouped original columns.
 
 The resulting ``DataFrame`` has ``MultiIndex`` columns with the original column
-name and the computed measure, so it will be flattened using the rules described
+name and the computed measure. Bokeh flattens the data using the rules described
 above.
 
 For example: If a ``DataFrame`` has the columns ``'year'`` and ``'mpg'``,
-passing ``df.groupby('year')`` to a CDS will result in columns such as
-``'mpg_mean'``.
+passing ``df.groupby('year')`` to a ColumnDataSource will result in columns such
+as ``'mpg_mean'``.
 
 .. note::
     Adapting ``GroupBy`` objects requires pandas version 0.20.0 or above.
@@ -197,18 +192,20 @@ passing ``df.groupby('year')`` to a CDS will result in columns such as
 Streaming
 ~~~~~~~~~
 
-|ColumnDataSource| streaming is an efficient way to append new data to a CDS.
-When you use the :func:`~bokeh.models.sources.ColumnDataSource.stream` method,
-Bokeh only sends new data to the browser, instead of sending the entire dataset.
+|ColumnDataSource| streaming is an efficient way to append new data to a
+ColumnDataSource. When you use the
+:func:`~bokeh.models.sources.ColumnDataSource.stream` method, Bokeh only sends
+new data to the browser instead of sending the entire dataset.
 
 The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
-``new_data`` parameter. This parameter contains a dict which maps column names
+``new_data`` parameter. This parameter expects a dict that maps column names
 to the sequences of data that you want appended to the respective columns.
 
 The method takes an additional, optional argument ``rollover``. This is the
-maximum length of data to keep (data from the beginning of the column will be
-discarded). The default ``rollover`` value of ``None`` allows data to grow
-unbounded.
+maximum length of data to keep. When there is more data than defined by your
+maximum value, Bokeh will discard data from the beginning of the column. The
+default value for ``rollover`` is ``None``. This default value allows data to
+grow unbounded.
 
 .. code-block:: python
 
@@ -262,7 +259,7 @@ Dynamically calculating color maps in the browser, for example, can reduce the
 amount of Python code. If the necessary calculations for color mapping happen
 directly in the browser, you will also need to send less data.
 
-This section provides an overview over the different transform objects that are
+This section provides an overview of the different transform objects that are
 available.
 
 Client-side color mapping
@@ -293,14 +290,14 @@ functions:
 
 * :func:`~bokeh.transform.log_cmap` for color mapping on a log scale
 * :func:`~bokeh.transform.factor_cmap` for color mapping categorical data (see
-the example below).
+  the example below).
 
 Mapping marker types
 ~~~~~~~~~~~~~~~~~~~~
 
 When you use categorical data, you can use different markers for each of the
 categories in your data. Use the :func:`~bokeh.transform.factor_mark`
-function to automatically assign different markers to different categories:
+function to assign different markers to different categories automatically:
 
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_markers.py
     :source-position: above
@@ -309,9 +306,9 @@ This example also uses :func:`~bokeh.transform.factor_cmap` to color map those
 same categories.
 
 .. note::
-    The :func:`~bokeh.transform.factor_mark` transform is primarily only useful
-    with the ``scatter`` glyph method, since only the ``Scatter`` glyph can be
-    parameterized by marker type.
+    The :func:`~bokeh.transform.factor_mark` transform is usually only useful
+    with the ``scatter`` glyph method because parameterization by marker type
+    only makes sense with scatter plots.
 
 Including JavaScript code with CustomJSTransform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -365,7 +362,7 @@ A |CDSView| has two properties, ``source`` and ``filters``:
 * ``source`` is the |ColumnDataSource| that the you want to apply the filters to
 * ``filters`` is a list of |Filter| objects, listed and described below.
 
-In this example, you create a |CDSView| called ``view`` which uses the
+In this example, you create a |CDSView| called ``view``. ``view`` uses the
 ColumnDataSource ``source`` and a list of two filters, ``filter1`` and
 ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.Figure.circle`
 renderer function:
@@ -384,7 +381,7 @@ renderer function:
 IndexFilter
 ~~~~~~~~~~~
 
-The |IndexFilter| is the simplest filter type. It has an ``indices`` property
+The |IndexFilter| is the simplest filter type. It has an ``indices`` property,
 which is a list of integers that are the indices of the data you want to include
 in your plot.
 
@@ -408,6 +405,7 @@ The |GroupFilter| is a filter for categorical data. With this filter, you can
 select rows from a dataset that are members of a specific category.
 
 The |GroupFilter| has two properties:
+
 * ``column_name``: the name of the column in the |ColumnDataSource| to apply the
   filter to
 * ``group``: the name of the category to select for
@@ -429,8 +427,10 @@ filters. To include your custom filter code, use Bokeh's |CustomJSFilter| class.
 Pass your code as a string to the parameter ``code`` of the CustomJSFilter.
 
 Your JavaScript or TypeScript code needs to return either a list of indices or a
-list of booleans that represents the filtered subset. You can access the
-|ColumnDataSource| you are using with |CDSView| through the variable ``source``:
+list of booleans representing the filtered subset. You can access the
+|ColumnDataSource| you are using with |CDSView| from within your JavaScript or
+TypeScript code. Bokeh makes the ColumnDataSource available through the variable
+``source``:
 
 .. code-block:: python
 
@@ -455,8 +455,8 @@ AjaxDataSource
 
 Updating and streaming data works very well with
 :ref:`Bokeh server applications<userguide_server>`. However, it is also possible
-to use a similar functionality in standalone documents. The
-:class:`~bokeh.models.sources.AjaxDataSource` provides this capability, without
+to use similar functionality in standalone documents. The
+:class:`~bokeh.models.sources.AjaxDataSource` provides this capability without
 requiring a Bokeh server.
 
 To set up an ``AjaxDataSource``, you need to configure it with a URL to a REST
@@ -464,6 +464,7 @@ endpoint and a polling interval.
 
 In the browser, the data source requests data from the endpoint at the specified
 interval. It then uses the data from the endpoint to update the data locally.
+
 Updating data locally can happen in two ways: either by replacing the existing
 local data entirely or by appending the new data to the existing data (up to a
 configurable ``max_size``). Replacing local data is the default setting. Pass
@@ -506,7 +507,7 @@ GitHub repository.
 Linked selection
 ----------------
 
-You can share selections between two plots if both of the plots use to same
+You can share selections between two plots if both of the plots use the same
 |ColumnDataSource|:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
@@ -517,9 +518,10 @@ You can share selections between two plots if both of the plots use to same
 Linked selection with filtered data
 -----------------------------------
 
-Using a |ColumnDataSource|, you can also have two plots use different subsets of
-the same data. Both plots still share selections and hovered inspections through
-the |ColumnDataSource| they are based on.
+Using a |ColumnDataSource|, you can also have two plots that are based on the
+same data but each use a different subset of that data. Both plots still share
+selections and hovered inspections through the |ColumnDataSource| they are based
+on.
 
 The following example demonstrates this behavior:
 
