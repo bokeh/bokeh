@@ -189,8 +189,8 @@ as ``'mpg_mean'``.
 
 .. _userguide_data_cds_streaming:
 
-Streaming
-~~~~~~~~~
+Appending data to a ColumnDataSource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |ColumnDataSource| streaming is an efficient way to append new data to a
 ColumnDataSource. When you use the
@@ -223,8 +223,8 @@ For an example that uses streaming, see :bokeh-tree:`examples/app/ohlc`.
 
 .. _userguide_data_cds_patching:
 
-Patching
-~~~~~~~~
+Replacing data in a ColumnDataSource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |ColumnDataSource| patching is an efficient way to update slices of a data
 source. By using the :func:`~bokeh.models.sources.ColumnDataSource.patch`
