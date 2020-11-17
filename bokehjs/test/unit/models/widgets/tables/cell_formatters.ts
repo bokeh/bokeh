@@ -137,8 +137,6 @@ describe("cell_formatters module", () => {
         const df = new ScientificFormatter({precision: 1e-8})
         expect(df.doFormat(0, 0, 1e-8, {}, {})).to.be.equal('<div class="bk" style="text-align: left;">1.0e-8</div>')
       })
-
-
     })
   })
 })
