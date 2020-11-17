@@ -8,6 +8,8 @@ describes the various ways to provide data to Bokeh, from passing data values
 directly, to creating a |ColumnDataSource| (CDS) and filtering the data with a
 |CDSView|.
 
+.. _userguide_data_python_lists:
+
 Providing data with Python lists
 --------------------------------
 
@@ -35,6 +37,8 @@ However, learning to create and use a |ColumnDataSource| yourself gives you
 access to more advanced options, such as streaming data, sharing data between
 plots, and filtering data.
 
+.. _userguide_data_cds:
+
 Providing data as a ColumnDataSource
 ------------------------------------
 
@@ -42,17 +46,17 @@ The |ColumnDataSource| (CDS) is the core of most Bokeh plots. It provides the
 data to the glyphs of your plot.
 
 Using a |ColumnDataSource| allows you to share data between multiple plots
-and widgets. For example: If you use a single |ColumnDataSource| together with
+and widgets. For example: If you use a single ColumnDataSource together with
 multiple renderers, those renderers also share information about data you
 select with a select tool from Bokeh's toolbar (see
 :ref:`userguide_data_linked_selection`).
 
-Think of a |ColumnDataSource| as a collection of lists of data that each have
+Think of a ColumnDataSource as a collection of lists of data that each have
 their own, unique column name.
 
 To create a |ColumnDataSource| object, you need a Python dictionary. The column
 names are the key of this dictionary, while the data values are the
-dictionary's value. Once you have a |ColumnDataSource| set up, you can pass it
+dictionary's value. Once you have a ColumnDataSource set up, you can pass it
 to a plotting function with the ``source`` argument:
 
 .. code-block:: python
@@ -82,36 +86,40 @@ at least these three arguments:
   just referenced for the ``x`` and ``y`` arguments.
 
 .. note::
-    Bokeh assumes that all columns in a ``ColumnDataSource`` each have the
-    same length at all times. For this reason, make sure to always update all
-    columns of a ColumnDataSource at the same time.
+    Bokeh assumes that all columns in a ColumnDataSource each have the same
+    length at all times. For this reason, make sure to always update all columns
+    of a ColumnDataSource at the same time.
+
+.. _userguide_data_cds_pandas_data_frame:
 
 Using a pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``data`` parameter can also be a pandas ``DataFrame`` or ``GroupBy`` object:.:
+The ``data`` parameter can also be a pandas ``DataFrame`` or ``GroupBy`` object:
 
 .. code-block:: python
 
    source = ColumnDataSource(df)
 
-If you use a pandas ``DataFrame``, the resulting CDS in Bokeh will have columns
-that correspond to the columns of the ``DataFrame``. The naming of the columns
-follows these rules:
+If you use a pandas ``DataFrame``, the resulting ColumnDataSource in Bokeh will
+have columns that correspond to the columns of the ``DataFrame``. The naming of
+the columns follows these rules:
 
 * The index of the ``DataFrame`` will be reset, so if the ``DataFrame`` has a
-  named index column, the CDS will also have a column with this name.
-* If the index name is ``None``, then the CDS will be assigned a
-  generic name: It will be ``index`` if it is available, otherwise it will be
-  ``level_0``.
+  named index column, the ColumnDataSource will also have a column with this
+  name.
+* If the index name is ``None``, the ColumnDataSource will have a generic name:
+  either ``index`` (if that name is available), or ``level_0``.
+
+.. _userguide_data_cds_pandas_multi_index:
 
 Using a pandas MultiIndex
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 If you use a pandas ``MultiIndex`` as the basis for a Bokeh
-``ColumnsDataSource``, Bokeh will flatten the columns and indices before
-creating the CDS. For the index, an index of tuples will be created, and the
-names of the ``MultiIndex`` will be joined with an underscore. The column names
-will also be joined with an underscore. For example:
+``ColumnsDataSource``, Bokeh flattens the columns and indices before creating
+the ColumnDataSource. For the index, Bokeh creates an index of tuples joins the
+names of the ``MultiIndex`` with an underscore. The column names will also be
+joined with an underscore. For example:
 
 .. code-block:: python
 
@@ -126,6 +134,8 @@ as well as columns named ``a_b``, ``b_a``, and ``b_b``.
 This process only works with column names that are strings. If you are using
 non-string column names, you need to flatten the ``DataFrame`` manually before
 you can use it as the basis of a Bokeh ``ColumnsDataSource``.
+
+.. _userguide_data_cds_pandas_group_by:
 
 Using pandas GroupBy
 ~~~~~~~~~~~~~~~~~~~~
@@ -151,6 +161,8 @@ passing ``df.groupby('year')`` to a CDS will result in columns such as
 .. note::
     Adapting ``GroupBy`` objects requires pandas version 0.20.0 or above.
 
+.. _userguide_data_cds_streaming:
+
 Streaming
 ~~~~~~~~~
 
@@ -160,7 +172,7 @@ Bokeh only sends new data to the browser, instead of sending the entire dataset.
 
 The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
 ``new_data`` parameter. This parameter contains a dict which maps column names
-to sequences of data to be appended to the respective columns.
+to the sequences of data that you want appended to the respective columns.
 
 The method takes an additional, optional argument ``rollover``. This is the
 maximum length of data to keep (data from the beginning of the column will be
@@ -181,6 +193,8 @@ unbounded.
 
 For an example that uses streaming, see :bokeh-tree:`examples/app/ohlc`.
 
+.. _userguide_data_cds_patching:
+
 Patching
 ~~~~~~~~
 
@@ -192,7 +206,7 @@ dataset.
 The :func:`~bokeh.models.sources.ColumnDataSource.patch` requires a dict which
 maps column names to list of tuples that represent a patch change to apply.
 
-Examples of tuples to be used with
+Examples of tuples that you can use with
 :func:`~bokeh.models.sources.ColumnDataSource.patch`:
 
 .. code-block:: python
@@ -204,6 +218,8 @@ Examples of tuples to be used with
     (slice, new_values) # replace several column values
 
 For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
+
+.. _userguide_data_transforming:
 
 Transforming data
 -----------------
@@ -230,7 +246,7 @@ arguments:
   list of colors)
 * ``min`` and ``max`` values for the color mapping range.
 
-The result can be passed as a ``color`` property of a glyph:
+Pass the result as a ``color`` property of a glyph:
 
 .. code-block:: python
 
@@ -300,6 +316,7 @@ returns that are relative to the first data point:
 .. bokeh-plot:: docs/user_guide/examples/data_transforming_customjs_transform.py
     :source-position: none
 
+.. _userguide_data_filtering:
 
 Filtering data
 --------------
@@ -377,17 +394,12 @@ CustomJSFilter
 ~~~~~~~~~~~~~~
 
 You can also use your own JavaScript or TypeScript code to create customized
-filters. To include your own custom filter code, use Bokeh's |CustomJSFilter|
-class.
+filters. To include your custom filter code, use Bokeh's |CustomJSFilter| class.
+Pass your code as a string to the parameter ``code`` of the CustomJSFilter.
 
-The |ColumnDataSource| that is associated with the |CDSView| this filter is added to will be available
-at render time with the variable ``source``.
-
-JavaScript
-''''''''''
-
-To create a |CustomJSFilter| with custom functionality written in JavaScript,
-pass in the JavaScript code as a string to the parameter ``code``:
+Your JavaScript or TypeScript code needs to return either a list of indices or a
+list of booleans that represents the filtered subset. You can access the
+|ColumnDataSource| you are using with |CDSView| through the variable ``source``:
 
 .. code-block:: python
 
@@ -410,17 +422,24 @@ pass in the JavaScript code as a string to the parameter ``code``:
 AjaxDataSource
 --------------
 
-Bokeh server applications make it simple to update and stream data to data
-sources, but sometimes it is desirable to have similar functionality in
-standalone documents. The :class:`~bokeh.models.sources.AjaxDataSource`
-provides this capability.
+Updating and streaming data works very well with
+:ref:`Bokeh server applications<userguide_server>`. However, it is also possible
+to use a similar functionality in standalone documents. The
+:class:`~bokeh.models.sources.AjaxDataSource` provides this capability, without
+requiring a Bokeh server.
 
-The ``AjaxDataSource`` is configured with a URL to a REST endpoint and a
-polling interval. In the browser, the data source will request data from the
-endpoint at the specified interval and update the data locally. Existing
-data may either be replaced entirely or appended to (up to a configurable
-``max_size``). The endpoint that is supplied should return a JSON dict that
-matches the standard ``ColumnDataSource`` format:
+To set up an ``AjaxDataSource``, you need to configure it with a URL to a REST
+endpoint and a polling interval.
+
+In the browser, the data source requests data from the endpoint at the specified
+interval. It then uses the data from the endpoint to update the data locally.
+Updating data locally can happen in two ways: either by replacing the existing
+local data entirely or by appending the new data to existing data (up to a
+configurable ``max_size``).
+
+The endpoint that you are using with your ``AjaxDataSource`` needs to return a
+JSON dict that matches the standard
+:ref:`ColumnDataSource format <userguide_data_cds>`:
 
 .. code-block:: python
 
@@ -434,24 +453,28 @@ Otherwise, using an ``AjaxDataSource`` is identical to using a standard
 
 .. code-block:: python
 
+    # setup AjaxDataSource with URL and polling interval
     source = AjaxDataSource(data_url='http://some.api.com/data',
                             polling_interval=100)
 
-    # Use just like a ColumnDataSource
+    # use the AjaxDataSource just like a ColumnDataSource
     p.circle('x', 'y', source=source)
 
-A full example (shown below) can be seen at
-:bokeh-tree:`examples/howto/ajax_source.py`
+This a preview of what a stream of live data in Bokeh can look like using
+``AjaxDataSource``:
 
 .. image:: /_images/ajax_streaming.gif
+
+For the full example, see :bokeh-tree:`examples/howto/ajax_source.py` in Bokeh's
+GitHub repository.
 
 .. _userguide_data_linked_selection:
 
 Linked selection
 ----------------
 
-Using the same |ColumnDataSource| in the two plots below allows their selections to be
-shared.
+You can share selections between two plots if both of the plots use to same
+|ColumnDataSource|:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
     :source-position: above
@@ -461,15 +484,19 @@ shared.
 Linked selection with filtered data
 -----------------------------------
 
-With the ability to specify a subset of data to be used for each glyph renderer, it is
-easy to share data between plots even when the plots use different subsets of data.
-By using the same |ColumnDataSource|, selections and hovered inspections of that data source
-are automatically shared.
+Using a |ColumnDataSource|, you can also have two plots use different subsets of
+the same data. Both plots still share selections and hovered inspections through
+the |ColumnDataSource| they are based on.
 
-In the example below, a |CDSView| is created for the second plot that specifies the subset
-of data in which the y values are either greater than 250 or less than 100. Selections in either
-plot are automatically reflected in the other. And hovering on a point in one plot will highlight
-the corresponding point in the other plot if it exists.
+The following example demonstrates this behavior:
+
+* The second plot is a subset of the data of the first plot. The second plot
+  uses a |CDSView| to include only y values that are either greater than 250 or
+  less than 100.
+* If you make a selection with the ``BoxSelect`` tool in either plot, the
+  selection is automatically reflected in the other plot as well.
+* If you hover on a point in one plot, the corresponding point in the other plot
+  is automatically highlighted as well, if it exists.
 
 .. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
@@ -477,8 +504,8 @@ the corresponding point in the other plot if it exists.
 Other data types
 ----------------
 
-Bokeh also has the capability to render network graph data and geographical data.
-For more information about how to set up the data for these types of plots, see
+You can also use Bokeh to render network graph data and geographical data. For
+more information about how to set up the data for these types of plots, see
 :ref:`userguide_graph` and :ref:`userguide_geo`.
 
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
