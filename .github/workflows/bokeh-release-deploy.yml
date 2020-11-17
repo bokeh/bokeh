@@ -33,8 +33,8 @@ jobs:
           echo "Please contact @bokeh/core about conducting releases."
           exit 1
 
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-release-deploy

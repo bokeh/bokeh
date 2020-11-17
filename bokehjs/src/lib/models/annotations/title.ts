@@ -11,7 +11,7 @@ export class TitleView extends TextAnnotationView {
 
   initialize(): void {
     super.initialize()
-    this.visuals.text = new visuals.Text(this.model)
+    this.visuals.text = new visuals.Text(this)
   }
 
   protected _get_location(): [number, number] {

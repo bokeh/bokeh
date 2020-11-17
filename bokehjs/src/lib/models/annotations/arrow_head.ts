@@ -11,7 +11,7 @@ export abstract class ArrowHeadView extends View {
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
   }
 
   abstract render(ctx: Context2d, i: number): void
@@ -26,7 +26,7 @@ export namespace ArrowHead {
     size: p.Property<number>
   }
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}

@@ -108,7 +108,7 @@ commands:
 .. code-block:: sh
 
     cd bokehjs
-    npm install -g npm
+    npm install -g npm@7
 
 If you do not wish to install globally (i.e. with ``-g``), then all
 subsequent ``npm`` commands will need to be adjusted to use the local

@@ -49,6 +49,12 @@ class EventCallbackManager:
         self._event_callbacks = dict()
 
     def on_event(self, event, *callbacks):
+        ''' Run callbacks when the specified event occurs on this Model
+
+        Not all Events are supported for all Models.
+        See specific Events in :ref:`bokeh.events` for more information on
+        which Models are able to trigger them.
+        '''
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
