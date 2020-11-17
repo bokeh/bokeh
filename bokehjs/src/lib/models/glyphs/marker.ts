@@ -1,6 +1,5 @@
 import {RenderOne} from "./defs"
-import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
-import {MarkerGL} from "../glyphs/webgl/markers"
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -23,9 +22,6 @@ export interface MarkerView extends MarkerData {}
 export abstract class MarkerView extends XYGlyphView {
   model: Marker
   visuals: Marker.Visuals
-
-  /** @internal */
-  glglyph?: MarkerGL
 
   protected _render_one: RenderOne
 

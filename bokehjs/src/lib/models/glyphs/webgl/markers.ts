@@ -2,7 +2,7 @@ import {Program, VertexBuffer, IndexBuffer} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
 import vertex_shader from "./markers.vert"
 import fragment_shader from "./markers.frag"
-import {MarkerView} from "../../markers/marker"
+import {ScatterView} from "../scatter"
 import {CircleView} from "../circle"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
@@ -10,6 +10,8 @@ import {MarkerType} from "core/enums"
 import {color2rgba, decode_rgba, RGBAf} from "core/util/color"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+
+type MarkerLikeView = ScatterView | CircleView
 
 function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
     visual: visuals.LineVector | visuals.FillVector, prop: p.NumberSpec): void {
@@ -105,7 +107,7 @@ export class MarkerGL extends BaseGLGlyph {
     }
   }
 
-  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerView | CircleView, readonly marker_type: MarkerType) {
+  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
     super(gl, glyph)
 
     const defs = [`#define USE_${marker_type.toUpperCase()}`]
@@ -131,9 +133,9 @@ export class MarkerGL extends BaseGLGlyph {
     this.index_buffer = new IndexBuffer(gl)
   }
 
-  draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
+  draw(indices: number[], main_glyph: MarkerLikeView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
-    const mainGlGlyph = mainGlyph.glglyph!
+    const mainGlGlyph = main_glyph.glglyph!
     const {nvertices} = mainGlGlyph
 
     // Upload data if we must. Only happens for main glyph.

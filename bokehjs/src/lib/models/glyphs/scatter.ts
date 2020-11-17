@@ -1,6 +1,6 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
-import {MarkerGL} from "../glyphs/webgl/markers"
+import {MarkerGL} from "./webgl/markers"
 import {MarkerType} from "core/enums"
 import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
@@ -14,6 +14,9 @@ export interface ScatterView extends ScatterData {}
 
 export class ScatterView extends MarkerView {
   model: Scatter
+
+  /** @internal */
+  glglyph?: MarkerGL
 
   protected _init_webgl(): void {
     const {webgl} = this.renderer.plot_view.canvas_view
