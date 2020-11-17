@@ -33,7 +33,7 @@ from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs,
 from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
-from ._decorators import glyph_method
+from ._decorators import glyph_method, marker_method
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
 from ._stack import double_stack, single_stack
@@ -203,7 +203,7 @@ Examples:
     def arc(self, **kwargs):
         pass
 
-    @glyph_method(markers.Asterisk)
+    @marker_method()
     def asterisk(self, **kwargs):
         """
 Examples:
@@ -245,7 +245,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleCross)
+    @marker_method()
     def circle_cross(self, **kwargs):
         """
 Examples:
@@ -263,7 +263,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleCross)
+    @marker_method()
     def circle_dot(self, **kwargs):
         """
 Examples:
@@ -281,7 +281,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleX)
+    @marker_method()
     def circle_x(self, **kwargs):
         """
 Examples:
@@ -299,7 +299,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleX)
+    @marker_method()
     def circle_y(self, **kwargs):
         """
 Examples:
@@ -317,7 +317,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Cross)
+    @marker_method()
     def cross(self, **kwargs):
         """
 Examples:
@@ -335,7 +335,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Dash)
+    @marker_method()
     def dash(self, **kwargs):
         """
 Examples:
@@ -353,7 +353,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Diamond)
+    @marker_method()
     def diamond(self, **kwargs):
         """
 Examples:
@@ -371,7 +371,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.DiamondCross)
+    @marker_method()
     def diamond_cross(self, **kwargs):
         """
 Examples:
@@ -389,7 +389,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.DiamondDot)
+    @marker_method()
     def diamond_dot(self, **kwargs):
         """
 Examples:
@@ -407,7 +407,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Dot)
+    @marker_method()
     def dot(self, **kwargs):
         """
 Examples:
@@ -477,7 +477,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Hex)
+    @marker_method()
     def hex(self, **kwargs):
         """
 Examples:
@@ -494,7 +494,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Hex)
+    @marker_method()
     def hex_dot(self, **kwargs):
         """
 Examples:
@@ -552,7 +552,7 @@ Examples:
     def image_url(self, **kwargs):
         pass
 
-    @glyph_method(markers.InvertedTriangle)
+    @marker_method()
     def inverted_triangle(self, **kwargs):
         """
 Examples:
@@ -687,7 +687,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Plus)
+    @marker_method()
     def plus(self, **kwargs):
         """
 Examples:
@@ -798,7 +798,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Square)
+    @marker_method()
     def square(self, **kwargs):
         """
 Examples:
@@ -815,7 +815,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareCross)
+    @marker_method()
     def square_cross(self, **kwargs):
         """
 Examples:
@@ -833,7 +833,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareDot)
+    @marker_method()
     def square_dot(self, **kwargs):
         """
 Examples:
@@ -851,7 +851,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquarePin)
+    @marker_method()
     def square_pin(self, **kwargs):
         """
 Examples:
@@ -869,7 +869,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareX)
+    @marker_method()
     def square_x(self, **kwargs):
         """
 Examples:
@@ -896,7 +896,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Triangle)
+    @marker_method()
     def triangle(self, **kwargs):
         """
 Examples:
@@ -914,7 +914,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.TriangleDot)
+    @marker_method()
     def triangle_dot(self, **kwargs):
         """
 Examples:
@@ -932,7 +932,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.TrianglePin)
+    @marker_method()
     def triangle_pin(self, **kwargs):
         """
 Examples:
@@ -1003,7 +1003,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.X)
+    @marker_method()
     def x(self, **kwargs):
         """
 Examples:
@@ -1020,7 +1020,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Y)
+    @marker_method()
     def y(self, **kwargs):
         """
 Examples:

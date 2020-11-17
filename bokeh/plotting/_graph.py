@@ -21,13 +21,13 @@ import sys
 # Bokeh imports
 from ..core.properties import field
 from ..models import (
+    Circle,
     ColumnarDataSource,
     ColumnDataSource,
     GlyphRenderer,
     MultiLine,
     Scatter,
 )
-from ..models.markers import marker_types
 from ._renderer import make_glyph, pop_visuals
 
 #-----------------------------------------------------------------------------
@@ -74,21 +74,17 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     marker = kwargs.pop('node_marker', None)
+    marker_type = Scatter
     if isinstance(marker, dict) and 'field' in marker or marker in node_source.data:
-        marker_type = Scatter
         kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
             marker = marker['value']
-        elif marker is None:
-            marker = 'circle'
-        if marker == "scatter":
-            marker_type = Scatter
+
+        if marker is None or marker == "circle":
+            marker_type = Circle
         else:
-            marker_type = marker_types.get(marker)
-    if marker_type is None:
-        msg = "Could not determine marker type for node_marker={marker}".format(marker=repr(marker))
-        raise ValueError(msg)
+            kwargs["node_marker"] = marker
 
     ## node stuff
     node_visuals = pop_visuals(marker_type, kwargs, prefix="node_")

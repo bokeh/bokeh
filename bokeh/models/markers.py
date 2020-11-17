@@ -72,6 +72,7 @@ from ..core.properties import (
 )
 from ..core.property.dataspec import field
 from ..core.property_mixins import FillProps, LineProps
+from ..util.deprecation import deprecated
 from .glyph import FillGlyph, LineGlyph, XYGlyph
 
 #-----------------------------------------------------------------------------
@@ -195,12 +196,6 @@ class Scatter(Marker):
 
     __example__ = "examples/reference/models/Scatter.py"
 
-class Asterisk(Marker):
-    ''' Render asterisk '*' markers. '''
-
-    __example__ = "examples/reference/models/Asterisk.py"
-
-
 class Circle(Marker):
     ''' Render circle markers. '''
 
@@ -240,130 +235,141 @@ class Circle(Marker):
     and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
-class CircleCross(Marker):
+def Asterisk(*args, **kwargs):
+    ''' Render asterisk '*' markers. '''
+    deprecated((2, 3, 0), "Asterisk()", "Scatter(marker='asterisk')")
+    return Scatter(*args, **kwargs, marker="asterisk")
+
+def CircleCross(*args, **kwargs):
     ''' Render circle markers with a '+' cross through the center. '''
+    deprecated((2, 3, 0), "CircleCross()", "Scatter(marker='circle_cross')")
+    return Scatter(*args, **kwargs, marker="circle_cross")
 
-    __example__ = "examples/reference/models/CircleCross.py"
-
-class CircleDot(Marker):
+def CircleDot(*args, **kwargs):
     ''' Render circle markers with center dots. '''
+    deprecated((2, 3, 0), "CircleDot()", "Scatter(marker='circle_dot')")
+    return Scatter(*args, **kwargs, marker="circle_dot")
 
-    __example__ = "examples/reference/models/CircleDot.py"
-
-class CircleX(Marker):
+def CircleX(*args, **kwargs):
     ''' Render circle markers with an 'X' cross through the center. '''
+    deprecated((2, 3, 0), "CircleX()", "Scatter(marker='circle_x')")
+    return Scatter(*args, **kwargs, marker="circle_x")
 
-    __example__ = "examples/reference/models/CircleX.py"
-
-class CircleY(Marker):
+def CircleY(*args, **kwargs):
     ''' Render circle markers with an 'Y' cross through the center. '''
+    deprecated((2, 3, 0), "CircleY()", "Scatter(marker='circle_y')")
+    return Scatter(*args, **kwargs, marker="circle_y")
 
-    __example__ = "examples/reference/models/CircleY.py"
-
-class Cross(Marker):
+def Cross(*args, **kwargs):
     ''' Render '+' cross markers. '''
+    deprecated((2, 3, 0), "Cross()", "Scatter(marker='cross')")
+    return Scatter(*args, **kwargs, marker="cross")
 
-    __example__ = "examples/reference/models/Cross.py"
+def Dash(*args, **kwargs):
+    ''' Render dash markers. '''
+    deprecated((2, 3, 0), "Dash()", "Scatter(marker='dash')")
+    return Scatter(*args, **kwargs, marker="dash")
 
-class Dash(Marker):
-    ''' Render dash markers. Use ``angle`` to rotate and create vertically
-    oriented short lines.
-    '''
-
-    __example__ = "examples/reference/models/Dash.py"
-
-class Diamond(Marker):
+def Diamond(*args, **kwargs):
     ''' Render diamond markers. '''
+    deprecated((2, 3, 0), "Diamond()", "Scatter(marker='diamond')")
+    return Scatter(*args, **kwargs, marker="diamond")
 
-    __example__ = "examples/reference/models/Diamond.py"
-
-class DiamondCross(Marker):
+def DiamondCross(*args, **kwargs):
     ''' Render diamond markers with a '+' cross through the center. '''
+    deprecated((2, 3, 0), "DiamondCross()", "Scatter(marker='diamond_cross')")
+    return Scatter(*args, **kwargs, marker="diamond_cross")
 
-    __example__ = "examples/reference/models/DiamondCross.py"
-
-class DiamondDot(Marker):
+def DiamondDot(*args, **kwargs):
     ''' Render diamond markers with center dots. '''
+    deprecated((2, 3, 0), "DiamondDot()", "Scatter(marker='diamond_dot')")
+    return Scatter(*args, **kwargs, marker="diamond_dot")
 
-    __example__ = "examples/reference/models/DiamondDot.py"
-
-class Dot(Marker):
+def Dot(*args, **kwargs):
     ''' Render dots (one-quarter radius circles). '''
+    deprecated((2, 3, 0), "Dot()", "Scatter(marker='dot')")
+    return Scatter(*args, **kwargs, marker="dot")
 
-    __example__ = "examples/reference/models/Dot.py"
-
-class Hex(Marker):
+def Hex(*args, **kwargs):
     ''' Render hexagon markers. '''
+    deprecated((2, 3, 0), "Hex()", "Scatter(marker='hex')")
+    return Scatter(*args, **kwargs, marker="hex")
 
-    __example__ = "examples/reference/models/Hex.py"
-
-class HexDot(Marker):
+def HexDot(*args, **kwargs):
     ''' Render hexagon markers with center dots. '''
+    deprecated((2, 3, 0), "HexDot()", "Scatter(marker='hex_dot')")
+    return Scatter(*args, **kwargs, marker="hex_dot")
 
-    __example__ = "examples/reference/models/HexDot.py"
-
-class InvertedTriangle(Marker):
+def InvertedTriangle(*args, **kwargs):
     ''' Render upside-down triangle markers. '''
+    deprecated((2, 3, 0), "InvertedTriangle()", "Scatter(marker='inverted_triangle')")
+    return Scatter(*args, **kwargs, marker="inverted_triangle")
 
-    __example__ = "examples/reference/models/InvertedTriangle.py"
-
-class Plus(Marker):
+def Plus(*args, **kwargs):
     ''' Render filled plus markers '''
+    deprecated((2, 3, 0), "Plut()", "Scatter(marker='plus')")
+    return Scatter(*args, **kwargs, marker="plus")
 
-    __example__ = "examples/reference/models/Plus.py"
-
-class Square(Marker):
+def Square(*args, **kwargs):
     ''' Render square markers. '''
+    deprecated((2, 3, 0), "Square()", "Scatter(marker='square')")
+    return Scatter(*args, **kwargs, marker="square")
 
-    __example__ = "examples/reference/models/Square.py"
-
-class SquareDot(Marker):
+def SquareDot(*args, **kwargs):
     ''' Render square markers with center dots. '''
+    deprecated((2, 3, 0), "SquareDot()", "Scatter(marker='square_dot')")
+    return Scatter(*args, **kwargs, marker="square_dot")
 
-    __example__ = "examples/reference/models/SquareDot.py"
-
-class SquarePin(Marker):
+def SquarePin(*args, **kwargs):
     ''' Render pin-cushion square markers. '''
+    deprecated((2, 3, 0), "SquarePin()", "Scatter(marker='square_pin')")
+    return Scatter(*args, **kwargs, marker="square_pin")
 
-    __example__ = "examples/reference/models/SquarePin.py"
-
-class SquareCross(Marker):
+def SquareCross(*args, **kwargs):
     ''' Render square markers with a '+' cross through the center. '''
+    deprecated((2, 3, 0), "SquareCross()", "Scatter(marker='square_cross')")
+    return Scatter(*args, **kwargs, marker="square_cross")
 
-    __example__ = "examples/reference/models/SquareCross.py"
-
-class SquareX(Marker):
+def SquareX(*args, **kwargs):
     ''' Render square markers with an 'X' cross through the center. '''
+    deprecated((2, 3, 0), "SquareX()", "Scatter(marker='square_x')")
+    return Scatter(*args, **kwargs, marker="square_x")
 
-    __example__ = "examples/reference/models/SquareX.py"
-
-class Triangle(Marker):
+def Triangle(*args, **kwargs):
     ''' Render triangle markers. '''
+    deprecated((2, 3, 0), "Triangle()", "Scatter(marker='triangle')")
+    return Scatter(*args, **kwargs, marker="triangle")
 
-    __example__ = "examples/reference/models/Triangle.py"
-
-class TriangleDot(Marker):
+def TriangleDot(*args, **kwargs):
     ''' Render triangle markers with center dots. '''
+    deprecated((2, 3, 0), "TriangleDot()", "Scatter(marker='triangle_dot')")
+    return Scatter(*args, **kwargs, marker="triangle_dot")
 
-    __example__ = "examples/reference/models/TriangleDot.py"
-
-class TrianglePin(Marker):
+def TrianglePin(*args, **kwargs):
     ''' Render pin-cushion triangle markers. '''
+    deprecated((2, 3, 0), "TrianglePin()", "Scatter(marker='triangle_pin')")
+    return Scatter(*args, **kwargs, marker="triangle_pin")
 
-    __example__ = "examples/reference/models/TrianglePin.py"
-
-class X(Marker):
+def X(*args, **kwargs):
     ''' Render 'X' markers. '''
+    deprecated((2, 3, 0), "X()", "Scatter(marker='x')")
+    return Scatter(*args, **kwargs, marker="x")
 
-    __example__ = "examples/reference/models/X.py"
-
-class Y(Marker):
+def Y(*args, **kwargs):
     ''' Render 'Y' markers. '''
-
-    __example__ = "examples/reference/models/Y.py"
+    deprecated((2, 3, 0), "Y()", "Scatter(marker='y')")
+    return Scatter(*args, **kwargs, marker="y")
 
 #-----------------------------------------------------------------------------
 # Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------
 
 marker_types = {
@@ -394,11 +400,3 @@ marker_types = {
     "x": X,
     "y": Y,
 }
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
