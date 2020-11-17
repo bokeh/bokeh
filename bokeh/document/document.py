@@ -548,9 +548,9 @@ class Document:
             Document :
 
         '''
-        try:
+        if 'roots' in json:
             roots_json = json['roots']
-        except:
+        else:
             json=json['doc']
             roots_json=json['roots']
         root_ids = roots_json['root_ids']
