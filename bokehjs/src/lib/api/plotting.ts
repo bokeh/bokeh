@@ -1,6 +1,5 @@
 import {Document} from "../document"
 import * as embed from "../embed"
-import * as models from "./models"
 import {HasProps} from "../core/has_props"
 import {Color, Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
@@ -16,11 +15,27 @@ import {ViewOf} from "core/view"
 import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
 
-import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource, CDSView} from "./models"
-import {ToolAliases} from "../models/tools/tool"
+import {
+  Glyph, GlyphRenderer, Axis, Grid,
+  Range, Range1d, DataRange1d, FactorRange,
+  Scale, LinearScale, LogScale, CategoricalScale,
+  LinearAxis, LogAxis, CategoricalAxis, DatetimeAxis, MercatorAxis,
+  ColumnarDataSource, ColumnDataSource, CDSView,
+  Plot, Tool, ContinuousTicker,
+} from "./models"
 
-import {LayoutDOM} from "models/layouts/layout_dom"
-import {Legend} from "models/annotations/legend"
+import {
+  AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
+  HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
+  MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
+  Rect, Scatter, Segment, Step, Text, VArea, VBar, Wedge,
+} from "../models/glyphs"
+
+import {Marker} from "../models/glyphs/marker"
+import {LayoutDOM} from "../models/layouts/layout_dom"
+import {Legend} from "../models/annotations/legend"
+import {LegendItem} from "../models/annotations/legend_item"
+import {ToolAliases} from "../models/tools/tool"
 
 export {gridplot} from "./gridplot"
 export {rgb2hex as color} from "../core/util/color"
@@ -91,36 +106,36 @@ export type ArgsOf<P> = {
 
 export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
 
-export type AnnularWedgeArgs  = GlyphArgs<models.AnnularWedge.Props>  & AuxLine & AuxFill
-export type AnnulusArgs       = GlyphArgs<models.Annulus.Props>       & AuxLine & AuxFill
-export type ArcArgs           = GlyphArgs<models.Arc.Props>           & AuxLine
-export type BezierArgs        = GlyphArgs<models.Bezier.Props>        & AuxLine
-export type CircleArgs        = GlyphArgs<models.Circle.Props>        & AuxLine & AuxFill
-export type EllipseArgs       = GlyphArgs<models.Ellipse.Props>       & AuxLine & AuxFill
-export type HAreaArgs         = GlyphArgs<models.HArea.Props>                   & AuxFill
-export type HBarArgs          = GlyphArgs<models.HBar.Props>          & AuxLine & AuxFill
-export type HexTileArgs       = GlyphArgs<models.HexTile.Props>       & AuxLine & AuxFill
-export type ImageArgs         = GlyphArgs<models.Image.Props>
-export type ImageRGBAArgs     = GlyphArgs<models.ImageRGBA.Props>
-export type ImageURLArgs      = GlyphArgs<models.ImageURL.Props>
-export type LineArgs          = GlyphArgs<models.Line.Props>          & AuxLine
-export type MarkerArgs        = GlyphArgs<models.Marker.Props>        & AuxLine & AuxFill
-export type MultiLineArgs     = GlyphArgs<models.MultiLine.Props>     & AuxLine
-export type MultiPolygonsArgs = GlyphArgs<models.MultiPolygons.Props> & AuxLine & AuxFill
-export type OvalArgs          = GlyphArgs<models.Oval.Props>          & AuxLine & AuxFill
-export type PatchArgs         = GlyphArgs<models.Patch.Props>         & AuxLine & AuxFill
-export type PatchesArgs       = GlyphArgs<models.Patches.Props>       & AuxLine & AuxFill
-export type QuadArgs          = GlyphArgs<models.Quad.Props>          & AuxLine & AuxFill
-export type QuadraticArgs     = GlyphArgs<models.Quadratic.Props>     & AuxLine
-export type RayArgs           = GlyphArgs<models.Ray.Props>           & AuxLine
-export type RectArgs          = GlyphArgs<models.Rect.Props>          & AuxLine & AuxFill
-export type ScatterArgs       = GlyphArgs<models.Scatter.Props>       & AuxLine & AuxFill
-export type SegmentArgs       = GlyphArgs<models.Segment.Props>       & AuxLine
-export type StepArgs          = GlyphArgs<models.Step.Props>          & AuxLine
-export type TextArgs          = GlyphArgs<models.Text.Props>                              & AuxText
-export type VAreaArgs         = GlyphArgs<models.VArea.Props>                   & AuxFill
-export type VBarArgs          = GlyphArgs<models.VBar.Props>          & AuxLine & AuxFill
-export type WedgeArgs         = GlyphArgs<models.Wedge.Props>         & AuxLine & AuxFill
+export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill
+export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
+export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
+export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
+export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
+export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
+export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
+export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
+export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
+export type ImageArgs         = GlyphArgs<Image.Props>
+export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
+export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
+export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
+export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
+export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
+export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
+export type OvalArgs          = GlyphArgs<Oval.Props>          & AuxLine & AuxFill
+export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
+export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
+export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
+export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
+export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
+export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
+export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
+export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
+export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
+export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
+export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
+export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
+export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
 
 const _default_color = "#1f77b4"
 
@@ -232,7 +247,7 @@ export class Figure extends Plot {
     end_angle: AnnularWedgeArgs["end_angle"],
     args?: Partial<AnnularWedgeArgs>): GlyphRenderer
   annular_wedge(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
+    return this._glyph(AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
   }
 
   annulus(args: Partial<AnnulusArgs>): GlyphRenderer
@@ -243,7 +258,7 @@ export class Figure extends Plot {
     outer_radius: AnnulusArgs["outer_radius"],
     args?: Partial<AnnulusArgs>): GlyphRenderer
   annulus(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Annulus, "x,y,inner_radius,outer_radius", args)
+    return this._glyph(Annulus, "x,y,inner_radius,outer_radius", args)
   }
 
   arc(args: Partial<ArcArgs>): GlyphRenderer
@@ -255,7 +270,7 @@ export class Figure extends Plot {
     end_angle: ArcArgs["end_angle"],
     args?: Partial<ArcArgs>): GlyphRenderer
   arc(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Arc, "x,y,radius,start_angle,end_angle", args)
+    return this._glyph(Arc, "x,y,radius,start_angle,end_angle", args)
   }
 
   bezier(args: Partial<BezierArgs>): GlyphRenderer
@@ -270,7 +285,7 @@ export class Figure extends Plot {
     cy1: BezierArgs["cy1"],
     args?: Partial<BezierArgs>): GlyphRenderer
   bezier(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1", args)
+    return this._glyph(Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1", args)
   }
 
   circle(args: Partial<CircleArgs>): GlyphRenderer
@@ -279,7 +294,7 @@ export class Figure extends Plot {
     y: CircleArgs["y"],
     args?: Partial<CircleArgs>): GlyphRenderer
   circle(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Circle, "x,y", args)
+    return this._glyph(Circle, "x,y", args)
   }
 
   ellipse(args: Partial<EllipseArgs>): GlyphRenderer
@@ -290,7 +305,7 @@ export class Figure extends Plot {
     height: EllipseArgs["height"],
     args?: Partial<EllipseArgs>): GlyphRenderer
   ellipse(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Ellipse, "x,y,width,height", args)
+    return this._glyph(Ellipse, "x,y,width,height", args)
   }
 
   harea(args: Partial<HAreaArgs>): GlyphRenderer
@@ -300,7 +315,7 @@ export class Figure extends Plot {
     y: HAreaArgs["y"],
     args?: Partial<HAreaArgs>): GlyphRenderer
   harea(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.HArea, "x1,x2,y", args)
+    return this._glyph(HArea, "x1,x2,y", args)
   }
 
   hbar(args: Partial<HBarArgs>): GlyphRenderer
@@ -311,7 +326,7 @@ export class Figure extends Plot {
     left: HBarArgs["left"],
     args?: Partial<HBarArgs>): GlyphRenderer
   hbar(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.HBar, "y,height,right,left", args)
+    return this._glyph(HBar, "y,height,right,left", args)
   }
 
   hex_tile(args: Partial<HexTileArgs>): GlyphRenderer
@@ -320,7 +335,7 @@ export class Figure extends Plot {
     r: HexTileArgs["r"],
     args?: Partial<HexTileArgs>): GlyphRenderer
   hex_tile(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.HexTile, "q,r", args)
+    return this._glyph(HexTile, "q,r", args)
   }
 
   image(args: Partial<ImageArgs>): GlyphRenderer
@@ -332,7 +347,7 @@ export class Figure extends Plot {
     dh: ImageArgs["dh"],
     args?: Partial<ImageArgs>): GlyphRenderer
   image(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Image, "color_mapper,image,rows,cols,x,y,dw,dh", args)
+    return this._glyph(Image, "color_mapper,image,rows,cols,x,y,dw,dh", args)
   }
 
   image_rgba(args: Partial<ImageRGBAArgs>): GlyphRenderer
@@ -344,7 +359,7 @@ export class Figure extends Plot {
     dh: ImageRGBAArgs["dh"],
     args?: Partial<ImageRGBAArgs>): GlyphRenderer
   image_rgba(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.ImageRGBA, "image,rows,cols,x,y,dw,dh", args)
+    return this._glyph(ImageRGBA, "image,rows,cols,x,y,dw,dh", args)
   }
 
   image_url(args: Partial<ImageURLArgs>): GlyphRenderer
@@ -356,7 +371,7 @@ export class Figure extends Plot {
     h: ImageURLArgs["h"],
     args?: Partial<ImageURLArgs>): GlyphRenderer
   image_url(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.ImageURL, "url,x,y,w,h", args)
+    return this._glyph(ImageURL, "url,x,y,w,h", args)
   }
 
   line(args: Partial<LineArgs>): GlyphRenderer
@@ -365,7 +380,7 @@ export class Figure extends Plot {
     y: LineArgs["y"],
     args?: Partial<LineArgs>): GlyphRenderer
   line(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Line, "x,y", args)
+    return this._glyph(Line, "x,y", args)
   }
 
   multi_line(args: Partial<MultiLineArgs>): GlyphRenderer
@@ -374,7 +389,7 @@ export class Figure extends Plot {
     ys: MultiLineArgs["ys"],
     args?: Partial<MultiLineArgs>): GlyphRenderer
   multi_line(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.MultiLine, "xs,ys", args)
+    return this._glyph(MultiLine, "xs,ys", args)
   }
 
   multi_polygons(args: Partial<MultiPolygonsArgs>): GlyphRenderer
@@ -383,7 +398,7 @@ export class Figure extends Plot {
     ys: MultiPolygonsArgs["ys"],
     args?: Partial<MultiPolygonsArgs>): GlyphRenderer
   multi_polygons(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.MultiPolygons, "xs,ys", args)
+    return this._glyph(MultiPolygons, "xs,ys", args)
   }
 
   oval(args: Partial<OvalArgs>): GlyphRenderer
@@ -394,7 +409,7 @@ export class Figure extends Plot {
     height: OvalArgs["height"],
     args?: Partial<OvalArgs>): GlyphRenderer
   oval(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Oval, "x,y,width,height", args)
+    return this._glyph(Oval, "x,y,width,height", args)
   }
 
   patch(args: Partial<PatchArgs>): GlyphRenderer
@@ -403,7 +418,7 @@ export class Figure extends Plot {
     y: PatchArgs["y"],
     args?: Partial<PatchArgs>): GlyphRenderer
   patch(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Patch, "x,y", args)
+    return this._glyph(Patch, "x,y", args)
   }
 
   patches(args: Partial<PatchesArgs>): GlyphRenderer
@@ -412,7 +427,7 @@ export class Figure extends Plot {
     ys: PatchesArgs["ys"],
     args?: Partial<PatchesArgs>): GlyphRenderer
   patches(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Patches, "xs,ys", args)
+    return this._glyph(Patches, "xs,ys", args)
   }
 
   quad(args: Partial<QuadArgs>): GlyphRenderer
@@ -423,7 +438,7 @@ export class Figure extends Plot {
     top: QuadArgs["top"],
     args?: Partial<QuadArgs>): GlyphRenderer
   quad(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Quad, "left,right,bottom,top", args)
+    return this._glyph(Quad, "left,right,bottom,top", args)
   }
 
   quadratic(args: Partial<QuadraticArgs>): GlyphRenderer
@@ -436,7 +451,7 @@ export class Figure extends Plot {
     cy: QuadraticArgs["cy"],
     args?: Partial<QuadraticArgs>): GlyphRenderer
   quadratic(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Quadratic, "x0,y0,x1,y1,cx,cy", args)
+    return this._glyph(Quadratic, "x0,y0,x1,y1,cx,cy", args)
   }
 
   ray(args: Partial<RayArgs>): GlyphRenderer
@@ -446,7 +461,7 @@ export class Figure extends Plot {
     length: RayArgs["length"],
     args?: Partial<RayArgs>): GlyphRenderer
   ray(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Ray, "x,y,length", args)
+    return this._glyph(Ray, "x,y,length", args)
   }
 
   rect(args: Partial<RectArgs>): GlyphRenderer
@@ -457,7 +472,7 @@ export class Figure extends Plot {
     height: RectArgs["height"],
     args?: Partial<RectArgs>): GlyphRenderer
   rect(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Rect, "x,y,width,height", args)
+    return this._glyph(Rect, "x,y,width,height", args)
   }
 
   segment(args: Partial<SegmentArgs>): GlyphRenderer
@@ -468,7 +483,7 @@ export class Figure extends Plot {
     y1: SegmentArgs["y1"],
     args?: Partial<SegmentArgs>): GlyphRenderer
   segment(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Segment, "x0,y0,x1,y1", args)
+    return this._glyph(Segment, "x0,y0,x1,y1", args)
   }
 
   step(args: Partial<StepArgs>): GlyphRenderer
@@ -478,7 +493,7 @@ export class Figure extends Plot {
     mode: StepArgs["mode"],
     args?: Partial<StepArgs>): GlyphRenderer
   step(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Step, "x,y,mode", args)
+    return this._glyph(Step, "x,y,mode", args)
   }
 
   text(args: Partial<TextArgs>): GlyphRenderer
@@ -488,7 +503,7 @@ export class Figure extends Plot {
     text: TextArgs["text"],
     args?: Partial<TextArgs>): GlyphRenderer
   text(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Text, "x,y,text", args)
+    return this._glyph(Text, "x,y,text", args)
   }
 
   varea(args: Partial<VAreaArgs>): GlyphRenderer
@@ -498,7 +513,7 @@ export class Figure extends Plot {
     y2: VAreaArgs["y2"],
     args?: Partial<VAreaArgs>): GlyphRenderer
   varea(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.VArea, "x,y1,y2", args)
+    return this._glyph(VArea, "x,y1,y2", args)
   }
 
   vbar(args: Partial<VBarArgs>): GlyphRenderer
@@ -509,7 +524,7 @@ export class Figure extends Plot {
     bottom: VBarArgs["bottom"],
     args?: Partial<VBarArgs>): GlyphRenderer
   vbar(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.VBar, "x,width,top,bottom", args)
+    return this._glyph(VBar, "x,width,top,bottom", args)
   }
 
   wedge(args: Partial<WedgeArgs>): GlyphRenderer
@@ -521,11 +536,11 @@ export class Figure extends Plot {
     end_angle: WedgeArgs["end_angle"],
     args?: Partial<WedgeArgs>): GlyphRenderer
   wedge(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.Wedge, "x,y,radius,start_angle,end_angle", args)
+    return this._glyph(Wedge, "x,y,radius,start_angle,end_angle", args)
   }
 
   protected _scatter(args: unknown[], marker?: MarkerType): GlyphRenderer {
-    return this._glyph(models.Scatter, "x,y", args, marker != null ? {marker} : undefined)
+    return this._glyph(Scatter, "x,y", args, marker != null ? {marker} : undefined)
   }
 
   scatter(args: Partial<ScatterArgs>): GlyphRenderer
@@ -803,7 +818,7 @@ export class Figure extends Plot {
       attrs = {...attrs, ...overrides}
     }
 
-    const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new models.ColumnDataSource()
+    const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new ColumnDataSource()
     const data = clone(source.data)
     delete attrs.source
 
@@ -858,40 +873,40 @@ export class Figure extends Plot {
 
   static _get_range(range?: Range | [number, number] | string[]): Range {
     if (range == null) {
-      return new models.DataRange1d()
+      return new DataRange1d()
     }
-    if (range instanceof models.Range) {
+    if (range instanceof Range) {
       return range
     }
     if (isArray(range)) {
       if (isArrayOf(range, isString)) {
         const factors = range
-        return new models.FactorRange({factors})
+        return new FactorRange({factors})
       } else {
         const [start, end] = range
-        return new models.Range1d({start, end})
+        return new Range1d({start, end})
       }
     }
     throw new Error(`unable to determine proper range for: '${range}'`)
   }
 
   static _get_scale(range_input: Range, axis_type: AxisType): Scale {
-    if (range_input instanceof models.DataRange1d ||
-        range_input instanceof models.Range1d) {
+    if (range_input instanceof DataRange1d ||
+        range_input instanceof Range1d) {
       switch (axis_type) {
         case null:
         case "auto":
         case "linear":
         case "datetime":
         case "mercator":
-          return new models.LinearScale()
+          return new LinearScale()
         case "log":
-          return new models.LogScale()
+          return new LogScale()
       }
     }
 
-    if (range_input instanceof models.FactorRange) {
-      return new models.CategoricalScale()
+    if (range_input instanceof FactorRange) {
+      return new CategoricalScale()
     }
 
     throw new Error(`unable to determine proper scale for: '${range_input}'`)
@@ -901,22 +916,22 @@ export class Figure extends Plot {
                          minor_ticks: number | "auto" | undefined, axis_label: string, rng: Range, dim: 0 | 1): void {
     const axis = this._get_axis(axis_type, rng, dim)
     if (axis != null) {
-      if (axis instanceof models.LogAxis) {
+      if (axis instanceof LogAxis) {
         if (dim == 0) {
-          this.x_scale = new models.LogScale()
+          this.x_scale = new LogScale()
         } else {
-          this.y_scale = new models.LogScale()
+          this.y_scale = new LogScale()
         }
       }
 
-      if (axis.ticker instanceof models.ContinuousTicker) {
+      if (axis.ticker instanceof ContinuousTicker) {
         axis.ticker.num_minor_ticks = this._get_num_minor_ticks(axis, minor_ticks)
       }
       if (axis_label.length !== 0) {
         axis.axis_label = axis_label
       }
 
-      const grid = new models.Grid({dimension: dim, ticker: axis.ticker})
+      const grid = new Grid({dimension: dim, ticker: axis.ticker})
 
       if (axis_location !== null) {
         this.add_layout(axis, axis_location)
@@ -930,23 +945,23 @@ export class Figure extends Plot {
       case null:
         return null
       case "linear":
-        return new models.LinearAxis()
+        return new LinearAxis()
       case "log":
-        return new models.LogAxis()
+        return new LogAxis()
       case "datetime":
-        return new models.DatetimeAxis()
+        return new DatetimeAxis()
       case "mercator": {
-        const axis = new models.MercatorAxis()
+        const axis = new MercatorAxis()
         const dimension = dim == 0 ? "lon" : "lat"
         axis.ticker.dimension = dimension
         axis.formatter.dimension = dimension
         return axis
       }
       case "auto":
-        if (range instanceof models.FactorRange)
-          return new models.CategoricalAxis()
+        if (range instanceof FactorRange)
+          return new CategoricalAxis()
         else
-          return new models.LinearAxis() // TODO: return models.DatetimeAxis (Date type)
+          return new LinearAxis() // TODO: return DatetimeAxis (Date type)
       default:
         throw new Error("shouldn't have happened")
     }
@@ -963,7 +978,7 @@ export class Figure extends Plot {
       return 0
     }
     if (num_minor_ticks === "auto") {
-      return axis instanceof models.LogAxis ? 10 : 5
+      return axis instanceof LogAxis ? 10 : 5
     }
     throw new Error("shouldn't have happened")
   }
@@ -1011,7 +1026,7 @@ export class Figure extends Plot {
       }
     }
     if (!added) {
-      const new_item = new models.LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
+      const new_item = new LegendItem({label: legend_item_label, renderers: [glyph_renderer]})
       legend.items.push(new_item)
     }
   }
