@@ -359,7 +359,8 @@ argument of any renderer methods that are part of Bokeh's |Figure| class.
 
 A |CDSView| has two properties, ``source`` and ``filters``:
 
-* ``source`` is the |ColumnDataSource| that the you want to apply the filters to
+* ``source`` is the |ColumnDataSource| that the you want to apply the filters
+  to.
 * ``filters`` is a list of |Filter| objects, listed and described below.
 
 In this example, you create a |CDSView| called ``view``. ``view`` uses the
