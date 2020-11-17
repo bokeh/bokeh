@@ -548,7 +548,7 @@ class Document:
             Document :
 
         '''
-        if 'roots' in json.keys():
+        if 'roots' in json:
             roots_json = json['roots']
         else:
             json=json['doc']
