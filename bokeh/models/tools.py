@@ -109,7 +109,7 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
-    'Inspect',
+    'Inspection',
     'InspectTool',
     'Gesture',
     'GestureTool',
