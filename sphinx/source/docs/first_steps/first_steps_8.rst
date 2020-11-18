@@ -1,7 +1,7 @@
 .. _first_steps_8:
 
-First steps 8: Providing data
-=============================
+First steps 8: Providing and filtering data
+===========================================
 
 In the :ref:`previous first steps guides <first_steps_7>`, you used different
 methods to display and export your visualizations.

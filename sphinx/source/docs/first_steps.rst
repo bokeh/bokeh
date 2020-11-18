@@ -74,10 +74,10 @@ you want to learn more about any of the topics.
     :container: container-fluid pb-3
     :column: col-lg-4 col-md-6 col-sm-12 col-xs-12 p-2
 
-    :header: bg-bokeh-one double-line-spacing
+    :header: bg-bokeh-one
 
-    Creating a line chart
-    ^^^^^^^
+    Creating a simple line chart plot
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_1.png
         :scale: 100 %
@@ -95,7 +95,7 @@ you want to learn more about any of the topics.
     :header: bg-bokeh-two
 
     Adding and customizing renderers
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_2.png
         :scale: 100 %
@@ -200,8 +200,8 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-one
 
-    Providing data
-    ^^^^^^^^^^^^^^
+    Providing and filtering data
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_8.png
         :scale: 100 %
@@ -216,10 +216,10 @@ you want to learn more about any of the topics.
         :classes: btn-info btn-block stretched-link
 
     ---
-    :header: bg-bokeh-one
+    :header: bg-bokeh-two
 
-    Bokeh Server app
-    ^^^^^^^
+    Running a Bokeh server app
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_9.png
         :scale: 100 %

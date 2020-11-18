@@ -1,7 +1,7 @@
 .. _first_steps_9:
 
-First steps 9: Bokeh Server app
-================================
+First steps 9: Running a Bokeh server app
+=========================================
 
 In the :ref:`previous first steps guides <first_steps_8>`, you used different
 sources and structures to import and filter data.
