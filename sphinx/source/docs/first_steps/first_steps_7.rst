@@ -60,6 +60,7 @@ inside your notebook:
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of a Bokeh plot in a Jupyter notebook
 
 .. seealso::
     For more information on using Jupyter notebooks, see

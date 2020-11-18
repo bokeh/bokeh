@@ -473,6 +473,12 @@ using sphinx_panels */
   }
 }
 
+@media (min-width: 575px) {
+  .double-line-spacing p {
+    padding-bottom: 28px;
+  }
+}
+
 /* customize highlight color for sphinx code blocks */
 .highlight .hll {
   background-color: rgba(246,169,27,0.3);

@@ -70,18 +70,19 @@ development environment. There are also many links to the more in-depth
 resources of the :ref:`userguide` and :ref:`Reference Guide<refguide>` in case
 you want to learn more about any of the topics.
 
-(TBD - add descriptions and thubnails!)
-
 .. panels::
     :container: container-fluid pb-3
-    :column: col-lg-4 col-md-4 col-sm-6 col-xs-12 p-2
+    :column: col-lg-4 col-md-6 col-sm-12 col-xs-12 p-2
 
-    :header: bg-bokeh-one
-
-    Guide 1
-    ^^^^^^^
+    :header: bg-bokeh-one double-line-spacing
 
     Creating a line chart
+    ^^^^^^^
+
+    .. image:: /_images/first_steps_1.png
+        :scale: 100 %
+        :align: center
+        :alt: A line chart
 
     +++
 
@@ -93,10 +94,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-two
 
-    Guide 2
-    ^^^^^^^
-
     Adding and customizing renderers
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_2.png
+        :scale: 100 %
+        :align: center
+        :alt: Several glyphs in one chart
 
     +++
 
@@ -108,10 +112,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-three
 
-    Guide 3
-    ^^^^^^^
-
     Adding legends, text, and annotations
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_3.png
+        :scale: 100 %
+        :align: center
+        :alt: A chart with a legend
 
     +++
 
@@ -123,10 +130,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-four
 
-    Guide 4
-    ^^^^^^^
-
     Customizing your plot
+    ^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_4.png
+        :scale: 100 %
+        :align: center
+        :alt: A chart with a tootip
 
     +++
 
@@ -138,10 +148,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-five
 
-    Guide 5
-    ^^^^^^^
-
     Vectorizing glyph properties
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_5.png
+        :scale: 100 %
+        :align: center
+        :alt: A chart with different colors
 
     +++
 
@@ -152,10 +165,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-six
 
-    Guide 6
+    Combining plots
     ^^^^^^^
 
-    Combining plots
+    .. image:: /_images/first_steps_6.png
+        :scale: 100 %
+        :align: center
+        :alt: Three charts combined into one element
 
     +++
 
@@ -167,10 +183,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-seven
 
-    Guide 7
-    ^^^^^^^
-
     Displaying and exporting
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_7.png
+        :scale: 100 %
+        :align: center
+        :alt: Screenshot of a Bokeh plot in a Jupyter notebook
 
     +++
 
@@ -181,10 +200,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-one
 
-    Guide 8
-    ^^^^^^^
-
     Providing data
+    ^^^^^^^^^^^^^^
+
+    .. image:: /_images/first_steps_8.png
+        :scale: 100 %
+        :align: center
+        :alt: Two charts with different subsets of data
 
     +++
 
@@ -196,10 +218,13 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-one
 
-    Guide 9
+    Bokeh Server app
     ^^^^^^^
 
-    Bokeh Server app
+    .. image:: /_images/first_steps_9.png
+        :scale: 100 %
+        :align: center
+        :alt: Screenshot of a Bokeh server app
 
     +++
 
