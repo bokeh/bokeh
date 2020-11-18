@@ -9,7 +9,7 @@ import {
   Button, Toggle, Dropdown,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  TextInput, AutocompleteInput,
+  TextInput, AutocompleteInput, TextAreaInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
@@ -78,6 +78,11 @@ describe("Widgets", () => {
   it.allowing(8)("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = new AutocompleteInput({placeholder: "Enter value ...", completions})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextAreaInput", async () => {
+    const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4})
     await display(obj, [500, 100])
   })
 

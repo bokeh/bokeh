@@ -225,9 +225,8 @@ class Spinner(NumericInput):
     mouse wheel is used to change the input
     """)
 
-
-class TextInput(InputWidget):
-    ''' Single-line input widget.
+class TextLikeInput(InputWidget):
+    ''' Base class for text-like input widgets.
 
     '''
 
@@ -248,8 +247,17 @@ class TextInput(InputWidget):
     Placeholder for empty input field.
     """)
 
+    max_length = Int(default=None, help="""
+    Max count of characters in field
+    """)
 
-class TextAreaInput(TextInput):
+class TextInput(TextLikeInput):
+    ''' Single-line input widget.
+
+    '''
+
+
+class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.
 
     '''
@@ -262,9 +270,7 @@ class TextAreaInput(TextInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Int(default=500, help="""
-    Max count of characters in field
-    """)
+    max_length = Override(default=500)
 
 
 class PasswordInput(TextInput):
