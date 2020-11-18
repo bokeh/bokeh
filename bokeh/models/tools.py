@@ -247,7 +247,7 @@ class InspectTool(GestureTool):
     """)
 
 # TODO: deprecated, remove at bokeh 3.0
-Inspect = InspectTool
+Inspection = InspectTool
 
 @abstract
 class ToolbarBase(Model):
