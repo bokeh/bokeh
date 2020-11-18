@@ -12,13 +12,23 @@ export class TapToolView extends SelectToolView {
   model: TapTool
 
   _tap(ev: TapEvent): void {
+    if (this.model.gesture == "tap")
+      this._handle_tap(ev)
+  }
+
+  _doubletap(ev: TapEvent): void {
+    if (this.model.gesture == "doubletap")
+      this._handle_tap(ev)
+  }
+
+  _handle_tap(ev: TapEvent): void {
     const {sx, sy} = ev
     const geometry: PointGeometry = {type: "point", sx, sy}
     this._select(geometry, true, this._select_mode(ev))
   }
 
   _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
-    const callback = this.model.callback
+    const {callback} = this.model
 
     if (this.model.behavior == "select") {
       const renderers_by_source = this._computed_renderers_by_data_source()
@@ -65,6 +75,7 @@ export namespace TapTool {
 
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
+    gesture: p.Property<"tap" | "doubletap">
     callback: p.Property<CallbackLike1<TapTool, {
       geometries: PointGeometry & {x: number, y: number}
       source: ColumnarDataSource
@@ -85,13 +96,15 @@ export class TapTool extends SelectTool {
   static init_TapTool(): void {
     this.prototype.default_view = TapToolView
 
-    this.define<TapTool.Props>(({Any, Nullable}) => ({
+    this.define<TapTool.Props>(({Any, Enum, Nullable}) => ({
       behavior: [ TapBehavior, "select" ],
+      gesture:  [ Enum("tap", "doubletap"), "tap"],
       callback: [ Nullable(Any /*TODO*/) ],
     }))
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
     this.register_alias("tap", () => new TapTool())
+    this.register_alias("doubletap", () => new TapTool({gesture: "doubletap"}))
   }
 
   tool_name = "Tap"
