@@ -8,8 +8,8 @@ individual plots.
 
 In this section, you will combine several plots into different kinds of layouts.
 
-Creating rows, columns and grids
---------------------------------
+Creating rows, columns, and grids
+---------------------------------
 
 The easiest way to combine individual plots is to assign them to rows or
 columns.
@@ -19,7 +19,7 @@ For example:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_6_row_layout.py
     :source-position: none
 
-To combine several plot into a horizontal row layout, you first need to import
+To combine several plots into a horizontal row layout, you first need to import
 ``row``. Then use the :func:`~bokeh.layouts.row` function when calling
 ``show()``:
 

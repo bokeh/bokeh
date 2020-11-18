@@ -15,8 +15,8 @@ Creating a standalone HTML file
 -------------------------------
 
 All examples so far have used the :func:`~bokeh.io.output_file` function to
-save your visualization to an HTML file. This HTML file contains all necessary
-information to display your plot.
+save your visualization to an HTML file. This HTML file contains all the
+necessary information to display your plot.
 
 ``output_file()`` accepts various arguments. For example:
 
@@ -82,8 +82,8 @@ browser to render the PNG or SVG files. In order for this to work, Selenium
 needs to be able to access either a Firefox browser (through a package called
 geckodriver) or a Chromium browser (through the chromedriver package).
 
-Depending on wether you are using ``conda`` or ``pip``, on of run the following
-commands to make sure you have all required packages installed:
+Depending on whether you are using ``conda`` or ``pip``, run one of the
+following commands to make sure you have all required packages installed:
 
 .. panels::
 

@@ -11,15 +11,15 @@ Supported platforms
 -------------------
 
 Bokeh is officially supported (and continuously tested) on CPython versions
-3.6+ only. It's possible that Bokeh does work on other version of Python, but
+3.6+ only. It's possible that Bokeh does work on other versions of Python, but
 no guarantees or support are provided.
 
 Installing with ``conda`` or ``pip``
 ------------------------------------
 
-The easiest way to install Bokeh is using ``conda``. Conda is part of the
-`Anaconda Python Distribution`_, which is designed with scientific and data analysis
-applications like Bokeh in mind.
+The easiest way to install Bokeh is to use ``conda``. Conda is part of the
+`Anaconda Python Distribution`_, which is designed with scientific and data
+analysis applications like Bokeh in mind.
 
 If you use Anaconda on your system, installing with ``conda`` is the recommended
 method. Otherwise, use ``pip``.
@@ -50,9 +50,8 @@ method. Otherwise, use ``pip``.
 
     .. note::
         On some systems, pip displays an error message about the wheel package
-        when installing tornado. This is a `known issue
-        <https://github.com/tornadoweb/tornado/issues/1602#issuecomment-163472168>`_,
-        you can usually ignore the error.
+        when installing tornado. This is a `known issue`_, you can usually
+        ignore the error.
 
 Checking your installation
 --------------------------
@@ -74,8 +73,8 @@ the `"bokeh" tag on Stack Overflow`_ or asking a question in the
     Once you have Bokeh installed, build your first visualization by following
     the :ref:`first steps guides <first_steps_overview>`.
 
-    Check the :ref:`userguide` for a comprehensive overview of all the things
-    you can do with Bokeh.
+    Check the :ref:`user guide <userguide>` for a comprehensive overview of all
+    the things you can do with Bokeh.
 
 Installing for development
 --------------------------
@@ -126,7 +125,7 @@ NetworkX
     Necessary to use the :func:`~bokeh.plotting.graph.from_networkx` function
     to generate Bokeh graph renderers directly from NetworkX data.
 
-Pandas
+pandas
     Necessary for the :func:`~bokeh.plotting.Figure.hexbin` function.
     Additionally, having Pandas installed makes some aspects of Bokeh simpler
     to use. For example, glyph functions are able to automatically convert
@@ -213,6 +212,7 @@ For example, the links for version ``2.0.1`` are:
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _known issue: https://github.com/tornadoweb/tornado/issues/1602#issuecomment-163472168
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh

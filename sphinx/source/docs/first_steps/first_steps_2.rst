@@ -7,19 +7,19 @@ In the :ref:`previous first steps guide <first_steps_1>`, you used Bokeh's
 :func:`~bokeh.plotting.figure` function to render line charts.
 
 In this section, you will use different renderer functions to create various
-other kinds of graphs. You will also customize what your graphs look like.
+other kinds of graphs. You will also customize what your glyphs look like.
 
 Rendering different glyphs
 --------------------------
 
-Bokeh's :ref:`plotting <userguide_plotting>` interface supports a number
-of different glyphs, such as lines, bars, hex tiles, or other polygons.
+Bokeh's :ref:`plotting <userguide_plotting>` interface supports many different
+glyphs, such as lines, bars, hex tiles, or other polygons.
 
 .. seealso::
-    A full list of all supported glyph methods is available in Bokeh's reference
-    guide for the :func:`~bokeh.plotting.figure` function. For detailed
-    information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
-    guide.
+   A full list of all supported glyph methods is available in Bokeh's reference
+   guide for the :func:`~bokeh.plotting.figure` function. For detailed
+   information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
+   guide.
 
 Rendering circles
 ^^^^^^^^^^^^^^^^^
@@ -40,10 +40,6 @@ visualization:
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_add_circles.py
     :source-position: none
-
-.. seealso::
-    To learn more about the different renderers available in Bokeh, see
-    :ref:`userguide_plotting` in the user guide.
 
 Rendering bars
 ^^^^^^^^^^^^^^
@@ -116,7 +112,7 @@ If you want to change any property after creating an object, you can define
 and overwrite the object's attributes directly.
 
 Take the circles from above, for example. You defined the circles to have a
-red color, by passing the argument ``fill_color="red"``.
+red color by passing the argument ``fill_color="red"``.
 
 To change the color of your circles from red to blue, you first need to assign
 a variable name (such as ``circle``) to the new object when you call the
@@ -153,7 +149,7 @@ outputting the plot:
     :source-position: none
 
 .. seealso::
-    For more information about the various visual properties, see the sections
+    For more information about the various visual properties, see
     :ref:`userguide_styling_glyphs` and :ref:`userguide_styling_visual_properties`
     in the user guide.
 

@@ -22,6 +22,11 @@ JavaScript and HTML code for you. In its default setting, Bokeh automatically
 loads any additional JavaScript code from Bokeh's CDN (content delivery
 network).
 
+Bokeh's documentation consists of several elements, including the
+:ref:`user guide <userguide>` with detailed explanations and examples and the
+:ref:`reference guide <refguide>` that systematically describes every element of
+Bokeh. In this guide, you will find links to both those resources.
+
 .. _first_steps_1_line_chart:
 
 Creating a simple line chart
@@ -74,10 +79,10 @@ Follow these steps to recreate this simple line chart:
    :class:`~bokeh.plotting.figure` object. Pass the following arguments:
 
    * ``title``: the title of your line chart
-   * ``x_axis_label``: which data to use to generate labels for the chart's x
-     axis
-   * ``y_axis_label``: which data to use to generate labels for the chart's y
-     axis
+   * ``x_axis_label``: which data to use to generate labels for the chart's
+     x-axis
+   * ``y_axis_label``: which data to use to generate labels for the chart's
+     y-axis
 
     .. code-block:: python
 
@@ -162,8 +167,8 @@ You just completed all the basic steps that most visualizations with Bokeh's
 |bokeh.plotting| interface require:
 
 1. Preparing the data
-    You just used a plain Python list, but NumPy arrays or pandas series also
-    work.
+    You just used a plain Python list, but other forms of serialized data work
+    as well.
 
 2. Telling Bokeh what to do with the generated output
     You used |output_file| with a filename to safe to a file. Another option
@@ -171,14 +176,13 @@ You just completed all the basic steps that most visualizations with Bokeh's
     Jupyter notebook.
 
 3. Calling the |figure| function
-    This creates a plot with the most common default options. You
-    can customize various properties of your plot, such as its title, tools,
-    and axes labels.
+    This creates a plot with the most common default options. You can customize
+    various properties of your plot, such as its title, tools, and axes labels.
 
 4. Adding renderers
-    You just used |Figure.line| to create a line. Renderers have various
-    options which allow you to specify visual attributes such as colors,
-    legends, and widths.
+    You just used |Figure.line| to create a line. Renderers have various options
+    that allow you to specify visual attributes such as colors, legends, and
+    widths.
 
 5. Asking Bokeh to |show| or |save| the results
     These functions either save your plot to an HTML file or display it in a

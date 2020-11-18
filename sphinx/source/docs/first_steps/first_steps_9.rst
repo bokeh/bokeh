@@ -6,8 +6,7 @@ First steps 9: Bokeh Server app
 In the :ref:`previous first steps guides <first_steps_8>`, you used different
 sources and structures to import and filter data.
 
-In this section, you will use Bokeh as a server to create a visualization with
-more elements interactivity than in the previous, static examples.
+In this section, you will see Bokeh as a server.
 
 Running Bokeh as a server
 -------------------------
@@ -59,14 +58,8 @@ For more examples of Bokeh server applications, see the
     For information on using the server and writing Bokeh server plots
     and apps, see :ref:`userguide_server` in the user guide.
 
-.. panels::
-    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
-
-    ---
-    :card: + text-left
-    .. link-button:: first_steps_8.html
-        :text: Previous
-        :classes: stretched-link
+    For more examples of Bokeh server applications, see the
+    :ref:`gallery_server_examples` section of the :ref:`gallery`.
 
 Next steps
 ----------
@@ -79,6 +72,15 @@ in-depth information about all aspects of Bokeh, see the :ref:`refguide`.
 For more examples of what you can do with Bokeh, check the :ref:`gallery` and
 the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
 
-On the `Bokeh community page <https://bokeh.org/community/>`_, you can find links
-and information about asking for help and contributing to Bokeh and the Bokeh
-community.
+On the `Bokeh community page <https://bokeh.org/community/>`_, you can find
+links and information about asking for help and contributing to Bokeh and the
+Bokeh community.
+
+.. panels::
+    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
+
+    ---
+    :card: + text-left
+    .. link-button:: first_steps_8.html
+        :text: Previous
+        :classes: stretched-link

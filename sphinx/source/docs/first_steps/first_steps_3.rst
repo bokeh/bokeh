@@ -75,8 +75,8 @@ Using annotations
 -----------------
 
 Annotations are visual elements that you add to your plot to make it easier
-to read. More information on the various kinds of annotations is available in
-the section :ref:`userguide_annotations`.
+to read. For more information on the various kinds of annotations, see
+:ref:`userguide_annotations` in the user guide.
 
 One example are box annotations. You can use box annotations to highlight
 certain areas of your plot:
@@ -119,8 +119,8 @@ This is what the finished code looks like:
    :emphasize-lines: 3,20-22,25-27
 
 .. seealso::
-    To find out more about annotations, see :ref:`userguide_annotations` in the
-    user guide.
+    To find out more about the different kinds of annotations in Bokeh, see
+    :ref:`userguide_annotations` in the user guide.
 
 .. panels::
     :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2

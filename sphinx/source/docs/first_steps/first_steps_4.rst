@@ -79,7 +79,7 @@ look.
 Setting your axes' appearance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Options for customizing the appearance of your plot includes:
+Options for customizing the appearance of your plot include:
 
 * setting labels for your axes
 * styling the numbers displayed with your axes
@@ -99,14 +99,14 @@ Defining axis ranges
 
 When drawing the axes for your plot, Bokeh automatically determines the range
 each axis needs to cover in order to display all your values. For example, if
-the values on your y axis are between 2 and 17, Bokeh will automatically create
-a y axis that ranges from a little below 2 to a little above 17.
+the values on your y-axis are between 2 and 17, Bokeh will automatically create
+a y-axis that ranges from a little below 2 to a little above 17.
 
-Use :func:`~bokeh.models.plots.Plot.y_range` and
+To define the range for your axes manually, use the
+:func:`~bokeh.models.plots.Plot.y_range` function or the
 :func:`~bokeh.models.plots.Plot.y_range` properties of your
-:class:`~bokeh.models.plots.Plot` object or when call the
-:func:`~bokeh.plotting.figure` function to manually define the range for the
-axes:
+:class:`~bokeh.models.plots.Plot` object when you call the
+:func:`~bokeh.plotting.figure` function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
    :language: python
@@ -120,12 +120,12 @@ Formatting axis ticks
 
 You can format the text that appears alongside your axes with Bokeh's
 ``TickFormatter`` objects. Use these formatters to display currency
-symbols on your y axis, for example:
+symbols on your y-axis, for example:
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_tick_formatter.py
     :source-position: none
 
-To display dollar amounts instead of just numbers on your y axis, use the
+To display dollar amounts instead of just numbers on your y-axis, use the
 :class:`~bokeh.models.formatters.NumeralTickFormatter`:
 
 First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
@@ -160,7 +160,7 @@ This is what the completed code looks like:
 Enabling logarithmic axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also change the axis type all together. Use ``y_axis_type="log"`` to
+You can also change the axis type altogether. Use ``y_axis_type="log"`` to
 switch to logarithmic axes:
 
 .. literalinclude:: examples/first_steps_4_axes_logarithmic.py
@@ -405,14 +405,14 @@ There are several ways to enable tooltips in Bokeh. This is the quickest:
 2. Include ``HoverTool()`` in the list passed to the ``tools`` argument when
    calling the :func:`~bokeh.plotting.figure` function.
 
-3. Also include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument
-   when calling the :func:`~bokeh.plotting.figure` function.
+3. Include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument when
+   calling the :func:`~bokeh.plotting.figure` function.
 
 The ``tooltips`` argument accepts a string with a special syntax. Use the "@"
 symbol to include the name of the source for the data you want Bokeh to display.
-This example includes ``@x`` and ``@y``. Bokeh will replace both those fields
-with the actual data from the lists ``x`` and ``y`` when the browser displays a
-tooltip.
+This example includes ``@x`` and ``@y``. When the browser displays a tooltip,
+Bokeh replaces both those fields with the actual data from the lists ``x`` and
+``y`` .
 
 This is what the code looks like:
 
