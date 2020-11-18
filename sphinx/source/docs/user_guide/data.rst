@@ -60,30 +60,56 @@ The |ColumnDataSource| (CDS) is the core of most Bokeh plots. It provides the
 data to the glyphs of your plot.
 
 When you pass sequences like Python lists or NumPy arrays to a Bokeh renderer,
-Bokeh automatically converts those data structures into ColumnDataSources.
-Directly working with ColumnDataSources gives you access to more advanced
-options, compared to using standard data sequences like lists and arrays.
+Bokeh automatically creates a ColumnDataSource with this data for you. However,
+creating a ColumnDataSource yourself gives you access to more advanced options.
 
-For example: Using a |ColumnDataSource| allows you to share data between
-multiple plots and widgets. If you use a single ColumnDataSource together with
-multiple renderers, those renderers also share information about data you
-select with a select tool from Bokeh's toolbar (see
+For example: Creating your own |ColumnDataSource| allows you to share data
+between multiple plots and widgets. If you use a single ColumnDataSource
+together with multiple renderers, those renderers also share information about
+data you select with a select tool from Bokeh's toolbar (see
 :ref:`userguide_data_linked_selection`).
 
 Think of a ColumnDataSource as a collection of sequences of data that each have
 their own, unique column name.
 
-To create a |ColumnDataSource| object, you need a Python dictionary to pass to
-the object's ``data`` parameter:
+Creating a ColumnDataSource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To create a basic |ColumnDataSource| object, you need a Python dictionary to
+pass to the object's ``data`` parameter:
 
 * Bokeh uses the dictionary's keys as column names.
 * The dictionary's values are used as the data values for your ColumnDataSource.
 
 The data you pass as part of your dict can be any non-string ordered sequences
-of values, such as lists or arrays (including NumPy arrays).
+of values, such as lists or arrays (including NumPy arrays and pandas Series):
 
-Once you have a ColumnDataSource set up, pass it to a plotting function using
-the ``source`` argument:
+.. code-block:: python
+
+    data = {'x_values': [1, 2, 3, 4, 5],
+            'y_values': [6, 7, 2, 3, 6]}
+
+    source = ColumnDataSource(data=data)
+
+All columns in a ColumnDataSource have the same length. Therefore, all sequences
+of values that you pass to a single ColumnDataSource must have the
+same length as well. If you try to pass sequences of different lengths, Bokeh
+will not be able to create your ColumnDataSource.
+
+Plotting with a ColumnDataSource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use a ColumnDataSource with a renderer function, you need to pass at least
+these three arguments:
+
+* ``x``: the name of the ColumnDataSource's column that contains the data for
+  the x values of your plot
+* ``y``: the name of the ColumnDataSource's column that contains the data for
+  the y values of your plot
+* ``source``: the name of the ColumnDataSource that contains the columns you
+  just referenced for the ``x`` and ``y`` arguments.
+
+For example:
 
 .. code-block:: python
 
@@ -101,20 +127,49 @@ the ``source`` argument:
     p = figure()
     p.circle(x='x_values', y='y_values', source=source)
 
-To use a ColumnDataSource with a plotting function, you need to pass at least
-these three arguments:
+Modifying a ColumnDataSource
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* ``x``: the name of the ColumnDataSource's column that contains the data for
-  the x values of your plot
-* ``y``: the name of the ColumnDataSource's column that contains the data for
-  the y values of your plot
-* ``source``: the name of the ColumnDataSource that contains the columns you
-  just referenced for the ``x`` and ``y`` arguments.
+To modify the data of an existing ColumnDataSource, update the ``.data``
+property of your ColumnDataSource object:
+
+* To add a new column to an existing ColumnDataSource:
+
+  .. code-block:: python
+
+    new_sequence = [8, 1, 4, 7, 3]
+    source.data["new_column"] = new_sequence
+
+  The length of the column you are adding must match the length of the existing
+  columns.
+
+* To replace data in an existing column within your ColumnDataSource, assign
+  your new value to the respective index position:
+
+  .. code-block:: python
+
+    source.data["new_column"][2] = 5
+
+* To replace all data in an existing ColumnDataSource, assign the ``.data``
+  property an entirely new dict:
+
+  .. code-block:: python
+
+    source.data = new_dict
 
 .. note::
     Bokeh assumes that all columns in a ColumnDataSource each have the same
-    length at all times. For this reason, make sure to always update all columns
-    of a ColumnDataSource at the same time.
+    length at all times. For this reason, there are some things to keep in mind:
+
+    * When creating a new ColumnDataSource: Make sure all sequences of values
+      you pass into a ColumnDataSource are the same length.
+    * When adding a new column to an existing ColumnDataSource by updating the
+      ``.data`` property: Make sure your additional column is the same length as
+      the columns already in the ColumnDataSource.
+    * When updating data in a way that changes the length of any column in a
+      ColumnDataSource: You must update all columns at once by passing an
+      entirely new dict containing columns with the same length. It is not
+      possible to update column lengths one column at a time.
 
 .. _userguide_data_cds_pandas_data_frame:
 
@@ -131,9 +186,8 @@ If you use a pandas ``DataFrame``, the resulting ColumnDataSource in Bokeh will
 have columns that correspond to the columns of the ``DataFrame``. The naming of
 the columns follows these rules:
 
-* The index of the ``DataFrame`` will be reset, so if the ``DataFrame`` has a
-  named index column, the ColumnDataSource will also have a column with this
-  name.
+* If the ``DataFrame`` has a named index column, the ColumnDataSource will also
+  have a column with this name.
 * If the index name is ``None``, the ColumnDataSource will have a generic name:
   either ``index`` (if that name is available) or ``level_0``.
 
@@ -355,7 +409,7 @@ more filters to select specific data points without changing the underlying
 data. You can also share those views between different plots.
 
 To plot with a filtered subset of data, pass a |CDSView| to the ``view``
-argument of any renderer methods that are part of Bokeh's |Figure| class.
+argument of any renderer method on a Bokeh plot.
 
 A |CDSView| has two properties, ``source`` and ``filters``:
 
