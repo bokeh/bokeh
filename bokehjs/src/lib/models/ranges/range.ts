@@ -30,7 +30,7 @@ export abstract class Range extends Model {
     }))
 
     this.internal<Range.Props>(({Array, AnyRef}) => ({
-      plots: [ Array(AnyRef<Plot>()), [] ], // XXX: recursive imports
+      plots: [ Array(AnyRef()), [] ],
     }))
   }
 

@@ -2,12 +2,12 @@ import {HasProps} from "./has_props"
 import {Geometry} from "./geometry"
 import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
+import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import {GlyphRendererView} from "models/renderers/glyph_renderer"
 import {GraphRendererView} from "models/renderers/graph_renderer"
 import * as p from "./properties"
 
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
 export namespace SelectionManager {
   export type Props = HasProps.Props & {
@@ -27,8 +27,8 @@ export class SelectionManager extends HasProps {
   }
 
   static init_SelectionManager(): void {
-    this.internal<SelectionManager.Props>(({Ref}) => ({
-      source: [ Ref(ColumnarDataSource) ],
+    this.internal<SelectionManager.Props>(({AnyRef}) => ({
+      source: [ AnyRef() ],
     }))
   }
 
