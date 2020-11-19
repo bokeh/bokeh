@@ -3,7 +3,7 @@ import {Dimensions} from "core/enums"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_line_edit} from "styles/icons"
+import {tool_icon_line_edit} from "styles/icons.css"
 import {Line} from "models/glyphs/line"
 
 export interface HasLineGlyph {
@@ -153,7 +153,7 @@ export class LineEditTool extends LineTool {
   }
 
   tool_name = "Line Edit Tool"
-  icon = bk_tool_icon_line_edit
+  icon = tool_icon_line_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 

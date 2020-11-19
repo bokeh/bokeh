@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_save} from "styles/icons"
+import {tool_icon_save} from "styles/icons.css"
 import {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
@@ -56,7 +56,7 @@ export class SaveTool extends ActionTool {
   }
 
   tool_name = "Save"
-  icon = bk_tool_icon_save
+  icon = tool_icon_save
 
   get menu(): MenuItem[] | null {
     return [

@@ -18,10 +18,8 @@ import {TableColumn} from "./table_column"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
-import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
-
+import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
-import tables_css from "styles/widgets/tables.css"
 
 export const AutosizeModes = {
   fit_columns: "FCV",
@@ -235,13 +233,13 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: bk_cell_index,
-      headerCssClass: bk_header_index,
+      cssClass: tables.cell_index,
+      headerCssClass: tables.header_index,
     }
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat(bk_data_table)
+    return super.css_classes().concat(tables.data_table)
   }
 
   get autosize(): string {
@@ -262,7 +260,7 @@ export class DataTableView extends WidgetView {
 
     let checkbox_selector: CheckboxSelectColumn<Item> | null = null
     if (this.model.selectable == "checkbox") {
-      checkbox_selector = new CheckboxSelectColumn({cssClass: bk_cell_select})
+      checkbox_selector = new CheckboxSelectColumn({cssClass: tables.cell_select})
       columns.unshift(checkbox_selector.getColumnDefinition())
     }
 

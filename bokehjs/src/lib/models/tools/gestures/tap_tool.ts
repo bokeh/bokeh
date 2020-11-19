@@ -6,7 +6,7 @@ import {PointGeometry} from "core/geometry"
 import {TapBehavior, SelectionMode} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {DataRendererView} from "../../renderers/data_renderer"
-import {bk_tool_icon_tap_select} from "styles/icons"
+import {tool_icon_tap_select} from "styles/icons.css"
 
 export class TapToolView extends SelectToolView {
   model: TapTool
@@ -108,7 +108,7 @@ export class TapTool extends SelectTool {
   }
 
   tool_name = "Tap"
-  icon = bk_tool_icon_tap_select
+  icon = tool_icon_tap_select
   event_type = "tap" as "tap"
   default_order = 10
 }

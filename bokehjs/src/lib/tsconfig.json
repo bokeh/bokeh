@@ -27,8 +27,13 @@
     "lib": ["es2020", "dom", "dom.iterable"],
     "types": ["hammerjs", "googlemaps"],
     "baseUrl": ".",
+    "rootDir": ".",
     "outDir": "../../build/js/lib",
-    "declarationDir": "../../build/js/types"
+    "declarationDir": "../../build/js/types",
+    "rootDirs": [".", "../../build/dts/"],
+    "paths": {
+      "styles/*": ["../../build/ts/styles/*"]
+    }
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../../build/dts"]
 }

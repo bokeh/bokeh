@@ -9,7 +9,7 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
-import {bk_root} from "styles/root"
+import {root} from "styles/root.css"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
@@ -326,7 +326,7 @@ export abstract class LayoutDOMView extends DOMView {
 
       while (measuring = measuring.parentElement) {
         // .bk-root element doesn't bring any value
-        if (measuring.classList.contains(bk_root))
+        if (measuring.classList.contains(root))
           continue
 
         // we reached <body> element, so use viewport size

@@ -3,7 +3,7 @@ import {ButtonGroup, ButtonGroupView} from "./button_group"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_active} from "styles/mixins"
+import * as buttons from "styles/buttons.css"
 
 export class RadioButtonGroupView extends ButtonGroupView {
   model: RadioButtonGroup
@@ -18,7 +18,7 @@ export class RadioButtonGroupView extends ButtonGroupView {
     const {active} = this.model
 
     this._buttons.forEach((button, i) => {
-      classes(button).toggle(bk_active, active === i)
+      classes(button).toggle(buttons.active, active === i)
     })
   }
 }

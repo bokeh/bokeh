@@ -14,8 +14,7 @@ import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 
-import {bk_tile_attribution} from "styles/tiles"
-import tiles_css from "styles/tiles.css"
+import tiles_css, {tile_attribution} from "styles/tiles.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -99,7 +98,7 @@ export class TileRendererView extends RendererView {
       const offset_bottom = layout.bbox.height - frame.bbox.bottom
       const max_width = frame.bbox.width
       this.attribution_el = div({
-        class: bk_tile_attribution,
+        class: tile_attribution,
         style: {
           position: "absolute",
           right: `${offset_right}px`,

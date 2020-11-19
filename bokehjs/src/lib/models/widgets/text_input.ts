@@ -3,7 +3,7 @@ import {TextLikeInput, TextLikeInputView} from "./text_like_input"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class TextInputView extends TextLikeInputView {
   model: TextInput
@@ -11,7 +11,7 @@ export class TextInputView extends TextLikeInputView {
   protected input_el: HTMLInputElement
 
   protected _render_input(): void {
-    this.input_el = input({type: "text", class: bk_input})
+    this.input_el = input({type: "text", class: inputs.input})
   }
 }
 

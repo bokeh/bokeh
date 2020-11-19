@@ -16,6 +16,7 @@ task("styles:compile", async () => {
     try {
       const less = read(src)!
       const {css} = await lesscss.render(less, {filename: src})
+
       const dst = rename(src, {
         base: paths.src_dir.less,
         dir: paths.build_dir.css,

@@ -3,7 +3,7 @@ import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {EditTool, EditToolView} from "./edit_tool"
-import {bk_tool_icon_freehand_draw} from "styles/icons"
+import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
   model: FreehandDrawTool
@@ -104,7 +104,7 @@ export class FreehandDrawTool extends EditTool {
     }))
   }
   tool_name = "Freehand Draw Tool"
-  icon = bk_tool_icon_freehand_draw
+  icon = tool_icon_freehand_draw
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }

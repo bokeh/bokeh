@@ -2,7 +2,7 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_active} from "styles/mixins"
+import * as inputs from "styles/buttons.css"
 
 export class ToggleView extends AbstractButtonView {
   model: Toggle
@@ -23,7 +23,7 @@ export class ToggleView extends AbstractButtonView {
   }
 
   protected _update_active(): void {
-    classes(this.button_el).toggle(bk_active, this.model.active)
+    classes(this.button_el).toggle(inputs.active, this.model.active)
   }
 }
 

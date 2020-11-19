@@ -23,10 +23,10 @@ import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPoli
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../selections/selection"
-import {bk_tool_icon_hover} from "styles/icons"
-import {bk_tooltip_row_label, bk_tooltip_row_value, bk_tooltip_color_block} from "styles/tooltips"
+import {tool_icon_hover} from "styles/icons.css"
 import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
+import * as styles from "styles/tooltips.css"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -421,17 +421,17 @@ export class HoverToolView extends InspectToolView {
       const row = div({style: {display: "table-row"}})
       rows.appendChild(row)
 
-      const label_cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
+      const label_cell = div({style: {display: "table-cell"}, class: styles.tooltip_row_label}, label.length != 0 ? `${label}: ` : "")
       row.appendChild(label_cell)
 
       const value_el = span()
       value_el.dataset.value = ""
 
-      const swatch_el = span({class: bk_tooltip_color_block}, " ")
+      const swatch_el = span({class: styles.tooltip_color_block}, " ")
       swatch_el.dataset.swatch = ""
       undisplay(swatch_el)
 
-      const value_cell = div({style: {display: "table-cell"}, class: bk_tooltip_row_value}, value_el, swatch_el)
+      const value_cell = div({style: {display: "table-cell"}, class: styles.tooltip_row_value}, value_el, swatch_el)
       row.appendChild(value_cell)
     }
 
@@ -555,5 +555,5 @@ export class HoverTool extends InspectTool {
   }
 
   tool_name = "Hover"
-  icon = bk_tool_icon_hover
+  icon = tool_icon_hover
 }

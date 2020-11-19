@@ -3,7 +3,7 @@ import {TextLikeInput, TextLikeInputView} from "./text_like_input"
 import {textarea} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class TextAreaInputView extends TextLikeInputView {
   model: TextAreaInput
@@ -16,7 +16,7 @@ export class TextAreaInputView extends TextLikeInputView {
     this.connect(this.model.properties.cols.change, () => this.input_el.cols = this.model.cols)
   }
   protected _render_input(): void {
-    this.input_el = textarea({class: bk_input})
+    this.input_el = textarea({class: inputs.input})
   }
 
   render(): void {

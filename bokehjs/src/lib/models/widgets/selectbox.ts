@@ -4,7 +4,7 @@ import {entries} from "core/util/object"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class SelectView extends InputWidgetView {
   model: Select
@@ -54,7 +54,7 @@ export class SelectView extends InputWidgetView {
     super.render()
 
     this.input_el = select({
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, this.options_el())

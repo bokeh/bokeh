@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {is_mobile} from "core/util/platform"
-import {bk_tool_icon_wheel_zoom} from "styles/icons"
+import {tool_icon_wheel_zoom} from "styles/icons.css"
 
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool
@@ -90,7 +90,7 @@ export class WheelZoomTool extends GestureTool {
   }
 
   tool_name = "Wheel Zoom"
-  icon = bk_tool_icon_wheel_zoom
+  icon = tool_icon_wheel_zoom
   event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
   default_order = 10
 

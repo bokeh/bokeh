@@ -10,9 +10,7 @@ import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
 import {reversed} from "core/util/array"
 
-import {bk_toolbar_button} from "styles/toolbar"
-
-import toolbar_css from "styles/toolbar.css"
+import toolbar_css, * as toolbars from "styles/toolbar.css"
 import icons_css from "styles/icons.css"
 import menus_css from "styles/menus.css"
 
@@ -69,7 +67,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat(bk_toolbar_button)
+    return super.css_classes().concat(toolbars.toolbar_button)
   }
 
   render(): void {

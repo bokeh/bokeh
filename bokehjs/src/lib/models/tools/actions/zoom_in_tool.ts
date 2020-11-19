@@ -1,5 +1,5 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
-import {bk_tool_icon_zoom_in} from "styles/icons"
+import {tool_icon_zoom_in} from "styles/icons.css"
 
 export class ZoomInToolView extends ZoomBaseToolView {
   model: ZoomBaseTool
@@ -25,5 +25,5 @@ export class ZoomInTool extends ZoomBaseTool {
 
   sign = 1 as 1
   tool_name = "Zoom In"
-  icon = bk_tool_icon_zoom_in
+  icon = tool_icon_zoom_in
 }

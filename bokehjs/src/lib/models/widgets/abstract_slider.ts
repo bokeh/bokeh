@@ -8,11 +8,9 @@ import {repeat} from "core/util/array"
 import {Control, ControlView} from "./control"
 import {TickFormatter} from "../formatters/tick_formatter"
 
-import {bk_slider_value, bk_slider_title} from "styles/widgets/sliders"
-import {bk_input_group} from "styles/widgets/inputs"
-
+import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"
-import sliders_css from "styles/widgets/sliders.css"
+import * as inputs from "styles/widgets/inputs.css"
 
 export interface SliderSpec {
   start: number
@@ -78,7 +76,7 @@ abstract class AbstractBaseSliderView extends ControlView {
       if (this.model.show_value) {
         const {value} = this._calc_to()
         const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
-        this.title_el.appendChild(span({class: bk_slider_value}, pretty))
+        this.title_el.appendChild(span({class: sliders.slider_value}, pretty))
       }
     }
   }
@@ -151,10 +149,10 @@ abstract class AbstractBaseSliderView extends ControlView {
     else
       this.slider_el.removeAttribute('disabled')
 
-    this.title_el = div({class: bk_slider_title})
+    this.title_el = div({class: sliders.slider_title})
     this._update_title()
 
-    this.group_el = div({class: bk_input_group}, this.title_el, this.slider_el)
+    this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
     this.el.appendChild(this.group_el)
   }
 

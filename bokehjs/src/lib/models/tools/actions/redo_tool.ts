@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_redo} from "styles/icons"
+import {tool_icon_redo} from "styles/icons.css"
 
 export class RedoToolView extends ActionToolView {
   model: RedoTool
@@ -42,5 +42,5 @@ export class RedoTool extends ActionTool {
   }
 
   tool_name = "Redo"
-  icon = bk_tool_icon_redo
+  icon = tool_icon_redo
 }

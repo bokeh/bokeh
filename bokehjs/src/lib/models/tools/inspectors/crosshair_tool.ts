@@ -6,7 +6,7 @@ import {MoveEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {values} from "core/util/object"
-import {bk_tool_icon_crosshair} from "styles/icons"
+import {tool_icon_crosshair} from "styles/icons.css"
 
 export class CrosshairToolView extends InspectToolView {
   model: CrosshairTool
@@ -95,7 +95,7 @@ export class CrosshairTool extends InspectTool {
   }
 
   tool_name = "Crosshair"
-  icon = bk_tool_icon_crosshair
+  icon = tool_icon_crosshair
 
   get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)

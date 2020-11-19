@@ -4,8 +4,7 @@ import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
-import {bk_clearfix} from "styles/clearfix"
-import clearfix_css from "styles/clearfix.css"
+import clearfix_css, {clearfix} from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
   model: Markup
@@ -34,7 +33,7 @@ export abstract class MarkupView extends WidgetView {
   render(): void {
     super.render()
     const style = {...this.model.style, display: "inline-block"}
-    this.markup_el = div({class: bk_clearfix, style})
+    this.markup_el = div({class: clearfix, style})
     this.el.appendChild(this.markup_el)
   }
 }
