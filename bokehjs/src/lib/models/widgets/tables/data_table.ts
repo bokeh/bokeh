@@ -12,8 +12,9 @@ import {logger} from "core/logging"
 import {BoxSizing} from "core/layout"
 
 import {WidgetView} from "../widget"
+import {ColumnType, Item, DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
-import {TableColumn, ColumnType, Item} from "./table_column"
+import {TableColumn} from "./table_column"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
@@ -21,8 +22,6 @@ import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "sty
 
 import slickgrid_css from "styles/widgets/slickgrid.css"
 import tables_css from "styles/widgets/tables.css"
-
-export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 export const AutosizeModes = {
   fit_columns: "FCV",

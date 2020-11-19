@@ -1,14 +1,11 @@
 import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
+import {ColumnType} from "./definitions"
 
 import * as p from "core/properties"
-import {Column} from "@bokeh/slickgrid"
 import {uniqueId} from "core/util/string"
 import {Sort} from "core/enums"
 import {Model} from "../../../model"
-
-export type Item = {[key: string]: any}
-export type ColumnType = Column<Item> & {model?: CellEditor}
 
 export namespace TableColumn {
   export type Attrs = p.AttrsOf<Props>
