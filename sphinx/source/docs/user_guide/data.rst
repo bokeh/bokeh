@@ -91,10 +91,11 @@ of values, such as lists or arrays (including NumPy arrays and pandas Series):
 
     source = ColumnDataSource(data=data)
 
-All columns in a ColumnDataSource have the same length. Therefore, all sequences
-of values that you pass to a single ColumnDataSource must have the
-same length as well. If you try to pass sequences of different lengths, Bokeh
-will not be able to create your ColumnDataSource.
+.. note::
+    All columns in a ColumnDataSource have the same length. Therefore, all sequences
+    of values that you pass to a single ColumnDataSource must have the
+    same length as well. If you try to pass sequences of different lengths, Bokeh
+    will not be able to create your ColumnDataSource.
 
 Plotting with a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,15 +141,9 @@ property of your ColumnDataSource object:
     new_sequence = [8, 1, 4, 7, 3]
     source.data["new_column"] = new_sequence
 
-  The length of the column you are adding must match the length of the existing
-  columns.
-
-* To replace data in an existing column within your ColumnDataSource, assign
-  your new value to the respective index position:
-
-  .. code-block:: python
-
-    source.data["new_column"][2] = 5
+  .. note::
+    The length of the column you are adding must match the length of the
+    existing columns.
 
 * To replace all data in an existing ColumnDataSource, assign the ``.data``
   property an entirely new dict:
@@ -157,19 +152,12 @@ property of your ColumnDataSource object:
 
     source.data = new_dict
 
-.. note::
-    Bokeh assumes that all columns in a ColumnDataSource each have the same
-    length at all times. For this reason, there are some things to keep in mind:
-
-    * When creating a new ColumnDataSource: Make sure all sequences of values
-      you pass into a ColumnDataSource are the same length.
-    * When adding a new column to an existing ColumnDataSource by updating the
-      ``.data`` property: Make sure your additional column is the same length as
-      the columns already in the ColumnDataSource.
-    * When updating data in a way that changes the length of any column in a
-      ColumnDataSource: You must update all columns at once by passing an
-      entirely new dict containing columns with the same length. It is not
-      possible to update column lengths one column at a time.
+  .. note::
+    Replacing the entire contents of a ColumnDataSource is also the only way to
+    update the lengths of its columns. When you update data in a way that
+    changes the length of any column, you must update all columns at the same
+    time by passing an new dict. It is not possible to update column lengths one
+    column at a time.
 
 .. _userguide_data_cds_pandas_data_frame:
 
