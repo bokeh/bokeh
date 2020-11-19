@@ -12,7 +12,8 @@ import {
   Plot,
 } from "@bokehjs/models"
 
-import {Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -23,6 +24,7 @@ import {assert} from "@bokehjs/core/util/assert"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
+import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
 
 const n_marker_types = [...MarkerType].length
@@ -604,6 +606,37 @@ describe("Bug", () => {
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
       await view.ready
+    })
+  })
+
+  describe("in issue #10695", () => {
+    it("prevents showing MultiChoice's dropdown menu", async () => {
+      const random = new Random(1)
+
+      const N = 10
+      const columns = ["Apple", "Pear", "Banana"]
+
+      const source = new ColumnDataSource({data: {
+        Apple: random.floats(N),
+        Pear: random.floats(N),
+        Banana: random.floats(N),
+      }})
+
+      const choices = new MultiChoice({options: columns})
+      const button = new Button({label: "A button"})
+      const table = new DataTable({
+        width: 300,
+        height: 100,
+        source,
+        columns: columns.map((field) => new TableColumn({title: field, field})),
+      })
+
+      const layout = column([choices, button, table])
+      const {view} = await display(layout, [350, 250])
+
+      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      (choices_view as any /*protected*/).choice_el.showDropdown()
+      await defer()
     })
   })
 
