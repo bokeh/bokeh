@@ -1,7 +1,7 @@
 import {join, relative} from "path"
 import {argv} from "yargs"
 
-import {task, passthrough} from "../task"
+import {task, passthrough, BuildError} from "../task"
 import {rename, read, write, scan} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
@@ -64,7 +64,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const bundles = await linker.link()
+  const {bundles, status} = await linker.link()
   linker.store_cache()
 
   const outputs = packages.map((pkg) => pkg.output)
@@ -77,6 +77,9 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
 
   bundle(false, outputs)
   bundle(true, outputs.map(min_js))
+
+  if (!status)
+    throw new BuildError("scripts:bundle", "unable to bundle modules")
 })
 
 task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
@@ -91,7 +94,7 @@ task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const bundles = await linker.link()
+  const {bundles, status} = await linker.link()
   linker.store_cache()
 
   const outputs = packages.map((pkg) => pkg.output)
@@ -104,6 +107,9 @@ task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
 
   bundle(false, outputs)
   bundle(true, outputs.map(min_js))
+
+  if (!status)
+    throw new BuildError("scripts:bundle", "unable to bundle modules")
 })
 
 task("lib:build", ["scripts:bundle"])

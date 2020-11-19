@@ -313,10 +313,13 @@ async function bundle(name: string): Promise<void> {
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const [bundle] = await linker.link()
+  const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
   bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+
+  if (!status)
+    throw new BuildError(`${name}:bundle`, "unable to bundle modules")
 }
 
 task("test:compile:unit", async () => compile("unit", {auto_index: true}))
