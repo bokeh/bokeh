@@ -4,7 +4,7 @@ import {Serializer} from "@bokehjs/core/serializer"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {BYTE_ORDER} from "@bokehjs/core/util/serialization"
+import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 
 function to_serializable(obj: unknown): {repr: unknown, json: string} {
   const serializer = new Serializer()
