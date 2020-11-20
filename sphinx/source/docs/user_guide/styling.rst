@@ -8,9 +8,9 @@ Styling Visual Attributes
 Using Themes
 ------------
 
-To quickly change the appearance, Bokeh offers themes. Themes are a set of
-design parameters that you can apply to your plots. This includes colors, fonts,
-or line styles, for example.
+Bokeh's themes are a set of pre-defined design parameters that you can apply to
+your plots. Themes can include settings for parameters such as colors, fonts,
+or line styles.
 
 .. _userguide_styling_using_themes_built_in:
 
@@ -18,7 +18,7 @@ Applying Bokeh's built-in themes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh comes with five :ref:`built-in themes <bokeh.themes>` to quickly change
-the appearance of your plot: ``caliber``, ``dark_minimal``, ``light_minimal``,
+the appearance of one or more plots: ``caliber``, ``dark_minimal``, ``light_minimal``,
 ``night_sky``, and ``contrast``.
 
 .. container:: theme-examples
