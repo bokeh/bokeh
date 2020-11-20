@@ -8,7 +8,6 @@ import {GlyphRendererView} from "models/renderers/glyph_renderer"
 import {GraphRendererView} from "models/renderers/graph_renderer"
 import * as p from "./properties"
 
-
 export namespace SelectionManager {
   export type Props = HasProps.Props & {
     source: p.Property<ColumnarDataSource>

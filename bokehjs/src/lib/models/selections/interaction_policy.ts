@@ -10,7 +10,7 @@ export abstract class SelectionPolicy extends Model {
   abstract hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult
 
   do_selection(hit_test_result: HitTestResult, source: ColumnarDataSource, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result === null) {
+    if (hit_test_result == null) {
       return false
     } else {
       source.selected.update(hit_test_result, final, mode)
@@ -26,7 +26,7 @@ export class IntersectRenderers extends SelectionPolicy {
     const hit_test_result_renderers = []
     for (const r of renderer_views) {
       const result = r.hit_test(geometry)
-      if (result !== null)
+      if (result != null)
         hit_test_result_renderers.push(result)
     }
     if (hit_test_result_renderers.length > 0) {
@@ -47,7 +47,7 @@ export class UnionRenderers extends SelectionPolicy {
     const hit_test_result_renderers = []
     for (const r of renderer_views) {
       const result = r.hit_test(geometry)
-      if (result !== null)
+      if (result != null)
         hit_test_result_renderers.push(result)
     }
     if (hit_test_result_renderers.length > 0) {

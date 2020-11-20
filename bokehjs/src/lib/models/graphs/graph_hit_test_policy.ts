@@ -8,6 +8,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {GlyphRendererView} from "../renderers/glyph_renderer"
 
 export namespace GraphHitTestPolicy {
   export type Attrs = p.AttrsOf<Props>
@@ -30,28 +31,16 @@ export abstract class GraphHitTestPolicy extends Model {
 
   abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean
 
-  _hit_test_nodes(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
+  protected _hit_test(geometry: Geometry, graph_view: GraphRendererView, renderer_view: GlyphRendererView): HitTestResult {
     if (!graph_view.model.visible)
       return null
 
-    const hit_test_result = graph_view.node_view.glyph.hit_test(geometry)
+    const hit_test_result = renderer_view.glyph.hit_test(geometry)
 
     if (hit_test_result == null)
       return null
     else
-      return graph_view.node_view.model.view.convert_selection_from_subset(hit_test_result)
-  }
-
-  _hit_test_edges(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    if (!graph_view.model.visible)
-      return null
-
-    const hit_test_result = graph_view.edge_view.glyph.hit_test(geometry)
-
-    if (hit_test_result == null)
-      return null
-    else
-      return graph_view.edge_view.model.view.convert_selection_from_subset(hit_test_result)
+      return renderer_view.model.view.convert_selection_from_subset(hit_test_result)
   }
 }
 
@@ -71,7 +60,7 @@ export class EdgesOnly extends GraphHitTestPolicy {
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    return this._hit_test_edges(geometry, graph_view)
+    return this._hit_test(geometry, graph_view, graph_view.edge_view)
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
@@ -117,7 +106,7 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    return this._hit_test_nodes(geometry, graph_view)
+    return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
@@ -163,18 +152,18 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    return this._hit_test_nodes(geometry, graph_view)
+    return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
   get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
     let node_indices = []
-    if (mode == 'selection'){
-      node_indices = node_source.selected.indices.map((i: number) => node_source.data.index[i])
-    } else if (mode == 'inspection'){
-      node_indices = node_source.inspected.indices.map((i: number) => node_source.data.index[i])
+    if (mode == 'selection') {
+      node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
+    } else if (mode == 'inspection') {
+      node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
     }
     const edge_indices = []
-    for (let i = 0; i < edge_source.data.start.length; i++){
+    for (let i = 0; i < edge_source.data.start.length; i++) {
       if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i]))
         edge_indices.push(i)
     }
@@ -240,7 +229,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
-    return this._hit_test_edges(geometry, graph_view)
+    return this._hit_test(geometry, graph_view, graph_view.edge_view)
   }
 
   get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
@@ -250,7 +239,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     else if (mode == 'inspection')
       edge_indices = edge_source.inspected.indices
     const nodes = []
-    for (const i of edge_indices){
+    for (const i of edge_indices) {
       nodes.push(edge_source.data.start[i])
       nodes.push(edge_source.data.end[i])
     }
