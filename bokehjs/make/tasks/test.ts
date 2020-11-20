@@ -55,6 +55,12 @@ async function find_port(port: number): Promise<number> {
   return port
 }
 
+function terminate(proc: ChildProcess): void {
+  process.once("exit",    () => proc.kill())
+  process.once("SIGINT",  () => proc.kill("SIGINT"))
+  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+}
+
 function node(files: string[]): Promise<void> {
   const env = {
     ...process.env,
@@ -62,10 +68,7 @@ function node(files: string[]): Promise<void> {
   }
 
   const proc = spawn(process.execPath, files, {stdio: "inherit", env})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -135,10 +138,6 @@ async function headless(port: number): Promise<ChildProcess> {
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
 
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
-
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new BuildError("headless", `timeout starting ${executable}`))
@@ -175,10 +174,7 @@ async function server(port: number): Promise<ChildProcess> {
   }
 
   const proc = spawn(process.execPath, args, {stdio: ["inherit", "inherit", "inherit", "ipc"]})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -235,10 +231,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
   }
 
   const proc = spawn(process.execPath, args, {stdio: "inherit"})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -253,11 +246,16 @@ function devtools(devtools_port: number, server_port: number, name: string, base
   })
 }
 
+task("test:run:headless", async () => {
+  await headless(9222)
+})
+
 const start_headless = task("test:start:headless", async () => {
   let port = 9222
   await retry(async () => {
     port = await find_port(port)
-    await headless(port)
+    const proc = await headless(port)
+    terminate(proc)
   }, 3)
   return success(port)
 })
