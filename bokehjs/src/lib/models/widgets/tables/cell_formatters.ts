@@ -120,7 +120,7 @@ export class ScientificFormatter extends StringFormatter {
   }
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
-    const need_sci = value <= this.scientific_limit_low || value >= this.scientific_limit_high
+    const need_sci = Math.abs(value) <= this.scientific_limit_low || Math.abs(value) >= this.scientific_limit_high
     let precision = this.precision
 
     // toExponential does not handle precision values < 0 correctly
@@ -130,6 +130,8 @@ export class ScientificFormatter extends StringFormatter {
 
     if ((value == null || isNaN(value)) && this.nan_format != null)
       value = this.nan_format
+    else if (value == 0)
+      value = to_fixed(value, 1)
     else if (need_sci)
       value = value.toExponential(precision)
     else

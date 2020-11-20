@@ -31,6 +31,8 @@ export const AutosizeModes = {
   none: "NOA",
 }
 
+let _warned_not_reorderable = false
+
 export class TableDataProvider implements DataProvider<Item> {
   index: number[]
   source: ColumnDataSource
@@ -124,7 +126,6 @@ export class DataTableView extends WidgetView {
   protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
-  protected _warned_not_reorderable = false
   protected _width: number | null = null
 
   connect_signals(): void {
@@ -282,9 +283,9 @@ export class DataTableView extends WidgetView {
     let {reorderable} = this.model
 
     if (reorderable && !(typeof $ !== "undefined" && $.fn != null && ($.fn as any).sortable != null)) {
-      if (!this._warned_not_reorderable) {
+      if (!_warned_not_reorderable) {
         logger.warn("jquery-ui is required to enable DataTable.reorderable")
-        this._warned_not_reorderable = true
+        _warned_not_reorderable = true
       }
       reorderable = false
     }

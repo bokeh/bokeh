@@ -1,3 +1,5 @@
+@import "../_mixins.less";
+
 .bk-root {
   @choices: "../../../node_modules/choices.js/public/assets/styles";
   @import (less) "@{choices}/choices.css";
@@ -45,6 +47,10 @@
 
   .choices__list {
     white-space: initial;
+  }
+
+  .choices__list--dropdown {
+    .bring-to-front();
   }
 
   .choices[data-type*=select-multiple] .choices__button.light {

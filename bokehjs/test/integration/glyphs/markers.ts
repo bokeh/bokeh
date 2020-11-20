@@ -84,7 +84,8 @@ describe("Marker glyph", () => {
 
     const p0 = make_plot("canvas")
     const p1 = make_plot("svg")
+    const p2 = make_plot("webgl")
 
-    await display(row([p0, p1]), [650, 650])
+    await display(row([p0, p1, p2]), [950, 650])
   })
 })
