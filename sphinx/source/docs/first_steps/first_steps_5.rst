@@ -79,8 +79,9 @@ Then assign your color mapper to the ``color`` parameter of your renderer:
 
 .. seealso::
    For more information about color mapping and other similar operations, see
-   :ref:`userguide_data_transforming` in the user guide. In addition to
-   ``linear_cmap``, this includes ``log_cmap`` and ``factor_cmap``, for example.
+   :ref:`userguide_styling_using_mappers` and :ref:`userguide_data_transforming`
+   in the user guide. In addition to ``linear_cmap``, this includes ``log_cmap``
+   and ``factor_cmap``, for example.
 
    To learn more about Bokeh's color palettes, see :class:`~bokeh.palettes` in
    the reference guide. This document contains an overview of all available
