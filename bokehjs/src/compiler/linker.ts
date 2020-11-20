@@ -18,7 +18,7 @@ import {Graph, Node, detect_cycles} from "./graph"
 
 const root_path = process.cwd()
 
-const cache_version = 3
+const cache_version = 4
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -195,6 +195,7 @@ export interface LinkerOpts {
   prelude?: () => string
   plugin_prelude?: () => string
   shims?: string[]
+  detect_cycles?: boolean
 }
 
 export class Linker {
@@ -215,6 +216,7 @@ export class Linker {
   readonly prelude: string
   readonly plugin_prelude: string
   readonly shims: Set<string>
+  readonly detect_cycles: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -256,6 +258,7 @@ export class Linker {
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
+    this.detect_cycles = opts.detect_cycles ?? false
   }
 
   is_external(dep: string): boolean {
@@ -304,14 +307,16 @@ export class Linker {
       graph.set(node, deps.filter((dep) => dep.canonical != null).map((dep) => nodes.get(dep)!))
     }
 
-    const cycles = detect_cycles(graph)
-    if (cycles.length != 0) {
-      status = false
-      for (const cycle of cycles) {
-        console.log(`${chalk.red("\u2717")} cycle detected:`)
-        for (const module of cycle) {
-          const is_last = cycle[cycle.length-1] == module
-          console.log(`${is_last ? "\u2514" : "\u251c"}\u2500 ${module.canonical ?? module.base_path}`)
+    if (this.detect_cycles) {
+      const cycles = detect_cycles(graph)
+      if (cycles.length != 0) {
+        status = false
+        for (const cycle of cycles) {
+          console.log(`${chalk.red("\u2717")} cycle detected:`)
+          for (const module of cycle) {
+            const is_last = cycle[cycle.length-1] == module
+            console.log(`${is_last ? "\u2514" : "\u251c"}\u2500 ${module.canonical ?? module.base_path}`)
+          }
         }
       }
     }

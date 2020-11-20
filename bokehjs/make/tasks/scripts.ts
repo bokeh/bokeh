@@ -61,6 +61,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     plugin_prelude: () => preludes.plugin_prelude({version: pkg.version}),
     target: "ES2017",
     exports: ["tslib"],
+    detect_cycles: argv.detectCycles === true,
   })
 
   if (!argv.rebuild) linker.load_cache()
