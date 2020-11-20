@@ -12,6 +12,40 @@ includes :ref:`resizing<first_steps_4_resizing>` your plot, changing its
 :ref:`lines and colors<first_steps_4_grid>`, and customizing the
 :ref:`axes<first_steps_4_axes>` and :ref:`tools<first_steps_4_toolbar>`.
 
+.. _first_steps_4_themes:
+
+Using Themes
+------------
+
+With Bokeh's themes, you can quickly change the appearance of your plot. Themes
+are a set of pre-defined design parameters such as colors, fonts, or line
+styles.
+
+Bokeh comes with five :ref:`built-in themes <bokeh.themes>`: ``caliber``,
+``dark_minimal``, ``light_minimal``, ``night_sky``, and ``contrast``.
+Additionally, you can define your own custom themes.
+
+To use one of the built-in themes, import ``built_in_themes`` from
+:class:`bokeh.themes`. Next, assign the name of the theme you want to use to the
+``theme`` property of your document:
+
+.. literalinclude:: examples/first_steps_4_themes.py
+   :language: python
+   :emphasize-lines: 2,13
+
+.. bokeh-plot:: docs/first_steps/examples/first_steps_4_themes.py
+    :source-position: none
+
+You can also create your own themes to use across multiple plots. Bokeh's themes
+can be either in a YAML or JSON format. To learn more about creating and using
+customized themes, see :ref:`_userguide_styling_using_themes_custom` in the user
+guide.
+
+.. seealso::
+    For more information on using themes with Bokeh, see
+    :ref:`userguide_styling_using_themes` in the user guide and
+    :class:`bokeh.themes` in the reference guide.
+
 .. _first_steps_4_resizing:
 
 Resizing your plot
