@@ -4,9 +4,9 @@ import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {BBox} from "core/util/bbox"
+import {CanvasLayer} from "core/util/canvas"
 
 import type {Plot, PlotView} from "../plots/plot"
-import type {CanvasLayer} from "../canvas/canvas"
 import {CoordinateTransform} from "../canvas/coordinates"
 
 export abstract class RendererView extends View {

@@ -10,7 +10,7 @@ import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {bk_root} from "styles/root"
-import {CanvasLayer} from "../canvas/canvas"
+import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
 export abstract class LayoutDOMView extends DOMView {
