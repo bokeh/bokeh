@@ -44,26 +44,27 @@ the appearance of one or more plots: ``caliber``, ``dark_minimal``, ``light_mini
         :alt: Screenshot of the contrast theme for Bokeh
 
 
-To use one of the built-in themes, import ``built_in_themes`` from
-:class:`bokeh.themes`. Next, assign the name of the theme you want to use to the
-``theme`` property of your document.
+To use one of the built-in themes, assign the name of the theme you want to use
+to the ``theme`` property of your document.
 
 For example:
 
 .. bokeh-plot::
     :source-position: above
 
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
     from bokeh.io import curdoc
+    from bokeh.plotting import figure, output_file, show
 
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]
 
     output_file("dark_minimal.html")
+
     curdoc().theme = 'dark_minimal'
+
     p = figure(title='dark_minimal', plot_width=300, plot_height=300)
     p.line(x, y)
+
     show(p)
 
 For more examples and detailed information, see :class:`bokeh.themes`.
