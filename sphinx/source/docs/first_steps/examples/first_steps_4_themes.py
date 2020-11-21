@@ -1,6 +1,5 @@
 from bokeh.io import curdoc
 from bokeh.plotting import figure, output_file, show
-from bokeh.themes import built_in_themes
 
 # prepare some data
 x = [1, 2, 3, 4, 5]

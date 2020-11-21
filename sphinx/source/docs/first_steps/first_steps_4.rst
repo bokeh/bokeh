@@ -25,9 +25,8 @@ Bokeh comes with five :ref:`built-in themes <bokeh.themes>`: ``caliber``,
 ``dark_minimal``, ``light_minimal``, ``night_sky``, and ``contrast``.
 Additionally, you can define your own custom themes.
 
-To use one of the built-in themes, import ``built_in_themes`` from
-:class:`bokeh.themes`. Next, assign the name of the theme you want to use to the
-``theme`` property of your document:
+To use one of the built-in themes, assign the name of the theme you want to use
+to the ``theme`` property of your document:
 
 .. literalinclude:: examples/first_steps_4_themes.py
    :language: python
