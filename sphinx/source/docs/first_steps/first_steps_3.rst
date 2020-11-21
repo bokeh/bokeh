@@ -42,6 +42,9 @@ customize the legend. For example:
     :class:`~bokeh.models.annotations.Legend` in the reference guide contains a
     list of all available attributes for legends.
 
+    See :ref:`userguide_interaction_legends` in the user guide to learn about
+    using legends to hide or mute glyphs in a plot.
+
 .. _first_steps_3_headlines:
 
 Customizing headlines

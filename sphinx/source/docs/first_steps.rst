@@ -218,8 +218,8 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-two
 
-    Running a Bokeh server app
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Building dashboards and server apps
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_9.png
         :scale: 100 %
