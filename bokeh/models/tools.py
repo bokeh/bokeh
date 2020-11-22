@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import (
@@ -274,24 +275,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag] = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect = Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
+    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool]] = \
+        Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll] = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap] = Either(Auto, Instance(Tap), help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi = Instance(GestureTool, help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool] = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
