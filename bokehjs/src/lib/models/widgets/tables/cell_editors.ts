@@ -3,8 +3,7 @@ import {input, textarea, select, option, Keys} from "core/dom"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
-import {DTINDEX_NAME} from "./data_table"
-import {Item} from "./table_column"
+import {DTINDEX_NAME, Item} from "./definitions"
 
 import {bk_cell_editor} from "styles/widgets/tables"
 

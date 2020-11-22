@@ -1,5 +1,4 @@
 import {Arrayable, ArrayableNew} from "../types"
-import {isArray} from "./types"
 import {clamp} from "./math"
 
 export function is_empty(array: Arrayable): boolean {
@@ -7,7 +6,7 @@ export function is_empty(array: Arrayable): boolean {
 }
 
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
-  if (isArray<T>(array))
+  if (Array.isArray(array))
     return array.slice()
   else
     return new (array.constructor as any)(array)
