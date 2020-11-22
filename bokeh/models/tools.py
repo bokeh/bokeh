@@ -552,6 +552,11 @@ class TapTool(Tap, SelectTool):
     configure `callback` when setting `behavior='inspect'`.
     """)
 
+    gesture = Enum("tap", "doubletap", default="tap", help="""
+    Specifies which kind of gesture will be used to trigger the tool,
+    either a single or double tap.
+    """)
+
     callback = Instance(Callback, help="""
     A callback to execute *whenever a glyph is "hit"* by a mouse click
     or tap.
@@ -1586,6 +1591,7 @@ Tool.register_alias("xzoom_out", lambda: ZoomOutTool(dimensions="width"))
 Tool.register_alias("yzoom_out", lambda: ZoomOutTool(dimensions="height"))
 Tool.register_alias("click", lambda: TapTool(behavior="inspect"))
 Tool.register_alias("tap", lambda: TapTool())
+Tool.register_alias("doubletap", lambda: TapTool(gesture="doubletap"))
 Tool.register_alias("crosshair", lambda: CrosshairTool())
 Tool.register_alias("box_select", lambda: BoxSelectTool())
 Tool.register_alias("xbox_select", lambda: BoxSelectTool(dimensions="width"))
