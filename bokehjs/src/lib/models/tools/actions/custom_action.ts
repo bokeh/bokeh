@@ -43,6 +43,7 @@ export class CustomAction extends ActionTool {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>(({Any, String, Nullable}) => ({
+      /** @deprecated */
       action_tooltip: [ String, "Perform a Custom Action" ],
       callback:       [ Nullable(Any /*TODO*/) ],
       icon:           [ String ],
@@ -54,6 +55,6 @@ export class CustomAction extends ActionTool {
   button_view = CustomActionButtonView
 
   get tooltip(): string {
-    return this.action_tooltip
+    return this.description ?? this.action_tooltip
   }
 }

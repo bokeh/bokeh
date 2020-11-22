@@ -121,6 +121,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    description: p.Property<string | null>
     active: p.Property<boolean>
   }
 }
@@ -139,6 +140,10 @@ export abstract class Tool extends Model {
 
   static init_Tool(): void {
     this.prototype._known_aliases = new Map()
+
+    this.define<Tool.Props>(({String, Nullable}) => ({
+      description: [ Nullable(String), null ],
+    }))
 
     this.internal<Tool.Props>(({Boolean}) => ({
       active: [ Boolean, false ],

@@ -188,15 +188,16 @@ export abstract class EditTool extends GestureTool {
 
   static init_EditTool(): void {
     this.define<EditTool.Props>(({Unknown, String, Array, Ref}) => ({
-      custom_icon:    [ String ],
+      /** @deprecated */
       custom_tooltip: [ String ],
+      custom_icon:    [ String ],
       empty_value:    [ Unknown ],
       renderers:      [ Array(Ref(GlyphRenderer)), [] ],
     }))
   }
 
   get tooltip(): string {
-    return this.custom_tooltip ?? this.tool_name
+    return this.description ?? this.custom_tooltip ?? this.tool_name
   }
 
   get computed_icon(): string {

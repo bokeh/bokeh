@@ -149,6 +149,12 @@ class Tool(Model):
 
     '''
 
+    description = String(default=None, help="""
+    A string describing the purpose of this tool. If not defined, an auto-generated
+    description will be used. This description will be typically presented in the
+    user interface as a tooltip.
+    """)
+
     _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], "Tool"]]] = {}
 
     @classmethod

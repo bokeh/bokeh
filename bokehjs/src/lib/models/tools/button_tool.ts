@@ -142,7 +142,7 @@ export abstract class ButtonTool extends Tool {
   button_view: Class<ButtonToolButtonView>
 
   get tooltip(): string {
-    return this.tool_name
+    return this.description ?? this.tool_name
   }
 
   get computed_icon(): string {

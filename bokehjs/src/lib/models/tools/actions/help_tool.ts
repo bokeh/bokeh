@@ -33,6 +33,7 @@ export class HelpTool extends ActionTool {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>(({String}) => ({
+      /** @deprecated */
       help_tooltip: [ String, 'Click the question mark to learn more about Bokeh plot tools.'],
       redirect:     [ String, 'https://docs.bokeh.org/en/latest/docs/user_guide/tools.html'],
     }))
@@ -44,6 +45,6 @@ export class HelpTool extends ActionTool {
   icon = bk_tool_icon_help
 
   get tooltip(): string {
-    return this.help_tooltip
+    return this.description ?? this.help_tooltip
   }
 }
