@@ -8,6 +8,8 @@ import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
 import {values} from "core/util/object"
 import {isString} from "core/util/types"
+import {CanvasLayer} from "core/util/canvas"
+import {BBox} from "core/util/bbox"
 import {Model} from "model"
 import {Tool} from "./tool"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
@@ -153,12 +155,21 @@ export class ToolbarBaseView extends DOMView {
     }
   }
 
+  layout = {bbox: new BBox()}
+
   update_layout(): void {}
 
   update_position(): void {}
 
   after_layout(): void {
     this._has_finished = true
+  }
+
+  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "png" ? "canvas" : "svg"
+    const canvas = new CanvasLayer(output_backend, hidpi)
+    canvas.resize(0, 0)
+    return canvas
   }
 }
 

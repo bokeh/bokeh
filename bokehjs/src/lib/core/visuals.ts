@@ -9,7 +9,7 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {View} from "./view"
 import {Texture} from "models/textures/texture"
 import {SVGRenderingContext2D} from "core/util/svg"
-import {CanvasLayer} from "models/canvas/canvas"
+import {CanvasLayer} from "core/util/canvas"
 
 const {hasOwnProperty} = Object.prototype
 
