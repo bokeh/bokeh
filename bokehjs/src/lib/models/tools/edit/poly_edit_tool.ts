@@ -56,19 +56,32 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active)
       return
 
+    const vsync_renderer = this.model.renderers[0]
+    const vsync_updater = () => this._update_vertices(vsync_renderer)
+    let vsync_ds = null
+    if (vsync_renderer !== undefined) vsync_ds = vsync_renderer.data_source
+
     const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (!renderers.length) {
       this._set_vertices([], [])
       this._selected_renderer = null
       this._drawing = false
+      if (vsync_ds !== null) vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
       return
     }
+    if (vsync_ds !== null) vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
+    this._update_vertices(renderers[0])
+  }
 
-    const renderer = renderers[0]
+  _update_vertices(renderer: GlyphRenderer): void {
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
     const index = cds.selected.indices[0]
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
+
+    if ((index === undefined) && (xkey || ykey))
+      return
+
     let xs: number[]
     let ys: number[]
     if (xkey) {
