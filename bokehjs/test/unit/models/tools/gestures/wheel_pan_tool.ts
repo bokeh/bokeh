@@ -12,16 +12,21 @@ describe("WheelPanTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const x_tool = new WheelPanTool({dimension: 'width'})
-      expect(x_tool.tooltip).to.be.equal('Wheel Pan (x-axis)')
+      const x_tool = new WheelPanTool({dimension: "width"})
+      expect(x_tool.tooltip).to.be.equal("Wheel Pan (x-axis)")
 
-      const y_tool = new WheelPanTool({dimension: 'height'})
-      expect(y_tool.tooltip).to.be.equal('Wheel Pan (y-axis)')
+      const y_tool = new WheelPanTool({dimension: "height"})
+      expect(y_tool.tooltip).to.be.equal("Wheel Pan (y-axis)")
+
+      const x_tool_custom = new WheelPanTool({dimension: "width", description: "My wheel x-pan tool"})
+      expect(x_tool_custom.tooltip).to.be.equal("My wheel x-pan tool")
+
+      const y_tool_custom = new WheelPanTool({dimension: "height", description: "My wheel y-pan tool"})
+      expect(y_tool_custom.tooltip).to.be.equal("My wheel y-pan tool")
     })
   })
 
   describe("View", () => {
-
     async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: 0, end: 1}),

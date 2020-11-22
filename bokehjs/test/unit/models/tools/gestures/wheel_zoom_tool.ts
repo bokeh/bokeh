@@ -13,18 +13,26 @@ describe("WheelZoomTool", () => {
 
     it("should create proper tooltip", () => {
       const tool = new WheelZoomTool()
-      expect(tool.tooltip).to.be.equal('Wheel Zoom')
+      expect(tool.tooltip).to.be.equal("Wheel Zoom")
 
-      const x_tool = new WheelZoomTool({dimensions: 'width'})
-      expect(x_tool.tooltip).to.be.equal('Wheel Zoom (x-axis)')
+      const x_tool = new WheelZoomTool({dimensions: "width"})
+      expect(x_tool.tooltip).to.be.equal("Wheel Zoom (x-axis)")
 
-      const y_tool = new WheelZoomTool({dimensions: 'height'})
-      expect(y_tool.tooltip).to.be.equal('Wheel Zoom (y-axis)')
+      const y_tool = new WheelZoomTool({dimensions: "height"})
+      expect(y_tool.tooltip).to.be.equal("Wheel Zoom (y-axis)")
+
+      const tool_custom = new WheelZoomTool({description: "My wheel zoom tool"})
+      expect(tool_custom.tooltip).to.be.equal("My wheel zoom tool")
+
+      const x_tool_custom = new WheelZoomTool({dimensions: "width", description: "My wheel x-zoom tool"})
+      expect(x_tool_custom.tooltip).to.be.equal("My wheel x-zoom tool")
+
+      const y_tool_custom = new WheelZoomTool({dimensions: "height", description: "My wheel y-zoom tool"})
+      expect(y_tool_custom.tooltip).to.be.equal("My wheel y-zoom tool")
     })
   })
 
   describe("View", () => {
-
     // Note default plot dimensions is 600 x 600 (height x width)
     // This is why zooming at {sx: 300, sy: 300} causes the x/y ranges to zoom equally
     async function mkplot(tool: Tool): Promise<PlotView> {

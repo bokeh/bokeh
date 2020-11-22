@@ -73,11 +73,14 @@ describe("BoxEditTool", () => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new BoxEditTool()
-      expect(tool.tooltip).to.be.equal('Box Edit Tool')
+      const tool0 = new BoxEditTool()
+      expect(tool0.tooltip).to.be.equal("Box Edit Tool")
 
-      const custom_tool = new BoxEditTool({custom_tooltip: 'Box Edit Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Box Edit Custom')
+      const tool1 = new BoxEditTool({description: "My Box Edit"})
+      expect(tool1.tooltip).to.be.equal("My Box Edit")
+
+      const tool2 = new BoxEditTool({custom_tooltip: "Box Edit Custom"})
+      expect(tool2.tooltip).to.be.equal("Box Edit Custom")
     })
   })
 

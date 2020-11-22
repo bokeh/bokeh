@@ -13,18 +13,26 @@ describe("BoxZoomTool", () => {
 
     it("should create proper tooltip", () => {
       const tool = new BoxZoomTool()
-      expect(tool.tooltip).to.be.equal('Box Zoom')
+      expect(tool.tooltip).to.be.equal("Box Zoom")
 
-      const x_tool = new BoxZoomTool({dimensions: 'width'})
-      expect(x_tool.tooltip).to.be.equal('Box Zoom (x-axis)')
+      const x_tool = new BoxZoomTool({dimensions: "width"})
+      expect(x_tool.tooltip).to.be.equal("Box Zoom (x-axis)")
 
-      const y_tool = new BoxZoomTool({dimensions: 'height'})
-      expect(y_tool.tooltip).to.be.equal('Box Zoom (y-axis)')
+      const y_tool = new BoxZoomTool({dimensions: "height"})
+      expect(y_tool.tooltip).to.be.equal("Box Zoom (y-axis)")
+
+      const tool_custom = new BoxZoomTool({description: "My box zoom tool"})
+      expect(tool_custom.tooltip).to.be.equal("My box zoom tool")
+
+      const x_tool_custom = new BoxZoomTool({dimensions: "width", description: "My box x-zoom tool"})
+      expect(x_tool_custom.tooltip).to.be.equal("My box x-zoom tool")
+
+      const y_tool_custom = new BoxZoomTool({dimensions: "height", description: "My box y-zoom tool"})
+      expect(y_tool_custom.tooltip).to.be.equal("My box y-zoom tool")
     })
   })
 
   describe("View", () => {
-
     async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),

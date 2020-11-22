@@ -66,11 +66,14 @@ describe("PointDrawTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new PointDrawTool()
-      expect(tool.tooltip).to.be.equal('Point Draw Tool')
+      const tool0 = new PointDrawTool()
+      expect(tool0.tooltip).to.be.equal("Point Draw Tool")
 
-      const custom_tool = new PointDrawTool({custom_tooltip: 'Point Draw Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Point Draw Custom')
+      const tool1 = new PointDrawTool({description: "My Point Draw"})
+      expect(tool1.tooltip).to.be.equal("My Point Draw")
+
+      const tool2 = new PointDrawTool({custom_tooltip: "Point Draw Custom"})
+      expect(tool2.tooltip).to.be.equal("Point Draw Custom")
     })
   })
 

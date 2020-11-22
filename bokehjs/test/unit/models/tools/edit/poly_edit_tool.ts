@@ -90,11 +90,14 @@ describe("PolyEditTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new PolyEditTool()
-      expect(tool.tooltip).to.be.equal('Poly Edit Tool')
+      const tool0 = new PolyEditTool()
+      expect(tool0.tooltip).to.be.equal("Poly Edit Tool")
 
-      const custom_tool = new PolyEditTool({custom_tooltip: 'Poly Edit Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Poly Edit Custom')
+      const tool1 = new PolyEditTool({description: "My Poly Edit"})
+      expect(tool1.tooltip).to.be.equal("My Poly Edit")
+
+      const tool2 = new PolyEditTool({custom_tooltip: "Poly Edit Custom"})
+      expect(tool2.tooltip).to.be.equal("Poly Edit Custom")
     })
   })
 
