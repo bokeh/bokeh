@@ -3,7 +3,7 @@ import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
-export class ZoomBaseToolView extends ActionToolView {
+export abstract class ZoomBaseToolView extends ActionToolView {
   model: ZoomBaseTool
 
   doit(): void {
@@ -14,7 +14,7 @@ export class ZoomBaseToolView extends ActionToolView {
     const h_axis = dims == 'width'  || dims == 'both'
     const v_axis = dims == 'height' || dims == 'both'
 
-    const zoom_info = scale_range(frame, this.model.sign * this.model.factor, h_axis, v_axis)
+    const zoom_info = scale_range(frame, this.model.sign*this.model.factor, h_axis, v_axis)
 
     this.plot_view.state.push("zoom_out", {range: zoom_info})
     this.plot_view.update_range(zoom_info, {scrolling: true})
@@ -34,7 +34,7 @@ export namespace ZoomBaseTool {
 
 export interface ZoomBaseTool extends ZoomBaseTool.Attrs {}
 
-export class ZoomBaseTool extends ActionTool {
+export abstract class ZoomBaseTool extends ActionTool {
   properties: ZoomBaseTool.Props
   __view_type__: ZoomBaseToolView
 
@@ -43,17 +43,13 @@ export class ZoomBaseTool extends ActionTool {
   }
 
   static init_ZoomBaseTool(): void {
-    this.prototype.default_view = ZoomBaseToolView
-
     this.define<ZoomBaseTool.Props>(({Percent}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],
     }))
   }
 
-  sign: number
-  tool_name: string
-  icon: string
+  readonly sign: -1 | 1
 
   get tooltip(): string {
     return this.description ?? this._get_dim_tooltip(this.tool_name, this.dimensions)
