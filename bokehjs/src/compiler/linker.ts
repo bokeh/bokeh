@@ -14,7 +14,7 @@ import {report_diagnostics} from "./compiler"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 import {BuildError} from "./error"
-import {Graph, Node, detect_cycles} from "./graph"
+import {Graph, detect_cycles} from "./graph"
 
 const root_path = process.cwd()
 
@@ -296,18 +296,18 @@ export class Linker {
     else
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
 
-    const nodes = new Map<ModuleInfo, Node<ModuleInfo>>()
-    for (const module of all_modules) {
-      if (module.canonical != null)
-        nodes.set(module, {visited: false, explored: false, metadata: module})
-    }
-    const graph: Graph<ModuleInfo> = new Map()
-    for (const [module, node] of nodes) {
-      const deps = [...module.dependencies.values()]
-      graph.set(node, deps.filter((dep) => dep.canonical != null).map((dep) => nodes.get(dep)!))
-    }
-
     if (this.detect_cycles) {
+      function is_internal(module: ModuleInfo) {
+        return module.canonical != null
+      }
+
+      const nodes = all_modules.filter(is_internal)
+      const graph: Graph<ModuleInfo> = new Map()
+      for (const node of nodes) {
+        const deps = [...node.dependencies.values()]
+        graph.set(node, deps.filter(is_internal))
+      }
+
       const cycles = detect_cycles(graph)
       if (cycles.length != 0) {
         status = false
