@@ -156,16 +156,6 @@ export abstract class Tool extends Model {
     return []
   }
 
-  // utility function to return a tool name, modified
-  // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(name: string, dims: Dimensions): string {
-    switch (dims) {
-      case "width":  return `${name} (x-axis)`
-      case "height": return `${name} (y-axis)`
-      case "both":   return name
-    }
-  }
-
   // utility function to get limits along both dimensions, given
   // optional dimensional constraints
   _get_dim_limits([sx0, sy0]: [number, number], [sx1, sy1]: [number, number],

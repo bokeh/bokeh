@@ -4,6 +4,7 @@ import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {empty} from "core/dom"
+import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
@@ -140,6 +141,18 @@ export abstract class ButtonTool extends Tool {
   icon: string
 
   button_view: Class<ButtonToolButtonView>
+
+  // utility function to return a tool name, modified
+  // by the active dimensions. Used by tools that have dimensions
+  protected _get_dim_tooltip(dims: Dimensions): string {
+    const {description, tool_name} = this
+    if (description != null)
+      return description
+    else if (dims == "both")
+      return tool_name
+    else
+      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
+  }
 
   get tooltip(): string {
     return this.description ?? this.tool_name

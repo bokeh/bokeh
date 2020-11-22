@@ -95,6 +95,6 @@ export class WheelZoomTool extends GestureTool {
   default_order = 10
 
   get tooltip(): string {
-    return this.description ?? this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

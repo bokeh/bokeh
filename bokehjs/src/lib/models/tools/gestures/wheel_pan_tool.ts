@@ -51,8 +51,6 @@ export class WheelPanToolView extends GestureToolView {
         sy1 = sy_high
         break
       }
-      default:
-        throw new Error("this shouldn't have happened")
     }
 
     const {x_scales, y_scales} = frame
@@ -110,6 +108,6 @@ export class WheelPanTool extends GestureTool {
   default_order = 12
 
   get tooltip(): string {
-    return this.description ?? this._get_dim_tooltip(this.tool_name, this.dimension)
+    return this._get_dim_tooltip(this.dimension)
   }
 }
