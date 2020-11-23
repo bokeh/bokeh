@@ -11,7 +11,6 @@ import * as convert from "convert-source-map"
 
 import {read, write, file_exists, directory_exists, rename, Path} from "./sys"
 import {report_diagnostics} from "./compiler"
-import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 import {BuildError} from "./error"
 import {Graph, detect_cycles} from "./graph"
@@ -70,22 +69,28 @@ const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
   return obj
 }
 
-export type Assembly = {
+export type AssemblyType = {
   prefix: string
   suffix: string
   wrap: (id: string, source: string) => string
 }
 
-const dense_assembly: Assembly = {
+const dense_assembly: AssemblyType = {
   prefix: "[",
   suffix: "]",
   wrap: (_, source) => source,
 }
 
-const sparse_assembly: Assembly = {
+const sparse_assembly: AssemblyType = {
   prefix: "{",
   suffix: "}",
   wrap: (id, source) => `${id}: ${source}`,
+}
+
+export type AssemblyOptions = {
+  prelude: {main: string, plugin: string}
+  postlude: {main: string, plugin: string}
+  minified?: boolean
 }
 
 export class Bundle {
@@ -93,10 +98,9 @@ export class Bundle {
     readonly entry: ModuleInfo,
     readonly artifacts: ModuleArtifact[],
     readonly builtins: boolean,
-    readonly prelude: string,
-    readonly assembly: Assembly) {}
+    readonly bases: Bundle[] = []) {}
 
-  assemble(minified: boolean = false): Artifact {
+  assemble(options: AssemblyOptions): Artifact {
     let line = 0
     let sources: string = ""
     const sourcemap = combine.create()
@@ -113,7 +117,14 @@ export class Bundle {
       return typeof id == "number" ? id.toString() : JSON.stringify(id)
     }
 
-    const {entry, artifacts, prelude, assembly: {prefix, suffix, wrap}} = this
+    const {entry, artifacts, bases} = this
+    const minified = options.minified ?? false
+
+    const plugin = bases.length != 0
+    const {prefix, suffix, wrap} = !plugin ? dense_assembly : sparse_assembly
+
+    const prelude = !plugin ? options.prelude.main : options.prelude.plugin
+    const postlude = !plugin ? options.postlude.main : options.postlude.plugin
 
     sources += `${prelude}(${prefix}\n`
     line += newlines(sources)
@@ -147,10 +158,42 @@ export class Bundle {
 
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
-    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});\n})\n`
+
+    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});`
+    if (postlude != null)
+      sources += postlude
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
+  }
+
+  protected *collect_exported(entry: ModuleInfo): Generator<string, void> {
+    for (const item of entry.exported) {
+      switch (item.type) {
+        case "bindings": {
+          for (const [, name] of item.bindings) {
+            yield name
+          }
+          break
+        }
+        case "named": {
+          yield item.name
+          break
+        }
+        case "namespace": {
+          const {name} = item
+          if (name != null)
+            yield name
+          else {
+            const module = entry.dependencies.get(item.module)
+            if (module != null) {
+              yield* this.collect_exported(module)
+            }
+          }
+          break
+        }
+      }
+    }
   }
 }
 
@@ -193,8 +236,6 @@ export interface LinkerOpts {
   minify?: boolean
   plugin?: boolean
   exports?: string[]
-  prelude?: () => string
-  plugin_prelude?: () => string
   shims?: string[]
   detect_cycles?: boolean
 }
@@ -214,8 +255,6 @@ export class Linker {
   readonly minify: boolean
   readonly plugin: boolean
   readonly exports: Set<string>
-  readonly prelude: string
-  readonly plugin_prelude: string
   readonly shims: Set<string>
   readonly detect_cycles: boolean
 
@@ -229,8 +268,6 @@ export class Linker {
     this.excluded = opts.excluded ?? (() => false)
     this.builtins = opts.builtins ?? false
     this.exports = new Set(opts.exports ?? [])
-    this.prelude = (opts.prelude ?? preludes.prelude)()
-    this.plugin_prelude = (opts.plugin_prelude ?? preludes.plugin_prelude)()
 
     if (this.builtins) {
       this.external_modules.add("module")
@@ -385,14 +422,11 @@ export class Linker {
       return result
     }
 
-    const main_prelude = !this.plugin ? this.prelude : this.plugin_prelude
-    const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
-
-    const main_bundle = new Bundle(main, await artifacts(main_modules), this.builtins, main_prelude, main_assembly)
+    const main_bundle = new Bundle(main, await artifacts(main_modules), this.builtins)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), this.builtins, this.plugin_prelude, sparse_assembly)
+      const plugin_bundle = new Bundle(plugins[j], await artifacts(plugin_modules[j]), this.builtins, [main_bundle])
       plugin_bundles.push(plugin_bundle)
     }
 

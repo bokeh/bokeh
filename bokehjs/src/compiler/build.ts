@@ -7,6 +7,7 @@ import {read, read_json, write, rename, file_exists, directory_exists, hash, has
 import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
         default_transformers, compiler_host, report_diagnostics} from "./compiler"
 import {Linker} from "./linker"
+import * as preludes from "./prelude"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
 
@@ -320,9 +321,25 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const min_js = (js: string) => rename(js, {ext: '.min.js'})
 
+  const prelude = {
+    main: preludes.plugin_prelude(),
+    plugin: preludes.plugin_prelude(),
+  }
+
+  const postlude = {
+    main: preludes.plugin_postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
+  // HACK {{{
+  for (const bundle of bundles) {
+    bundle.bases.push({} as any)
+  }
+  // }}}
+
   function bundle(minified: boolean, outputs: string[]) {
     bundles
-      .map((bundle) => bundle.assemble(minified))
+      .map((bundle) => bundle.assemble({prelude, postlude, minified}))
       .map((artifact, i) => artifact.write(outputs[i]))
   }
 

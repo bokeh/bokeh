@@ -4,7 +4,7 @@ import {argv} from "yargs"
 import {task, passthrough, BuildError} from "../task"
 import {rename, read, write, scan} from "@compiler/sys"
 import {compile_typescript} from "@compiler/compiler"
-import {Linker} from "@compiler/linker"
+import {Linker, AssemblyOptions} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
 import * as paths from "../paths"
 
@@ -57,8 +57,6 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
-    prelude: preludes.prelude,
-    plugin_prelude: () => preludes.plugin_prelude({version: pkg.version}),
     target: "ES2017",
     exports: ["tslib"],
     detect_cycles: argv.detectCycles === true,
@@ -70,14 +68,38 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
 
   const outputs = packages.map((pkg) => pkg.output)
 
-  function bundle(minified: boolean, outputs: string[]) {
+  const prelude = {
+    main: preludes.prelude(),
+    plugin: preludes.plugin_prelude({version: pkg.version}),
+  }
+
+  const postlude = {
+    main: preludes.postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
+  const esm_prelude = {
+    main: preludes.prelude_esm(),
+    plugin: preludes.plugin_prelude_esm(),
+  }
+
+  const esm_postlude = {
+    main: preludes.postlude_esm(),
+    plugin: preludes.plugin_postlude_esm(),
+  }
+
+  function bundle(options: AssemblyOptions, outputs: string[]) {
     bundles
-      .map((bundle) => bundle.assemble(minified))
+      .map((bundle) => bundle.assemble(options))
       .map((artifact, i) => artifact.write(outputs[i]))
   }
 
-  bundle(false, outputs)
-  bundle(true, outputs.map(min_js))
+  bundle({prelude, postlude, minified: false}, outputs)
+  bundle({prelude, postlude, minified: true}, outputs.map(min_js))
+
+  const esm = {prelude: esm_prelude, postlude: esm_postlude}
+  bundle({...esm, minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
+  bundle({...esm, minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
 
   if (!status)
     throw new BuildError("scripts:bundle", "unable to bundle modules")
@@ -100,9 +122,19 @@ task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
 
   const outputs = packages.map((pkg) => pkg.output)
 
+  const prelude = {
+    main: preludes.prelude(),
+    plugin: preludes.plugin_prelude({version: pkg.version}),
+  }
+
+  const postlude = {
+    main: preludes.postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
   function bundle(minified: boolean, outputs: string[]) {
     bundles
-      .map((bundle) => bundle.assemble(minified))
+      .map((bundle) => bundle.assemble({prelude, postlude, minified}))
       .map((artifact, i) => artifact.write(outputs[i]))
   }
 

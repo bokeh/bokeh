@@ -39,7 +39,7 @@ function str(obj: unknown): string {
 }
 
 const loader = `\
-function(modules, entry, aliases, externals) {
+(function(modules, entry, aliases, externals) {
   if (aliases === undefined) aliases = {};
   if (externals === undefined) externals = {};
 
@@ -52,9 +52,11 @@ function(modules, entry, aliases, externals) {
     if (name === "bokehjs")
       return entry;
 
-    var prefix = "@bokehjs/"
-    if (name.slice(0, prefix.length) === prefix)
-      name = name.slice(prefix.length)
+    if (!externals[name]) {
+      var prefix = "@bokehjs/"
+      if (name.slice(0, prefix.length) === prefix)
+        name = name.slice(prefix.length)
+    }
 
     var alias = aliases[name]
     if (alias != null)
@@ -152,8 +154,34 @@ function(modules, entry, aliases, externals) {
   }
 
   return main;
-}
+})
 `
+
+export function prelude_esm(): string {
+  return `\
+${comment(license)}
+const main = ${loader}\
+`
+}
+
+export function postlude_esm(): string {
+  return "export default main;"
+}
+
+export function plugin_prelude_esm(): string {
+  return `\
+${comment(license)}
+import main from "./bokeh.esm.js";
+
+const plugin = (function(modules, entry, aliases, externals) {
+  main.register_plugin(modules, entry, aliases);
+})\
+`
+}
+
+export function plugin_postlude_esm(): string {
+  return "export default plugin;"
+}
 
 export function prelude(): string {
   return `\
@@ -169,8 +197,16 @@ ${comment(license)}
 })(this, function() {
   var define;
   var parent_require = typeof require === "function" && require
-  return (${loader})
+  return ${loader}\
 `
+}
+
+export function postlude(): string {
+  return "});"
+}
+
+export function plugin_postlude(): string {
+  return "});"
 }
 
 export function plugin_prelude(options?: {version?: string}): string {
@@ -197,6 +233,6 @@ export function default_prelude(options?: {global?: string}): string {
   ${options?.global != null ? `root[${str(options.global)}] = factory()` : "Object.assign(root, factory())"};
 })(this, function() {
   var parent_require = typeof require === "function" && require
-  return (${loader})
+  return ${loader}
 `
 }
