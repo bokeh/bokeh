@@ -85,8 +85,8 @@ export class PolyEditToolView extends PolyToolView {
     const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
-    if ((index === null) && (xkey || ykey))
-      return
+    if (this._drawing) return
+    if ((index === null) && (xkey || ykey)) return
 
     let xs: number[]
     let ys: number[]
