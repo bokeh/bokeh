@@ -18,6 +18,7 @@ export class PolyEditToolView extends PolyToolView {
   _selected_renderer: GlyphRenderer | null
   _basepoint: [number, number] | null
   _drawing: boolean = false
+  _cur_index: number | null = null
 
   _doubletap(ev: TapEvent): void {
     if (!this.model.active)
@@ -66,25 +67,30 @@ export class PolyEditToolView extends PolyToolView {
       this._set_vertices([], [])
       this._selected_renderer = null
       this._drawing = false
-      if (vsync_ds !== null) vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
+      this._cur_index = null
+      if (vsync_ds !== null)
+        vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
       return
     }
-    if (vsync_ds !== null) vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
+    if (vsync_ds !== null)
+      vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
+
+    this._cur_index = renderers[0].data_source.selected.indices[0]
     this._update_vertices(renderers[0])
   }
 
   _update_vertices(renderer: GlyphRenderer): void {
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
-    const index = cds.selected.indices[0]
+    const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
-    if ((index === undefined) && (xkey || ykey))
+    if ((index === null) && (xkey || ykey))
       return
 
     let xs: number[]
     let ys: number[]
-    if (xkey) {
+    if (xkey && index !== null) {  // redundant xkey null check to satisfy build-time checks
       xs = cds.data[xkey][index]
       if (!isArray(xs))
         cds.data[xkey][index] = xs = Array.from(xs)
@@ -92,7 +98,7 @@ export class PolyEditToolView extends PolyToolView {
       xs = glyph.xs.value
     }
 
-    if (ykey) {
+    if (ykey && index !== null) {
       ys = cds.data[ykey][index]
       if (!isArray(ys))
         cds.data[ykey][index] = ys = Array.from(ys)
