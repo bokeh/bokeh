@@ -45,6 +45,7 @@ export type ModuleInfo = {
   dependency_paths: Map<string, Path>
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
+  exported: transforms.Exports[]
   externals: Set<string>
   shims: Set<string>
 }
@@ -679,6 +680,7 @@ export ${export_type} css;
     let dependency_paths: Map<string, Path>
     let externals: Set<string>
     let shims: Set<string>
+    let exported: transforms.Exports[] = []
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
@@ -692,7 +694,7 @@ export ${export_type} css;
         }
 
         const transform: {before: Transformers, after: Transformers} = {
-          before: [transforms.collect_imports(imports), transforms.rename_exports()],
+          before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
           after: [],
         }
         if (canonical == "core/util/ndarray" && target == ES5) {
@@ -728,6 +730,7 @@ export ${export_type} css;
       shims = new Set(collected.filter((dep) => this.is_shimmed(dep)))
     } else {
       dependency_paths = cached!.module.dependency_paths
+      exported = cached!.module.exported
       externals = cached!.module.externals
       shims = cached!.module.shims
       source = cached!.module.source
@@ -748,6 +751,7 @@ export ${export_type} css;
       dependency_paths,
       dependency_map: new Map(),
       dependencies: new Map(),
+      exported,
       externals,
       shims,
     }
