@@ -37,7 +37,7 @@ to the ``theme`` property of your document:
 
 You can also create your own themes to use across multiple plots. Bokeh's themes
 can be either in a YAML or JSON format. To learn more about creating and using
-customized themes, see :ref:`_userguide_styling_using_themes_custom` in the user
+customized themes, see :ref:`userguide_styling_using_themes_custom` in the user
 guide.
 
 .. seealso::
