@@ -9,7 +9,7 @@ y = [4, 5, 5, 7, 2]
 output_file("first_steps.html")
 
 # apply theme to current document
-curdoc().theme = 'dark_minimal'
+curdoc().theme = "dark_minimal"
 
 # create a plot
 p = figure(sizing_mode="stretch_width", max_width=500, plot_height=250)
