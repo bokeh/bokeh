@@ -10,14 +10,17 @@ y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
 output_file("first_steps.html")
 
 # create plot with circle glyphs
-p = figure(x_range=(1,9), plot_width=500, plot_height=250)
+p = figure(x_range=(1, 9), plot_width=500, plot_height=250)
 points = p.circle(x=x, y=y, size=30, fill_color="#21a7df")
 
 # set up textarea (div)
-div = Div(text="""
+div = Div(
+    text="""
           <p>Select the circle's size using this control element:</p>
           """,
-          width=200, height=30)
+    width=200,
+    height=30,
+)
 
 # set up spinner
 spinner = Spinner(
@@ -27,24 +30,28 @@ spinner = Spinner(
     step=5,
     value=points.glyph.size,
     width=200,
-    )
-spinner.js_link('value', points.glyph, 'size')
+)
+spinner.js_link("value", points.glyph, "size")
 
 # set up RangeSlider
 range_slider = RangeSlider(
-    start=0, end=10,
+    title="Adjust x-axis range",
+    start=0,
+    end=10,
+    step=1,
     value=(p.x_range.start, p.x_range.end),
-    step=1, title="Adjust x-axis range"
-    )
-range_slider.js_link('value', p.x_range, 'start', attr_selector=0)
-range_slider.js_link('value', p.x_range, 'end', attr_selector=1)
+)
+range_slider.js_link("value", p.x_range, "start", attr_selector=0)
+range_slider.js_link("value", p.x_range, "end", attr_selector=1)
 
 # create layout
-layout = layout([
-    [div, spinner],
-    [range_slider],
-    [p],
-])
+layout = layout(
+    [
+        [div, spinner],
+        [range_slider],
+        [p],
+    ]
+)
 
 # show result
 show(layout)
