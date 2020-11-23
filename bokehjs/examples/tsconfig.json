@@ -22,8 +22,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES2017",
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "target": "ES2020",
+    "lib": ["es2020", "dom", "dom.iterable"],
     "types": [],
     "baseUrl": ".",
     "paths": {
