@@ -455,3 +455,10 @@ span.highlighted {
     width: 25%;
   }
 }
+
+/* image style for styling.rst examples */
+
+.theme-examples img {
+  border: 2px solid #eeeeee;
+  margin-bottom: 3px;
+}
