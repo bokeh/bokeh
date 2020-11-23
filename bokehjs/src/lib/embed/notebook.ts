@@ -61,7 +61,7 @@ function _init_comms(target: string, doc: Document): void {
     logger.info(`Registering Google Colab comms for target ${target}`)
     const comm_manager = google.colab.kernel.comms
     try {
-      comm_manager.registerTarget(target, async (comm: Comm) => {
+      comm_manager.registerTarget(target, async (comm: google.colab.Comm) => {
         logger.info(`Registering Google Colab comms for target ${target}`)
         const r = new Receiver()
         for await (const message of comm.messages) {
