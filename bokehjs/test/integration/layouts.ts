@@ -1,3 +1,4 @@
+import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid} from "./_util"
 
 import {Spacer, Tabs, Panel} from "@bokehjs/models/layouts"
@@ -332,18 +333,22 @@ describe("ToolbarBox", () => {
   }
 
   it("should allow placement above a figure", async () => {
-    await display(tb_above(), [300, 300])
+    const {view} = await display(tb_above(), [300, 300])
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement below a figure", async () => {
-    await display(tb_below(), [300, 300])
+    const {view} = await display(tb_below(), [300, 300])
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement left of a figure", async () => {
-    await display(tb_left(),  [300, 300])
+    const {view} = await display(tb_left(),  [300, 300])
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement right of a figure", async () => {
-    await display(tb_right(), [300, 300])
+    const {view} = await display(tb_right(), [300, 300])
+    expect(() => view.export("svg")).to.not.throw()
   })
 })

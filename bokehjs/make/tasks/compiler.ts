@@ -1,7 +1,7 @@
 import {join} from "path"
 import {argv} from "yargs"
 
-import {task} from "../task"
+import {task, BuildError} from "../task"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import {src_dir, build_dir} from "../paths"
@@ -22,8 +22,11 @@ task("compiler:build", ["compiler:ts"], async () => {
   const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, cache})
 
   if (!argv.rebuild) linker.load_cache()
-  const [bundle] = await linker.link()
+  const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
   bundle.assemble().write(join(build_dir.js, "compiler.js"))
+
+  if (!status)
+    throw new BuildError("compiler:build", "unable to bundle modules")
 })

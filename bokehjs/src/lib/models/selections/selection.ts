@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {SelectionMode} from "core/enums"
 import {union, intersection, difference} from "core/util/array"
 import {merge} from "core/util/object"
-import {Glyph, GlyphView} from "../glyphs/glyph"
+import type {Glyph, GlyphView} from "../glyphs/glyph"
 
 export type OpaqueIndices = number[]
 
@@ -49,9 +49,9 @@ export class Selection extends Model {
       multiline_indices: [ Dict(Array(Int)), {} ],
     }))
 
-    this.internal<Selection.Props>(({Int, Array, Ref, Struct, Nullable}) => ({
-      selected_glyphs:   [ Array(Ref(Glyph)), [] ],
-      view:              [ Nullable(Ref(GlyphView)), null ],
+    this.internal<Selection.Props>(({Int, Array, AnyRef, Struct, Nullable}) => ({
+      selected_glyphs:   [ Array(AnyRef()), [] ],
+      view:              [ Nullable(AnyRef()), null ],
       // Used internally to support hover tool for now. Python API TBD
       image_indices:     [ Array(Struct({index: Int, dim1: Int, dim2: Int, flat_index: Int})), [] ],
     }))

@@ -5,7 +5,7 @@ import {LineVector, FillVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import {is_ie} from "core/util/compat"
+import {is_ie} from "core/util/platform"
 import {Selection} from "../selections/selection"
 
 export interface AnnulusData extends XYGlyphData {

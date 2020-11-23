@@ -5,7 +5,7 @@ import {Arrayable, ArrayableOf, Color} from "core/types"
 import {isNumber} from "core/util/types"
 
 import {color2hex} from "core/util/color"
-import {is_little_endian} from "core/util/compat"
+import {is_little_endian} from "core/util/platform"
 
 export interface RGBAMapper {
   v_compute(xs: Arrayable<number> | Arrayable<Factor>): Uint8Array

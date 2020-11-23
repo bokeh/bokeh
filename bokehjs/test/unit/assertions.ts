@@ -188,20 +188,22 @@ function NotThrows(fn: () => unknown) {
     try {
       fn()
     } catch (error: unknown) {
-      if (!(error instanceof Error)) {
+      if (error_type == null && pattern == null) {
         throw new ExpectationError(`expected ${to_string(fn)} to not throw, got ${to_string(error)}`)
-      }
+      } else {
+        if (error_type != null && error instanceof error_type) {
+          throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception of type ${error_type}, got ${to_string(error)}`)
+        }
 
-      if (error_type != null && error instanceof error_type) {
-        throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception of type ${error_type}, got ${to_string(error)}`)
-      }
-
-      if (pattern instanceof RegExp) {
-        if (error.message.match(pattern))
-          throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
-      } else if (isString(pattern)) {
-        if (error.message.includes(pattern))
-          throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
+        if (pattern != null && error instanceof Error) {
+          if (pattern instanceof RegExp) {
+            if (error.message.match(pattern))
+              throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
+          } else if (isString(pattern)) {
+            if (error.message.includes(pattern))
+              throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
+          }
+        }
       }
     }
   }

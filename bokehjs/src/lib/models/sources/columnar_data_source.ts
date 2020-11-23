@@ -59,9 +59,9 @@ export abstract class ColumnarDataSource extends DataSource {
       selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
     }))
 
-    this.internal<ColumnarDataSource.Props>(({Ref}) => ({
-      selection_manager: [ Ref(SelectionManager), (self) => new SelectionManager({source: self as ColumnarDataSource}) ],
-      inspected:         [ Ref(Selection), () => new Selection() ],
+    this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
+      selection_manager: [ AnyRef(), (self) => new SelectionManager({source: self as ColumnarDataSource}) ],
+      inspected:         [ AnyRef(), () => new Selection() ],
     }))
   }
 

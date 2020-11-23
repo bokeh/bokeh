@@ -314,7 +314,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print("Linking modules")
   if (!setup.rebuild) linker.load_cache()
-  const bundles = await linker.link()
+  const {bundles, status} = await linker.link()
   linker.store_cache()
   const outputs = [join(dist_dir, `${artifact}.js`)]
 
@@ -340,5 +340,5 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print(`Output written to ${cyan(dist_dir)}`)
   print("All done.")
-  return !is_failed(tsoutput)
+  return !is_failed(tsoutput) && status
 }

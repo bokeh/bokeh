@@ -477,3 +477,10 @@ using sphinx_panels */
 .highlight .hll {
   background-color: rgba(246,169,27,0.3);
 }
+
+/* image style for styling.rst examples */
+
+.theme-examples img {
+  border: 2px solid #eeeeee;
+  margin-bottom: 3px;
+}

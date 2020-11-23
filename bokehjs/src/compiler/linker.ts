@@ -4,6 +4,7 @@ import crypto from "crypto"
 
 import * as ts from "typescript"
 import * as terser from "terser"
+import chalk from "chalk"
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
@@ -13,10 +14,11 @@ import {report_diagnostics} from "./compiler"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 import {BuildError} from "./error"
+import {Graph, detect_cycles} from "./graph"
 
 const root_path = process.cwd()
 
-const cache_version = 3
+const cache_version = 4
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
@@ -193,6 +195,7 @@ export interface LinkerOpts {
   prelude?: () => string
   plugin_prelude?: () => string
   shims?: string[]
+  detect_cycles?: boolean
 }
 
 export class Linker {
@@ -213,6 +216,7 @@ export class Linker {
   readonly prelude: string
   readonly plugin_prelude: string
   readonly shims: Set<string>
+  readonly detect_cycles: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -254,6 +258,7 @@ export class Linker {
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
+    this.detect_cycles = opts.detect_cycles ?? false
   }
 
   is_external(dep: string): boolean {
@@ -264,7 +269,9 @@ export class Linker {
     return this.shims.has(dep)
   }
 
-  async link(): Promise<Bundle[]> {
+  async link(): Promise<{bundles: Bundle[], status: boolean}> {
+    let status = true
+
     const [entries] = this.resolve(this.entries)
     const [main, ...plugins] = entries
 
@@ -288,6 +295,31 @@ export class Linker {
       all_modules.forEach((module, i) => module.id = i)
     else
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
+
+    if (this.detect_cycles) {
+      function is_internal(module: ModuleInfo) {
+        return module.canonical != null
+      }
+
+      const nodes = all_modules.filter(is_internal)
+      const graph: Graph<ModuleInfo> = new Map()
+      for (const node of nodes) {
+        const deps = [...node.dependencies.values()]
+        graph.set(node, deps.filter(is_internal))
+      }
+
+      const cycles = detect_cycles(graph)
+      if (cycles.length != 0) {
+        status = false
+        for (const cycle of cycles) {
+          console.log(`${chalk.red("\u2717")} cycle detected:`)
+          for (const module of cycle) {
+            const is_last = cycle[cycle.length-1] == module
+            console.log(`${is_last ? "\u2514" : "\u251c"}\u2500 ${module.canonical ?? module.base_path}`)
+          }
+        }
+      }
+    }
 
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
@@ -372,7 +404,7 @@ export class Linker {
       }
     }
 
-    return bundles
+    return {bundles, status}
   }
 
   load_cache(): void {
@@ -654,7 +686,10 @@ export ${export_type} css;
       if ((this.target != null && resolution == "ESM") || type == "json") {
         const {ES2020, ES2017, ES5} = ts.ScriptTarget
         const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
-        const imports = new Set<string>(["tslib"])
+        const imports = new Set<string>()
+        if (canonical != "tslib") {
+          imports.add("tslib")
+        }
 
         const transform: {before: Transformers, after: Transformers} = {
           before: [transforms.collect_imports(imports), transforms.rename_exports()],
