@@ -5,6 +5,7 @@ dependencies:
   - python=3.6
   - conda-build=3.18.10
   - conda-verify=3.4.2
+  - libiconv
   - nodejs 14.*
   - ripgrep=0.10.0
   - setuptools

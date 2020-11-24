@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -x #echo o
+set -x #echo on
+set -e #exit on error
 
 conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
 pushd /usr/share/miniconda3/envs/bk-test
