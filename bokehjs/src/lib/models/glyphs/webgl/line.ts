@@ -289,10 +289,10 @@ export class LineGL extends BaseGLGlyph {
     const V_angles = new Float32Array(n*2)
     const V_tangents = (Vt = new Float32Array(n*4))  // mind the 4!
 
-    // Position
+    // Position, replacing non-finite numbers with zeros
     for (let i = 0, end = n; i < end; i++) {
-      V_position[(i*2)+0] = sx[i]
-      V_position[(i*2)+1] = sy[i]
+      V_position[(i*2)+0] = isFinite(sx[i]) ? sx[i] : 0.0
+      V_position[(i*2)+1] = isFinite(sy[i]) ? sy[i] : 0.0
     }
 
     // Tangents & norms (need tangents to calculate segments based on scale)
@@ -329,6 +329,16 @@ export class LineGL extends BaseGLGlyph {
     for (let i = 0, end = n-1; i < end; i++) {
       V_angles[(i*2)+0] = A[i]
       V_angles[(i*2)+1] = A[i+1]
+    }
+
+    // Position, non-finite numbers
+    for (let i = 0, end = n; i < end; i++) {
+      if (!isFinite(sx[i])) {
+        V_position[(i*2)+0] = sx[i]
+      }
+      if (!isFinite(sy[i])) {
+        V_position[(i*2)+1] = sy[i]
+      }
     }
 
     // Step 1: A -- B -- C  =>  A -- B, B' -- C
