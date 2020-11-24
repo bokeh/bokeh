@@ -1,4 +1,5 @@
-import * as Bokeh from "bokehjs"
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-api.esm.js"
 
 export namespace Burtin {
   import plt = Bokeh.Plotting

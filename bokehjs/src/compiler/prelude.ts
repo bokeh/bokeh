@@ -38,6 +38,151 @@ function str(obj: unknown): string {
   return JSON.stringify(obj)
 }
 
+const loader = `\
+(function(modules, entry, aliases, externals) {
+  if (aliases === undefined) aliases = {};
+  if (externals === undefined) externals = {};
+
+  var cache = {};
+
+  var normalize = function(name) {
+    if (typeof name === "number")
+      return name;
+
+    if (name === "bokehjs")
+      return entry;
+
+    if (!externals[name]) {
+      var prefix = "@bokehjs/"
+      if (name.slice(0, prefix.length) === prefix)
+        name = name.slice(prefix.length)
+    }
+
+    var alias = aliases[name]
+    if (alias != null)
+      return alias;
+
+    var trailing = name.length > 0 && name[name.lenght-1] === "/";
+    var index = aliases[name + (trailing ? "" : "/") + "index"];
+    if (index != null)
+      return index;
+
+    return name;
+  }
+
+  var require = function(name) {
+    var mod = cache[name];
+    if (!mod) {
+      var id = normalize(name);
+
+      mod = cache[id];
+      if (!mod) {
+        if (!modules[id]) {
+          if (externals[id] === false || (externals[id] == true && parent_require)) {
+            try {
+              mod = {exports: externals[id] ? parent_require(id) : {}};
+              cache[id] = cache[name] = mod;
+              return mod.exports;
+            } catch (e) {}
+          }
+
+          var err = new Error("Cannot find module '" + name + "'");
+          err.code = 'MODULE_NOT_FOUND';
+          throw err;
+        }
+
+        mod = {exports: {}};
+        cache[id] = cache[name] = mod;
+
+        function __esModule() {
+          Object.defineProperty(mod.exports, "__esModule", {value: true});
+        }
+
+        function __esExport(name, value) {
+          Object.defineProperty(mod.exports, name, {
+            enumerable: true, get: function () { return value; }
+          });
+        }
+
+        modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
+      } else {
+        cache[name] = mod;
+      }
+    }
+
+    return mod.exports;
+  }
+  require.resolve = function(name) {
+    return ""
+  }
+
+  var main = require(entry);
+  main.require = require;
+
+  if (typeof Proxy !== "undefined") {
+    // allow Bokeh.loader["@bokehjs/module/name"] syntax
+    main.loader = new Proxy({}, {
+      get: function(_obj, module) {
+        return require(module);
+      }
+    });
+  }
+
+  main.register_plugin = function(plugin_modules, plugin_entry, plugin_aliases, plugin_externals) {
+    if (plugin_aliases === undefined) plugin_aliases = {};
+    if (plugin_externals === undefined) plugin_externals = {};
+
+    for (var name in plugin_modules) {
+      modules[name] = plugin_modules[name];
+    }
+
+    for (var name in plugin_aliases) {
+      aliases[name] = plugin_aliases[name];
+    }
+
+    for (var name in plugin_externals) {
+      externals[name] = plugin_externals[name];
+    }
+
+    var plugin = require(plugin_entry);
+
+    for (var name in plugin) {
+      main[name] = plugin[name];
+    }
+
+    return plugin;
+  }
+
+  return main;
+})
+`
+
+export function prelude_esm(): string {
+  return `\
+${comment(license)}
+const main = ${loader}\
+`
+}
+
+export function postlude_esm(): string {
+  return "export default main;"
+}
+
+export function plugin_prelude_esm(): string {
+  return `\
+${comment(license)}
+import main from "./bokeh.esm.js";
+
+const plugin = (function(modules, entry, aliases, externals) {
+  main.register_plugin(modules, entry, aliases);
+})\
+`
+}
+
+export function plugin_postlude_esm(): string {
+  return "export default plugin;"
+}
+
 export function prelude(): string {
   return `\
 ${comment(license)}
@@ -52,121 +197,16 @@ ${comment(license)}
 })(this, function() {
   var define;
   var parent_require = typeof require === "function" && require
-  return (function(modules, entry, aliases, externals) {
-    if (aliases === undefined) aliases = {};
-    if (externals === undefined) externals = {};
-
-    var cache = {};
-
-    var normalize = function(name) {
-      if (typeof name === "number")
-        return name;
-
-      if (name === "bokehjs")
-        return entry;
-
-      var prefix = "@bokehjs/"
-      if (name.slice(0, prefix.length) === prefix)
-        name = name.slice(prefix.length)
-
-      var alias = aliases[name]
-      if (alias != null)
-        return alias;
-
-      var trailing = name.length > 0 && name[name.lenght-1] === "/";
-      var index = aliases[name + (trailing ? "" : "/") + "index"];
-      if (index != null)
-        return index;
-
-      return name;
-    }
-
-    var require = function(name) {
-      var mod = cache[name];
-      if (!mod) {
-        var id = normalize(name);
-
-        mod = cache[id];
-        if (!mod) {
-          if (!modules[id]) {
-            if (externals[id] === false || (externals[id] == true && parent_require)) {
-              try {
-                mod = {exports: externals[id] ? parent_require(id) : {}};
-                cache[id] = cache[name] = mod;
-                return mod.exports;
-              } catch (e) {}
-            }
-
-            var err = new Error("Cannot find module '" + name + "'");
-            err.code = 'MODULE_NOT_FOUND';
-            throw err;
-          }
-
-          mod = {exports: {}};
-          cache[id] = cache[name] = mod;
-
-          function __esModule() {
-            Object.defineProperty(mod.exports, "__esModule", {value: true});
-          }
-
-          function __esExport(name, value) {
-            Object.defineProperty(mod.exports, name, {
-              enumerable: true, get: function () { return value; }
-            });
-          }
-
-          modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
-        } else {
-          cache[name] = mod;
-        }
-      }
-
-      return mod.exports;
-    }
-    require.resolve = function(name) {
-      return ""
-    }
-
-    var main = require(entry);
-    main.require = require;
-
-    if (typeof Proxy !== "undefined") {
-      // allow Bokeh.loader["@bokehjs/module/name"] syntax
-      main.loader = new Proxy({}, {
-        get: function(_obj, module) {
-          return require(module);
-        }
-      });
-    }
-
-    main.register_plugin = function(plugin_modules, plugin_entry, plugin_aliases, plugin_externals) {
-      if (plugin_aliases === undefined) plugin_aliases = {};
-      if (plugin_externals === undefined) plugin_externals = {};
-
-      for (var name in plugin_modules) {
-        modules[name] = plugin_modules[name];
-      }
-
-      for (var name in plugin_aliases) {
-        aliases[name] = plugin_aliases[name];
-      }
-
-      for (var name in plugin_externals) {
-        externals[name] = plugin_externals[name];
-      }
-
-      var plugin = require(plugin_entry);
-
-      for (var name in plugin) {
-        main[name] = plugin[name];
-      }
-
-      return plugin;
-    }
-
-    return main;
-  })
+  return ${loader}\
 `
+}
+
+export function postlude(): string {
+  return "});"
+}
+
+export function plugin_postlude(): string {
+  return "});"
 }
 
 export function plugin_prelude(options?: {version?: string}): string {
@@ -193,64 +233,6 @@ export function default_prelude(options?: {global?: string}): string {
   ${options?.global != null ? `root[${str(options.global)}] = factory()` : "Object.assign(root, factory())"};
 })(this, function() {
   var parent_require = typeof require === "function" && require
-  return (function(modules, entry, aliases, externals) {
-    if (aliases === undefined) aliases = {};
-    if (externals === undefined) externals = {};
-
-    var cache = {};
-
-    var normalize = function(name) {
-      var alias = aliases[name];
-      return alias != null ? alias : name;
-    }
-
-    var require = function(name) {
-      var mod = cache[name];
-      if (!mod) {
-        var id = normalize(name);
-
-        mod = cache[id];
-        if (!mod) {
-          if (!modules[id]) {
-            if (externals[id] === false || (externals[id] == true && parent_require)) {
-              try {
-                mod = {exports: externals[id] ? parent_require(id) : {}};
-                cache[id] = cache[name] = mod;
-                return mod.exports;
-              } catch (e) {}
-            }
-
-            var err = new Error("Cannot find module '" + name + "'");
-            err.code = 'MODULE_NOT_FOUND';
-            throw err;
-          }
-
-          mod = {exports: {}};
-          cache[id] = cache[name] = mod;
-
-          function __esModule() {
-            Object.defineProperty(mod.exports, "__esModule", {value: true});
-          }
-
-          function __esExport(name, value) {
-            Object.defineProperty(mod.exports, name, {
-              enumerable: true, get: function () { return value; }
-            });
-          }
-
-          modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
-        } else
-          cache[name] = mod;
-      }
-
-      return mod.exports;
-    }
-    require.resolve = function(name) {
-      return ""
-    }
-
-    var main = require(entry);
-    return main;
-  })
+  return ${loader}
 `
 }

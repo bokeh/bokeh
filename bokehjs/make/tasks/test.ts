@@ -9,7 +9,7 @@ import which from "which"
 
 import {task, task2, success, passthrough, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
-import {default_prelude} from "@compiler/prelude"
+import * as preludes from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
@@ -308,7 +308,6 @@ async function bundle(name: string): Promise<void> {
     target: "ES2020",
     minify: false,
     externals: [/^@bokehjs\//],
-    prelude: () => default_prelude({global: "Tests"}),
     shims: ["fs", "module"],
   })
 
@@ -316,7 +315,17 @@ async function bundle(name: string): Promise<void> {
   const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
-  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+  const prelude = {
+    main: preludes.default_prelude({global: "Tests"}),
+    plugin: preludes.plugin_prelude(),
+  }
+
+  const postlude = {
+    main: preludes.postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
+  bundle.assemble({prelude, postlude}).write(join(paths.build_dir.test, `${name}.js`))
 
   if (!status)
     throw new BuildError(`${name}:bundle`, "unable to bundle modules")

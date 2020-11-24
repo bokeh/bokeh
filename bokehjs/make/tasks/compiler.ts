@@ -4,6 +4,7 @@ import {argv} from "yargs"
 import {task, BuildError} from "../task"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
+import * as preludes from "@compiler/prelude"
 import {src_dir, build_dir} from "../paths"
 
 task("compiler:ts", async () => {
@@ -25,7 +26,17 @@ task("compiler:build", ["compiler:ts"], async () => {
   const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
-  bundle.assemble().write(join(build_dir.js, "compiler.js"))
+  const prelude = {
+    main: preludes.prelude(),
+    plugin: preludes.plugin_prelude(),
+  }
+
+  const postlude = {
+    main: preludes.postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
+  bundle.assemble({prelude, postlude}).write(join(build_dir.js, "compiler.js"))
 
   if (!status)
     throw new BuildError("compiler:build", "unable to bundle modules")

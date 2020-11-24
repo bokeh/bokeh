@@ -144,6 +144,74 @@ export function remove_use_strict() {
   }
 }
 
+export type ExportNamespace = {
+  type: "namespace"
+  name?: string
+  module: string
+}
+
+export type ExportBindings = {
+  type: "bindings"
+  bindings: [string | undefined, string][]
+  module: string
+}
+
+export type ExportNamed = {
+  type: "named"
+  name: string
+}
+
+export type Exports = ExportNamespace | ExportBindings | ExportNamed
+
+export function collect_exports(exported: Exports[]) {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    for (const statement of root.statements) {
+      if (ts.isExportDeclaration(statement)) {
+        if (statement.isTypeOnly)
+          continue
+        const {exportClause, moduleSpecifier} = statement
+        if (moduleSpecifier == null || !ts.isStringLiteral(moduleSpecifier))
+          continue
+        const module = moduleSpecifier.text
+        if (exportClause == null) {
+          // export * from "module"
+          exported.push({type: "namespace", module})
+        } else if (ts.isNamespaceExport(exportClause)) {
+          // export * as name from "module"
+          const name = exportClause.name.text
+          exported.push({type: "namespace", name, module})
+        } else if (ts.isNamedExports(exportClause)) {
+          // export {name0, name1 as nameA} from "module"
+          const bindings: [string | undefined, string][] = []
+          for (const elem of exportClause.elements) {
+            bindings.push([elem.propertyName?.text, elem.name.text])
+          }
+          exported.push({type: "bindings", bindings, module})
+        }
+      } else if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+        // export default name
+        exported.push({type: "named", name: "default"})
+      } else if (ts.isClassDeclaration(statement) || ts.isFunctionDeclaration(statement)) {
+        const flags = ts.getCombinedModifierFlags(statement)
+        if (flags & ts.ModifierFlags.Export) {
+          // export class X {}
+          // export function f() {}
+          if (statement.name != null) {
+            const name = statement.name.text
+            exported.push({type: "named", name})
+          }
+        } else if (flags & ts.ModifierFlags.ExportDefault) {
+          // export default class X {}
+          // export function f() {}
+          exported.push({type: "named", name: "default"})
+        }
+      }
+    }
+
+    return root
+  }
+}
+
 function isImportCall(node: ts.Node): node is ts.ImportCall {
   return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
 }

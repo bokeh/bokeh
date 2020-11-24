@@ -72,12 +72,14 @@ app.get("/examples", async (_req, res) => {
 app.get("/examples/:name", async (req, res) => {
   const {name} = req.params
   const template = join("examples", name, `${name}.html`)
-  const stat = await fs.promises.stat(template)
-  if (stat.isFile()) {
-    res.render(template)
-  } else {
-    res.status(404).send("No such example")
-  }
+  try {
+    const stat = await fs.promises.stat(template)
+    if (stat.isFile()) {
+      res.render(template)
+      return
+    }
+  } catch {}
+  res.status(404).send("No such example")
 })
 
 process.once("SIGTERM", () => {

@@ -1,6 +1,10 @@
-import {Plotting as plt, Row} from "bokehjs"
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-api.esm.js"
 
 export namespace Categorical {
+  import plt = Bokeh.Plotting
+  const {Row} = Bokeh
+
   const dot = () => {
     const factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
     const x = [50, 40, 65, 10, 25, 37, 80, 60]
