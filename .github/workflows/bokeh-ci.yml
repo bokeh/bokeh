@@ -19,6 +19,7 @@ jobs:
           miniconda-version: 'latest'
           activate-environment: bk-test
           environment-file: ci/environment-build.yml
+          conda-build-version: '3.20.5'
 
       - name: Cache node modules
         uses: actions/cache@v1
