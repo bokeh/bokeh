@@ -30,7 +30,7 @@ to the ``theme`` property of your document:
 
 .. literalinclude:: examples/first_steps_4_themes.py
    :language: python
-   :emphasize-lines: 2,13
+   :emphasize-lines: 12
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_themes.py
     :source-position: none
