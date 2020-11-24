@@ -1087,7 +1087,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     // parent, svg, defs, group, currentElement, svgImage, canvas, context, id
     const parent = this.__root
-    const translateDirective = "translate(" + dx + ", " + dy + ")"
     const transform = this._transform.clone().translate(dx, dy)
     if (image instanceof SVGRenderingContext2D || image instanceof SVGSVGElement) {
       // In the future we may want to clone nodes instead.
@@ -1130,7 +1129,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh)
         image = canvas
       }
-      svgImage.setAttribute("transform", translateDirective)
+      this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
       svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
       parent.appendChild(svgImage)
@@ -1149,7 +1148,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh)
       image = canvas
 
-      svgImage.setAttribute("transform", translateDirective)
+      this._apply_transform(svgImage, transform)
       svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", image.toDataURL())
       parent.appendChild(svgImage)
     }

@@ -14,6 +14,7 @@ import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
+import {NDArray} from "./util/ndarray"
 
 function valueToString(value: any): string {
   try {
@@ -552,4 +553,4 @@ export class StringSpec extends DataSpec<string> {}
 
 export class NullStringSpec extends DataSpec<string | null> {}
 
-export class NDArraySpec extends DataSpec<number> {}
+export class NDArraySpec extends DataSpec<NDArray> {}
