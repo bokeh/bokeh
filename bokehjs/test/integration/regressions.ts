@@ -1,6 +1,5 @@
 import {display, fig, row, column, grid} from "./_util"
 
-import {linspace} from "@bokehjs/core/util/array"
 import {
   Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
@@ -9,6 +8,7 @@ import {
   GlyphRenderer, GraphRenderer, GridBox,
   Circle, Quad, MultiLine,
   StaticLayoutProvider,
+  LinearColorMapper,
   Plot,
 } from "@bokehjs/models"
 
@@ -21,11 +21,13 @@ import {Color} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
 import {subsets} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
-import {range} from "@bokehjs/core/util/array"
+import {range, linspace} from "@bokehjs/core/util/array"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
+import {Spectral11} from "@bokehjs/api/palettes"
 
 const n_marker_types = [...MarkerType].length
 
@@ -346,6 +348,35 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]), [2*300+50, 250])
+    })
+  })
+
+  describe("in issue #10725", () => {
+    it("renders image glyphs in wrong orientation using SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const N = 500
+        const x = linspace(0, 10, N)
+        const y = linspace(0, 10, N)
+        const d = new Float64Array(N*N)
+        const {sin, cos} = Math
+        for (let i = 0; i < N; i++) {
+          for (let j = 0; j < N; j++) {
+            d[i*N + j] = sin(x[i])*cos(y[j])
+          }
+        }
+
+        const image = ndarray(d, {shape: [N, N]})
+        const color_mapper = new LinearColorMapper({palette: Spectral11})
+
+        const p = fig([200, 200], {output_backend})
+        p.image({image, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]), [2*200+50, 250])
     })
   })
 
