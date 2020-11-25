@@ -98,7 +98,7 @@ def verify_npm_credentials(config: Config, system: System, *, token: str) -> Non
     system.run("npm set registry 'https://registry.npmjs.org'")
     system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
     out = system.run("npm whoami")
-    if out.strip() != "bokeh":
+    if out.strip() != "bokeh-service":
         raise RuntimeError(*out.strip().split("\n"))
 
 
