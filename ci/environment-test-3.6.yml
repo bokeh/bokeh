@@ -52,6 +52,7 @@ dependencies:
   - pip
   - pip:
     - sphinxext-opengraph
+    - sphinx-reredirects
 
   # examples
   - flask >=1.0

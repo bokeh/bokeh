@@ -30,9 +30,9 @@ Bokeh's documentation consists of several components:
 
     Follow these guides to get started:
 
-    * :ref:`installation`: Instructions for installing Bokeh.
+    * :ref:`first_steps`: simple tutorials that walk you through installing Bokeh and creating your first visualizations.
 
-    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them. Includes a quickstart tutorial and several examples.
+    * :ref:`userguide`: explanations of all key functionalities of Bokeh and how to use them. Includes several standalone examples.
 
     ---
     :header: bg-bokeh-two
@@ -41,11 +41,11 @@ Bokeh's documentation consists of several components:
 
     Learn more by exploring examples:
 
-    * :ref:`gallery`: A collection of examples with source code
+    * :ref:`gallery`: a collection of examples with source code
 
-    * `Interactive tutorial notebooks`_: A collection of interactive notebooks to experiment with all elements of Bokeh
+    * `Interactive tutorial notebooks`_: a collection of interactive notebooks to experiment with all elements of Bokeh
 
-    * :ref:`userguide`: Explanations of all key functionalities of Bokeh and how to use them, including examples.
+    * :ref:`userguide`: explanations of all key functionalities of Bokeh and how to use them, including examples.
 
     ---
     :header: bg-bokeh-three
@@ -54,9 +54,9 @@ Bokeh's documentation consists of several components:
 
     Get to know every aspect of Bokeh:
 
-    * :ref:`refguide` Guide: Detailed information about all of Bokeh's components
+    * :ref:`refguide`: detailed information about all of Bokeh's components
 
-    * :ref:`devguide` Guide: Information on the various ways you can contribute to the Bokeh Project.
+    * :ref:`devguide`: information on the various ways you can contribute to the Bokeh Project.
 
 Connecting with the Bokeh community
 -----------------------------------
@@ -132,7 +132,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     :maxdepth: 3
     :hidden:
 
-    docs/installation
+    docs/first_steps
     docs/user_guide
     docs/gallery
     docs/reference

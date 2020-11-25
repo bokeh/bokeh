@@ -10,6 +10,8 @@ When used with the Bokeh server, widgets can run arbitrary Python code, enabling
 complex applications. Widgets can also be used without the Bokeh server in
 standalone HTML documents through the browser's Javascript runtime.
 
+.. _userguide_interaction_widgets_callbacks:
+
 Callbacks
 ---------
 
@@ -61,6 +63,8 @@ custom extensions as described in :ref:`userguide_extensions`.
 
 For more information about the attributes to watch using ``.on_change``, see the
 :ref:`refguide`. (Information about widgets is found under :ref:`bokeh.models`.)
+
+.. _userguide_interaction_widgets_examples:
 
 Examples
 --------

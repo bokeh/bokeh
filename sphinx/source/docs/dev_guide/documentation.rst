@@ -83,6 +83,7 @@ throughout the narrative documentation:
    "Bokeh, BokehJS", "Always capitalize Bokeh and BokehJS"
    "JavaScript", "Capitalize both 'J' and 'S'"
    "Jupyter notebook", "Capitalize Jupyter, but not notebook"
+   "pandas", "Don't capitalize `pandas`_"
    "Python", "Always capitalize Python (the language)"
 
 In general, see the `word list of the Google developer documentation style
@@ -102,8 +103,10 @@ use dynamic content and rely heavily on JavaScript.
 Preparing your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To build the documentation, follow the instructions in :ref:`devguide_setup`.
-However, some of the examples in the documentation require additional sample
+To build the documentation, follow the instructions in :ref:`devguide_setup`
+and make sure you have activated the ``bkdev`` environment.
+
+Some of the examples in the documentation require additional sample
 data. Use this command on a console to automatically download and install the
 necessary data:
 
@@ -286,7 +289,7 @@ Writing for Bokeh's narrative documentation
 
 Bokeh's narrative documentation consists of these for elements:
 
-* `Installation`_: instructions on installing Bokeh
+* :ref:`first_steps`: first steps guides and installation instructions
 * `User guide`_: descriptions and instructions for using Bokeh
 * Gallery_: interactive examples with source code
 * `Developer guide`_: instructions for contributing to Bokeh
@@ -313,6 +316,7 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _Open Docs Issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22
 .. _Google developer documentation style guide: https://developers.google.com/style
 .. _technical writing courses: https://developers.google.com/tech-writing
+.. _pandas: https://pandas.pydata.org/about/citing.html
 .. _Merriam-Webster: https://www.merriam-webster.com/
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
@@ -328,7 +332,6 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _Napoleon: http://sphinxcontrib-napoleon.readthedocs.org/en/latest/index.html
 .. _`Napoleon's Google style`: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google
 .. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-.. _`Installation`: https://docs.bokeh.org/en/latest/docs/installation.html
 .. _`reStructuredText primer on the Sphinx website`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
 .. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
