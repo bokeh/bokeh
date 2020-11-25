@@ -9,32 +9,32 @@ can be associated with data columns from ``ColumnDataSources``.
 
 The full list of markers built into Bokeh is given below:
 
-* :class:`~bokeh.models.markers.Asterisk`
+* :func:`~bokeh.models.markers.Asterisk`
 * :class:`~bokeh.models.markers.Circle`
-* :class:`~bokeh.models.markers.CircleCross`
-* :class:`~bokeh.models.markers.CircleDot`
-* :class:`~bokeh.models.markers.CircleY`
-* :class:`~bokeh.models.markers.CircleX`
-* :class:`~bokeh.models.markers.Cross`
-* :class:`~bokeh.models.markers.Dash`
-* :class:`~bokeh.models.markers.Diamond`
-* :class:`~bokeh.models.markers.DiamondCross`
-* :class:`~bokeh.models.markers.DiamondDot`
-* :class:`~bokeh.models.markers.Dot`
-* :class:`~bokeh.models.markers.Hex`
-* :class:`~bokeh.models.markers.HexDot`
-* :class:`~bokeh.models.markers.InvertedTriangle`
-* :class:`~bokeh.models.markers.Plus`
-* :class:`~bokeh.models.markers.Square`
-* :class:`~bokeh.models.markers.SquareCross`
-* :class:`~bokeh.models.markers.SquareDot`
-* :class:`~bokeh.models.markers.SquarePin`
-* :class:`~bokeh.models.markers.SquareX`
-* :class:`~bokeh.models.markers.Triangle`
-* :class:`~bokeh.models.markers.TriangleDot`
-* :class:`~bokeh.models.markers.TrianglePin`
-* :class:`~bokeh.models.markers.X`
-* :class:`~bokeh.models.markers.Y`
+* :func:`~bokeh.models.markers.CircleCross`
+* :func:`~bokeh.models.markers.CircleDot`
+* :func:`~bokeh.models.markers.CircleY`
+* :func:`~bokeh.models.markers.CircleX`
+* :func:`~bokeh.models.markers.Cross`
+* :func:`~bokeh.models.markers.Dash`
+* :func:`~bokeh.models.markers.Diamond`
+* :func:`~bokeh.models.markers.DiamondCross`
+* :func:`~bokeh.models.markers.DiamondDot`
+* :func:`~bokeh.models.markers.Dot`
+* :func:`~bokeh.models.markers.Hex`
+* :func:`~bokeh.models.markers.HexDot`
+* :func:`~bokeh.models.markers.InvertedTriangle`
+* :func:`~bokeh.models.markers.Plus`
+* :func:`~bokeh.models.markers.Square`
+* :func:`~bokeh.models.markers.SquareCross`
+* :func:`~bokeh.models.markers.SquareDot`
+* :func:`~bokeh.models.markers.SquarePin`
+* :func:`~bokeh.models.markers.SquareX`
+* :func:`~bokeh.models.markers.Triangle`
+* :func:`~bokeh.models.markers.TriangleDot`
+* :func:`~bokeh.models.markers.TrianglePin`
+* :func:`~bokeh.models.markers.X`
+* :func:`~bokeh.models.markers.Y`
 
 Markers are all subclasses of ``Glyph``. Additionally, they all share the
 same common interface providing fill and line properties provided by their
@@ -45,6 +45,11 @@ other markers do not.
 
 .. autoclass:: Marker
     :members:
+
+.. note::
+    This module is deprecated since bokeh 2.3.0. Prefer to use ``bokeh.glyphs``
+    module instead. Replace all usage of marker models with ``Scatter`` glyph,
+    e.g. ``Asterisk()`` becomes ``Scatter(marker="asterisk")``.
 
 '''
 
@@ -59,21 +64,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import enumeration
-from ..core.has_props import abstract
-from ..core.properties import (
-    AngleSpec,
-    DistanceSpec,
-    Enum,
-    Include,
-    MarkerSpec,
-    NumberSpec,
-    ScreenDistanceSpec,
-)
-from ..core.property.dataspec import field
-from ..core.property_mixins import FillProps, LineProps
 from ..util.deprecation import deprecated
-from .glyph import FillGlyph, LineGlyph, XYGlyph
+from .glyphs import Circle, Marker, Scatter
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -113,127 +105,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-@abstract
-class Marker(XYGlyph, LineGlyph, FillGlyph):
-    ''' Base class for glyphs that are simple markers with line and
-    fill properties, located at an (x, y) location with a specified
-    size.
-
-    .. note::
-        For simplicity, all markers have both line and fill properties
-        declared, however some markers (`Asterisk`, `Cross`, `X`) only
-        draw lines. For these markers, the fill values are simply
-        ignored.
-
-    '''
-
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
-    _args = ('x', 'y', 'size', 'angle')
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-axis coordinates for the center of the markers.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-axis coordinates for the center of the markers.
-    """)
-
-    size = ScreenDistanceSpec(default=4, help="""
-    The size (diameter) values for the markers in screen space units.
-    """)
-
-    angle = AngleSpec(default=0.0, help="""
-    The angles to rotate the markers.
-    """)
-
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the markers.
-    """)
-
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the markers.
-    """)
-
-class Scatter(Marker):
-    ''' Render arbitrary markers according a specification.
-
-    The Scatter can draw any built-in marker type. It can be configured
-    to draw the same marker for all values by specifying the name of a
-    marker, e.g.
-
-    .. code-block:: python
-
-        glyph = Scatter(x="x", y="y", size="sizes", marker="square")
-        plot.add_glyph(source, glyph)
-
-    will render only Square markers for all points. Alternatively, the
-    Scatter marker can be configured to use marker types specified in a
-    data source column:
-
-    .. code-block:: python
-
-        # source.data['markers'] = ["circle", "square", "circle", ... ]
-
-        glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
-        plot.add_glyph(source, glyph)
-
-    Note that circles drawn with `Scatter` conform to the standard Marker
-    interface, and can only vary by size (in screen units) and *not* by radius
-    (in data units). If you need to control circles by radius in data units,
-    you should use the Circle glyph directly.
-
-    '''
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
-    _args = ('x', 'y', 'size', 'angle', 'marker')
-
-    marker = MarkerSpec(default="circle", help="""
-    Which marker to render. This can be the name of any built in marker,
-    e.g. "circle", or a reference to a data column containing such names.
-    """)
-
-    __example__ = "examples/reference/models/Scatter.py"
-
-class Circle(Marker):
-    ''' Render circle markers. '''
-
-    __example__ = "examples/reference/models/Circle.py"
-
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
-    _args = ('x', 'y')
-
-    radius = DistanceSpec(None, help="""
-    The radius values for circle markers (in "data space" units, by default).
-
-    .. note::
-        Circle markers are slightly unusual in that they support specifying
-        a radius in addition to a size. Only one of ``radius`` or ``size``
-        should be given.
-
-    .. warning::
-        Note that ``Circle`` glyphs are always drawn as circles on the screen,
-        even in cases where the data space aspect ratio is not 1-1. In all
-        cases where radius values are specified, the "distance" for the radius
-        is measured along the dimension specified by ``radius_dimension``. If
-        the aspect ratio is very large or small, the drawn circles may appear
-        much larger or smaller than expected. See :bokeh-issue:`626` for more
-        information.
-
-    """)
-
-    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
-    What dimension to measure circle radii along.
-
-    When the data space aspect ratio is not 1-1, then the size of the drawn
-    circles depends on what direction is used to measure the "distance" of
-    the radius. This property allows that direction to be controlled.
-
-    Setting this dimension to 'max' will calculate the radius on both the x
-    and y dimensions and use the maximum of the two, 'min' selects the minimum.
-    """)
 
 def Asterisk(*args, **kwargs):
     ''' Render asterisk '*' markers. '''

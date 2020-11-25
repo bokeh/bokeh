@@ -13,6 +13,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Annulus`
 * :class:`~bokeh.models.glyphs.Arc`
 * :class:`~bokeh.models.glyphs.Bezier`
+* :class:`~bokeh.models.glyphs.Circle`
 * :class:`~bokeh.models.glyphs.Ellipse`
 * :class:`~bokeh.models.glyphs.HArea`
 * :class:`~bokeh.models.glyphs.HBar`
@@ -30,6 +31,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Quadratic`
 * :class:`~bokeh.models.glyphs.Ray`
 * :class:`~bokeh.models.glyphs.Rect`
+* :class:`~bokeh.models.glyphs.Scatter`
 * :class:`~bokeh.models.glyphs.Segment`
 * :class:`~bokeh.models.glyphs.Step`
 * :class:`~bokeh.models.glyphs.Text`
@@ -56,7 +58,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Anchor, Direction, StepMode
+from ..core.enums import Anchor, Direction, StepMode, enumeration
+from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
@@ -66,8 +69,10 @@ from ..core.properties import (
     Include,
     Instance,
     Int,
+    MarkerSpec,
     NumberSpec,
     Override,
+    ScreenDistanceSpec,
     String,
     StringSpec,
 )
@@ -112,6 +117,7 @@ __all__ = (
     'ImageRGBA',
     'ImageURL',
     'Line',
+    'Marker',
     'MultiLine',
     'MultiPolygons',
     'Oval',
@@ -133,6 +139,46 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class Marker(XYGlyph, LineGlyph, FillGlyph):
+    ''' Base class for glyphs that are simple markers with line and
+    fill properties, located at an (x, y) location with a specified
+    size.
+
+    .. note::
+        For simplicity, all markers have both line and fill properties
+        declared, however some marker types (`asterisk`, `cross`, `x`)
+        only draw lines. For these markers, the fill values are simply
+        ignored.
+
+    '''
+
+    _args = ('x', 'y', 'size', 'angle')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-axis coordinates for the center of the markers.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-axis coordinates for the center of the markers.
+    """)
+
+    size = ScreenDistanceSpec(default=4, help="""
+    The size (diameter) values for the markers in screen space units.
+    """)
+
+    angle = AngleSpec(default=0.0, help="""
+    The angles to rotate the markers.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
 
 class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     ''' Render annular wedges.
@@ -304,6 +350,45 @@ class Bezier(LineGlyph):
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the Bezier curves.
+    """)
+
+class Circle(Marker):
+    ''' Render circle markers. '''
+
+    __example__ = "examples/reference/models/Circle.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y')
+
+    radius = DistanceSpec(None, help="""
+    The radius values for circle markers (in "data space" units, by default).
+
+    .. note::
+        Circle markers are slightly unusual in that they support specifying
+        a radius in addition to a size. Only one of ``radius`` or ``size``
+        should be given.
+
+    .. warning::
+        Note that ``Circle`` glyphs are always drawn as circles on the screen,
+        even in cases where the data space aspect ratio is not 1-1. In all
+        cases where radius values are specified, the "distance" for the radius
+        is measured along the dimension specified by ``radius_dimension``. If
+        the aspect ratio is very large or small, the drawn circles may appear
+        much larger or smaller than expected. See :bokeh-issue:`626` for more
+        information.
+
+    """)
+
+    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    What dimension to measure circle radii along.
+
+    When the data space aspect ratio is not 1-1, then the size of the drawn
+    circles depends on what direction is used to measure the "distance" of
+    the radius. This property allows that direction to be controlled.
+
+    Setting this dimension to 'max' will calculate the radius on both the x
+    and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
 class Ellipse(XYGlyph, LineGlyph, FillGlyph):
@@ -1081,6 +1166,47 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the rectangles.
     """)
 
+class Scatter(Marker):
+    ''' Render arbitrary markers according a specification.
+
+    The Scatter can draw any built-in marker type. It can be configured
+    to draw the same marker for all values by specifying the name of a
+    marker, e.g.
+
+    .. code-block:: python
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+        plot.add_glyph(source, glyph)
+
+    will render only Square markers for all points. Alternatively, the
+    Scatter marker can be configured to use marker types specified in a
+    data source column:
+
+    .. code-block:: python
+
+        # source.data['markers'] = ["circle", "square", "circle", ... ]
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+        plot.add_glyph(source, glyph)
+
+    Note that circles drawn with `Scatter` conform to the standard Marker
+    interface, and can only vary by size (in screen units) and *not* by radius
+    (in data units). If you need to control circles by radius in data units,
+    you should use the Circle glyph directly.
+
+    '''
+
+    __example__ = "examples/reference/models/Scatter.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle', 'marker')
+
+    marker = MarkerSpec(default="circle", help="""
+    Which marker to render. This can be the name of any built in marker,
+    e.g. "circle", or a reference to a data column containing such names.
+    """)
+
 class Segment(LineGlyph):
     ''' Render segments.
 
@@ -1322,9 +1448,9 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
 #-----------------------------------------------------------------------------
 
 # XXX: allow `from bokeh.models.glyphs import *
-from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross, # isort:skip
-                      Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)   # isort:skip
+from .markers import (Asterisk, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross, # isort:skip
+                      Hex, InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)   # isort:skip
 
 # Fool pyflakes
 (Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross,
-Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)
+ Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)

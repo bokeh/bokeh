@@ -29,7 +29,7 @@ from ..core.properties import (
     String,
     Tuple,
 )
-from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs, markers
+from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs
 from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
@@ -48,7 +48,7 @@ DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 __all__ = (
     'Figure',
     'figure',
-    'markers'
+    'markers',
 )
 
 #-----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ Examples:
     def bezier(self, **kwargs):
         pass
 
-    @glyph_method(markers.Circle)
+    @glyph_method(glyphs.Circle)
     def circle(self, **kwargs):
         """
 .. note::
@@ -1039,7 +1039,7 @@ Examples:
 
     # -------------------------------------------------------------------------
 
-    @glyph_method(markers.Scatter)
+    @glyph_method(glyphs.Scatter)
     def _scatter(self, **kwargs):
         pass
 
