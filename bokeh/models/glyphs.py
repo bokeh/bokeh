@@ -1388,11 +1388,3 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-# XXX: allow `from bokeh.models.glyphs import *
-from .markers import (Asterisk, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross, # isort:skip
-                      Hex, InvertedTriangle, Square, SquareCross, SquareX, Triangle, X)   # isort:skip
-
-# Fool pyflakes
-(Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross,
- Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)

@@ -65,6 +65,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..util.deprecation import deprecated
+from . import glyphs
 from .glyphs import Circle, Marker, Scatter
 
 #-----------------------------------------------------------------------------
@@ -271,3 +272,29 @@ marker_types = {
     "x": X,
     "y": Y,
 }
+
+glyphs.Asterisk = Asterisk
+glyphs.CircleCross = CircleCross
+glyphs.CircleDot = CircleDot
+glyphs.CircleY = CircleY
+glyphs.CircleX = CircleX
+glyphs.Cross = Cross
+glyphs.Dash = Dash
+glyphs.Diamond = Diamond
+glyphs.DiamondCross = DiamondCross
+glyphs.DiamondDot = DiamondDot
+glyphs.Dot = Dot
+glyphs.Hex = Hex
+glyphs.HexDot = HexDot
+glyphs.InvertedTriangle = InvertedTriangle
+glyphs.Plus = Plus
+glyphs.Square = Square
+glyphs.SquareCross = SquareCross
+glyphs.SquareDot = SquareDot
+glyphs.SquarePin = SquarePin
+glyphs.SquareX = SquareX
+glyphs.Triangle = Triangle
+glyphs.TriangleDot = TriangleDot
+glyphs.TrianglePin = TrianglePin
+glyphs.X = X
+glyphs.Y = Y
