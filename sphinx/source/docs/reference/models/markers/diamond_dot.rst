@@ -3,6 +3,4 @@
 bokeh.models.markers.DiamondDot
 -------------------------------
 
-.. autoclass:: bokeh.models.markers.DiamondDot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.DiamondDot

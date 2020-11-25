@@ -3,6 +3,4 @@
 bokeh.models.markers.HexDot
 ---------------------------
 
-.. autoclass:: bokeh.models.markers.HexDot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.HexDot
