@@ -187,8 +187,6 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/AnnularWedge.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
@@ -234,8 +232,6 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Annulus.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
     x = NumberSpec(default=field("x"), help="""
@@ -269,8 +265,6 @@ class Arc(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Arc.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
@@ -312,8 +306,6 @@ class Bezier(LineGlyph):
 
     __example__ = "examples/reference/models/Bezier.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1")
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -357,8 +349,6 @@ class Circle(Marker):
 
     __example__ = "examples/reference/models/Circle.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     radius = DistanceSpec(None, help="""
@@ -398,8 +388,6 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Ellipse.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -438,8 +426,6 @@ class HArea(FillGlyph, HatchGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/HArea.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x1', 'x2', 'y')
 
     x1 = NumberSpec(default=field("x1"), help="""
@@ -470,8 +456,6 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/HBar.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('y', 'height', 'right', 'left')
 
     y = NumberSpec(default=field("y"), help="""
@@ -509,8 +493,6 @@ class HexTile(LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/HexTile.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('q', 'r')
 
     size = Float(1.0, help="""
@@ -581,8 +563,6 @@ class Image(XYGlyph):
 
         super().__init__(**kwargs)
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     # a hook to specify any additional kwargs handled by an initializer
@@ -650,8 +630,6 @@ class ImageRGBA(XYGlyph):
 
     '''
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     image = NumberSpec(help="""
@@ -705,8 +683,6 @@ class ImageURL(XYGlyph):
 
     __example__ = "examples/reference/models/ImageURL.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'dilate')
 
     url = StringSpec(default=None, help="""
@@ -778,8 +754,6 @@ class Line(ConnectedXYGlyph, LineGlyph):
     of values only produces one glyph on the Plot.
 
     '''
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     __example__ = "examples/reference/models/Line.py"
@@ -806,8 +780,6 @@ class MultiLine(LineGlyph):
 
     __example__ = "examples/reference/models/MultiLine.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -836,8 +808,6 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/MultiPolygons.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -885,8 +855,6 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Oval.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -927,8 +895,6 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Patch.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     x = NumberSpec(default=field("x"), help="""
@@ -974,8 +940,6 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Patches.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -1015,8 +979,6 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Quad.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('left', 'right', 'top', 'bottom')
 
     left = NumberSpec(default=field("left"), help="""
@@ -1054,8 +1016,6 @@ class Quadratic(LineGlyph):
 
     __example__ = "examples/reference/models/Quadratic.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ("x0", "y0", "x1", "y1", "cx", "cy")
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -1093,8 +1053,6 @@ class Ray(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Ray.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'length', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1125,8 +1083,6 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Rect.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1198,8 +1154,6 @@ class Scatter(Marker):
 
     __example__ = "examples/reference/models/Scatter.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'size', 'angle', 'marker')
 
     marker = MarkerSpec(default="circle", help="""
@@ -1214,8 +1168,6 @@ class Segment(LineGlyph):
 
     __example__ = "examples/reference/models/Segment.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1')
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -1251,8 +1203,6 @@ class Step(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Step.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1283,8 +1233,6 @@ class Text(XYGlyph, TextGlyph):
 
     __example__ = "examples/reference/models/Text.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1329,8 +1277,6 @@ class VArea(FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/VArea.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y1', 'y2')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1360,8 +1306,6 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/VBar.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'width', 'top', 'bottom')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1399,8 +1343,6 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Wedge.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
