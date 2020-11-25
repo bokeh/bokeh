@@ -39,3 +39,4 @@ dependencies:
   - pip
   - pip:
     - sphinxext-opengraph
+    - sphinx-reredirects
