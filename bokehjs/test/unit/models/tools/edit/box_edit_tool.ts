@@ -78,9 +78,6 @@ describe("BoxEditTool", () => {
 
       const tool1 = new BoxEditTool({description: "My Box Edit"})
       expect(tool1.tooltip).to.be.equal("My Box Edit")
-
-      const tool2 = new BoxEditTool({custom_tooltip: "Box Edit Custom"})
-      expect(tool2.tooltip).to.be.equal("Box Edit Custom")
     })
   })
 

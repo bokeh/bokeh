@@ -75,9 +75,6 @@ describe("FreehandDrawTool", () => {
 
       const tool1 = new FreehandDrawTool({description: "My Freehand Draw"})
       expect(tool1.tooltip).to.be.equal("My Freehand Draw")
-
-      const tool2 = new FreehandDrawTool({custom_tooltip: "Freehand Draw Custom"})
-      expect(tool2.tooltip).to.be.equal("Freehand Draw Custom")
     })
   })
 

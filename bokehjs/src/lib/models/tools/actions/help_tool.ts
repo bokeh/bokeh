@@ -14,7 +14,6 @@ export namespace HelpTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ActionTool.Props & {
-    help_tooltip: p.Property<string>
     redirect: p.Property<string>
   }
 }
@@ -33,18 +32,16 @@ export class HelpTool extends ActionTool {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>(({String}) => ({
-      /** @deprecated */
-      help_tooltip: [ String, 'Click the question mark to learn more about Bokeh plot tools.'],
-      redirect:     [ String, 'https://docs.bokeh.org/en/latest/docs/user_guide/tools.html'],
+      redirect: [ String, "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"],
     }))
+
+    this.override<HelpTool.Props>({
+      description: "Click the question mark to learn more about Bokeh plot tools.",
+    })
 
     this.register_alias("help", () => new HelpTool())
   }
 
   tool_name = "Help"
   icon = bk_tool_icon_help
-
-  get tooltip(): string {
-    return this.description ?? this.help_tooltip
-  }
 }

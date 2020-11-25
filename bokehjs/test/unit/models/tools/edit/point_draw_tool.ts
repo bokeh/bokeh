@@ -71,9 +71,6 @@ describe("PointDrawTool", (): void => {
 
       const tool1 = new PointDrawTool({description: "My Point Draw"})
       expect(tool1.tooltip).to.be.equal("My Point Draw")
-
-      const tool2 = new PointDrawTool({custom_tooltip: "Point Draw Custom"})
-      expect(tool2.tooltip).to.be.equal("Point Draw Custom")
     })
   })
 

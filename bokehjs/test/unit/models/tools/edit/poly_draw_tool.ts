@@ -76,9 +76,6 @@ describe("PolyDrawTool", (): void => {
 
       const tool1 = new PolyDrawTool({description: "My Poly Draw"})
       expect(tool1.tooltip).to.be.equal("My Poly Draw")
-
-      const tool2 = new PolyDrawTool({custom_tooltip: "Poly Draw Custom"})
-      expect(tool2.tooltip).to.be.equal("Poly Draw Custom")
     })
   })
 

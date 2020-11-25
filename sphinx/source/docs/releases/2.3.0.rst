@@ -54,3 +54,8 @@ Previously ``Line``, ``Fill``, ``Text`` and ``Hatch`` visuals were used in primi
 scalar and vector contexts. Those were split and now context-specific visuals, e.g.,
 ``Line``, ``LineScalar`` and ``LineVector`` have to used in respective contexts. This
 aligns visuals with mixins, among other things.
+
+``EditTool.custom_tooltip``, ``HelpTool.help_tooltip`` and ``CustomAction.action_tooltip`` were deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``Tool.description`` instead, which can also be used with all other types tools.
