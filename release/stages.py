@@ -137,5 +137,4 @@ DEPLOY_STEPS: StepListType = (
     publish_conda_package,
     publish_pip_package,
     publish_documentation,
-    unpack_deployment_tarball,
 )
