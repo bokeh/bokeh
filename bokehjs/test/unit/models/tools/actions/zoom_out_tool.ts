@@ -14,18 +14,26 @@ describe("ZoomOutTool", () => {
 
     it("should create proper tooltip", () => {
       const tool = new ZoomOutTool()
-      expect(tool.tooltip).to.be.equal('Zoom Out')
+      expect(tool.tooltip).to.be.equal("Zoom Out")
 
-      const x_tool = new ZoomOutTool({dimensions: 'width'})
-      expect(x_tool.tooltip).to.be.equal('Zoom Out (x-axis)')
+      const x_tool = new ZoomOutTool({dimensions: "width"})
+      expect(x_tool.tooltip).to.be.equal("Zoom Out (x-axis)")
 
-      const y_tool = new ZoomOutTool({dimensions: 'height'})
-      expect(y_tool.tooltip).to.be.equal('Zoom Out (y-axis)')
+      const y_tool = new ZoomOutTool({dimensions: "height"})
+      expect(y_tool.tooltip).to.be.equal("Zoom Out (y-axis)")
+
+      const tool_custom = new ZoomOutTool({description: "My zoom out tool"})
+      expect(tool_custom.tooltip).to.be.equal("My zoom out tool")
+
+      const x_tool_custom = new ZoomOutTool({dimensions: "width", description: "My x-zoom out tool"})
+      expect(x_tool_custom.tooltip).to.be.equal("My x-zoom out tool")
+
+      const y_tool_custom = new ZoomOutTool({dimensions: "height", description: "My y-zoom out tool"})
+      expect(y_tool_custom.tooltip).to.be.equal("My y-zoom out tool")
     })
   })
 
   describe("View", () => {
-
     async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),

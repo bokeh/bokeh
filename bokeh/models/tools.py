@@ -66,6 +66,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Override,
     Percent,
     Seq,
     String,
@@ -83,6 +84,7 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
+from ..util.deprecation import deprecated
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -148,6 +150,12 @@ class Tool(Model):
     ''' A base class for all interactive tool types.
 
     '''
+
+    description = String(default=None, help="""
+    A string describing the purpose of this tool. If not defined, an auto-generated
+    description will be used. This description will be typically presented in the
+    user interface as a tooltip.
+    """)
 
     _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], "Tool"]]] = {}
 
@@ -480,9 +488,23 @@ class CustomAction(ActionTool):
 
     '''
 
-    action_tooltip = String(default="Perform a Custom Action", help="""
-    Tooltip displayed when hovering over the custom action icon.
-    """)
+    def __init__(self, *args, **kwargs):
+        action_tooltip = kwargs.pop("action_tooltip", None)
+        if action_tooltip is not None:
+            deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+            kwargs["description"] = action_tooltip
+        super().__init__(*args, **kwargs)
+
+    @property
+    def action_tooltip(self):
+        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+        return self.description
+    @action_tooltip.setter
+    def action_tooltip(self, description):
+        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+        self.description = description
+
+    description = Override(default="Perform a Custom Action")
 
     callback = Instance(Callback, help="""
     A Bokeh callback to execute when the custom action icon is activated.
@@ -1176,9 +1198,23 @@ class HelpTool(ActionTool):
 
     '''
 
-    help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
-    Tooltip displayed when hovering over the help icon.
-    """)
+    def __init__(self, *args, **kwargs):
+        help_tooltip = kwargs.pop("help_tooltip", None)
+        if help_tooltip is not None:
+            deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+            kwargs["description"] = help_tooltip
+        super().__init__(*args, **kwargs)
+
+    @property
+    def help_tooltip(self):
+        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+        return self.description
+    @help_tooltip.setter
+    def help_tooltip(self, description):
+        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+        self.description = description
+
+    description = Override(default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
@@ -1210,9 +1246,21 @@ class EditTool(GestureTool):
 
     '''
 
-    custom_tooltip = String(None, help="""
-    A custom tooltip label to override the default name.
-    """)
+    def __init__(self, *args, **kwargs):
+        custom_tooltip = kwargs.pop("custom_tooltip", None)
+        if custom_tooltip is not None:
+            deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+            kwargs["description"] = custom_tooltip
+        super().__init__(*args, **kwargs)
+
+    @property
+    def custom_tooltip(self):
+        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+        return self.description
+    @custom_tooltip.setter
+    def custom_tooltip(self, description):
+        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+        self.description = description
 
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, help="""
     Defines the value to insert on non-coordinate columns when a new

@@ -98,7 +98,7 @@ export class CrosshairTool extends InspectTool {
   icon = bk_tool_icon_crosshair
 
   get tooltip(): string {
-    return this._get_dim_tooltip("Crosshair", this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 
   get synthetic_renderers(): Renderer[] {

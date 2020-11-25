@@ -23,7 +23,6 @@ export namespace CustomAction {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ActionTool.Props & {
-    action_tooltip: p.Property<string>
     callback: p.Property<CallbackLike0<CustomAction> | null>
     icon: p.Property<string>
   }
@@ -43,17 +42,15 @@ export class CustomAction extends ActionTool {
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>(({Any, String, Nullable}) => ({
-      action_tooltip: [ String, "Perform a Custom Action" ],
-      callback:       [ Nullable(Any /*TODO*/) ],
-      icon:           [ String ],
+      callback: [ Nullable(Any /*TODO*/) ],
+      icon:     [ String ],
     }))
+
+    this.override<CustomAction.Props>({
+      description: "Perform a Custom Action",
+    })
   }
 
   tool_name = "Custom Action"
-
   button_view = CustomActionButtonView
-
-  get tooltip(): string {
-    return this.action_tooltip
-  }
 }
