@@ -1,5 +1,6 @@
 import {display, fig, row} from "../_util"
 
+import {MarkerGL} from "@bokehjs/models/glyphs/webgl/markers"
 import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"
 import {radians} from "@bokehjs/core/util/math"
@@ -16,6 +17,8 @@ describe("Marker glyph", () => {
     it(`should support '${marker_type}' marker type`, async () => {
       function* plots() {
         for (const output_backend of OutputBackend) {
+          if (output_backend == "webgl" && !MarkerGL.is_supported(marker_type))
+            continue
           const p = fig([150, 150], {
             output_backend,
             title: `${marker_type} - ${output_backend}`,
@@ -37,8 +40,12 @@ describe("Marker glyph", () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 600], {output_backend, title: output_backend})
 
+      function supported(marker_type: MarkerType) {
+        return output_backend != "webgl" || MarkerGL.is_supported(marker_type)
+      }
+
       let y = 0
-      const X = [1, 2, 3, 4, 5]
+      const X = (marker_type: MarkerType) => supported(marker_type) ? [1, 2, 3, 4, 5] : NaN
       const Y = () => [++y + 0, y + 1, y + 2, y + 3, y + 4]
 
       const attrs = {
@@ -49,32 +56,32 @@ describe("Marker glyph", () => {
         alpha: 0.7,
       }
 
-      p.asterisk(X, Y(), attrs)
-      p.circle(X, Y(), attrs)
-      p.circle_cross(X, Y(), attrs)
-      p.circle_dot(X, Y(), attrs)
-      p.circle_x(X, Y(), attrs)
-      p.circle_y(X, Y(), attrs)
-      p.cross(X, Y(), attrs)
-      p.dash(X, Y(), attrs)
-      p.diamond(X, Y(), attrs)
-      p.diamond_cross(X, Y(), attrs)
-      p.diamond_dot(X, Y(), attrs)
-      p.dot(X, Y(), attrs)
-      p.hex(X, Y(), attrs)
-      p.hex_dot(X, Y(), attrs)
-      p.inverted_triangle(X, Y(), attrs)
-      p.plus(X, Y(), attrs)
-      p.square(X, Y(), attrs)
-      p.square_cross(X, Y(), attrs)
-      p.square_dot(X, Y(), attrs)
-      p.square_pin(X, Y(), attrs)
-      p.square_x(X, Y(), attrs)
-      p.triangle(X, Y(), attrs)
-      p.triangle_dot(X, Y(), attrs)
-      p.triangle_pin(X, Y(), attrs)
-      p.x(X, Y(), attrs)
-      p.y(X, Y(), attrs)
+      p.asterisk(X("asterisk"), Y(), attrs)
+      p.circle(X("circle"), Y(), attrs)
+      p.circle_cross(X("circle_cross"), Y(), attrs)
+      p.circle_dot(X("circle_dot"), Y(), attrs)
+      p.circle_x(X("circle_x"), Y(), attrs)
+      p.circle_y(X("circle_y"), Y(), attrs)
+      p.cross(X("cross"), Y(), attrs)
+      p.dash(X("dash"), Y(), attrs)
+      p.diamond(X("diamond"), Y(), attrs)
+      p.diamond_cross(X("diamond_cross"), Y(), attrs)
+      p.diamond_dot(X("diamond_dot"), Y(), attrs)
+      p.dot(X("dot"), Y(), attrs)
+      p.hex(X("hex"), Y(), attrs)
+      p.hex_dot(X("hex_dot"), Y(), attrs)
+      p.inverted_triangle(X("inverted_triangle"), Y(), attrs)
+      p.plus(X("plus"), Y(), attrs)
+      p.square(X("square"), Y(), attrs)
+      p.square_cross(X("square_cross"), Y(), attrs)
+      p.square_dot(X("square_dot"), Y(), attrs)
+      p.square_pin(X("square_pin"), Y(), attrs)
+      p.square_x(X("square_x"), Y(), attrs)
+      p.triangle(X("triangle"), Y(), attrs)
+      p.triangle_dot(X("triangle_dot"), Y(), attrs)
+      p.triangle_pin(X("triangle_pin"), Y(), attrs)
+      p.x(X("x"), Y(), attrs)
+      p.y(X("y"), Y(), attrs)
 
       const N = [...MarkerType].length
       assert(p.renderers.length == N)

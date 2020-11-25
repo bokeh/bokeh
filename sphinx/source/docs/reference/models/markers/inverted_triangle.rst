@@ -3,6 +3,4 @@
 bokeh.models.markers.InvertedTriangle
 -------------------------------------
 
-.. autoclass:: bokeh.models.markers.InvertedTriangle
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.InvertedTriangle

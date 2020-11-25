@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {MarkerGL, CircleGL} from "./webgl/markers"
+import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -38,7 +38,7 @@ export class CircleView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      this.glglyph = new CircleGL(webgl.gl, this)
+      this.glglyph = new MarkerGL(webgl.gl, this, "circle")
     }
   }
 

@@ -52,6 +52,8 @@ class Glyph(Model):
 
     '''
 
+    # a canonical order for positional args that can be
+    # used for any functions derived from this class
     _args = ()
 
     _extra_kws = {}

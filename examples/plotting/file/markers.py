@@ -1,6 +1,6 @@
 from numpy.random import random
 
-from bokeh.models.markers import marker_types
+from bokeh.core.enums import MarkerType
 from bokeh.plotting import figure, output_file, show
 
 p = figure(title="Bokeh Markers", toolbar_location=None, output_backend="webgl")
@@ -13,7 +13,7 @@ N = 10
 
 y = 1
 
-for i, marker in enumerate(marker_types):
+for i, marker in enumerate(MarkerType):
     x = i % 4
     if x == 0:
         y += 4

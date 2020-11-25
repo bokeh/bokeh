@@ -556,7 +556,7 @@ def test_Asterisk() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Circle() -> None:
@@ -577,7 +577,7 @@ def test_CircleCross() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_CircleX() -> None:
@@ -585,7 +585,7 @@ def test_CircleX() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Cross() -> None:
@@ -593,7 +593,7 @@ def test_Cross() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Dash() -> None:
@@ -601,7 +601,7 @@ def test_Dash() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Diamond() -> None:
@@ -609,7 +609,7 @@ def test_Diamond() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_DiamondCross() -> None:
@@ -617,7 +617,7 @@ def test_DiamondCross() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_InvertedTriangle() -> None:
@@ -625,7 +625,7 @@ def test_InvertedTriangle() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Square() -> None:
@@ -633,7 +633,7 @@ def test_Square() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_SquareCross() -> None:
@@ -641,7 +641,7 @@ def test_SquareCross() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_SquareX() -> None:
@@ -649,7 +649,7 @@ def test_SquareX() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_Triangle() -> None:
@@ -657,7 +657,7 @@ def test_Triangle() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 
 def test_X() -> None:
@@ -665,7 +665,7 @@ def test_X() -> None:
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH, ["marker"])
 
 #-----------------------------------------------------------------------------
 # Dev API

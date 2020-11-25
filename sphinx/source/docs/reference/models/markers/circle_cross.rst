@@ -3,6 +3,4 @@
 bokeh.models.markers.CircleCross
 --------------------------------
 
-.. autoclass:: bokeh.models.markers.CircleCross
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.CircleCross

@@ -3,6 +3,4 @@
 bokeh.models.markers.TriangleDot
 --------------------------------
 
-.. autoclass:: bokeh.models.markers.TriangleDot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.TriangleDot

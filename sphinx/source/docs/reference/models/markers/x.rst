@@ -3,6 +3,4 @@
 bokeh.models.markers.X
 ----------------------
 
-.. autoclass:: bokeh.models.markers.X
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.X

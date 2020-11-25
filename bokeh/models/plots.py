@@ -462,7 +462,7 @@ class Plot(LayoutDOM):
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
-    in addition to glyphs and markers.
+    in addition to glyphs.
 
     This property can be manipulated by hand, but the ``add_glyph`` and
     ``add_layout`` methods are recommended to help make sure all necessary

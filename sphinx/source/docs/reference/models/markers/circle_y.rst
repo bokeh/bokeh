@@ -3,6 +3,4 @@
 bokeh.models.markers.CircleY
 ----------------------------
 
-.. autoclass:: bokeh.models.markers.CircleY
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.CircleY

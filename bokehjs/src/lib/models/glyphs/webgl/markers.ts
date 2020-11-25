@@ -1,15 +1,17 @@
 import {Program, VertexBuffer, IndexBuffer} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
-import {vertex_shader} from "./markers.vert"
-import {fragment_shader} from "./markers.frag"
-import {MarkerView} from "../../markers/marker"
+import vertex_shader from "./markers.vert"
+import fragment_shader from "./markers.frag"
+import {ScatterView} from "../scatter"
 import {CircleView} from "../circle"
-import {Class} from "core/class"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
+import {MarkerType} from "core/enums"
 import {color2rgba, decode_rgba, RGBAf} from "core/util/color"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+
+type MarkerLikeView = ScatterView | CircleView
 
 function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
     visual: visuals.LineVector | visuals.FillVector, prop: p.NumberSpec): void {
@@ -72,11 +74,7 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
 
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
-export abstract class MarkerGL extends BaseGLGlyph {
-  readonly glyph: MarkerView | CircleView
-
-  protected abstract get _marker_code(): string
-
+export class MarkerGL extends BaseGLGlyph {
   protected prog: Program
   protected vbo_sx: VertexBuffer
   protected vbo_sy: VertexBuffer
@@ -87,15 +85,34 @@ export abstract class MarkerGL extends BaseGLGlyph {
   protected vbo_bg_color: VertexBuffer & {used?: boolean}
   protected index_buffer: IndexBuffer
 
-  protected last_trans: Transform
+  static is_supported(marker_type: MarkerType): boolean {
+    switch (marker_type) {
+      case "asterisk":
+      case "circle":
+      case "circle_cross":
+      case "circle_x":
+      case "cross":
+      case "diamond":
+      case "diamond_cross":
+      case "hex":
+      case "inverted_triangle":
+      case "square":
+      case "square_cross":
+      case "square_x":
+      case "triangle":
+      case "x":
+        return true
+      default:
+        return false
+    }
+  }
 
-  protected _baked_offset: [number, number]
+  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+    super(gl, glyph)
 
-  protected init(): void {
-    const {gl} = this
-
+    const defs = [`#define USE_${marker_type.toUpperCase()}`]
     const vert = vertex_shader
-    const frag = fragment_shader(this._marker_code)
+    const frag = `${defs.join("\n")}\n\n${fragment_shader}`
 
     // The program
     this.prog = new Program(gl)
@@ -116,9 +133,9 @@ export abstract class MarkerGL extends BaseGLGlyph {
     this.index_buffer = new IndexBuffer(gl)
   }
 
-  draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
+  draw(indices: number[], main_glyph: MarkerLikeView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
-    const mainGlGlyph = mainGlyph.glglyph!
+    const mainGlGlyph = main_glyph.glglyph!
     const {nvertices} = mainGlGlyph
 
     // Upload data if we must. Only happens for main glyph.
@@ -234,28 +251,3 @@ export abstract class MarkerGL extends BaseGLGlyph {
     this.prog.set_uniform('u_antialias', 'float', [0.8])
   }
 }
-
-function mk_marker(code: string): Class<MarkerGL> {
-  return class extends MarkerGL {
-    protected get _marker_code(): string {
-      return code
-    }
-  }
-}
-
-import * as glsl from "./markers.frag"
-
-export const AsteriskGL = mk_marker(glsl.asterisk)
-export const CircleGL = mk_marker(glsl.circle)
-export const CircleCrossGL = mk_marker(glsl.circlecross)
-export const CircleXGL = mk_marker(glsl.circlex)
-export const CrossGL = mk_marker(glsl.cross)
-export const DiamondGL = mk_marker(glsl.diamond)
-export const DiamondCrossGL = mk_marker(glsl.diamondcross)
-export const HexGL = mk_marker(glsl.hex)
-export const InvertedTriangleGL = mk_marker(glsl.invertedtriangle)
-export const SquareGL = mk_marker(glsl.square)
-export const SquareCrossGL = mk_marker(glsl.squarecross)
-export const SquareXGL = mk_marker(glsl.squarex)
-export const TriangleGL = mk_marker(glsl.triangle)
-export const XGL = mk_marker(glsl.x)

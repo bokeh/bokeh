@@ -3,6 +3,4 @@
 bokeh.models.markers.SquareDot
 ------------------------------
 
-.. autoclass:: bokeh.models.markers.SquareDot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.SquareDot

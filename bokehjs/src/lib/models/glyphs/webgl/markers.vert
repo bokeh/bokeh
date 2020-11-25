@@ -1,4 +1,3 @@
-export const vertex_shader: string = `
 precision mediump float;
 const float SQRT_2 = 1.4142135623730951;
 //
@@ -36,4 +35,3 @@ void main (void)
     gl_Position.y *= -1.0;
     gl_PointSize = SQRT_2 * v_size + 2.0 * (v_linewidth + 1.5*u_antialias);
 }
-`

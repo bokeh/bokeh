@@ -433,7 +433,7 @@ Then, the glyph itself is obtained from the ``.glyph`` attribute of a
 .. code-block:: python
 
     >>> r.glyph
-    <bokeh.models.markers.Circle at 0x10799ba10>
+    <bokeh.models.glyphs.Circle at 0x10799ba10>
 
 This is the object to set fill, line, or text property values for:
 
