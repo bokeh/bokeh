@@ -46,6 +46,10 @@ jobs:
         shell: bash -l {0}
         run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
+      - name: Install NPM
+        shell: bash -l {0}
+        run: npm install -g npm@7
+
       - name: Build Release Tarball
         shell: bash -l {0}
         env:
