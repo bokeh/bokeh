@@ -21,6 +21,20 @@ import "@typescript-eslint/parser"
 
 import * as readline from "readline"
 
+const toString = Object.prototype.toString
+export function isString(obj: unknown): obj is string {
+  return toString.call(obj) === "[object String]"
+}
+
+export function isObject(obj: unknown): obj is object {
+  const tp = typeof obj
+  return tp === 'function' || tp === 'object' && !!obj
+}
+
+export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
+  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+}
+
 function print(str: string): void {
   console.log(str)
 }
@@ -207,9 +221,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   }
 
   const bokeh_ext_json_path = join(base_dir, "bokeh.ext.json")
-  const is_extension = file_exists(bokeh_ext_json_path)
+  const bokeh_ext = read_json(bokeh_ext_json_path)
 
-  if (!is_extension) {
+  if (!isPlainObject(bokeh_ext)) {
     print("Not a bokeh extension. Quitting.")
     return false
   }
@@ -321,15 +335,30 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const min_js = (js: string) => rename(js, {ext: '.min.js'})
 
-  const prelude = {
-    main: preludes.plugin_prelude(),
-    plugin: preludes.plugin_prelude(),
-  }
+  const license = (() => {
+    if (isPlainObject(bokeh_ext.license)) {
+      if (isString(bokeh_ext.license.file)) {
+        const license_path = join(base_dir, bokeh_ext.license.file)
+        const text = read(license_path)
+        if (text != null)
+          return text
+        else
+          print(`Failed to license text from ${magenta(license_path)}`)
+      }
+      if (isString(bokeh_ext.license.text)) {
+        return bokeh_ext.license.text
+      }
+    }
+    return null
+  })()
 
-  const postlude = {
-    main: preludes.plugin_postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
+  const license_text = license ? preludes.comment(license) + "\n" : ""
+
+  const prelude_base = `${license_text}${preludes.plugin_prelude()}`
+  const prelude = {main: prelude_base, plugin: prelude_base}
+
+  const postlude_base = preludes.plugin_postlude()
+  const postlude = {main: postlude_base, plugin: postlude_base}
 
   // HACK {{{
   for (const bundle of bundles) {
