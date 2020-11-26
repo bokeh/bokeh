@@ -42,6 +42,16 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
         return FAILED("BokehJS build did NOT succeed", details=e.args)
 
 
+def build_npm_packages(config: Config, system: System) -> ActionReturn:
+    try:
+        system.cd("bokehjs")
+        system.run("npm pack")
+        system.cd("..")
+        return PASSED("npm pack succeeded")
+    except RuntimeError as e:
+        return FAILED("npm pack did NOT succeed", details=e.args)
+
+
 def build_conda_packages(config: Config, system: System) -> ActionReturn:
     try:
         system.run("conda build conda.recipe --quiet --no-test --output-folder .")
@@ -99,6 +109,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         dirname = f"deployment-{config.version}"
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
+        system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
         system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-*.tar.gz {dirname}")  # TODO: handle .dev version variant better
         system.run(f"mkdir {dirname}/bokehjs")

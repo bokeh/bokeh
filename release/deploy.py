@@ -13,11 +13,23 @@ from .system import System
 __all__ = (
     "publish_conda_package",
     "publish_documentation",
+    "publish_npm_package",
     "publish_pip_package",
     "unpack_deployment_tarball",
 )
 
 CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
+
+
+def publish_npm_package(config: Config, system: System) -> ActionReturn:
+    version = config.version
+    path = f"deployment-{version}/bokeh-bokehjs-{config.js_version}.tgz"
+    tags = "--tag=dev" if config.prerelease else ""
+    try:
+        system.run(f"npm publish --access=public {tags} {path}")
+        return PASSED("Publish to npmjs.com succeeded")
+    except RuntimeError as e:
+        return FAILED("Could NOT publish to npmjs.com", details=e.args)
 
 
 def publish_conda_package(config: Config, system: System) -> ActionReturn:
