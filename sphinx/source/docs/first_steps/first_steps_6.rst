@@ -59,13 +59,6 @@ of the browser window, assign ``scale_width`` to ``sizing_mode``:
     For more information on sizing modes, see
     :ref:`userguide_layout_sizing_mode` in the user guide.
 
-Building more complex dashboards
---------------------------------
-
-The easiest way to combine several Bokeh elements into dashboards is to use
-`Panel (https://panel.holoviz.org) <https://panel.holoviz.org/index.html>`_.
-Panel is a separate Python library that uses Bokeh in the background.
-
 .. panels::
     :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
 
