@@ -12,8 +12,9 @@ import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
+let rl: readline.Interface | undefined
 if (process.platform == "win32") {
-  const rl = readline.createInterface({
+  rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   })
@@ -26,6 +27,10 @@ if (process.platform == "win32") {
 process.on("SIGINT", () => {
   console.log()
   process.exit(130)
+})
+
+process.on("exit", () => {
+  rl?.close()
 })
 
 const url = argv._[0]
@@ -562,13 +567,21 @@ async function check_version(version: string): Promise<boolean> {
   return ok
 }
 
-async function main(): Promise<void> {
+async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
   const ok0 = await check_version(browser)
   const ok1 = await run_tests()
-  if (!(ok0 && ok1))
+  process.exit(ok0 && ok1 ? 0 : 1)
+}
+
+async function main(): Promise<void> {
+  try {
+    await run()
+  } catch (e: unknown) {
+    console.log(`CRITICAL ERROR: ${e}`)
     process.exit(1)
+  }
 }
 
 main()
