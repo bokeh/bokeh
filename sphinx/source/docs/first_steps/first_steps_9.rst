@@ -1,10 +1,10 @@
 .. _first_steps_9:
 
-First Steps 9: Building Dashboards and Server apps
+First Steps 9: Building dashboards and server apps
 ==================================================
 
-In the :ref:`previous first steps guides <first_steps_8>`, you useddd different
-sources and structures to import and filter data. aluminium colours.
+In the :ref:`previous first steps guides <first_steps_8>`, you used different
+sources and structures to import and filter data.
 
 In this section, you will use Bokeh to create interactive dashboards by
 combining plots and widgets. You will also use Bokeh as a server to power even
