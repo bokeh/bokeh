@@ -6,47 +6,26 @@ action:
   name: replace
 swap:
   '(?:API Console|dev|developer) key': API key
-  '(?:cell ?phone|smart ?phone)': phone|mobile phone
-  '(?:dev|developer|APIs) console': API console
   '(?:e-mail|Email|E-mail)': email
-  '(?:file ?path|path ?name)': path
   '(?:kill|terminate|abort)': stop|exit|cancel|end
   '(?:OAuth ?2|Oauth)': OAuth 2.0
   '(?:ok|Okay)': OK|okay
   '(?:WiFi|wifi)': Wi-Fi
-  '[\.]+apk': APK
   '3\-D': 3D
   'file( |-)name': filename
-  'Google (?:I\-O|IO)': Google I/O
   'Javascript|Java Script': JavaScript
   'tap (?:&|and) hold': touch & hold
-  'un(?:check|select)': clear
   account name: username
-  action bar: app bar
   admin: administrator
   Ajax: AJAX
-  Android device: Android-powered device
-  android: Android
   approx\.: approximately
-  authN: authentication
-  authZ: authorization
   autoupdate: automatically update
-  cellular data: mobile data
-  cellular network: mobile network
   check(-| )box: checkbox
-  click on: click|click in
-  content type: media type
-  curated roles: predefined roles
   data are: data is
   fewer data: less data
-  firewalls: firewall rules
-  grayed-out: unavailable
   HTTPs: HTTPS
   ingest: import|load
   Jupyter Notebook: Jupyter notebook
-  long press: touch & hold
-  network IP address: internal IP address
-  omnibox: address bar
   open-source: open source
   Pandas: pandas (lowercase)
   python: Python
@@ -54,8 +33,6 @@ swap:
   repo: repository
   SHA1: SHA-1|HAS-SHA1
   sign into: sign in to
-  sign-?on: single sign-on
-  static IP address: static external IP address
   stylesheet: style sheet
   synch: sync
   tablename: table name
