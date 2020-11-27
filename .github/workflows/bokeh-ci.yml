@@ -93,7 +93,7 @@ jobs:
           mypy bokeh
           mypy release
 
-          - name: Checkout
+      - name: Checkout
       uses: actions/checkout@master
 
     - name: Get Changed Files
