@@ -2,7 +2,7 @@ extends: existence
 message: "Please use American spelling (instead of '%s')."
 link: 'https://en.wikipedia.org/wiki/American_and_British_English_spelling_differences'
 ignorecase: true
-level: warning
+level: error
 tokens:
   - 'colour(s|)'
   - 'programm(e|es)'
