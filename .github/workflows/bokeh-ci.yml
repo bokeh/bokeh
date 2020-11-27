@@ -93,13 +93,13 @@ jobs:
           mypy bokeh
           mypy release
 
-      # - name: Get Changed Files
-      #   id: get_changed_files
-      #   # include this action to filter for changed files only
-      #   # (instead of checking entire docs every time)
-      #   uses: lots0logs/gh-action-get-changed-files@2.1.4
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Changed Files
+        id: get_changed_files
+        # include this action to filter for changed files only
+        # (instead of checking entire docs every time)
+        uses: lots0logs/gh-action-get-changed-files@2.1.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Vale
         uses: errata-ai/vale-action@v1.3.0
@@ -111,12 +111,10 @@ jobs:
           # only check modified lines, instead of all docs every time (feature currently broken)
           # onlyAnnotateModifiedLines: true
           # path to run Vale on
-          # files: '${{ steps.get_changed_files.outputs.all }}'
-          # always run on all files of user guide and first steps guides
-          files: '["sphinx/source/docs/user_guide", "sphinx/source/docs/first_steps"]'
+          files: '${{ steps.get_changed_files.outputs.all }}'
         env:
           # required
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   examples:
     needs: build
