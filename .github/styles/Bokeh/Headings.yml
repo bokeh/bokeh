@@ -1,0 +1,38 @@
+extends: capitalization
+message: "'%s' should use sentence-style capitalization."
+link: 'https://developers.google.com/style/capitalization#capitalization-in-titles-and-headings'
+level: warning
+scope: heading
+match: $sentence
+exceptions:
+  - \b\w+?[A-Z]\w*?\b
+  - (\b\w*\.\w*\b)
+  - AWS
+  - Azure
+  - Bokeh
+  - BokehJS
+  - CD
+  - CI
+  - CLI
+  - Datashader
+  - Docker
+  - HoloViews
+  - I
+  - IPyWidgets
+  - JavaScript
+  - Jupyter
+  - JupyterHub
+  - JupyterLab
+  - Linux
+  - macOS
+  - Matplotlib
+  - MongoDB
+  - NumPy
+  - Python
+  - REPL
+  - Studio
+  - TypeScript
+  - URLs
+  - Visual
+  - VS
+  - Windows
