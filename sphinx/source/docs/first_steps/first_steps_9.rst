@@ -1,6 +1,6 @@
 .. _first_steps_9:
 
-First Steps 9: Building dashboards and server apps
+First steps 9: Building dashboards and server apps
 ==================================================
 
 In the :ref:`previous first steps guides <first_steps_8>`, you used different

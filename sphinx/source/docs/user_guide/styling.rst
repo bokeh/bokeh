@@ -5,11 +5,11 @@ Styling Visual Attributes
 
 .. _userguide_styling_using_themes:
 
-Using themes
+Using Themes
 ------------
 
 Bokeh's themes are a set of pre-defined design parameters that you can apply to
-your plots. Themes can include settings for parametres such as colours, fonts,
+your plots. Themes can include settings for parameters such as colors, fonts,
 or line styles.
 
 .. _userguide_styling_using_themes_built_in:
