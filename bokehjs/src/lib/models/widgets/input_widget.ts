@@ -3,8 +3,7 @@ import {Control, ControlView} from "./control"
 import {div, label} from "core/dom"
 import * as p from "core/properties"
 
-import inputs_css from "styles/widgets/inputs.css"
-import {bk_input_group} from "styles/widgets/inputs"
+import inputs_css, * as inputs from "styles/widgets/inputs.css"
 
 export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 
@@ -36,7 +35,7 @@ export abstract class InputWidgetView extends ControlView {
     const {title} = this.model
     this.label_el = label({style: {display: title.length == 0 ? "none" : ""}}, title)
 
-    this.group_el = div({class: bk_input_group}, this.label_el)
+    this.group_el = div({class: inputs.input_group}, this.label_el)
     this.el.appendChild(this.group_el)
   }
 

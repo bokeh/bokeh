@@ -6,7 +6,7 @@ import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 import flatpickr_css from "styles/widgets/flatpickr.css"
 
 type DateStr = string
@@ -58,7 +58,7 @@ export class DatePickerView extends InputWidgetView {
 
     super.render()
 
-    this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
+    this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
     this._picker = flatpickr(this.input_el, {
       defaultDate: this.model.value,

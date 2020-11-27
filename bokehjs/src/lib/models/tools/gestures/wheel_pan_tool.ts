@@ -2,7 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
-import {bk_tool_icon_wheel_pan} from "styles/icons"
+import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
 export class WheelPanToolView extends GestureToolView {
@@ -103,7 +103,7 @@ export class WheelPanTool extends GestureTool {
   }
 
   tool_name = "Wheel Pan"
-  icon = bk_tool_icon_wheel_pan
+  icon = tool_icon_wheel_pan
   event_type = "scroll" as "scroll"
   default_order = 12
 

@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_reset} from "styles/icons"
+import {tool_icon_reset} from "styles/icons.css"
 
 export class ResetToolView extends ActionToolView {
   model: ResetTool
@@ -33,5 +33,5 @@ export class ResetTool extends ActionTool {
   }
 
   tool_name = "Reset"
-  icon = bk_tool_icon_reset
+  icon = tool_icon_reset
 }

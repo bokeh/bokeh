@@ -4,10 +4,7 @@ import {empty, display, undisplay, div, Keys} from "core/dom"
 import * as p from "core/properties"
 import {clamp} from "core/util/math"
 
-import {bk_below, bk_active} from "styles/mixins"
-import {bk_menu} from "styles/menus"
-
-import menus_css from "styles/menus.css"
+import menus_css, * as menus from "styles/menus.css"
 
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
@@ -30,7 +27,7 @@ export class AutocompleteInputView extends TextInputView {
     this.input_el.addEventListener("keydown", (event) => this._keydown(event))
     this.input_el.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menu = div({class: [bk_menu, bk_below]})
+    this.menu = div({class: [menus.menu, menus.below]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
     this.el.appendChild(this.menu)
@@ -57,7 +54,7 @@ export class AutocompleteInputView extends TextInputView {
       this.menu.appendChild(item)
     }
     if (completions.length > 0)
-      this.menu.children[0].classList.add(bk_active)
+      this.menu.children[0].classList.add(menus.active)
   }
 
   protected _show_menu(): void {
@@ -107,9 +104,9 @@ export class AutocompleteInputView extends TextInputView {
   protected _bump_hover(new_index: number): void {
     const n_children = this.menu.children.length
     if (this._open && n_children > 0) {
-      this.menu.children[this._hover_index].classList.remove(bk_active)
+      this.menu.children[this._hover_index].classList.remove(menus.active)
       this._hover_index = clamp(new_index, 0, n_children-1)
-      this.menu.children[this._hover_index].classList.add(bk_active)
+      this.menu.children[this._hover_index].classList.add(menus.active)
     }
   }
 

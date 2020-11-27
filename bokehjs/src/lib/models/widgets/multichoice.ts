@@ -6,7 +6,7 @@ import {isString} from "core/util/types"
 import {CachedVariadicBox} from "core/layout/html"
 import * as p from "core/properties"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 import choices_css from "styles/widgets/choices.css"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -39,7 +39,7 @@ export class MultiChoiceView extends InputWidgetView {
 
     this.input_el = select({
       multiple: true,
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     })

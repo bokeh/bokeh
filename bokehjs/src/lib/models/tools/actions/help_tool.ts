@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_help} from "styles/icons"
+import {tool_icon_help} from "styles/icons.css"
 
 export class HelpToolView extends ActionToolView {
   model: HelpTool
@@ -43,5 +43,5 @@ export class HelpTool extends ActionTool {
   }
 
   tool_name = "Help"
-  icon = bk_tool_icon_help
+  icon = tool_icon_help
 }

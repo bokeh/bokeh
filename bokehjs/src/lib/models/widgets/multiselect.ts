@@ -3,7 +3,7 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
@@ -35,7 +35,7 @@ export class MultiSelectView extends InputWidgetView {
 
     this.input_el = select({
       multiple: true,
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, options)

@@ -4,7 +4,7 @@ import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {Interval} from "core/types"
 import {Scale} from "models/scales/scale"
-import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
+import * as icons from "styles/icons.css"
 
 export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): Map<string, Interval> {
   const r: Map<string, Interval> = new Map()
@@ -141,13 +141,13 @@ export class PanTool extends GestureTool {
         on_update(value: Dimensions, obj: PanTool) {
           switch (value) {
             case "both":
-              obj.icon = bk_tool_icon_pan
+              obj.icon = icons.tool_icon_pan
               break
             case "width":
-              obj.icon = bk_tool_icon_xpan
+              obj.icon = icons.tool_icon_xpan
               break
             case "height":
-              obj.icon = bk_tool_icon_ypan
+              obj.icon = icons.tool_icon_ypan
               break
           }
         },

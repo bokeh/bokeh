@@ -19,12 +19,8 @@ import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
 
-import {bk_toolbar, bk_toolbar_hidden, bk_button_bar} from "styles/toolbar"
-import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
-import {bk_side} from "styles/mixins"
-
-import toolbar_css from "styles/toolbar.css"
-import logo_css from "styles/logo.css"
+import toolbars_css, * as toolbars from "styles/toolbar.css"
+import logos_css, * as logos from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -87,7 +83,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   styles(): string[] {
-    return [...super.styles(), toolbar_css, logo_css]
+    return [...super.styles(), toolbars_css, logos_css]
   }
 
   remove(): void {
@@ -108,7 +104,7 @@ export class ToolbarBaseView extends DOMView {
 
   protected _on_visible_change(): void {
     const visible = this._toolbar_view_model.visible
-    const hidden_class = bk_toolbar_hidden
+    const hidden_class = toolbars.toolbar_hidden
     if (this.el.classList.contains(hidden_class) && visible) {
       this.el.classList.remove(hidden_class)
     } else if (!visible) {
@@ -118,15 +114,15 @@ export class ToolbarBaseView extends DOMView {
 
   render(): void {
     empty(this.el)
-    this.el.classList.add(bk_toolbar)
-    this.el.classList.add(bk_side(this.model.toolbar_location))
+    this.el.classList.add(toolbars.toolbar)
+    this.el.classList.add(toolbars[this.model.toolbar_location])
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
 
     if (this.model.logo != null) {
-      const gray = this.model.logo === "grey" ? bk_grey : null
-      const logo = a({href: "https://bokeh.org/", target: "_blank", class: [bk_logo, bk_logo_small, gray]})
-      this.el.appendChild(logo)
+      const gray = this.model.logo === "grey" ? logos.grey : null
+      const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
+      this.el.appendChild(logo_el)
     }
 
     for (const [, button_view] of this._tool_button_views) {
@@ -149,7 +145,7 @@ export class ToolbarBaseView extends DOMView {
 
     for (const bar of bars) {
       if (bar.length !== 0) {
-        const el = div({class: bk_button_bar}, bar)
+        const el = div({class: toolbars.button_bar}, bar)
         this.el.appendChild(el)
       }
     }

@@ -1,3 +1,5 @@
+import CSS from "css"
+
 import {join, relative} from "path"
 import {argv} from "yargs"
 import fs from "fs"
@@ -22,23 +24,58 @@ task("scripts:version", async () => {
 task("scripts:styles", ["styles:compile"], async () => {
   const css_base = paths.build_dir.css
 
-  const js_base = join(paths.build_dir.lib, "styles")
-  const dts_base = join(paths.build_dir.types, "styles")
+  function* collect_classes(ast: CSS.Stylesheet) {
+    const {stylesheet} = ast
+    if (stylesheet == null)
+      return
+
+    for (const rule of stylesheet.rules) {
+      if (rule.type == "rule") {
+        const {selectors} = rule as CSS.Rule
+
+        for (const selector of selectors ?? []) {
+          const classes = selector.match(/\.[A-Za-z0-9_-]+/g)
+          if (classes != null) {
+            for (const cls of classes) {
+              yield cls.substring(1)
+            }
+          }
+        }
+      }
+    }
+  }
 
   for (const css_path of scan(css_base, [".css"])) {
     const sub_path = relative(css_base, css_path)
 
-    const js = `\
-const css = \`\n${read(css_path)}\`;
-export default css;
-`
-    const dts = `\
-declare const css: string;
-export default css;
-`
+    const css_in = read(css_path)!
+    const ast = CSS.parse(css_in)
 
-    write(join(js_base, sub_path) + ".js", js)
-    write(join(dts_base, sub_path) + ".d.ts", dts)
+    const js: string[] = []
+    const dts: string[] = []
+    dts.push(`declare module "styles/${sub_path.replace(/\\/g, "/")}" {`)
+
+    const classes = new Set(collect_classes(ast))
+    for (const cls of classes) {
+      if (!cls.startsWith("bk-"))
+        continue
+      const ident = cls.replace(/^bk-/, "").replace(/-/g, "_")
+      js.push(`export const ${ident} = "${cls}"`)
+      dts.push(`  export const ${ident}: string`)
+    }
+
+    const css_out = CSS.stringify(ast, {compress: true})
+    js.push(`export default \`${css_out}\``)
+    dts.push("  export default \`\`")
+    dts.push("}")
+
+    const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"
+    const dts_file = join(paths.build_dir.types, "styles", sub_path) + ".d.ts"
+    const dts2_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
+
+    write(js_file, js.join("\n") + "\n")
+    write(dts_file, dts.join("\n") + "\n")
+    write(dts2_file, dts.join("\n") + "\n")
   }
 })
 

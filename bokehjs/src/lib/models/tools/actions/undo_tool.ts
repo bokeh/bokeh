@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_undo} from "styles/icons"
+import {tool_icon_undo} from "styles/icons.css"
 
 export class UndoToolView extends ActionToolView {
   model: UndoTool
@@ -42,5 +42,5 @@ export class UndoTool extends ActionTool {
   }
 
   tool_name = "Undo"
-  icon = bk_tool_icon_undo
+  icon = tool_icon_undo
 }

@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
-import {bk_tool_icon_box_zoom} from "styles/icons"
+import {tool_icon_box_zoom} from "styles/icons.css"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -203,7 +203,7 @@ export class BoxZoomTool extends GestureTool {
   }
 
   tool_name = "Box Zoom"
-  icon = bk_tool_icon_box_zoom
+  icon = tool_icon_box_zoom
   event_type = "pan" as "pan"
   default_order = 20
 

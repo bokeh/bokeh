@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
 import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
-import {bk_tool_icon_box_select} from "styles/icons"
+import {tool_icon_box_select} from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
@@ -118,7 +118,7 @@ export class BoxSelectTool extends SelectTool {
   }
 
   tool_name = "Box Select"
-  icon = bk_tool_icon_box_select
+  icon = tool_icon_box_select
   event_type = "pan" as "pan"
   default_order = 30
 
