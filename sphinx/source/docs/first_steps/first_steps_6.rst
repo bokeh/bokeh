@@ -25,7 +25,7 @@ To combine several plots into a horizontal row layout, you first need to import
 
 .. literalinclude:: examples/first_steps_6_row_layout.py
    :language: python
-   :emphasize-lines: 1,24
+   :emphasize-lines: 1,21
 
 To display several plots in a vertical column layout, use the
 :func:`~bokeh.layouts.column` function instead.
@@ -50,7 +50,7 @@ of the browser window, assign ``scale_width`` to ``sizing_mode``:
 
 .. literalinclude:: examples/first_steps_6_row_layout_responsive.py
    :language: python
-   :emphasize-lines: 25
+   :emphasize-lines: 22
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_6_row_layout_responsive.py
     :source-position: none

@@ -132,7 +132,7 @@ This is what the completed example looks like:
 
 .. literalinclude:: examples/first_steps_9_widgets.py
    :language: python
-   :emphasize-lines: 2,17-23,26-34,37-45
+   :emphasize-lines: 2,14-20,23-31,34-42
 
 .. seealso::
     To learn more about Bokeh's widgets and building interactive dashboards, see

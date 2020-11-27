@@ -30,7 +30,7 @@ customize the legend. For example:
 
 .. literalinclude:: examples/first_steps_3_legend.py
    :language: python
-   :emphasize-lines: 19,27,30,33-35,38-42
+   :emphasize-lines: 16,24,27,30-32,35-39
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_legend.py
     :source-position: none
@@ -61,7 +61,7 @@ There are various ways to style the text for your headline. For example:
 
 .. literalinclude:: examples/first_steps_3_title.py
    :language: python
-   :emphasize-lines: 11,17,20,23-26
+   :emphasize-lines: 8,14,17,20-23
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_3_title.py
     :source-position: none
@@ -119,7 +119,7 @@ This is what the finished code looks like:
 
 .. literalinclude:: examples/first_steps_3_box_annotation.py
    :language: python
-   :emphasize-lines: 3,20-22,25-27
+   :emphasize-lines: 3,17-19,22-24
 
 .. seealso::
     To find out more about the different kinds of annotations in Bokeh, see
