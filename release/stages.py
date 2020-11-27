@@ -13,6 +13,7 @@ from .build import (
     build_bokehjs,
     build_conda_packages,
     build_docs,
+    build_npm_packages,
     build_sdist_packages,
     dev_install,
     install_bokehjs,
@@ -49,6 +50,7 @@ from .credentials import (
 from .deploy import (
     publish_conda_package,
     publish_documentation,
+    publish_npm_package,
     publish_pip_package,
     unpack_deployment_tarball,
 )
@@ -107,6 +109,7 @@ BUILD_STEPS: StepListType = (
     update_hash_manifest,
     commit_staging_branch,
     tag_release_version,
+    build_npm_packages,
     build_conda_packages,
     build_sdist_packages,
     build_docs,
@@ -134,6 +137,7 @@ DEPLOY_CHECKS: StepListType = (
 DEPLOY_STEPS: StepListType = (
     download_deployment_tarball,
     unpack_deployment_tarball,
+    publish_npm_package,
     publish_conda_package,
     publish_pip_package,
     publish_documentation,
