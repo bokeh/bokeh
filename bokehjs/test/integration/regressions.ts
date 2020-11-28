@@ -1,7 +1,8 @@
 import {display, fig, row, column, grid} from "./_util"
 
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
+  Arrow, ArrowHead, NormalHead, OpenHead,
+  BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -527,6 +528,29 @@ describe("Bug", () => {
       p.add_layout(labels2)
 
       await display(p, [350, 350])
+    })
+  })
+
+  describe("in issue #10136", () => {
+    it("prevents correct rendering of overlapping arrows", async () => {
+      const p = fig([200, 100], {x_range: [0, 3], y_range: [0, 2]})
+
+      const source = new ColumnDataSource({data: {
+        x_end: [1, 2, 3],
+      }})
+      const head = new OpenHead({size: 30, line_width: 3})
+      const arrow = new Arrow({
+        end: head,
+        x_start: {value: 0},
+        y_start: {value: 1},
+        x_end: {field: "x_end"},
+        y_end: {value: 1},
+        line_width: 3,
+        source,
+      })
+      p.add_layout(arrow)
+
+      await display(p, [350, 150])
     })
   })
 
