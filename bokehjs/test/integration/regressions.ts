@@ -450,6 +450,27 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #589", () => {
+    it("disallows updating legend when glyphs change", async () => {
+      const x = [1, 2, 3, 4, 5, 10]
+      const y = [5, 6, 2, 3, 4, 10]
+
+      const p = fig([300, 300])
+      const r = p.line(x, y, {legend: "foo"}) // TODO: legend_item
+
+      const {view} = await display(p, [350, 350])
+
+      p.circle(x, y, {legend: "foo"}) // TODO: legend_item
+      r.glyph.line_dash = [2, 4] // TODO: "dotted"
+      r.glyph.line_color = "black"
+      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend: "bar"}) // TODO: legend_item
+      p.legend.background_fill_color = "blue"
+      p.legend.background_fill_alpha = 0.2
+
+      await view.ready
+    })
+  })
+
   describe("in issue #10454", () => {
     it("disallows using categorical coordinates with LabelSet annotation", async () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
