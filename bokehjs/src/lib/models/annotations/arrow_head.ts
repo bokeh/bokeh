@@ -16,7 +16,8 @@ export abstract class ArrowHeadView extends View {
 
   abstract render(ctx: Context2d, i: number): void
 
-  abstract clip(ctx: Context2d, i: number): void // This method should not begin or close a path
+  // This method should not begin or close a path
+  abstract clip(ctx: Context2d, i: number): void
 }
 
 export namespace ArrowHead {
@@ -51,7 +52,6 @@ export class OpenHeadView extends ArrowHeadView {
   visuals: OpenHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
-    // This method should not begin or close a path
     this.visuals.line.set_vectorize(ctx, i)
     const {size} = this.model
     ctx.moveTo(0.5*size, size)
@@ -107,7 +107,6 @@ export class NormalHeadView extends ArrowHeadView {
   visuals: NormalHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
-    // This method should not begin or close a path
     this.visuals.line.set_vectorize(ctx, i)
     const {size} = this.model
     ctx.moveTo(0.5*size, size)
@@ -177,7 +176,6 @@ export class VeeHeadView extends ArrowHeadView {
   visuals: VeeHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
-    // This method should not begin or close a path
     this.visuals.line.set_vectorize(ctx, i)
     const {size} = this.model
     ctx.moveTo(0.5*size, size)
