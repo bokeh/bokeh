@@ -109,6 +109,13 @@ the comments ``.. vale off`` and ``.. vale on``. For example:
 
   .. vale on
 
+Vale also uses a very basic spell checker. If you feel like Vale incorrectly
+flags a word you are using, add it to the file ``vocab.txt`` in
+:bokeh-tree:`.github/styles`.
+
+For information on how to edit and customize the rules, see the `documentation
+for Vale`_.
+
 .. _`build`:
 
 Setting up and building Bokeh's documentation
@@ -330,7 +337,7 @@ For information on writing style, see Bokeh's
 Bokeh's `release management`_. Each release should add a new file under
 ``sphinx/source/docs/releases`` that briefly describes the changes in the
 release, including any migration notes. The filename should be
-``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
+``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``. The
 Sphinx build will automatically add this content to the list of all releases.
 
 
@@ -343,6 +350,7 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _accessible: https://developers.google.com/style/accessibility
 .. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
 .. _Vale: https://github.com/errata-ai/vale-action/
+.. _`documentation for Vale`: https://docs.errata.ai/vale/about
 .. _Sphinx: http://sphinx-doc.org
 .. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
