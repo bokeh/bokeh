@@ -1,5 +1,3 @@
-.. vale off
-
 .. _userguide_styling:
 
 Styling Visual Attributes
