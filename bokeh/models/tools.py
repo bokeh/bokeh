@@ -91,7 +91,7 @@ from .callbacks import Callback
 from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
-from .renderers import GlyphRenderer, Renderer
+from .renderers import DataRenderer, GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -232,7 +232,7 @@ class SelectTool(GestureTool):
 
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
@@ -1029,7 +1029,7 @@ class HoverTool(InspectTool):
 
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
@@ -1277,7 +1277,7 @@ class EditTool(GestureTool):
     object, or an RGB(A) NumPy array.
     """)
 
-    renderers = List(Instance(Renderer), help="""
+    renderers = List(Instance(GlyphRenderer), help="""
     An explicit list of renderers corresponding to scatter glyphs that may
     be edited.
     """)
