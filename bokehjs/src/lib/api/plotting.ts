@@ -800,7 +800,7 @@ export class Figure extends Plot {
   _glyph<G extends Glyph>(cls: Class<G>, params_string: string, args: unknown[], overrides?: object): TypedGlyphRenderer<G> {
     const params = params_string.split(",")
 
-    let attrs: Attrs
+    let attrs: Attrs & Partial<AuxGlyph>
     if (args.length == 0) {
       attrs = {}
     } else if (args.length == 1) {
@@ -820,14 +820,14 @@ export class Figure extends Plot {
       attrs = {...attrs, ...overrides}
     }
 
-    const source = attrs.source != null ? attrs.source as AuxGlyph["source"] : new ColumnDataSource()
+    const source = attrs.source != null ? attrs.source : new ColumnDataSource()
     const data = clone(source.data)
     delete attrs.source
 
-    const view = attrs.view != null ? attrs.view as AuxGlyph["view"] : new CDSView({source})
+    const view = attrs.view != null ? attrs.view : new CDSView({source})
     delete attrs.view
 
-    const legend = this._process_legend(attrs.legend as AuxGlyph["legend"], source)
+    const legend = this._process_legend(attrs.legend, source)
     delete attrs.legend
 
     const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
