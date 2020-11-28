@@ -21,11 +21,11 @@ appreciated!* In addition to quick fixes, check the list of `Open Docs
 Issues`_ on GitHub. This list contains several projects as a starting
 point.
 
-This section describes Bokeh's `style guidelines`_ for contributing to the
-documentation. This section also includes details on how to `build`_ and
+This section describes Bokeh's documentation style guidelines for contributing
+to the documentation. This section also includes details on how to `build`_ and
 `edit`_ the documentation in your local development environment.
 
-.. _`style guidelines`:
+.. _documentation_style_guidelines:
 
 Documentation style guidelines
 ------------------------------
@@ -88,6 +88,26 @@ throughout the narrative documentation:
 
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
+
+.. _`documentation_vale_linting`:
+
+Text linting in Bokeh's CI
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To maintain consistency throughout the documentation, Bokeh's CI uses `Vale`_.
+Vale is a system that automatically checks documentation files. These checks are
+based on Bokeh's :ref:`documentation_style_guidelines`.
+
+To exclude part of your text from being checked by Vale, enclose your text in
+the comments ``.. vale off`` and ``.. vale on``. For example:
+
+.. code-block:: ReST
+
+  .. vale off
+
+    Some text that Bokeh's CI will not check.
+
+  .. vale on
 
 .. _`build`:
 
@@ -302,7 +322,8 @@ For information on how to format text using reStructuredText, see the
 `reStructuredText primer on the Sphinx website`_ or the `official
 reStructuredText website`_.
 
-For information on writing style, see Bokeh's `style guidelines`_ and the
+For information on writing style, see Bokeh's
+:ref:`documentation_style_guidelines` and the
 `Google developer documentation style guide`_.
 
 `Release Notes`_ are generally handled by the Bokeh core team as part of
@@ -321,6 +342,7 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
 .. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
+.. _Vale: https://github.com/errata-ai/vale-action/
 .. _Sphinx: http://sphinx-doc.org
 .. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/
