@@ -14,7 +14,7 @@ configuration in a Resources object.
 #}
 {%- for file in js_files %}
 <script type="text/javascript" src="{{ file }}"
-{%- if hashes %} integrity="sha384-{{ hashes[file] }}" crossorigin="anonymous"{%- endif -%}
+{%- if hashes and file in hashes %} integrity="sha384-{{ hashes[file] }}" crossorigin="anonymous"{%- endif -%}
 ></script>
 {%- endfor %}
 
