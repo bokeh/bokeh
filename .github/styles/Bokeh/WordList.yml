@@ -7,13 +7,11 @@ action:
 swap:
   '(?:API Console|dev|developer) key': API key
   '(?:e-mail|Email|E-mail)': email
-  '(?:kill|terminate|abort)': stop|exit|cancel|end
   '(?:ok|Okay)': OK|okay
   '(?:WiFi|wifi)': Wi-Fi
   '3\-D': 3D
   'file( |-)name': filename
   'Javascript|Java Script': JavaScript
-  'tap (?:&|and) hold': touch & hold
   admin: administrator
   Ajax: AJAX
   approx\.: approximately
@@ -30,7 +28,6 @@ swap:
   regex: regular expression
   repo: repository
   repos: repositories
-  SHA1: SHA-1|HAS-SHA1
   sign into: sign in to
   stylesheet: style sheet
   synch: sync
