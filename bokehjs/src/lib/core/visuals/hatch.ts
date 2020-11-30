@@ -6,8 +6,6 @@ import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 import type {Texture} from "models/textures/texture"
 
-const {hasOwnProperty} = Object.prototype
-
 class _Hatch extends VisualProperties {
   name = "hatch"
 
@@ -16,14 +14,7 @@ class _Hatch extends VisualProperties {
   readonly hatch_scale: p.NumberSpec
   readonly hatch_pattern: p.StringSpec
   readonly hatch_weight: p.NumberSpec
-
-  protected _try_defer(defer_func: () => void): void {
-    const {hatch_pattern, hatch_extra} = this.cache
-    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, hatch_pattern)) {
-      const custom = hatch_extra[hatch_pattern]
-      custom.onload(defer_func)
-    }
-  }
+  readonly hatch_extra: p.Property<mixins.HatchExtra>
 
   get doit(): boolean {
     return !(this.hatch_color.spec.value === null ||
@@ -53,11 +44,23 @@ export class Hatch extends _Hatch {
     const pattern = this.hatch_pattern.value()
     const weight = this.hatch_weight.value()
 
-    const {hatch_extra} = this.cache
-    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
-      return (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
+    const textures = this.hatch_extra.value()
+    const texture = textures[pattern] as Texture | null
+
+    if (texture != null)
+      return texture.get_pattern(color, alpha, scale, weight)
     else
       return get_pattern(pattern, color, alpha, scale, weight)
+  }
+
+  protected _try_defer(defer_func: () => void): void {
+    const hatch_pattern = this.hatch_pattern.value()
+    const hatch_extra = this.hatch_extra.value()
+
+    const texture = hatch_extra[hatch_pattern]
+    if (texture != null) {
+      texture.onload(defer_func)
+    }
   }
 
   doit2(ctx: Context2d, ready_func: () => void, defer_func: () => void): void {
@@ -89,12 +92,23 @@ export class HatchVector extends _Hatch {
     const pattern = this.cache_select(this.hatch_pattern, i)
     const weight = this.cache_select(this.hatch_weight, i)
 
-    const {hatch_extra} = this.cache
-    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
-      this.cache.pattern = (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
+    const textures = this.hatch_extra.value()
+    const texture = textures[pattern] as Texture | null
+
+    if (texture != null)
+      return texture.get_pattern(color, alpha, scale, weight)
     else
-      this.cache.pattern = get_pattern(pattern, color, alpha, scale, weight)
-    return this.cache.pattern
+      return get_pattern(pattern, color, alpha, scale, weight)
+  }
+
+  protected _v_try_defer(i: number, defer_func: () => void): void {
+    const hatch_pattern = this.cache_select(this.hatch_pattern, i)
+    const hatch_extra = this.hatch_extra.value()
+
+    const texture = hatch_extra[hatch_pattern]
+    if (texture != null) {
+      texture.onload(defer_func)
+    }
   }
 
   doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
@@ -103,7 +117,7 @@ export class HatchVector extends _Hatch {
 
     const pattern = this.v_pattern(i)(ctx)
     if (pattern == null) {
-      this._try_defer(defer_func)
+      this._v_try_defer(i, defer_func)
     } else {
       this.set_vectorize(ctx, i)
       ready_func()

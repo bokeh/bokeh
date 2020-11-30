@@ -6,8 +6,6 @@ export abstract class VisualProperties {
   /** @prototype */
   attrs: string[]
 
-  protected readonly cache: {[key: string]: any} = {}
-
   private readonly _props: p.Property<unknown>[]
 
   *[Symbol.iterator](): Generator<p.Property<unknown>, void, undefined> {
