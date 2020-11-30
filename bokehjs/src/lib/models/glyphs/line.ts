@@ -78,7 +78,7 @@ export class LineView extends XYGlyphView {
     const result = new Selection()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
-    const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
+    const threshold = Math.max(2, this.model.line_width / 2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
       const p0 = {x: this.sx[i],     y: this.sy[i]}
