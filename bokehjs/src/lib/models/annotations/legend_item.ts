@@ -14,6 +14,7 @@ export namespace LegendItem {
     label: p.DataSpec<string | null> // TODO: spec!
     renderers: p.Property<GlyphRenderer[]>
     index: p.Property<number | null>
+    size: p.Property<number | null>
   }
 }
 
@@ -33,6 +34,7 @@ export class LegendItem extends Model {
       label:     [ p.NullStringSpec, null ],
       renderers: [ Array(Ref(GlyphRenderer)), [] ],
       index:     [ Nullable(Int), null ],
+      size:      [ Nullable(Int), 20 ],
     }))
   }
 

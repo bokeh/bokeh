@@ -21,6 +21,7 @@ export class LegendView extends AnnotationView {
   protected text_widths: Map<string, number>
   protected title_height: number
   protected title_width: number
+  protected max_glyph_size: number
 
   cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
@@ -39,11 +40,14 @@ export class LegendView extends AnnotationView {
   compute_legend_bbox(): BBox {
     const legend_names = this.model.get_legend_names()
 
-    const {glyph_height, glyph_width} = this.model
+    this.max_glyph_size = this.model.get_max_glyph_size()
+    //const {glyph_height, glyph_width} = this.model
+    //const {glyph_height} = this.model
     const {label_height, label_width} = this.model
 
     this.max_label_height = max(
-      [measure_font(this.visuals.label_text.font_value()).height, label_height, glyph_height],
+      //[measure_font(this.visuals.label_text.font_value()).height, label_height, glyph_height],
+      [measure_font(this.visuals.label_text.font_value()).height, label_height, this.max_glyph_size],
     )
 
     // this is to measure text properties
@@ -61,6 +65,7 @@ export class LegendView extends AnnotationView {
 
     ctx.restore()
 
+    // TODO: can i use this idea to find max glyph size?
     const max_label_width = Math.max(max([...this.text_widths.values()]), 0)
 
     const legend_margin = this.model.margin
@@ -71,11 +76,11 @@ export class LegendView extends AnnotationView {
     let legend_height: number, legend_width: number
     if (this.model.orientation == "vertical") {
       legend_height = legend_names.length*this.max_label_height + Math.max(legend_names.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
-      legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
+      legend_width = max([(max_label_width + this.max_glyph_size + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
       let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
       for (const [, width] of this.text_widths) {
-        item_width += max([width, label_width]) + glyph_width + label_standoff
+        item_width += max([width, label_width]) + this.max_glyph_size + label_standoff
       }
       legend_width = max([this.title_width + 2*legend_padding, item_width])
       legend_height = this.max_label_height + this.title_height + 2*legend_padding
@@ -232,7 +237,7 @@ export class LegendView extends AnnotationView {
   }
 
   protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
-    const {glyph_width, glyph_height} = this.model
+    var {glyph_width, glyph_height} = this.model
     const {legend_padding} = this
     const legend_spacing = this.model.spacing
     const {label_standoff} = this.model
@@ -243,6 +248,12 @@ export class LegendView extends AnnotationView {
     for (const item of this.model.items) {
       const labels = item.get_labels_list_from_label_prop()
       const field = item.get_field_from_label_prop()
+      // If this is a legend-by-size, take item.size and assign to glyph_width. If item.size is null,
+      // then a 'size' arg was not passed, this is not a legend-by-size, and the behavior should be unchanged.
+      if (item.size != null && item.size != glyph_width) {
+        glyph_width = item.size
+        glyph_height = item.size
+      }
 
       if (labels.length == 0)
         continue
@@ -256,15 +267,21 @@ export class LegendView extends AnnotationView {
       })()
 
       for (const label of labels) {
+        // glyph and label are drawn side-by-side in a single box, such that:
+        // (x1, y1): top-left of glyph
+        // (x2, y2): bottom left of text label
+        // TODO: in order to get vertical alignment working right, glyph and label will have to be drawn in separate
+        // side-by-side boxes, with separate yoffsets for glyphs (so that glyphs smaller than max_glyph_size can be
+        // scooted down by size difference / 2) and label (standard yoffset as calculated below). --cfh
         const x1 = bbox.x + xoffset
         const y1 = bbox.y + yoffset + this.title_height
-        const x2 = x1 + glyph_width
+        const x2 = x1 + this.max_glyph_size
         const y2 = y1 + glyph_height
 
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + this.max_glyph_size + label_standoff + legend_spacing
 
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
@@ -278,7 +295,7 @@ export class LegendView extends AnnotationView {
           if (vertical)
             [w, h] = [bbox.width - 2*legend_padding, this.max_label_height]
           else
-            [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
+            [w, h] = [this.text_widths.get(label)! + this.max_glyph_size + label_standoff, this.max_label_height]
 
           ctx.beginPath()
           ctx.rect(x1, y1, w, h)
@@ -412,5 +429,15 @@ export class Legend extends Annotation {
       legend_names.push(...labels)
     }
     return legend_names
+  }
+
+  get_max_glyph_size(): number {  // should this return a Size? but Size is 2d, which seems unnecessary
+    var max_glyph_size: number = 0
+    for (const item of this.items) {
+      if (item.size != null && item.size > max_glyph_size){
+        max_glyph_size = item.size
+      }
+    }
+    return max_glyph_size
   }
 }

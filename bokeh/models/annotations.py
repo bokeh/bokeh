@@ -186,6 +186,11 @@ class LegendItem(Model):
     If set to a number, Bokeh will use that number as the index in all cases.
     """)
 
+    size = Int(default=20, help="""
+    The integer size of the representative glyphs in the Legend when creating a 
+    scatter plot differentiated by marker size. 
+    """)
+
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and 'field' in self.label:
@@ -320,6 +325,14 @@ class Legend(Annotation):
             LegendItem(label="2*sin(x)" , renderers=[r2]),
             LegendItem(label="3*sin(x)" , renderers=[r3, r4])
         ])
+        
+    Or, when constructing a legend according to scatter glyph size:
+    
+        legend = Legend(items=[
+            LegendItem(label="small", renderers=[r], index=0, size=10),
+            LegendItem(label="medium", renderers=[r], index=1, size=20),
+            LegendItem(label="large", renderers=[r], index=2, size=30)
+        ])
 
     But as a convenience, can also be given more compactly as a list of tuples:
 
@@ -333,7 +346,7 @@ class Legend(Annotation):
 
     where each tuple is of the form: *(label, renderers)*.
 
-    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1], index=Int(default=0), size=Int(default=20)) for item in items])
 
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
