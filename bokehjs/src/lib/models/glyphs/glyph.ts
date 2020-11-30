@@ -71,6 +71,10 @@ export abstract class GlyphView extends View {
     this.visuals = new visuals.Visuals(this)
   }
 
+  request_paint(): void {
+    this.parent.request_paint()
+  }
+
   render(ctx: Context2d, indices: number[], data: any): void {
     ctx.beginPath()
 

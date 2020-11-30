@@ -161,7 +161,7 @@ export class MultiPolygonsView extends GlyphView {
         this.visuals.hatch.doit2(ctx, i, () => {
           this._inner_loop(ctx, sx, sy)
           ctx.fill("evenodd")
-        }, () => this.renderer.request_render())
+        })
 
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)

@@ -9,11 +9,12 @@ export {Text, TextScalar, TextVector}
 export {Hatch, HatchScalar, HatchVector}
 
 import {View} from "../view"
+import {Paintable} from "./visual"
 import * as mixins from "../property_mixins"
 
 export class Visuals {
 
-  constructor(view: View) {
+  constructor(view: View & Paintable) {
     const self = this as any
     for (const [prefix, mixin] of view.model._mixins) {
       const visual = (() => {

@@ -2,6 +2,8 @@ import {View} from "../view"
 import * as p from "../properties"
 import {Arrayable} from "../types"
 
+export type Paintable = {request_paint(): void}
+
 export abstract class VisualProperties {
   /** @prototype */
   attrs: string[]
@@ -12,7 +14,7 @@ export abstract class VisualProperties {
     yield* this._props
   }
 
-  constructor(readonly obj: View, readonly prefix: string = "") {
+  constructor(readonly obj: View & Paintable, readonly prefix: string = "") {
     const self = this as any
     this._props = []
     for (const attr of this.attrs) {

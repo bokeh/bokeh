@@ -53,23 +53,23 @@ export class Hatch extends _Hatch {
       return get_pattern(pattern, color, alpha, scale, weight)
   }
 
-  protected _try_defer(defer_func: () => void): void {
+  protected _try_defer(): void {
     const hatch_pattern = this.hatch_pattern.value()
     const hatch_extra = this.hatch_extra.value()
 
     const texture = hatch_extra[hatch_pattern]
     if (texture != null) {
-      texture.onload(defer_func)
+      texture.onload(() => this.obj.request_paint())
     }
   }
 
-  doit2(ctx: Context2d, ready_func: () => void, defer_func: () => void): void {
+  doit2(ctx: Context2d, ready_func: () => void): void {
     if (!this.doit)
       return
 
     const pattern = this.pattern()(ctx)
     if (pattern == null) {
-      this._try_defer(defer_func)
+      this._try_defer()
     } else {
       this.set_value(ctx)
       ready_func()
@@ -101,23 +101,23 @@ export class HatchVector extends _Hatch {
       return get_pattern(pattern, color, alpha, scale, weight)
   }
 
-  protected _v_try_defer(i: number, defer_func: () => void): void {
+  protected _v_try_defer(i: number): void {
     const hatch_pattern = this.cache_select(this.hatch_pattern, i)
     const hatch_extra = this.hatch_extra.value()
 
     const texture = hatch_extra[hatch_pattern]
     if (texture != null) {
-      texture.onload(defer_func)
+      texture.onload(() => this.obj.request_paint())
     }
   }
 
-  doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
+  doit2(ctx: Context2d, i: number, ready_func: () => void): void {
     if (!this.doit)
       return
 
     const pattern = this.v_pattern(i)(ctx)
     if (pattern == null) {
-      this._v_try_defer(i, defer_func)
+      this._v_try_defer(i)
     } else {
       this.set_vectorize(ctx, i)
       ready_func()

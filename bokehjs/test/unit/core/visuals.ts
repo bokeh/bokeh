@@ -13,6 +13,7 @@ import {View} from "@bokehjs/core/view"
 
 class SomeView extends View {
   model: Model
+  request_paint(): void {}
 }
 
 describe("core/visuals", () => {

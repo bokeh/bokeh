@@ -4,14 +4,20 @@ import * as visuals from "core/visuals"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
+import {RendererView} from "../renderers/renderer"
 
 export abstract class ArrowHeadView extends View {
   model: ArrowHead
   visuals: ArrowHead.Visuals
+  parent: RendererView
 
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+  }
+
+  request_paint(): void {
+    this.parent.request_render()
   }
 
   abstract render(ctx: Context2d, i: number): void

@@ -40,7 +40,7 @@ export class PatchView extends XYGlyphView {
       this._inner_loop(ctx, indices, sx, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
+    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill))
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
