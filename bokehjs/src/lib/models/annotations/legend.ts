@@ -41,12 +41,9 @@ export class LegendView extends AnnotationView {
     const legend_names = this.model.get_legend_names()
 
     this.max_glyph_size = this.model.get_max_glyph_size()
-    //const {glyph_height, glyph_width} = this.model
-    //const {glyph_height} = this.model
     const {label_height, label_width} = this.model
 
     this.max_label_height = max(
-      //[measure_font(this.visuals.label_text.font_value()).height, label_height, glyph_height],
       [measure_font(this.visuals.label_text.font_value()).height, label_height, this.max_glyph_size],
     )
 
@@ -65,7 +62,6 @@ export class LegendView extends AnnotationView {
 
     ctx.restore()
 
-    // TODO: can i use this idea to find max glyph size?
     const max_label_width = Math.max(max([...this.text_widths.values()]), 0)
 
     const legend_margin = this.model.margin
