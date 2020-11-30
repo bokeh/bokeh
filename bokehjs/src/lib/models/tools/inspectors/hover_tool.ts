@@ -451,7 +451,7 @@ export class HoverToolView extends InspectToolView {
     const swatch_re = /\$swatch:(\w*)/
 
     for (const [[, value], j] of enumerate(tooltips)) {
-      var tooltipValue = value;
+      let tooltipValue = value
 
       const colorFieldMatch = value.match(color_re)
       const swatchFieldMatch = value.match(swatch_re)
@@ -465,13 +465,13 @@ export class HoverToolView extends InspectToolView {
 
         if (column == null) {
           swatch_els[j].textContent = `(unknown)`
-          textOnly(swatch_els[j]);
+          textOnly(swatch_els[j])
         } else {
-          let color = isNumber(i) ? column[i] : null
+          const color = isNumber(i) ? column[i] : null
 
           if (color == null) {
             swatch_els[j].textContent = "(null)"
-            textOnly(swatch_els[j]);
+            textOnly(swatch_els[j])
           } else {
             swatch_els[j].style.backgroundColor = color
           }

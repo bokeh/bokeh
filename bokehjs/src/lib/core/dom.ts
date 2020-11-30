@@ -146,8 +146,8 @@ export function undisplay(element: HTMLElement): void {
 }
 
 export function textOnly(element: HTMLElement): void {
-  element.style.width = "0";
-  element.style.height = "0";
+  element.style.width = "0"
+  element.style.height = "0"
 }
 
 export function show(element: HTMLElement): void {
