@@ -5,6 +5,7 @@ import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 export type Transform<In, Out> = {
   compute(x: In): Out
   v_compute(xs: Arrayable<In>): Arrayable<Out>
+  change: any // TODO
 }
 
 export type Expression<Out> = {

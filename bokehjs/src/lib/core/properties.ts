@@ -12,7 +12,7 @@ import {to_big_endian} from "./util/platform"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional} from "./vectorization"
+import {Scalar, Vector, Dimensional, Transform, Expression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
@@ -32,11 +32,11 @@ export function isSpec(obj: any): boolean {
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
 }
 
-export type Spec = {
-  readonly value?: any
+export type Spec<T> = {
+  readonly value?: T
   readonly field?: string
-  readonly expr?: any
-  readonly transform?: any // Transform
+  readonly expr?: Expression<T>
+  readonly transform?: Transform<unknown, T>
 }
 
 //
@@ -77,10 +77,10 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: Spec // XXX: too many failures for now
+  /*protected*/ spec: Spec<T> // XXX: too many failures for now
 
   get_value(): T {
-    return this.spec.value
+    return this.spec.value!
   }
 
   set_value(val: T): void {
@@ -131,7 +131,7 @@ export abstract class Property<T = unknown> {
       else {
         // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
         // console.warn(`${this.obj}.${this.attr} has no value nor default`)
-        this.spec = {value: null}
+        this.spec = {value: null as any}
         return
       }
     }
@@ -451,7 +451,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
-  spec: Spec & {units?: Units}
+  spec: Spec<T> & {units?: Units}
 
   _update(attr_value: any): void {
     super._update(attr_value)
