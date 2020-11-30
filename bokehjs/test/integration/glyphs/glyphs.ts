@@ -3,7 +3,7 @@ import {display, fig, row, column} from "../_util"
 import {Range1d} from "@bokehjs/models"
 import {Direction, OutputBackend} from "@bokehjs/core/enums"
 import {Color} from "@bokehjs/core/types"
-import {hatch_aliases} from "@bokehjs/core/visuals"
+import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 
 describe("Glyph models", () => {

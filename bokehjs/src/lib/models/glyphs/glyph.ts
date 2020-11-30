@@ -2,6 +2,7 @@ import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as visuals from "core/visuals"
+import {VisualProperties} from "core/visuals/visual"
 import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
@@ -210,7 +211,7 @@ export abstract class GlyphView extends View {
   protected _project_data(): void {}
 
   private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
-    for (const visual of values<visuals.ContextProperties>(this.visuals)) {
+    for (const visual of values<VisualProperties>(this.visuals)) {
       for (const prop of visual) {
         if (prop instanceof p.VectorSpec)
           yield prop
