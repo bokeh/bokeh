@@ -1,7 +1,6 @@
 import {View} from "../view"
 import * as p from "../properties"
 import {Arrayable} from "../types"
-import {Context2d} from "../util/canvas"
 
 export abstract class VisualProperties {
   /** @prototype */
@@ -37,7 +36,4 @@ export abstract class VisualProperties {
   }
 
   abstract get doit(): boolean
-
-  protected abstract _set_vectorize(ctx: Context2d, i: number): void
-  protected abstract _set_value(ctx: Context2d): void
 }

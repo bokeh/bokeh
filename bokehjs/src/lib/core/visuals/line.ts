@@ -22,7 +22,15 @@ class _Line extends VisualProperties {
              this.line_width.spec.value == 0)
   }
 
-  protected _set_value(ctx: Context2d): void {
+  color_value(): string {
+    return color2css(this.line_color.value(), this.line_alpha.value())
+  }
+}
+
+_Line.prototype.attrs = Object.keys(mixins.LineVector)
+
+export class Line extends _Line {
+  set_value(ctx: Context2d): void {
     const color = this.line_color.value()
     const alpha = this.line_alpha.value()
 
@@ -33,8 +41,12 @@ class _Line extends VisualProperties {
     ctx.lineDash       = this.line_dash.value()
     ctx.lineDashOffset = this.line_dash_offset.value()
   }
+}
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
+export class LineScalar extends Line {}
+
+export class LineVector extends _Line {
+  set_vectorize(ctx: Context2d, i: number): void {
     const color = this.cache_select(this.line_color, i)
     const alpha = this.cache_select(this.line_alpha, i)
     const width = this.cache_select(this.line_width, i)
@@ -49,23 +61,5 @@ class _Line extends VisualProperties {
     ctx.lineCap = cap
     ctx.lineDash = dash
     ctx.lineDashOffset = offset
-  }
-
-  color_value(): string {
-    return color2css(this.line_color.value(), this.line_alpha.value())
-  }
-}
-
-_Line.prototype.attrs = Object.keys(mixins.LineVector)
-
-export class Line extends _Line {
-  set_value(ctx: Context2d): void {
-    this._set_value(ctx)
-  }
-}
-export class LineScalar extends Line {}
-export class LineVector extends _Line {
-  set_vectorize(ctx: Context2d, i: number): void {
-    this._set_vectorize(ctx, i)
   }
 }

@@ -33,13 +33,52 @@ class _Hatch extends VisualProperties {
              this.hatch_pattern.spec.value === null)
   }
 
-  protected _set_vectorize(ctx: Context2d, i: number): void {
-    const pattern = this.v_pattern(i)(ctx)
+  color_value(): string {
+    return color2css(this.hatch_color.value(), this.hatch_alpha.value())
+  }
+}
+
+_Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
+
+export class Hatch extends _Hatch {
+  set_value(ctx: Context2d): void {
+    const pattern = this.pattern()(ctx)
     ctx.fillStyle = pattern != null ? pattern : "" // XXX: deal with null
   }
 
-  protected _set_value(ctx: Context2d): void {
+  pattern(): (ctx: Context2d) => CanvasPattern | null {
+    const color = this.hatch_color.value()
+    const alpha = this.hatch_alpha.value()
+    const scale = this.hatch_scale.value()
+    const pattern = this.hatch_pattern.value()
+    const weight = this.hatch_weight.value()
+
+    const {hatch_extra} = this.cache
+    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
+      return (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
+    else
+      return get_pattern(pattern, color, alpha, scale, weight)
+  }
+
+  doit2(ctx: Context2d, ready_func: () => void, defer_func: () => void): void {
+    if (!this.doit)
+      return
+
     const pattern = this.pattern()(ctx)
+    if (pattern == null) {
+      this._try_defer(defer_func)
+    } else {
+      this.set_value(ctx)
+      ready_func()
+    }
+  }
+}
+
+export class HatchScalar extends Hatch {}
+
+export class HatchVector extends _Hatch {
+  set_vectorize(ctx: Context2d, i: number): void {
+    const pattern = this.v_pattern(i)(ctx)
     ctx.fillStyle = pattern != null ? pattern : "" // XXX: deal with null
   }
 
@@ -58,51 +97,6 @@ class _Hatch extends VisualProperties {
     return this.cache.pattern
   }
 
-  pattern(): (ctx: Context2d) => CanvasPattern | null {
-    const color = this.hatch_color.value()
-    const alpha = this.hatch_alpha.value()
-    const scale = this.hatch_scale.value()
-    const pattern = this.hatch_pattern.value()
-    const weight = this.hatch_weight.value()
-
-    const {hatch_extra} = this.cache
-    if (hatch_extra != null && hasOwnProperty.call(hatch_extra, pattern))
-      return (hatch_extra[pattern] as Texture).get_pattern(color, alpha, scale, weight)
-    else
-      return get_pattern(pattern, color, alpha, scale, weight)
-  }
-
-  color_value(): string {
-    return color2css(this.hatch_color.value(), this.hatch_alpha.value())
-  }
-}
-
-_Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
-
-export class Hatch extends _Hatch {
-  set_value(ctx: Context2d): void {
-    this._set_value(ctx)
-  }
-
-  doit2(ctx: Context2d, ready_func: () => void, defer_func: () => void): void {
-    if (!this.doit)
-      return
-
-    const pattern = this.pattern()(ctx)
-    if (pattern == null) {
-      this._try_defer(defer_func)
-    } else {
-      this._set_value(ctx)
-      ready_func()
-    }
-  }
-}
-export class HatchScalar extends Hatch {}
-export class HatchVector extends _Hatch {
-  set_vectorize(ctx: Context2d, i: number): void {
-    this._set_vectorize(ctx, i)
-  }
-
   doit2(ctx: Context2d, i: number, ready_func: () => void, defer_func: () => void): void {
     if (!this.doit)
       return
@@ -111,7 +105,7 @@ export class HatchVector extends _Hatch {
     if (pattern == null) {
       this._try_defer(defer_func)
     } else {
-      this._set_vectorize(ctx, i)
+      this.set_vectorize(ctx, i)
       ready_func()
     }
   }

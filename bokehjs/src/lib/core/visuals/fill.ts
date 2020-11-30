@@ -15,20 +15,6 @@ class _Fill extends VisualProperties {
              this.fill_alpha.spec.value == 0)
   }
 
-  protected _set_value(ctx: Context2d): void {
-    const color = this.fill_color.value()
-    const alpha = this.fill_alpha.value()
-
-    ctx.fillStyle = color2css(color, alpha)
-  }
-
-  protected _set_vectorize(ctx: Context2d, i: number): void {
-    const color = this.cache_select(this.fill_color, i)
-    const alpha = this.cache_select(this.fill_alpha, i)
-
-    ctx.fillStyle = color2css(color, alpha)
-  }
-
   color_value(): string {
     return color2css(this.fill_color.value(), this.fill_alpha.value())
   }
@@ -38,12 +24,19 @@ _Fill.prototype.attrs = Object.keys(mixins.FillVector)
 
 export class Fill extends _Fill {
   set_value(ctx: Context2d): void {
-    this._set_value(ctx)
+    const color = this.fill_color.value()
+    const alpha = this.fill_alpha.value()
+
+    ctx.fillStyle = color2css(color, alpha)
   }
 }
 export class FillScalar extends Fill {}
+
 export class FillVector extends _Fill {
   set_vectorize(ctx: Context2d, i: number): void {
-    this._set_vectorize(ctx, i)
+    const color = this.cache_select(this.fill_color, i)
+    const alpha = this.cache_select(this.fill_alpha, i)
+
+    ctx.fillStyle = color2css(color, alpha)
   }
 }
