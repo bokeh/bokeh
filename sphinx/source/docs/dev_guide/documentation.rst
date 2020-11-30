@@ -98,8 +98,19 @@ To maintain consistency throughout the documentation, Bokeh's CI uses `Vale`_.
 Vale is a system that automatically checks documentation files. These checks are
 based on Bokeh's :ref:`documentation_style_guidelines`.
 
-To exclude part of your text from being checked by Vale, enclose your text in
-the comments ``.. vale off`` and ``.. vale on``. For example:
+Vale provides three levels of feedback:
+
+* ``error``: Issues that you need to resolve before a pull request can be
+  merged.
+* ``warning``: Issues that you should pay close attention to and fix if in any
+  way possible.
+* ``suggestion``: Those are general suggestions that you should keep in mind.
+    For example, Vale reminds you to generally use active voice instead of
+    active voice. However, this suggestion should not stop you from using
+    passive voice whenever appropriate or required.
+
+To exclude a paragraph of your text from being checked by Vale, enclose the
+paragraph in the comments ``.. vale off`` and ``.. vale on``. For example:
 
 .. code-block:: ReST
 
