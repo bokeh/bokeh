@@ -34,13 +34,13 @@ export class DatePickerView extends InputWidgetView {
     super.connect_signals()
 
     const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
-    this.connect(value.change, () => this._picker?.setDate(value.value()))
-    this.connect(min_date.change, () => this._picker?.set("minDate", min_date.value()))
-    this.connect(max_date.change, () => this._picker?.set("maxDate", max_date.value()))
-    this.connect(disabled_dates.change, () => this._picker?.set("disable", disabled_dates.value()))
-    this.connect(enabled_dates.change, () => this._picker?.set("enable", enabled_dates.value()))
-    this.connect(position.change, () => this._picker?.set("position", position.value()))
-    this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
+    this.connect(value.change, () => this._picker?.setDate(this.model.value))
+    this.connect(min_date.change, () => this._picker?.set("minDate", this.model.min_date))
+    this.connect(max_date.change, () => this._picker?.set("maxDate", this.model.max_date))
+    this.connect(disabled_dates.change, () => this._picker?.set("disable", this.model.disabled_dates))
+    this.connect(enabled_dates.change, () => this._picker?.set("enable", this.model.enabled_dates))
+    this.connect(position.change, () => this._picker?.set("position", this.model.position))
+    this.connect(inline.change, () => this._picker?.set("inline", this.model.inline))
   }
 
   remove(): void {
