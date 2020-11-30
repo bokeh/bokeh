@@ -37,42 +37,20 @@ export class LabelSetView extends TextAnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    if (this.model.render_mode == 'css') {
-      // dispatch CSS update immediately
-      this.connect(this.model.change, () => {
-        this.set_data(this.model.source)
+
+    const render = () => {
+      this.set_data(this.model.source)
+
+      if (this.model.render_mode == "css")
         this.render()
-      })
-      this.connect(this.model.source.streaming, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-      this.connect(this.model.source.patching, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-      this.connect(this.model.source.change, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-    } else {
-      this.connect(this.model.change, () => {
-        this.set_data(this.model.source)
+      else
         this.request_render()
-      })
-      this.connect(this.model.source.streaming, () => {
-        this.set_data(this.model.source)
-        this.request_render()
-      })
-      this.connect(this.model.source.patching, () => {
-        this.set_data(this.model.source)
-        this.request_render()
-      })
-      this.connect(this.model.source.change, () => {
-        this.set_data(this.model.source)
-        this.request_render()
-      })
     }
+
+    this.connect(this.model.change, render)
+    this.connect(this.model.source.streaming, render)
+    this.connect(this.model.source.patching, render)
+    this.connect(this.model.source.change, render)
   }
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
