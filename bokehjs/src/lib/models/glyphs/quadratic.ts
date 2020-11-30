@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
@@ -36,12 +36,12 @@ export interface QuadraticData extends GlyphData {
   _cx: NumberArray
   _cy: NumberArray
 
-  sx0: NumberArray
-  sy0: NumberArray
-  sx1: NumberArray
-  sy1: NumberArray
-  scx: NumberArray
-  scy: NumberArray
+  sx0: ScreenArray
+  sy0: ScreenArray
+  sx1: ScreenArray
+  sy1: ScreenArray
+  scx: ScreenArray
+  scy: ScreenArray
 }
 
 export interface QuadraticView extends QuadraticData {}

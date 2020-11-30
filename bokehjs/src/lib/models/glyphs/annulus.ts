@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -12,8 +12,8 @@ export interface AnnulusData extends XYGlyphData {
   _inner_radius: NumberArray
   _outer_radius: NumberArray
 
-  sinner_radius: NumberArray
-  souter_radius: NumberArray
+  sinner_radius: ScreenArray
+  souter_radius: ScreenArray
 
   max_inner_radius: number
   max_outer_radius: number

@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -86,14 +86,14 @@ export interface BezierData extends GlyphData {
   _cx1: NumberArray
   _cy1: NumberArray
 
-  sx0: NumberArray
-  sy0: NumberArray
-  sx1: NumberArray
-  sy1: NumberArray
-  scx0: NumberArray
-  scy0: NumberArray
-  scx1: NumberArray
-  scy1: NumberArray
+  sx0: ScreenArray
+  sy0: ScreenArray
+  sx1: ScreenArray
+  sy1: ScreenArray
+  scx0: ScreenArray
+  scy0: ScreenArray
+  scx1: ScreenArray
+  scy1: ScreenArray
 }
 
 export interface BezierView extends BezierData {}

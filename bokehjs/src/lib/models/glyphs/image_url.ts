@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, NumberArray, ScreenArray} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
 import {map, minmax} from "core/util/arrayable"
@@ -16,10 +16,8 @@ export interface ImageURLData extends XYGlyphData {
   _h: NumberArray
   _bounds_rect: Rect
 
-  sx: NumberArray
-  sy: NumberArray
-  sw: NumberArray
-  sh: NumberArray
+  sw: ScreenArray
+  sh: ScreenArray
 
   max_w: number
   max_h: number
@@ -76,8 +74,8 @@ export class ImageURLView extends XYGlyphView {
 
     const n = this._x.length
 
-    const xs = new NumberArray(w_data ? 2*n : n)
-    const ys = new NumberArray(h_data ? 2*n : n)
+    const xs = new ScreenArray(w_data ? 2*n : n)
+    const ys = new ScreenArray(h_data ? 2*n : n)
 
     const {anchor} = this.model
 

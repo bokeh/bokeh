@@ -16,10 +16,15 @@ export const ColorArray = Uint32Array
 export type RGBAArray = Uint8ClampedArray
 export const RGBAArray = Uint8ClampedArray
 
-export {TypedArray} from "./util/ndarray"
+import {TypedArray} from "./util/ndarray"
+export {TypedArray}
 
+// TODO: this is incorrect
 export type NumberArray = Float32Array
 export const NumberArray = Float32Array
+
+export type ScreenArray = Float32Array
+export const ScreenArray = Float32Array
 
 export type Arrayable<T = any> = {
   readonly length: number

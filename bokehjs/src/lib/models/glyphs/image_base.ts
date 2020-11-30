@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
@@ -16,8 +16,8 @@ export interface ImageDataBase extends XYGlyphData {
   _dw: NumberArray
   _dh: NumberArray
 
-  sw: NumberArray
-  sh: NumberArray
+  sw: ScreenArray
+  sh: ScreenArray
 }
 
 export interface ImageBaseView extends ImageDataBase {}

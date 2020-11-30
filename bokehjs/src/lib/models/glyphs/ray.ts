@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -10,7 +10,7 @@ export interface RayData extends XYGlyphData {
   _length: NumberArray
   _angle: NumberArray
 
-  slength: NumberArray
+  slength: ScreenArray
 }
 
 export interface RayView extends RayData {}

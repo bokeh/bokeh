@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {NumberArray, Rect} from "core/types"
+import {NumberArray, ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
 export interface CenterRotatableData extends XYGlyphData {
@@ -9,8 +9,8 @@ export interface CenterRotatableData extends XYGlyphData {
   _width: NumberArray
   _height: NumberArray
 
-  sw: NumberArray
-  sh: NumberArray
+  sw: ScreenArray
+  sh: ScreenArray
 
   max_width: number
   max_height: number

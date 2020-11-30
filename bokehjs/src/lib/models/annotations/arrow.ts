@@ -5,12 +5,10 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {Arrayable, NumberArray} from "core/types"
+import {NumberArray, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
-
-export type Coords = [Arrayable<number>, Arrayable<number>]
 
 export class ArrowView extends AnnotationView {
   model: Arrow
@@ -19,15 +17,15 @@ export class ArrowView extends AnnotationView {
   protected start: ArrowHeadView | null
   protected end: ArrowHeadView | null
 
-  protected _x_start: Arrayable<number>
-  protected _y_start: Arrayable<number>
-  protected _x_end: Arrayable<number>
-  protected _y_end: Arrayable<number>
+  protected _x_start: NumberArray
+  protected _y_start: NumberArray
+  protected _x_end: NumberArray
+  protected _y_end: NumberArray
 
-  protected _sx_start: NumberArray
-  protected _sy_start: NumberArray
-  protected _sx_end: NumberArray
-  protected _sy_end: NumberArray
+  protected _sx_start: ScreenArray
+  protected _sy_start: ScreenArray
+  protected _sx_end: ScreenArray
+  protected _sy_end: ScreenArray
 
   protected _angles: NumberArray
 

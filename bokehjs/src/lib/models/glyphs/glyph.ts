@@ -9,7 +9,7 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {Arrayable, Rect, NumberArray, ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
 import {values} from "core/util/object"
@@ -137,7 +137,7 @@ export abstract class GlyphView extends View {
   }
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
-        pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
     let pt0: Arrayable<number>
     let pt1: Arrayable<number>
 

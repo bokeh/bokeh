@@ -1,5 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray} from "core/types"
+import {NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export interface VBarData extends BoxData {
@@ -8,12 +8,12 @@ export interface VBarData extends BoxData {
   _width: NumberArray
   _top: NumberArray
 
-  sx: NumberArray
-  sw: NumberArray
-  stop: NumberArray
-  sbottom: NumberArray
-  sleft: NumberArray
-  sright: NumberArray
+  sx: ScreenArray
+  sw: ScreenArray
+  stop: ScreenArray
+  sbottom: ScreenArray
+  sleft: ScreenArray
+  sright: ScreenArray
 
   max_width: number
 }
@@ -45,8 +45,8 @@ export class VBarView extends BoxView {
     this.sbottom = this.renderer.yscale.v_compute(this._bottom)
 
     const n = this.sx.length
-    this.sleft = new NumberArray(n)
-    this.sright = new NumberArray(n)
+    this.sleft = new ScreenArray(n)
+    this.sright = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       this.sleft[i] = this.sx[i] - this.sw[i]/2
       this.sright[i] = this.sx[i] + this.sw[i]/2

@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -12,7 +12,7 @@ export interface ArcData extends XYGlyphData {
   _start_angle: NumberArray
   _end_angle: NumberArray
 
-  sradius: NumberArray
+  sradius: ScreenArray
 
   max_radius: number
 }

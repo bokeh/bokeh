@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -17,8 +17,8 @@ export interface AnnularWedgeData extends XYGlyphData {
   _end_angle: NumberArray
   _angle: NumberArray
 
-  sinner_radius: NumberArray
-  souter_radius: NumberArray
+  sinner_radius: ScreenArray
+  souter_radius: ScreenArray
 
   max_inner_radius: number
   max_outer_radius: number

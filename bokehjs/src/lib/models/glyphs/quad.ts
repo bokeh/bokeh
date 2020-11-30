@@ -1,5 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray} from "core/types"
+import {NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export interface QuadData extends BoxData {
@@ -8,10 +8,10 @@ export interface QuadData extends BoxData {
   _left: NumberArray
   _top: NumberArray
 
-  sright: NumberArray
-  sbottom: NumberArray
-  sleft: NumberArray
-  stop: NumberArray
+  sright: ScreenArray
+  sbottom: ScreenArray
+  sleft: ScreenArray
+  stop: ScreenArray
 }
 
 export interface QuadView extends QuadData {}

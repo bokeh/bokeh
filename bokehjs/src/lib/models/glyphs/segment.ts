@@ -3,7 +3,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Arrayable, Rect, NumberArray} from "core/types"
+import {Arrayable, Rect, NumberArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
@@ -17,10 +17,10 @@ export interface SegmentData extends GlyphData {
   _x1: NumberArray
   _y1: NumberArray
 
-  sx0: NumberArray
-  sy0: NumberArray
-  sx1: NumberArray
-  sy1: NumberArray
+  sx0: ScreenArray
+  sy0: ScreenArray
+  sx1: ScreenArray
+  sy1: ScreenArray
 }
 
 export interface SegmentView extends SegmentData {}

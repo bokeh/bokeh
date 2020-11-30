@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {Anchor} from "core/enums"
 import * as visuals from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
@@ -16,10 +16,10 @@ export interface BoxData extends GlyphData {
   _left: NumberArray
   _top: NumberArray
 
-  sright: NumberArray
-  sbottom: NumberArray
-  sleft: NumberArray
-  stop: NumberArray
+  sright: ScreenArray
+  sbottom: ScreenArray
+  sleft: ScreenArray
+  stop: ScreenArray
 }
 
 export interface BoxView extends BoxData {}

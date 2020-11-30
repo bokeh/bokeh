@@ -1,4 +1,4 @@
-import {NumberArray} from "core/types"
+import {NumberArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
@@ -8,8 +8,8 @@ export interface XYGlyphData extends GlyphData {
   _x: NumberArray
   _y: NumberArray
 
-  sx: NumberArray
-  sy: NumberArray
+  sx: ScreenArray
+  sy: ScreenArray
 }
 
 export interface XYGlyphView extends XYGlyphData {}

@@ -4,7 +4,7 @@ import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, NumberArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import * as visuals from "core/visuals"
@@ -25,8 +25,8 @@ export interface HexTileData extends GlyphData {
 
   _scale: NumberArray
 
-  sx: NumberArray
-  sy: NumberArray
+  sx: ScreenArray
+  sy: ScreenArray
 
   svx: Vertices
   svy: Vertices

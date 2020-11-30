@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {Arrayable, Rect, NumberArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -17,8 +17,8 @@ export interface MultiPolygonsData extends GlyphData {
   _xs: NumberArray[][][]
   _ys: NumberArray[][][]
 
-  sxs: NumberArray[][][]
-  sys: NumberArray[][][]
+  sxs: ScreenArray[][][]
+  sys: ScreenArray[][][]
 }
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
@@ -128,7 +128,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
+  protected _inner_loop(ctx: Context2d, sx: ScreenArray[][], sy: ScreenArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {

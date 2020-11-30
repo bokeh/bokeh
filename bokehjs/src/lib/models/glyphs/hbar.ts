@@ -1,5 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray} from "core/types"
+import {NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export interface HBarData extends BoxData {
@@ -8,12 +8,12 @@ export interface HBarData extends BoxData {
   _height: NumberArray
   _right: NumberArray
 
-  sy: NumberArray
-  sh: NumberArray
-  sleft: NumberArray
-  sright: NumberArray
-  stop: NumberArray
-  sbottom: NumberArray
+  sy: ScreenArray
+  sh: ScreenArray
+  sleft: ScreenArray
+  sright: ScreenArray
+  stop: ScreenArray
+  sbottom: ScreenArray
 
   max_height: number
 }
@@ -45,8 +45,8 @@ export class HBarView extends BoxView {
     this.sright = this.renderer.xscale.v_compute(this._right)
 
     const n = this.sy.length
-    this.stop = new NumberArray(n)
-    this.sbottom = new NumberArray(n)
+    this.stop = new ScreenArray(n)
+    this.sbottom = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       this.stop[i] = this.sy[i] - this.sh[i]/2
       this.sbottom[i] = this.sy[i] + this.sh[i]/2
