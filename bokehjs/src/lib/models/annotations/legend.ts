@@ -233,7 +233,7 @@ export class LegendView extends AnnotationView {
   }
 
   protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
-    var {glyph_width, glyph_height} = this.model
+    let {glyph_width, glyph_height} = this.model
     const {legend_padding} = this
     const legend_spacing = this.model.spacing
     const {label_standoff} = this.model
@@ -427,8 +427,8 @@ export class Legend extends Annotation {
     return legend_names
   }
 
-  get_max_glyph_size(): number {  // should this return a Size? but Size is 2d, which seems unnecessary
-    var max_glyph_size: number = 0
+  get_max_glyph_size(): number {
+    let max_glyph_size: number = 0
     for (const item of this.items) {
       if (item.size != null && item.size > max_glyph_size){
         max_glyph_size = item.size
