@@ -84,7 +84,7 @@ needs to be able to access either a Firefox browser (through a package called
 geckodriver) or a Chromium browser (through the chromedriver package).
 
 Depending on whether you are using ``conda`` or ``pip``, run one of the
-following commands to make sure you have all required packages installed:
+following commands to make sure you have all the required packages installed:
 
 .. panels::
 
@@ -118,12 +118,12 @@ Once the requirements are installed, you can use the
 .. panels::
     :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
 
-    .. link-button:: first_steps_5.html
+    .. link-button:: first_steps_6.html
         :text: Previous
         :classes: stretched-link
 
     ---
     :card: + text-right
-    .. link-button:: first_steps_7.html
+    .. link-button:: first_steps_8.html
         :text: Next
         :classes: stretched-link

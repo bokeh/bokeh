@@ -132,7 +132,7 @@ Defining axis ranges
 
 When drawing the axes for your plot, Bokeh automatically determines the range
 each axis needs to cover in order to display all your values. For example, if
-the values on your y-axis are between 2 and 17, Bokeh will automatically create
+the values on your y-axis are between 2 and 17, Bokeh automatically creates
 a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the

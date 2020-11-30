@@ -54,7 +54,7 @@ right of the plot to explore:
 
 Follow these steps to recreate this simple line chart:
 
-1. Import the necessary functions of the :class:`~bokeh.plotting` module:
+1. Import the necessary functions from the |bokeh.plotting| module:
 
     .. code-block:: python
 
@@ -69,7 +69,7 @@ Follow these steps to recreate this simple line chart:
         y = [6, 7, 2, 4, 5]
 
 3. Use the :func:`~bokeh.plotting.figure` function to create a new
-   :class:`~bokeh.plotting.figure` object. Pass the following arguments:
+   :class:`~bokeh.plotting.Figure` object. Pass the following arguments:
 
    * ``title``: the title of your line chart
    * ``x_axis_label``: which data to use to generate labels for the chart's
@@ -94,8 +94,8 @@ Follow these steps to recreate this simple line chart:
         # add a line renderer with legend and line thickness to the plot
         p.line(x, y, legend_label="Temp.", line_width=2)
 
-5. Finally, use the :func:`~bokeh.plotting.show` function to generate your graph
-   and open a web browser to display the generated HTML file.
+5. Finally, use the :func:`~bokeh.io.show` function to generate your graph and
+   open a web browser to display the generated HTML file.
 
     .. code-block:: python
 
@@ -156,28 +156,23 @@ This is what the completed code for your multi-line plot should look like:
 Recap: building visualizations
 ------------------------------
 
-You just completed all the basic steps that most visualizations with Bokeh's
-|bokeh.plotting| interface require:
+You just completed all the basic steps that most basic visualizations with
+Bokeh's |bokeh.plotting| interface require:
 
 1. Preparing the data
-    You just used a plain Python list, but other forms of serialized data work
+    You used a plain Python list, but other forms of serialized data work
     as well.
 
-2. Telling Bokeh what to do with the generated output
-    You used |output_file| with a filename to safe to a file. Another option
-    is to use |output_notebook| to display your visualization directly in a
-    Jupyter notebook.
-
-3. Calling the |figure| function
+2. Calling the |figure| function
     This creates a plot with the most common default options. You can customize
     various properties of your plot, such as its title, tools, and axes labels.
 
-4. Adding renderers
-    You just used |Figure.line| to create a line. Renderers have various options
+3. Adding renderers
+    You used |Figure.line| to create a line. Renderers have various options
     that allow you to specify visual attributes such as colors, legends, and
     widths.
 
-5. Asking Bokeh to |show| or |save| the results
+4. Asking Bokeh to |show| or |save| the results
     These functions either save your plot to an HTML file or display it in a
     browser.
 

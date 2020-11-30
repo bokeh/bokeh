@@ -12,10 +12,8 @@ Adding widgets
 --------------
 
 Widgets are additional visual elements that you can include in your
-visualization. You can user widgets to display information or to interactively
-control elements of your Bokeh document, for example.
-
-For example:
+visualization. Use widgets to display additional information or to
+interactively control elements of your Bokeh document, for example:
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_9_widgets.py
     :source-position: none
@@ -152,7 +150,7 @@ Using widgets with a Bokeh server
 ---------------------------------
 
 Another way to use widgets is with a Bokeh server application. Bokeh includes a
-standalone server component. Use the Bokeh server if you want to connect yor
+standalone server component. Use the Bokeh server if you want to connect your
 JavaScript-based visualization running in a browser to Python code running on a
 server.
 
@@ -172,7 +170,7 @@ applications. Some of the capabilities of the Bokeh server include:
 * Plot and dashboard publishing for wider audiences
 
 This is an example of a simple Bokeh server app. Adjust the sliders in the
-widgetson the left to change the sine wave on the right:
+widgets on the left to change the sine wave on the right:
 
 .. raw:: html
 
