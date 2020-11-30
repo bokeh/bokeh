@@ -11,7 +11,7 @@ import {MultiLineView} from "../../glyphs/multi_line"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
-import {div, span, display, undisplay, empty} from "core/dom"
+import {div, span, display, undisplay, empty, textOnly} from "core/dom"
 import * as p from "core/properties"
 import {NumberArray, Color} from "core/types"
 import {color2hex, color2css} from "core/util/color"
@@ -448,11 +448,38 @@ export class HoverToolView extends InspectToolView {
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
 
     const color_re = /\$color(\[.*\])?:(\w*)/
+    const swatch_re = /\$swatch:(\w*)/
 
     for (const [[, value], j] of enumerate(tooltips)) {
-      const result = value.match(color_re)
-      if (result != null) {
-        const [, opts="", colname] = result
+      var tooltipValue = value;
+
+      const colorFieldMatch = value.match(color_re)
+      const swatchFieldMatch = value.match(swatch_re)
+
+      if (swatchFieldMatch) {
+        tooltipValue = value.replace(swatch_re, "")
+        const [, colname] = swatchFieldMatch
+        const column = ds.get_column(colname)
+
+        display(swatch_els[j])
+
+        if (column == null) {
+          swatch_els[j].textContent = `(unknown)`
+          textOnly(swatch_els[j]);
+        } else {
+          let color = isNumber(i) ? column[i] : null
+
+          if (color == null) {
+            swatch_els[j].textContent = "(null)"
+            textOnly(swatch_els[j]);
+          } else {
+            swatch_els[j].style.backgroundColor = color
+          }
+        }
+      }
+
+      if (colorFieldMatch != null) {
+        const [, opts = "", colname] = colorFieldMatch
         const column = ds.get_column(colname) // XXX: change to columnar ds
         if (column == null) {
           value_els[j].textContent = `${colname} unknown`
@@ -471,7 +498,7 @@ export class HoverToolView extends InspectToolView {
           display(swatch_els[j])
         }
       } else {
-        const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
+        const content = replace_placeholders(tooltipValue.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
         } else {
