@@ -498,7 +498,7 @@ export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly
 export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
-  get default_units(): enums.AngleUnits { return "rad" as "rad" }
+  get default_units(): enums.AngleUnits { return "rad" }
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
@@ -509,12 +509,12 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
-  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get default_units(): enums.SpatialUnits { return "data" }
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
 export class ScreenDistanceSpec extends DistanceSpec {
-  get default_units(): enums.SpatialUnits { return "screen" as "screen" }
+  get default_units(): enums.SpatialUnits { return "screen" }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {
