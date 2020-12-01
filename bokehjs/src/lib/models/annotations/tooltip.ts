@@ -2,6 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment} from "core/enums"
 import {div, display, undisplay, empty, remove, classes} from "core/dom"
 import * as p from "core/properties"
+import {Color} from "core/types"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 
@@ -127,6 +128,7 @@ export namespace Tooltip {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
+    tooltip_arrow_color: p.Property<Color>
     position: p.Property<[number, number] | null>
     content: p.Property<HTMLElement>
     custom: p.Property<boolean>
@@ -146,10 +148,11 @@ export class Tooltip extends Annotation {
   static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
-    this.define<Tooltip.Props>(({Boolean}) => ({
+    this.define<Tooltip.Props>(({Boolean, Color}) => ({
       attachment: [ TooltipAttachment, "horizontal" ],
       inner_only: [ Boolean, true ],
       show_arrow: [ Boolean, true ],
+      tooltip_arrow_color:  [ Color, "#909599" /* Gray of icons */ ],
     }))
 
     this.internal<Tooltip.Props>(({Boolean, Number, Tuple, Ref, Nullable}) => ({

@@ -1187,6 +1187,10 @@ class HoverTool(InspectTool):
     Whether tooltip's arrow should be shown.
     """)
 
+    tooltip_arrow_color = Color(default="#909599", help="""
+    The color of the tooltip's arrow as a CSS colour (e.g. '#FFFFFF', 'white', etc.).
+    """)  # XXX: keep default in sync with tooltips.less
+
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
 

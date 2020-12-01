@@ -38,6 +38,7 @@ from ..core.properties import (
     AngleSpec,
     Auto,
     Bool,
+    Color,
     ColorSpec,
     Datetime,
     Dict,
@@ -1058,6 +1059,10 @@ class Tooltip(Annotation):
     show_arrow = Bool(default=True, help="""
     Whether tooltip's arrow should be shown.
     """)
+
+    tooltip_arrow_color = Color(default="#909599", help="""
+    The color of the tooltip's arrow as a CSS colour (e.g. '#FFFFFF', 'white', etc.).
+    """)  # XXX: keep default in sync with tooltips.less
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
