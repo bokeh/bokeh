@@ -346,11 +346,7 @@ class Legend(Annotation):
 
     where each tuple is of the form: *(label, renderers)*.
 
-    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], 
-                                                                                               renderers=item[1], 
-                                                                                               index=Int(default=0), 
-                                                                                               size=Int(default=20)
-                                                                                               ) for item in items])
+    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
 class ColorBar(Annotation):
     ''' Render a color bar based on a color mapper.
