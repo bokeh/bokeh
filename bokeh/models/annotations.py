@@ -328,6 +328,8 @@ class Legend(Annotation):
 
     Or, when constructing a legend according to scatter glyph size:
 
+    .. code-block:: python
+
         legend = Legend(items=[
             LegendItem(label="small", renderers=[r], index=0, size=10),
             LegendItem(label="medium", renderers=[r], index=1, size=20),
