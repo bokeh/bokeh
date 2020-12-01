@@ -451,14 +451,14 @@ export class HoverToolView extends InspectToolView {
     const swatch_re = /\$swatch:(\w*)/
 
     for (const [[, value], j] of enumerate(tooltips)) {
-      let tooltipValue = value
+      let tooltip_value = value
 
-      const colorFieldMatch = value.match(color_re)
-      const swatchFieldMatch = value.match(swatch_re)
+      const color_field_match = value.match(color_re)
+      const swatch_field_match = value.match(swatch_re)
 
-      if (swatchFieldMatch) {
-        tooltipValue = value.replace(swatch_re, "")
-        const [, colname] = swatchFieldMatch
+      if (swatch_field_match) {
+        tooltip_value = value.replace(swatch_re, "")
+        const [, colname] = swatch_field_match
         const column = ds.get_column(colname)
 
         display(swatch_els[j])
@@ -469,17 +469,14 @@ export class HoverToolView extends InspectToolView {
         } else {
           const color = isNumber(i) ? column[i] : null
 
-          if (color == null) {
-            swatch_els[j].textContent = "(null)"
-            textOnly(swatch_els[j])
-          } else {
+          if (color != null) {
             swatch_els[j].style.backgroundColor = color
           }
         }
       }
 
-      if (colorFieldMatch != null) {
-        const [, opts = "", colname] = colorFieldMatch
+      if (color_field_match != null) {
+        const [, opts = "", colname] = color_field_match
         const column = ds.get_column(colname) // XXX: change to columnar ds
         if (column == null) {
           value_els[j].textContent = `${colname} unknown`
@@ -498,7 +495,7 @@ export class HoverToolView extends InspectToolView {
           display(swatch_els[j])
         }
       } else {
-        const content = replace_placeholders(tooltipValue.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
+        const content = replace_placeholders(tooltip_value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
         } else {
