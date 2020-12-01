@@ -28,7 +28,6 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort
   - mock
   - mypy
   - nbconvert >=5.4
@@ -51,6 +50,7 @@ dependencies:
   - sphinx-panels
   - pip
   - pip:
+    - isort <5.0
     - sphinxext-opengraph
 
   # examples
