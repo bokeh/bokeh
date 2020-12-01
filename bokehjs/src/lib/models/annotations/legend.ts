@@ -21,7 +21,6 @@ export class LegendView extends AnnotationView {
   protected text_widths: Map<string, number>
   protected title_height: number
   protected title_width: number
-  protected max_glyph_size: number
 
   cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
@@ -40,11 +39,11 @@ export class LegendView extends AnnotationView {
   compute_legend_bbox(): BBox {
     const legend_names = this.model.get_legend_names()
 
-    this.max_glyph_size = this.model.get_max_glyph_size()
+    const {max_glyph_size} = this.model
     const {label_height, label_width} = this.model
 
     this.max_label_height = max(
-      [measure_font(this.visuals.label_text.font_value()).height, label_height, this.max_glyph_size],
+      [measure_font(this.visuals.label_text.font_value()).height, label_height, max_glyph_size],
     )
 
     // this is to measure text properties
@@ -72,11 +71,11 @@ export class LegendView extends AnnotationView {
     let legend_height: number, legend_width: number
     if (this.model.orientation == "vertical") {
       legend_height = legend_names.length*this.max_label_height + Math.max(legend_names.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
-      legend_width = max([(max_label_width + this.max_glyph_size + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
+      legend_width = max([(max_label_width + max_glyph_size + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
       let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
       for (const [, width] of this.text_widths) {
-        item_width += max([width, label_width]) + this.max_glyph_size + label_standoff
+        item_width += max([width, label_width]) + max_glyph_size + label_standoff
       }
       legend_width = max([this.title_width + 2*legend_padding, item_width])
       legend_height = this.max_label_height + this.title_height + 2*legend_padding
@@ -234,6 +233,7 @@ export class LegendView extends AnnotationView {
 
   protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
     let {glyph_width, glyph_height} = this.model
+    const {max_glyph_size} = this.model
     const {legend_padding} = this
     const legend_spacing = this.model.spacing
     const {label_standoff} = this.model
@@ -271,13 +271,13 @@ export class LegendView extends AnnotationView {
         // scooted down by size difference / 2) and label (standard yoffset as calculated below). --cfh
         const x1 = bbox.x + xoffset
         const y1 = bbox.y + yoffset + this.title_height
-        const x2 = x1 + this.max_glyph_size
+        const x2 = x1 + max_glyph_size
         const y2 = y1 + glyph_height
 
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths.get(label)! + this.max_glyph_size + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + max_glyph_size + label_standoff + legend_spacing
 
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
@@ -291,7 +291,7 @@ export class LegendView extends AnnotationView {
           if (vertical)
             [w, h] = [bbox.width - 2*legend_padding, this.max_label_height]
           else
-            [w, h] = [this.text_widths.get(label)! + this.max_glyph_size + label_standoff, this.max_label_height]
+            [w, h] = [this.text_widths.get(label)! + max_glyph_size + label_standoff, this.max_label_height]
 
           ctx.beginPath()
           ctx.rect(x1, y1, w, h)
@@ -333,6 +333,7 @@ export namespace Legend {
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
     glyph_width: p.Property<number>
+    max_glyph_size: p.Property<number>
     label_height: p.Property<number>
     label_width: p.Property<number>
     margin: p.Property<number>
@@ -427,13 +428,14 @@ export class Legend extends Annotation {
     return legend_names
   }
 
-  get_max_glyph_size(): number {
+  get max_glyph_size(): number {
     let max_glyph_size: number = 0
     for (const item of this.items) {
-      if (item.size != null && item.size > max_glyph_size){
-        max_glyph_size = item.size
+      if (item.size != null){
+        max_glyph_size = max([item.size, max_glyph_size])
       }
     }
     return max_glyph_size
   }
+
 }
