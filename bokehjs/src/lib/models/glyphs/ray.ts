@@ -28,31 +28,38 @@ export class RayView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, slength, _angle}: RayData): void {
     if (this.visuals.line.doit) {
+      // map_data {{{
       const width = this.renderer.plot_view.frame.bbox.width
       const height = this.renderer.plot_view.frame.bbox.height
-      const inf_len = 2 * (width + height)
+      const inf_len = 2*(width + height)
 
       for (let i = 0, end = slength.length; i < end; i++) {
         if (slength[i] == 0)
           slength[i] = inf_len
       }
+      //}}}
 
       for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + _angle[i] + slength[i]))
+        const sx_i = sx[i]
+        const sy_i = sy[i]
+        const angle_i = _angle[i]
+        const slength_i = slength[i]
+
+        if (isNaN(sx_i + sy_i + angle_i + slength_i))
           continue
 
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(_angle[i])
+        ctx.translate(sx_i, sy_i)
+        ctx.rotate(angle_i)
 
         ctx.beginPath()
         ctx.moveTo(0, 0)
-        ctx.lineTo(slength[i], 0)
+        ctx.lineTo(slength_i, 0)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
 
-        ctx.rotate(-_angle[i])
-        ctx.translate(-sx[i], -sy[i])
+        ctx.rotate(-angle_i)
+        ctx.translate(-sx_i, -sy_i)
       }
     }
   }

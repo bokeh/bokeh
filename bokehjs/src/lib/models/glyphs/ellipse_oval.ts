@@ -28,11 +28,17 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const angle_i = _angle[i]
+
+      if (isNaN(sx_i + sy_i + sw_i + sh_i + angle_i))
         continue
 
       ctx.beginPath()
-      ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
+      ctx.ellipse(sx_i, sy_i, sw_i/2.0, sh_i/2.0, angle_i, 0, 2 * Math.PI)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)

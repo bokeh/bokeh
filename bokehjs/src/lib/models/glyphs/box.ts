@@ -70,7 +70,12 @@ export abstract class BoxView extends GlyphView {
   protected _render(ctx: Context2d, indices: number[],
                     {sleft, sright, stop, sbottom}: BoxData): void {
     for (const i of indices) {
-      if (isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i]))
+      const sleft_i = sleft[i]
+      const stop_i = stop[i]
+      const sright_i = sright[i]
+      const sbottom_i = sbottom[i]
+
+      if (isNaN(sleft_i + stop_i + sright_i + sbottom_i))
         continue
 
       // XXX: this is needed for SVG canvas, because fill and hatch visuals
@@ -78,7 +83,7 @@ export abstract class BoxView extends GlyphView {
       // causing overpaint (as in canvas).
       function path() {
         ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
       }
 
       if (this.visuals.fill.doit) {

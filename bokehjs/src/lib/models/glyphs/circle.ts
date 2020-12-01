@@ -101,11 +101,15 @@ export class CircleView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sradius[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sradius_i = sradius[i]
+
+      if (isNaN(sx_i + sy_i + sradius_i))
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false)
+      ctx.arc(sx_i, sy_i, sradius_i, 0, 2*Math.PI, false)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)

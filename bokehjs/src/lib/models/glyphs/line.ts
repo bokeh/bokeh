@@ -36,8 +36,11 @@ export class LineView extends XYGlyphView {
 
     this.visuals.line.set_value(ctx)
     for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+
       if (drawing) {
-        if (!isFinite(sx[i] + sy[i])) {
+        if (!isFinite(sx_i + sy_i)) {
           ctx.stroke()
           ctx.beginPath()
           drawing = false
@@ -52,10 +55,10 @@ export class LineView extends XYGlyphView {
       }
 
       if (drawing)
-        ctx.lineTo(sx[i], sy[i])
+        ctx.lineTo(sx_i, sy_i)
       else {
         ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
+        ctx.moveTo(sx_i, sy_i)
         drawing = true
       }
 

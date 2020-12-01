@@ -77,22 +77,22 @@ export class PatchesView extends GlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
     for (const i of indices) {
-      const sx = sxs.get(i)
-      const sy = sys.get(i)
+      const sx_i = sxs.get(i)
+      const sy_i = sys.get(i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.fill)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
       }
 
       if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.fill)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
       }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.stroke)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.stroke)
       }
     }
   }

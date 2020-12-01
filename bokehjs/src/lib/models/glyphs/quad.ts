@@ -21,8 +21,8 @@ export class QuadView extends BoxView {
   visuals: Quad.Visuals
 
   scenterxy(i: number): [number, number] {
-    const scx = (this.sleft[i] + this.sright[i])/2
-    const scy = (this.stop[i] + this.sbottom[i])/2
+    const scx = this.sleft[i]/2 + this.sright[i]/2
+    const scy = this.stop[i]/2 + this.sbottom[i]/2
     return [scx, scy]
   }
 

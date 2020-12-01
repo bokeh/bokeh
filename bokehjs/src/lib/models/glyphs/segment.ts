@@ -36,13 +36,13 @@ export class SegmentView extends GlyphView {
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
-    const {data_size} = this
+    const {_x0, _x1, _y0, _y1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0 = this._x0[i]
-      const x1 = this._x1[i]
-      const y0 = this._y0[i]
-      const y1 = this._y1[i]
+      const x0 = _x0[i]
+      const x1 = _x1[i]
+      const y0 = _y0[i]
+      const y1 = _y1[i]
 
       if (isNaN(x0 + x1 + y0 + y1))
         index.add_empty()
@@ -54,12 +54,17 @@ export class SegmentView extends GlyphView {
   protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1}: SegmentData): void {
     if (this.visuals.line.doit) {
       for (const i of indices) {
-        if (isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i]))
+        const sx0_i = sx0[i]
+        const sy0_i = sy0[i]
+        const sx1_i = sx1[i]
+        const sy1_i = sy1[i]
+
+        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i))
           continue
 
         ctx.beginPath()
-        ctx.moveTo(sx0[i], sy0[i])
-        ctx.lineTo(sx1[i], sy1[i])
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.lineTo(sx1_i, sy1_i)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

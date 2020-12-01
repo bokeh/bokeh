@@ -19,17 +19,20 @@ export class PatchView extends XYGlyphView {
 
   protected _inner_loop(ctx: Context2d, indices: number[], sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
     for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+
       if (i == 0) {
         ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
+        ctx.moveTo(sx_i, sy_i)
         continue
-      } else if (isNaN(sx[i] + sy[i])) {
+      } else if (isNaN(sx_i + sy_i)) {
         ctx.closePath()
         func.apply(ctx)
         ctx.beginPath()
         continue
       } else
-        ctx.lineTo(sx[i], sy[i])
+        ctx.lineTo(sx_i, sy_i)
     }
     ctx.closePath()
     func.call(ctx)

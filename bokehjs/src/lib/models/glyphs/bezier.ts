@@ -108,16 +108,22 @@ export class BezierView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size} = this
+    const {data_size, _x0, _y0, _x1, _y1, _cx0, _cy0, _cx1, _cy1} = this
 
     for (let i = 0; i < data_size; i++) {
-      if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx0[i] + this._cy0[i] + this._cx1[i] + this._cy1[i]))
+      const x0_i = _x0[i]
+      const y0_i = _y0[i]
+      const x1_i = _x1[i]
+      const y1_i = _y1[i]
+      const cx0_i = _cx0[i]
+      const cy0_i = _cy0[i]
+      const cx1_i = _cx1[i]
+      const cy1_i = _cy1[i]
+
+      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
-        const [x0, y0, x1, y1] = _cbb(
-          this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
-          this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i],
-        )
+        const [x0, y0, x1, y1] = _cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
         index.add(x0, y0, x1, y1)
       }
     }
@@ -127,12 +133,21 @@ export class BezierView extends GlyphView {
                     {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}: BezierData): void {
     if (this.visuals.line.doit) {
       for (const i of indices) {
-        if (isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i]))
+        const sx0_i = sx0[i]
+        const sy0_i = sy0[i]
+        const sx1_i = sx1[i]
+        const sy1_i = sy1[i]
+        const scx0_i = scx0[i]
+        const scy0_i = scy0[i]
+        const scx1_i = scx1[i]
+        const scy1_i = scy1[i]
+
+        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
           continue
 
         ctx.beginPath()
-        ctx.moveTo(sx0[i], sy0[i])
-        ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.bezierCurveTo(scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

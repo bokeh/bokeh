@@ -135,16 +135,20 @@ export class HexTileView extends GlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _scale[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const scale_i = _scale[i]
+
+      if (isNaN(sx_i + sy_i + scale_i))
         continue
 
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
       ctx.beginPath()
       for (let j = 0; j < 6; j++) {
-        ctx.lineTo(svx[j]*_scale[i], svy[j]*_scale[i])
+        ctx.lineTo(svx[j]*scale_i, svy[j]*scale_i)
       }
       ctx.closePath()
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)

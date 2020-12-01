@@ -40,7 +40,12 @@ export class AnnulusView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, sinner_radius, souter_radius}: AnnulusData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sinner_radius_i = sinner_radius[i]
+      const souter_radius_i = souter_radius[i]
+
+      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i))
         continue
 
       // Because this visual has a whole in it, it proved "challenging"
@@ -54,13 +59,13 @@ export class AnnulusView extends XYGlyphView {
         if (is_ie) {
           // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
           for (const clockwise of [false, true]) {
-            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise)
-            ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise)
+            ctx.arc(sx_i, sy_i, sinner_radius_i, 0, Math.PI, clockwise)
+            ctx.arc(sx_i, sy_i, souter_radius_i, Math.PI, 0, !clockwise)
           }
         } else {
           // Draw donut in one go. Does not work on iE.
-          ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true)
-          ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
+          ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2 * Math.PI, true)
+          ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
         }
       }
 
@@ -79,9 +84,9 @@ export class AnnulusView extends XYGlyphView {
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)
-        ctx.moveTo(sx[i] + souter_radius[i], sy[i])
-        ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI)
+        ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI)
+        ctx.moveTo(sx_i + souter_radius_i, sy_i)
+        ctx.arc(sx_i, sy_i, souter_radius_i, 0, 2*Math.PI)
         ctx.stroke()
       }
     }

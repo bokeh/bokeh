@@ -41,15 +41,21 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.globalAlpha = this.model.global_alpha
 
     for (const i of indices) {
-      if (image_data[i] == null || isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
+      const image_data_i = image_data[i]
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+
+      if (image_data_i == null || isNaN(sx_i + sy_i + sw_i + sh_i))
         continue
 
-      const y_offset = sy[i]
+      const y_offset = sy_i
 
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
-      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
+      ctx.drawImage(image_data_i, sx_i|0, sy_i|0, sw_i, sh_i)
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)

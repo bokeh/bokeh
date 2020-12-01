@@ -53,22 +53,29 @@ export class AnnularWedgeView extends XYGlyphView {
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sinner_radius_i = sinner_radius[i]
+      const souter_radius_i = souter_radius[i]
+      const start_angle_i = _start_angle[i]
+      const angle_i = _angle[i]
+
+      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + angle_i))
         continue
 
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(_start_angle[i])
+      ctx.translate(sx_i, sy_i)
+      ctx.rotate(start_angle_i)
 
       ctx.beginPath()
-      ctx.moveTo(souter_radius[i], 0)
-      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], anticlock)
-      ctx.rotate(_angle[i])
-      ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !anticlock)
+      ctx.moveTo(souter_radius_i, 0)
+      ctx.arc(0, 0, souter_radius_i, 0, angle_i, anticlock)
+      ctx.rotate(angle_i)
+      ctx.lineTo(sinner_radius_i, 0)
+      ctx.arc(0, 0, sinner_radius_i, 0, -angle_i, !anticlock)
       ctx.closePath()
 
-      ctx.rotate(-_angle[i]-_start_angle[i])
-      ctx.translate(-sx[i], -sy[i])
+      ctx.rotate(-angle_i - start_angle_i)
+      ctx.translate(-sx_i, -sy_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)

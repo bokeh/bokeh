@@ -37,12 +37,18 @@ export class WedgeView extends XYGlyphView {
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sradius_i = sradius[i]
+      const start_angle_i = _start_angle[i]
+      const end_angle_i = _end_angle[i]
+
+      if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], anticlock)
-      ctx.lineTo(sx[i], sy[i])
+      ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
+      ctx.lineTo(sx_i, sy_i)
       ctx.closePath()
 
       if (this.visuals.fill.doit) {

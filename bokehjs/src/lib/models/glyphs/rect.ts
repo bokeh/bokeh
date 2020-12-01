@@ -52,21 +52,29 @@ export class RectView extends CenterRotatableView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, _angle}: RectData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sx0_i = sx0[i]
+      const sy1_i = sy1[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const angle_i = _angle[i]
+
+      if (isNaN(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
         continue
 
-      if (sw[i] == 0 || sh[i] == 0)
+      if (sw_i == 0 || sh_i == 0)
         continue
 
       ctx.beginPath()
-      if (_angle[i]) {
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(_angle[i])
-        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-        ctx.rotate(-_angle[i])
-        ctx.translate(-sx[i], -sy[i])
+      if (angle_i) {
+        ctx.translate(sx_i, sy_i)
+        ctx.rotate(angle_i)
+        ctx.rect(-sw_i/2, -sh_i/2, sw_i, sh_i)
+        ctx.rotate(-angle_i)
+        ctx.translate(-sx_i, -sy_i)
       } else
-        ctx.rect(sx0[i], sy1[i], sw[i], sh[i])
+        ctx.rect(sx0_i, sy1_i, sw_i, sh_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)

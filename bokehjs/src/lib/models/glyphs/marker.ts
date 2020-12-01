@@ -27,23 +27,28 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const size_i = _size[i]
+      const angle_i = _angle[i]
+
+      if (isNaN(sx_i + sy_i + size_i + angle_i))
         continue
 
-      const r = _size[i]/2
+      const r = size_i/2
 
       ctx.beginPath()
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
 
-      if (_angle[i])
-        ctx.rotate(_angle[i])
+      if (angle_i)
+        ctx.rotate(angle_i)
 
       this._render_one(ctx, i, r, this.visuals)
 
-      if (_angle[i])
-        ctx.rotate(-_angle[i])
+      if (angle_i)
+        ctx.rotate(-angle_i)
 
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
     }
   }
 

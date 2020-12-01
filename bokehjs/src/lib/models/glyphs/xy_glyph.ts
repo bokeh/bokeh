@@ -23,11 +23,11 @@ export abstract class XYGlyphView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size} = this
+    const {_x, _y, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x = this._x[i]
-      const y = this._y[i]
+      const x = _x[i]
+      const y = _y[i]
 
       if (isNaN(x + y) || !isFinite(x + y))
         index.add_empty()

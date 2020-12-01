@@ -150,23 +150,24 @@ export class MultiPolygonsView extends GlyphView {
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
       for (const i of indices) {
-        const [sx, sy] = [sxs[i], sys[i]]
+        const sx_i = sxs[i]
+        const sy_i = sys[i]
 
         if (this.visuals.fill.doit) {
           this.visuals.fill.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
         if (this.visuals.hatch.doit) {
           this.visuals.hatch.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.stroke()
         }
       }
