@@ -1,11 +1,13 @@
 @import "./_mixins.less";
 
 .bk-root {
+  --tooltipArrowColor: #909599; /* Gray of icons */
+
   @tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
   @tooltipColor: white;
   @tooltipText: #2f2f2f;
 
-  @tooltipArrowColor: #909599;  /* Gray of icons */
+  @tooltipArrowColor: var(--tooltipArrowColor);
   @tooltipArrowWidth: 10px;
   @tooltipArrowHeight: 10px;
   @tooltipArrowHalfWidth: 7px;

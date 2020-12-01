@@ -53,8 +53,10 @@ export class TooltipView extends AnnotationView {
     classes(this.el).toggle("bk-tooltip-custom", this.model.custom)
     this.el.appendChild(content)
 
-    if (this.model.show_arrow)
+    if (this.model.show_arrow) {
       this.el.classList.add(tooltips.tooltip_arrow)
+      this.el.style.setProperty("--tooltipArrowColor", this.model.tooltip_arrow_color)
+    }
   }
 
   protected _reposition(): void {
