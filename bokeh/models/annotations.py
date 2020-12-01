@@ -187,8 +187,8 @@ class LegendItem(Model):
     """)
 
     size = Int(default=20, help="""
-    The integer size of the representative glyphs in the Legend when creating a 
-    scatter plot differentiated by marker size. 
+    The integer size of the representative glyphs in the Legend when creating a
+    scatter plot differentiated by marker size.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
@@ -325,9 +325,9 @@ class Legend(Annotation):
             LegendItem(label="2*sin(x)" , renderers=[r2]),
             LegendItem(label="3*sin(x)" , renderers=[r3, r4])
         ])
-        
+
     Or, when constructing a legend according to scatter glyph size:
-    
+
         legend = Legend(items=[
             LegendItem(label="small", renderers=[r], index=0, size=10),
             LegendItem(label="medium", renderers=[r], index=1, size=20),
