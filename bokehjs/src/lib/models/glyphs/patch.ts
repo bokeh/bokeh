@@ -34,13 +34,17 @@ export class PatchView extends XYGlyphView {
     ctx.closePath()
     func.call(ctx)
   }
+
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: PatchData): void {
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner_loop(ctx, indices, sx, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill))
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      this._inner_loop(ctx, indices, sx, sy, ctx.fill)
+    }
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)

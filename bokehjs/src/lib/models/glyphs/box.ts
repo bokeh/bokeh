@@ -73,25 +73,29 @@ export abstract class BoxView extends GlyphView {
       if (isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i]))
         continue
 
-      ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+      // XXX: this is needed for SVG canvas, because fill and hatch visuals
+      // share Context2d.fillStyle, which gets overriden in SVG, instead of
+      // causing overpaint (as in canvas).
+      function path() {
+        ctx.beginPath()
+        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+      }
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        path()
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        path()
         ctx.fill()
-      })
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        path()
         ctx.stroke()
       }
     }

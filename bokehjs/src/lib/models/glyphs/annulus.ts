@@ -70,11 +70,11 @@ export class AnnulusView extends XYGlyphView {
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
+      if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
         fill_path()
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
