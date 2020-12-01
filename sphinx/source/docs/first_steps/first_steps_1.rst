@@ -68,8 +68,8 @@ Follow these steps to recreate this simple line chart:
         x = [1, 2, 3, 4, 5]
         y = [6, 7, 2, 4, 5]
 
-3. Use the :func:`~bokeh.plotting.figure` function to create a new
-   :class:`~bokeh.plotting.Figure` object. Pass the following arguments:
+3. Use the :func:`~bokeh.plotting.figure` function to create your plot. Pass the
+   following arguments:
 
    * ``title``: the title of your line chart
    * ``x_axis_label``: which data to use to generate labels for the chart's
@@ -82,7 +82,7 @@ Follow these steps to recreate this simple line chart:
         # create a new plot with a title and axis labels
         p = figure(title="Simple line example", x_axis_label='x', y_axis_label='y')
 
-4. Add a line graph to the Figure object you just created, using the
+4. Add a line graph to the plot you just created, using the
    :func:`~bokeh.plotting.Figure.line` function. Pass the following arguments:
 
    * your lists ``x`` and ``y`` containing the data
