@@ -75,35 +75,35 @@ STAMEN_TERRAIN
 
     .. raw:: html
 
-        <img src="http://c.tile.stamen.com/terrain/14/2627/6331.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
 
 STAMEN_TERRAIN_RETINA
     Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
 
     .. raw:: html
 
-        <img src="http://c.tile.stamen.com/terrain/14/2627/6331@2x.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
 
 STAMEN_TONER
     Tile Source for Stamen Toner Service
 
     .. raw:: html
 
-        <img src="http://c.tile.stamen.com/toner/14/2627/6331.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
 
 STAMEN_TONER_BACKGROUND
     Tile Source for Stamen Toner Background Service which does not include labels
 
     .. raw:: html
 
-        <img src="http://c.tile.stamen.com/toner-background/14/2627/6331.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
 
 STAMEN_TONER_LABELS
     Tile Source for Stamen Toner Service which includes only labels
 
     .. raw:: html
 
-        <img src="http://c.tile.stamen.com/toner-labels/14/2627/6331.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
 
 WIKIMEDIA
     Tile Source for Wikimedia tile service.
