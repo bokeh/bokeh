@@ -67,8 +67,9 @@ working :ref:`installation<first_steps_installing>` of Bokeh.
 
 The first steps guides include lots of examples that you can copy to your
 development environment. There are also many links to the more in-depth
-resources of the :ref:`userguide` and :ref:`Reference Guide<refguide>` in case
-you want to learn more about any of the topics.
+resources of the :ref:`user guide <userguide>` and
+:ref:`reference guide <refguide>` in case you want to learn more about any of
+the topics covered in the first steps guides.
 
 .. panels::
     :container: container-fluid pb-3
@@ -80,7 +81,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_1.png
-        :scale: 100 %
         :align: center
         :alt: A line chart
 
@@ -98,7 +98,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_2.png
-        :scale: 100 %
         :align: center
         :alt: Several glyphs in one chart
 
@@ -116,7 +115,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_3.png
-        :scale: 100 %
         :align: center
         :alt: A chart with a legend
 
@@ -134,7 +132,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_4.png
-        :scale: 100 %
         :align: center
         :alt: A chart with a tootip
 
@@ -152,7 +149,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_5.png
-        :scale: 100 %
         :align: center
         :alt: A chart with different colors
 
@@ -169,7 +165,6 @@ you want to learn more about any of the topics.
     ^^^^^^^
 
     .. image:: /_images/first_steps_6.png
-        :scale: 100 %
         :align: center
         :alt: Three charts combined into one element
 
@@ -187,7 +182,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_7.png
-        :scale: 100 %
         :align: center
         :alt: Screenshot of a Bokeh plot in a Jupyter notebook
 
@@ -204,7 +198,6 @@ you want to learn more about any of the topics.
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_8.png
-        :scale: 100 %
         :align: center
         :alt: Two charts with different subsets of data
 
@@ -218,11 +211,10 @@ you want to learn more about any of the topics.
     ---
     :header: bg-bokeh-two
 
-    Building dashboards and server apps
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Using widgets
+    ^^^^^^^^^^^^^
 
     .. image:: /_images/first_steps_9.png
-        :scale: 100 %
         :align: center
         :alt: Screenshot of a Bokeh server app
 

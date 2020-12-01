@@ -1,14 +1,11 @@
 from bokeh.layouts import row
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # prepare some data
 x = list(range(11))
 y0 = x
 y1 = [10 - i for i in x]
 y2 = [abs(i - 5) for i in x]
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create three plots with one renderer each
 s1 = figure(plot_width=250, plot_height=250, background_fill_color="#fafafa")

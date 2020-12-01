@@ -36,7 +36,7 @@ visualization:
 
 .. literalinclude:: examples/first_steps_2_add_circles.py
    :language: python
-   :emphasize-lines: 18
+   :emphasize-lines: 15
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_add_circles.py
     :source-position: none
@@ -56,7 +56,7 @@ visualization:
 
 .. literalinclude:: examples/first_steps_2_add_bars.py
    :language: python
-   :emphasize-lines: 17
+   :emphasize-lines: 14
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_add_bars.py
     :source-position: none
@@ -98,7 +98,7 @@ slightly transparent with a red fill color and blue outlines:
 
 .. literalinclude:: examples/first_steps_2_style_circle.py
    :language: python
-   :emphasize-lines: 14-22
+   :emphasize-lines: 11-19
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_circle.py
     :source-position: none
@@ -143,7 +143,7 @@ outputting the plot:
 
 .. literalinclude:: examples/first_steps_2_style_existing_circle.py
    :language: python
-   :emphasize-lines: 14,25-26
+   :emphasize-lines: 22-23
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_2_style_existing_circle.py
     :source-position: none

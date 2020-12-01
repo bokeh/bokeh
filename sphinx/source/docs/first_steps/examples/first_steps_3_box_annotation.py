@@ -1,14 +1,11 @@
 import random
 
 from bokeh.models import BoxAnnotation
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # generate some data (1-50 for x, random values for y)
 x = list(range(0, 51))
 y = random.sample(range(0, 100), 51)
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create new plot
 p = figure(title="Box annotation example")

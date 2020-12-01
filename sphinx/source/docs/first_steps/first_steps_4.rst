@@ -30,7 +30,7 @@ to the ``theme`` property of your document:
 
 .. literalinclude:: examples/first_steps_4_themes.py
    :language: python
-   :emphasize-lines: 12
+   :emphasize-lines: 9
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_themes.py
     :source-position: none
@@ -63,7 +63,7 @@ To set the size of your plot, use the attributes
 
 .. literalinclude:: examples/first_steps_4_plot_size.py
    :language: python
-   :emphasize-lines: 13,14
+   :emphasize-lines: 10-11
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_plot_size.py
     :source-position: none
@@ -74,7 +74,7 @@ any time after its creation:
 
 .. literalinclude:: examples/first_steps_4_resize_plot.py
    :language: python
-   :emphasize-lines: 20,21
+   :emphasize-lines: 17,18
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_resize_plot.py
     :source-position: none
@@ -87,7 +87,7 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 
 .. literalinclude:: examples/first_steps_4_plot_size_responsive.py
    :language: python
-   :emphasize-lines: 13,14
+   :emphasize-lines: 10,11
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_plot_size_responsive.py
     :source-position: none
@@ -122,7 +122,7 @@ For example:
 
 .. literalinclude:: examples/first_steps_4_axes_customizing.py
    :language: python
-   :emphasize-lines: 22-24,27-29,32-33
+   :emphasize-lines: 19-21,24-26,29-30
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_axes_customizing.py
     :source-position: none
@@ -132,7 +132,7 @@ Defining axis ranges
 
 When drawing the axes for your plot, Bokeh automatically determines the range
 each axis needs to cover in order to display all your values. For example, if
-the values on your y-axis are between 2 and 17, Bokeh will automatically create
+the values on your y-axis are between 2 and 17, Bokeh automatically creates
 a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the
@@ -143,7 +143,7 @@ To define the range for your axes manually, use the
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
    :language: python
-   :emphasize-lines: 12
+   :emphasize-lines: 9
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_plot_axis_ranges.py
     :source-position: none
@@ -182,7 +182,7 @@ This is what the completed code looks like:
 
 .. literalinclude:: examples/first_steps_4_tick_formatter.py
    :language: python
-   :emphasize-lines: 1,20
+   :emphasize-lines: 1,17
 
 .. seealso::
     For more information about formatting ticks, see
@@ -198,7 +198,7 @@ switch to logarithmic axes:
 
 .. literalinclude:: examples/first_steps_4_axes_logarithmic.py
    :language: python
-   :emphasize-lines: 18,19
+   :emphasize-lines: 15,16
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_axes_logarithmic.py
     :source-position: none
@@ -215,7 +215,7 @@ To format the ticks of a ``DatetimeAxis``, use the
 
 .. literalinclude:: examples/first_steps_4_datetime_axis.py
    :language: python
-   :emphasize-lines: 18,31
+   :emphasize-lines: 15,28
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_datetime_axis.py
     :source-position: none
@@ -245,7 +245,7 @@ the various ``grid_line`` properties:
 
 .. literalinclude:: examples/first_steps_4_grid_lines.py
    :language: python
-   :emphasize-lines: 22,25,26
+   :emphasize-lines: 19,22,23
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_grid_lines.py
     :source-position: none
@@ -257,20 +257,20 @@ the various ``grid_line`` properties:
 Using bands and bounds
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Another way to make reading your plot easier is to use bands and bonds.
+Another way to make reading your plot easier is to use bands and bounds.
 
-Bands and bonds are more examples of the annotations you learned about in
+Bands and bounds are more examples of the annotations you learned about in
 :ref:`first_steps_3_annotations`.
 
 .. literalinclude:: examples/first_steps_4_bands.py
    :language: python
-   :emphasize-lines: 17,18,21
+   :emphasize-lines: 19,20,23
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_bands.py
     :source-position: none
 
 .. seealso::
-    For more information on styling bands and bonds, see
+    For more information on styling bands and bounds, see
     :ref:`userguide_styling_grid_bands` and :ref:`userguide_styling_grid_bounds`
     in the user guide.
 
@@ -291,7 +291,7 @@ use the various ``fill_color`` attributes of your
 
 .. literalinclude:: examples/first_steps_4_background.py
    :language: python
-   :emphasize-lines: 17-19
+   :emphasize-lines: 19-21
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_background.py
     :source-position: none
@@ -345,7 +345,7 @@ To make your toolbar hide automatically, set
 
 .. literalinclude:: examples/first_steps_4_toolbar_autohide.py
    :language: python
-   :emphasize-lines: 19
+   :emphasize-lines: 16
 
 With ``autohide`` set to ``True``, Bokeh will hide the toolbar unless the mouse
 is inside the plot area or you tap inside the plot area:
@@ -401,7 +401,7 @@ both directions.
 
 .. literalinclude:: examples/first_steps_4_add_tools.py
    :language: python
-   :emphasize-lines: 1,14,22
+   :emphasize-lines: 1,11,19
 
 In this example, you first include the box zoom tool and the reset tool when
 creating your function. Next, you add a pan zoom tool. This results in all three
@@ -451,7 +451,7 @@ This is what the code looks like:
 
 .. literalinclude:: examples/first_steps_4_tooltips.py
    :language: python
-   :emphasize-lines: 1,14,15
+   :emphasize-lines: 1,11,12
 
 .. seealso::
     The user guide contains much more information on using the hover tool to

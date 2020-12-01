@@ -127,9 +127,9 @@ NetworkX
 
 pandas
     Necessary for the :func:`~bokeh.plotting.Figure.hexbin` function.
-    Additionally, having Pandas installed makes some aspects of Bokeh simpler
+    Additionally, having pandas installed makes some aspects of Bokeh simpler
     to use. For example, glyph functions are able to automatically convert
-    Pandas DataFrames to Bokeh data sources.
+    pandas DataFrames to Bokeh data sources.
 
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.

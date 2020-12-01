@@ -1,6 +1,6 @@
 import random
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # generate some data (1-10 for x, random values for y)
 x = list(range(0, 26))
@@ -8,9 +8,6 @@ y = random.sample(range(0, 100), 26)
 
 # generate list of rgb hex colors in relation to y
 colors = ["#%02x%02x%02x" % (255, int(round(value * 255 / 100)), 255) for value in y]
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create new plot
 p = figure(
