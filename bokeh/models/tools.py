@@ -275,25 +275,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag: tp.Union[Literal["auto"], Drag] = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool]] = \
+    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
         Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll: tp.Union[Literal["auto"], Scroll] = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap: tp.Union[Literal["auto"], Tap] = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Auto, Instance(Tap), help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool] = Instance(GestureTool, help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
