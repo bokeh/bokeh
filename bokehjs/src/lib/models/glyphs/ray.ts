@@ -23,22 +23,20 @@ export class RayView extends XYGlyphView {
     if (this.model.properties.length.units == "data")
       this.slength = this.sdist(this.renderer.xscale, this._x, this._length)
     else
-      this.slength = this._length
+      this.slength = new ScreenArray(this._length)
+
+    const {width, height} = this.renderer.plot_view.frame.bbox
+    const inf_len = 2*(width + height)
+
+    const {slength} = this
+    for (let i = 0, end = slength.length; i < end; i++) {
+      if (slength[i] == 0)
+        slength[i] = inf_len
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, slength, _angle}: RayData): void {
     if (this.visuals.line.doit) {
-      // map_data {{{
-      const width = this.renderer.plot_view.frame.bbox.width
-      const height = this.renderer.plot_view.frame.bbox.height
-      const inf_len = 2*(width + height)
-
-      for (let i = 0, end = slength.length; i < end; i++) {
-        if (slength[i] == 0)
-          slength[i] = inf_len
-      }
-      //}}}
-
       for (const i of indices) {
         const sx_i = sx[i]
         const sy_i = sy[i]
