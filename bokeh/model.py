@@ -19,10 +19,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import typing as tp
 from inspect import isclass
 from json import loads
 from operator import itemgetter
-from typing import Type, Union
 
 # Bokeh imports
 from .core.has_props import HasProps, abstract
@@ -235,16 +235,16 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
 
     __repr__ = __str__
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
-    name = String(help="""
+    name: str = String(help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -263,7 +263,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags = List(Any, help="""
+    tags: tp.List[tp.Any] = List(Any, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -365,7 +365,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     # Public methods ----------------------------------------------------------
 
-    def js_on_event(self, event: Union[str, Type[Event]], *callbacks) -> None:
+    def js_on_event(self, event: tp.Union[str, tp.Type[Event]], *callbacks) -> None:
         if isinstance(event, str):
             pass
         elif isinstance(event, type) and issubclass(event, Event):

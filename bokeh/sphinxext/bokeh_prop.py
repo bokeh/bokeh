@@ -89,8 +89,8 @@ class BokehPropDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    optional_arguments = 1
-    option_spec = {"module": unchanged}
+    optional_arguments = 2
+    option_spec = {"module": unchanged, "type": unchanged}
 
     def run(self):
 

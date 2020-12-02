@@ -620,7 +620,7 @@ class Settings:
 
     # Non-settings methods
 
-    def bokehjsdir(self):
+    def bokehjsdir(self) -> str:
         ''' The location of the BokehJS source tree.
 
         '''

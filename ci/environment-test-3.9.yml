@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.7
+  - python=3.9
 
   # runtime
   - jinja2 >=2.7
@@ -28,13 +28,12 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort <5.0
   - mock
   - mypy
   - nbconvert >=5.4
   - networkx
   - nodejs 14.*
-  - numba
+  #- numba
   - pandas
   - psutil
   - pydot
@@ -51,8 +50,8 @@ dependencies:
   - sphinx-panels
   - pip
   - pip:
+    - isort <5.0
     - sphinxext-opengraph
-    - sphinx-reredirects
 
   # examples
   - flask >=1.0
