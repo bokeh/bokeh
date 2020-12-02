@@ -17,6 +17,9 @@ import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
 
+import {Uniform, UniformScalar, UniformVector} from "./uniforms"
+export {Uniform, UniformScalar, UniformVector}
+
 function valueToString(value: any): string {
   try {
     return JSON.stringify(value)
@@ -388,6 +391,8 @@ export class NullStringScalar extends ScalarSpec<string | null> {}
 export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
+export class LineDashScalar extends ScalarSpec<number[]> {}
+export class FontScalar extends ScalarSpec<string> {}
 export class FontSizeScalar extends ScalarSpec<string> {}
 export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
 export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
@@ -410,6 +415,32 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
     if (this.spec.value != null)
       this.validate(this.spec.value)
+  }
+
+  uniform(source: ColumnarDataSource): Uniform<T/*?*/> {
+    const {field, expr, value, transform} = this.spec
+    if (field != null) {
+      const column = source.get_column(field)
+      if (column != null) {
+        let array = this.normalize(column)
+        if (transform != null)
+          array = transform.v_compute(array)
+        return new UniformVector(array)
+      } else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
+        return new UniformScalar(null as any, length)
+      }
+    } else if (expr != null) {
+      let array = this.normalize(expr.v_compute(source))
+      if (transform != null)
+        array = transform.v_compute(array)
+      return new UniformVector(array)
+    } else {
+      let result = this.normalize([value])[0]
+      if (transform != null)
+        result = transform.compute(result)
+      return new UniformScalar(result, length)
+    }
   }
 
   array(source: ColumnarDataSource): Arrayable<unknown> {
@@ -594,12 +625,19 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   }
 }
 
-export class FontSizeSpec extends DataSpec<string> {}
+export class NDArraySpec extends DataSpec<NDArray> {}
+
+export class AnySpec extends DataSpec<any> {}
+export class StringSpec extends DataSpec<string> {}
+export class NullStringSpec extends DataSpec<string | null> {}
+export class ArraySpec extends DataSpec<any[]> {}
 
 export class MarkerSpec extends DataSpec<enums.MarkerType> {}
-
-export class StringSpec extends DataSpec<string> {}
-
-export class NullStringSpec extends DataSpec<string | null> {}
-
-export class NDArraySpec extends DataSpec<NDArray> {}
+export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
+export class LineCapSpec extends DataSpec<enums.LineCap> {}
+export class LineDashSpec extends DataSpec<number[]> {}
+export class FontSpec extends DataSpec<string> {}
+export class FontSizeSpec extends DataSpec<string> {}
+export class FontStyleSpec extends DataSpec<enums.FontStyle> {}
+export class TextAlignSpec extends DataSpec<enums.TextAlign> {}
+export class TextBaselineSpec extends DataSpec<enums.TextBaseline> {}

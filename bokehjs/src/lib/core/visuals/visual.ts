@@ -1,6 +1,5 @@
 import {View} from "../view"
 import * as p from "../properties"
-import {Arrayable} from "../types"
 
 export type Paintable = {request_paint(): void}
 
@@ -22,17 +21,6 @@ export abstract class VisualProperties {
       self[attr] = prop
       this._props.push(prop)
     }
-  }
-
-  cache_select(prop: p.Property<unknown>, i: number): any {
-    if (prop.is_value)
-      return prop.spec.value
-    else
-      return (this.obj as any)[`_${prop.attr}`][i]
-  }
-
-  get_array(prop: p.Property<unknown>): Arrayable {
-    return (this.obj as any)[`_${prop.attr}`]
   }
 
   abstract get doit(): boolean

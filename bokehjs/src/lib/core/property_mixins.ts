@@ -109,7 +109,7 @@ export type HatchScalar = {
 export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
-  text_font: p.Property<string>
+  text_font: p.ScalarSpec<string>
   text_font_size: p.ScalarSpec<string>
   text_font_style: p.ScalarSpec<FontStyle>
   text_align: p.ScalarSpec<TextAlign>
@@ -123,7 +123,7 @@ export const LineScalar: p.DefineOf<LineScalar> = {
   line_width:       [ p.NumberScalar,       1           ],
   line_join:        [ p.LineJoinScalar,     "bevel"     ],
   line_cap:         [ p.LineCapScalar,      "butt"      ],
-  line_dash:        [ p.ArrayScalar,        []          ],
+  line_dash:        [ p.LineDashScalar,     []          ],
   line_dash_offset: [ p.NumberScalar,       0           ],
 }
 
@@ -144,7 +144,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
 export const TextScalar: p.DefineOf<TextScalar> = {
   text_color:       [ p.ColorScalar,        "#444444"   ],
   text_alpha:       [ p.NumberScalar,       1.0         ],
-  text_font:        [ p.Font,               "helvetica" ],
+  text_font:        [ p.FontScalar,         "helvetica" ],
   text_font_size:   [ p.FontSizeScalar,     "16px"      ],
   text_font_style:  [ p.FontStyleScalar,    "normal"    ],
   text_align:       [ p.TextAlignScalar,    "left"      ],
@@ -158,10 +158,10 @@ export type LineVector = {
   line_color: p.ColorSpec
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
-  line_join: p.Property<LineJoin>
-  line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
-  line_dash_offset: p.Property<number>
+  line_join: p.VectorSpec<LineJoin>
+  line_cap: p.VectorSpec<LineCap>
+  line_dash: p.VectorSpec<number[]>
+  line_dash_offset: p.VectorSpec<number>
 }
 
 export type FillVector = {
@@ -181,22 +181,22 @@ export type HatchVector = {
 export type TextVector = {
   text_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
-  text_font: p.Property<string>
+  text_font: p.VectorSpec<string>
   text_font_size: p.VectorSpec<string>
-  text_font_style: p.Property<FontStyle>
-  text_align: p.Property<TextAlign>
-  text_baseline: p.Property<TextBaseline>
-  text_line_height: p.Property<number>
+  text_font_style: p.VectorSpec<FontStyle>
+  text_align: p.VectorSpec<TextAlign>
+  text_baseline: p.VectorSpec<TextBaseline>
+  text_line_height: p.VectorSpec<number>
 }
 
 export const LineVector: p.DefineOf<LineVector> = {
-  line_color:       [ p.ColorSpec,      "black"     ],
-  line_alpha:       [ p.NumberSpec,     1.0         ],
-  line_width:       [ p.NumberSpec,     1           ],
-  line_join:        [ LineJoin, "bevel" ],
-  line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Array(k.Number), [] ],
-  line_dash_offset: [ k.Number, 0 ],
+  line_color:       [ p.ColorSpec,    "black"     ],
+  line_alpha:       [ p.NumberSpec,   1.0         ],
+  line_width:       [ p.NumberSpec,   1           ],
+  line_join:        [ p.LineJoinSpec, "bevel" ],
+  line_cap:         [ p.LineCapSpec,  "butt" ],
+  line_dash:        [ p.LineDashSpec, [] ],
+  line_dash_offset: [ p.NumberSpec,   0 ],
 }
 
 export const FillVector: p.DefineOf<FillVector> = {
@@ -214,14 +214,14 @@ export const HatchVector: p.DefineOf<HatchVector> = {
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
-  text_color:       [ p.ColorSpec,      "#444444"   ],
-  text_alpha:       [ p.NumberSpec,     1.0         ],
-  text_font:        [ p.Font,           "helvetica" ],
-  text_font_size:   [ p.FontSizeSpec,   "16px"      ],
-  text_font_style:  [ FontStyle, "normal" ],
-  text_align:       [ TextAlign, "left" ],
-  text_baseline:    [ TextBaseline, "bottom" ],
-  text_line_height: [ k.Number, 1.2 ],
+  text_color:       [ p.ColorSpec, "#444444" ],
+  text_alpha:       [ p.NumberSpec, 1.0 ],
+  text_font:        [ p.FontSpec, "helvetica" ],
+  text_font_size:   [ p.FontSizeSpec, "16px"],
+  text_font_style:  [ p.FontStyleSpec, "normal" ],
+  text_align:       [ p.TextAlignSpec, "left" ],
+  text_baseline:    [ p.TextBaselineSpec, "bottom" ],
+  text_line_height: [ p.NumberSpec, 1.2 ],
 }
 
 export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}

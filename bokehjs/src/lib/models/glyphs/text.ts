@@ -54,9 +54,9 @@ export class TextView extends XYGlyphView {
         ctx.rotate(_angle[i])
         this.visuals.text.set_vectorize(ctx, i)
 
-        const font = this.visuals.text.v_font_value(i)
+        const font = this.visuals.text.font_value(i)
         const {height} = font_metrics(font)
-        const line_height = this.model.text_line_height*height
+        const line_height = this._text_line_height.get(i)*height
         if (text.indexOf("\n") == -1) {
           ctx.fillText(text, 0, 0)
           const x0 = sx[i] + _x_offset[i]

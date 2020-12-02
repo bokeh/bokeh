@@ -243,12 +243,11 @@ export abstract class GlyphView extends View {
         }
       }
 
-      const base_array = prop.array(source)
-      const array = indices.select(base_array)
-      self[`_${prop.attr}`] = array
+      const uniform = prop.uniform(source).select(indices)
+      self[`_${prop.attr}`] = uniform
 
-      if (array instanceof Uint32Array)
-        self[`_${prop.attr}_view`] = new DataView(array.buffer)
+      if (uniform.array instanceof Uint32Array)
+        self[`_${prop.attr}_view`] = new DataView(uniform.array.buffer)
     }
 
     this.glglyph?.set_visuals_changed()

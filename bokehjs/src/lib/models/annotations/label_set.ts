@@ -55,7 +55,7 @@ export class LabelSetView extends TextAnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = font_metrics(this.visuals.text.v_font_value(0))
+    const {height} = font_metrics(this.visuals.text.font_value(0))
     return [width, height]
   }
 
