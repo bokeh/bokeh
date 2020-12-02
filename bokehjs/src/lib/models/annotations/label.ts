@@ -54,7 +54,7 @@ export namespace Label {
   export type Attrs = p.AttrsOf<Props>
 
   export type Mixins =
-    mixins.Text/*Scalar*/ &
+    mixins.TextScalar &
     mixins.BorderLine     &
     mixins.BackgroundFill
 
@@ -75,7 +75,7 @@ export class Label extends TextAnnotation {
     this.prototype.default_view = LabelView
 
     this.mixins<Label.Mixins>([
-      mixins.Text/*Scalar*/,
+      mixins.TextScalar,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
     ])

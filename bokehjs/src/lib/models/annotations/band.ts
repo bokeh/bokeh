@@ -71,9 +71,9 @@ export namespace Band {
 
   export type Props = UpperLower.Props & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.LineScalar & mixins.FillScalar
 
-  export type Visuals = UpperLower.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
+  export type Visuals = UpperLower.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar}
 }
 
 export interface Band extends Band.Attrs {}

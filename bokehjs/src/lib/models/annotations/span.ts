@@ -74,9 +74,9 @@ export namespace Span {
     for_hover: p.Property<boolean>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.LineScalar
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/}
+  export type Visuals = Annotation.Visuals & {line: visuals.LineScalar}
 }
 
 export interface Span extends Span.Attrs {}
@@ -92,7 +92,7 @@ export class Span extends Annotation {
   static init_Span(): void {
     this.prototype.default_view = SpanView
 
-    this.mixins<Span.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Span.Mixins>(mixins.LineScalar)
 
     this.define<Span.Props>(({Number, Nullable}) => ({
       render_mode:    [ RenderMode, "canvas" ],

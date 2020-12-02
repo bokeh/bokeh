@@ -129,9 +129,9 @@ export namespace BoxAnnotation {
     render_mode: p.Property<RenderMode>
   } & Mixins
 
-  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
+  export type Mixins = mixins.LineScalar & mixins.FillScalar & mixins.HatchScalar
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
+  export type Visuals = Annotation.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar, hatch: visuals.HatchScalar}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
@@ -147,7 +147,7 @@ export class BoxAnnotation extends Annotation {
   static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
+    this.mixins<BoxAnnotation.Mixins>([mixins.LineScalar, mixins.FillScalar, mixins.HatchScalar])
 
     this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
       top:          [ Nullable(Number), null ],

@@ -24,9 +24,9 @@ export namespace Area {
 
   export type Props = Glyph.Props & Mixins
 
-  export type Mixins = mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
+  export type Mixins = mixins.FillScalar & mixins.HatchScalar
 
-  export type Visuals = Glyph.Visuals & {fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
+  export type Visuals = Glyph.Visuals & {fill: visuals.FillScalar, hatch: visuals.HatchScalar}
 }
 
 export interface Area extends Area.Attrs {}
@@ -40,6 +40,6 @@ export class Area extends Glyph {
   }
 
   static init_Area(): void {
-    this.mixins<Area.Mixins>([mixins.Fill/*Scalar*/, mixins.Hatch/*Scalar*/])
+    this.mixins<Area.Mixins>([mixins.FillScalar, mixins.HatchScalar])
   }
 }

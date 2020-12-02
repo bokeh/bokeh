@@ -76,9 +76,9 @@ export namespace Patch {
 
   export type Props = XYGlyph.Props & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
+  export type Mixins = mixins.LineScalar & mixins.FillScalar & mixins.HatchScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar, hatch: visuals.HatchScalar}
 }
 
 export interface Patch extends Patch.Attrs {}
@@ -94,6 +94,6 @@ export class Patch extends XYGlyph {
   static init_Patch(): void {
     this.prototype.default_view = PatchView
 
-    this.mixins<Patch.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/, mixins.Hatch/*Scalar*/])
+    this.mixins<Patch.Mixins>([mixins.LineScalar, mixins.FillScalar, mixins.HatchScalar])
   }
 }
