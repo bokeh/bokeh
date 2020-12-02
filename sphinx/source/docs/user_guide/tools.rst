@@ -452,6 +452,9 @@ left was created with the accompanying ``tooltips`` definition on the right.
     |                    |        ("(x,y)", "($x, $y)"),                             |
     |   |hover_basic|    |        ("radius", "@radius"),                             |
     |                    |        ("fill color", "$color[hex, swatch]:fill_color"),  |
+    |                    |        ("fill color", "$color[hex]:fill_color"),          |
+    |                    |        ("fill color", "$color:fill_color"),               |
+    |                    |        ("fill color", "$swatch:fill_color"),              |
     |                    |        ("foo", "@foo"),                                   |
     |                    |        ("bar", "@bar"),                                   |
     |                    |    ]                                                      |
@@ -476,7 +479,9 @@ in data or screen space. These special fields are listed here:
 :``$color``:
     colors from a data source, with the syntax: ``$color[options]:field_name``.
     The available options are: ``hex`` (to display the color as a hex value),
-    and ``swatch`` to also display a small color swatch.
+    ``swatch`` (color data from data source displayed as a small color box).
+:``$swatch``:
+    color data from data source displayed as a small color box.
 
 Field names that begin with ``@`` are associated with columns in a
 ``ColumnDataSource``. For instance, the field name ``"@price"`` will display
