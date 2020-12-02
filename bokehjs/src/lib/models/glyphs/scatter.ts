@@ -6,7 +6,7 @@ import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export interface ScatterData extends MarkerData {
+export type ScatterData = MarkerData & {
   _marker: Arrayable<MarkerType> /* | MarkerType */
 }
 

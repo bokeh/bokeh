@@ -13,7 +13,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export interface MultiPolygonsData extends GlyphData {
+export type MultiPolygonsData = GlyphData & {
   _xs: NumberArray[][][]
   _ys: NumberArray[][][]
 

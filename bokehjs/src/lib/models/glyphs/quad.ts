@@ -2,7 +2,7 @@ import {Box, BoxView, BoxData} from "./box"
 import {NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export interface QuadData extends BoxData {
+export type QuadData = BoxData & {
   _right: NumberArray
   _bottom: NumberArray
   _left: NumberArray

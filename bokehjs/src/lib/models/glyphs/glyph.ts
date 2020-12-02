@@ -23,7 +23,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 import type {BaseGLGlyph} from "./webgl/base"
 
-export interface GlyphData {}
+export type GlyphData = {}
 
 export interface GlyphView extends GlyphData {}
 

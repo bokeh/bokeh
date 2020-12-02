@@ -13,7 +13,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
-export interface MultiLineData extends GlyphData {
+export type MultiLineData = GlyphData & {
   _xs: RaggedArray
   _ys: RaggedArray
 

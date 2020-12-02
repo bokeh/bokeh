@@ -10,7 +10,7 @@ import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export interface AnnularWedgeData extends XYGlyphData {
+export type AnnularWedgeData = XYGlyphData & {
   _inner_radius: NumberArray
   _outer_radius: NumberArray
   _start_angle: NumberArray

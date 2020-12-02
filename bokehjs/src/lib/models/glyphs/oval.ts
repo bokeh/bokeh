@@ -1,7 +1,7 @@
 import {EllipseOval, EllipseOvalView, EllipseOvalData} from "./ellipse_oval"
 import * as p from "core/properties"
 
-export interface OvalData extends EllipseOvalData {}
+export type OvalData = EllipseOvalData
 
 export interface OvalView extends OvalData {}
 

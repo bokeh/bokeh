@@ -13,7 +13,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
 
-export interface CircleData extends XYGlyphData {
+export type CircleData = XYGlyphData & {
   _angle: NumberArray
   _size: NumberArray
   _radius?: NumberArray

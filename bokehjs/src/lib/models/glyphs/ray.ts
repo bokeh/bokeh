@@ -6,7 +6,7 @@ import {Rect, NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export interface RayData extends XYGlyphData {
+export type RayData = XYGlyphData & {
   _length: NumberArray
   _angle: NumberArray
 

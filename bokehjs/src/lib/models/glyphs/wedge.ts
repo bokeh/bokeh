@@ -10,7 +10,7 @@ import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export interface WedgeData extends XYGlyphData {
+export type WedgeData = XYGlyphData & {
   _radius: NumberArray
   _start_angle: NumberArray
   _end_angle: NumberArray

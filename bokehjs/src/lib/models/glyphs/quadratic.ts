@@ -28,7 +28,7 @@ function _qbb(u: number, v: number, w: number): [number, number] {
   }
 }
 
-export interface QuadraticData extends GlyphData {
+export type QuadraticData = GlyphData & {
   _x0: NumberArray
   _y0: NumberArray
   _x1: NumberArray

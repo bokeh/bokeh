@@ -7,7 +7,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export interface HAreaData extends AreaData {
+export type HAreaData = AreaData & {
   _x1: NumberArray
   _x2: NumberArray
   _y: NumberArray

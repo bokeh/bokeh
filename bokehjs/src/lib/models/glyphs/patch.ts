@@ -9,7 +9,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export interface PatchData extends XYGlyphData {}
+export type PatchData = XYGlyphData
 
 export interface PatchView extends PatchData {}
 

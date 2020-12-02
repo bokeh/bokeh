@@ -6,7 +6,7 @@ import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 
-export interface AreaData extends GlyphData {}
+export type AreaData = GlyphData
 
 export interface AreaView extends AreaData {}
 

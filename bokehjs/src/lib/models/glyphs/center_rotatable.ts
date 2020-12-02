@@ -4,7 +4,7 @@ import * as visuals from "core/visuals"
 import {NumberArray, ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
-export interface CenterRotatableData extends XYGlyphData {
+export type CenterRotatableData = XYGlyphData & {
   _angle: NumberArray
   _width: NumberArray
   _height: NumberArray

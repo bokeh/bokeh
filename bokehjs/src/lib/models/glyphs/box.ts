@@ -10,7 +10,7 @@ import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export interface BoxData extends GlyphData {
+export type BoxData = GlyphData & {
   _right: NumberArray
   _bottom: NumberArray
   _left: NumberArray

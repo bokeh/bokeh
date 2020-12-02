@@ -8,7 +8,7 @@ import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/platform"
 import {Selection} from "../selections/selection"
 
-export interface AnnulusData extends XYGlyphData {
+export type AnnulusData = XYGlyphData & {
   _inner_radius: NumberArray
   _outer_radius: NumberArray
 

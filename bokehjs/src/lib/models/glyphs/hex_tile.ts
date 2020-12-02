@@ -16,7 +16,7 @@ import {Selection} from "../selections/selection"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export interface HexTileData extends GlyphData {
+export type HexTileData = GlyphData & {
   _q: NumberArray
   _r: NumberArray
 

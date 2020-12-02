@@ -6,7 +6,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export interface EllipseOvalData extends CenterRotatableData {}
+export type EllipseOvalData = CenterRotatableData
 
 export interface EllipseOvalView extends EllipseOvalData {}
 

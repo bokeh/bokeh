@@ -13,7 +13,7 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export interface PatchesData extends GlyphData {
+export type PatchesData = GlyphData & {
   _xs: RaggedArray
   _ys: RaggedArray
 

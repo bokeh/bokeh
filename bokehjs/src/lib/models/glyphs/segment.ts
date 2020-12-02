@@ -11,7 +11,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
-export interface SegmentData extends GlyphData {
+export type SegmentData = GlyphData & {
   _x0: NumberArray
   _y0: NumberArray
   _x1: NumberArray

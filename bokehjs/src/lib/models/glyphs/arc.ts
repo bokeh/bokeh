@@ -7,7 +7,7 @@ import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export interface ArcData extends XYGlyphData {
+export type ArcData = XYGlyphData & {
   _radius: NumberArray
   _start_angle: NumberArray
   _end_angle: NumberArray

@@ -2,7 +2,7 @@ import {Box, BoxView, BoxData} from "./box"
 import {NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export interface HBarData extends BoxData {
+export type HBarData = BoxData {
   _left: NumberArray
   _y: NumberArray
   _height: NumberArray

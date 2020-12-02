@@ -7,7 +7,7 @@ import {Rect} from "core/types"
 import {StepMode} from "core/enums"
 import {Context2d} from "core/util/canvas"
 
-export interface StepData extends XYGlyphData {}
+export type StepData = XYGlyphData
 
 export interface StepView extends StepData {}
 

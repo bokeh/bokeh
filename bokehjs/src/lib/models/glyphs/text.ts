@@ -10,7 +10,7 @@ import {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
-export interface TextData extends XYGlyphData {
+export type TextData = XYGlyphData & {
   _text: string[]
   _angle: NumberArray
   _x_offset: NumberArray

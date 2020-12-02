@@ -9,7 +9,7 @@ import {concat} from "core/util/array"
 import {NDArray, is_NDArray} from "core/util/ndarray"
 import {assert} from "core/util/assert"
 
-export interface ImageDataBase extends XYGlyphData {
+export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
   _image: (NDArray | number[][])[]

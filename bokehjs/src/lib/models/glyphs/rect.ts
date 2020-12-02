@@ -9,7 +9,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
-export interface RectData extends CenterRotatableData {
+export type RectData = CenterRotatableData & {
   sx0: ScreenArray
   sy1: ScreenArray
   ssemi_diag: ScreenArray

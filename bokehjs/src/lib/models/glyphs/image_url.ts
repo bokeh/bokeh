@@ -9,7 +9,7 @@ import {ImageLoader} from "core/util/image"
 
 export type CanvasImage = HTMLImageElement
 
-export interface ImageURLData extends XYGlyphData {
+export type ImageURLData = XYGlyphData & {
   _url: string[]
   _angle: NumberArray
   _w: NumberArray

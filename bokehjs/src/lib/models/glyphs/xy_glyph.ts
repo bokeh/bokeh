@@ -4,7 +4,7 @@ import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
-export interface XYGlyphData extends GlyphData {
+export type XYGlyphData = GlyphData & {
   _x: NumberArray
   _y: NumberArray
 

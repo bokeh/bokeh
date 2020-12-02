@@ -76,7 +76,7 @@ function _cbb(x0: number, y0: number,
   ]
 }
 
-export interface BezierData extends GlyphData {
+export type BezierData = GlyphData & {
   _x0: NumberArray
   _y0: NumberArray
   _x1: NumberArray
