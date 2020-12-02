@@ -53,10 +53,13 @@ export class FillVector extends _Fill {
   readonly fill_alpha: p.Uniform<number>
 
   get doit(): boolean {
-    const color = this.fill_color.value
-    const alpha = this.fill_alpha.value
-
-    return !(color == 0 || alpha == 0)
+    const {fill_color} = this
+    if (p.is_UniformScalar(fill_color) && fill_color.value == 0)
+      return false
+    const {fill_alpha} = this
+    if (p.is_UniformScalar(fill_alpha) && fill_alpha.value == 0)
+      return false
+    return true
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

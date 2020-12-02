@@ -95,10 +95,13 @@ export class TextVector extends _Text {
   readonly text_line_height: p.Uniform<number>
 
   get doit(): boolean {
-    const color = this.text_color.value
-    const alpha = this.text_alpha.value
-
-    return !(color == 0 || alpha == 0)
+    const {text_color} = this
+    if (p.is_UniformScalar(text_color) && text_color.value == 0)
+      return false
+    const {text_alpha} = this
+    if (p.is_UniformScalar(text_alpha) && text_alpha.value == 0)
+      return false
+    return true
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

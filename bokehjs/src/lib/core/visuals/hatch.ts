@@ -96,11 +96,19 @@ export class HatchVector extends _Hatch {
   readonly hatch_extra: p.Property<mixins.HatchExtra>
 
   get doit(): boolean {
-    const color = this.hatch_color.value
-    const alpha = this.hatch_alpha.value
-    const pattern = this.hatch_pattern.value
-
-    return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
+    const {hatch_color} = this
+    if (p.is_UniformScalar(hatch_color) && hatch_color.value == 0)
+      return false
+    const {hatch_alpha} = this
+    if (p.is_UniformScalar(hatch_alpha) && hatch_alpha.value == 0)
+      return false
+    const {hatch_pattern} = this
+    if (p.is_UniformScalar(hatch_pattern)) {
+      const pattern = hatch_pattern.value
+      if (pattern == " " || pattern == "blank" || pattern == null)
+        return false
+    }
+    return true
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

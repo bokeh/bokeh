@@ -46,6 +46,10 @@ export type Spec<T> = {
 // Property base class
 //
 
+export function is_UniformScalar<T>(uniform: Uniform<T>): uniform is UniformScalar<T> {
+  return uniform.is_scalar
+}
+
 export type UniformsOf<M> = {
   [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
                   M[K] extends ScalarSpec<infer T, any> ? UniformScalar<T> :

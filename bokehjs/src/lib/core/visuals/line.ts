@@ -81,11 +81,16 @@ export class LineVector extends _Line {
   readonly line_dash_offset: p.Uniform<number>
 
   get doit(): boolean {
-    const color = this.line_color.value
-    const alpha = this.line_alpha.value
-    const width = this.line_width.value
-
-    return !(color == 0 || alpha == 0 || width == 0)
+    const {line_color} = this
+    if (p.is_UniformScalar(line_color) && line_color.value == 0)
+      return false
+    const {line_alpha} = this
+    if (p.is_UniformScalar(line_alpha) && line_alpha.value == 0)
+      return false
+    const {line_width} = this
+    if (p.is_UniformScalar(line_width) && line_width.value == 0)
+      return false
+    return true
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
