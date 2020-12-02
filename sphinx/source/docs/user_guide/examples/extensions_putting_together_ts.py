@@ -80,8 +80,8 @@ export class Custom extends HTMLBox {
       slider: [ Ref(Slider) ],
     }))
 
-    this.override<Custom.Props>({	
-      margin: 5,	
+    this.override<Custom.Props>({
+      margin: 5,
     })
 
   }
