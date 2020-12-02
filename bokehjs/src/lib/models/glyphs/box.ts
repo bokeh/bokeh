@@ -10,7 +10,7 @@ import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export type BoxData = GlyphData & {
+export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
   _right: NumberArray
   _bottom: NumberArray
   _left: NumberArray

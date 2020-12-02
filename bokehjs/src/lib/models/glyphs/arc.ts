@@ -7,7 +7,7 @@ import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export type ArcData = XYGlyphData & {
+export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
   _radius: NumberArray
   _start_angle: NumberArray
   _end_angle: NumberArray

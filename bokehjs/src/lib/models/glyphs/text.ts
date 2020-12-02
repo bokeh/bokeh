@@ -10,7 +10,7 @@ import {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
-export type TextData = XYGlyphData & {
+export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   _text: string[]
   _angle: NumberArray
   _x_offset: NumberArray
@@ -56,7 +56,7 @@ export class TextView extends XYGlyphView {
 
         const font = this.visuals.text.font_value(i)
         const {height} = font_metrics(font)
-        const line_height = this._text_line_height.get(i)*height
+        const line_height = this.text_line_height.get(i)*height
         if (text.indexOf("\n") == -1) {
           ctx.fillText(text, 0, 0)
           const x0 = sx[i] + _x_offset[i]

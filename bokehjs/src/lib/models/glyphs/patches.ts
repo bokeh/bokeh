@@ -13,7 +13,7 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export type PatchesData = GlyphData & {
+export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
   _xs: RaggedArray
   _ys: RaggedArray
 

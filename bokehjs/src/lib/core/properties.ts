@@ -46,6 +46,12 @@ export type Spec<T> = {
 // Property base class
 //
 
+export type UniformsOf<M> = {
+  [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
+                  M[K] extends ScalarSpec<infer T, any> ? UniformScalar<T> :
+                  M[K] extends Property<infer T>        ? T                : never
+}
+
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
 }

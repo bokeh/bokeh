@@ -13,7 +13,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
-export type MultiLineData = GlyphData & {
+export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
   _xs: RaggedArray
   _ys: RaggedArray
 
@@ -85,7 +85,7 @@ export class MultiLineView extends GlyphView {
 
     const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = this.sxs.length; i < end; i++) {
-      const threshold = Math.max(2, this._line_width.get(i)/2)
+      const threshold = Math.max(2, this.line_width.get(i)/2)
 
       const sxsi = this.sxs.get(i)
       const sysi = this.sys.get(i)

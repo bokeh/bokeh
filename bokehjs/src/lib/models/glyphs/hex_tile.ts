@@ -16,7 +16,7 @@ import {Selection} from "../selections/selection"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export type HexTileData = GlyphData & {
+export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
   _q: NumberArray
   _r: NumberArray
 

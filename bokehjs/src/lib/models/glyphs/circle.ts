@@ -13,7 +13,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
 
-export type CircleData = XYGlyphData & {
+export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   _angle: NumberArray
   _size: NumberArray
   _radius?: NumberArray

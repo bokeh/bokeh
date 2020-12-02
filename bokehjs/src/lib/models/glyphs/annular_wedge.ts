@@ -10,7 +10,7 @@ import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export type AnnularWedgeData = XYGlyphData & {
+export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
   _inner_radius: NumberArray
   _outer_radius: NumberArray
   _start_angle: NumberArray

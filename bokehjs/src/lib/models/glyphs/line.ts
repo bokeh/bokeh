@@ -10,7 +10,7 @@ import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export type LineData = XYGlyphData
+export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 
 export interface LineView extends LineData {}
 

@@ -6,7 +6,7 @@ import {Rect, NumberArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export type RayData = XYGlyphData & {
+export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
   _length: NumberArray
   _angle: NumberArray
 

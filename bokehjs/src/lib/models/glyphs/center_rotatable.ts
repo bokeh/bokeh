@@ -4,7 +4,7 @@ import * as visuals from "core/visuals"
 import {NumberArray, ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
-export type CenterRotatableData = XYGlyphData & {
+export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mixins> & {
   _angle: NumberArray
   _width: NumberArray
   _height: NumberArray

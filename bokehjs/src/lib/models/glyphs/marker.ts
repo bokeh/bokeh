@@ -10,7 +10,7 @@ import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export type MarkerData = XYGlyphData & {
+export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
   _size: Arrayable<number>
   _angle: Arrayable<number>
 

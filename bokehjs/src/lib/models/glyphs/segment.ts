@@ -11,7 +11,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
-export type SegmentData = GlyphData & {
+export type SegmentData = GlyphData & p.UniformsOf<Segment.Mixins> & {
   _x0: NumberArray
   _y0: NumberArray
   _x1: NumberArray
@@ -85,7 +85,7 @@ export class SegmentView extends GlyphView {
     const indices = []
 
     for (const i of candidates) {
-      const threshold2 = Math.max(2, this._line_width.get(i)/2)**2
+      const threshold2 = Math.max(2, this.line_width.get(i)/2)**2
       const p0 = {x: this.sx0[i], y: this.sy0[i]}
       const p1 = {x: this.sx1[i], y: this.sy1[i]}
       const dist2 = hittest.dist_to_segment_squared(point, p0, p1)
@@ -122,7 +122,7 @@ export class SegmentView extends GlyphView {
       if ((v0[i] <= val && val <= v1[i]) || (v1[i] <= val && val <= v0[i]))
         indices.push(i)
 
-      const threshold = 1.5 + (this._line_width.get(i)/2)// Maximum pixel difference to detect hit
+      const threshold = 1.5 + (this.line_width.get(i)/2)// Maximum pixel difference to detect hit
 
       if (v0[i] == v1[i]) {
         if (geometry.direction == 'h') {

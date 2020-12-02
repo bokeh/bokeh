@@ -6,7 +6,7 @@ import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 
-export type AreaData = GlyphData
+export type AreaData = GlyphData & p.UniformsOf<Area.Mixins>
 
 export interface AreaView extends AreaData {}
 

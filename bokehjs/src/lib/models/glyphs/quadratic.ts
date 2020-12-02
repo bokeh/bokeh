@@ -28,7 +28,7 @@ function _qbb(u: number, v: number, w: number): [number, number] {
   }
 }
 
-export type QuadraticData = GlyphData & {
+export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
   _x0: NumberArray
   _y0: NumberArray
   _x1: NumberArray

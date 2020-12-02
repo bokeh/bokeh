@@ -13,7 +13,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export type MultiPolygonsData = GlyphData & {
+export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> & {
   _xs: NumberArray[][][]
   _ys: NumberArray[][][]
 
