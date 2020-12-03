@@ -54,6 +54,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alpha,
     Auto,
     Bool,
     Color,
@@ -636,28 +637,14 @@ class CrosshairTool(InspectTool):
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
+    """)
 
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
+    line_alpha = Alpha(help="""
+    An alpha value to use to stroke paths with.
     """)
 
     line_width = Float(default=1, help="""
     Stroke width in units of pixels.
-    """)
-
-    line_alpha = Float(default=1.0, help="""
-    An alpha value to use to stroke paths with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
     """)
 
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(

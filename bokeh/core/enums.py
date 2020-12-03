@@ -355,7 +355,7 @@ MarkerType = enumeration(
     "triangle_dot", "triangle_pin", "x", "y"
 )
 
-#: Specify one of the 137 named CSS colors
+#: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify a locale for printing numeric values

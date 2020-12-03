@@ -141,6 +141,7 @@ COLORS = (
     ("plum",                  221,  160,  221),
     ("powderblue",            176,  224,  230),
     ("purple",                128,  0,    128),
+    ("rebeccapurple",         102,  51,   153),
     ("red",                   255,  0,    0),
     ("rosybrown",             188,  143,  143),
     ("royalblue",             65,   105,  225),
@@ -176,7 +177,7 @@ COLORS = (
 #-----------------------------------------------------------------------------
 
 def test__all__() -> None:
-    assert len(bcn.__all__) == 147
+    assert len(bcn.__all__) == 148
 
 @pytest.mark.parametrize('name,R,G,B', COLORS)
 def test_color(name, R, G, B) -> None:

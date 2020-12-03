@@ -41,6 +41,8 @@ import bokeh.core.properties as bcp # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'Alpha',
+    'AlphaSpec',
     'Angle',
     'AngleSpec',
     'Any',

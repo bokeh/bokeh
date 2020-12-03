@@ -36,6 +36,7 @@ from .string import Regex
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alpha',
     'Color',
     'RGB',
     'ColorHex',
@@ -97,9 +98,26 @@ class Color(Either):
 
     """
 
+    _default_help = """\
+    Acceptable values are:
+
+    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
+    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
+    - a 3-tuple of integers (r, g, b) between 0 and 255
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
+    - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
+
+    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
+
+    """
+
     def __init__(self, default=None, help=None):
         types = (Enum(enums.NamedColor),
+                 Regex(r"^#[0-9a-fA-F]{3}$"),
+                 Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),
+                 Regex(r"^#[0-9a-fA-F]{8}$"),
                  Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
                        r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
                        r"\s*([01]\.?\d*?)\)"),
@@ -108,6 +126,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
+        help = f"{help or ''}\n{self._default_help}"
         super().__init__(*types, default=default, help=help)
 
     def __str__(self):
@@ -142,6 +161,17 @@ class ColorHex(Color):
         else:
             value = value.to_hex()
         return value.lower()
+
+
+class Alpha(Percent):
+
+    _default_help = """\
+    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    """
+
+    def __init__(self, default=1.0, help=None):
+        help = f"{help or ''}\n{self._default_help}"
+        super().__init__(default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

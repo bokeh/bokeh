@@ -34,6 +34,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    AlphaSpec,
     Angle,
     AngleSpec,
     Auto,
@@ -999,24 +1000,10 @@ class Title(TextAnnotation):
 
     text_color = ColorSpec(default="#444444", help="""
     A color to use to fill text with.
-
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
     """)
 
-    text_alpha = NumberSpec(default=1.0, help="""
+    text_alpha = AlphaSpec(help="""
     An alpha value to use to fill text with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
     """)
 
     background_props = Include(ScalarFillProps, use_prefix=True, help="""

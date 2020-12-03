@@ -228,7 +228,7 @@ class Test_bce:
                                          "triangle_dot", "triangle_pin", "x", "y")
 
     def test_NamedColor(self) -> None:
-        assert len(tuple(bce.NamedColor)) == 147
+        assert len(tuple(bce.NamedColor)) == 148
         assert tuple(bce.NamedColor) == tuple(named.__all__)
 
     def test_NumeralLanguage(self) -> None:

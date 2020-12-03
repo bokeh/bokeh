@@ -288,10 +288,12 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
 
         if isinstance(val, np.ndarray):
             if isinstance(dataspecs[var].property, ColorSpec):
-                if val.dtype == "uint32" and val.ndim == 1:  # 0xRRGGBBAA
+                if val.dtype == "uint32" and val.ndim == 1:   # 0xRRGGBBAA
+                    pass # TODO: handle byteorder
+                elif val.dtype == "uint8" and val.ndim == 1:  # greys
                     pass
-                elif val.dtype == "uint8" and val.ndim == 1: # greys
-                    pass
+                elif val.dtype.kind == "U" and val.ndim == 1: # CSS strings
+                    pass # TODO: currently this gets converted to List[str] in the serializer
                 elif val.dtype == "uint8" and val.ndim == 2 and val.shape[1] in (3, 4): # RGB/RGBA
                     pass
                 else:
