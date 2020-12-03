@@ -59,8 +59,7 @@ export class PolyEditToolView extends PolyToolView {
 
     const vsync_renderer = this.model.renderers[0]
     const vsync_updater = () => this._update_vertices(vsync_renderer)
-    let vsync_ds = null
-    if (vsync_renderer !== undefined) vsync_ds = vsync_renderer.data_source
+    const vsync_ds = vsync_renderer?.data_source
 
     const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (!renderers.length) {
@@ -68,11 +67,11 @@ export class PolyEditToolView extends PolyToolView {
       this._selected_renderer = null
       this._drawing = false
       this._cur_index = null
-      if (vsync_ds !== null)
+      if (vsync_ds != null)
         vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
       return
     }
-    if (vsync_ds !== null)
+    if (vsync_ds != null)
       vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
 
     this._cur_index = renderers[0].data_source.selected.indices[0]
@@ -86,11 +85,11 @@ export class PolyEditToolView extends PolyToolView {
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
     if (this._drawing) return
-    if ((index === null) && (xkey || ykey)) return
+    if ((index == null) && (xkey || ykey)) return
 
     let xs: number[]
     let ys: number[]
-    if (xkey && index !== null) {  // redundant xkey null check to satisfy build-time checks
+    if (xkey && index != null) {  // redundant xkey null check to satisfy build-time checks
       xs = cds.data[xkey][index]
       if (!isArray(xs))
         cds.data[xkey][index] = xs = Array.from(xs)
@@ -98,7 +97,7 @@ export class PolyEditToolView extends PolyToolView {
       xs = glyph.xs.value
     }
 
-    if (ykey && index !== null) {
+    if (ykey && index != null) {
       ys = cds.data[ykey][index]
       if (!isArray(ys))
         cds.data[ykey][index] = ys = Array.from(ys)
