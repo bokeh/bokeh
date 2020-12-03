@@ -286,8 +286,18 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
             continue
 
-        if isinstance(val, np.ndarray) and val.ndim != 1:
-            raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+        if isinstance(val, np.ndarray):
+            if isinstance(dataspecs[var].property, ColorSpec):
+                if val.dtype == "uint32" and val.ndim == 1:  # 0xRRGGBBAA
+                    pass
+                elif val.dtype == "uint8" and val.ndim == 1: # greys
+                    pass
+                elif val.dtype == "uint8" and val.ndim == 2 and val.shape[1] in (3, 4): # RGB/RGBA
+                    pass
+                else:
+                    raise RuntimeError(f"Color columns need to be of type uint32[N], uint8[N], uint8[N, 3] or uint8[N, 4] ({var} is not)")
+            elif val.ndim != 1:
+                raise RuntimeError(f"Columns need to be 1D ({var} is not)")
 
         if is_user_source:
             incompatible_literal_spec_values.append(var)
