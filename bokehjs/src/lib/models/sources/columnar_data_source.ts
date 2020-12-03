@@ -11,6 +11,7 @@ import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import type {Renderer} from "../renderers/renderer"
 import {Geometry} from "core/geometry"
+import {is_NDArray} from "core/util/ndarray"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -86,7 +87,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   get_length(soft: boolean = true): number | null {
-    const lengths = uniq(values(this.data).map((v) => v.length))
+    const lengths = uniq(values(this.data).map((v) => is_NDArray(v) ? v.shape[0] : v.length))
 
     switch (lengths.length) {
       case 0: {
