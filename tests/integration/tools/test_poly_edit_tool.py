@@ -19,7 +19,6 @@ import pytest ; pytest
 import time
 
 # External imports
-from flaky import flaky
 
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
