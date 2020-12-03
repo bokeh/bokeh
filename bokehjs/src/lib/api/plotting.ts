@@ -38,7 +38,7 @@ import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
 
 export {gridplot} from "./gridplot"
-export {rgb2hex as color} from "../core/util/color"
+export {color2css as color} from "../core/util/color"
 
 const {hasOwnProperty} = Object.prototype
 

@@ -1,6 +1,6 @@
 import * as types from "./types"
 import * as tp from "./util/types"
-import {is_color} from "./util/color"
+import {is_Color} from "./util/color"
 import {size} from "./util/object"
 
 type ESMap<K, V> = Map<K, V>
@@ -246,7 +246,7 @@ export namespace Kinds {
 
   export class Color extends Kind<types.Color> {
     valid(value: unknown): value is types.Color{
-      return tp.isString(value) && is_color(value)
+      return is_Color(value)
     }
   }
 

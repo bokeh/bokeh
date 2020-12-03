@@ -8,6 +8,7 @@ import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
+import {color2css} from "core/util/color"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
@@ -76,7 +77,7 @@ export class StringFormatter extends CellFormatter {
     if (text_align != null)
       text.style.textAlign = text_align
     if (text_color != null)
-      text.style.color = text_color
+      text.style.color = color2css(text_color)
 
     return text.outerHTML
   }

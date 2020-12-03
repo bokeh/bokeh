@@ -1,9 +1,8 @@
 import * as mixins from "./property_mixins"
 import * as p from "./properties"
-import {color2rgba, decode_rgba} from "./util/color"
+import {color2css} from "./util/color"
 import {Context2d} from "./util/canvas"
-import {Arrayable, Color} from "./types"
-import {isString} from "./util/types"
+import {Arrayable, Color, uint32} from "./types"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {View} from "./view"
@@ -12,11 +11,6 @@ import {SVGRenderingContext2D} from "core/util/svg"
 import {CanvasLayer} from "core/util/canvas"
 
 const {hasOwnProperty} = Object.prototype
-
-function color2css(color: Color | number, alpha: number): string {
-  const [r, g, b, a] = isString(color) ? color2rgba(color) : decode_rgba(color)
-  return `rgba(${r*255}, ${g*255}, ${b*255}, ${a == 1.0 ? alpha : a})`
-}
 
 function _horz(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(0, h2+0.5)
@@ -77,9 +71,10 @@ function create_hatch_canvas(ctx: Context2d,
   const h2 = h / 2
   const h4 = h2 / 2
 
-  ctx.strokeStyle = color2css(hatch_color, hatch_alpha)
+  const color = color2css(hatch_color, hatch_alpha)
+  ctx.strokeStyle = color
+  ctx.fillStyle = color
   ctx.lineCap = "square"
-  ctx.fillStyle = hatch_color
   ctx.lineWidth = hatch_weight
 
   switch (hatch_aliases[hatch_pattern] ?? hatch_pattern) {
@@ -202,6 +197,15 @@ export abstract class ContextProperties {
     }
   }
 
+  protected _v_get_color(prop: p.Property<unknown>, i: number): uint32 {
+    if (prop.is_value)
+      return prop.spec.value
+    else {
+      const view = (this.obj as any)[`_${prop.attr}_view`]
+      return view.getUint32(4*i)
+    }
+  }
+
   cache_select(prop: p.Property<unknown>, i: number): any {
     if (prop.is_value)
       return prop.spec.value
@@ -249,7 +253,7 @@ class _Line extends ContextProperties {
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
-    const color = this.cache_select(this.line_color, i)
+    const color = this._v_get_color(this.line_color, i)
     const alpha = this.cache_select(this.line_alpha, i)
     const width = this.cache_select(this.line_width, i)
     const join = this.cache_select(this.line_join, i)
@@ -291,7 +295,7 @@ class _Fill extends ContextProperties {
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
-    const color = this.cache_select(this.fill_color, i)
+    const color = this._v_get_color(this.fill_color, i)
     const alpha = this.cache_select(this.fill_alpha, i)
 
     ctx.fillStyle = color2css(color, alpha)
@@ -340,7 +344,7 @@ class _Hatch extends ContextProperties {
   }
 
   v_pattern(i: number): (ctx: Context2d) => CanvasPattern | null {
-    const color = this.cache_select(this.hatch_color, i)
+    const color = this._v_get_color(this.hatch_color, i)
     const alpha = this.cache_select(this.hatch_alpha, i)
     const scale = this.cache_select(this.hatch_scale, i)
     const pattern = this.cache_select(this.hatch_pattern, i)
@@ -421,7 +425,7 @@ class _Text extends ContextProperties {
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
-    const color = this.cache_select(this.text_color, i)
+    const color = this._v_get_color(this.text_color, i)
     const alpha = this.cache_select(this.text_alpha, i)
     const font = this.v_font_value(i)
     const align = this.cache_select(this.text_align, i)

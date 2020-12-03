@@ -13,8 +13,8 @@ import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
-import {NumberArray} from "core/types"
-import {color2hex} from "core/util/color"
+import {NumberArray, Color} from "core/types"
+import {color2hex, color2css} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
@@ -460,16 +460,14 @@ export class HoverToolView extends InspectToolView {
         }
         const hex = opts.indexOf("hex") >= 0
         const swatch = opts.indexOf("swatch") >= 0
-        let color = isNumber(i) ? column[i] : null
+        const color: Color | null = isNumber(i) ? column[i] : null
         if (color == null) {
           value_els[j].textContent = "(null)"
           continue
         }
-        if (hex)
-          color = color2hex(color)
-        value_els[j].textContent = color
+        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
         if (swatch) {
-          swatch_els[j].style.backgroundColor = color
+          swatch_els[j].style.backgroundColor = color2css(color)
           display(swatch_els[j])
         }
       } else {

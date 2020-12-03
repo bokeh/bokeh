@@ -3,6 +3,7 @@ import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
+import {color2css} from "core/util/color"
 import {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
 import {FrameBox} from "../canvas/canvas"
@@ -282,7 +283,7 @@ export class GMapPlotView extends PlotView {
     ctx.closePath()
 
     if (this.model.border_fill_color != null) {
-      ctx.fillStyle = this.model.border_fill_color
+      ctx.fillStyle = color2css(this.model.border_fill_color)
       ctx.fill()
     }
   }
