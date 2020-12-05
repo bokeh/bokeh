@@ -32,7 +32,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         fill.set_value(ctx)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)")
+        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
       })
     })
 
@@ -83,7 +83,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         line.set_value(ctx)
 
-        expect(ctx.strokeStyle).to.be.equal("rgba(255, 0, 0, 0.6)")
+        expect(ctx.strokeStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
         expect(ctx.lineWidth).to.be.equal(2)
         expect(ctx.lineJoin).to.be.equal("miter")
         expect(ctx.lineCap).to.be.equal("butt")
@@ -147,7 +147,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         text.set_value(ctx)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)")
+        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
         expect(ctx.textAlign).to.be.equal("center")
         expect(ctx.textBaseline).to.be.equal("bottom")
         expect(ctx.font).to.be.equal("bold 16px times")
@@ -199,7 +199,7 @@ describe("core/visuals", () => {
         const glyph_view = renderer_view.glyph as CircleView
         glyph_view.visuals.fill.set_vectorize(ctx, 1)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 1)")
+        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 1)") // #ff000099
       })
     })
   })

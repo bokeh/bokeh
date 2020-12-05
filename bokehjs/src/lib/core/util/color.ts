@@ -52,6 +52,15 @@ export function color2rgba(color: Color | null, alpha?: number): RGBA {
   return [r, g, b, a]
 }
 
+const _hex_table: {[key: number]: string} = {
+  0: "0", 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9",
+  10: "a", 11: "b", 12: "c", 13: "d", 14: "e", 15: "f",
+}
+
+function hex(v: uint8): string {
+  return _hex_table[v >> 4] + _hex_table[v & 0xf]
+}
+
 export function color2css(color: Color | null, alpha?: number): string {
   const [r, g, b, a] = color2rgba(color, alpha)
   return `rgba(${r}, ${g}, ${b}, ${a/255})`
@@ -59,19 +68,8 @@ export function color2css(color: Color | null, alpha?: number): string {
 
 export function color2hex(color: Color | null, alpha?: number): string {
   const [r, g, b, a] = color2rgba(color, alpha)
-
-  function _component2hex(v: uint8): string {
-    const h = v.toString(16)
-    return h.length == 1 ? `0${h}` : h
-  }
-
-  const R = _component2hex(r)
-  const G = _component2hex(g)
-  const B = _component2hex(b)
-  const A = _component2hex(a)
-
-  const rgb = `#${R}${G}${B}`
-  return a == 255 ? rgb : `${rgb}${A}`
+  const rgb = `#${hex(r)}${hex(g)}${hex(b)}`
+  return a == 255 ? rgb : `${rgb}${hex(a)}`
 }
 
 /*
