@@ -300,7 +300,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       const {transform, expr} = prop.spec
       if (transform != null)
         this.connect(transform.change, () => this.transformchange.emit())
-      if (expr != null && "change" in Object(expr))
+      if (expr != null)
         this.connect(expr.change, () => this.exprchange.emit())
     }
 
