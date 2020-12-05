@@ -22,7 +22,7 @@ import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex} from "../../selections/selection"
+import {ImageIndex, Selection} from "../../selections/selection"
 import {tool_icon_hover} from "styles/icons.css"
 import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
@@ -407,9 +407,12 @@ export class HoverToolView extends InspectToolView {
       const x = x_scale.invert(geometry.sx)
       const y = y_scale.invert(geometry.sy)
 
+      const index = renderer.data_source.inspected
+
       callback.execute(this.model, {
         geometry: {x, y, ...geometry},
         renderer,
+        index,
       })
     }
   }
@@ -515,7 +518,7 @@ export namespace HoverTool {
     show_arrow: p.Property<boolean>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
-    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer}> | null>
+    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer, index: Selection}> | null>
   }
 }
 
