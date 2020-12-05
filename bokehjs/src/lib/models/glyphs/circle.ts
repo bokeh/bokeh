@@ -17,11 +17,13 @@ export interface CircleData extends XYGlyphData {
   _angle: NumberArray
   _size: NumberArray
   _radius?: NumberArray
+  _hit_radius?:NumberArray
 
   sradius: NumberArray
 
   max_size: number
   max_radius: number
+  max_hit_radius: number
 }
 
 export interface CircleView extends CircleData {}
@@ -125,7 +127,15 @@ export class CircleView extends XYGlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     let x0, x1, y0, y1
-    if (this._radius != null && this.model.properties.radius.units == "data") {
+    if (this._hit_radius != null) {
+      const sx0 = sx - this.max_hit_radius
+      const sx1 = sx + this.max_hit_radius
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+
+      const sy0 = sy - this.max_hit_radius
+      const sy1 = sy + this.max_hit_radius
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    } else if (this._radius != null && this.model.properties.radius.units == "data") {
       x0 = x - this.max_radius
       x1 = x + this.max_radius
 
@@ -144,7 +154,15 @@ export class CircleView extends XYGlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
 
     const indices: number[] = []
-    if (this._radius != null && this.model.properties.radius.units == "data") {
+    if (this._hit_radius != null) {
+      for (const i of candidates) {
+        const r2 = this._hit_radius[i]**2
+        const dist = (this.sx[i] - sx)**2 + (this.sy[i] - sy)**2
+        if (dist <= r2) {
+          indices.push(i)
+        }
+      }
+    } else if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
         const r2 = this.sradius[i]**2
         const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
@@ -258,6 +276,7 @@ export namespace Circle {
   export type Props = XYGlyph.Props & {
     angle: p.AngleSpec
     size: p.DistanceSpec
+    hit_radius: p.DistanceSpec
     radius: p.DistanceSpec // XXX: null
     radius_dimension: p.Property<RadiusDimension>
   } & Mixins
@@ -285,6 +304,7 @@ export class Circle extends XYGlyph {
     this.define<Circle.Props>(({}) => ({
       angle:            [ p.AngleSpec, 0 ],
       size:             [ p.ScreenDistanceSpec, {value: 4} ],
+      hit_radius:       [ p.ScreenDistanceSpec, undefined, {optional: true} ], // XXX: null
       radius:           [ p.DistanceSpec, undefined, {optional: true} ], // XXX: null
       radius_dimension: [ RadiusDimension, "x" ],
     }))
