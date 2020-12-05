@@ -27,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, Instance, List, String
+from .core.properties import AnyRef, Dict, Instance, List, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -40,6 +40,7 @@ from .util.serialization import make_id
 __all__ = (
     'collect_models',
     'get_class',
+    'DataModel',
     'Model',
 )
 
@@ -263,7 +264,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags: tp.List[tp.Any] = List(Any, help="""
+    tags: tp.List[tp.Any] = List(AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -778,6 +779,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
+
+@abstract
+class DataModel(Model):
+    __data_model__ = True
 
 #-----------------------------------------------------------------------------
 # Private API

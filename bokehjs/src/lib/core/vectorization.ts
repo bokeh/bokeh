@@ -40,3 +40,7 @@ export function isValue<T>(obj: unknown): obj is Value<T> {
 export function isField(obj: unknown): obj is Field {
   return isPlainObject(obj) && "field" in obj
 }
+
+export function isExpr<T>(obj: unknown): obj is Expr<T> {
+  return isPlainObject(obj) && "expr" in obj
+}
