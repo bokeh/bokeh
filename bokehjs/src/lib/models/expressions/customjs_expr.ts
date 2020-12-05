@@ -2,13 +2,11 @@ import {HasProps} from "core/has_props"
 import {Expression} from "./expression"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, GeneratorFunction} from "core/types"
 import {repeat} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 import {isArray, isTypedArray, isIterable} from "core/util/types"
-
-const GeneratorFunction = Object.getPrototypeOf(function*() {}).constructor
 
 export namespace CustomJSExpr {
   export type Attrs = p.AttrsOf<Props>
