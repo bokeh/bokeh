@@ -164,9 +164,11 @@ class Marker(XYGlyph, LineGlyph, FillGlyph):
     The y-axis coordinates for the center of the markers.
     """)
 
-    hit_radius = ScreenDistanceSpec(default=None, help="""
-    The radius value within which the marker responds to interactions
-    with the Hover and Tap tools in screen space units.
+    point_hittest_dialation = Float(default=1.0, help="""
+    The factor by which to dialate the hit radius value
+    which is responsible for defining the range in which a
+    marker responds to interactions with the Hover and Tap
+    tools.
     """)
 
     size = ScreenDistanceSpec(default=4, help="""

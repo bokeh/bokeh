@@ -13,10 +13,9 @@ import {Selection} from "../selections/selection"
 export interface MarkerData extends XYGlyphData {
   _size: Arrayable<number>
   _angle: Arrayable<number>
-  _hit_radius?: Arrayable<number>
+  _point_hittest_dialation: number
 
   max_size: number
-  max_hit_radius: number
 }
 
 export interface MarkerView extends MarkerData {}
@@ -64,21 +63,20 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const hit_radius = this._hit_radius == null ? this.max_size : this.max_hit_radius*2
 
-    const sx0 = sx - hit_radius
-    const sx1 = sx + hit_radius
+    const sx0 = sx - this.max_size * this.model.point_hittest_dialation
+    const sx1 = sx + this.max_size * this.model.point_hittest_dialation
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-    const sy0 = sy - hit_radius
-    const sy1 = sy + hit_radius
+    const sy0 = sy - this.max_size * this.model.point_hittest_dialation
+    const sy1 = sy + this.max_size * this.model.point_hittest_dialation
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices: number[] = []
 
     for (const i of candidates) {
-      const s2 = this._hit_radius == null ? this._size[i]/2 : this._hit_radius[i]
+      const s2 = this._size[i]/2 * this.model.point_hittest_dialation
       if (Math.abs(this.sx[i] - sx) <= s2 && Math.abs(this.sy[i] - sy) <= s2) {
         indices.push(i)
       }
@@ -165,7 +163,7 @@ export namespace Marker {
   export type Props = XYGlyph.Props & {
     size: p.DistanceSpec
     angle: p.AngleSpec
-    hit_radius: p.DistanceSpec
+    point_hittest_dialation:  p.Property<number>
   } & Mixins
 
   export type Mixins = LineVector & FillVector
@@ -185,10 +183,10 @@ export abstract class Marker extends XYGlyph {
 
   static init_Marker(): void {
     this.mixins<Marker.Mixins>([LineVector, FillVector])
-    this.define<Marker.Props>(({}) => ({
+    this.define<Marker.Props>(({Number}) => ({
       size:  [ p.ScreenDistanceSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
-      hit_radius: [ p.ScreenDistanceSpec, undefined, {optional: true}]
+      point_hittest_dialation: [Number, 1.0]
     }))
   }
 }
