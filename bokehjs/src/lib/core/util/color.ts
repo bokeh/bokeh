@@ -93,15 +93,31 @@ export function _color2rgba(color: string | null, alpha: number = 1.0): RGBA {
 const rgb_modern = /^rgba?\(\s*(?<r>[^\s,]+?)\s+(?<g>[^\s,]+?)\s+(?<b>[^\s,]+?)(?:\s*\/\s*(?<a>[^\s,]+?))?\s*\)$/
 const rgb_legacy = /^rgba?\(\s*(?<r>[^\s,]+?)\s*,\s*(?<g>[^\s,]+?)\s*,\s*(?<b>[^\s,]+?)(?:\s*,\s*(?<a>[^\s,]+?))?\s*\)$/
 
+const css4_normalize = (() => {
+  const canvas = document.createElement("canvas")
+  canvas.width = 1
+  canvas.height = 1
+  const ctx = canvas.getContext("2d")!
+  const gradient = ctx.createLinearGradient(0, 0, 1, 1)
+  return (color: string): string | null => {
+    ctx.fillStyle = gradient
+    ctx.fillStyle = color
+    const style = ctx.fillStyle
+    return (style as typeof ctx["fillStyle"]) != gradient ? style : null
+  }
+})()
+
 export function css4_parse(color: string): RGBA | null {
   /**
     Parses CSS4 color strings:
 
     - transparent
+    - named color
     - #RRGGBB[AA]
     - #RGB[A]
     - rgb[a](R G B[ / A])
     - rgb[a](R, G, B[, A])
+    - other CSS4 syntax (browser dependent)
 
   */
   color = color.trim().toLowerCase()
@@ -188,8 +204,11 @@ export function css4_parse(color: string): RGBA | null {
 
       return [R, G, B, A]
     }
+  } else {
+    const style = css4_normalize(color)
+    if (style != null)
+      return css4_parse(style)
   }
-  // TODO: hsl(), etc.
 
   return null
 }

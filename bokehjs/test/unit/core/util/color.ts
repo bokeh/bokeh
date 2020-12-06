@@ -141,5 +141,19 @@ describe("core/util/color module", () => {
       expect(css4_parse("rgba(100%, 50%, 0%, 1.0)")).to.be.equal([255, 128, 0, 255])
       expect(css4_parse("rgba(100%, 50%, 0%, 100%)")).to.be.equal([255, 128, 0, 255])
     })
+
+    it("that supports other CSS4 syntax", () => {
+      expect(css4_parse("hsl(0deg 0% 0%)")).to.be.equal([0, 0, 0, 255])
+      expect(css4_parse("hsl(0deg 0% 0% / 0)")).to.be.equal([0, 0, 0, 0])
+      expect(css4_parse("hsl(0deg 0% 0% / 1)")).to.be.equal([0, 0, 0, 255])
+
+      expect(css4_parse("hsl(240deg 100% 50%)")).to.be.equal([0, 0, 255, 255])
+      expect(css4_parse("hsl(240deg 100% 50% / 0)")).to.be.equal([0, 0, 255, 0])
+      expect(css4_parse("hsl(240deg 100% 50% / 1)")).to.be.equal([0, 0, 255, 255])
+
+      expect(css4_parse("hsl(x 0% 0%)")).to.be.null
+      expect(css4_parse("hsl(0deg 0% 0% 0)")).to.be.null
+      expect(css4_parse("hsl(0deg 0% 0% 1)")).to.be.null
+    })
   })
 })
