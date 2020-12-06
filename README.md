@@ -256,7 +256,7 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html).
+For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/installation.html).
 
 ## Resources
 
