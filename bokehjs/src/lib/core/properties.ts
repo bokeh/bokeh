@@ -536,32 +536,42 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
         return to_big_endian(colors)
-      } else if (colors.dtype == "uint8") {
-        if (colors.dimension == 1) {
-          const [n] = colors.shape
+      } else if (colors.dtype == "uint8" && colors.dimension == 1) {
+        const [n] = colors.shape
+        const array = new RGBAArray(4*n)
+        let j = 0
+        for (const gray of colors) {
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = 255
+        }
+        return new ColorArray(array.buffer)
+      } else if (colors.dtype == "uint8" && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 4) {
+          return new ColorArray(colors.buffer)
+        } else if (d == 3) {
           const array = new RGBAArray(4*n)
-          let j = 0
-          for (const gray of colors) {
-            array[j++] = gray
-            array[j++] = gray
-            array[j++] = gray
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
             array[j++] = 255
           }
           return new ColorArray(array.buffer)
-        } else {
-          const [n, d] = colors.shape
-          if (d == 4) {
-            return new ColorArray(colors.buffer)
-          } else if (d == 3) {
-            const array = new RGBAArray(4*n)
-            for (let i = 0, j = 0; i < d*n;) {
-              array[j++] = colors[i++]
-              array[j++] = colors[i++]
-              array[j++] = colors[i++]
-              array[j++] = 255
-            }
-            return new ColorArray(array.buffer)
+        }
+      } else if ((colors.dtype == "float32" || colors.dtype == "float64") && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 3 || d == 4) {
+          const array = new RGBAArray(4*n)
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = (d == 3 ? 1 : colors[i++])*255
           }
+          return new ColorArray(array.buffer)
         }
       }
     } else {
