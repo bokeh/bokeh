@@ -35,7 +35,7 @@ import {
   Div, TextInput, DatePicker,
 } from "@bokehjs/models/widgets"
 
-import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
+import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
@@ -847,6 +847,31 @@ describe("Bug", () => {
       const {view} = await display(choices, [100, 200])
       view.choice_el.showDropdown()
       await paint()
+    })
+  })
+
+  describe("in issue #10749", () => {
+    it("prevents DataTable from correctly ordering rows and formatting string dates", async () => {
+      const indices = range(0, 22)
+      const source = new ColumnDataSource({
+        data: {
+          dates: indices.map((i) => `2014-03-${i + 1}`),
+          downloads: indices.map((i) => i % 10),
+        },
+      })
+
+      const columns = [
+        new TableColumn({field: "dates", title: "Date", formatter: new DateFormatter()}),
+        new TableColumn({field: "downloads", title: "Downloads"}),
+      ]
+
+      const table = new DataTable({source, columns, selectable: "checkbox", width: 300, height: 400})
+      const {view} = await display(table, [350, 450])
+
+      source.selected.indices = indices
+      await view.ready
+
+      expect(view.get_selected_rows()).to.be.equal(indices)
     })
   })
 
