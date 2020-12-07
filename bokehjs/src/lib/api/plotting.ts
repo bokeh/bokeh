@@ -1,9 +1,9 @@
 import {Document} from "../document"
 import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
-import {Color, Data, Attrs} from "../core/types"
+import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
-import {VectorSpec, ScalarSpec, Property} from "../core/properties"
+import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location, MarkerType} from "../core/enums"
 import {startsWith} from "../core/util/string"
@@ -14,6 +14,7 @@ import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
+import * as nd from "core/util/ndarray"
 
 import {
   Glyph, GlyphRenderer, Axis, Grid,
@@ -50,9 +51,10 @@ const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "re
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
-export type VectorArg<T> = T | T[] | Vector<T>
+export type ColorNDArray = nd.Uint32Array1d | nd.Uint8Array1d | nd.Uint8Array2d | nd.FloatArray2d
+export type VectorArg<T> = T | Arrayable<T> | Vector<T>
 
-export type ColorArg = VectorArg<Color | null>
+export type ColorArg = VectorArg<Color | null> | ColorNDArray
 export type AlphaArg = VectorArg<number>
 
 export type ColorAlpha = {
@@ -101,9 +103,11 @@ export type AuxGlyph = {
 }
 
 export type ArgsOf<P> = {
-  [K in keyof P]: (P[K] extends VectorSpec<infer T, infer V> ? T | T[] | V :
-                  (P[K] extends ScalarSpec<infer T, infer S> ? T |       S :
-                  (P[K] extends Property  <infer T>          ? T           : never)))
+  [K in keyof P]:
+    (P[K] extends ColorSpec                     ? ColorArg             :
+    (P[K] extends VectorSpec<infer T, infer V>  ? T | Arrayable<T> | V :
+    (P[K] extends ScalarSpec<infer T, infer S>  ? T |                S :
+    (P[K] extends Property  <infer T>           ? T                    : never))))
 }
 
 export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
@@ -702,7 +706,7 @@ export class Figure extends Plot {
   }
 
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
-                        defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
+      defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
     const _split_feature_trait = function(ft: string): string[] {
       const fta: string[] = ft.split('_', 2)
@@ -773,7 +777,7 @@ export class Figure extends Plot {
       if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
-            if (isArray(value)) {
+            if (isArray(value) || nd.is_NDArray(value)) {
               let field
               if (data[name] != null) {
                 if (data[name] !== value) {

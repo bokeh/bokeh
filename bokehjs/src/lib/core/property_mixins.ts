@@ -154,7 +154,7 @@ export const TextScalar: p.DefineOf<TextScalar> = {
 // Vectorized
 
 export type LineVector = {
-  line_color: p.VectorSpec<Color | null>
+  line_color: p.ColorSpec
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
   line_join: p.Property<LineJoin>
@@ -164,12 +164,12 @@ export type LineVector = {
 }
 
 export type FillVector = {
-  fill_color: p.VectorSpec<Color | null>
+  fill_color: p.ColorSpec
   fill_alpha: p.VectorSpec<number>
 }
 
 export type HatchVector = {
-  hatch_color: p.VectorSpec<Color | null>
+  hatch_color: p.ColorSpec
   hatch_alpha: p.VectorSpec<number>
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
@@ -178,7 +178,7 @@ export type HatchVector = {
 }
 
 export type TextVector = {
-  text_color: p.VectorSpec<Color | null>
+  text_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
   text_font: p.Property<string>
   text_font_size: p.VectorSpec<string>

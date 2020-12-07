@@ -15,6 +15,16 @@ export interface NDArrayType extends Equatable, Serializable {
   readonly dimension: number
 }
 
+type Array1d = {dimension: 1, shape: [number]}
+type Array2d = {dimension: 2, shape: [number, number]}
+
+export type Uint32Array1d  = Uint32NDArray  & Array1d
+export type Uint8Array1d   = Uint8NDArray   & Array1d
+export type Uint8Array2d   = Uint8NDArray   & Array2d
+export type Float32Array2d = Float32NDArray & Array2d
+export type Float64Array2d = Float64NDArray & Array2d
+export type FloatArray2d   = Float32Array2d | Float64Array2d
+
 export class Uint8NDArray extends Uint8Array implements NDArrayType {
   readonly [__ndarray__] = true
   readonly dtype: "uint8" = "uint8"
@@ -209,6 +219,15 @@ export type NDArrayTypes = {
   "float32": {typed: Float32Array, ndarray: Float32NDArray}
   "float64": {typed: Float64Array, ndarray: Float64NDArray}
 }
+
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number]}): Uint8NDArray & Array1d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint8", shape: [number, number]}): Uint8NDArray & Array2d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number]}): Uint32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "uint32", shape: [number, number]}): Uint32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number]}): Float32NDArray & Array1d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32", shape: [number, number]}): Float32NDArray & Array2d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
+export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
 
 export function ndarray<K extends DataType = "float32">(array: ArrayBuffer | number[], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
