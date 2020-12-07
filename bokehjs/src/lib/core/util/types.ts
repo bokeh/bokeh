@@ -66,3 +66,7 @@ export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
 export function isIterable(obj: unknown): obj is Iterable<unknown> {
   return Symbol.iterator in Object(obj)
 }
+
+export function isArrayable(obj: unknown): obj is Arrayable<unknown> {
+  return isIterable(obj) && "length" in Object(obj)
+}
