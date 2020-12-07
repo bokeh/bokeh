@@ -71,7 +71,7 @@ function timeout(ms: number): Promise<void> {
 }
 
 function encode(s: string): string {
-  return s.replace(/[ \/]/g, "_")
+  return s.replace(/[ \/\[\]]/g, "_")
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
