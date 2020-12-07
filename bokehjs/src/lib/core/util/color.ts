@@ -100,7 +100,7 @@ const css4_normalize = (() => {
   const ctx = canvas.getContext("2d")!
   const gradient = ctx.createLinearGradient(0, 0, 1, 1)
   return (color: string): string | null => {
-    ctx.fillStyle = gradient
+    ctx.fillStyle = gradient // lgtm [js/useless-assignment-to-property]
     ctx.fillStyle = color
     const style = ctx.fillStyle
     return (style as typeof ctx["fillStyle"]) != gradient ? style : null
