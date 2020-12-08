@@ -374,7 +374,7 @@ The following example shows how to display images using raw RGBA data with the
 .. _userguide_plotting_images_colormapped:
 
 Color mapped images
-''''''''''''''''''
+'''''''''''''''''''
 
 The following example shows how to supply an array of *scalar values* and have
 Bokeh automatically color map the data in the browser with the |image| glyph
