@@ -239,9 +239,10 @@ function plus(ctx: Context2d, i: number, r: number, line: LineVector, fill: Fill
   const xs = [a, a, b,  b,  a,  a, -a, -a, -b, -b, -a, -a]
   const ys = [b, a, a, -a, -a, -b, -b, -a, -a,  a,  a,  b]
 
-  ctx.moveTo(xs[0], ys[0])
-  for (i=1; i<12; i++)
-    ctx.lineTo(xs[i], ys[i])
+  ctx.beginPath()
+  for (let j = 0; j < 12; j++) {
+    ctx.lineTo(xs[j], ys[j])
+  }
   ctx.closePath()
 
   if (fill.doit) {

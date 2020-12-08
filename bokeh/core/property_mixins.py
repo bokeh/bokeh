@@ -70,6 +70,8 @@ from .enums import (
 )
 from .has_props import HasProps
 from .properties import (
+    Alpha,
+    AlphaSpec,
     Color,
     ColorSpec,
     DashPattern,
@@ -83,7 +85,6 @@ from .properties import (
     Instance,
     Int,
     NumberSpec,
-    Percent,
     Size,
     String,
     value,
@@ -110,24 +111,10 @@ __all__ = (
 
 _color_help = """
 A color to use to %s with.
-
-Acceptable values are:
-
-- any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-- an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-- a 3-tuple of integers (r,g,b) between 0 and 255
-- a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-.. _CSS colors: https://www.w3schools.com/colors/colors_names.asp
-
 """
 
 _alpha_help = """
 An alpha value to use to %s with.
-
-Acceptable values are floating point numbers between 0 (transparent)
-and 1 (opaque).
-
 """
 
 class _BaseLineProps(HasProps):
@@ -240,7 +227,7 @@ class FillProps(HasProps):
     '''
 
     fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
+    fill_alpha = AlphaSpec(help=_alpha_help % "fill paths")
 
 class ScalarFillProps(HasProps):
     ''' Properties relevant to rendering fill regions.
@@ -250,7 +237,7 @@ class ScalarFillProps(HasProps):
     '''
 
     fill_color = Color(default="gray", help=_color_help  % "fill paths")
-    fill_alpha = Percent(default=1.0, help=_alpha_help)
+    fill_alpha = Alpha(help=_alpha_help)
 
 _hatch_scale_help = """
 A rough measure of the 'size' of the hatching pattern. Generally speaking, the
@@ -279,7 +266,7 @@ class HatchProps(HasProps):
     '''
 
     hatch_color = ColorSpec(default="black", help=_color_help % "hatching")
-    hatch_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "hatching")
+    hatch_alpha = AlphaSpec(help=_alpha_help % "hatching")
     hatch_scale = NumberSpec(default=12.0, accept_datetime=False, accept_timedelta=False, help=_hatch_scale_help)
     hatch_pattern = HatchPatternSpec(default=None, help=_hatch_pattern_help)
     hatch_weight = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_hatch_weight_help)
@@ -293,7 +280,7 @@ class ScalarHatchProps(HasProps):
     '''
 
     hatch_color = Color(default="black", help=_color_help % "hatching")
-    hatch_alpha = Percent(default=1.0, help=_alpha_help % "hatching")
+    hatch_alpha = Alpha(help=_alpha_help % "hatching")
     hatch_scale = Size(default=12.0, help=_hatch_scale_help)
     hatch_pattern = String(default=None, help=_hatch_pattern_help)  # String to accommodate user custom values
     hatch_weight = Size(default=1.0, help=_hatch_weight_help)
@@ -313,8 +300,8 @@ class LineProps(HasProps):
     base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
+    line_alpha = AlphaSpec(help=_alpha_help % "stroke paths")
     line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
 
 
 class ScalarLineProps(HasProps):
@@ -326,8 +313,8 @@ class ScalarLineProps(HasProps):
     base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = Color(default="black", help=_color_help % "stroke paths")
+    line_alpha = Alpha(help=_alpha_help % "stroke paths")
     line_width = Float(default=1, help=_line_width_help)
-    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
 
 
 class TextProps(HasProps):
@@ -346,7 +333,7 @@ class TextProps(HasProps):
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
 
-    text_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text")
+    text_alpha = AlphaSpec(help=_alpha_help % "fill text")
 
 class ScalarTextProps(HasProps):
     ''' Properties relevant to rendering text.
@@ -366,7 +353,7 @@ class ScalarTextProps(HasProps):
 
     text_color = Color(default="#444444", help=_color_help % "fill text")
 
-    text_alpha = Percent(default=1.0, help=_alpha_help % "fill text")
+    text_alpha = Alpha(help=_alpha_help % "fill text")
 
 #-----------------------------------------------------------------------------
 # Dev API

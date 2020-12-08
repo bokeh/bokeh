@@ -4,6 +4,7 @@ import * as p from "core/properties"
 import {Color} from "core/types"
 import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
+import {color2css} from "core/util/color"
 
 import {Control, ControlView} from "./control"
 import {TickFormatter} from "../formatters/tick_formatter"
@@ -84,7 +85,7 @@ abstract class AbstractBaseSliderView extends ControlView {
   protected _set_bar_color(): void {
     if (!this.model.disabled) {
       const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
-      connect_el.style.backgroundColor = this.model.bar_color
+      connect_el.style.backgroundColor = color2css(this.model.bar_color)
     }
   }
 

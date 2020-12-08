@@ -370,7 +370,7 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
-        p.image({image, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+        p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
         return p
       }
 

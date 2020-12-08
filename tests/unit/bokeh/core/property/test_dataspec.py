@@ -34,6 +34,7 @@ import bokeh.core.property.dataspec as bcpd # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'AlphaSpec',
     'AngleSpec',
     'ColorSpec',
     'DataSpec',

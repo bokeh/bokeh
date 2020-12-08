@@ -4,9 +4,10 @@ import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
 
+import {Color} from  "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {svg_colors} from  "@bokehjs/core/util/svg_colors"
+import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
 
@@ -40,7 +41,7 @@ namespace Some {
     any: p.Property<any>
     array: p.Property<number[]>
     boolean: p.Property<boolean>
-    color: p.Property<string>
+    color: p.Property<Color>
     instance: p.Property<HasProps>
     number: p.Property<number>
     int: p.Property<number>
@@ -424,22 +425,26 @@ describe("properties module", () => {
         "rgba(200, 0, 0, 0.5)",
         "rgba(0, 255, 0, 0)",
         "rgba(0, 0, 255, 1)",
-      ]
-
-      const bad_tuples = [
         "rgb(254.5, 0, 0)",
         "rgba(245.5, 0, 0, 0.5)",
         "rgba(255.0, 0, 0, 0.5)",
         "rgba(2550, 0, 0, 0.5)",
         "rgba(255, 0, 0, 5)",
         "rgb(255, 0, 0, 0)",
+      ]
+
+      const bad_tuples = [
         "rgba(255, 0, 0, 0.5, 0)",
         "rgb( )",
         "rgb(a, b, c)",
       ]
 
-      it("should return undefined on RGBa input", () => {
+      it("should support hex string input", () => {
         expect(prop.valid("#aabbccdd")).to.be.true
+      })
+
+      it("should support integer input", () => {
+        expect(prop.valid(0xff0080)).to.be.true
       })
 
       describe("should return undefined on good integer rgb and rgba tuples", () => {
@@ -459,14 +464,13 @@ describe("properties module", () => {
       })
 
       it("should return undefined on svg color input", () => {
-        for (const color of keys(svg_colors)) {
+        for (const color of keys(named_colors)) {
           expect(prop.valid(color)).to.be.true
         }
       })
 
       it("should throw an Error on other input", () => {
         expect(prop.valid(true)).to.be.false
-        expect(prop.valid(10)).to.be.false
         expect(prop.valid(10.2)).to.be.false
         expect(prop.valid("foo")).to.be.false
         expect(prop.valid({})).to.be.false

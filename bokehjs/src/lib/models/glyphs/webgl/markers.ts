@@ -7,7 +7,8 @@ import {CircleView} from "../circle"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
 import {MarkerType} from "core/enums"
-import {color2rgba, decode_rgba, RGBAf} from "core/util/color"
+import {ColorArray, RGBAArray} from "core/types"
+import {color2rgba} from "core/util/color"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
@@ -37,38 +38,35 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
   // Attach the color attribute to the program. If there's just one color,
   // then use this single color for all vertices (no VBO). Otherwise we
   // create an array and upload that to the VBO, which we attahce to the prog.
-  const m = 4
-
-  function compose(color: RGBAf, alpha: number): RGBAf {
-    const [r, g, b, a] = color
-    return a == 1.0 ? [r, g, b, alpha] : color
-  }
-
   if (!visual.doit) {
     // Don't draw (draw transparent)
     vbo.used = false
     prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
   } else if (color_prop.is_value && alpha_prop.is_value) {
     vbo.used = false
-    const color = compose(color2rgba(color_prop.value()), alpha_prop.value())
-    prog.set_attribute(att_name, 'vec4', color)
+    const [r, g, b, a] = color2rgba(color_prop.value(), alpha_prop.value())
+    prog.set_attribute(att_name, 'vec4', [r/255, g/255, b/255, a/255])
   } else {
     // Use vbo; we need an array for both the color and the alpha
     vbo.used = true
 
-    const colors = visual.get_array(color_prop)
+    // TODO: compose alpha in visuals or earlier to avoid this copy
+    const array = new ColorArray(visual.get_array(color_prop))
+    const colors = new RGBAArray(array.buffer)
     const alphas = visual.get_array(alpha_prop)
 
-    // Create array of rgbs
-    const a = new Float32Array(n*m)
-    for (let i = 0, end = n; i < end; i++) {
-      const rgba = compose(decode_rgba(colors[i]), alphas[i])
-      a.set(rgba, i*m)
+    for (let i = 0; i < n; i++) {
+      const k = 4*i + 3
+      const a = colors[k]
+      if (a == 255) {
+        colors[k] = alphas[i]*255
+      }
     }
+
     // Attach vbo
-    vbo.set_size(n*m*4)
-    vbo.set_data(0, a)
-    prog.set_attribute(att_name, 'vec4', vbo)
+    vbo.set_size(4*n)
+    vbo.set_data(0, colors)
+    prog.set_attribute(att_name, 'vec4_uint8', vbo, 0, 0, true)
   }
 }
 
@@ -211,10 +209,10 @@ export class MarkerGL extends BaseGLGlyph {
           this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset)
         }
         if (this.vbo_fg_color.used) {
-          this.prog.set_attribute('a_fg_color', 'vec4', this.vbo_fg_color, 0, offset * 4)
+          this.prog.set_attribute('a_fg_color', 'vec4_uint8', this.vbo_fg_color, 0, offset*4, true)
         }
         if (this.vbo_bg_color.used) {
-          this.prog.set_attribute('a_bg_color', 'vec4', this.vbo_bg_color, 0, offset * 4)
+          this.prog.set_attribute('a_bg_color', 'vec4_uint8', this.vbo_bg_color, 0, offset*4, true)
         }
         // The actual drawing
         this.index_buffer.set_size(these_indices.length*2)

@@ -85,7 +85,7 @@ class ColorMapper(Mapper):
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     nan_color = Color(default="gray", help="""
-    Color to be used if data is NaN or otherwise not mappable. (Default: 'gray')
+    Color to be used if data is NaN or otherwise not mappable.
     """)
 
     def __init__(self, palette=None, **kwargs):

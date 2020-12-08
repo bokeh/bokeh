@@ -58,7 +58,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.setImageSmoothingEnabled(old_smoothing)
   }
 
-  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8Array
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
 
   protected _set_data(indices: number[] | null): void {
     this._set_width_heigh_data()
@@ -135,7 +135,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _set_image_data_from_buffer(i: number, buf8: Uint8Array): void {
+  protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
     const canvas = this._get_or_create_canvas(i)
     const ctx = canvas.getContext('2d')!
     const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i])

@@ -1,15 +1,16 @@
 import {Texture} from "./texture"
 import * as p from "core/properties"
-import {Context2d} from 'core/util/canvas'
-import {use_strict} from 'core/util/string'
+import {Color} from "core/types"
+import {Context2d} from "core/util/canvas"
+import {use_strict} from "core/util/string"
 
 export namespace CanvasTexture {
-    export type Attrs = p.AttrsOf<Props>
+  export type Attrs = p.AttrsOf<Props>
 
-    export type Props = Texture.Props  & {
-        code: p.Property<string>
-    }
+  export type Props = Texture.Props & {
+    code: p.Property<string>
   }
+}
 
 export interface CanvasTexture extends CanvasTexture.Attrs {}
 
@@ -31,12 +32,12 @@ export abstract class CanvasTexture extends Texture {
     return new Function("ctx", "color", "scale", "weight", code)
   }
 
-  get_pattern(color: any, scale: number, weight: number): (ctx: Context2d) => CanvasPattern | null {
+  get_pattern(color: Color, scale: number, weight: number): (ctx: Context2d) => CanvasPattern | null {
     return (ctx: Context2d): CanvasPattern | null => {
-      const canvas = document.createElement('canvas')
+      const canvas = document.createElement("canvas")
       canvas.width = scale
       canvas.height = scale
-      const pattern_ctx = canvas.getContext('2d')
+      const pattern_ctx = canvas.getContext("2d")
       this.func.call(this, pattern_ctx, color, scale, weight)
       return ctx.createPattern(canvas, this.repetition)
     }

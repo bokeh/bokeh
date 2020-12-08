@@ -8,7 +8,7 @@ import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {figure, gridplot, color} from "@bokehjs/api/plotting"
+import {figure, gridplot} from "@bokehjs/api/plotting"
 
 const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
@@ -220,7 +220,7 @@ describe("GridBox", () => {
       const x = 100.0/ncols*col
       const y = 100.0/nrows*row
       const [r, g, b] = [Math.floor(50 + 2*x), Math.floor(30 + 2*y), 150]
-      return s0(color(r, g, b))
+      return s0([r, g, b])
     })
 
     const l = grid(items)

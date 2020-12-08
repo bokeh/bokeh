@@ -119,9 +119,8 @@ class StringFormatter(CellFormatter):
     An optional text align, i.e. left, center or right.
     """)
 
-    text_color = Color(help="""
-    An optional text color. See :class:`bokeh.core.properties.Color` for
-    details.
+    text_color = Color(default=None, help="""
+    An optional text color.
     """)
 
 class ScientificFormatter(StringFormatter):

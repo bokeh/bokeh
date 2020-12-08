@@ -27,6 +27,7 @@ import bokeh.core.property.color as bcpc # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'Alpha',
     'Color',
     'RGB',
     'ColorHex',

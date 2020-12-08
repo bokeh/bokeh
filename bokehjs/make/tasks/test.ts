@@ -332,31 +332,30 @@ async function bundle(name: string): Promise<void> {
 }
 
 task("test:compile:unit", async () => compile("unit", {auto_index: true}))
-const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => await bundle("unit"))
+const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
-task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
+task2("test:unit", [start, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
   return success(undefined)
 })
 
 task("test:compile:integration", async () => compile("integration", {auto_index: true}))
-const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => await bundle("integration"))
+const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
-task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
+task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "integration", "test/baselines")
   return success(undefined)
 })
 
 task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
-const defaults_bundle = task("test:defaults:bundle", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
+const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
 
-task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
+task2("test:defaults", [start, build_defaults], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "defaults")
   return success(undefined)
 })
 
-task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integration:bundle"])
-task("test:build", ["test:bundle"])
+task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
 
 task("test:lib", ["test:unit", "test:integration"])
 task("test", ["test:codebase", "test:defaults", "test:lib"])

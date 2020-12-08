@@ -1,10 +1,10 @@
 import {expect} from "assertions"
 
-import {svg_colors} from "@bokehjs/core/util/svg_colors"
+import {named_colors} from "@bokehjs/core/util/svg_colors"
 
 describe("svg_color module", () => {
 
-  it("should have size = 147", () => {
-    expect(Object.keys(svg_colors).length).to.be.equal(147)
+  it("should have size = 148", () => {
+    expect(Object.keys(named_colors).length).to.be.equal(148)
   })
 })

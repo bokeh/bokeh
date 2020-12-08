@@ -2,19 +2,20 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray, ColorArray} from "./types"
+import {Arrayable, NumberArray, RGBAArray, ColorArray} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
-import {map} from "./util/arrayable"
-import {angle_conversion_coeff} from "./util/math"
-import {is_color, color2rgba, encode_rgba} from "./util/color"
+import {mul} from "./util/arrayable"
+import {to_radians_coeff} from "./util/math"
+import {is_Color, color2rgba} from "./util/color"
+import {to_big_endian} from "./util/platform"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
-import {NDArray} from "./util/ndarray"
+import {is_NDArray, NDArray} from "./util/ndarray"
 
 function valueToString(value: any): string {
   try {
@@ -211,7 +212,7 @@ export class Boolean extends Property<boolean> {
 /** @deprecated */
 export class Color extends Property<types.Color> {
   valid(value: unknown): boolean {
-    return isString(value) && is_color(value)
+    return is_Color(value)
   }
 }
 
@@ -501,8 +502,9 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
   normalize(values: Arrayable): Arrayable {
-    const c = angle_conversion_coeff(this.units)
-    return super.normalize(map(values, (x) => c*x))
+    const coeff = -to_radians_coeff(this.units)
+    mul(values, coeff, values)
+    return super.normalize(values)
   }
 }
 
@@ -529,19 +531,66 @@ export class NumberSpec extends DataSpec<number> {
 
 export class ColorSpec extends DataSpec<types.Color | null> {
   array(source: ColumnarDataSource): ColorArray {
-    const colors = super.array(source)
-    const n = colors.length
-    const array = new ColorArray(n)
-    for (let i = 0; i < n; i++) {
-      const color = colors[i] as types.Color | number /* uint32 */ | null
-      if (isNumber(color))
-        array[i] = color
-      else {
-        const rgba = color2rgba(color)
-        array[i] = encode_rgba(rgba)
+    const colors = super.array(source) as Arrayable<types.Color | null>
+
+    if (is_NDArray(colors)) {
+      if (colors.dtype == "uint32" && colors.dimension == 1) {
+        return to_big_endian(colors)
+      } else if (colors.dtype == "uint8" && colors.dimension == 1) {
+        const [n] = colors.shape
+        const array = new RGBAArray(4*n)
+        let j = 0
+        for (const gray of colors) {
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = 255
+        }
+        return new ColorArray(array.buffer)
+      } else if (colors.dtype == "uint8" && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 4) {
+          return new ColorArray(colors.buffer)
+        } else if (d == 3) {
+          const array = new RGBAArray(4*n)
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
+            array[j++] = 255
+          }
+          return new ColorArray(array.buffer)
+        }
+      } else if ((colors.dtype == "float32" || colors.dtype == "float64") && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 3 || d == 4) {
+          const array = new RGBAArray(4*n)
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = (d == 3 ? 1 : colors[i++])*255
+          }
+          return new ColorArray(array.buffer)
+        }
       }
+    } else {
+      const n = colors.length
+      const array = new RGBAArray(4*n)
+
+      let j = 0
+      for (const color of colors) {
+        const [r, g, b, a] = color2rgba(color)
+        array[j++] = r
+        array[j++] = g
+        array[j++] = b
+        array[j++] = a
+      }
+
+      return new ColorArray(array.buffer)
     }
-    return array
+
+    throw new Error("invalid color array")
   }
 }
 
