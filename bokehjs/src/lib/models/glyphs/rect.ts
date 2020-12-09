@@ -9,6 +9,8 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
+const {sin, cos, abs} = Math
+
 export interface RectData extends CenterRotatableData {
   sx0: NumberArray
   sy1: NumberArray
@@ -106,7 +108,7 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    let {sx, sy} = geometry
+    const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -131,28 +133,33 @@ export class RectView extends CenterRotatableView {
     const y0 = y - max_y2_ddist
     const y1 = y + max_y2_ddist
 
-    let width_in: boolean
-    let height_in: boolean
+    let px: number
+    let py: number
+
+    const {sx: _sx, sy: _sy, sw, sh, _angle} = this
 
     const indices = []
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      if (this._angle[i]) {
-        const s = Math.sin(-this._angle[i])
-        const c = Math.cos(-this._angle[i])
-        const px = c*(sx - this.sx[i]) - s*(sy - this.sy[i]) + this.sx[i]
-        const py = s*(sx - this.sx[i]) + c*(sy - this.sy[i]) + this.sy[i]
-        width_in = Math.abs(this.sx[i] - px) <= this.sw[i]/2
-        height_in = Math.abs(this.sy[i] - py) <= this.sh[i]/2
+      const angle_i = _angle[i]
+
+      const dx = sx - _sx[i]
+      const dy = sy - _sy[i]
+      if (angle_i == 0) {
+        px = dx
+        py = dy
       } else {
-        const dx = sx - this.sx0[i]
-        const dy = sy - this.sy1[i]
-        width_in = 0 <= dx && dx <= this.sw[i]
-        height_in = 0 <= dy && dy <= this.sh[i]
+        const s = sin(-angle_i)
+        const c = cos(-angle_i)
+        px = c*dx - s*dy
+        py = s*dx + c*dy
       }
 
-      if (width_in && height_in) {
-        indices.push(i)
-      }
+      if (abs(px) > sw[i]/2)
+        continue
+      if (abs(py) > sh[i]/2)
+        continue
+
+      indices.push(i)
     }
 
     return new Selection({indices})
