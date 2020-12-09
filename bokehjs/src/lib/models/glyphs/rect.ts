@@ -141,10 +141,8 @@ export class RectView extends CenterRotatableView {
         const c = Math.cos(-this._angle[i])
         const px = c*(sx - this.sx[i]) - s*(sy - this.sy[i]) + this.sx[i]
         const py = s*(sx - this.sx[i]) + c*(sy - this.sy[i]) + this.sy[i]
-        sx = px
-        sy = py
-        width_in = Math.abs(this.sx[i] - sx) <= this.sw[i]/2
-        height_in = Math.abs(this.sy[i] - sy) <= this.sh[i]/2
+        width_in = Math.abs(this.sx[i] - px) <= this.sw[i]/2
+        height_in = Math.abs(this.sy[i] - py) <= this.sh[i]/2
       } else {
         const dx = sx - this.sx0[i]
         const dy = sy - this.sy1[i]
