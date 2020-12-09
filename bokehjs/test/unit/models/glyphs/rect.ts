@@ -1,3 +1,4 @@
+import {display, fig} from "../../_util"
 import {expect} from "assertions"
 import * as sinon from "sinon"
 
@@ -280,14 +281,53 @@ describe("Rect", () => {
         */
 
         it("should work when axis is log", async () => {
-          const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
-          const glyph_view = await create_glyph_view(glyph, data, {axis_type: "log"})
+          const plot = fig([600, 600], {
+            x_range: [1, 20000], y_range: [1, 20000],
+            x_axis_type: "log", y_axis_type: "log",
+          })
+          const rect = plot.rect({
+            x: [10, 100, 1000, 10000],
+            y: [10, 100, 1000, 10000],
+            width: [10, 100, 1000, 10000],
+            height: [10, 100, 1000, 10000],
+          })
 
-          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333})!
-          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666})!
+          const {view} = await display(plot)
+          const rect_view = view.renderer_view(rect)!.glyph as Rect["__view_type__"]
 
-          expect(result4.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
-          expect(result5.indices).to.be.equal([2])
+          function hit_test(x: number, y: number): number[] | undefined {
+            const sx = view.frame.x_scale.compute(x)
+            const sy = view.frame.y_scale.compute(y)
+            return rect_view.hit_test({type: "point", sx, sy})?.indices
+          }
+
+          const e = 0.1 // FP error on rect boundary
+
+          expect(hit_test(1, 1)).to.be.equal([])
+
+          expect(hit_test(4, 4)).to.be.equal([])
+          expect(hit_test(5+e, 5+e)).to.be.equal([0])
+          expect(hit_test(10, 10)).to.be.equal([0])
+          expect(hit_test(15-e, 15-e)).to.be.equal([0])
+          expect(hit_test(16, 16)).to.be.equal([])
+
+          expect(hit_test(49, 49)).to.be.equal([])
+          expect(hit_test(50+e, 50+e)).to.be.equal([1])
+          expect(hit_test(100, 100)).to.be.equal([1])
+          expect(hit_test(150-e, 150-e)).to.be.equal([1])
+          expect(hit_test(151, 151)).to.be.equal([])
+
+          expect(hit_test(499, 499)).to.be.equal([])
+          expect(hit_test(500+e, 500+e)).to.be.equal([2])
+          expect(hit_test(1000, 1000)).to.be.equal([2])
+          expect(hit_test(1500-e, 1500-e)).to.be.equal([2])
+          expect(hit_test(1501, 1501)).to.be.equal([])
+
+          expect(hit_test(4999, 4999)).to.be.equal([])
+          expect(hit_test(5000+e, 5000+e)).to.be.equal([3])
+          expect(hit_test(10000, 10000)).to.be.equal([3])
+          expect(hit_test(15000-e, 15000-e)).to.be.equal([3])
+          expect(hit_test(15001, 15001)).to.be.equal([])
         })
       })
     })

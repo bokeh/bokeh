@@ -9,7 +9,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
-const {sin, cos, abs} = Math
+const {sin, cos} = Math
 
 export interface RectData extends CenterRotatableData {
   sx0: NumberArray
@@ -108,11 +108,6 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const {sx, sy} = geometry
-
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
-
     const n = this.sx0.length
 
     const scenter_x = new NumberArray(n)
@@ -128,6 +123,10 @@ export class RectView extends CenterRotatableView {
     const max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
     const max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
 
+    const {sx, sy} = geometry
+    const x = this.renderer.xscale.invert(sx)
+    const y = this.renderer.yscale.invert(sy)
+
     const x0 = x - max_x2_ddist
     const x1 = x + max_x2_ddist
     const y0 = y - max_y2_ddist
@@ -136,27 +135,34 @@ export class RectView extends CenterRotatableView {
     let px: number
     let py: number
 
-    const {sx: _sx, sy: _sy, sw, sh, _angle} = this
+    const {sx: _sx, sy: _sy, sx0, sy1, sw, sh, _angle} = this
 
+    const candidates = this.index.indices({x0, x1, y0, y1})
     const indices = []
-    for (const i of this.index.indices({x0, x1, y0, y1})) {
+
+    for (const i of candidates) {
       const angle_i = _angle[i]
 
-      const dx = sx - _sx[i]
-      const dy = sy - _sy[i]
       if (angle_i == 0) {
-        px = dx
-        py = dy
+        px = sx
+        py = sy
       } else {
         const s = sin(-angle_i)
         const c = cos(-angle_i)
-        px = c*dx - s*dy
-        py = s*dx + c*dy
+        const sx_i = _sx[i]
+        const sy_i = _sy[i]
+        const dx = sx - sx_i
+        const dy = sy - sy_i
+        px = c*dx - s*dy + sx_i
+        py = s*dx + c*dy + sy_i
       }
 
-      if (abs(px) > sw[i]/2)
+      px -= sx0[i]
+      py -= sy1[i]
+
+      if (!(0 <= px && px <= sw[i]))
         continue
-      if (abs(py) > sh[i]/2)
+      if (!(0 <= py && py <= sh[i]))
         continue
 
       indices.push(i)
