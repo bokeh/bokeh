@@ -151,10 +151,11 @@ export abstract class Layoutable {
   }
 
   compute(viewport: Partial<Size> = {}): void {
-    const size_hint = this.measure({
+    const _viewport = {
       width: viewport.width != null && this.is_width_expanding() ? viewport.width : Infinity,
       height: viewport.height != null && this.is_height_expanding() ? viewport.height : Infinity,
-    })
+    }
+    const size_hint = this.measure(_viewport)
 
     const {width, height} = size_hint
     const outer = new BBox({left: 0, top: 0, width, height})

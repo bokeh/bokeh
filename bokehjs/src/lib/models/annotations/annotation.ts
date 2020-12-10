@@ -37,6 +37,9 @@ export abstract class AnnotationView extends RendererView {
     throw new Error("not implemented")
   }
 
+  update_layout?(): void
+  after_layout?(): void
+
   set_data(source: ColumnarDataSource): void {
     const self = this as any
 

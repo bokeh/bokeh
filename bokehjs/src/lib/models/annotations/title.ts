@@ -1,6 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {Size} from "core/layout"
+import {SidePanel} from "core/layout/side_panel"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -8,6 +9,10 @@ import * as p from "core/properties"
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
+
+  get panel(): SidePanel {
+    return this.layout
+  }
 
   initialize(): void {
     super.initialize()

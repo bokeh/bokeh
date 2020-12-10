@@ -1,4 +1,4 @@
-import {Arrayable, NumberArray, Rect, Box, Interval} from "../types"
+import {Arrayable, NumberArray, Rect, Box, Interval, Size} from "../types"
 
 const {min, max} = Math
 
@@ -148,6 +148,8 @@ export class BBox implements Rect {
   get y(): number { return this.y0 }
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
+
+  get size(): Size { return {width: this.width, height: this.height} }
 
   get rect(): Rect { return {x0: this.x0, y0: this.y0, x1: this.x1, y1: this.y1} }
   get box(): Box { return {x: this.x, y: this.y, width: this.width, height: this.height} }

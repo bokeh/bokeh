@@ -358,6 +358,11 @@ export class PlotView extends LayoutDOMView {
     this.layout.bottom_panel = bottom_panel
     this.layout.left_panel = left_panel
     this.layout.right_panel = right_panel
+
+    for (const [, child_view] of this.renderer_views) {
+      if (child_view instanceof AnnotationView)
+        child_view.update_layout?.()
+    }
   }
 
   get axis_views(): AxisView[] {
@@ -505,6 +510,11 @@ export class PlotView extends LayoutDOMView {
 
   after_layout(): void {
     super.after_layout()
+
+    for (const [, child_view] of this.renderer_views) {
+      if (child_view instanceof AnnotationView)
+        child_view.after_layout?.()
+    }
 
     this._needs_layout = false
 
