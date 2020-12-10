@@ -3,16 +3,16 @@ import {View, ViewOf} from "./view"
 import {difference} from "./util/array"
 
 export type ViewStorage<T extends HasProps> = Map<T, ViewOf<T>>
-export type Options = {parent: View | null}
+export type Options<T extends View> = {parent: T["parent"] | null}
 
-async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options): Promise<ViewOf<T>> {
+async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options<ViewOf<T>>): Promise<ViewOf<T>> {
   const view = new view_cls({...options, model}) as ViewOf<T>
   view.initialize()
   await view.lazy_initialize()
   return view
 }
 
-export async function build_view<T extends HasProps>(model: T, options: Options = {parent: null},
+export async function build_view<T extends HasProps>(model: T, options: Options<ViewOf<T>> = {parent: null},
     cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>> {
   const view = await _build_view(cls(model), model, options)
   view.connect_signals()
@@ -20,7 +20,7 @@ export async function build_view<T extends HasProps>(model: T, options: Options 
 }
 
 export async function build_views<T extends HasProps>(view_storage: ViewStorage<T>, models: T[],
-    options: Options = {parent: null}, cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>[]> {
+    options: Options<ViewOf<T>> = {parent: null}, cls: (model: T) => T["default_view"] = (model) => model.default_view): Promise<ViewOf<T>[]> {
 
   const to_remove = difference([...view_storage.keys()], models)
 
