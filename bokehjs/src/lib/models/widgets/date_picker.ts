@@ -33,7 +33,7 @@ export class DatePickerView extends InputWidgetView {
   connect_signals(): void {
     super.connect_signals()
 
-    const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
+    const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline, date_format} = this.model.properties
     this.connect(value.change, () => this._picker?.setDate(value.value()))
     this.connect(min_date.change, () => this._picker?.set("minDate", min_date.value()))
     this.connect(max_date.change, () => this._picker?.set("maxDate", max_date.value()))
@@ -41,6 +41,7 @@ export class DatePickerView extends InputWidgetView {
     this.connect(enabled_dates.change, () => this._picker?.set("enable", enabled_dates.value()))
     this.connect(position.change, () => this._picker?.set("position", position.value()))
     this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
+    this.connect(date_format.change, () => this._picker?.set("dateFormat", date_format.value()))
   }
 
   remove(): void {
@@ -68,6 +69,7 @@ export class DatePickerView extends InputWidgetView {
       position: this.model.position,
       disable: _convert_date_list(this.model.disabled_dates),
       enable: _convert_date_list(this.model.enabled_dates),
+      dateFormat: this.model.date_format,
       onChange: (selected_dates, date_string, instance) => this._on_change(selected_dates, date_string, instance),
     })
   }
@@ -89,6 +91,7 @@ export namespace DatePicker {
     enabled_dates:  p.Property<DatesList>
     position:       p.Property<CalendarPosition>
     inline:         p.Property<boolean>
+    date_format:    p.Property<string>
   }
 }
 
@@ -116,6 +119,7 @@ export class DatePicker extends InputWidget {
         enabled_dates:  [ DatesList, [] ],
         position:       [ CalendarPosition, "auto" ],
         inline:         [ Boolean, false ],
+        date_format:    [ String ],
       }
     })
   }

@@ -418,6 +418,13 @@ class DatePicker(InputWidget):
     Whether the calendar sholud be displayed inline.
     """)
 
+    date_format = String(default="Y-m-d", help="""
+    The desired date format to display on the Calendar when a date is picked.
+
+    .. note::
+        Must contain characters from flatpickr's table of Formatting Tokens
+    """)
+
 class ColorPicker(InputWidget):
     ''' Color picker widget
 
