@@ -331,12 +331,12 @@ export class PlotView extends LayoutDOMView {
       return layouts
     }
 
-    const min_border = this.model.min_border != null ? this.model.min_border : 0
+    const min_border = this.model.min_border ?? 0
     this.layout.min_border = {
-      left:   this.model.min_border_left   != null ? this.model.min_border_left   : min_border,
-      top:    this.model.min_border_top    != null ? this.model.min_border_top    : min_border,
-      right:  this.model.min_border_right  != null ? this.model.min_border_right  : min_border,
-      bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
+      left:   this.model.min_border_left   ?? min_border,
+      top:    this.model.min_border_top    ?? min_border,
+      right:  this.model.min_border_right  ?? min_border,
+      bottom: this.model.min_border_bottom ?? min_border,
     }
 
     const top_panel    = new VStack()
