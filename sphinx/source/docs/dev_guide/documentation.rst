@@ -120,12 +120,16 @@ paragraph in the comments ``.. vale off`` and ``.. vale on``. For example:
 
   .. vale on
 
-Vale also uses a very basic spell checker. If you feel like Vale incorrectly
-flags a word you are using, add it to the file ``vocab.txt`` in
-:bokeh-tree:`.github/styles`.
-
 For information on how to edit and customize the rules, see the `documentation
 for Vale`_.
+
+Bokeh's CI uses several custom rules for Vale. In case you need to edit a rule
+or add exceptions, find the rules in :bokeh-tree:`.github/styles/Bokeh` and
+include these changes in your pull request.
+
+Vale also uses a very basic spell checker. If you feel like Vale incorrectly
+flags a word you are using, add it to the file ``vocab.txt`` in
+:bokeh-tree:`.github/styles` and include these updates in your pull request.
 
 .. _`build`:
 
