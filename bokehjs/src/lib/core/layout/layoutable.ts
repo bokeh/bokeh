@@ -192,6 +192,10 @@ export abstract class Layoutable {
       height: this.clip_height(height),
     }
   }
+
+  has_size_changed(): boolean {
+    return false
+  }
 }
 
 export class LayoutItem extends Layoutable {

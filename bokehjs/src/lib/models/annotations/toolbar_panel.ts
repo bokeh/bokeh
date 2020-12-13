@@ -3,14 +3,20 @@ import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
-import {Size} from "core/layout"
+import {Size, Layoutable} from "core/layout"
+import {Panel, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
 
-  readonly rotate: boolean = true
+  panel: Panel
+  layout: Layoutable
+
+  update_layout(): void {
+    this.layout = new SidePanel(this.panel, () => this.get_size(), true)
+  }
 
   protected _toolbar_view: ToolbarBaseView
   protected el: HTMLElement
@@ -45,7 +51,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected _render(): void {
     // TODO: this should be handled by the layout
-    const {bbox} = this.panel!
+    const {bbox} = this.layout
     if (!this._previous_bbox.equals(bbox)) {
       position(this.el, bbox)
       this._previous_bbox = bbox

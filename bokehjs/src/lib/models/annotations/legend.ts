@@ -6,6 +6,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
+import {SidePanel} from "core/layout/side_panel"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every} from "core/util/array"
@@ -16,6 +17,14 @@ import {unreachable} from "core/util/assert"
 export class LegendView extends AnnotationView {
   model: Legend
   visuals: Legend.Visuals
+
+  update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SidePanel(panel, () => this.get_size())
+    else
+      this.layout = undefined
+  }
 
   protected max_label_height: number
   protected text_widths: Map<string, number>
@@ -81,7 +90,7 @@ export class LegendView extends AnnotationView {
       legend_height = this.max_label_height + this.title_height + 2*legend_padding
     }
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
 
     const {location} = this.model

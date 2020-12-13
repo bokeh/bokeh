@@ -20,26 +20,24 @@ import {LegendLocation, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {min, max, range, reversed} from "core/util/array"
-import {isString, isArray} from "core/util/types"
+import {range, reversed} from "core/util/array"
 import {Context2d} from "core/util/canvas"
-import {Size, Grid, Layoutable} from "core/layout"
+import {Grid, Layoutable} from "core/layout"
 import {HStack, VStack} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
-import {SidePanel} from "core/layout/side_panel"
+import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 
 const SHORT_DIM = 25
-const LONG_DIM_MIN_SCALAR = 0.3
-const LONG_DIM_MAX_SCALAR = 0.8
-
-type ScreenPoint = {sx: number, sy: number}
+//const LONG_DIM_MIN_SCALAR = 0.3
+//const LONG_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
   model: ColorBar
   visuals: ColorBar.Visuals
+  layout: Layoutable
 
   protected image: HTMLCanvasElement
 
@@ -280,10 +278,12 @@ export class ColorBarView extends AnnotationView {
 
     const {_title_view} = this
     if (orientation == "horizontal") {
-      _title_view.layout = new SidePanel("above", _title_view)
+      _title_view.panel = new Panel("above")
+      _title_view.update_layout()
       top_panel.children.push(_title_view.layout)
     } else {
-      _title_view.layout = new SidePanel("left", _title_view)
+      _title_view.panel = new Panel("left")
+      _title_view.update_layout()
       left_panel.children.push(_title_view.layout)
     }
 
@@ -310,7 +310,8 @@ export class ColorBarView extends AnnotationView {
     })()
 
     const {_axis_view} = this
-    _axis_view.layout = new SidePanel(side, _axis_view)
+    _axis_view.panel = new Panel(side)
+    _axis_view.update_layout()
     stack.children.push(_axis_view.layout)
 
     const outer = new Grid([{layout, row: 0, col: 0}])
@@ -324,109 +325,16 @@ export class ColorBarView extends AnnotationView {
 
     this._outer_layout = outer
     this._inner_layout = layout
-  }
 
-  after_layout(): void {
-    const panel = this.panel ?? this.plot_view.frame
-    this._outer_layout.compute(panel.bbox.size)
-  }
-
-  protected _get_size(): Size {
-    const image_size = this.compute_image_dimensions()
-    return this.compute_legend_dimensions(image_size)
-  }
-
-  compute_legend_dimensions(image_size: Size): Size {
-    const axis_size = this._axis_view.panel.get_oriented_size()
-    const title_size = this._title_view.panel.get_oriented_size()
-
-    const {padding} = this.model
-
-    let width: number
-    let height: number
-    switch (this.model.orientation) {
-      case "vertical":
-        width = image_size.width + axis_size.width + title_size.width + 2*padding
-        height = image_size.height + 2*padding
-        break
-      case "horizontal":
-        width = image_size.width + 2*padding
-        height = image_size.height + axis_size.height + title_size.height + 2*padding
-        break
-    }
-
-    return {width, height}
-  }
-
-  compute_legend_location(legend_size: Size): ScreenPoint {
-    const legend_margin = this.model.margin
-
-    const panel = this.panel ?? this.plot_view.frame
-    const [hr, vr] = panel.bbox.ranges
-    const {location} = this.model
-
-    let sx: number
-    let sy: number
-    if (isString(location)) {
-      switch (location) {
-        case 'top_left':
-          sx = hr.start + legend_margin
-          sy = vr.start + legend_margin
-          break
-        case 'top_center':
-          sx = (hr.end + hr.start)/2 - legend_size.width/2
-          sy = vr.start + legend_margin
-          break
-        case 'top_right':
-          sx = hr.end - legend_margin - legend_size.width
-          sy = vr.start + legend_margin
-          break
-        case 'bottom_right':
-          sx = hr.end - legend_margin - legend_size.width
-          sy = vr.end - legend_margin - legend_size.height
-          break
-        case 'bottom_center':
-          sx = (hr.end + hr.start)/2 - legend_size.width/2
-          sy = vr.end - legend_margin - legend_size.height
-          break
-        case 'bottom_left':
-          sx = hr.start + legend_margin
-          sy = vr.end - legend_margin - legend_size.height
-          break
-        case 'center_left':
-          sx = hr.start + legend_margin
-          sy = (vr.end + vr.start)/2 - legend_size.height/2
-          break
-        case 'center':
-          sx = (hr.end + hr.start)/2 - legend_size.width/2
-          sy = (vr.end + vr.start)/2 - legend_size.height/2
-          break
-        case 'center_right':
-          sx = hr.end - legend_margin - legend_size.width
-          sy = (vr.end + vr.start)/2 - legend_size.height/2
-          break
-      }
-    } else if (isArray(location) && location.length == 2) {
-      const [vx, vy] = location
-      sx = panel.xview.compute(vx)
-      sy = panel.yview.compute(vy) - legend_size.height
-    } else
-      unreachable()
-
-    return {sx, sy}
+    this.layout = this._outer_layout
   }
 
   protected _render(): void {
     const {ctx} = this.layer
-
-    const panel = this.panel ?? this.plot_view.frame
     ctx.save()
-    const {x, y} = panel.bbox
-    ctx.translate(x, y)
     this._paint_bbox(ctx, this._outer_layout.bbox)
-
-    const {x: xl, y: yl} = this._inner_layout.bbox
-    ctx.translate(xl, yl)
+    const {x, y} = this._inner_layout.bbox
+    ctx.translate(x, y)
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)
     this._title_view.render()
     this._axis_view.render()
@@ -458,71 +366,6 @@ export class ColorBarView extends AnnotationView {
       ctx.strokeRect(x, y, width, height)
     }
     ctx.restore()
-  }
-
-  compute_image_dimensions(): Size {
-    /*
-    Heuristics to determine ColorBar image dimensions if set to "auto".
-
-    Note: Returns the height/width values for the ColorBar's scale image, not
-    the dimensions of the entire ColorBar.
-
-    If the short dimension (the width of a vertical bar or height of a
-    horizontal bar) is set to "auto", the resulting dimension will be set to
-    25 px.
-
-    For a ColorBar in a side panel with the long dimension (the height of a
-    vertical bar or width of a horizontal bar) set to "auto", the
-    resulting dimension will be as long as the adjacent frame edge, so that the
-    bar "fits" to the plot.
-
-    For a ColorBar in the plot frame with the long dimension set to "auto", the
-    resulting dimension will be the greater of:
-      * The length of the color palette * 25px
-      * The parallel frame dimension * 0.30
-        (i.e the frame height for a vertical ColorBar)
-    But not greater than:
-      * The parallel frame dimension * 0.80
-    */
-    const {bbox} = this.panel ?? this.plot_view.frame
-    const {padding} = this.model
-
-    let width: number
-    let height: number
-
-    switch (this.model.orientation) {
-      case "vertical": {
-        if (this.model.height == 'auto') {
-          const title_size = this._title_view.panel.get_oriented_size()
-          if (this.panel != null)
-            height = bbox.height - 2*padding - title_size.height
-          else {
-            height = max([this.model.color_mapper.palette.length*SHORT_DIM, bbox.height*LONG_DIM_MIN_SCALAR])
-            height = min([height, bbox.height*LONG_DIM_MAX_SCALAR - 2*padding - title_size.height])
-          }
-        } else
-          height = this.model.height
-
-        width = this.model.width == 'auto' ? SHORT_DIM : this.model.width
-        break
-      }
-      case "horizontal": {
-        height = this.model.height == 'auto' ? SHORT_DIM : this.model.height
-
-        if (this.model.width == 'auto') {
-          if (this.panel != null)
-            width = bbox.width - 2*padding
-          else {
-            width = max([this.model.color_mapper.palette.length*SHORT_DIM, bbox.width*LONG_DIM_MIN_SCALAR])
-            width = min([width, bbox.width*LONG_DIM_MAX_SCALAR - 2*padding])
-          }
-        } else
-          width = this.model.width
-        break
-      }
-    }
-
-    return {width, height}
   }
 }
 

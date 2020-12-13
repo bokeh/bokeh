@@ -149,81 +149,32 @@ const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
   right: LEFT,
 }
 
-export interface Panelable {
-  get_size(): Size
-  rotate?: boolean
-}
-
-export class SidePanel extends ContentLayoutable {
-  protected _dim: 0 | 1
-  protected _normals: [number, number]
-
-  constructor(readonly side: Side, readonly obj: Panelable) {
-    super()
-
-    switch (this.side) {
-      case "above":
-        this._dim = 0
-        this._normals = [0, -1]
-        break
-      case "below":
-        this._dim = 0
-        this._normals = [0, 1]
-        break
-      case "left":
-        this._dim = 1
-        this._normals = [-1, 0]
-        break
-      case "right":
-        this._dim = 1
-        this._normals = [1, 0]
-        break
-    }
-
-    if (this.is_horizontal)
-      this.set_sizing({width_policy: "max", height_policy: "fixed"})
-    else
-      this.set_sizing({width_policy: "fixed", height_policy: "max"})
-  }
-
-  protected _content_size(): Sizeable {
-    return new Sizeable(this.get_oriented_size())
-  }
-
-  get_oriented_size(): Size {
-    const {width, height} = this.obj.get_size()
-    if (!this.obj.rotate || this.is_horizontal)
-      return {width, height}
-    else
-      return {width: height, height: width}
-  }
-
-  has_size_changed(): boolean {
-    const {width, height} = this.get_oriented_size()
-    if (this.is_horizontal)
-      return this.bbox.height != height
-    else
-      return this.bbox.width != width
-  }
+export class Panel {
+  constructor(readonly side: Side) {}
 
   get dimension(): 0 | 1 {
-    return this._dim
+    return this.side == "above" || this.side == "below" ? 0 : 1
   }
 
   get normals(): [number, number] {
-    return this._normals
+    switch (this.side) {
+      case "above": return [ 0, -1]
+      case "below": return [ 0,  1]
+      case "left":  return [-1,  0]
+      case "right": return [ 1,  0]
+    }
   }
 
   get is_horizontal(): boolean {
-    return this._dim == 0
+    return this.dimension == 0
   }
 
   get is_vertical(): boolean {
-    return this._dim == 1
+    return this.dimension == 1
   }
 
   apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
-    const side = this.side
+    const {side} = this
 
     let baseline: CanvasTextBaseline
     let align: CanvasTextAlign
@@ -247,5 +198,33 @@ export class SidePanel extends ContentLayoutable {
 
   get_label_angle_heuristic(orient: Orient): number {
     return _angle_lookup[this.side][orient]
+  }
+}
+
+export class SidePanel extends ContentLayoutable {
+
+  constructor(readonly panel: Panel, readonly get_size: () => Size, readonly rotate: boolean = false) {
+    super()
+
+    if (this.panel.is_horizontal)
+      this.set_sizing({width_policy: "max", height_policy: "fixed"})
+    else
+      this.set_sizing({width_policy: "fixed", height_policy: "max"})
+  }
+
+  protected _content_size(): Sizeable {
+    const {width, height} = this.get_size()
+    if (!this.rotate || this.panel.is_horizontal)
+      return new Sizeable({width, height})
+    else
+      return new Sizeable({width: height, height: width})
+  }
+
+  has_size_changed(): boolean {
+    const {width, height} = this._content_size()
+    if (this.panel.is_horizontal)
+      return this.bbox.height != height
+    else
+      return this.bbox.width != width
   }
 }

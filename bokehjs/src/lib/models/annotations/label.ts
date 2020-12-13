@@ -21,7 +21,7 @@ export class LabelView extends TextAnnotationView {
     const {angle, angle_units} = this.model
     const rotation = resolve_angle(angle, angle_units)
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
 
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale

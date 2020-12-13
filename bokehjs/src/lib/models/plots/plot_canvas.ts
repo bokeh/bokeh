@@ -24,8 +24,8 @@ import {Context2d, CanvasLayer} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
-import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
+import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
@@ -293,9 +293,11 @@ export class PlotView extends LayoutDOMView {
         panels.push(this._toolbar)
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
       const view = this.renderer_view(model)!
-      return view.layout = new SidePanel(side, view)
+      view.panel = new Panel(side)
+      view.update_layout?.()
+      return view.layout!
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -358,11 +360,6 @@ export class PlotView extends LayoutDOMView {
     this.layout.bottom_panel = bottom_panel
     this.layout.left_panel = left_panel
     this.layout.right_panel = right_panel
-
-    for (const [, child_view] of this.renderer_views) {
-      if (child_view instanceof AnnotationView)
-        child_view.update_layout?.()
-    }
   }
 
   get axis_views(): AxisView[] {
@@ -419,7 +416,7 @@ export class PlotView extends LayoutDOMView {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout.has_size_changed()) {
+        if (view.layout?.has_size_changed()) {
           this.invalidate_painters(view)
           return true
         }

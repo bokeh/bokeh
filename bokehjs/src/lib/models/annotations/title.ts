@@ -1,7 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {Size} from "core/layout"
-import {SidePanel} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {Panel} from "core/layout/side_panel"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -9,10 +9,8 @@ import * as p from "core/properties"
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
-
-  get panel(): SidePanel {
-    return this.layout
-  }
+  layout: Layoutable
+  panel: Panel
 
   initialize(): void {
     super.initialize()
@@ -20,14 +18,12 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.panel!
-
     const hmargin = this.model.offset
     const vmargin = 5
 
     let sx: number, sy: number
-    const {bbox} = panel
-    switch (panel.side) {
+    const {bbox} = this.layout
+    switch (this.panel.side) {
       case 'above':
       case 'below': {
         switch (this.model.vertical_align) {
@@ -85,7 +81,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.layer.ctx, text, sx, sy, angle)
