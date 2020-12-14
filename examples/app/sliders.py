@@ -29,7 +29,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 
 
 # Set up plot
-plot = figure(plot_height=400, plot_width=400, title="Example for Homework 6a",
+plot = figure(plot_height=400, plot_width=400, title="my sine wave",
               tools="crosshair,pan,reset,save,wheel_zoom",
               x_range=[0, 4*np.pi], y_range=[-2.5, 2.5])
 

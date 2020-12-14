@@ -62,6 +62,7 @@ export class DatePickerView extends InputWidgetView {
     this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
     this._picker = flatpickr(this.input_el, {
+      dateFormat: this.model.date_format,
       defaultDate: this.model.value,
       minDate: this.model.min_date,
       maxDate: this.model.max_date,
@@ -69,7 +70,6 @@ export class DatePickerView extends InputWidgetView {
       position: this.model.position,
       disable: _convert_date_list(this.model.disabled_dates),
       enable: _convert_date_list(this.model.enabled_dates),
-      dateFormat: this.model.date_format,
       onChange: (selected_dates, date_string, instance) => this._on_change(selected_dates, date_string, instance),
     })
   }
@@ -119,7 +119,7 @@ export class DatePicker extends InputWidget {
         enabled_dates:  [ DatesList, [] ],
         position:       [ CalendarPosition, "auto" ],
         inline:         [ Boolean, false ],
-        date_format:    [ String ],
+        date_format:    [ String, "Y-m-d" ],
       }
     })
   }
