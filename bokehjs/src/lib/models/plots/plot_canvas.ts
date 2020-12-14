@@ -536,8 +536,9 @@ export class PlotView extends LayoutDOMView {
       this._needs_paint = true
     }
 
-    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
-      this._inner_bbox = this.layout.inner_bbox
+    const {inner_bbox} = this.layout
+    if (!this._inner_bbox.equals(inner_bbox)) {
+      this._inner_bbox = inner_bbox
       this._needs_paint = true
     }
 
