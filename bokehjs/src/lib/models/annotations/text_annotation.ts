@@ -3,7 +3,7 @@ import * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {SidePanel} from "core/layout/side_panel"
+import {SideLayout} from "core/layout/side_panel"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
@@ -15,7 +15,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   update_layout(): void {
     const {panel} = this
     if (panel != null)
-      this.layout = new SidePanel(panel, () => this.get_size(), true)
+      this.layout = new SideLayout(panel, () => this.get_size(), true)
     else
       this.layout = undefined
   }

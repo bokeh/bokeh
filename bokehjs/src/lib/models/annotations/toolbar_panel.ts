@@ -4,7 +4,7 @@ import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
 import {Size, Layoutable} from "core/layout"
-import {Panel, SidePanel} from "core/layout/side_panel"
+import {Panel, SideLayout} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
@@ -15,7 +15,7 @@ export class ToolbarPanelView extends AnnotationView {
   layout: Layoutable
 
   update_layout(): void {
-    this.layout = new SidePanel(this.panel, () => this.get_size(), true)
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
   protected _toolbar_view: ToolbarBaseView

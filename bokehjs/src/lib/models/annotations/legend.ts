@@ -6,7 +6,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
-import {SidePanel} from "core/layout/side_panel"
+import {SideLayout} from "core/layout/side_panel"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every} from "core/util/array"
@@ -21,7 +21,7 @@ export class LegendView extends AnnotationView {
   update_layout(): void {
     const {panel} = this
     if (panel != null)
-      this.layout = new SidePanel(panel, () => this.get_size())
+      this.layout = new SideLayout(panel, () => this.get_size())
     else
       this.layout = undefined
   }

@@ -201,7 +201,7 @@ export class Panel {
   }
 }
 
-export class SidePanel extends ContentLayoutable {
+export class SideLayout extends ContentLayoutable {
 
   constructor(readonly panel: Panel, readonly get_size: () => Size, readonly rotate: boolean = false) {
     super()

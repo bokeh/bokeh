@@ -10,7 +10,7 @@ import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Size, Layoutable} from "core/layout"
-import {Panel, SidePanel, Orient} from "core/layout/side_panel"
+import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isString, isNumber} from "core/util/types"
@@ -39,7 +39,7 @@ export class AxisView extends GuideRendererView {
   layout: Layoutable
 
   update_layout(): void {
-    this.layout = new SidePanel(this.panel, () => this.get_size(), true)
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
   get_size(): Size {
@@ -526,9 +526,7 @@ export namespace Axis {
   }
 }
 
-export interface Axis extends Axis.Attrs {
-  panel: SidePanel
-}
+export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props
