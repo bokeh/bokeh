@@ -14,24 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import logging
-from datetime import date, datetime
-
-# Bokeh imports
-from bokeh.core.validation.check import check_integrity
-from bokeh.util.logconfig import basicConfig
-from bokeh.util.serialization import convert_date_to_datetime, convert_datetime_type
-
 # Module under test
 from bokeh.models.widgets import DatePicker
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-# needed for caplog tests to function
-basicConfig()
 
 #-----------------------------------------------------------------------------
 # General API
