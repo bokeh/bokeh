@@ -243,6 +243,38 @@ def convert_logging(value):
 
     raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
 
+_validation_levels = {
+    # does this receive logging message from validate
+    "none": None,
+    "errors": logging.WARNING,
+    "full": 1, #unsure how to raise exceptions for error and full
+}
+
+def convert_validation_exceptions(value):
+    """
+    Converts string to a validation exception level.
+
+    The function understands the following strings:
+    *"errors" logs errors and warnings, no exceptions .
+    *"full" logs warnings, exception on errors
+    *"none" exceptions on errors or warnings (default).
+
+    Args:
+        value (str):
+            A string value to convert to a validation exception level
+
+    Returns:
+        error messages
+
+    Raises:
+        ValueError
+
+    """
+    if value in _validation_levels:
+        return _validation_levels[value]
+
+    raise ValueError("Cannot convert {} to level, valid values are: {}".format(value, ", ".join(_validation_levels)))
+
 class _Unset: pass
 
 def is_dev():
@@ -401,6 +433,7 @@ class PrioritizedSetting:
         if self._convert is convert_bool: return "Bool"
         if self._convert is convert_logging: return "Log Level"
         if self._convert is convert_str_seq: return "List[String]"
+        if self._convert is convert_validation_exceptions: return "Validation Exceptions"
 
 _config_user_locations = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),
@@ -619,7 +652,7 @@ class Settings:
     """)
 
     # TODO: understand this
-    validation_exceptions = PrioritizedSetting("validation_exceptions", "BOKEH_VALIDATION_EXCEPTIONS", default="none", help="""
+    validation_exceptions = PrioritizedSetting("validation_exceptions", "BOKEH_VALIDATION_EXCEPTIONS", convert=convert_validation_exceptions, default="none", help="""
     Settings for validation error messages.
 
     valid values are:
