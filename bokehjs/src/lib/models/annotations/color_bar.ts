@@ -1,20 +1,17 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
-import {Axis} from "../axes/axis"
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {Axis, CategoricalAxis} from "../axes"
 import {Ticker} from "../tickers/ticker"
+import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
-import {BasicTicker} from "../tickers/basic_ticker"
-import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
-import {LogTicker} from "../tickers/log_ticker"
-import {LogTickFormatter} from "../formatters/log_tick_formatter"
-import {BinnedTicker} from "../tickers/binned_ticker"
+import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import {ColorMapper} from "../mappers/color_mapper"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper} from "../mappers"
-import {LinearScale} from "../scales/linear_scale"
-import {LinearInterpolationScale} from "../scales/linear_interpolation_scale"
-import {LogScale} from "../scales/log_scale"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
+import {LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
 import {Range1d} from "../ranges/range1d"
+import {FactorRange} from "../ranges/factor_range"
 
 import {LegendLocation, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -66,6 +63,8 @@ export class ColorBarView extends AnnotationView {
           return new LogTicker()
         case color_mapper instanceof ScanningColorMapper:
           return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
+        case color_mapper instanceof CategoricalColorMapper:
+          return new CategoricalTicker()
         default:
           return new BasicTicker()
       }
@@ -75,6 +74,8 @@ export class ColorBarView extends AnnotationView {
       switch (true) {
         case this._ticker instanceof LogTicker:
           return new LogTickFormatter()
+        case color_mapper instanceof CategoricalColorMapper:
+          return new CategoricalTickFormatter()
         default:
           return new BasicTickFormatter()
       }
@@ -90,10 +91,17 @@ export class ColorBarView extends AnnotationView {
     a LinearColorMapper will require a corresponding LinearScale instance).
     */
 
-    const x_range = new Range1d({
-      start: color_mapper.metrics.min,
-      end: color_mapper.metrics.max,
-    })
+    const x_range = (() => {
+      if (color_mapper instanceof CategoricalColorMapper) {
+        const {factors} = color_mapper
+        return new FactorRange({factors})
+      } else if (color_mapper instanceof ContinuousColorMapper) {
+        const {min, max} = color_mapper.metrics
+        return new Range1d({start: min, end: max})
+      } else
+        unreachable()
+    })()
+
     const x_scale = (() => {
       if (color_mapper instanceof LinearColorMapper)
         return new LinearScale()
@@ -102,6 +110,8 @@ export class ColorBarView extends AnnotationView {
       else if (color_mapper instanceof ScanningColorMapper) {
         const {binning} = color_mapper.metrics
         return new LinearInterpolationScale({binning})
+      } else if (color_mapper instanceof CategoricalColorMapper) {
+        return new CategoricalScale()
       } else {
         // TODO: Categorical*Mapper
         unreachable()
@@ -116,7 +126,8 @@ export class ColorBarView extends AnnotationView {
     else
       this._frame = new CartesianFrame(y_scale, x_scale, y_range, x_range)
 
-    this._axis = new Axis({
+    const AxisCls = x_range instanceof FactorRange ? CategoricalAxis : Axis
+    this._axis = new AxisCls({
       ticker: this._ticker,
       formatter: this._formatter,
       major_tick_in: this.model.major_tick_in,
@@ -383,7 +394,7 @@ export namespace ColorBar {
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
     major_label_overrides: p.Property<{[key: string]: string}>
-    color_mapper: p.Property<ContinuousColorMapper>
+    color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
     margin: p.Property<number>
     padding: p.Property<number>
@@ -447,7 +458,7 @@ export class ColorBar extends Annotation {
       ticker:                [ Or(Ref(Ticker), Auto), () => new BasicTicker() ],               // TODO: obj -> "auto"
       formatter:             [ Or(Ref(TickFormatter), Auto), () => new BasicTickFormatter() ], // TODO: obj -> "auto"
       major_label_overrides: [ Dict(String), {} ],
-      color_mapper:          [ Ref(ContinuousColorMapper) ],
+      color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],
       margin:                [ Number, 30 ],
       padding:               [ Number, 10 ],

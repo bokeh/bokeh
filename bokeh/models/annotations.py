@@ -76,7 +76,7 @@ from ..core.validation.errors import (
 from ..model import Model
 from ..util.serialization import convert_datetime_type
 from .formatters import BasicTickFormatter, TickFormatter
-from .mappers import ContinuousColorMapper
+from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import BasicTicker, Ticker
@@ -400,8 +400,8 @@ class ColorBar(Annotation):
     override normal formatting.
     """)
 
-    color_mapper = Instance(ContinuousColorMapper, help="""
-    A continuous color mapper containing a color palette to render.
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
