@@ -125,6 +125,9 @@ def check_integrity(models):
         if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)
 
+    # QUESTION: can I make check_integrity return messages?
+    return messages
+
     # This will be turned on in a future release
     # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
     #     raise RuntimeError("Errors encountered during validation (see log output)")

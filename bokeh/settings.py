@@ -618,6 +618,17 @@ class Settings:
     is active.
     """)
 
+    # TODO: understand this
+    validation_exceptions = PrioritizedSetting("validation_exceptions", "BOKEH_VALIDATION_EXCEPTIONS", default="none", help="""
+    Settings for validation error messages.
+
+    valid values are:
+
+    - ``errors`` logs errors and warnings, no exceptions (default).
+    - ``full`` logs warnings, exception on errors.
+    - ``none`` exceptions on errors or warnings.
+    """)
+
     # Non-settings methods
 
     def bokehjsdir(self) -> str:

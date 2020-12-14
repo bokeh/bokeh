@@ -965,9 +965,15 @@ class Document:
             None
 
         '''
+
+        # TODO: where can I get this message with error and warning?
+        # messages = dict(error=[], warning=[])
+
         for r in self.roots:
             refs = r.references()
-            check_integrity(refs)
+            messages = check_integrity(refs)
+            if len(messages['error']) or (len(messages['warning']) and settings.strict()):
+                raise RuntimeError("Errors encountered during validation (see log output)")
 
     # Private methods ---------------------------------------------------------
 
