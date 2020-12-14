@@ -161,7 +161,7 @@ export class ColorBarView extends AnnotationView {
 
     this._title = new Title({
       text: this.model.title,
-      offset: this.model.title_standoff,
+      standoff: this.model.title_standoff,
       ...title_text,
     })
 

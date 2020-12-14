@@ -408,6 +408,7 @@ def test_Title() -> None:
         "vertical_align",
         "align",
         "offset",
+        "standoff",
         "text_font",
         "text_font_size",
         "text_font_style",

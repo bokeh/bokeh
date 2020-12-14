@@ -19,7 +19,7 @@ export class TitleView extends TextAnnotationView {
 
   protected _get_location(): [number, number] {
     const hmargin = this.model.offset
-    const vmargin = 5
+    const vmargin = this.model.standoff/2
 
     let sx: number, sy: number
     const {bbox} = this.layout
@@ -94,7 +94,7 @@ export class TitleView extends TextAnnotationView {
     else {
       this.visuals.text.set_value(this.layer.ctx)
       const {width, ascent} = this.layer.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
+      return {width, height: ascent * this.visuals.text.text_line_height.value() + this.model.standoff}
     }
   }
 }
@@ -113,6 +113,7 @@ export namespace Title {
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
+    standoff: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
   } & Mixins
@@ -153,6 +154,7 @@ export class Title extends TextAnnotation {
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
       offset:           [ Number, 0 ],
+      standoff:         [ Number, 10 ],
     }))
 
     this.internal<Title.Props>(() => ({
