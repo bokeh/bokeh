@@ -27,7 +27,7 @@ from bokeh.models.widgets import DatePicker
 
 
 class TestDatePicker:
-    def test_setting_value_as_date_time(self) -> None:
+    def test_setting_value_in_iso_date_format(self) -> None:
         set_date = "2017-02-01"
         s = DatePicker(value=set_date)
         assert s.value == (set_date)

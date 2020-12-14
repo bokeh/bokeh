@@ -422,7 +422,8 @@ class DatePicker(InputWidget):
     The desired date format to display on the Calendar when a date is picked.
 
     .. note::
-        Must contain characters from flatpickr's table of Formatting Tokens
+        Must contain characters from flatpickr's table of Formatting Tokens found
+        at https://flatpickr.js.org/formatting/
     """)
 
 class ColorPicker(InputWidget):
