@@ -98,11 +98,13 @@ export class ColorBarView extends AnnotationView {
         if (this.model.color_mapper.high_color != null) {
           palette.push(this.model.color_mapper.high_color)
         }
+        break
       }
       case "min": {
         if (this.model.color_mapper.low_color != null) {
           palette.unshift(this.model.color_mapper.low_color)
         }
+        break
       }
       case "both": {
         if (this.model.color_mapper.low_color != null) {
@@ -111,6 +113,7 @@ export class ColorBarView extends AnnotationView {
         if (this.model.color_mapper.high_color != null) {
           palette.push(this.model.color_mapper.high_color)
         }
+        break
       }
     }
 
