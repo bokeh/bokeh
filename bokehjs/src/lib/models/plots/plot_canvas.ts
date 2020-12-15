@@ -22,7 +22,7 @@ import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
-import {HStack, VStack} from "core/layout/alignments"
+import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
@@ -241,14 +241,6 @@ export class PlotView extends LayoutDOMView {
     this.layout = new BorderLayout()
     this.layout.set_sizing(this.box_sizing())
 
-    const {frame_width, frame_height} = this.model
-
-    this.layout.center_panel = this.frame
-    this.layout.center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
-      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
-    })
-
     type Panels = (Axis | Annotation | Annotation[])[]
 
     const above: Panels = copy(this.model.above)
@@ -341,10 +333,29 @@ export class PlotView extends LayoutDOMView {
       bottom: this.model.min_border_bottom ?? min_border,
     }
 
+    const center_panel = new NodeLayout()
     const top_panel    = new VStack()
     const bottom_panel = new VStack()
     const left_panel   = new HStack()
     const right_panel  = new HStack()
+
+    const {frame_width, frame_height} = this.model
+    center_panel.set_sizing({
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
+    })
+    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
+
+    center_panel.children =
+      this.model.center.filter((obj): obj is Annotation => {
+        return obj instanceof Annotation
+      }).map((model) => {
+        const view = this.renderer_view(model)!
+        view.update_layout?.()
+        return view.layout
+      }).filter((layout): layout is Layoutable => {
+        return layout != null
+      })
 
     top_panel.children    = reversed(set_layouts("above", above))
     bottom_panel.children =          set_layouts("below", below)
@@ -356,6 +367,7 @@ export class PlotView extends LayoutDOMView {
     left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
 
+    this.layout.center_panel = center_panel
     this.layout.top_panel = top_panel
     this.layout.bottom_panel = bottom_panel
     this.layout.left_panel = left_panel

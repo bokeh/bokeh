@@ -47,11 +47,11 @@ export class LatexLabelView extends LabelView {
         throw new Error("unreachable")
     }
 
-    const panel = this.panel || this.plot_view.frame
+    const panel = this.layout ?? this.plot_view.frame
 
     const {x, y} = this.model
-    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(x) : panel.xview.compute(x)
-    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(y) : panel.yview.compute(y)
+    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(x) : panel.bbox.xview.compute(x)
+    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(y) : panel.bbox.yview.compute(y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset

@@ -80,8 +80,8 @@ export class LabelSetView extends TextAnnotationView {
 
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
-    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
+    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.bbox.xview.v_compute(this._x)
+    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.bbox.yview.v_compute(this._y)
 
     return [sx, sy]
   }

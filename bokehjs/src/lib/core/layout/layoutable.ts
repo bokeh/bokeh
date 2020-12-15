@@ -69,6 +69,15 @@ export abstract class Layoutable {
 
   set_geometry(outer: BBox, inner?: BBox): void {
     this._set_geometry(outer, inner ?? outer)
+    for (const handler of this._handlers) {
+      handler(this._bbox, this._inner_bbox)
+    }
+  }
+
+  private _handlers: ((outer: BBox, inner: BBox) => void)[] = []
+
+  on_resize(handler: (outer: BBox, inner: BBox) => void): void {
+    this._handlers.push(handler)
   }
 
   is_width_expanding(): boolean {
@@ -199,71 +208,37 @@ export abstract class Layoutable {
 }
 
 export class LayoutItem extends Layoutable {
-  /*
-  constructor(readonly measure_fn: (viewport: Size) => Size) {
-    super()
-  }
-  protected _measure(viewport: Size): SizeHint {
-    return this.measure_fn(viewport)
-  }
-  protected _measure(viewport: Size): SizeHint {
-    return {
-      width: viewport.width != Infinity ? viewport.width : this.sizing.min_width,
-      height: viewport.height != Infinity ? viewport.height : this.sizing.min_width,
-    }
-  }
-  */
 
   protected _measure(viewport: Size): SizeHint {
     const {width_policy, height_policy} = this.sizing
 
-    let width: number
-    if (viewport.width == Infinity) {
-      width = this.sizing.width != null ? this.sizing.width : 0
-    } else {
-      switch (width_policy) {
-        case "fixed": {
-          width = this.sizing.width != null ? this.sizing.width : 0
-          break
-        }
-        case "min": {
-          width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : 0
-          break
-        }
-        case "fit": {
-          width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : viewport.width
-          break
-        }
-        case "max": {
-          width = this.sizing.width != null ? max(viewport.width, this.sizing.width) : viewport.width
-          break
+    const width = (() => {
+      const {width} = this.sizing
+      if (viewport.width == Infinity) {
+        return width ?? 0
+      } else {
+        switch (width_policy) {
+          case "fixed": return width ?? 0
+          case "min":   return width != null ? min(viewport.width, width) : 0
+          case "fit":   return width != null ? min(viewport.width, width) : viewport.width
+          case "max":   return width != null ? max(viewport.width, width) : viewport.width
         }
       }
-    }
+    })()
 
-    let height: number
-    if (viewport.height == Infinity) {
-      height = this.sizing.height != null ? this.sizing.height : 0
-    } else {
-      switch (height_policy) {
-        case "fixed": {
-          height = this.sizing.height != null ? this.sizing.height : 0
-          break
-        }
-        case "min": {
-          height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : 0
-          break
-        }
-        case "fit": {
-          height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : viewport.height
-          break
-        }
-        case "max": {
-          height = this.sizing.height != null ? max(viewport.height, this.sizing.height) : viewport.height
-          break
+    const height = (() => {
+      const {height} = this.sizing
+      if (viewport.height == Infinity) {
+        return height ?? 0
+      } else {
+        switch (height_policy) {
+          case "fixed": return height ?? 0
+          case "min":   return height != null ? min(viewport.height, height) : 0
+          case "fit":   return height != null ? min(viewport.height, height) : viewport.height
+          case "max":   return height != null ? max(viewport.height, height) : viewport.height
         }
       }
-    }
+    })()
 
     return {width, height}
   }

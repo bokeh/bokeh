@@ -136,8 +136,8 @@ export class LegendView extends AnnotationView {
       }
     } else if (isArray(location) && location.length == 2) {
       const [vx, vy] = location
-      sx = panel.xview.compute(vx)
-      sy = panel.yview.compute(vy) - legend_height
+      sx = panel.bbox.xview.compute(vx)
+      sy = panel.bbox.yview.compute(vy) - legend_height
     } else
       unreachable()
 

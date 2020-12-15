@@ -26,8 +26,8 @@ export class LabelView extends TextAnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset

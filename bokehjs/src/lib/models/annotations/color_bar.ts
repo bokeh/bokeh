@@ -21,7 +21,7 @@ import {range, reversed} from "core/util/array"
 import {keys} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Grid, Layoutable} from "core/layout"
-import {HStack, VStack} from "core/layout/alignments"
+import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
@@ -248,13 +248,16 @@ export class ColorBarView extends AnnotationView {
   update_layout(): void {
     const {orientation, location, width: w, height: h, padding} = this.model
 
+    const center_panel = new NodeLayout()
     const top_panel    = new VStack()
     const bottom_panel = new VStack()
     const left_panel   = new HStack()
     const right_panel  = new HStack()
 
+    center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
+
     const layout = new BorderLayout()
-    layout.center_panel = this._frame
+    layout.center_panel = center_panel
     layout.top_panel    = top_panel
     layout.bottom_panel = bottom_panel
     layout.left_panel   = left_panel
