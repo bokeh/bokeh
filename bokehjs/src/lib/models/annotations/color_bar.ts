@@ -91,7 +91,28 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _set_canvas_image(): void {
-    let {palette} = this.model.color_mapper
+    let {palette} = this.model.color_mapper.clone()
+
+    switch (this.model.extend) {
+      case "max": {
+        if (this.model.color_mapper.high_color != null) {
+          palette.push(this.model.color_mapper.high_color)
+        }
+      }
+      case "min": {
+        if (this.model.color_mapper.low_color != null) {
+          palette.unshift(this.model.color_mapper.low_color)
+        }
+      }
+      case "both": {
+        if (this.model.color_mapper.low_color != null) {
+          palette.unshift(this.model.color_mapper.low_color)
+        }
+        if (this.model.color_mapper.high_color != null) {
+          palette.push(this.model.color_mapper.high_color)
+        }
+      }
+    }
 
     if (this.model.orientation == 'vertical')
       palette = reversed(palette)
