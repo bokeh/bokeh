@@ -15,7 +15,7 @@ import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
 import {Arrayable} from "core/types"
-import {LegendLocation, Orientation} from "core/enums"
+import {Extend, LegendLocation, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -580,6 +580,7 @@ export namespace ColorBar {
 
   export type Props = Annotation.Props & {
     location: p.Property<LegendLocation | [number, number]>
+    extend: p.Property<Extend>
     orientation: p.Property<Orientation>
     title: p.Property<string>
     title_standoff: p.Property<number>
@@ -644,6 +645,7 @@ export class ColorBar extends Annotation {
 
     this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto}) => ({
       location:              [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
+      extend:                [ Extend , "neither"],
       orientation:           [ Orientation, "vertical" ],
       title:                 [ String ],
       title_standoff:        [ Number, 2 ],

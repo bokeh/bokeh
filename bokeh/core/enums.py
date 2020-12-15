@@ -92,6 +92,7 @@ __all__ = (
     'Direction',
     'Enumeration',
     'enumeration',
+    'Extend',
     'FontStyle',
     'HatchPattern',
     'HatchPatternAbbreviation',
