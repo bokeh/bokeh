@@ -57,19 +57,19 @@ export class LabelSetView extends TextAnnotationView {
     } else {
       this.connect(this.model.change, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.streaming, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.patching, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.change, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
     }
   }

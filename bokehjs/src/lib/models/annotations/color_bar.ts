@@ -77,11 +77,11 @@ export class ColorBarView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this._ticker.change, () => this.plot_view.request_render())
-    this.connect(this._formatter.change, () => this.plot_view.request_render())
+    this.connect(this._ticker.change, () => this.request_render())
+    this.connect(this._formatter.change, () => this.request_render())
     this.connect(this.model.color_mapper.change, () => {
       this._set_canvas_image()
-      this.plot_view.request_render()
+      this.request_render()
     })
   }
 

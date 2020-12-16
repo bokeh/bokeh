@@ -70,7 +70,7 @@ export class GMapPlotView extends PlotView {
         const decoded_api_key = atob(this.model.api_key)
         load_google_api(decoded_api_key)
       }
-      gmaps_ready.connect(() => this.request_render())
+      gmaps_ready.connect(() => this.request_paint("everything"))
     }
 
     this.unpause()

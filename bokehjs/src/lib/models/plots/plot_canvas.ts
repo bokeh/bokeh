@@ -110,21 +110,27 @@ export class PlotView extends LayoutDOMView {
 
     this._is_paused -= 1
     if (this._is_paused == 0 && !no_render)
-      this.request_paint()
+      this.request_paint("everything")
   }
 
   // TODO: this needs to be removed
   request_render(): void {
-    this.request_paint()
+    this.request_paint("everything")
   }
 
-  request_paint(to_invalidate?: RendererView): void {
-    if (to_invalidate != null) {
-      this._invalidated_painters.add(to_invalidate)
-    } else {
+  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    if (to_invalidate == "everything")
       this._invalidate_all = true
-    }
+    else if (isArray(to_invalidate)) {
+      for (const renderer_view of to_invalidate)
+        this._invalidated_painters.add(renderer_view)
+    } else
+      this._invalidated_painters.add(to_invalidate)
 
+    this.schedule_paint()
+  }
+
+  schedule_paint(): void {
     if (!this.is_paused) {
       const promise = this.throttled_paint()
       this._ready = this._ready.then(() => promise)
@@ -133,7 +139,7 @@ export class PlotView extends LayoutDOMView {
 
   request_layout(): void {
     this._needs_layout = true
-    this.request_paint()
+    this.request_paint("everything")
   }
 
   reset(): void {
@@ -460,10 +466,10 @@ export class PlotView extends LayoutDOMView {
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
 
     const {above, below, left, right, center, renderers} = this.model.properties
@@ -474,7 +480,7 @@ export class PlotView extends LayoutDOMView {
       await this.build_tool_views()
     })
 
-    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.change, () => this.request_paint("everything"))
     this.connect(this.model.reset, () => this.reset())
   }
 
@@ -551,7 +557,7 @@ export class PlotView extends LayoutDOMView {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint()
+          this.request_paint("everything") // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else
         document.interactive_stop()
