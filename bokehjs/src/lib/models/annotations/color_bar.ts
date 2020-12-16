@@ -93,30 +93,6 @@ export class ColorBarView extends AnnotationView {
   protected _set_canvas_image(): void {
     let {palette} = this.model.color_mapper.clone()
 
-    switch (this.model.extend) {
-      case "max": {
-        if (this.model.color_mapper.high_color != null) {
-          palette.push(this.model.color_mapper.high_color)
-        }
-        break
-      }
-      case "min": {
-        if (this.model.color_mapper.low_color != null) {
-          palette.unshift(this.model.color_mapper.low_color)
-        }
-        break
-      }
-      case "both": {
-        if (this.model.color_mapper.low_color != null) {
-          palette.unshift(this.model.color_mapper.low_color)
-        }
-        if (this.model.color_mapper.high_color != null) {
-          palette.push(this.model.color_mapper.high_color)
-        }
-        break
-      }
-    }
-
     if (this.model.orientation == 'vertical')
       palette = reversed(palette)
 
@@ -251,6 +227,9 @@ export class ColorBarView extends AnnotationView {
     this._draw_minor_ticks(ctx, tick_info)
     this._draw_major_labels(ctx, tick_info)
 
+    this._draw_extensions(ctx)
+
+
     if (this.model.title)
       this._draw_title(ctx)
 
@@ -358,6 +337,26 @@ export class ColorBarView extends AnnotationView {
       )
     }
     ctx.restore()
+  }
+
+  protected _draw_extensions(ctx: Context2d): void {
+    const image = this._computed_image_dimensions()
+
+    if (this.model.color_mapper.low_color != null) {
+      ctx.translate(0, -15)
+      ctx.save()
+      ctx.fillStyle = this.model.color_mapper.low_color
+      ctx.fillRect(0, 0, image.width, 15)
+      ctx.restore()
+      ctx.translate(0, 15)
+    }
+    if (this.model.color_mapper.high_color != null) {
+      ctx.translate(0, image.height)
+      ctx.fillStyle = this.model.color_mapper.high_color
+      ctx.fillRect(0, 0, image.width, 15)
+      ctx.restore()
+      ctx.translate(0, -image.height)
+    }
   }
 
   protected _draw_title(ctx: Context2d): void {
