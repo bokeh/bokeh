@@ -371,7 +371,7 @@ class ColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = String(help="""
+    title = String(default=None, help="""
     The title text to render.
     """)
 

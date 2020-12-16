@@ -160,7 +160,7 @@ export class ColorBarView extends AnnotationView {
     })
 
     this._title = new Title({
-      text: this.model.title,
+      text: this.model.title ?? "",
       standoff: this.model.title_standoff,
       ...title_text,
     })
@@ -407,7 +407,7 @@ export namespace ColorBar {
   export type Props = Annotation.Props & {
     location: p.Property<LegendLocation | [number, number]>
     orientation: p.Property<Orientation>
-    title: p.Property<string>
+    title: p.Property<string | null>
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
@@ -468,10 +468,10 @@ export class ColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto}) => ({
+    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Orientation, "vertical" ],
-      title:                 [ String ],
+      title:                 [ Nullable(String), null ],
       title_standoff:        [ Number, 2 ],
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],
