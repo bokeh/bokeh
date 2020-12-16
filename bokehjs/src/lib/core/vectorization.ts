@@ -1,15 +1,18 @@
 import {isPlainObject} from "./util/types"
 import {Arrayable} from "./types"
+import {HasProps} from "./has_props"
+import {Signal0} from "./signaling"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
 export type Transform<In, Out> = {
   compute(x: In): Out
   v_compute(xs: Arrayable<In>): Arrayable<Out>
-  change: any // TODO
+  change: Signal0<HasProps>
 }
 
 export type Expression<Out> = {
   v_compute(source: ColumnarDataSource): Arrayable<Out>
+  change: Signal0<HasProps>
 }
 
 export type Value<T> = {
