@@ -1,5 +1,4 @@
 import {CategoricalScale} from "../scales/categorical_scale"
-import {ContinuousScale} from "../scales/continuous_scale"
 import {LogScale} from "../scales/log_scale"
 import {Scale} from "../scales/scale"
 import {Range} from "../ranges/range"
@@ -48,14 +47,11 @@ export class CartesianFrame {
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {
-      if (range instanceof DataRange1d || range instanceof Range1d) {
-        if (!(scale instanceof ContinuousScale))
-          throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
-      }
+      const factor_range = range instanceof FactorRange
+      const categorical_scale = scale instanceof CategoricalScale
 
-      if (range instanceof FactorRange) {
-        if (!(scale instanceof CategoricalScale))
-          throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
+      if (factor_range != categorical_scale) {
+        throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
       }
 
       if (scale instanceof LogScale && range instanceof DataRange1d)
