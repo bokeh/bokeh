@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import (
     AngleUnits,
     Dimension,
-    Extend,
+    ExtendColorBar,
     FontStyle,
     LegendClickPolicy,
     LegendLocation,
@@ -411,8 +411,8 @@ class ColorBar(Annotation):
         (i.e. `low=0`), the tick and tick labels won't be rendered.
     """)
 
-    extend = Enum(Extend, default = "neither", help="""
-    Whether the low_color and high_color should be included as an extension
+    extend = Enum(ExtendColorBar, default="none", help="""
+    Whether the `low_color` and `high_color` should be included as an extension.
     """)
 
     margin = Int(30, help="""

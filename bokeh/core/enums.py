@@ -92,7 +92,7 @@ __all__ = (
     'Direction',
     'Enumeration',
     'enumeration',
-    'Extend',
+    'ExtendColorBar',
     'FontStyle',
     'HatchPattern',
     'HatchPatternAbbreviation',
@@ -264,7 +264,7 @@ Dimensions = enumeration("width", "height", "both")
 Direction = enumeration("clock", "anticlock")
 
 #: Specify whether to include low_color and high_color in color_bar
-Extend = enumeration("neither", "min", "max", "both")
+ExtendColorBar = enumeration("none", "min", "max", "both")
 
 #: Specify the font style for rendering text
 FontStyle = enumeration("normal", "italic", "bold", "bold italic")

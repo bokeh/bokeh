@@ -15,7 +15,7 @@ import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
 import {Arrayable} from "core/types"
-import {Extend, LegendLocation, Orientation} from "core/enums"
+import {ExtendColorBar, LegendLocation, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -91,7 +91,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _set_canvas_image(): void {
-    let {palette} = this.model.color_mapper.clone()
+    let {palette} = this.model.color_mapper
 
     if (this.model.orientation == 'vertical')
       palette = reversed(palette)
@@ -603,7 +603,7 @@ export namespace ColorBar {
 
   export type Props = Annotation.Props & {
     location: p.Property<LegendLocation | [number, number]>
-    extend: p.Property<Extend>
+    extend: p.Property<ExtendColorBar>
     orientation: p.Property<Orientation>
     title: p.Property<string>
     title_standoff: p.Property<number>
@@ -668,7 +668,7 @@ export class ColorBar extends Annotation {
 
     this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto}) => ({
       location:              [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
-      extend:                [ Extend , "neither"],
+      extend:                [ ExtendColorBar , "none"],
       orientation:           [ Orientation, "vertical" ],
       title:                 [ String ],
       title_standoff:        [ Number, 2 ],

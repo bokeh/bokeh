@@ -37,8 +37,8 @@ export const Direction = Enum("clock", "anticlock")
 export type Distribution = "uniform" | "normal"
 export const Distribution = Enum("uniform", "normal")
 
-export type Extend = "neither" | "min" | "max" | "both"
-export const Extend = Enum("neither", "min", "max", "both")
+export type ExtendColorBar = "none" | "min" | "max" | "both"
+export const ExtendColorBar = Enum("none", "min", "max", "both")
 
 export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
