@@ -265,6 +265,12 @@ export class DataRange1d extends DataRange {
         end = this._initial_end
     }
 
+    let needs_emit = false
+    if (this.bounds == "auto") {
+      this.setv({bounds: [start, end]}, {silent: true})
+      needs_emit = true
+    }
+
     // only trigger updates when there are changes
     const [_start, _end] = [this.start, this.end]
     if (start != _start || end != _end) {
@@ -274,12 +280,11 @@ export class DataRange1d extends DataRange {
       if (end != _end)
         new_range.end = end
       this.setv(new_range)
+      needs_emit = false
     }
 
-    if (this.bounds == 'auto')
-      this.setv({bounds: [start, end]}, {silent: true})
-
-    this.change.emit()
+    if (needs_emit)
+      this.change.emit()
   }
 
   reset(): void {
