@@ -28,12 +28,9 @@ out = groups.apply(outliers).dropna()
 
 # prepare outlier data for plotting, we need coordinates for every outlier.
 if not out.empty:
-    outx = []
-    outy = []
-    for keys in out.index:
-        outx.append(keys[0])
-        outy.append(out.loc[keys[0]].loc[keys[1]])
-
+    outx = list(out.index.get_level_values(0))
+    outy = list(out.values)
+    
 p = figure(tools="", background_fill_color="#efefef", x_range=cats, toolbar_location=None)
 
 # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
