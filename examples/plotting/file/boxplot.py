@@ -30,7 +30,7 @@ out = groups.apply(outliers).dropna()
 if not out.empty:
     outx = list(out.index.get_level_values(0))
     outy = list(out.values)
-    
+
 p = figure(tools="", background_fill_color="#efefef", x_range=cats, toolbar_location=None)
 
 # if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
