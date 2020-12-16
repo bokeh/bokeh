@@ -1,16 +1,11 @@
-import {VisualProperties} from "./visual"
-import {Color} from "../types"
+import {VisualProperties, VisualUniforms} from "./visual"
+import {Color, uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
-import {color2css, RGBA} from "../util/color"
+import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 
-abstract class _Fill extends VisualProperties {
-  name = "fill"
-}
-_Fill.prototype.attrs = Object.keys(mixins.FillVector)
-
-export class Fill extends _Fill {
+export class Fill extends VisualProperties {
   readonly fill_color: p.Property<Color | null>
   readonly fill_alpha: p.Property<number>
 
@@ -29,8 +24,8 @@ export class Fill extends _Fill {
   }
 }
 
-export class FillScalar extends _Fill {
-  readonly fill_color: p.UniformScalar<RGBA>
+export class FillScalar extends VisualUniforms {
+  readonly fill_color: p.UniformScalar<uint32>
   readonly fill_alpha: p.UniformScalar<number>
 
   get doit(): boolean {
@@ -48,16 +43,16 @@ export class FillScalar extends _Fill {
   }
 }
 
-export class FillVector extends _Fill {
-  readonly fill_color: p.Uniform<RGBA>
+export class FillVector extends VisualUniforms {
+  readonly fill_color: p.Uniform<uint32>
   readonly fill_alpha: p.Uniform<number>
 
   get doit(): boolean {
     const {fill_color} = this
-    if (p.is_UniformScalar(fill_color) && fill_color.value == 0)
+    if (fill_color.is_Scalar() && fill_color.value == 0)
       return false
     const {fill_alpha} = this
-    if (p.is_UniformScalar(fill_alpha) && fill_alpha.value == 0)
+    if (fill_alpha.is_Scalar() && fill_alpha.value == 0)
       return false
     return true
   }
@@ -69,3 +64,12 @@ export class FillVector extends _Fill {
     ctx.fillStyle = color2css(color, alpha)
   }
 }
+
+Fill.prototype.type = "fill"
+Fill.prototype.attrs = Object.keys(mixins.Fill)
+
+FillScalar.prototype.type = "fill"
+FillScalar.prototype.attrs = Object.keys(mixins.FillScalar)
+
+FillVector.prototype.type = "fill"
+FillVector.prototype.attrs = Object.keys(mixins.FillVector)

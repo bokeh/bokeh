@@ -1,19 +1,14 @@
-import {VisualProperties} from "./visual"
-import {Color} from "../types"
+import {VisualProperties, VisualUniforms} from "./visual"
+import {Color, uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {FontStyle, TextAlign, TextBaseline} from "../enums"
-import {color2css, RGBA} from "../util/color"
+import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 
-abstract class _Text extends VisualProperties {
-  name = "text"
-}
-_Text.prototype.attrs = Object.keys(mixins.TextVector)
-
-export class Text extends _Text {
+export class Text extends VisualProperties {
   readonly text_font:        p.Property<string>
-  readonly text_font_size:   p.Property<String>
+  readonly text_font_size:   p.Property<string>
   readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.Property<Color | null>
   readonly text_alpha:       p.Property<number>
@@ -46,8 +41,8 @@ export class Text extends _Text {
   }
 }
 
-export class TextScalar extends _Text {
-  readonly text_color:       p.UniformScalar<RGBA>
+export class TextScalar extends VisualUniforms {
+  readonly text_color:       p.UniformScalar<uint32>
   readonly text_alpha:       p.UniformScalar<number>
   readonly text_font:        p.UniformScalar<string>
   readonly text_font_size:   p.UniformScalar<string>
@@ -84,8 +79,8 @@ export class TextScalar extends _Text {
   }
 }
 
-export class TextVector extends _Text {
-  readonly text_color:       p.Uniform<RGBA>
+export class TextVector extends VisualUniforms {
+  readonly text_color:       p.Uniform<uint32>
   readonly text_alpha:       p.Uniform<number>
   readonly text_font:        p.Uniform<string>
   readonly text_font_size:   p.Uniform<string>
@@ -96,10 +91,10 @@ export class TextVector extends _Text {
 
   get doit(): boolean {
     const {text_color} = this
-    if (p.is_UniformScalar(text_color) && text_color.value == 0)
+    if (text_color.is_Scalar() && text_color.value == 0)
       return false
     const {text_alpha} = this
-    if (p.is_UniformScalar(text_alpha) && text_alpha.value == 0)
+    if (text_alpha.is_Scalar() && text_alpha.value == 0)
       return false
     return true
   }
@@ -124,3 +119,12 @@ export class TextVector extends _Text {
     return `${style} ${size} ${face}`
   }
 }
+
+Text.prototype.type = "text"
+Text.prototype.attrs = Object.keys(mixins.Text)
+
+TextScalar.prototype.type = "text"
+TextScalar.prototype.attrs = Object.keys(mixins.TextScalar)
+
+TextVector.prototype.type = "text"
+TextVector.prototype.attrs = Object.keys(mixins.TextVector)

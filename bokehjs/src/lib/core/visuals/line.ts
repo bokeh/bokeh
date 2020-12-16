@@ -1,17 +1,12 @@
-import {VisualProperties} from "./visual"
-import {Color} from "../types"
+import {VisualProperties, VisualUniforms} from "./visual"
+import {Color, uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {LineJoin, LineCap} from "../enums"
-import {color2css, RGBA} from "../util/color"
+import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 
-abstract class _Line extends VisualProperties {
-  name = "line"
-}
-_Line.prototype.attrs = Object.keys(mixins.LineVector)
-
-export class Line extends _Line {
+export class Line extends VisualProperties {
   readonly line_color:       p.Property<Color | null>
   readonly line_alpha:       p.Property<number>
   readonly line_width:       p.Property<number>
@@ -41,8 +36,8 @@ export class Line extends _Line {
   }
 }
 
-export class LineScalar extends _Line {
-  readonly line_color:       p.UniformScalar<RGBA>
+export class LineScalar extends VisualUniforms {
+  readonly line_color:       p.UniformScalar<uint32>
   readonly line_alpha:       p.UniformScalar<number>
   readonly line_width:       p.UniformScalar<number>
   readonly line_join:        p.UniformScalar<LineJoin>
@@ -71,8 +66,8 @@ export class LineScalar extends _Line {
   }
 }
 
-export class LineVector extends _Line {
-  readonly line_color:       p.Uniform<RGBA>
+export class LineVector extends VisualUniforms {
+  readonly line_color:       p.Uniform<uint32>
   readonly line_alpha:       p.Uniform<number>
   readonly line_width:       p.Uniform<number>
   readonly line_join:        p.Uniform<LineJoin>
@@ -82,13 +77,13 @@ export class LineVector extends _Line {
 
   get doit(): boolean {
     const {line_color} = this
-    if (p.is_UniformScalar(line_color) && line_color.value == 0)
+    if (line_color.is_Scalar() && line_color.value == 0)
       return false
     const {line_alpha} = this
-    if (p.is_UniformScalar(line_alpha) && line_alpha.value == 0)
+    if (line_alpha.is_Scalar() && line_alpha.value == 0)
       return false
     const {line_width} = this
-    if (p.is_UniformScalar(line_width) && line_width.value == 0)
+    if (line_width.is_Scalar() && line_width.value == 0)
       return false
     return true
   }
@@ -110,3 +105,12 @@ export class LineVector extends _Line {
     ctx.lineDashOffset = offset
   }
 }
+
+Line.prototype.type = "line"
+Line.prototype.attrs = Object.keys(mixins.Line)
+
+LineScalar.prototype.type = "line"
+LineScalar.prototype.attrs = Object.keys(mixins.LineScalar)
+
+LineVector.prototype.type = "line"
+LineVector.prototype.attrs = Object.keys(mixins.LineVector)

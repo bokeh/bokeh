@@ -7,26 +7,27 @@ import {CircleView} from "../circle"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
 import {MarkerType} from "core/enums"
-import {ColorArray, RGBAArray} from "core/types"
+import {ColorArray, RGBAArray, uint32} from "core/types"
 import {color2rgba} from "core/util/color"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {unreachable} from "core/util/assert"
 
 type MarkerLikeView = ScatterView | CircleView
 
 function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
-    visual: visuals.LineVector | visuals.FillVector, prop: p.NumberSpec): void {
+    visual: visuals.LineVector | visuals.FillVector, prop: p.Uniform<number>): void {
   // Attach a float attribute to the program. Use singleton value if we can,
   // otherwise use VBO to apply array.
   if (!visual.doit) {
     vbo.used = false
     prog.set_attribute(att_name, 'float', [0])
-  } else if (prop.is_value) {
+  } else if (prop.is_Scalar()) {
     vbo.used = false
-    prog.set_attribute(att_name, 'float', [prop.value()])
-  } else {
+    prog.set_attribute(att_name, 'float', [prop.value])
+  } else if (prop.is_Vector()) {
     vbo.used = true
-    const a = new Float32Array(visual.get_array(prop))
+    const a = new Float32Array(prop.array) // TODO: .buffer
     vbo.set_size(n*4)
     vbo.set_data(0, a)
     prog.set_attribute(att_name, 'float', vbo)
@@ -34,7 +35,7 @@ function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
 }
 
 function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
-    visual: visuals.LineVector | visuals.FillVector, color_prop: p.ColorSpec, alpha_prop: p.NumberSpec): void {
+    visual: visuals.LineVector | visuals.FillVector, color_prop: p.Uniform<uint32>, alpha_prop: p.Uniform<number>): void {
   // Attach the color attribute to the program. If there's just one color,
   // then use this single color for all vertices (no VBO). Otherwise we
   // create an array and upload that to the VBO, which we attahce to the prog.
@@ -42,26 +43,44 @@ function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_n
     // Don't draw (draw transparent)
     vbo.used = false
     prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
-  } else if (color_prop.is_value && alpha_prop.is_value) {
+  } else if (color_prop.is_Scalar() && alpha_prop.is_Scalar()) {
     vbo.used = false
-    const [r, g, b, a] = color2rgba(color_prop.value(), alpha_prop.value())
+    const [r, g, b, a] = color2rgba(color_prop.value, alpha_prop.value)
     prog.set_attribute(att_name, 'vec4', [r/255, g/255, b/255, a/255])
   } else {
-    // Use vbo; we need an array for both the color and the alpha
     vbo.used = true
 
-    // TODO: compose alpha in visuals or earlier to avoid this copy
-    const array = new ColorArray(visual.get_array(color_prop))
-    const colors = new RGBAArray(array.buffer)
-    const alphas = visual.get_array(alpha_prop)
+    let colors: RGBAArray
+    if (color_prop.is_Vector()) {
+      // TODO: compose alpha in visuals or earlier to avoid this copy
+      const array = new ColorArray(color_prop.array)
+      colors = new RGBAArray(array.buffer)
 
-    for (let i = 0; i < n; i++) {
-      const k = 4*i + 3
-      const a = colors[k]
-      if (a == 255) {
-        colors[k] = alphas[i]*255
+      if (!(alpha_prop.is_Scalar() && alpha_prop.value == 1.0)) {
+        for (let i = 0; i < n; i++) {
+          const k = 4*i + 3
+          const a = colors[k]
+          if (a == 255) {
+            colors[k] = alpha_prop.get(i)*255
+          }
+        }
       }
-    }
+    } else if (color_prop.is_Scalar() && alpha_prop.is_Vector()) {
+      const array = new ColorArray(n)
+      array.fill(color_prop.value)
+      colors = new RGBAArray(array.buffer)
+
+      for (let i = 0; i < n; i++) {
+        for (let i = 0; i < n; i++) {
+          const k = 4*i + 3
+          const a = colors[k]
+          if (a == 255) {
+            colors[k] = alpha_prop.get(i)*255
+          }
+        }
+      }
+    } else
+      unreachable()
 
     // Attach vbo
     vbo.set_size(4*n)

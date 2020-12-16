@@ -9,12 +9,11 @@ export {Text, TextScalar, TextVector}
 export {Hatch, HatchScalar, HatchVector}
 
 import {View} from "../view"
-import {Paintable} from "./visual"
 import * as mixins from "../property_mixins"
 
 export class Visuals {
 
-  constructor(view: View & Paintable) {
+  constructor(view: View) {
     const self = this as any
     for (const [prefix, mixin] of view.model._mixins) {
       const visual = (() => {
@@ -35,7 +34,7 @@ export class Visuals {
             throw new Error("unknown visual")
         }
       })()
-      self[prefix + visual.name] = visual
+      self[prefix + visual.type] = visual
     }
   }
 }

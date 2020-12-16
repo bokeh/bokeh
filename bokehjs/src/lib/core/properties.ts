@@ -2,12 +2,12 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray, RGBAArray, ColorArray} from "./types"
+import {Arrayable, NumberArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
-import {is_Color, color2rgba} from "./util/color"
+import {is_Color, color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
@@ -17,7 +17,7 @@ import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
 
-import {Uniform, UniformScalar, UniformVector} from "./uniforms"
+import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
 
 function valueToString(value: any): string {
@@ -45,10 +45,6 @@ export type Spec<T> = {
 //
 // Property base class
 //
-
-export function is_UniformScalar<T>(uniform: Uniform<T>): uniform is UniformScalar<T> {
-  return uniform.is_scalar
-}
 
 export type UniformsOf<M> = {
   [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
@@ -427,29 +423,45 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this.validate(this.spec.value)
   }
 
-  uniform(source: ColumnarDataSource): Uniform<T/*?*/> {
+  materialize(value: T): T {
+    return value
+  }
+
+  v_materialize(values: Arrayable<T>): Arrayable<T> {
+    return values
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  vector(values: Arrayable<T>): UniformVector<T> {
+    return new UniformVector(values)
+  }
+
+  uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
     const {field, expr, value, transform} = this.spec
     if (field != null) {
       const column = source.get_column(field)
       if (column != null) {
-        let array = this.normalize(column)
+        let array = this.v_materialize(column)
         if (transform != null)
           array = transform.v_compute(array)
-        return new UniformVector(array)
+        return this.vector(array)
       } else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
-        return new UniformScalar(null as any, length)
+        return this.scalar(null as any, length)
       }
     } else if (expr != null) {
-      let array = this.normalize(expr.v_compute(source))
+      let array = this.v_materialize(expr.v_compute(source))
       if (transform != null)
         array = transform.v_compute(array)
-      return new UniformVector(array)
+      return this.vector(array)
     } else {
-      let result = this.normalize([value])[0]
+      let result = this.materialize(value)
       if (transform != null)
         result = transform.compute(result)
-      return new UniformScalar(result, length)
+      return this.scalar(result, length)
     }
   }
 
@@ -571,9 +583,15 @@ export class NumberSpec extends DataSpec<number> {
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
-  array(source: ColumnarDataSource): ColorArray {
-    const colors = super.array(source) as Arrayable<types.Color | null>
+  materialize(color: types.Color | null): uint32 {
+    return encode_rgba(color2rgba(color))
+  }
 
+  vector(values: ColorArray): ColorUniformVector {
+    return new ColorUniformVector(values)
+  }
+
+  v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
         return to_big_endian(colors)

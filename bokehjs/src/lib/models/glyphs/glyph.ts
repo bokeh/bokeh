@@ -237,17 +237,13 @@ export abstract class GlyphView extends View {
       if (base != null) {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          self[`_${prop.attr}`] = (base as any)[`_${prop.attr}`]
-          self[`_${prop.attr}_view`] = (base as any)[`_${prop.attr}_view`]
+          self[`${prop.attr}`] = (base as any)[`${prop.attr}`]
           continue
         }
       }
 
       const uniform = prop.uniform(source).select(indices)
-      self[`_${prop.attr}`] = uniform
-
-      if (uniform.array instanceof Uint32Array)
-        self[`_${prop.attr}_view`] = new DataView(uniform.array.buffer)
+      self[`${prop.attr}`] = uniform
     }
 
     this.glglyph?.set_visuals_changed()

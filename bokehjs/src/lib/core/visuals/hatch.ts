@@ -1,17 +1,11 @@
-import {VisualProperties} from "./visual"
+import {VisualProperties, VisualUniforms} from "./visual"
 import {get_pattern} from "./patterns"
-import {Color} from "../types"
+import {Color, uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
-import {RGBA} from "../util/color"
 import {Context2d} from "../util/canvas"
 
-abstract class _Hatch extends VisualProperties {
-  name = "hatch"
-}
-_Hatch.prototype.attrs = Object.keys(mixins.HatchVector)
-
-export class Hatch extends _Hatch {
+export class Hatch extends VisualProperties {
   readonly hatch_color: p.Property<Color | null>
   readonly hatch_alpha: p.Property<number>
   readonly hatch_scale: p.Property<number>
@@ -49,8 +43,8 @@ export class Hatch extends _Hatch {
   }
 }
 
-export class HatchScalar extends _Hatch {
-  readonly hatch_color: p.UniformScalar<RGBA>
+export class HatchScalar extends VisualUniforms {
+  readonly hatch_color: p.UniformScalar<uint32>
   readonly hatch_alpha: p.UniformScalar<number>
   readonly hatch_scale: p.UniformScalar<number>
   readonly hatch_pattern: p.UniformScalar<string>
@@ -87,8 +81,8 @@ export class HatchScalar extends _Hatch {
   }
 }
 
-export class HatchVector extends _Hatch {
-  readonly hatch_color: p.Uniform<RGBA>
+export class HatchVector extends VisualUniforms {
+  readonly hatch_color: p.Uniform<uint32>
   readonly hatch_alpha: p.Uniform<number>
   readonly hatch_scale: p.Uniform<number>
   readonly hatch_pattern: p.Uniform<string>
@@ -97,13 +91,13 @@ export class HatchVector extends _Hatch {
 
   get doit(): boolean {
     const {hatch_color} = this
-    if (p.is_UniformScalar(hatch_color) && hatch_color.value == 0)
+    if (hatch_color.is_Scalar() && hatch_color.value == 0)
       return false
     const {hatch_alpha} = this
-    if (p.is_UniformScalar(hatch_alpha) && hatch_alpha.value == 0)
+    if (hatch_alpha.is_Scalar() && hatch_alpha.value == 0)
       return false
     const {hatch_pattern} = this
-    if (p.is_UniformScalar(hatch_pattern)) {
+    if (hatch_pattern.is_Scalar()) {
       const pattern = hatch_pattern.value
       if (pattern == " " || pattern == "blank" || pattern == null)
         return false
@@ -132,3 +126,12 @@ export class HatchVector extends _Hatch {
       return get_pattern(pattern, color, alpha, scale, weight)
   }
 }
+
+Hatch.prototype.type = "hatch"
+Hatch.prototype.attrs = Object.keys(mixins.Hatch)
+
+HatchScalar.prototype.type = "hatch"
+HatchScalar.prototype.attrs = Object.keys(mixins.HatchScalar)
+
+HatchVector.prototype.type = "hatch"
+HatchVector.prototype.attrs = Object.keys(mixins.HatchVector)
