@@ -69,6 +69,57 @@ describe("ColorBar module", () => {
       })
     })
 
+    describe("ColorBar._get_extend_colorbar method", () => {
+      it("_get_extend_colorbar should return 0 when extend is not specified and defaulted to none", async () => {
+        const pal = ["red", "green", "blue"]
+        const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
+        const view = await color_bar_view({
+          color_mapper: color_map,
+        })
+        expect(view._get_extend_colorbar()).to.be.equal(0)
+      })
+
+      it("_get_extend_colorbar should return 0 when extend is none", async () => {
+        const pal = ["red", "green", "blue"]
+        const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
+        const view = await color_bar_view({
+          color_mapper: color_map,
+          extend: 'none',
+        })
+        expect(view._get_extend_colorbar()).to.be.equal(0)
+      })
+
+      it("_get_extend_colorbar should return 1 when extend is min", async () => {
+        const pal = ["red", "green", "blue"]
+        const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
+        const view = await color_bar_view({
+          color_mapper: color_map,
+          extend: 'min',
+        })
+        expect(view._get_extend_colorbar()).to.be.equal(1)
+      })
+
+      it("_get_extend_colorbar should return 2 when extend is max", async () => {
+        const pal = ["red", "green", "blue"]
+        const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
+        const view = await color_bar_view({
+          color_mapper: color_map,
+          extend: 'max',
+        })
+        expect(view._get_extend_colorbar()).to.be.equal(2)
+      })
+
+      it("_get_extend_colorbar should return 3 when extend is both", async () => {
+        const pal = ["red", "green", "blue"]
+        const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
+        const view = await color_bar_view({
+          color_mapper: color_map,
+          extend: 'both',
+        })
+        expect(view._get_extend_colorbar()).to.be.equal(3)
+      })
+    })
+
     describe("ColorBar._tick_extent method", () => {
       it("Should return zero if either low or high are unset", async () => {
         const view = await color_bar_view({
