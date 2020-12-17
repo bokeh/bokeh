@@ -387,6 +387,32 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     if (this.spec.value != null)
       this.validate(this.spec.value)
   }
+
+  materialize(value: T): T {
+    return value
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
+    const {expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
+    if (expr != null) {
+      let array = expr.compute(source)
+      if (transform != null)
+        array = transform.compute(array)
+      array = this.materialize(array)
+      return this.scalar(array, n)
+    } else {
+      let result = value
+      if (transform != null)
+        result = transform.compute(result)
+      result = this.materialize(result)
+      return this.scalar(result, n)
+    }
+  }
 }
 
 export class AnyScalar extends ScalarSpec<any> {}
@@ -441,6 +467,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 
   uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
     const {field, expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
     if (field != null) {
       let array = source.get_column(field)
       if (array != null) {
@@ -450,7 +477,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         return this.vector(array)
       } else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
-        return this.scalar(null as any, length)
+        return this.scalar(null as any, n)
       }
     } else if (expr != null) {
       let array = expr.v_compute(source)
@@ -463,7 +490,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       if (transform != null)
         result = transform.compute(result)
       result = this.materialize(result)
-      return this.scalar(result, length)
+      return this.scalar(result, n)
     }
   }
 

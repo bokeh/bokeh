@@ -214,10 +214,10 @@ export abstract class GlyphView extends View {
 
   protected _project_data(): void {}
 
-  private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
+  private *_iter_visuals(): Generator<p.VectorSpec<unknown> | p.ScalarSpec<unknown>> {
     for (const visual of values<VisualProperties>(this.visuals)) {
       for (const prop of visual) {
-        if (prop instanceof p.VectorSpec)
+        if (prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)
           yield prop
       }
     }
@@ -256,7 +256,7 @@ export abstract class GlyphView extends View {
 
     const visual_props = new Set(this._iter_visuals())
     for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
       if (visual_props.has(prop)) // let set_visuals() do the work, at least for now

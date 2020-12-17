@@ -29,11 +29,6 @@ export class ArrowView extends AnnotationView {
 
   protected _angles: NumberArray
 
-  initialize(): void {
-    super.initialize()
-    this.set_data(this.model.source)
-  }
-
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
@@ -43,6 +38,8 @@ export class ArrowView extends AnnotationView {
       this.start = await build_view(start, {parent})
     if (end != null)
       this.end = await build_view(end, {parent})
+
+    this.set_data(this.model.source)
   }
 
   remove(): void {
@@ -53,15 +50,16 @@ export class ArrowView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.set_data(this.model.source))
-    this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
-    this.connect(this.model.source.patching, () => this.set_data(this.model.source))
-    this.connect(this.model.source.change, () => this.set_data(this.model.source))
+    this.connect(this.model.change, () => this.update_data(this.model.source))
+    this.connect(this.model.source.streaming, () => this.update_data(this.model.source))
+    this.connect(this.model.source.patching, () => this.update_data(this.model.source))
+    this.connect(this.model.source.change, () => this.update_data(this.model.source))
   }
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.request_render()
+    this.start?.set_data(source)
+    this.end?.set_data(source)
   }
 
   protected _map_data(): void {
