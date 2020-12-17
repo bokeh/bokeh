@@ -107,7 +107,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
-    this.set_data(false)
+    this.set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -128,16 +128,16 @@ export class GlyphRendererView extends DataRendererView {
     super.connect_signals()
 
     this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.glyph.change, () => this.set_data())
-    this.connect(this.model.data_source.change, () => this.set_data())
-    this.connect(this.model.data_source.streaming, () => this.set_data())
-    this.connect(this.model.data_source.patching, (indices) => this.set_data(true, indices))
+    this.connect(this.model.glyph.change, () => this.update_data())
+    this.connect(this.model.data_source.change, () => this.update_data())
+    this.connect(this.model.data_source.streaming, () => this.update_data())
+    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
     this.connect(this.model.data_source.selected.change, () => this.request_render())
     this.connect(this.model.data_source._select, () => this.request_render())
     if (this.hover_glyph != null)
       this.connect(this.model.data_source.inspect, () => this.request_render())
-    this.connect(this.model.properties.view.change, () => this.set_data())
-    this.connect(this.model.view.properties.indices.change, () => this.set_data())
+    this.connect(this.model.properties.view.change, () => this.update_data())
+    this.connect(this.model.view.properties.indices.change, () => this.update_data())
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
@@ -145,17 +145,17 @@ export class GlyphRendererView extends DataRendererView {
 
     for (const [, range] of x_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, () => this.update_data())
     }
 
     for (const [, range] of y_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, () => this.update_data())
     }
 
     const {transformchange, exprchange} = this.model.glyph
-    this.connect(transformchange, () => this.set_data())
-    this.connect(exprchange, () => this.set_data())
+    this.connect(transformchange, () => this.update_data())
+    this.connect(exprchange, () => this.update_data())
   }
 
   _update_masked_indices(): Indices {
@@ -164,9 +164,14 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
+  update_data(indices?: number[]): void {
+    this.set_data(indices)
+    this.request_render()
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render: boolean = true, indices: number[] | null = null): void {
+  set_data(indices?: number[]): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -185,10 +190,6 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     this.plot_view.invalidate_dataranges = true
-
-    if (request_render) {
-      this.request_render()
-    }
   }
 
   set_visuals(): void {

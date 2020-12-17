@@ -249,7 +249,7 @@ export abstract class GlyphView extends View {
     this.glglyph?.set_visuals_changed()
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
     const {x_range, y_range} = this.renderer.coordinates
 
     this._data_size = indices.count
@@ -297,7 +297,7 @@ export abstract class GlyphView extends View {
       this._project_data()
     }
 
-    this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
+    this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
 
     this.glglyph?.set_data_changed()
 
