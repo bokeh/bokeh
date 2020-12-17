@@ -284,7 +284,7 @@ export abstract class GlyphView extends View {
         }
 
         if (prop instanceof p.CoordinateSeqSpec) {
-          array = RaggedArray.from(array as any) as any
+          array = RaggedArray.from(array, Float32Array)
         }
       } else if (prop instanceof p.DistanceSpec) {
         (this as any)[`max_${name}`] = max(array as any)
@@ -336,7 +336,7 @@ export abstract class GlyphView extends View {
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
         const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray
+        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray<NumberArray>
         if (array instanceof RaggedArray) {
           const screen = scale.v_compute(array.array)
           array = new RaggedArray(array.offsets, screen)

@@ -19,6 +19,8 @@ export const RGBAArray = Uint8ClampedArray
 import {TypedArray} from "./util/ndarray"
 export {TypedArray}
 
+export type FloatArray = Float32Array | Float64Array
+
 // TODO: this is incorrect
 export type NumberArray = Float32Array
 export const NumberArray = Float32Array

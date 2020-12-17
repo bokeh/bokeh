@@ -3,7 +3,7 @@ import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, RaggedArray} from "core/types"
+import {Rect, RaggedArray, FloatArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax} from "core/util/arrayable"
@@ -14,11 +14,11 @@ import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
 export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
-  _xs: RaggedArray
-  _ys: RaggedArray
+  _xs: RaggedArray<FloatArray>
+  _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray
-  sys: RaggedArray
+  sxs: RaggedArray<Float32Array>
+  sys: RaggedArray<Float32Array>
 }
 
 export interface MultiLineView extends MultiLineData {}
@@ -115,7 +115,7 @@ export class MultiLineView extends GlyphView {
     const {sx, sy} = geometry
 
     let val: number
-    let vs: RaggedArray
+    let vs: RaggedArray<FloatArray>
     if (geometry.direction == 'v') {
       val = this.renderer.yscale.invert(sy)
       vs = this._ys
