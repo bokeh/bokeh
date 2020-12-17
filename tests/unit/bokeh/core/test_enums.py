@@ -41,6 +41,7 @@ ALL  = (
     'Direction',
     'Enumeration',
     'enumeration',
+    'ExtendColorBar',
     'FontStyle',
     'HatchPattern',
     'HatchPatternAbbreviation',
@@ -170,6 +171,9 @@ class Test_bce:
 
     def test_Direction(self) -> None:
         assert tuple(bce.Direction) == ("clock", "anticlock")
+    
+    def test_ExtendColorBar(self) -> None:
+        assert tuple(bce.ExtendColorBar) == ("none", "min", "max", "both")
 
     def test_FontStyle(self) -> None:
         assert tuple(bce.FontStyle) == ('normal', 'italic', 'bold', 'bold italic')
@@ -319,6 +323,7 @@ def test_enums_contents() -> None:
         'Dimensions',
         'Direction',
         'Enumeration',
+        'ExtendColorBar',
         'FontStyle',
         'HatchPattern',
         'HatchPatternAbbreviation',
