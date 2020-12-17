@@ -109,6 +109,7 @@ describe("Color mapping", () => {
         orientation: "horizontal",
         location: [0, 0],
         padding: 0,
+        extend: 'both',
       })
       p.add_layout(color_bar, "below")
 

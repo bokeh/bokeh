@@ -76,6 +76,8 @@ describe("ColorBar module", () => {
         const view = await color_bar_view({
           color_mapper: color_map,
         })
+        const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
+        expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
         expect(view._get_extend_colorbar()).to.be.equal(0)
       })
 
@@ -86,6 +88,8 @@ describe("ColorBar module", () => {
           color_mapper: color_map,
           extend: 'none',
         })
+        const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
+        expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
         expect(view._get_extend_colorbar()).to.be.equal(0)
       })
 
@@ -96,6 +100,8 @@ describe("ColorBar module", () => {
           color_mapper: color_map,
           extend: 'min',
         })
+        const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
+        expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
         expect(view._get_extend_colorbar()).to.be.equal(1)
       })
 
@@ -106,6 +112,8 @@ describe("ColorBar module", () => {
           color_mapper: color_map,
           extend: 'max',
         })
+        const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
+        expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
         expect(view._get_extend_colorbar()).to.be.equal(2)
       })
 
@@ -116,6 +124,8 @@ describe("ColorBar module", () => {
           color_mapper: color_map,
           extend: 'both',
         })
+        const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
+        expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
         expect(view._get_extend_colorbar()).to.be.equal(3)
       })
     })
