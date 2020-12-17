@@ -171,7 +171,7 @@ class Test_bce:
 
     def test_Direction(self) -> None:
         assert tuple(bce.Direction) == ("clock", "anticlock")
-    
+
     def test_ExtendColorBar(self) -> None:
         assert tuple(bce.ExtendColorBar) == ("none", "min", "max", "both")
 

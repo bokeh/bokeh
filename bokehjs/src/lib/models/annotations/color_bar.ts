@@ -341,19 +341,19 @@ export class ColorBarView extends AnnotationView {
 
   protected _draw_extensions(ctx: Context2d): void {
     const image = this._computed_image_dimensions()
-    const triangle_height = 15;
+    const triangle_height = 15
     let [show_high, show_low] = [false, false]
 
     switch (this.model.extend) {
       case "max":
-        show_high = true;
+        show_high = true
         break
       case "min":
-        show_low = true;
+        show_low = true
         break
       case "both":
-        show_high = true;
-        show_low = true;
+        show_high = true
+        show_low = true
         break
     }
 
@@ -491,7 +491,7 @@ export class ColorBarView extends AnnotationView {
       case "both":
         return 3
     }
-  } 
+  }
 
   _computed_image_dimensions(): {height: number, width: number} {
     /*
@@ -745,7 +745,7 @@ export class ColorBar extends Annotation {
 
     this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto}) => ({
       location:              [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
-      extend:                [ ExtendColorBar , "none"],
+      extend:                [ ExtendColorBar, "none"],
       orientation:           [ Orientation, "vertical" ],
       title:                 [ String ],
       title_standoff:        [ Number, 2 ],
