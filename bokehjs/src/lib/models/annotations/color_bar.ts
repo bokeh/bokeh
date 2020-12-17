@@ -368,7 +368,7 @@ export class ColorBarView extends AnnotationView {
           ctx.lineTo(0, 0)
           ctx.closePath()
 
-          ctx.fillStyle = this.model.color_mapper.high_color
+          ctx.fillStyle = this.model.color_mapper.high_color as string
           ctx.fill()
 
           ctx.restore()
@@ -383,7 +383,7 @@ export class ColorBarView extends AnnotationView {
           ctx.lineTo(0, 0)
           ctx.closePath()
 
-          ctx.fillStyle = this.model.color_mapper.low_color
+          ctx.fillStyle = this.model.color_mapper.low_color as string
           ctx.fill()
 
           ctx.restore()
@@ -399,7 +399,7 @@ export class ColorBarView extends AnnotationView {
           ctx.lineTo(0, 0)
           ctx.closePath()
 
-          ctx.fillStyle = this.model.color_mapper.high_color
+          ctx.fillStyle = this.model.color_mapper.high_color as string
           ctx.fill()
 
           ctx.restore()
@@ -414,7 +414,7 @@ export class ColorBarView extends AnnotationView {
           ctx.lineTo(0, 0)
           ctx.closePath()
 
-          ctx.fillStyle = this.model.color_mapper.low_color
+          ctx.fillStyle = this.model.color_mapper.low_color as string
           ctx.fill()
 
           ctx.restore()
