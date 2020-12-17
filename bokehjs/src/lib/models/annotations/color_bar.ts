@@ -480,19 +480,6 @@ export class ColorBarView extends AnnotationView {
     return max([this.model.major_tick_out, this.model.minor_tick_out])
   }
 
-  _get_extend_colorbar(): number {
-    switch (this.model.extend) {
-      case "none":
-        return 0
-      case "min":
-        return 1
-      case "max":
-        return 2
-      case "both":
-        return 3
-    }
-  }
-
   _computed_image_dimensions(): {height: number, width: number} {
     /*
     Heuristics to determine ColorBar image dimensions if set to "auto"

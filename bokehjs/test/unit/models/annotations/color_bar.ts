@@ -78,7 +78,7 @@ describe("ColorBar module", () => {
         })
         const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
         expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
-        expect(view._get_extend_colorbar()).to.be.equal(0)
+        expect(view.model.extend).to.be.equal('none')
       })
 
       it("_get_extend_colorbar should return 0 when extend is none", async () => {
@@ -90,7 +90,7 @@ describe("ColorBar module", () => {
         })
         const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
         expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
-        expect(view._get_extend_colorbar()).to.be.equal(0)
+        expect(view.model.extend).to.be.equal('none')
       })
 
       it("_get_extend_colorbar should return 1 when extend is min", async () => {
@@ -102,7 +102,7 @@ describe("ColorBar module", () => {
         })
         const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
         expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
-        expect(view._get_extend_colorbar()).to.be.equal(1)
+        expect(view.model.extend).to.be.equal('min')
       })
 
       it("_get_extend_colorbar should return 2 when extend is max", async () => {
@@ -114,7 +114,7 @@ describe("ColorBar module", () => {
         })
         const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
         expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
-        expect(view._get_extend_colorbar()).to.be.equal(2)
+        expect(view.model.extend).to.be.equal('max')
       })
 
       it("_get_extend_colorbar should return 3 when extend is both", async () => {
@@ -126,7 +126,7 @@ describe("ColorBar module", () => {
         })
         const vals = color_map.v_compute([0.2, 0.35, 0.55, 1, 1.1])
         expect(vals).to.be.equal(["pink", "red", "green", "blue", "orange"])
-        expect(view._get_extend_colorbar()).to.be.equal(3)
+        expect(view.model.extend).to.be.equal('both')
       })
     })
 
