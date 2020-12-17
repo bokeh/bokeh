@@ -341,21 +341,85 @@ export class ColorBarView extends AnnotationView {
 
   protected _draw_extensions(ctx: Context2d): void {
     const image = this._computed_image_dimensions()
+    const triangle_height = 15;
+    let [show_high, show_low] = [false, false]
 
-    if (this.model.color_mapper.low_color != null) {
-      ctx.translate(0, -15)
-      ctx.save()
-      ctx.fillStyle = this.model.color_mapper.low_color
-      ctx.fillRect(0, 0, image.width, 15)
-      ctx.restore()
-      ctx.translate(0, 15)
+    switch (this.model.extend) {
+      case "max":
+        show_high = true;
+        break
+      case "min":
+        show_low = true;
+        break
+      case "both":
+        show_high = true;
+        show_low = true;
+        break
     }
-    if (this.model.color_mapper.high_color != null) {
-      ctx.translate(0, image.height)
-      ctx.fillStyle = this.model.color_mapper.high_color
-      ctx.fillRect(0, 0, image.width, 15)
-      ctx.restore()
-      ctx.translate(0, -image.height)
+
+    switch (this.model.orientation) {
+      case "vertical":
+        if (show_high && this.model.color_mapper.high_color != null) {
+          ctx.save()
+
+          ctx.beginPath()
+          ctx.lineTo(image.width / 2, -triangle_height)
+          ctx.lineTo(image.width, 0)
+          ctx.lineTo(0, 0)
+          ctx.closePath()
+
+          ctx.fillStyle = this.model.color_mapper.high_color
+          ctx.fill()
+
+          ctx.restore()
+        }
+        if (show_low && this.model.color_mapper.low_color != null) {
+          ctx.save()
+
+          ctx.beginPath()
+          ctx.translate(0, image.height)
+          ctx.lineTo(image.width / 2, triangle_height)
+          ctx.lineTo(image.width, 0)
+          ctx.lineTo(0, 0)
+          ctx.closePath()
+
+          ctx.fillStyle = this.model.color_mapper.low_color
+          ctx.fill()
+
+          ctx.restore()
+        }
+        break
+      case "horizontal":
+        if (show_high && this.model.color_mapper.high_color != null) {
+          ctx.save()
+
+          ctx.beginPath()
+          ctx.lineTo(triangle_height, image.height / 2)
+          ctx.lineTo(0, image.height)
+          ctx.lineTo(0, 0)
+          ctx.closePath()
+
+          ctx.fillStyle = this.model.color_mapper.high_color
+          ctx.fill()
+
+          ctx.restore()
+        }
+        if (show_low && this.model.color_mapper.low_color != null) {
+          ctx.save()
+
+          ctx.beginPath()
+          ctx.translate(image.width, 0)
+          ctx.lineTo(-triangle_height, image.height / 2)
+          ctx.lineTo(0, image.height)
+          ctx.lineTo(0, 0)
+          ctx.closePath()
+
+          ctx.fillStyle = this.model.color_mapper.low_color
+          ctx.fill()
+
+          ctx.restore()
+        }
+        break
     }
   }
 
