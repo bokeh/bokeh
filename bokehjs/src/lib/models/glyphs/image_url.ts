@@ -33,8 +33,8 @@ export class ImageURLView extends XYGlyphView {
 
   protected _images_rendered = false
 
-  initialize(): void {
-    super.initialize()
+  connect_signals(): void {
+    super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
