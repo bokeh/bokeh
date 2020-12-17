@@ -124,7 +124,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         enumerable: true,
       })
 
-      const [type, default_value, options] = prop as any
+      const [type, default_value, options = {}] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
