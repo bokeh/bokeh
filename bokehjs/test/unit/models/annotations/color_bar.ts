@@ -69,8 +69,8 @@ describe("ColorBar module", () => {
       })
     })
 
-    describe("ColorBar._get_extend_colorbar method", () => {
-      it("_get_extend_colorbar should return 0 when extend is not specified and defaulted to none", async () => {
+    describe("ColorBar.extend field", () => {
+      it("when ColorBar.extend is not specified, it defaulted to 'none'", async () => {
         const pal = ["red", "green", "blue"]
         const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
         const view = await color_bar_view({
@@ -81,7 +81,7 @@ describe("ColorBar module", () => {
         expect(view.model.extend).to.be.equal('none')
       })
 
-      it("_get_extend_colorbar should return 0 when extend is none", async () => {
+      it("ColorBar.extend = 'none'", async () => {
         const pal = ["red", "green", "blue"]
         const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
         const view = await color_bar_view({
@@ -93,7 +93,7 @@ describe("ColorBar module", () => {
         expect(view.model.extend).to.be.equal('none')
       })
 
-      it("_get_extend_colorbar should return 1 when extend is min", async () => {
+      it("ColorBar.extend = 'min'", async () => {
         const pal = ["red", "green", "blue"]
         const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
         const view = await color_bar_view({
@@ -105,7 +105,7 @@ describe("ColorBar module", () => {
         expect(view.model.extend).to.be.equal('min')
       })
 
-      it("_get_extend_colorbar should return 2 when extend is max", async () => {
+      it("ColorBar.extend = 'max'", async () => {
         const pal = ["red", "green", "blue"]
         const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
         const view = await color_bar_view({
@@ -117,7 +117,7 @@ describe("ColorBar module", () => {
         expect(view.model.extend).to.be.equal('max')
       })
 
-      it("_get_extend_colorbar should return 3 when extend is both", async () => {
+      it("ColorBar.extend = 'both'", async () => {
         const pal = ["red", "green", "blue"]
         const color_map = new LinearColorMapper({low: 0.3, high: 1, palette: pal, low_color: "pink", high_color: "orange"})
         const view = await color_bar_view({
