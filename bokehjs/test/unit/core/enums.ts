@@ -40,6 +40,10 @@ describe("enums module", () => {
     expect([...enums.Distribution]).to.be.equal(["uniform", "normal"])
   })
 
+  it("should have ExtendColorBar", () => {
+    expect([...enums.ExtendColorBar]).to.be.equal(["none", "min", "max", "both"])
+  })
+
   it("should have FontStyle", () => {
     expect([...enums.FontStyle]).to.be.equal(["normal", "italic", "bold", "bold italic"])
   })
