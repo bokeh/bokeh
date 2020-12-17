@@ -442,25 +442,27 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
   uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
     const {field, expr, value, transform} = this.spec
     if (field != null) {
-      const column = source.get_column(field)
-      if (column != null) {
-        let array = this.v_materialize(column)
+      let array = source.get_column(field)
+      if (array != null) {
         if (transform != null)
           array = transform.v_compute(array)
+        array = this.v_materialize(array)
         return this.vector(array)
       } else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
         return this.scalar(null as any, length)
       }
     } else if (expr != null) {
-      let array = this.v_materialize(expr.v_compute(source))
+      let array = expr.v_compute(source)
       if (transform != null)
         array = transform.v_compute(array)
+      array = this.v_materialize(array)
       return this.vector(array)
     } else {
-      let result = this.materialize(value)
+      let result = value
       if (transform != null)
         result = transform.compute(result)
+      result = this.materialize(result)
       return this.scalar(result, length)
     }
   }
