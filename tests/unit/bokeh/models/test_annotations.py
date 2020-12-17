@@ -126,6 +126,7 @@ def test_ColorBar() -> None:
     assert color_bar.major_tick_out == 0
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
+    assert color_bar.extend == 'none'
     check_text_properties(color_bar, "title_", "13px", "bottom", "italic", scalar=True)
     check_text_properties(color_bar, "major_label_", "11px", "middle", "normal", "center", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
@@ -155,7 +156,8 @@ def test_ColorBar() -> None:
         "major_tick_out",
         "minor_tick_in",
         "minor_tick_out",
-        "major_label_overrides"],
+        "major_label_overrides",
+        "extend"],
         prefix('title_', TEXT),
         prefix('major_label_', TEXT),
         prefix('major_tick_', LINE),
