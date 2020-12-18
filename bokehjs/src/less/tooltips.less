@@ -2,12 +2,14 @@
 
 .bk-root {
   --tooltipArrowColor: #909599; /* Gray of icons */
+  --tooltipArrowAlpha: 1.0; /* Gray of icons */
 
   @tooltipBorder: #e5e5e5;  /* Same border color used everywhere */
   @tooltipColor: white;
   @tooltipText: #2f2f2f;
 
   @tooltipArrowColor: var(--tooltipArrowColor);
+  @tooltipArrowAlpha: var(--tooltipArrowAlpha);
   @tooltipArrowWidth: 10px;
   @tooltipArrowHeight: 10px;
   @tooltipArrowHalfWidth: 7px;
@@ -41,6 +43,7 @@
     border-style: solid;
     border-width: @tooltipArrowHalfHeight 0 @tooltipArrowHalfHeight 0;
     border-color: transparent;
+    opacity: @tooltipArrowAlpha;
     content: " ";
     display: block;
   }
@@ -54,6 +57,7 @@
     border-style: solid;
     border-width: 0 @tooltipArrowHalfWidth 0 @tooltipArrowHalfWidth;
     border-color: transparent;
+    opacity: @tooltipArrowAlpha;
     content: " ";
     display: block;
   }

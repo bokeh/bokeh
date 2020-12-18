@@ -104,7 +104,8 @@ export class HoverToolView extends InspectToolView {
           custom: isString(tooltips) || isFunction(tooltips),
           attachment: this.model.attachment,
           show_arrow: this.model.show_arrow,
-          tooltip_arrow_color: this.model.tooltip_arrow_color,
+          arrow_fill_color: this.model.arrow_fill_color,
+          arrow_fill_alpha: this.model.arrow_fill_alpha,
         })
 
         if (r instanceof GlyphRenderer) {
@@ -514,7 +515,8 @@ export namespace HoverTool {
     point_policy: p.Property<PointPolicy>
     line_policy: p.Property<LinePolicy>
     show_arrow: p.Property<boolean>
-    tooltip_arrow_color: p.Property<Color>
+    arrow_fill_color: p.Property<Color>
+    arrow_fill_alpha: p.Property<number>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
     callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer}> | null>
@@ -534,7 +536,7 @@ export class HoverTool extends InspectTool {
   static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
-    this.define<HoverTool.Props>(({Any, Color, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
+    this.define<HoverTool.Props>(({Any, Color, Boolean, Number, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
       tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
@@ -548,7 +550,8 @@ export class HoverTool extends InspectTool {
       point_policy: [ PointPolicy, "snap_to_data" ],
       line_policy:  [ LinePolicy, "nearest" ],
       show_arrow:   [ Boolean, true ],
-      tooltip_arrow_color:  [ Color, "#909599" /* Gray of icons */ ],
+      arrow_fill_color:  [ Color, "#909599" /* Gray of icons */ ],
+      arrow_fill_alpha:  [ Number, 1 ],
       anchor:       [ Anchor, "center" ],
       attachment:   [ TooltipAttachment, "horizontal" ],
       callback:     [ Nullable(Any /*TODO*/) ],

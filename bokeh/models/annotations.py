@@ -1060,9 +1060,17 @@ class Tooltip(Annotation):
     Whether tooltip's arrow should be shown.
     """)
 
-    tooltip_arrow_color = Color(default="#909599", help="""
+    arrow_fill_color = Color(default="#909599", help="""
     The color of the tooltip's arrow as a CSS colour (e.g. '#FFFFFF', 'white', etc.).
     """)  # XXX: keep default in sync with tooltips.less
+
+    arrow_fill_alpha = Float(default=1.0, help="""
+    An alpha value to use to fill the tooltip arrow with.
+
+    Acceptable values are floating point numbers between 0 (transparent)
+    and 1 (opaque).
+
+    """)
 
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.

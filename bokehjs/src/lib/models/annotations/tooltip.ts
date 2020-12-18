@@ -55,7 +55,8 @@ export class TooltipView extends AnnotationView {
 
     if (this.model.show_arrow) {
       this.el.classList.add(tooltips.tooltip_arrow)
-      this.el.style.setProperty("--tooltipArrowColor", this.model.tooltip_arrow_color)
+      this.el.style.setProperty("--tooltipArrowColor", this.model.arrow_fill_color)
+      this.el.style.setProperty("--tooltipArrowAlpha", String(this.model.arrow_fill_alpha))
     }
   }
 
@@ -130,7 +131,8 @@ export namespace Tooltip {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
-    tooltip_arrow_color: p.Property<Color>
+    arrow_fill_color: p.Property<Color>
+    arrow_fill_alpha: p.Property<number>
     position: p.Property<[number, number] | null>
     content: p.Property<HTMLElement>
     custom: p.Property<boolean>
@@ -150,11 +152,12 @@ export class Tooltip extends Annotation {
   static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
-    this.define<Tooltip.Props>(({Boolean, Color}) => ({
+    this.define<Tooltip.Props>(({Boolean, Color, Number}) => ({
       attachment: [ TooltipAttachment, "horizontal" ],
       inner_only: [ Boolean, true ],
       show_arrow: [ Boolean, true ],
-      tooltip_arrow_color:  [ Color, "#909599" /* Gray of icons */ ],
+      arrow_fill_color:  [ Color, "#909599" /* Gray of icons */ ],
+      arrow_fill_alpha:  [ Number, 1 ],
     }))
 
     this.internal<Tooltip.Props>(({Boolean, Number, Tuple, Ref, Nullable}) => ({
