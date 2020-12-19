@@ -27,6 +27,7 @@ import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
+import {SerializableState} from "core/view"
 
 const SHORT_DIM = 25
 //const LONG_DIM_MIN_SCALAR = 0.3
@@ -44,8 +45,8 @@ export class ColorBarView extends AnnotationView {
   protected _axis: Axis
   protected _axis_view: Axis["__view_type__"]
 
-  protected _title: Title
-  protected _title_view: Title["__view_type__"]
+  protected _title?: Title
+  protected _title_view?: Title["__view_type__"]
 
   protected _ticker: Ticker
   protected _formatter: TickFormatter
@@ -157,11 +158,14 @@ export class ColorBarView extends AnnotationView {
       ...minor_tick_line,
     })
 
-    this._title = new Title({
-      text: this.model.title ?? "",
-      standoff: this.model.title_standoff,
-      ...title_text,
-    })
+    const {title} = this.model
+    if (title) {
+      this._title = new Title({
+        text: title,
+        standoff: this.model.title_standoff,
+        ...title_text,
+      })
+    }
 
     this._set_canvas_image()
   }
@@ -189,11 +193,12 @@ export class ColorBarView extends AnnotationView {
     }
 
     this._axis_view = await build_view(this._axis, {parent})
-    this._title_view = await build_view(this._title, {parent})
+    if (this._title != null)
+      this._title_view = await build_view(this._title, {parent})
   }
 
   remove(): void {
-    this._title_view.remove()
+    this._title_view?.remove()
     this._axis_view.remove()
     super.remove()
   }
@@ -326,14 +331,16 @@ export class ColorBarView extends AnnotationView {
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
     const {_title_view} = this
-    if (orientation == "horizontal") {
-      _title_view.panel = new Panel("above")
-      _title_view.update_layout()
-      top_panel.children.push(_title_view.layout)
-    } else {
-      _title_view.panel = new Panel("left")
-      _title_view.update_layout()
-      left_panel.children.push(_title_view.layout)
+    if (_title_view != null) {
+      if (orientation == "horizontal") {
+        _title_view.panel = new Panel("above")
+        _title_view.update_layout()
+        top_panel.children.push(_title_view.layout)
+      } else {
+        _title_view.panel = new Panel("left")
+        _title_view.update_layout()
+        left_panel.children.push(_title_view.layout)
+      }
     }
 
     const {panel} = this
@@ -385,7 +392,7 @@ export class ColorBarView extends AnnotationView {
     const {x, y} = this._inner_layout.bbox
     ctx.translate(x, y)
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)
-    this._title_view.render()
+    this._title_view?.render()
     this._axis_view.render()
     ctx.restore()
   }
@@ -415,6 +422,14 @@ export class ColorBarView extends AnnotationView {
       ctx.strokeRect(x, y, width, height)
     }
     ctx.restore()
+  }
+
+  serializable_state(): SerializableState {
+    const {children = [], ...state} = super.serializable_state()
+    if (this._title_view != null)
+      children.push(this._title_view.serializable_state())
+    children.push(this._axis_view.serializable_state())
+    return {...state, children}
   }
 }
 
