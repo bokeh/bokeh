@@ -113,10 +113,8 @@ export class ColorBarView extends AnnotationView {
         return new LinearInterpolationScale({binning})
       } else if (color_mapper instanceof CategoricalColorMapper) {
         return new CategoricalScale()
-      } else {
-        // TODO: Categorical*Mapper
+      } else
         unreachable()
-      }
     })()
 
     const y_range = new Range1d({start: 0, end: 1})
@@ -204,9 +202,28 @@ export class ColorBarView extends AnnotationView {
     super.connect_signals()
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
-    this.connect(this.model.color_mapper.change, () => {
+    this.connect(this.model.color_mapper.metrics_change, () => {
+      const [range, scale] = (() => {
+        if (this.model.orientation == "horizontal")
+          return [this._frame.x_range, this._frame.x_scale]
+        else
+          return [this._frame.y_range, this._frame.y_scale]
+      })()
+
+      const {color_mapper} = this.model
+
+      if (color_mapper instanceof ContinuousColorMapper && range instanceof Range1d) {
+        const {min, max} = color_mapper.metrics
+        range.setv({start: min, end: max})
+      }
+
+      if (color_mapper instanceof ScanningColorMapper && scale instanceof LinearInterpolationScale) {
+        const {binning} = color_mapper.metrics
+        scale.binning = binning
+      }
+
       this._set_canvas_image()
-      this.request_render()
+      this.plot_view.request_layout() // this.request_render()
     })
   }
 

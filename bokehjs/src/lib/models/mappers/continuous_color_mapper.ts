@@ -58,6 +58,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     const {domain, palette} = this
     const all_data = [...this._collect(domain)]
     this._scan_data = this.scan(all_data, palette.length)
+    this.metrics_change.emit()
     this.change.emit()
   }
 
@@ -119,6 +120,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     const {domain} = this
     const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
     this._scan_data = this.scan(all_data, palette.length)
+    this.metrics_change.emit()
 
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]

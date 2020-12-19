@@ -447,12 +447,12 @@ export class PlotView extends LayoutDOMView {
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
 
+    yield* renderers
     yield* above
     yield* below
     yield* left
     yield* right
     yield* center
-    yield* renderers
 
     if (this._title != null)
       yield this._title
