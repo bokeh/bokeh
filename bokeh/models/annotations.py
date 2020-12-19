@@ -423,10 +423,6 @@ class ColorBar(Annotation):
     The %s of the major tick labels.
     """)
 
-    major_label_text_align = Override(default="center")
-
-    major_label_text_baseline = Override(default="middle")
-
     major_label_text_font_size = Override(default="11px")
 
     label_standoff = Int(5, help="""

@@ -511,8 +511,6 @@ export class ColorBar extends Annotation {
       background_fill_alpha: 0.95,
       bar_line_color: null,
       border_line_color: null,
-      major_label_text_align: "center",
-      major_label_text_baseline: "middle",
       major_label_text_font_size: "11px",
       major_tick_line_color: "#ffffff",
       minor_tick_line_color: null,
