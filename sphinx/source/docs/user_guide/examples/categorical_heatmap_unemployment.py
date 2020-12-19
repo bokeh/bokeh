@@ -30,7 +30,7 @@ p = figure(plot_width=800, plot_height=300, title="US unemployment 1948—2016",
 p.rect(x="Year", y="Month", width=1, height=1, source=source,
        line_color=None, fill_color=transform('rate', mapper))
 
-color_bar = ColorBar(color_mapper=mapper, location=(0, 0),
+color_bar = ColorBar(color_mapper=mapper,
                      ticker=BasicTicker(desired_num_ticks=len(colors)),
                      formatter=PrintfTickFormatter(format="%d%%"))
 

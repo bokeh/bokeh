@@ -41,7 +41,7 @@ plot.add_glyph(county_source, county_patches)
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
 plot.add_glyph(state_source, state_patches)
 
-cbar =  ColorBar(color_mapper=cmap, location=(0, 0))
+cbar = ColorBar(color_mapper=cmap)
 plot.add_layout(cbar, 'left')
 
 doc = Document()
