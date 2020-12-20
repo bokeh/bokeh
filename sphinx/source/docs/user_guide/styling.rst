@@ -570,15 +570,14 @@ respective attributes:
 .. bokeh-plot:: docs/user_guide/examples/styling_tool_overlays.py
     :source-position: above
 
-
-.. _userguide_styling_toolbar_autohide:
-
 For more information, see the reference guide's entries for
 :class:`BoxSelectTool.overlay <bokeh.models.tools.BoxSelectTool.overlay>`,
 :class:`BoxZoomTool.overlay <bokeh.models.tools.BoxZoomTool.overlay>`,
 :class:`LassoSelectTool.overlay <bokeh.models.tools.LassoSelectTool.overlay>`,
 :class:`PolySelectTool.overlay <bokeh.models.tools.PolySelectTool.overlay>`, and
 :class:`RangeTool.overlay <bokeh.models.tools.RangeTool.overlay>`.
+
+.. _userguide_styling_toolbar_autohide:
 
 Toggling ToolBar autohide
 -------------------------
