@@ -4,6 +4,7 @@ allowlisting
 allowlists
 Anaconda
 args
+autohide
 Autohide
 bezier
 bokeh
@@ -16,6 +17,7 @@ cb
 chromedriver
 colormap
 colormapped
+colormaps
 comms
 Conda
 crossorigin
@@ -55,6 +57,7 @@ jupyter
 jupyter_bokeh
 Lua
 Matplotlib
+mercator
 Miniconda
 myapp
 myplot
