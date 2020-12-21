@@ -3,7 +3,6 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
-import {BBox} from "core/util/bbox"
 import {CanvasLayer} from "core/util/canvas"
 
 import type {Plot, PlotView} from "../plots/plot"
@@ -63,8 +62,6 @@ export abstract class RendererView extends View {
   notify_finished(): void {
     this.plot_view.notify_finished()
   }
-
-  interactive_bbox?(sx: number, sy: number): BBox
 
   interactive_hit?(sx: number, sy: number): boolean
 
