@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Anchor,
     AngleUnits,
     Dimension,
     FontStyle,
@@ -343,10 +344,10 @@ class ColorBar(Annotation):
 
     '''
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
+    location = Either(Enum(Anchor), Tuple(Float, Float),
         default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
-    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
 
