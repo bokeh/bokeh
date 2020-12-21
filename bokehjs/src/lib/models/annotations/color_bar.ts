@@ -18,7 +18,6 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {range, reversed} from "core/util/array"
-import {keys} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Grid, Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
@@ -126,21 +125,10 @@ export class ColorBarView extends AnnotationView {
     else
       this._frame = new CartesianFrame(y_scale, x_scale, y_range, x_range)
 
-    type Mixins = mixins.Text | mixins.Line | mixins.Fill | mixins.Hatch
-    const attrs_of = <P extends string, T extends Mixins>(prefix: P, mixin: p.DefineOf<T>, prefixed: boolean = false): {[key: string]: any} => {
-      const attrs: {[key: string]: unknown} = {}
-      for (const attr of keys(mixin)) {
-        const prefixed_attr = `${prefix}${attr}` as const
-        const value = (this.model as any)[prefixed_attr]
-        attrs[prefixed ? prefixed_attr : attr] = value
-      }
-      return attrs
-    }
-
-    const major_label_text = attrs_of("major_label_", mixins.Text, true)
-    const major_tick_line = attrs_of("major_tick_", mixins.Line, true)
-    const minor_tick_line = attrs_of("minor_tick_", mixins.Line, true)
-    const title_text = attrs_of("title_", mixins.Text)
+    const major_label_text = mixins.attrs_of(this.model, "major_label_", mixins.Text, true)
+    const major_tick_line = mixins.attrs_of(this.model, "major_tick_", mixins.Line, true)
+    const minor_tick_line = mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true)
+    const title_text = mixins.attrs_of(this.model, "title_", mixins.Text)
 
     const AxisCls = x_range instanceof FactorRange ? CategoricalAxis : Axis
     this._axis = new AxisCls({
