@@ -26,6 +26,16 @@ export class Random {
     }
     return result
   }
+
+  choices<T>(n: number, items: T[]): T[] {
+    const k = items.length
+
+    const result: T[] = new Array(n)
+    for (let i = 0; i < n; i++) {
+      result[i] = items[this.integer() % k]
+    }
+    return result
+  }
 }
 
 export const random = new Random(Date.now())
