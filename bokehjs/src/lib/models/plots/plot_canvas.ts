@@ -29,6 +29,7 @@ import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
+import {settings} from "core/settings"
 
 export class PlotView extends LayoutDOMView {
   model: Plot
@@ -644,9 +645,11 @@ export class PlotView extends LayoutDOMView {
       primary.finish()
     }
 
-    if (do_overlays) {
+    if (do_overlays || settings.wireframe) {
       overlays.prepare()
       this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      if (settings.wireframe)
+        this._paint_layout(overlays.ctx, this.layout)
       overlays.finish()
     }
 
@@ -677,6 +680,19 @@ export class PlotView extends LayoutDOMView {
       if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
         this.canvas_view.blit_webgl(ctx)
       }
+    }
+  }
+
+  protected _paint_layout(ctx: Context2d, layout: Layoutable) {
+    const {x, y, width, height} = layout.bbox
+    ctx.strokeStyle = "blue"
+    ctx.strokeRect(x, y, width, height)
+    for (const child of layout) {
+      ctx.save()
+      if (!layout.absolute)
+        ctx.translate(x, y)
+      this._paint_layout(ctx, child)
+      ctx.restore()
     }
   }
 
