@@ -3,6 +3,14 @@ import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
+  *[Symbol.iterator]() {
+    yield this.top_panel
+    yield this.bottom_panel
+    yield this.left_panel
+    yield this.right_panel
+    yield this.center_panel
+  }
+
   top_panel: Layoutable
   bottom_panel: Layoutable
   left_panel: Layoutable

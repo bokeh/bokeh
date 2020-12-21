@@ -137,6 +137,12 @@ class Container<T> {
 }
 
 export class Grid extends Layoutable {
+  *[Symbol.iterator]() {
+    for (const {layout} of this.items) {
+      yield layout
+    }
+  }
+
   rows: RowsSizing = "auto"
   cols: ColsSizing = "auto"
 

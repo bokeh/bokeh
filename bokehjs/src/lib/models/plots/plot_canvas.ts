@@ -339,6 +339,12 @@ export class PlotView extends LayoutDOMView {
     const left_panel   = new HStack()
     const right_panel  = new HStack()
 
+    center_panel.absolute = true
+    top_panel.absolute = true
+    bottom_panel.absolute = true
+    left_panel.absolute = true
+    right_panel.absolute = true
+
     const {frame_width, frame_height} = this.model
     center_panel.set_sizing({
       ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),

@@ -300,6 +300,12 @@ export class ColorBarView extends AnnotationView {
     const left_panel   = new HStack()
     const right_panel  = new HStack()
 
+    center_panel.absolute = true
+    top_panel.absolute = true
+    bottom_panel.absolute = true
+    left_panel.absolute = true
+    right_panel.absolute = true
+
     const [x_scale, y_scale, x_range, y_range] = (() => {
       if (orientation == "horizontal")
         return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const

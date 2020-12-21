@@ -10,6 +10,10 @@ export type ExtBoxSizing = BoxSizing & {
 }
 
 export abstract class Layoutable {
+  *[Symbol.iterator](): Generator<Layoutable, void, undefined> {}
+
+  absolute: boolean = false
+
   protected _bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
 

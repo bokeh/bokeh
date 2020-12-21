@@ -4,7 +4,12 @@ import {BBox} from "../util/bbox"
 import {Anchor} from "../enums"
 
 export abstract class Stack extends Layoutable {
+  *[Symbol.iterator]() {
+    yield* this.children
+  }
+
   children: Layoutable[] = []
+  absolute: boolean = false
 }
 
 export class HStack extends Stack {
@@ -24,12 +29,13 @@ export class HStack extends Stack {
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
-    const {top, bottom} = outer
-    let {left} = outer
+    const top = this.absolute ? outer.top : 0
+    let left = this.absolute ? outer.left : 0
+    const {height} = outer
 
     for (const child of this.children) {
       const {width} = child.measure({width: 0, height: 0})
-      child.set_geometry(new BBox({left, width, top, bottom}))
+      child.set_geometry(new BBox({left, width, top, height}))
       left += width
     }
   }
@@ -52,19 +58,25 @@ export class VStack extends Stack {
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
-    const {left, right} = outer
-    let {top} = outer
+    const left = this.absolute ? outer.left : 0
+    let top = this.absolute ? outer.top : 0
+    const {width} = outer
 
     for (const child of this.children) {
       const {height} = child.measure({width: 0, height: 0})
-      child.set_geometry(new BBox({top, height, left, right}))
+      child.set_geometry(new BBox({top, height, left, width}))
       top += height
     }
   }
 }
 
 export class NodeLayout extends Layoutable {
+  *[Symbol.iterator]() {
+    yield* this.children
+  }
+
   children: Layoutable[] = []
+  absolute: boolean = false
 
   /*
   protected _measure_dim(policy: SizingPolicy, size: number | undefined, viewport_size: number) {
@@ -126,9 +138,10 @@ export class NodeLayout extends Layoutable {
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
-    for (const layout of this.children) {
-      const {left, right, top, bottom, hcenter, vcenter} = outer
+    const bbox = this.absolute ? outer : outer.relative()
+    const {left, right, top, bottom, hcenter, vcenter} = bbox
 
+    for (const layout of this.children) {
       const {margin, halign, valign} = layout.sizing
       const {width, height} = layout.measure(outer)
 
