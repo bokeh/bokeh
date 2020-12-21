@@ -27,6 +27,13 @@ export abstract class Layoutable {
     return this._sizing
   }
 
+  private _dirty: boolean = false
+
+  set visible(visible: boolean) {
+    this._sizing.visible = visible
+    this._dirty = true
+  }
+
   set_sizing(sizing: Partial<BoxSizing>): void {
     const width_policy = sizing.width_policy ?? "fit"
     const width = sizing.width
@@ -203,7 +210,9 @@ export abstract class Layoutable {
   }
 
   has_size_changed(): boolean {
-    return false
+    const {_dirty} = this
+    this._dirty = false
+    return _dirty
   }
 }
 

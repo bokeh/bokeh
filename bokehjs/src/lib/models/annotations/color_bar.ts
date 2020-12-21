@@ -194,6 +194,7 @@ export class ColorBarView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
+    // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
     this.connect(this.model.color_mapper.metrics_change, () => {
@@ -379,16 +380,15 @@ export class ColorBarView extends AnnotationView {
     const outer = new Grid([{layout, row: 0, col: 0}])
     outer.absolute = true
 
+    const {visible} = this.model
     if (orientation == "horizontal") {
-      outer.set_sizing({width_policy: "max", height_policy: "min"})
+      outer.set_sizing({width_policy: "max", height_policy: "min", visible})
     } else {
-      outer.set_sizing({width_policy: "min", height_policy: "max"})
+      outer.set_sizing({width_policy: "min", height_policy: "max", visible})
     }
 
-    this._outer_layout = outer
     this._inner_layout = layout
-
-    this.layout = this._outer_layout
+    this.layout = this._outer_layout = outer
 
     this._set_canvas_image()
   }

@@ -34,7 +34,12 @@ export abstract class AnnotationView extends RendererView {
     super.connect_signals()
 
     const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
+    this.on_change(p.visible, () => {
+      if (this.layout != null) {
+        this.layout.visible = this.model.visible
+        this.plot_view.request_layout()
+      }
+    })
   }
 
   set_data(source: ColumnarDataSource): void {
