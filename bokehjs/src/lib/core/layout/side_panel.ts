@@ -1,7 +1,7 @@
 import {Size, Sizeable} from "./types"
 import {ContentLayoutable} from "./layoutable"
 
-import {Side} from "../enums"
+import {Side, Orientation} from "../enums"
 import {isString} from "../util/types"
 
 // This table lays out the rules for configuring the baseline, alignment, etc. of
@@ -163,6 +163,10 @@ export class Panel {
       case "left":  return [-1,  0]
       case "right": return [ 1,  0]
     }
+  }
+
+  get orientation(): Orientation {
+    return this.is_horizontal ? "horizontal" : "vertical"
   }
 
   get is_horizontal(): boolean {

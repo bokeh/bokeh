@@ -358,11 +358,10 @@ export class ColorBarView extends AnnotationView {
 
     const {panel} = this
     const side = (() => {
-      if (panel == null) {
-        return orientation == "horizontal" ? "below" : "right"
-      } else {
+      if (panel != null && orientation == panel.orientation)
         return panel.side
-      }
+      else
+        return orientation == "horizontal" ? "below" : "right"
     })()
 
     const stack = (() => {
