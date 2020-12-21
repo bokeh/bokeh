@@ -75,11 +75,11 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.serialization import convert_datetime_type
-from .formatters import BasicTickFormatter, TickFormatter
+from .formatters import TickFormatter
 from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
-from .tickers import BasicTicker, Ticker
+from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -387,11 +387,11 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the title from the color bar.
     """)
 
-    ticker = Either(Instance(Ticker), Auto, default=lambda: BasicTicker(), help="""
+    ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
     """)
 
-    formatter = Either(Instance(TickFormatter), Auto, default=lambda: BasicTickFormatter(), help="""
+    formatter = Either(Instance(TickFormatter), Auto, default="auto", help="""
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 

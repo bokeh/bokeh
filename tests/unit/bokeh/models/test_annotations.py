@@ -38,8 +38,6 @@ from bokeh.models import (
     Arrow,
     ArrowHead,
     Band,
-    BasicTicker,
-    BasicTickFormatter,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -116,8 +114,8 @@ def test_ColorBar() -> None:
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
-    assert isinstance(color_bar.ticker, BasicTicker)
-    assert isinstance(color_bar.formatter, BasicTickFormatter)
+    assert color_bar.ticker == "auto"
+    assert color_bar.formatter == "auto"
     assert color_bar.color_mapper is None
     assert color_bar.margin == 30
     assert color_bar.padding == 10

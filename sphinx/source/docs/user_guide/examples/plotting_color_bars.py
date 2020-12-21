@@ -19,8 +19,7 @@ plot = figure(x_range=(0,1), y_range=(0,1), toolbar_location=None)
 plot.image(image=[image], color_mapper=color_mapper,
            dh=[1.0], dw=[1.0], x=[0], y=[0])
 
-color_bar = ColorBar(color_mapper=color_mapper, ticker="auto",
-                     label_standoff=12, border_line_color=None)
+color_bar = ColorBar(color_mapper=color_mapper, label_standoff=12)
 
 plot.add_layout(color_bar, 'right')
 

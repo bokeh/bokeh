@@ -508,8 +508,8 @@ export class ColorBar extends Annotation {
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],
       scale_alpha:           [ Alpha, 1.0 ],
-      ticker:                [ Or(Ref(Ticker), Auto), () => new BasicTicker() ],               // TODO: obj -> "auto"
-      formatter:             [ Or(Ref(TickFormatter), Auto), () => new BasicTickFormatter() ], // TODO: obj -> "auto"
+      ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
+      formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
       major_label_overrides: [ Dict(String), {} ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],
