@@ -344,8 +344,7 @@ class ColorBar(Annotation):
 
     '''
 
-    location = Either(Enum(Anchor), Tuple(Float, Float),
-        default="top_right", help="""
+    location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
     ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
@@ -356,7 +355,7 @@ class ColorBar(Annotation):
         have to be set to `(0,0)`.
     """)
 
-    orientation = Enum(Orientation, default="vertical", help="""
+    orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
     """)
 

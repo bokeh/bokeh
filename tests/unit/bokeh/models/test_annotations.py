@@ -108,7 +108,7 @@ def test_Legend() -> None:
 def test_ColorBar() -> None:
     color_bar = ColorBar()
     assert color_bar.location == 'top_right'
-    assert color_bar.orientation == 'vertical'
+    assert color_bar.orientation == 'auto'
     assert color_bar.height == 'auto'
     assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0

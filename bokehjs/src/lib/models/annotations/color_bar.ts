@@ -9,9 +9,8 @@ import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "..
 import {ColorMapper} from "../mappers/color_mapper"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
-import {LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
-import {Range1d} from "../ranges/range1d"
-import {FactorRange} from "../ranges/factor_range"
+import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
+import {Range, Range1d, FactorRange} from "../ranges"
 
 import {Anchor, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -37,7 +36,7 @@ export class ColorBarView extends AnnotationView {
   visuals: ColorBar.Visuals
   layout: Layoutable
 
-  protected image: HTMLCanvasElement
+  protected _image: HTMLCanvasElement
 
   protected _frame: CartesianFrame
 
@@ -52,6 +51,16 @@ export class ColorBarView extends AnnotationView {
 
   protected _outer_layout: Layoutable
   protected _inner_layout: BorderLayout
+
+  protected _major_range: Range
+  protected _major_scale: Scale
+  protected _minor_range: Range
+  protected _minor_scale: Scale
+
+  private _orientation: Orientation
+  get orientation(): Orientation {
+    return this._orientation
+  }
 
   initialize(): void {
     super.initialize()
@@ -91,8 +100,7 @@ export class ColorBarView extends AnnotationView {
     Note: the type of color_mapper has to match the type of scale (i.e.
     a LinearColorMapper will require a corresponding LinearScale instance).
     */
-
-    const x_range = (() => {
+    this._major_range = (() => {
       if (color_mapper instanceof CategoricalColorMapper) {
         const {factors} = color_mapper
         return new FactorRange({factors})
@@ -103,7 +111,7 @@ export class ColorBarView extends AnnotationView {
         unreachable()
     })()
 
-    const x_scale = (() => {
+    this._major_scale = (() => {
       if (color_mapper instanceof LinearColorMapper)
         return new LinearScale()
       else if (color_mapper instanceof LogColorMapper)
@@ -117,20 +125,15 @@ export class ColorBarView extends AnnotationView {
         unreachable()
     })()
 
-    const y_range = new Range1d({start: 0, end: 1})
-    const y_scale = new LinearScale()
-
-    if (this.model.orientation == "horizontal")
-      this._frame = new CartesianFrame(x_scale, y_scale, x_range, y_range)
-    else
-      this._frame = new CartesianFrame(y_scale, x_scale, y_range, x_range)
+    this._minor_range = new Range1d({start: 0, end: 1})
+    this._minor_scale = new LinearScale()
 
     const major_label_text = mixins.attrs_of(this.model, "major_label_", mixins.Text, true)
     const major_tick_line = mixins.attrs_of(this.model, "major_tick_", mixins.Line, true)
     const minor_tick_line = mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true)
     const title_text = mixins.attrs_of(this.model, "title_", mixins.Text)
 
-    const AxisCls = x_range instanceof FactorRange ? CategoricalAxis : Axis
+    const AxisCls = color_mapper instanceof CategoricalColorMapper ? CategoricalAxis : Axis
     this._axis = new AxisCls({
       ticker: this._ticker,
       formatter: this._formatter,
@@ -154,8 +157,6 @@ export class ColorBarView extends AnnotationView {
         ...title_text,
       })
     }
-
-    this._set_canvas_image()
   }
 
   async lazy_initialize(): Promise<void> {
@@ -196,12 +197,8 @@ export class ColorBarView extends AnnotationView {
     this.connect(this._ticker.change, () => this.request_render())
     this.connect(this._formatter.change, () => this.request_render())
     this.connect(this.model.color_mapper.metrics_change, () => {
-      const [range, scale] = (() => {
-        if (this.model.orientation == "horizontal")
-          return [this._frame.x_range, this._frame.x_scale]
-        else
-          return [this._frame.y_range, this._frame.y_scale]
-      })()
+      const range = this._major_range
+      const scale = this._major_scale
 
       const {color_mapper} = this.model
 
@@ -221,7 +218,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _set_canvas_image(): void {
-    const {orientation} = this.model
+    const {orientation} = this
 
     const palette = (() => {
       const {palette} = this.model.color_mapper
@@ -238,10 +235,10 @@ export class ColorBarView extends AnnotationView {
         return [palette.length, 1]
     })()
 
-    const canvas = document.createElement('canvas')
+    const canvas = this._image = document.createElement("canvas")
     canvas.width = w
     canvas.height = h
-    const image_ctx = canvas.getContext('2d')!
+    const image_ctx = canvas.getContext("2d")!
     const image_data = image_ctx.getImageData(0, 0, w, h)
 
     // We always want to draw the entire palette linearly, so we create a new
@@ -251,27 +248,10 @@ export class ColorBarView extends AnnotationView {
     const buf8 = cmap.v_compute(range(0, palette.length))
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
-
-    this.image = canvas
   }
 
   update_layout(): void {
-    const {orientation, location, width: w, height: h, padding} = this.model
-
-    const center_panel = new NodeLayout()
-    const top_panel    = new VStack()
-    const bottom_panel = new VStack()
-    const left_panel   = new HStack()
-    const right_panel  = new HStack()
-
-    center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
-
-    const layout = new BorderLayout()
-    layout.center_panel = center_panel
-    layout.top_panel    = top_panel
-    layout.bottom_panel = bottom_panel
-    layout.left_panel   = left_panel
-    layout.right_panel  = right_panel
+    const {location, width: w, height: h, padding} = this.model
 
     const [valign, halign] = (() => {
       switch (location) {
@@ -297,6 +277,44 @@ export class ColorBarView extends AnnotationView {
           unreachable()
       }
     })()
+
+    const orientation = this._orientation = (() => {
+      const {orientation} = this.model
+      if (orientation == "auto") {
+        if (this.panel != null)
+          return this.panel.is_horizontal ? "horizontal" : "vertical"
+        else {
+          if (halign == "start" || halign == "end" || (halign == "center" && valign == "center"))
+            return "vertical"
+          else
+            return "horizontal"
+        }
+      } else
+        return orientation
+    })()
+
+    const center_panel = new NodeLayout()
+    const top_panel    = new VStack()
+    const bottom_panel = new VStack()
+    const left_panel   = new HStack()
+    const right_panel  = new HStack()
+
+    const [x_scale, y_scale, x_range, y_range] = (() => {
+      if (orientation == "horizontal")
+        return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
+      else
+        return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
+    })()
+    this._frame = new CartesianFrame(x_scale, y_scale, x_range, y_range)
+
+    center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
+
+    const layout = new BorderLayout()
+    layout.center_panel = center_panel
+    layout.top_panel    = top_panel
+    layout.bottom_panel = bottom_panel
+    layout.left_panel   = left_panel
+    layout.right_panel  = right_panel
 
     const margin = {left: padding, right: padding, top: padding, bottom: padding}
     if (orientation == "horizontal") {
@@ -371,6 +389,8 @@ export class ColorBarView extends AnnotationView {
     this._inner_layout = layout
 
     this.layout = this._outer_layout
+
+    this._set_canvas_image()
   }
 
   protected _render(): void {
@@ -404,7 +424,7 @@ export class ColorBarView extends AnnotationView {
     ctx.save()
     ctx.setImageSmoothingEnabled(false)
     ctx.globalAlpha = this.model.scale_alpha
-    ctx.drawImage(this.image, x, y, width, height)
+    ctx.drawImage(this._image, x, y, width, height)
     if (this.visuals.bar_line.doit) {
       this.visuals.bar_line.set_value(ctx)
       ctx.strokeRect(x, y, width, height)
@@ -426,7 +446,7 @@ export namespace ColorBar {
 
   export type Props = Annotation.Props & {
     location: p.Property<Anchor | [number, number]>
-    orientation: p.Property<Orientation>
+    orientation: p.Property<Orientation | "auto">
     title: p.Property<string | null>
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
@@ -490,7 +510,7 @@ export class ColorBar extends Annotation {
 
     this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
-      orientation:           [ Orientation, "vertical" ],
+      orientation:           [ Or(Orientation, Auto), "auto" ],
       title:                 [ Nullable(String), null ],
       title_standoff:        [ Number, 2 ],
       width:                 [ Or(Number, Auto), "auto" ],
