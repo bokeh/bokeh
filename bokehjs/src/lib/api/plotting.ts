@@ -5,7 +5,7 @@ import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
-import {Location, MarkerType} from "../core/enums"
+import {Location, MarkerType, RenderLevel} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {is_equal} from "../core/util/eq"
 import {some, includes} from "../core/util/array"
@@ -100,6 +100,7 @@ export type AuxGlyph = {
   source: ColumnarDataSource
   view: CDSView
   legend: string
+  level: RenderLevel
 }
 
 export type ArgsOf<P> = {
@@ -834,6 +835,9 @@ export class Figure extends Plot {
     const legend = this._process_legend(attrs.legend, source)
     delete attrs.legend
 
+    const level = attrs.level
+    delete attrs.level
+
     const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
     const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
 
@@ -867,6 +871,7 @@ export class Figure extends Plot {
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
       hover_glyph:        hglyph,
+      level,
     })
 
     if (legend != null) {
