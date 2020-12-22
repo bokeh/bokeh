@@ -72,7 +72,8 @@ export abstract class SelectToolView extends GestureToolView {
     for (const renderer of this.computed_renderers) {
       renderer.get_selection_manager().clear()
     }
-    this.plot_view.request_render()
+    const renderer_views = this.computed_renderers.map((r) => this.plot_view.renderer_view(r)!)
+    this.plot_view.request_paint(renderer_views)
   }
 
   _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {

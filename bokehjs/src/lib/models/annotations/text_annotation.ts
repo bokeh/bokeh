@@ -36,7 +36,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       // dispatch CSS update immediately
       this.connect(this.model.change, () => this.render())
     } else {
-      this.connect(this.model.change, () => this.plot_view.request_render())
+      this.connect(this.model.change, () => this.request_render())
     }
   }
 

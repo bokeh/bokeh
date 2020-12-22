@@ -63,7 +63,7 @@ export class ArrowView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.plot_view.request_render()
+    this.request_render()
   }
 
   protected _map_data(): void {
