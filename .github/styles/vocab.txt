@@ -31,6 +31,7 @@ denylist
 denylisted
 denylisting
 denylists
+Dev
 docstring
 docstrings
 downsample
@@ -39,6 +40,7 @@ formatter
 formatters
 frameborder
 geckodriver
+github
 heatmap
 heatmaps
 HoloViews
@@ -79,5 +81,3 @@ transpile
 transpiles
 unformatted
 vectorizing
-Dev
-bokeh
