@@ -721,6 +721,22 @@ class Serve(Subcommand):
             type    = int,
         )),
 
+        ('--websocket-compression-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression_level",
+            default = None,
+            type    = int,
+        )),
+
+        ('--websocket-compression-mem-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression mem_level",
+            default = None,
+            type    = int,
+        )),
+
         ('--glob', dict(
             action='store_true',
             help='Process all filename arguments as globs',
@@ -799,6 +815,8 @@ class Serve(Subcommand):
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                               'websocket_max_message_size',
+                                                              'websocket_compression_level',
+                                                              'websocket_compression_mem_level',
                                                               'include_cookies',
                                                               'include_headers',
                                                               'exclude_cookies',
