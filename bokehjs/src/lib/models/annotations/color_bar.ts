@@ -435,7 +435,18 @@ export class ColorBarView extends AnnotationView {
   }
 
   protected _paint_bbox(ctx: Context2d, bbox: BBox): void {
-    const {x, y, width, height} = bbox
+    const {x, y} = bbox
+    let {width, height} = bbox
+
+    // XXX: shrink outline region by 1px to make right and bottom lines visible
+    // if they are on the edge of the canvas.
+    if (x + width >= this.parent.canvas_view.bbox.width) {
+      width -= 1
+    }
+    if (y + height >= this.parent.canvas_view.bbox.height) {
+      height -= 1
+    }
+
     ctx.save()
     if (this.visuals.background_fill.doit) {
       this.visuals.background_fill.set_value(ctx)
