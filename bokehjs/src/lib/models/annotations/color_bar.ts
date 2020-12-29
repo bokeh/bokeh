@@ -25,6 +25,7 @@ import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
+import {isString} from "core/util/types"
 import {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
@@ -255,28 +256,29 @@ export class ColorBarView extends AnnotationView {
     const {location, width: w, height: h, padding, margin} = this.model
 
     const [valign, halign] = (() => {
-      switch (location) {
-        case "top_left":
-          return ["start", "start"] as const
-        case "top_center":
-          return ["start", "center"] as const
-        case "top_right":
-          return ["start", "end"] as const
-        case "bottom_left":
-          return ["end", "start"] as const
-        case "bottom_center":
-          return ["end", "center"] as const
-        case "bottom_right":
-          return ["end", "end"] as const
-        case "center_left":
-          return ["center", "start"] as const
-        case "center":
-          return ["center", "center"] as const
-        case "center_right":
-          return ["center", "end"] as const
-        default:
-          unreachable()
-      }
+      if (isString(location)) {
+        switch (location) {
+          case "top_left":
+            return ["start", "start"] as const
+          case "top_center":
+            return ["start", "center"] as const
+          case "top_right":
+            return ["start", "end"] as const
+          case "bottom_left":
+            return ["end", "start"] as const
+          case "bottom_center":
+            return ["end", "center"] as const
+          case "bottom_right":
+            return ["end", "end"] as const
+          case "center_left":
+            return ["center", "start"] as const
+          case "center":
+            return ["center", "center"] as const
+          case "center_right":
+            return ["center", "end"] as const
+        }
+      } else
+        return ["end", "start"] as const // "bottom_left"
     })()
 
     const orientation = this._orientation = (() => {
@@ -317,6 +319,8 @@ export class ColorBarView extends AnnotationView {
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 
     const layout = new BorderLayout()
+    //layout.absolute = true
+
     layout.center_panel = center_panel
     layout.top_panel    = top_panel
     layout.bottom_panel = bottom_panel
@@ -332,13 +336,13 @@ export class ColorBarView extends AnnotationView {
       const width = w == "auto" ? undefined : w
       const height = h == "auto" ? MINOR_DIM : h
 
-      layout.set_sizing({width_policy: "max", height_policy: "fit", halign, valign, margin: margin_box})
+      layout.set_sizing({width_policy: "max", height_policy: "min", halign, valign, margin: margin_box})
       layout.center_panel.set_sizing({width_policy: w == "auto" ? "fit" : "fixed", height_policy: "fixed", width, height})
     } else {
       const width = w == "auto" ? MINOR_DIM : w
       const height = h == "auto" ? undefined : h
 
-      layout.set_sizing({width_policy: "fit", height_policy: "max", halign, valign, margin: margin_box})
+      layout.set_sizing({width_policy: "min", height_policy: "max", halign, valign, margin: margin_box})
       layout.center_panel.set_sizing({width_policy: "fixed", height_policy: h == "auto" ? "fit" : "fixed", width, height})
     }
 
@@ -387,17 +391,31 @@ export class ColorBarView extends AnnotationView {
     stack.children.push(_axis_view.layout)
 
     const outer = new Grid([{layout, row: 0, col: 0}])
+    //const outer = new NodeLayout()
+    //outer.children = [layout]
     outer.absolute = true
 
-    const {visible} = this.model
+    //H: width = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.width*MAJOR_DIM_MIN_SCALAR])
+    //H: width = min([width, bbox.width*MAJOR_DIM_MAX_SCALAR - 2*padding])
+    //V: height = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.height*MAJOR_DIM_MIN_SCALAR])
+    //V: height = min([height, bbox.height*MAJOR_DIM_MAX_SCALAR - 2*padding - title_size.height])
+
     if (orientation == "horizontal") {
-      outer.set_sizing({width_policy: "max", height_policy: "min", visible})
+      outer.set_sizing({width_policy: "max", height_policy: "min"})
     } else {
-      outer.set_sizing({width_policy: "min", height_policy: "max", visible})
+      outer.set_sizing({width_policy: "min", height_policy: "max"})
     }
 
     this._inner_layout = layout
-    this.layout = this._outer_layout = outer
+    this._outer_layout = outer
+
+    if (this.panel != null)
+      this.layout = this._outer_layout
+    else
+      this.layout = this._inner_layout
+
+    const {visible} = this.model
+    this.layout.sizing.visible = visible
 
     this._set_canvas_image()
   }
@@ -406,8 +424,10 @@ export class ColorBarView extends AnnotationView {
     const {ctx} = this.layer
     ctx.save()
     this._paint_bbox(ctx, this._inner_layout.bbox)
-    const {x, y} = this._inner_layout.bbox
-    ctx.translate(x, y)
+    if (this.panel != null) {
+      const {x, y} = this._inner_layout.bbox
+      ctx.translate(x, y)
+    }
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)
     this._title_view?.render()
     this._axis_view.render()
