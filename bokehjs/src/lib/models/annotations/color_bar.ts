@@ -27,9 +27,9 @@ import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {SerializableState} from "core/view"
 
-const SHORT_DIM = 25
-//const LONG_DIM_MIN_SCALAR = 0.3
-//const LONG_DIM_MAX_SCALAR = 0.8
+const MINOR_DIM = 25
+//const MAJOR_DIM_MIN_SCALAR = 0.3
+//const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
   model: ColorBar
@@ -252,7 +252,7 @@ export class ColorBarView extends AnnotationView {
   }
 
   update_layout(): void {
-    const {location, width: w, height: h, padding} = this.model
+    const {location, width: w, height: h, padding, margin} = this.model
 
     const [valign, halign] = (() => {
       switch (location) {
@@ -317,25 +317,28 @@ export class ColorBarView extends AnnotationView {
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 
     const layout = new BorderLayout()
-    layout.padding = {left: padding, right: padding, top: padding, bottom: padding}
-
     layout.center_panel = center_panel
     layout.top_panel    = top_panel
     layout.bottom_panel = bottom_panel
     layout.left_panel   = left_panel
     layout.right_panel  = right_panel
 
+    const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
+    const margin_box = this.panel == null ? {left: margin, right: margin, top: margin, bottom: margin} : undefined
+
+    layout.padding = padding_box
+
     if (orientation == "horizontal") {
       const width = w == "auto" ? undefined : w
-      const height = h == "auto" ? SHORT_DIM : h
+      const height = h == "auto" ? MINOR_DIM : h
 
-      layout.set_sizing({width_policy: "max", height_policy: "fit", halign, valign})
+      layout.set_sizing({width_policy: "max", height_policy: "fit", halign, valign, margin: margin_box})
       layout.center_panel.set_sizing({width_policy: w == "auto" ? "fit" : "fixed", height_policy: "fixed", width, height})
     } else {
-      const width = w == "auto" ? SHORT_DIM : w
+      const width = w == "auto" ? MINOR_DIM : w
       const height = h == "auto" ? undefined : h
 
-      layout.set_sizing({width_policy: "fit", height_policy: "max", halign, valign})
+      layout.set_sizing({width_policy: "fit", height_policy: "max", halign, valign, margin: margin_box})
       layout.center_panel.set_sizing({width_policy: "fixed", height_policy: h == "auto" ? "fit" : "fixed", width, height})
     }
 
