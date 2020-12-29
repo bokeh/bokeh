@@ -319,7 +319,7 @@ export class ColorBarView extends AnnotationView {
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 
     const layout = new BorderLayout()
-    //layout.absolute = true
+    layout.absolute = true
 
     layout.center_panel = center_panel
     layout.top_panel    = top_panel
@@ -424,10 +424,6 @@ export class ColorBarView extends AnnotationView {
     const {ctx} = this.layer
     ctx.save()
     this._paint_bbox(ctx, this._inner_layout.bbox)
-    if (this.panel != null) {
-      const {x, y} = this._inner_layout.bbox
-      ctx.translate(x, y)
-    }
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)
     this._title_view?.render()
     this._axis_view.render()

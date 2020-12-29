@@ -595,10 +595,15 @@ export class Grid extends Layoutable {
     items.foreach(({r0, c0, r1, c1}, item) => {
       const {size_hint, outer} = item
 
-      function inner_bbox({left, right, top, bottom}: Extents) {
-        const width = outer.width - left - right
-        const height = outer.height - top - bottom
-        return new BBox({left, top, width, height})
+      const inner_bbox = (extents: Extents) => {
+        const outer_bbox = this.absolute ? outer : outer.relative()
+
+        const left = outer_bbox.left + extents.left
+        const top = outer_bbox.top + extents.top
+        const right = outer_bbox.right - extents.right
+        const bottom = outer_bbox.bottom - extents.bottom
+
+        return new BBox({left, top, right, bottom})
       }
 
       if (size_hint.inner != null) {
