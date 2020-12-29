@@ -1,7 +1,6 @@
 import {SizeHint, Size} from "./types"
 import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
-import {Anchor} from "../enums"
 
 export abstract class Stack extends Layoutable {
   *[Symbol.iterator]() {
@@ -167,63 +166,6 @@ export class NodeLayout extends Layoutable {
       })
 
       layout.set_geometry(bbox, inner_bbox)
-    }
-  }
-}
-
-export type AnchorItem = {
-  layout: Layoutable
-  anchor: Anchor
-  margin: number
-}
-
-export class AnchorLayout extends Layoutable {
-  children: AnchorItem[] = []
-
-  protected _measure(viewport: Size): SizeHint {
-    let width = 0
-    let height = 0
-
-    for (const {layout} of this.children) {
-      const size_hint = layout.measure(viewport)
-      width = Math.max(width, size_hint.width)
-      height = Math.max(height, size_hint.height)
-    }
-
-    return {width, height}
-  }
-
-  protected _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
-
-    for (const {layout, anchor, margin} of this.children) {
-      const {left, right, top, bottom, hcenter, vcenter} = outer
-      const {width, height} = layout.measure(outer)
-
-      const bbox = (() => {
-        switch (anchor) {
-          case "top_left":
-            return new BBox({left: left + margin, top: top + margin, width, height})
-          case "top_center":
-            return new BBox({hcenter, top: top + margin, width, height})
-          case "top_right":
-            return new BBox({right: right - margin, top: top + margin, width, height})
-          case "bottom_right":
-            return new BBox({right: right - margin, bottom: bottom - margin, width, height})
-          case "bottom_center":
-            return new BBox({hcenter, bottom: bottom - margin, width, height})
-          case "bottom_left":
-            return new BBox({left: left + margin, bottom: bottom - margin, width, height})
-          case "center_left":
-            return new BBox({left: left + margin, vcenter, width, height})
-          case "center":
-            return new BBox({hcenter, vcenter, width, height})
-          case "center_right":
-            return new BBox({right: right - margin, vcenter, width, height})
-        }
-      })()
-
-      layout.set_geometry(bbox)
     }
   }
 }
