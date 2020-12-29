@@ -50,7 +50,6 @@ export class ColorBarView extends AnnotationView {
   protected _ticker: Ticker
   protected _formatter: TickFormatter
 
-  protected _outer_layout: Layoutable
   protected _inner_layout: BorderLayout
 
   protected _major_range: Range
@@ -319,6 +318,7 @@ export class ColorBarView extends AnnotationView {
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 
     const layout = new BorderLayout()
+    this._inner_layout = layout
     layout.absolute = true
 
     layout.center_panel = center_panel
@@ -328,7 +328,17 @@ export class ColorBarView extends AnnotationView {
     layout.right_panel  = right_panel
 
     const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
-    const margin_box = this.panel == null ? {left: margin, right: margin, top: margin, bottom: margin} : undefined
+    const margin_box = (() => {
+      if (this.panel == null) {
+        if (isString(location))
+          return {left: margin, right: margin, top: margin, bottom: margin}
+        else {
+          const [left, bottom] = location
+          return {left, right: margin, top: margin, bottom}
+        }
+      } else
+        return undefined
+    })()
 
     layout.padding = padding_box
 
@@ -390,29 +400,24 @@ export class ColorBarView extends AnnotationView {
     _axis_view.update_layout()
     stack.children.push(_axis_view.layout)
 
-    const outer = new Grid([{layout, row: 0, col: 0}])
-    //const outer = new NodeLayout()
-    //outer.children = [layout]
-    outer.absolute = true
+    if (this.panel != null) {
+      const outer = new Grid([{layout, row: 0, col: 0}])
+      outer.absolute = true
 
-    //H: width = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.width*MAJOR_DIM_MIN_SCALAR])
-    //H: width = min([width, bbox.width*MAJOR_DIM_MAX_SCALAR - 2*padding])
-    //V: height = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.height*MAJOR_DIM_MIN_SCALAR])
-    //V: height = min([height, bbox.height*MAJOR_DIM_MAX_SCALAR - 2*padding - title_size.height])
+      if (orientation == "horizontal") {
+        outer.set_sizing({width_policy: "max", height_policy: "min"})
+      } else {
+        outer.set_sizing({width_policy: "min", height_policy: "max"})
+      }
 
-    if (orientation == "horizontal") {
-      outer.set_sizing({width_policy: "max", height_policy: "min"})
+      this.layout = outer
     } else {
-      outer.set_sizing({width_policy: "min", height_policy: "max"})
-    }
-
-    this._inner_layout = layout
-    this._outer_layout = outer
-
-    if (this.panel != null)
-      this.layout = this._outer_layout
-    else
+      //H: width = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.width*MAJOR_DIM_MIN_SCALAR])
+      //H: width = min([width, bbox.width*MAJOR_DIM_MAX_SCALAR - 2*padding])
+      //V: height = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.height*MAJOR_DIM_MIN_SCALAR])
+      //V: height = min([height, bbox.height*MAJOR_DIM_MAX_SCALAR - 2*padding - title_size.height])
       this.layout = this._inner_layout
+    }
 
     const {visible} = this.model
     this.layout.sizing.visible = visible
