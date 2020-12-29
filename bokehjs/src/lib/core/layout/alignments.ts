@@ -8,7 +8,6 @@ export abstract class Stack extends Layoutable {
   }
 
   children: Layoutable[] = []
-  absolute: boolean = false
 }
 
 export class HStack extends Stack {
@@ -75,7 +74,6 @@ export class NodeLayout extends Layoutable {
   }
 
   children: Layoutable[] = []
-  absolute: boolean = false
 
   protected _measure(viewport: Size): SizeHint {
     const {width_policy, height_policy} = this.sizing

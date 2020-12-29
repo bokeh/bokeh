@@ -151,8 +151,6 @@ export class Grid extends Layoutable {
 
   spacing: number | [number, number] = 0
 
-  absolute: boolean = false
-
   private _state: GridState
 
   constructor(public items: GridItem[] = []) {
