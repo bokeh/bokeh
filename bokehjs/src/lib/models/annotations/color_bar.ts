@@ -317,24 +317,25 @@ export class ColorBarView extends AnnotationView {
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 
     const layout = new BorderLayout()
+    layout.padding = {left: padding, right: padding, top: padding, bottom: padding}
+
     layout.center_panel = center_panel
     layout.top_panel    = top_panel
     layout.bottom_panel = bottom_panel
     layout.left_panel   = left_panel
     layout.right_panel  = right_panel
 
-    const margin = {left: padding, right: padding, top: padding, bottom: padding}
     if (orientation == "horizontal") {
       const width = w == "auto" ? undefined : w
       const height = h == "auto" ? SHORT_DIM : h
 
-      layout.set_sizing({width_policy: "max", height_policy: "fit", margin, halign, valign})
+      layout.set_sizing({width_policy: "max", height_policy: "fit", halign, valign})
       layout.center_panel.set_sizing({width_policy: w == "auto" ? "fit" : "fixed", height_policy: "fixed", width, height})
     } else {
       const width = w == "auto" ? SHORT_DIM : w
       const height = h == "auto" ? undefined : h
 
-      layout.set_sizing({width_policy: "fit", height_policy: "max", margin, halign, valign})
+      layout.set_sizing({width_policy: "fit", height_policy: "max", halign, valign})
       layout.center_panel.set_sizing({width_policy: "fixed", height_policy: h == "auto" ? "fit" : "fixed", width, height})
     }
 
@@ -401,7 +402,7 @@ export class ColorBarView extends AnnotationView {
   protected _render(): void {
     const {ctx} = this.layer
     ctx.save()
-    this._paint_bbox(ctx, this._outer_layout.bbox)
+    this._paint_bbox(ctx, this._inner_layout.bbox)
     const {x, y} = this._inner_layout.bbox
     ctx.translate(x, y)
     this._paint_image(ctx, this._inner_layout.center_panel.bbox)

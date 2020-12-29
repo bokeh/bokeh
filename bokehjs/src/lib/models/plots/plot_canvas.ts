@@ -346,13 +346,6 @@ export class PlotView extends LayoutDOMView {
     left_panel.absolute = true
     right_panel.absolute = true
 
-    const {frame_width, frame_height} = this.model
-    center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
-      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
-    })
-    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
-
     center_panel.children =
       this.model.center.filter((obj): obj is Annotation => {
         return obj instanceof Annotation
@@ -363,6 +356,14 @@ export class PlotView extends LayoutDOMView {
       }).filter((layout): layout is Layoutable => {
         return layout != null
       })
+
+    const {frame_width, frame_height} = this.model
+    center_panel.set_sizing({
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
+
+    })
+    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
 
     top_panel.children    = reversed(set_layouts("above", above))
     bottom_panel.children =          set_layouts("below", below)
