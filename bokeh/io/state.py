@@ -210,7 +210,7 @@ class State:
         self._document = doc
         self._reset_keeping_doc()
 
-def curstate():
+def curstate() -> State:
     ''' Return the current State object
 
     Returns:
