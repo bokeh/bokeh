@@ -34,6 +34,7 @@ from ..document import Document
 from ..embed import file_html
 from ..models.layouts import LayoutDOM
 from ..resources import INLINE, Resources
+from .state import curstate
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -301,8 +302,9 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
     {% endblock %}
     """
 
-    try:
-        html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
+    try:        
+        html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True,
+                         _always_new=True, theme=curstate().document.theme)
     finally:
         if resize:
             assert isinstance(obj, Plot)
