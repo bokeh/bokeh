@@ -302,7 +302,7 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
     {% endblock %}
     """
 
-    try:        
+    try:
         html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True,
                          _always_new=True, theme=curstate().document.theme)
     finally:
