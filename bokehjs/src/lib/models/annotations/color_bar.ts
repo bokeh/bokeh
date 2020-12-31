@@ -18,7 +18,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {range, reversed} from "core/util/array"
 import {Context2d} from "core/util/canvas"
-import {Grid, Layoutable} from "core/layout"
+import {Grid, Layoutable, SizingPolicy, Percent} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Panel} from "core/layout/side_panel"
@@ -29,8 +29,8 @@ import {isString} from "core/util/types"
 import {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
-//const MAJOR_DIM_MIN_SCALAR = 0.3
-//const MAJOR_DIM_MAX_SCALAR = 0.8
+const MAJOR_DIM_MIN_SCALAR = 0.3
+const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
   model: ColorBar
@@ -342,17 +342,46 @@ export class ColorBarView extends AnnotationView {
 
     layout.padding = padding_box
 
+    let major_policy: SizingPolicy
+    let major_size: number | undefined
+    let min_major_size: number | Percent | undefined
+    let max_major_size: number | Percent | undefined
+    if (this.panel != null) {
+      major_policy = "max"
+      major_size = undefined
+      min_major_size = undefined
+      max_major_size = undefined
+    } else {
+      if ((orientation == "horizontal" ? w : h) == "auto") {
+        major_policy = "fixed"
+        major_size = this.model.color_mapper.palette.length*MINOR_DIM
+        min_major_size = {percent: MAJOR_DIM_MIN_SCALAR}
+        max_major_size = {percent: MAJOR_DIM_MAX_SCALAR}
+      } else {
+        major_policy = "fit"
+        major_size = undefined
+      }
+    }
+
     if (orientation == "horizontal") {
       const width = w == "auto" ? undefined : w
       const height = h == "auto" ? MINOR_DIM : h
 
-      layout.set_sizing({width_policy: "max", height_policy: "min", halign, valign, margin: margin_box})
+      layout.set_sizing({
+        width_policy: major_policy, height_policy: "min",
+        width: major_size, min_width: min_major_size, max_width: max_major_size,
+        halign, valign, margin: margin_box,
+      })
       layout.center_panel.set_sizing({width_policy: w == "auto" ? "fit" : "fixed", height_policy: "fixed", width, height})
     } else {
       const width = w == "auto" ? MINOR_DIM : w
       const height = h == "auto" ? undefined : h
 
-      layout.set_sizing({width_policy: "min", height_policy: "max", halign, valign, margin: margin_box})
+      layout.set_sizing({
+        width_policy: "min", height_policy: major_policy,
+        height: major_size, min_height: min_major_size, max_height: max_major_size,
+        halign, valign, margin: margin_box,
+      })
       layout.center_panel.set_sizing({width_policy: "fixed", height_policy: h == "auto" ? "fit" : "fixed", width, height})
     }
 
@@ -412,10 +441,6 @@ export class ColorBarView extends AnnotationView {
 
       this.layout = outer
     } else {
-      //H: width = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.width*MAJOR_DIM_MIN_SCALAR])
-      //H: width = min([width, bbox.width*MAJOR_DIM_MAX_SCALAR - 2*padding])
-      //V: height = max([this.model.color_mapper.palette.length*MINOR_DIM, bbox.height*MAJOR_DIM_MIN_SCALAR])
-      //V: height = min([height, bbox.height*MAJOR_DIM_MAX_SCALAR - 2*padding - title_size.height])
       this.layout = this._inner_layout
     }
 

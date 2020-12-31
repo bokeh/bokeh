@@ -75,16 +75,18 @@ export const SizingPolicy = Enum("fixed", "fit", "min", "max")
 
 export type Sizing = number | "fit" | "min" | "max"
 
+export type Percent = {percent: number}
+
 export type BoxSizing = {
   width_policy: SizingPolicy
-  min_width: number
+  min_width?: number | Percent
   width?: number
-  max_width: number
+  max_width?: number | Percent
 
   height_policy: SizingPolicy
-  min_height: number
+  min_height?: number | Percent
   height?: number
-  max_height: number
+  max_height?: number | Percent
 
   aspect?: number
   margin: Margin

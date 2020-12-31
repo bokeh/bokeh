@@ -21,7 +21,10 @@ export class BorderLayout extends Layoutable {
   padding: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
   protected _measure(viewport: Size): SizeHint {
-    viewport = new Sizeable(viewport).bounded_to(this.sizing.size)
+    viewport = new Sizeable({
+      width: this.sizing.width_policy == "fixed" || viewport.width == Infinity ? this.sizing.width : viewport.width,
+      height: this.sizing.height_policy == "fixed" || viewport.height == Infinity ? this.sizing.height : viewport.height,
+    })
 
     const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
     const left = Math.max(left_hint.width, this.min_border.left) + this.padding.left

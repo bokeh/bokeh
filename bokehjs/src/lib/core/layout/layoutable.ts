@@ -1,12 +1,11 @@
-import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy} from "./types"
+import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
 import {BBox, CoordinateMapper} from "../util/bbox"
+import {isNumber} from "../util/types"
 
 const {min, max, round} = Math
 
 export type ExtBoxSizing = BoxSizing & {
   readonly size: Partial<Size>
-  readonly min_size: Size
-  readonly max_size: Size
 }
 
 export abstract class Layoutable {
@@ -41,13 +40,13 @@ export abstract class Layoutable {
   set_sizing(sizing: Partial<BoxSizing>): void {
     const width_policy = sizing.width_policy ?? "fit"
     const width = sizing.width
-    const min_width = sizing.min_width != null ? sizing.min_width : 0
-    const max_width = sizing.max_width != null ? sizing.max_width : Infinity
+    const min_width = sizing.min_width
+    const max_width = sizing.max_width
 
     const height_policy = sizing.height_policy ?? "fit"
     const height = sizing.height
-    const min_height = sizing.min_height != null ? sizing.min_height : 0
-    const max_height = sizing.max_height != null ? sizing.max_height : Infinity
+    const min_height = sizing.min_height
+    const max_height = sizing.max_height
 
     const aspect = sizing.aspect
     const margin = sizing.margin ?? {top: 0, right: 0, bottom: 0, left: 0}
@@ -64,8 +63,6 @@ export abstract class Layoutable {
       halign,
       valign,
       size: {width, height},
-      min_size: {width: min_width, height: min_height},
-      max_size: {width: max_width, height: max_height},
     }
 
     this._init()
@@ -149,11 +146,11 @@ export abstract class Layoutable {
     if (!this.sizing.visible)
       return {width: 0, height: 0}
 
-    const exact_width = (width: number) => {
-      return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
+    const exact_width = (vw: number) => {
+      return vw == Infinity && this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : vw
     }
-    const exact_height = (height: number) => {
-      return this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : height
+    const exact_height = (vh: number) => {
+      return vh == Infinity && this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : vh
     }
 
     const viewport = new Sizeable(viewport_size)
@@ -161,12 +158,9 @@ export abstract class Layoutable {
       .map(exact_width, exact_height)
 
     const computed = this._measure(viewport)
-    const clipped = this.clip_size(computed)
+    const clipped = this.clip_size(computed, viewport)
 
-    const width = exact_width(clipped.width)
-    const height = exact_height(clipped.height)
-
-    const size = this.apply_aspect(viewport, {width, height})
+    const size = this.apply_aspect(viewport, clipped)
     return {...computed, ...size}
   }
 
@@ -198,18 +192,24 @@ export abstract class Layoutable {
     return this.bbox.yview
   }
 
-  clip_width(width: number): number {
-    return max(this.sizing.min_width, min(width, this.sizing.max_width))
-  }
+  clip_size(size: Size, viewport: Size): Size {
+    function clip(size: number, vsize: number, min_size?: number | Percent, max_size?: number | Percent): number {
+      if (min_size == null)
+        min_size = 0
+      else if (!isNumber(min_size))
+        min_size = Math.round(min_size.percent*vsize)
 
-  clip_height(height: number): number {
-    return max(this.sizing.min_height, min(height, this.sizing.max_height))
-  }
+      if (max_size == null)
+        max_size = Infinity
+      else if (!isNumber(max_size))
+        max_size = Math.round(max_size.percent*vsize)
 
-  clip_size({width, height}: Size): Size {
+      return max(min_size, min(size, max_size))
+    }
+
     return {
-      width: this.clip_width(width),
-      height: this.clip_height(height),
+      width: clip(size.width, viewport.width, this.sizing.min_width, this.sizing.max_width),
+      height: clip(size.height, viewport.height, this.sizing.min_height, this.sizing.max_height),
     }
   }
 
@@ -258,16 +258,6 @@ export class LayoutItem extends Layoutable {
 }
 
 export abstract class ContentLayoutable extends Layoutable {
-  /*
-  protected _min_size(): SizeHint {
-    return content_size.expanded_to(this.sizing.min_size)
-    .map(...) // apply fixed size (?)
-  }
-
-  protected _max_size(): SizeHint {
-    return this.sizing.max_size
-  }
-  */
 
   protected abstract _content_size(): Sizeable
 
