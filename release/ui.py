@@ -73,9 +73,7 @@ except ImportError:
 
 
 def banner(color: ColorFunction, msg: str) -> str:
-    """
-
-    """
+    """"""
     section = "=" * 80
     header = f"{msg:^80}"
     return f"\n{section}\n{header}\n{section}\n"
@@ -88,16 +86,12 @@ def _format_details(details: Optional[Sequence[str]] = None) -> str:
 
 
 def failed(msg: str, details: Optional[Sequence[str]] = None) -> str:
-    """
-
-    """
+    """"""
     return f"{red('[FAIL]')} {msg}" + _format_details(details)
 
 
 def passed(msg: str, details: Optional[Sequence[str]] = None) -> str:
-    """
-
-    """
+    """"""
     return f"{dim(green('[PASS]'))} {msg}" + _format_details(details)
 
 
@@ -106,14 +100,10 @@ def shell(cmd: str) -> str:
 
 
 def skipped(msg: str, _details: Optional[Sequence[str]] = None) -> str:
-    """
-
-    """
+    """"""
     return f"{blue('[SKIP]')} {msg}"
 
 
 def task(msg: str) -> str:
-    """
-
-    """
+    """"""
     return f"\n------ {msg}"

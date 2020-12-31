@@ -42,9 +42,7 @@ class Config:
         self._secrets: Dict[str, str] = {}
 
     def add_secret(self, name: str, secret: str) -> None:
-        """
-
-        """
+        """"""
         if name in self._secrets:
             raise RuntimeError()
         LOG.add_scrubber(Scrubber(secret, name=name))

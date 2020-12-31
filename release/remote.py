@@ -53,7 +53,10 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
         buckets = []
         for bucket_name, bucket_region in [("cdn.bokeh.org", "us-east-1"), ("cdn-backup.bokeh.org", "us-west-2")]:
             conn = boto.s3.connect_to_region(
-                bucket_region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key, calling_format=boto.s3.connection.OrdinaryCallingFormat(),
+                bucket_region,
+                aws_access_key_id=access_key_id,
+                aws_secret_access_key=secret_access_key,
+                calling_format=boto.s3.connection.OrdinaryCallingFormat(),
             )
             buckets.append(conn.get_bucket(bucket_name))
 

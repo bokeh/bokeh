@@ -75,7 +75,7 @@ BOKEH_GH = "https://github.com/bokeh/bokeh"
 
 
 def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -88,7 +88,7 @@ def bokeh_commit(name, rawtext, text, lineno, inliner, options=None, content=Non
 
 
 def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -109,7 +109,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
 
 
 def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a Bokeh Github issue.
+    """Link to a Bokeh Github issue.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
@@ -130,7 +130,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
 
 
 def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
+    """Link to a URL in the Bokeh GitHub tree, pointing to appropriate tags
     for releases, or to master otherwise.
 
     The link text is simply the URL path supplied, so typical usage might
@@ -173,7 +173,7 @@ def setup(app):
 
 
 def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
-    """ Return a link to a Bokeh Github resource.
+    """Return a link to a Bokeh Github resource.
 
     Args:
         app (Sphinx app) : current app
