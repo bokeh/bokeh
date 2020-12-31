@@ -75,3 +75,10 @@ Previously those properties had concrete defaults (``"vertical"``, ``BasicTicker
 ``BasicTickFormatter()`` respectively). In most cases this shouldn't affect users' code.
 However, if you relied on setting e.g. ``color_bar.ticker.base = 60``, then the code will
 need to be repaced with ``color_bar.ticker = BasicTicker(base=60)``.
+
+``CartesianFrame`` is not a layout anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This only affects extension creators. ``CartesianFrame`` is now responsible only for maintaing
+the coordinate system of a plot. Use the plot's ``layout.center_panel`` to access any layout
+related capability. Note you can still use ``CartesianFrame.bbox``, so most code doesn't change.
