@@ -124,7 +124,11 @@ class BokehModelDirective(BokehDirective):
 
         model_json = json.dumps(model_obj.to_json(include_defaults=True), sort_keys=True, indent=2, separators=(",", ": "))
 
-        rst_text = MODEL_DETAIL.render(name=model_name, module_name=module_name, model_json=model_json,)
+        rst_text = MODEL_DETAIL.render(
+            name=model_name,
+            module_name=module_name,
+            model_json=model_json,
+        )
 
         return self._parse(rst_text, "<bokeh-model>")
 
