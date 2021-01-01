@@ -39,7 +39,7 @@ ANGLE = ["angle", "angle_units"]
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events"]
 GLYPH = []
 
-MARKER = ["x", "y", "size", "angle", "angle_units"]
+MARKER = ["x", "y", "size", "angle", "angle_units", "hit_dilation"]
 
 #-----------------------------------------------------------------------------
 # General API
