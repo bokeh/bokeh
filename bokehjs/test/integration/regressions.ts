@@ -775,6 +775,16 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #10809", () => {
+    it("prevents repaint of resized layoutable renderers", async () => {
+      const p = fig([100, 100])
+      const {view} = await display(p)
+
+      p.circle(0, 0, {radius: 1})
+      await view.ready
+    })
+  })
+
   describe("in issue #10407", () => {
     it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
       const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})
