@@ -73,6 +73,7 @@ from ..core.properties import (
     NumberSpec,
     Override,
     ScreenDistanceSpec,
+    Size,
     String,
     StringSpec,
 )
@@ -164,8 +165,8 @@ class Marker(XYGlyph, LineGlyph, FillGlyph):
     The y-axis coordinates for the center of the markers.
     """)
 
-    point_hittest_dialation = Float(default=1.0, help="""
-    The factor by which to dialate the hit radius value
+    hit_dilation = Size(default=1.0, help="""
+    The factor by which to dilate the hit radius
     which is responsible for defining the range in which a
     marker responds to interactions with the Hover and Tap
     tools.
