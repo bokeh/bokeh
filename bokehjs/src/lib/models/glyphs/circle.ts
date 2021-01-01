@@ -17,7 +17,6 @@ export interface CircleData extends XYGlyphData {
   _angle: NumberArray
   _size: NumberArray
   _radius?: NumberArray
-  _point_hittest_dialation: number
 
   sradius: NumberArray
 
@@ -124,21 +123,22 @@ export class CircleView extends XYGlyphView {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
+    const {hit_dilation} = this.model
 
     let x0, x1, y0, y1
     if (this._radius != null && this.model.properties.radius.units == "data") {
-      x0 = x - this.max_radius * this.model.point_hittest_dialation
-      x1 = x + this.max_radius * this.model.point_hittest_dialation
+      x0 = x - this.max_radius*hit_dilation
+      x1 = x + this.max_radius*hit_dilation
 
-      y0 = y - this.max_radius * this.model.point_hittest_dialation
-      y1 = y + this.max_radius * this.model.point_hittest_dialation
+      y0 = y - this.max_radius*hit_dilation
+      y1 = y + this.max_radius*hit_dilation
     } else {
-      const sx0 = sx - this.max_size * this.model.point_hittest_dialation
-      const sx1 = sx + this.max_size * this.model.point_hittest_dialation
+      const sx0 = sx - this.max_size*hit_dilation
+      const sx1 = sx + this.max_size*hit_dilation
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-      const sy0 = sy - this.max_size * this.model.point_hittest_dialation
-      const sy1 = sy + this.max_size * this.model.point_hittest_dialation
+      const sy0 = sy - this.max_size*hit_dilation
+      const sy1 = sy + this.max_size*hit_dilation
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
@@ -147,7 +147,7 @@ export class CircleView extends XYGlyphView {
     const indices: number[] = []
     if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
-        const r2 = (this.sradius[i]*this.model.point_hittest_dialation)**2
+        const r2 = (this.sradius[i]*hit_dilation)**2
         const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
         const dist = (sx0 - sx1)**2 + (sy0 - sy1)**2
@@ -157,7 +157,7 @@ export class CircleView extends XYGlyphView {
       }
     } else {
       for (const i of candidates) {
-        const r2 = (this.sradius[i]*this.model.point_hittest_dialation)**2
+        const r2 = (this.sradius[i]*hit_dilation)**2
         const dist = (this.sx[i] - sx)**2 + (this.sy[i] - sy)**2
         if (dist <= r2) {
           indices.push(i)
@@ -261,7 +261,7 @@ export namespace Circle {
     size: p.DistanceSpec
     radius: p.DistanceSpec // XXX: null
     radius_dimension: p.Property<RadiusDimension>
-    point_hittest_dialation:  p.Property<number>
+    hit_dilation:  p.Property<number>
   } & Mixins
 
   export type Mixins = LineVector & FillVector
@@ -289,7 +289,7 @@ export class Circle extends XYGlyph {
       size:             [ p.ScreenDistanceSpec, {value: 4} ],
       radius:           [ p.DistanceSpec, undefined, {optional: true} ], // XXX: null
       radius_dimension: [ RadiusDimension, "x" ],
-      point_hittest_dialation: [Number, 1.0],
+      hit_dilation: [ Number, 1.0 ],
     }))
   }
 }
