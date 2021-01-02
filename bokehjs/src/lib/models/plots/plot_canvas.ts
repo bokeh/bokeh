@@ -119,6 +119,11 @@ export class PlotView extends LayoutDOMView {
   }
 
   request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    this.invalidate_painters(to_invalidate)
+    this.schedule_paint()
+  }
+
+  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
     if (to_invalidate == "everything")
       this._invalidate_all = true
     else if (isArray(to_invalidate)) {
@@ -126,8 +131,6 @@ export class PlotView extends LayoutDOMView {
         this._invalidated_painters.add(renderer_view)
     } else
       this._invalidated_painters.add(to_invalidate)
-
-    this.schedule_paint()
   }
 
   schedule_paint(): void {
@@ -411,8 +414,10 @@ export class PlotView extends LayoutDOMView {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout.has_size_changed())
+        if (view.layout.has_size_changed()) {
+          this.invalidate_painters(view)
           return true
+        }
       }
       return false
     }
@@ -565,6 +570,7 @@ export class PlotView extends LayoutDOMView {
 
     if (this._range_manager.invalidate_dataranges) {
       this._range_manager.update_dataranges()
+      this._invalidate_layout()
     }
 
     let do_primary = false
