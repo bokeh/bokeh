@@ -11,7 +11,7 @@ import {MultiLineView} from "../../glyphs/multi_line"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
-import {div, span, display, undisplay, empty, textOnly} from "core/dom"
+import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 import {NumberArray, Color} from "core/types"
 import {color2hex, color2css} from "core/util/color"
@@ -451,51 +451,48 @@ export class HoverToolView extends InspectToolView {
     const swatch_re = /\$swatch:(\w*)/
 
     for (const [[, value], j] of enumerate(tooltips)) {
-      let tooltip_value = value
+      const swatch_match = value.match(swatch_re)
+      const color_match = value.match(color_re)
 
-      const color_field_match = value.match(color_re)
-      const swatch_field_match = value.match(swatch_re)
+      if (swatch_match != null || color_match != null) {
+        if (swatch_match != null) {
+          const [, colname] = swatch_match
+          const column = ds.get_column(colname)
 
-      if (swatch_field_match) {
-        tooltip_value = value.replace(swatch_re, "")
-        const [, colname] = swatch_field_match
-        const column = ds.get_column(colname)
+          if (column == null) {
+            value_els[j].textContent = `${colname} unknown`
+          } else {
+            const color = isNumber(i) ? column[i] : null
 
-        display(swatch_els[j])
-
-        if (column == null) {
-          swatch_els[j].textContent = `(unknown)`
-          textOnly(swatch_els[j])
-        } else {
-          const color = isNumber(i) ? column[i] : null
-
-          if (color != null) {
-            swatch_els[j].style.backgroundColor = color
+            if (color != null) {
+              swatch_els[j].style.backgroundColor = color2css(color)
+              display(swatch_els[j])
+            }
           }
         }
-      }
 
-      if (color_field_match != null) {
-        const [, opts = "", colname] = color_field_match
-        const column = ds.get_column(colname) // XXX: change to columnar ds
-        if (column == null) {
-          value_els[j].textContent = `${colname} unknown`
-          continue
-        }
-        const hex = opts.indexOf("hex") >= 0
-        const swatch = opts.indexOf("swatch") >= 0
-        const color: Color | null = isNumber(i) ? column[i] : null
-        if (color == null) {
-          value_els[j].textContent = "(null)"
-          continue
-        }
-        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
-        if (swatch) {
-          swatch_els[j].style.backgroundColor = color2css(color)
-          display(swatch_els[j])
+        if (color_match != null) {
+          const [, opts = "", colname] = color_match
+          const column = ds.get_column(colname) // XXX: change to columnar ds
+          if (column == null) {
+            value_els[j].textContent = `${colname} unknown`
+            continue
+          }
+          const hex = opts.indexOf("hex") >= 0
+          const swatch = opts.indexOf("swatch") >= 0
+          const color: Color | null = isNumber(i) ? column[i] : null
+          if (color == null) {
+            value_els[j].textContent = "(null)"
+            continue
+          }
+          value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
+          if (swatch) {
+            swatch_els[j].style.backgroundColor = color2css(color)
+            display(swatch_els[j])
+          }
         }
       } else {
-        const content = replace_placeholders(tooltip_value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
+        const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
           value_els[j].textContent = content
         } else {
