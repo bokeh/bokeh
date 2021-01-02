@@ -7,6 +7,7 @@ import {read, read_json, write, rename, file_exists, directory_exists, hash, has
 import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
         default_transformers, compiler_host, report_diagnostics} from "./compiler"
 import {Linker} from "./linker"
+import {compile_styles, wrap_css_modules} from "./styles"
 import * as preludes from "./prelude"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
@@ -288,7 +289,21 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return false
   }
 
+  let success = true
   const {files, options} = tsconfig
+
+  const dist_dir = join(base_dir, "dist")
+  const lib_dir = options.outDir ?? dist_dir
+  const dts_dir = options.declarationDir ?? lib_dir
+
+  const styles_dir = join(base_dir, "styles")
+  const css_dir = join(dist_dir, "css")
+
+  print("Compiling styles")
+  if (!await compile_styles(styles_dir, css_dir))
+    success = false
+
+  wrap_css_modules(css_dir, lib_dir, dts_dir)
 
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, bokehjs_dir)
@@ -309,9 +324,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     lint(lint_config, files)
   }
 
-  const dist_dir = join(base_dir, "dist")
-  const lib_dir = options.outDir ?? dist_dir
-
   const artifact = basename(base_dir)
 
   const bases = [lib_dir]
@@ -330,6 +342,8 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print("Linking modules")
   if (!setup.rebuild) linker.load_cache()
   const {bundles, status} = await linker.link()
+  if (!status)
+    success = false
   linker.store_cache()
   const outputs = [join(dist_dir, `${artifact}.js`)]
 
@@ -386,5 +400,5 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print(`Output written to ${cyan(dist_dir)}`)
   print("All done.")
-  return !is_failed(tsoutput) && status
+  return !is_failed(tsoutput) && success
 }

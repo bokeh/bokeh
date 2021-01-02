@@ -1,6 +1,8 @@
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import * as p from "@bokehjs/core/properties"
 
+import css from "./styles/latex_label.css"
+
 declare namespace katex {
   function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
 }
@@ -8,7 +10,13 @@ declare namespace katex {
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
+  styles(): string[] {
+    return [...super.styles(), css]
+  }
+
   protected _render(): void {
+    this.el?.classList.add("label-style")
+
     // Here because AngleSpec does units tranform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
