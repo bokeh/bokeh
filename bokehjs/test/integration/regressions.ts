@@ -86,7 +86,7 @@ describe("Bug", () => {
       let y = 0
       const w = 1, h = 1
 
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         p.image_url({url: [img], x: 0, y, w, h, anchor, angle: 0})
         p.image_url({url: [img], x: 1, y, w, h, anchor, angle: Math.PI/6})
         p.image_url({url: [img], x: 2, y, w, h, anchor, angle: Math.PI/4})
@@ -401,7 +401,7 @@ describe("Bug", () => {
       const img = svg_image(svg)
 
       const plots = []
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
         const y_range = new DataRange1d()
         const p = fig([200, 200], {x_range, y_range, title: anchor, match_aspect: true})

@@ -97,7 +97,7 @@ export type AuxText = {
 }
 
 export type AuxGlyph = {
-  source: ColumnarDataSource
+  source: ColumnarDataSource | ColumnarDataSource["data"]
   view: CDSView
   legend: string
   level: RenderLevel
@@ -825,7 +825,15 @@ export class Figure extends Plot {
       attrs = {...attrs, ...overrides}
     }
 
-    const source = attrs.source != null ? attrs.source : new ColumnDataSource()
+    const source = (() => {
+      const {source} = attrs
+      if (source == null)
+        return new ColumnDataSource()
+      else if (source instanceof ColumnarDataSource)
+        return source
+      else
+        return new ColumnDataSource({data: source})
+    })()
     const data = clone(source.data)
     delete attrs.source
 

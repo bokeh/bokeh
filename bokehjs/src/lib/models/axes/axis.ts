@@ -9,8 +9,8 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
-import {Size} from "core/layout"
-import {SidePanel, Orient} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
 import {isString, isNumber} from "core/util/types"
@@ -35,12 +35,20 @@ export class AxisView extends GuideRendererView {
   model: Axis
   visuals: Axis.Visuals
 
-  layout: SidePanel
+  panel: Panel
+  layout: Layoutable
 
-  readonly rotate: boolean = true
+  update_layout(): void {
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+  }
 
-  get panel(): SidePanel {
-    return this.layout
+  get_size(): Size {
+    const {visible, fixed_location} = this.model
+    if (visible && fixed_location == null && this.is_renderable) {
+      const height = Math.round(this._tick_extent() + this._tick_label_extent() + this._axis_label_extent())
+      return {width: 0, height}
+    } else
+      return {width: 0, height: 0}
   }
 
   get is_renderable(): boolean {
@@ -75,18 +83,6 @@ export class AxisView extends GuideRendererView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_layout())
-  }
-
-  get_size(): Size {
-    if (this.model.visible && this.model.fixed_location == null && this.is_renderable) {
-      const size = this._get_size()
-      return {width: 0 /* max */, height: Math.round(size)}
-    } else
-      return {width: 0, height: 0}
-  }
-
-  protected _get_size(): number {
-    return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
   }
 
   get needs_clip(): boolean {
@@ -149,7 +145,7 @@ export class AxisView extends GuideRendererView {
     let sx: number
     let sy: number
 
-    const {bbox} = this.panel
+    const {bbox} = this.layout
     switch (this.panel.side) {
       case "above":
         sx = bbox.hcenter
@@ -350,16 +346,16 @@ export class AxisView extends GuideRendererView {
 
     switch (this.panel.side) {
       case "below":
-        yoff = abs(this.panel.bbox.top - frame.bbox.bottom)
+        yoff = abs(this.layout.bbox.top - frame.bbox.bottom)
         break
       case "above":
-        yoff = abs(this.panel.bbox.bottom - frame.bbox.top)
+        yoff = abs(this.layout.bbox.bottom - frame.bbox.top)
         break
       case "right":
-        xoff = abs(this.panel.bbox.left - frame.bbox.right)
+        xoff = abs(this.layout.bbox.left - frame.bbox.right)
         break
       case "left":
-        xoff = abs(this.panel.bbox.right - frame.bbox.left)
+        xoff = abs(this.layout.bbox.right - frame.bbox.left)
         break
     }
 
@@ -530,9 +526,7 @@ export namespace Axis {
   }
 }
 
-export interface Axis extends Axis.Attrs {
-  panel: SidePanel
-}
+export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props

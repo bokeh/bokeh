@@ -30,7 +30,7 @@ export class LatexLabelView extends LabelView {
         throw new Error("unreachable")
     }
 
-    const panel = this.panel || this.plot_view.frame
+    const panel = this.layout ?? this.plot_view.layout.center_panel
 
     const {x, y} = this.model
     let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(x) : panel.xview.compute(x)

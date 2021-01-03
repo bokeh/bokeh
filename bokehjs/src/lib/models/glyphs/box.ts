@@ -36,15 +36,19 @@ export abstract class BoxView extends GlyphView {
 
     switch (anchor) {
       case "top_left":      return {x: left,             y: top}
+      case "top":
       case "top_center":    return {x: (left + right)/2, y: top}
       case "top_right":     return {x: right,            y: top}
       case "bottom_left":   return {x: left,             y: bottom}
+      case "bottom":
       case "bottom_center": return {x: (left + right)/2, y: bottom}
       case "bottom_right":  return {x: right,            y: bottom}
+      case "left":
       case "center_left":   return {x: left,             y: (top + bottom)/2}
-      case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
+      case "center":
+      case "center_center": return {x: (left + right)/2, y: (top + bottom)/2}
+      case "right":
       case "center_right":  return {x: right,            y: (top + bottom)/2}
-      default:              return null
     }
   }
 

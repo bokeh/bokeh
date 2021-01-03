@@ -291,11 +291,8 @@ export class UIEventBus implements EventListenerObject {
     const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
-      const {level} = view.model
-      if ((level == 'annotation' || level == 'overlay') && view.interactive_hit != null) {
-        if (view.interactive_hit(sx, sy))
-          return view
-      }
+      if (view.interactive_hit?.(sx, sy))
+        return view
     }
 
     return null

@@ -1,6 +1,7 @@
 import {Mapper} from "./mapper"
 import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import {Arrayable, ArrayableOf, Color, uint32, ColorArray, RGBAArray} from "core/types"
 import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
@@ -36,8 +37,15 @@ export interface ColorMapper extends ColorMapper.Attrs {}
 export abstract class ColorMapper extends Mapper<Color> {
   properties: ColorMapper.Props
 
+  metrics_change: Signal0<this>
+
   constructor(attrs?: Partial<ColorMapper.Attrs>) {
     super(attrs)
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.metrics_change = new Signal0(this, "metrics_change")
   }
 
   static init_ColorMapper(): void {

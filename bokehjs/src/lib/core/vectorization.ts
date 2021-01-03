@@ -30,7 +30,7 @@ export type Vector<T> = (Value<T> | Field | Expr<T>) & Transformed<T>
 export type Dimensional<T, U> = T & {units?: U}
 
 export type Transformed<T> = {
-  transform?: Transform<T, T>
+  transform?: Transform<unknown, T>
 }
 
 export function isValue<T>(obj: unknown): obj is Value<T> {

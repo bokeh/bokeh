@@ -34,7 +34,7 @@ export class LatexLabelView extends LabelView {
     sy -= this.model.y_offset
 
     this._css_text(this.layer.ctx, "", sx, sy, angle)
-    katex.render(this.model.text, this.el, {displayMode: true})
+    katex.render(this.model.text, this.el!, {displayMode: true})
   }
 }
 

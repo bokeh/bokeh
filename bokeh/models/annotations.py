@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Anchor,
     AngleUnits,
     Dimension,
     FontStyle,
@@ -75,11 +76,11 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.serialization import convert_datetime_type
-from .formatters import BasicTickFormatter, TickFormatter
-from .mappers import ContinuousColorMapper
+from .formatters import TickFormatter
+from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
-from .tickers import BasicTicker, Ticker
+from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -343,10 +344,9 @@ class ColorBar(Annotation):
 
     '''
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
-        default="top_right", help="""
+    location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
-    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
 
@@ -355,7 +355,7 @@ class ColorBar(Annotation):
         have to be set to `(0,0)`.
     """)
 
-    orientation = Enum(Orientation, default="vertical", help="""
+    orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
     """)
 
@@ -371,7 +371,7 @@ class ColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = String(help="""
+    title = String(default=None, help="""
     The title text to render.
     """)
 
@@ -387,11 +387,11 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the title from the color bar.
     """)
 
-    ticker = Either(Instance(Ticker), Auto, default=lambda: BasicTicker(), help="""
+    ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
     """)
 
-    formatter = Either(Instance(TickFormatter), Auto, default=lambda: BasicTickFormatter(), help="""
+    formatter = Either(Instance(TickFormatter), Auto, default="auto", help="""
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
@@ -400,8 +400,8 @@ class ColorBar(Annotation):
     override normal formatting.
     """)
 
-    color_mapper = Instance(ContinuousColorMapper, help="""
-    A continuous color mapper containing a color palette to render.
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
@@ -422,10 +422,6 @@ class ColorBar(Annotation):
     major_label_props = Include(ScalarTextProps, help="""
     The %s of the major tick labels.
     """)
-
-    major_label_text_align = Override(default="center")
-
-    major_label_text_baseline = Override(default="middle")
 
     major_label_text_font_size = Override(default="11px")
 
@@ -977,6 +973,9 @@ class Title(TextAnnotation):
         * below: shifts title right
         * left: shifts title up
 
+    """)
+
+    standoff = Float(default=10, help="""
     """)
 
     text_font = String(default="helvetica", help="""

@@ -108,7 +108,8 @@ export abstract class GlyphView extends View {
 
   get_anchor_point(anchor: Anchor, i: number, [sx, sy]: [number, number]): {x: number, y: number} | null {
     switch (anchor) {
-      case "center": {
+      case "center":
+      case "center_center": {
         const [x, y] = this.scenterxy(i, sx, sy)
         return {x, y}
       }

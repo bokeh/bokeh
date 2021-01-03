@@ -71,7 +71,6 @@ export class Model extends HasProps {
 
   protected _update_event_callbacks(): void {
     if (this.document == null) {
-      // File an issue: SidePanel in particular seems to have this issue
       logger.warn('WARNING: Document not defined for updating event callbacks')
       return
     }

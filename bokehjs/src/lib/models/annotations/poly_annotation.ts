@@ -32,13 +32,13 @@ export class PolyAnnotationView extends AnnotationView {
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx: number
       if (this.model.xs_units == 'screen')
-        sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i])
+        sx = this.model.screen ? xs[i] : frame.bbox.xview.compute(xs[i])
       else
         throw new Error("not implemented")
 
       let sy: number
       if (this.model.ys_units == 'screen')
-        sy = this.model.screen ? ys[i] : frame.yview.compute(ys[i])
+        sy = this.model.screen ? ys[i] : frame.bbox.yview.compute(ys[i])
       else
         throw new Error("not implemented")
 

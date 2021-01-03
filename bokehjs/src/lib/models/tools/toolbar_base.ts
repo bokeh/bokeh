@@ -93,7 +93,7 @@ export class ToolbarBaseView extends DOMView {
 
   protected async _build_tool_button_views(): Promise<void> {
     const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
-    await build_views(this._tool_button_views as any, tools, {parent: this}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
+    await build_views(this._tool_button_views as any, tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {

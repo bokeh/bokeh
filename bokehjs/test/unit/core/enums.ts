@@ -7,8 +7,9 @@ describe("enums module", () => {
   it("should have Anchor", () => {
     expect([...enums.Anchor]).to.be.equal([
       "top_left",    "top_center",    "top_right",
-      "center_left", "center",        "center_right",
+      "center_left", "center_center", "center_right",
       "bottom_left", "bottom_center", "bottom_right",
+      "top", "left", "center", "right", "bottom",
     ])
   })
 
@@ -76,8 +77,9 @@ describe("enums module", () => {
   it("should have LegendLocation", () => {
     expect([...enums.LegendLocation]).to.be.equal([
       "top_left",    "top_center",    "top_right",
-      "center_left", "center",        "center_right",
+      "center_left", "center_center", "center_right",
       "bottom_left", "bottom_center", "bottom_right",
+      "top", "left", "center", "right", "bottom",
     ])
   })
 
