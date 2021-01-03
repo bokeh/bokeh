@@ -336,8 +336,14 @@ export class ColorBarView extends AnnotationView {
           const [left, bottom] = location
           return {left, right: margin, top: margin, bottom}
         }
-      } else
-        return undefined
+      } else {
+        if (isString(location))
+          return undefined
+        else {
+          const [left, bottom] = location
+          return {left, right: 0, top: 0, bottom}
+        }
+      }
     })()
 
     layout.padding = padding_box
