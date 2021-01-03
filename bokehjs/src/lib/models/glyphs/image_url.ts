@@ -85,14 +85,19 @@ export class ImageURLView extends XYGlyphView {
       switch (anchor) {
         case "top_left":
         case "bottom_left":
+        case "left":
         case "center_left":
           return [x, x + w]
+        case "top":
         case "top_center":
+        case "bottom":
         case "bottom_center":
         case "center":
+        case "center_center":
           return [x - w/2, x + w/2]
         case "top_right":
         case "bottom_right":
+        case "right":
         case "center_right":
           return [x - w, x]
       }
@@ -101,15 +106,20 @@ export class ImageURLView extends XYGlyphView {
     function y0y1(y: number, h: number): [number, number] {
       switch (anchor) {
         case "top_left":
+        case "top":
         case "top_center":
         case "top_right":
           return [y, y - h]
         case "bottom_left":
+        case "bottom":
         case "bottom_center":
         case "bottom_right":
           return [y + h, y]
+        case "left":
         case "center_left":
         case "center":
+        case "center_center":
+        case "right":
         case "center_right":
           return [y + h/2, y - h/2]
       }
@@ -193,14 +203,19 @@ export class ImageURLView extends XYGlyphView {
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
       case 'top_left':      return [sx, sy         ]
+      case 'top':
       case 'top_center':    return [sx - (sw/2), sy         ]
       case 'top_right':     return [sx - sw, sy         ]
+      case 'right':
       case 'center_right':  return [sx - sw, sy - (sh/2)]
       case 'bottom_right':  return [sx - sw, sy - sh    ]
+      case 'bottom':
       case 'bottom_center': return [sx - (sw/2), sy - sh    ]
       case 'bottom_left':   return [sx, sy - sh    ]
+      case 'left':
       case 'center_left':   return [sx, sy - (sh/2)]
-      case 'center':        return [sx - (sw/2), sy - (sh/2)]
+      case 'center':
+      case 'center_center': return [sx - (sw/2), sy - (sh/2)]
     }
   }
 

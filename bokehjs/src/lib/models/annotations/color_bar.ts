@@ -259,20 +259,25 @@ export class ColorBarView extends AnnotationView {
         switch (location) {
           case "top_left":
             return ["start", "start"] as const
+          case "top":
           case "top_center":
             return ["start", "center"] as const
           case "top_right":
             return ["start", "end"] as const
           case "bottom_left":
             return ["end", "start"] as const
+          case "bottom":
           case "bottom_center":
             return ["end", "center"] as const
           case "bottom_right":
             return ["end", "end"] as const
+          case "left":
           case "center_left":
             return ["center", "start"] as const
           case "center":
+          case "center_center":
             return ["center", "center"] as const
+          case "right":
           case "center_right":
             return ["center", "end"] as const
         }
