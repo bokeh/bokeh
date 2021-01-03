@@ -28,9 +28,7 @@ def is_check(step: StepType) -> bool:
 
 
 class Pipeline:
-    """
-
-    """
+    """"""
 
     def __init__(self, steps: Sequence[StepType], config: Config, system: System):
         self._steps = steps
@@ -38,9 +36,7 @@ class Pipeline:
         self._system = system
 
     def execute(self) -> None:
-        """
-
-        """
+        """"""
         LOG.clear()
 
         for step in self._steps:

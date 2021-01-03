@@ -1,5 +1,6 @@
 import {expect} from "assertions"
 import {BitSet} from "@bokehjs/core/util/bitset"
+import {range} from "@bokehjs/core/util/array"
 
 describe("core/util/bitset module", () => {
 
@@ -73,6 +74,18 @@ describe("core/util/bitset module", () => {
       expect(bs).to.be.instanceof(BitSet)
       expect(bs.size).to.be.equal(39)
       expect([...bs.ones()]).to.be.equal([0, 16, 33])
+    })
+
+    it("should support selection from an array", () => {
+      const k = 100
+      expect(bs0.select(range(k, k + bs0.size))).to.be.equal([100, 101, 115, 116, 131, 132, 133, 138])
+      expect(bs1.select(range(k, k + bs1.size))).to.be.equal([101, 106, 115, 131, 132, 134, 135, 138])
+    })
+
+    it("should support selection from an oversized array", () => {
+      const k = 100
+      expect(bs0.select(range(k, k + bs0.size + 10))).to.be.equal([100, 101, 115, 116, 131, 132, 133, 138])
+      expect(bs1.select(range(k, k + bs1.size + 10))).to.be.equal([101, 106, 115, 131, 132, 134, 135, 138])
     })
   })
 })

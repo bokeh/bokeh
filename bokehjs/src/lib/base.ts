@@ -1,4 +1,4 @@
-import {isObject} from "./core/util/types"
+import {isObject, isArray} from "./core/util/types"
 import {values} from "./core/util/object"
 import {HasProps} from "./core/has_props"
 
@@ -7,21 +7,25 @@ const _all_models: Map<string, typeof HasProps> = new Map()
 
 export interface Models {
   (name: string): typeof HasProps
+  get(name: string): typeof HasProps | undefined
   register(name: string, model: typeof HasProps): void
   unregister(name: string): void
-  register_models(models: {[key: string]: unknown} | null | undefined, force?: boolean, errorFn?: (name: string) => void): void
+  register_models(models: {[key: string]: unknown} | unknown[] | null | undefined, force?: boolean, errorFn?: (name: string) => void): void
   registered_names(): string[]
 }
 
 export const Models = ((name: string): typeof HasProps => {
-  const model = overrides[name] ?? _all_models.get(name)
+  const model = Models.get(name)
 
-  if (model == null) {
+  if (model != null)
+    return model
+  else
     throw new Error(`Model '${name}' does not exist. This could be due to a widget or a custom model not being registered before first usage.`)
-  }
-
-  return model
 }) as Models
+
+Models.get = (name) => {
+  return overrides[name] ?? _all_models.get(name)
+}
 
 Models.register = (name, model) => {
   overrides[name] = model
@@ -39,7 +43,7 @@ Models.register_models = (models, force = false, errorFn?) => {
   if (models == null)
     return
 
-  for (const model of values(models)) {
+  for (const model of isArray(models) ? models : values(models)) {
     if (is_HasProps(model)) {
       const qualified = model.__qualified__
       if (force || !_all_models.has(qualified))

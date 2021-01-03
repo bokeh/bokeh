@@ -343,7 +343,7 @@ async def test__exclude_headers(ManagedServerLoop) -> None:
         token = extract_token_from_json(html)
         payload = get_token_payload(token)
         assert 'headers' in payload
-        assert payload['headers'] == {'Accept-Encoding': 'gzip'}
+        assert payload["headers"].get("Accept-Encoding") == "gzip"
 
 async def test__include_cookies(ManagedServerLoop) -> None:
     application = Application()

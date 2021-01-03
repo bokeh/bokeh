@@ -38,8 +38,6 @@ from bokeh.models import (
     Arrow,
     ArrowHead,
     Band,
-    BasicTicker,
-    BasicTickFormatter,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -110,14 +108,14 @@ def test_Legend() -> None:
 def test_ColorBar() -> None:
     color_bar = ColorBar()
     assert color_bar.location == 'top_right'
-    assert color_bar.orientation == 'vertical'
+    assert color_bar.orientation == 'auto'
     assert color_bar.height == 'auto'
     assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
-    assert isinstance(color_bar.ticker, BasicTicker)
-    assert isinstance(color_bar.formatter, BasicTickFormatter)
+    assert color_bar.ticker == "auto"
+    assert color_bar.formatter == "auto"
     assert color_bar.color_mapper is None
     assert color_bar.margin == 30
     assert color_bar.padding == 10
@@ -127,7 +125,7 @@ def test_ColorBar() -> None:
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
     check_text_properties(color_bar, "title_", "13px", "bottom", "italic", scalar=True)
-    check_text_properties(color_bar, "major_label_", "11px", "middle", "normal", "center", scalar=True)
+    check_text_properties(color_bar, "major_label_", "11px", "bottom", "normal", "left", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
     check_line_properties(color_bar, "minor_tick_", None)
     check_line_properties(color_bar, "bar_", None)
@@ -408,6 +406,7 @@ def test_Title() -> None:
         "vertical_align",
         "align",
         "offset",
+        "standoff",
         "text_font",
         "text_font_size",
         "text_font_style",

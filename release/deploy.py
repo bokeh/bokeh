@@ -22,11 +22,12 @@ CLOUDFRONT_ID = "E2OC6Q27H5UQ63"
 
 
 def publish_npm_package(config: Config, system: System) -> ActionReturn:
-    version = config.version
-    path = f"deployment-{version}/bokeh-bokehjs-{config.js_version}.tgz"
+    tarball = f"bokeh-bokehjs-{config.js_version}.tgz"
     tags = "--tag=dev" if config.prerelease else ""
     try:
-        system.run(f"npm publish --access=public {tags} {path}")
+        system.cd(f"deployment-{config.version}")
+        system.run(f"npm publish --access=public {tags} {tarball}")
+        system.cd("..")
         return PASSED("Publish to npmjs.com succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to npmjs.com", details=e.args)

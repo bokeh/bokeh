@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.layouts import gridplot
-from bokeh.models import BasicTicker, BasicTickFormatter, ColorBar, LinearColorMapper
+from bokeh.models import ColorBar, LinearColorMapper
 from bokeh.palettes import Plasma256
 from bokeh.plotting import figure, show
 
@@ -44,8 +44,7 @@ x3, y3, r3 = data_sloped()
 g3 = p3.scatter(x3, y3, radius=r3, fill_color=dict(field="radius", transform=mapper), fill_alpha=0.6, line_color=None)
 mapper.domain.append((g3, "radius"))
 
-color_bar = ColorBar(color_mapper=mapper, location=(0, 0), orientation="horizontal",
-    padding=0, ticker=BasicTicker(), formatter=BasicTickFormatter())
+color_bar = ColorBar(color_mapper=mapper, padding=0)
 p3.add_layout(color_bar, "below")
 
 grid = gridplot([[p0, p1], [p2, p3]])

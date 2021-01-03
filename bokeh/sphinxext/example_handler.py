@@ -43,7 +43,7 @@ __all__ = ("ExampleHandler",)
 
 
 class ExampleHandler(Handler):
-    """ A stripped-down handler similar to CodeHandler but that does
+    """A stripped-down handler similar to CodeHandler but that does
     some appropriate monkeypatching.
 
     """

@@ -1,7 +1,8 @@
 import {display, fig, row, column, grid} from "./_util"
 
 import {
-  Arrow, ArrowHead, NormalHead, BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
+  Arrow, ArrowHead, NormalHead, OpenHead,
+  BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -85,7 +86,7 @@ describe("Bug", () => {
       let y = 0
       const w = 1, h = 1
 
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         p.image_url({url: [img], x: 0, y, w, h, anchor, angle: 0})
         p.image_url({url: [img], x: 1, y, w, h, anchor, angle: Math.PI/6})
         p.image_url({url: [img], x: 2, y, w, h, anchor, angle: Math.PI/4})
@@ -369,7 +370,7 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
-        p.image({image, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+        p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
         return p
       }
 
@@ -400,7 +401,7 @@ describe("Bug", () => {
       const img = svg_image(svg)
 
       const plots = []
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
         const y_range = new DataRange1d()
         const p = fig([200, 200], {x_range, y_range, title: anchor, match_aspect: true})
@@ -447,6 +448,27 @@ describe("Bug", () => {
       const p1 = make_plot("svg")
 
       await display(row([p0, p1]), [450, 250])
+    })
+  })
+
+  describe("in issue #589", () => {
+    it("disallows updating legend when glyphs change", async () => {
+      const x = [1, 2, 3, 4, 5, 10]
+      const y = [5, 6, 2, 3, 4, 10]
+
+      const p = fig([300, 300])
+      const r = p.line(x, y, {legend: "foo"}) // TODO: legend_item
+
+      const {view} = await display(p, [350, 350])
+
+      p.circle(x, y, {legend: "foo"}) // TODO: legend_item
+      r.glyph.line_dash = [2, 4] // TODO: "dotted"
+      r.glyph.line_color = "black"
+      p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend: "bar"}) // TODO: legend_item
+      p.legend.background_fill_color = "blue"
+      p.legend.background_fill_alpha = 0.2
+
+      await view.ready
     })
   })
 
@@ -506,6 +528,29 @@ describe("Bug", () => {
       p.add_layout(labels2)
 
       await display(p, [350, 350])
+    })
+  })
+
+  describe("in issue #10136", () => {
+    it("prevents correct rendering of overlapping arrows", async () => {
+      const p = fig([200, 100], {x_range: [0, 3], y_range: [0, 2]})
+
+      const source = new ColumnDataSource({data: {
+        x_end: [1, 2, 3],
+      }})
+      const head = new OpenHead({size: 30, line_width: 3})
+      const arrow = new Arrow({
+        end: head,
+        x_start: {value: 0},
+        y_start: {value: 1},
+        x_end: {field: "x_end"},
+        y_end: {value: 1},
+        line_width: 3,
+        source,
+      })
+      p.add_layout(arrow)
+
+      await display(p, [350, 150])
     })
   })
 
@@ -727,6 +772,16 @@ describe("Bug", () => {
       p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
 
       await display(p, [250, 250])
+    })
+  })
+
+  describe("in issue #10809", () => {
+    it("prevents repaint of resized layoutable renderers", async () => {
+      const p = fig([100, 100])
+      const {view} = await display(p)
+
+      p.circle(0, 0, {radius: 1})
+      await view.ready
     })
   })
 

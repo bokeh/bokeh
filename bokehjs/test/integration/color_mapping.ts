@@ -107,7 +107,6 @@ describe("Color mapping", () => {
         ticker: "auto",
         formatter: "auto",
         orientation: "horizontal",
-        location: [0, 0],
         padding: 0,
       })
       p.add_layout(color_bar, "below")

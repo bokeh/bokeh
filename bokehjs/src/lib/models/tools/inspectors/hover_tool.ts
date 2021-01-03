@@ -13,8 +13,8 @@ import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
-import {NumberArray} from "core/types"
-import {color2hex} from "core/util/color"
+import {NumberArray, Color} from "core/types"
+import {color2hex, color2css} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
@@ -22,7 +22,7 @@ import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex} from "../../selections/selection"
+import {ImageIndex, Selection} from "../../selections/selection"
 import {tool_icon_hover} from "styles/icons.css"
 import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
@@ -407,9 +407,12 @@ export class HoverToolView extends InspectToolView {
       const x = x_scale.invert(geometry.sx)
       const y = y_scale.invert(geometry.sy)
 
+      const index = renderer.data_source.inspected
+
       callback.execute(this.model, {
         geometry: {x, y, ...geometry},
         renderer,
+        index,
       })
     }
   }
@@ -457,16 +460,14 @@ export class HoverToolView extends InspectToolView {
         }
         const hex = opts.indexOf("hex") >= 0
         const swatch = opts.indexOf("swatch") >= 0
-        let color = isNumber(i) ? column[i] : null
+        const color: Color | null = isNumber(i) ? column[i] : null
         if (color == null) {
           value_els[j].textContent = "(null)"
           continue
         }
-        if (hex)
-          color = color2hex(color)
-        value_els[j].textContent = color
+        value_els[j].textContent = hex ? color2hex(color) : color2css(color) // TODO: color2pretty
         if (swatch) {
-          swatch_els[j].style.backgroundColor = color
+          swatch_els[j].style.backgroundColor = color2css(color)
           display(swatch_els[j])
         }
       } else {
@@ -515,7 +516,7 @@ export namespace HoverTool {
     show_arrow: p.Property<boolean>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
-    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer}> | null>
+    callback: p.Property<CallbackLike1<HoverTool, {geometry: GeometryData, renderer: Renderer, index: Selection}> | null>
   }
 }
 

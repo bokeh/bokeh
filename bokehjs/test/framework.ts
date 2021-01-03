@@ -252,8 +252,19 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display<T extends LayoutDOM>(obj: T, viewport: [number, number] = [1000, 1000]): Promise<{view: ViewOf<T>, el: HTMLElement}> {
-  const [width, height] = viewport
+export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number]): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+  const margin = 50
+  const [width, height] = (() => {
+    if (viewport != null)
+      return viewport
+    else {
+      const {width, height} = obj
+      return [
+        width != null ? width + margin : 1000,
+        height != null ? height + margin : 1000,
+      ]
+    }
+  })()
   const el = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}})
   document.body.appendChild(el)
   const view = await show(obj, el)

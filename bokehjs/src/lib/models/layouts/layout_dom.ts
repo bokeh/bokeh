@@ -4,6 +4,7 @@ import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
+import {color2css} from "core/util/color"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -116,7 +117,7 @@ export abstract class LayoutDOMView extends DOMView {
     empty(this.el) // XXX: this should be in super
 
     const {background} = this.model
-    this.el.style.backgroundColor = background != null ? background : ""
+    this.el.style.backgroundColor = background != null ? color2css(background) : ""
 
     classes(this.el).clear().add(...this.css_classes())
 

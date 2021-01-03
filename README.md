@@ -256,11 +256,11 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
+For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html).
 
 ## Resources
 
-Once Bokeh is installed, check out the [Getting Started](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html).
+Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
 Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 

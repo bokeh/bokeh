@@ -14,7 +14,7 @@ plot and its elements.
 Vectorizing colors
 ------------------
 
-So far, you have assigned fixed colors to a glyph by using properties such as
+So far, you have assigned specific colors to a glyph by using properties such as
 ``fill_color``.
 
 To change colors depending on values in a variable, pass a variable containing
@@ -22,7 +22,7 @@ color information to the ``fill_color`` attribute:
 
 .. literalinclude:: examples/first_steps_5_vectorize_color.py
    :language: python
-   :emphasize-lines: 10,25
+   :emphasize-lines: 10,22
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_5_vectorize_color.py
     :source-position: none
@@ -44,7 +44,7 @@ principle to the ``radius`` argument of your renderer:
 
 .. literalinclude:: examples/first_steps_5_vectorize_color_and_size.py
    :language: python
-   :emphasize-lines: 11-12, 26
+   :emphasize-lines: 11-12, 26-27
 
 .. bokeh-plot:: docs/first_steps/examples/first_steps_5_vectorize_color_and_size.py
     :source-position: none

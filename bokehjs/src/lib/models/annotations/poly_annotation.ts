@@ -13,8 +13,8 @@ export class PolyAnnotationView extends AnnotationView {
     super.connect_signals()
     // need to respond to either normal BB change events or silent
     // "data only updates" that tools might want to use
-    this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.data_update, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.data_update, () => this.request_render())
   }
 
   protected _render(): void {
@@ -32,13 +32,13 @@ export class PolyAnnotationView extends AnnotationView {
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx: number
       if (this.model.xs_units == 'screen')
-        sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i])
+        sx = this.model.screen ? xs[i] : frame.bbox.xview.compute(xs[i])
       else
         throw new Error("not implemented")
 
       let sy: number
       if (this.model.ys_units == 'screen')
-        sy = this.model.screen ? ys[i] : frame.yview.compute(ys[i])
+        sy = this.model.screen ? ys[i] : frame.bbox.yview.compute(ys[i])
       else
         throw new Error("not implemented")
 

@@ -37,6 +37,7 @@ from .visual import FontSize, HatchPatternType, MarkerType
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'AlphaSpec',
     'AngleSpec',
     'ColorSpec',
     'DataSpec',
@@ -235,6 +236,15 @@ class NumberSpec(DataSpec):
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
 
+class AlphaSpec(NumberSpec):
+
+    _default_help = """\
+    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    """
+
+    def __init__(self, default=1.0, help=None):
+        help = f"{help or ''}\n{self._default_help}"
+        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransform, accept_datetime=False, accept_timedelta=False)
 
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
@@ -502,7 +512,23 @@ class ColorSpec(DataSpec):
         m.color = field("firebrick")       # field (named "firebrick")
 
     """
+
+    _default_help = """\
+    Acceptable values are:
+
+    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
+    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
+    - a 3-tuple of integers (r, g, b) between 0 and 255
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
+    - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
+
+    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
+
+    """
+
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        help = f"{help or ''}\n{self._default_help}"
         super().__init__(key_type, Color, default=default, help=help)
 
     @classmethod

@@ -21,11 +21,11 @@ export class ImageView extends ImageBaseView {
     // Only reset image_data if already initialized
     if (this.image_data != null) {
       this._set_data(null)
-      this.renderer.plot_view.request_render()
+      this.renderer.request_render()
     }
   }
 
-  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8Array {
+  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
     return cmap.v_compute(img)
   }

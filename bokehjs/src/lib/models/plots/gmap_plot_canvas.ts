@@ -3,6 +3,7 @@ import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
+import {color2css} from "core/util/color"
 import {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
 import {FrameBox} from "../canvas/canvas"
@@ -69,7 +70,7 @@ export class GMapPlotView extends PlotView {
         const decoded_api_key = atob(this.model.api_key)
         load_google_api(decoded_api_key)
       }
-      gmaps_ready.connect(() => this.request_render())
+      gmaps_ready.connect(() => this.request_paint("everything"))
     }
 
     this.unpause()
@@ -282,7 +283,7 @@ export class GMapPlotView extends PlotView {
     ctx.closePath()
 
     if (this.model.border_fill_color != null) {
-      ctx.fillStyle = this.model.border_fill_color
+      ctx.fillStyle = color2css(this.model.border_fill_color)
       ctx.fill()
     }
   }

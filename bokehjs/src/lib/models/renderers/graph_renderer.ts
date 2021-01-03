@@ -2,6 +2,7 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
+import {Expression} from "../expressions/expression"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import * as p from "core/properties"
@@ -33,36 +34,36 @@ export class GraphRendererView extends DataRendererView {
     let xs_ys: [Arrayable<number>[], Arrayable<number>[]] | null = null
     let x_y: [Arrayable<number>, Arrayable<number>] | null = null
 
-    const xs_expr = {
-      v_compute(source: ColumnarDataSource) {
+    const xs_expr = new class extends Expression {
+      _v_compute(source: ColumnarDataSource) {
         assert(xs_ys == null)
         const [xs] = xs_ys = graph.layout_provider.get_edge_coordinates(source)
         return xs
-      },
+      }
     }
-    const ys_expr = {
-      v_compute(_source: ColumnarDataSource) {
+    const ys_expr = new class extends Expression {
+      _v_compute(_source: ColumnarDataSource) {
         assert(xs_ys != null)
         const [, ys] = xs_ys
         xs_ys = null
         return ys
-      },
+      }
     }
 
-    const x_expr = {
-      v_compute(source: ColumnarDataSource) {
+    const x_expr = new class extends Expression {
+      _v_compute(source: ColumnarDataSource) {
         assert(x_y == null)
         const [x] = x_y = graph.layout_provider.get_node_coordinates(source)
         return x
-      },
+      }
     }
-    const y_expr = {
-      v_compute(_source: ColumnarDataSource) {
+    const y_expr = new class extends Expression {
+      _v_compute(_source: ColumnarDataSource) {
         assert(x_y != null)
         const [, y] = x_y
         x_y = null
         return y
-      },
+      }
     }
 
     const {edge_renderer, node_renderer} = this.model

@@ -1,11 +1,8 @@
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # prepare some data
 x = [1, 2, 3, 4, 5]
 y = [4, 5, 5, 7, 2]
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create a new plot with responsive width
 p = figure(

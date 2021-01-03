@@ -23,7 +23,7 @@ describe("core/visuals", () => {
       it("should set canvas context attributes", () => {
         const attrs = {
           fill_color: "red",
-          fill_alpha: 0.5,
+          fill_alpha: 0.6,
         }
         const model = new Circle(attrs)
         const view = new SomeView({model, parent: null})
@@ -32,7 +32,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         fill.set_value(ctx)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.5)")
+        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
       })
     })
 
@@ -69,7 +69,7 @@ describe("core/visuals", () => {
       it("should set canvas context attributes", () =>{
         const attrs = {
           line_color: "red",
-          line_alpha: 0.5,
+          line_alpha: 0.6,
           line_width: 2,
           line_join: "miter" as "miter",
           line_cap: "butt" as "butt",
@@ -83,7 +83,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         line.set_value(ctx)
 
-        expect(ctx.strokeStyle).to.be.equal("rgba(255, 0, 0, 0.5)")
+        expect(ctx.strokeStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
         expect(ctx.lineWidth).to.be.equal(2)
         expect(ctx.lineJoin).to.be.equal("miter")
         expect(ctx.lineCap).to.be.equal("butt")
@@ -136,7 +136,7 @@ describe("core/visuals", () => {
           text_font_size: "16px",
           text_font_style: "bold" as "bold",
           text_color: "red",
-          text_alpha: 0.5,
+          text_alpha: 0.6,
           text_align: "center" as "center",
           text_baseline: "bottom" as "bottom",
         }
@@ -147,7 +147,7 @@ describe("core/visuals", () => {
         const ctx = {} as Context2d
         text.set_value(ctx)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.5)")
+        expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
         expect(ctx.textAlign).to.be.equal("center")
         expect(ctx.textBaseline).to.be.equal("bottom")
         expect(ctx.font).to.be.equal("bold 16px times")
@@ -187,7 +187,7 @@ describe("core/visuals", () => {
 
       it("should get initialized with appropriate indices", async () => {
         const circle = new Circle({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
-        const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.5, 1]}
+        const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 1]}
         const renderer_view = await create_glyph_renderer_view(circle, data)
 
         const filter = new IndexFilter({indices: [1, 2]})
@@ -199,7 +199,7 @@ describe("core/visuals", () => {
         const glyph_view = renderer_view.glyph as CircleView
         glyph_view.visuals.fill.set_vectorize(ctx, 1)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 1)")
+        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 1)") // #ff000099
       })
     })
   })

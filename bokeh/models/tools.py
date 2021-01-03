@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import (
@@ -53,6 +54,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alpha,
     Auto,
     Bool,
     Color,
@@ -91,7 +93,7 @@ from .callbacks import Callback
 from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
-from .renderers import GlyphRenderer, Renderer
+from .renderers import DataRenderer, GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -232,7 +234,7 @@ class SelectTool(GestureTool):
 
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
@@ -282,24 +284,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect = Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
+    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
+        Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Auto, Instance(Tap), help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi = Instance(GestureTool, help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -634,28 +637,14 @@ class CrosshairTool(InspectTool):
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
+    """)
 
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
+    line_alpha = Alpha(help="""
+    An alpha value to use to stroke paths with.
     """)
 
     line_width = Float(default=1, help="""
     Stroke width in units of pixels.
-    """)
-
-    line_alpha = Float(default=1.0, help="""
-    An alpha value to use to stroke paths with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
     """)
 
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
@@ -1029,7 +1018,7 @@ class HoverTool(InspectTool):
 
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
@@ -1277,7 +1266,7 @@ class EditTool(GestureTool):
     object, or an RGB(A) NumPy array.
     """)
 
-    renderers = List(Instance(Renderer), help="""
+    renderers = List(Instance(GlyphRenderer), help="""
     An explicit list of renderers corresponding to scatter glyphs that may
     be edited.
     """)

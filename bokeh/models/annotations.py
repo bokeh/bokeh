@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Anchor,
     AngleUnits,
     Dimension,
     FontStyle,
@@ -34,6 +35,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    AlphaSpec,
     Angle,
     AngleSpec,
     Auto,
@@ -74,11 +76,11 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.serialization import convert_datetime_type
-from .formatters import BasicTickFormatter, TickFormatter
-from .mappers import ContinuousColorMapper
+from .formatters import TickFormatter
+from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
-from .tickers import BasicTicker, Ticker
+from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -300,7 +302,7 @@ class Legend(Annotation):
 
     padding = Int(10, help="""
     Amount of padding around the contents of the legend. Only applicable when
-    when border is visible, otherwise collapses to 0.
+    border is visible, otherwise collapses to 0.
     """)
 
     spacing = Int(3, help="""
@@ -342,10 +344,9 @@ class ColorBar(Annotation):
 
     '''
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
-        default="top_right", help="""
+    location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
-    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
 
@@ -354,7 +355,7 @@ class ColorBar(Annotation):
         have to be set to `(0,0)`.
     """)
 
-    orientation = Enum(Orientation, default="vertical", help="""
+    orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
     """)
 
@@ -370,7 +371,7 @@ class ColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = String(help="""
+    title = String(default=None, help="""
     The title text to render.
     """)
 
@@ -386,11 +387,11 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the title from the color bar.
     """)
 
-    ticker = Either(Instance(Ticker), Auto, default=lambda: BasicTicker(), help="""
+    ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
     """)
 
-    formatter = Either(Instance(TickFormatter), Auto, default=lambda: BasicTickFormatter(), help="""
+    formatter = Either(Instance(TickFormatter), Auto, default="auto", help="""
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
@@ -399,8 +400,8 @@ class ColorBar(Annotation):
     override normal formatting.
     """)
 
-    color_mapper = Instance(ContinuousColorMapper, help="""
-    A continuous color mapper containing a color palette to render.
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
@@ -421,10 +422,6 @@ class ColorBar(Annotation):
     major_label_props = Include(ScalarTextProps, help="""
     The %s of the major tick labels.
     """)
-
-    major_label_text_align = Override(default="center")
-
-    major_label_text_baseline = Override(default="middle")
 
     major_label_text_font_size = Override(default="11px")
 
@@ -978,6 +975,9 @@ class Title(TextAnnotation):
 
     """)
 
+    standoff = Float(default=10, help="""
+    """)
+
     text_font = String(default="helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
@@ -999,24 +999,10 @@ class Title(TextAnnotation):
 
     text_color = ColorSpec(default="#444444", help="""
     A color to use to fill text with.
-
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
     """)
 
-    text_alpha = NumberSpec(default=1.0, help="""
+    text_alpha = AlphaSpec(help="""
     An alpha value to use to fill text with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
     """)
 
     background_props = Include(ScalarFillProps, use_prefix=True, help="""

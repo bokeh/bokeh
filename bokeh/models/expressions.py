@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Bool, Seq, String
+from ..core.properties import AnyRef, Bool, Dict, Seq, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -49,6 +49,7 @@ from ..model import Model
 
 __all__ = (
     'CumSum',
+    'CustomJSExpr',
     'Expression',
     'Stack',
 )
@@ -76,6 +77,35 @@ class Expression(Model):
 
     '''
     pass
+
+class CustomJSExpr(Expression):
+    ''' Evaluate a JavaScript function/generator.
+
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
+    '''
+
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the callback's code snippet as the values of
+    named parameters to the callback. There is no need to manually include the data
+    source of the associated glyph renderer, as it is available within the scope of
+    the code via `this` keyword (e.g. `this.data` will give access to raw data).
+    """)
+
+    code = String(default="", help="""
+    A snippet of JavaScript code to execute in the browser. The code is made into
+    the body of a generator function, and all of of the named objects in ``args``
+    are available as parameters that the code can use. One can either return an
+    array-like object (array, typed array, nd-array), an iterable (which will
+    be converted to an array) or a scalar value (which will be converted into
+    an array of an appropriate length), or alternatively yield values that will
+    be collected into an array.
+    """)
 
 class CumSum(Expression):
     ''' An expression for generating arrays by cumulatively summing a single

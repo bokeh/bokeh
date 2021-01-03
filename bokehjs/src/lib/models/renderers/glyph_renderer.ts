@@ -153,7 +153,9 @@ export class GlyphRendererView extends DataRendererView {
         this.connect(range.change, () => this.set_data())
     }
 
-    this.connect(this.model.glyph.transformchange, () => this.set_data())
+    const {transformchange, exprchange} = this.model.glyph
+    this.connect(transformchange, () => this.set_data())
+    this.connect(exprchange, () => this.set_data())
   }
 
   _update_masked_indices(): Indices {

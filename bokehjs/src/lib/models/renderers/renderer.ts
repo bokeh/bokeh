@@ -3,7 +3,6 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
-import {BBox} from "core/util/bbox"
 import {CanvasLayer} from "core/util/canvas"
 
 import type {Plot, PlotView} from "../plots/plot"
@@ -17,16 +16,19 @@ export abstract class RendererView extends View {
 
   needs_webgl_blit: boolean
 
-  private _coordinates: CoordinateTransform
+  private _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
-    return this._coordinates
+    const {_coordinates} = this
+    if (_coordinates != null)
+      return _coordinates
+    else
+      return this._coordinates = this._initialize_coordinates()
   }
 
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
-    this._initialize_coordinates()
   }
 
   connect_signals(): void {
@@ -35,12 +37,12 @@ export abstract class RendererView extends View {
     this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
   }
 
-  protected _initialize_coordinates(): void {
+  protected _initialize_coordinates(): CoordinateTransform {
     const {x_range_name, y_range_name} = this.model
     const {frame} = this.plot_view
     const x_scale = frame.x_scales.get(x_range_name)!
     const y_scale = frame.y_scales.get(y_range_name)!
-    this._coordinates = new CoordinateTransform(x_scale, y_scale)
+    return new CoordinateTransform(x_scale, y_scale)
   }
 
   get plot_view(): PlotView {
@@ -57,14 +59,12 @@ export abstract class RendererView extends View {
   }
 
   request_render(): void {
-    this.plot_view.request_render()
+    this.plot_view.request_paint(this)
   }
 
   notify_finished(): void {
     this.plot_view.notify_finished()
   }
-
-  interactive_bbox?(sx: number, sy: number): BBox
 
   interactive_hit?(sx: number, sy: number): boolean
 

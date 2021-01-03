@@ -1,3 +1,5 @@
+export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function*() {}).constructor
+
 export type uint8  = number
 export type uint16 = number
 export type uint32 = number
@@ -6,15 +8,18 @@ export type ByteOrder = "little" | "big"
 
 export type ID = string
 
-export type Color = string
+export type Color = string | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
+
+export type ColorArray = Uint32Array
+export const ColorArray = Uint32Array
+
+export type RGBAArray = Uint8ClampedArray
+export const RGBAArray = Uint8ClampedArray
 
 export {TypedArray} from "./util/ndarray"
 
 export type NumberArray = Float32Array
 export const NumberArray = Float32Array
-
-export type ColorArray = Uint32Array
-export const ColorArray = Uint32Array
 
 export type Arrayable<T = any> = {
   readonly length: number

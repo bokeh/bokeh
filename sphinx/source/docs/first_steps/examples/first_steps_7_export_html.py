@@ -5,7 +5,7 @@ x = [1, 2, 3, 4, 5]
 y = [4, 5, 5, 7, 2]
 
 # set output to static HTML file
-output_file(filename="first_steps.html", title="Static HTML file")
+output_file(filename="custom_filename.html", title="Static HTML file")
 
 # create a new plot with a specific size
 p = figure(sizing_mode="stretch_width", max_width=500, plot_height=250)

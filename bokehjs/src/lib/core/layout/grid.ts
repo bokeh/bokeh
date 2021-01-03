@@ -41,11 +41,14 @@ export type ItemSizeHint = {
   size_hint: SizeHint
 }
 
-export type GridSizeHint = {
+export type GridSize = {
   size: Size
-  size_hints: Container<ItemSizeHint>
   row_heights: number[]
   col_widths: number[]
+}
+
+export type GridSizeHint = GridSize & {
+  size_hints: Container<ItemSizeHint>
 }
 
 type TrackAlign = "auto" | Align
@@ -137,12 +140,16 @@ class Container<T> {
 }
 
 export class Grid extends Layoutable {
+  *[Symbol.iterator]() {
+    for (const {layout} of this.items) {
+      yield layout
+    }
+  }
+
   rows: RowsSizing = "auto"
   cols: ColsSizing = "auto"
 
   spacing: number | [number, number] = 0
-
-  absolute: boolean = false
 
   private _state: GridState
 
@@ -346,7 +353,7 @@ export class Grid extends Layoutable {
     return {size, row_heights, col_widths, size_hints}
   }
 
-  protected _measure_grid(viewport: Size): GridSizeHint {
+  protected _measure_grid(viewport: Size): GridSize {
     const {nrows, ncols, rows, cols, rspacing, cspacing} = this._state
 
     const preferred = this._measure_cells((y, x) => {
@@ -458,15 +465,10 @@ export class Grid extends Layoutable {
       }
     }
 
-    const {row_heights, col_widths, size_hints} = this._measure_cells((y, x) => {
-      return {
-        width: preferred.col_widths[x],
-        height: preferred.row_heights[y],
-      }
-    })
-
+    const {row_heights, col_widths} = preferred
     const size = this._measure_totals(row_heights, col_widths)
-    return {size, row_heights, col_widths, size_hints}
+
+    return {size, row_heights, col_widths}
   }
 
   protected _measure(viewport: Size): SizeHint {
@@ -479,7 +481,13 @@ export class Grid extends Layoutable {
 
     const {nrows, ncols, rspacing, cspacing} = this._state
 
-    const {row_heights, col_widths, size_hints} = this._measure_grid(outer)
+    const {row_heights, col_widths} = this._measure_grid(outer)
+    const {size_hints} = this._measure_cells((y, x) => {
+      return {
+        width: col_widths[x],
+        height: row_heights[y],
+      }
+    })
 
     const rows = this._state.rows.map((row, r): RowSpec & {top: number, height: number, bottom: number} => {
       return {...row, top: 0, height: row_heights[r], get bottom() { return this.top + this.height }}
@@ -587,10 +595,15 @@ export class Grid extends Layoutable {
     items.foreach(({r0, c0, r1, c1}, item) => {
       const {size_hint, outer} = item
 
-      function inner_bbox({left, right, top, bottom}: Extents) {
-        const width = outer.width - left - right
-        const height = outer.height - top - bottom
-        return new BBox({left, top, width, height})
+      const inner_bbox = (extents: Extents) => {
+        const outer_bbox = this.absolute ? outer : outer.relative()
+
+        const left = outer_bbox.left + extents.left
+        const top = outer_bbox.top + extents.top
+        const right = outer_bbox.right - extents.right
+        const bottom = outer_bbox.bottom - extents.bottom
+
+        return new BBox({left, top, right, bottom})
       }
 
       if (size_hint.inner != null) {

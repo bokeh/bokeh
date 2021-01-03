@@ -9,7 +9,7 @@ export class SlopeView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
   }
 
   protected _render(): void {

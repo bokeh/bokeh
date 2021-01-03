@@ -45,7 +45,7 @@ p.rect(x="Year", y="Month", width=1, height=1,
 color_bar = ColorBar(color_mapper=mapper, major_label_text_font_size="7px",
                      ticker=BasicTicker(desired_num_ticks=len(colors)),
                      formatter=PrintfTickFormatter(format="%d%%"),
-                     label_standoff=6, border_line_color=None, location=(0, 0))
+                     label_standoff=6, border_line_color=None)
 p.add_layout(color_bar, 'right')
 
 show(p)      # show the plot
