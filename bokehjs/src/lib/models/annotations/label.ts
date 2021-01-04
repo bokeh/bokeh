@@ -1,5 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
+import {font_metrics} from "core/util/text"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
@@ -12,9 +13,9 @@ export class LabelView extends TextAnnotationView {
   protected _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
-
-    const {width, ascent} = ctx.measureText(this.model.text)
-    return {width, height: ascent}
+    const {width} = ctx.measureText(this.model.text)
+    const {height} = font_metrics(ctx.font)
+    return {width, height}
   }
 
   protected _render(): void {

@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
+import {font_metrics} from "core/util/text"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -101,8 +102,10 @@ export class LabelSetView extends TextAnnotationView {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
-    const {width, ascent} = ctx.measureText(this._text[0])
-    return {width, height: ascent}
+    const {width} = ctx.measureText(this._text[0])
+    const {height} = font_metrics(ctx.font)
+
+    return {width, height}
   }
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {

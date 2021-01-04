@@ -12,6 +12,7 @@ import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
+import {font_metrics} from "core/util/text"
 import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {Factor, FactorRange} from "models/ranges/factor_range"
@@ -279,8 +280,9 @@ export class AxisView extends GuideRendererView {
     if (labels.length == 0)
       return 0
 
-    const ctx = this.layer.ctx
+    const {ctx} = this.layer
     visuals.set_value(ctx)
+    const metrics = font_metrics(ctx.font)
 
     const angle = Math.abs(this.panel.get_label_angle_heuristic(orient))
 
@@ -291,7 +293,7 @@ export class AxisView extends GuideRendererView {
 
     for (let i = 0; i < labels.length; i++) {
       const w = ctx.measureText(labels[i]).width * 1.1
-      const h = ctx.measureText(labels[i]).ascent * 0.9
+      const h = metrics.height
 
       let val: number
 

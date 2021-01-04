@@ -6,7 +6,6 @@ import {OutputBackend} from "../enums"
 export type Context2d = {
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
-  measureText(text: string): TextMetrics & {ascent: number}
   lineDash: number[]
 } & CanvasRenderingContext2D
 
@@ -30,19 +29,6 @@ function fixup_image_smoothing(ctx: any): void {
   ctx.getImageSmoothingEnabled = (): boolean => {
     const val = ctx.imageSmoothingEnabled
     return val != null ? val : true
-  }
-}
-
-function fixup_measure_text(ctx: any): void {
-  if (ctx.measureText && ctx.html5MeasureText == null) {
-    ctx.html5MeasureText = ctx.measureText
-
-    ctx.measureText = (text: string) => {
-      const textMetrics = ctx.html5MeasureText(text)
-      // fake it til you make it
-      textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
-      return textMetrics
-    }
   }
 }
 
@@ -81,7 +67,6 @@ function fixup_ellipse(ctx: any): void {
 function fixup_ctx(ctx: any): void {
   fixup_line_dash(ctx)
   fixup_image_smoothing(ctx)
-  fixup_measure_text(ctx)
   fixup_ellipse(ctx)
 }
 
