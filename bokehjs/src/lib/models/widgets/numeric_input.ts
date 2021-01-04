@@ -1,9 +1,10 @@
 import * as numbro from "@bokeh/numbro"
 
 import {InputWidgetView, InputWidget} from "./input_widget"
-import {TickFormatter} from "../formatters/tick_formatter"
+import {TickFormatter, TickFormatterView} from "../formatters/tick_formatter"
 
 import {input} from "core/dom"
+import {build_view} from "core/build_views"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 import * as p from "core/properties"
@@ -18,6 +19,18 @@ export class NumericInputView extends InputWidgetView {
 
   protected input_el: HTMLInputElement
   protected old_value: string
+
+  protected _formatter_view?: TickFormatterView
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {format} = this.model
+    if (format instanceof TickFormatter) {
+      // XXX: any because we are using a tick formatter out of context
+      this._formatter_view = await build_view(format, {parent: this as any})
+    }
+  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -46,7 +59,7 @@ export class NumericInputView extends InputWidgetView {
   }
 
   get format_value(): string {
-    return this.model.value != null ? this.model.pretty(this.model.value) : ""
+    return this.pretty(this.model.value)
   }
 
   _set_input_filter(inputFilter: (value: string) => boolean): void {
@@ -109,8 +122,25 @@ export class NumericInputView extends InputWidgetView {
     else if (!Number.isNaN(this.value))
       this.model.value = this.value
   }
-}
 
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format)) {
+      return numbro.format(value, format)
+    } else {
+      return this._formatter_view!.compute(value)
+    }
+  }
+
+  pretty(value: number | null): string {
+    if (value == null)
+      return ""
+    const {format} = this.model
+    if (format != null)
+      return this._formatter(value, format)
+    else
+      return `${value}`
+  }
+}
 
 export namespace NumericInput {
   export type Attrs = p.AttrsOf<Props>
@@ -146,20 +176,5 @@ export class NumericInput extends InputWidget {
       low:         [ Nullable(Number), null ],
       high:        [ Nullable(Number), null ],
     }))
-  }
-
-  protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)){
-      return numbro.format(value, format)
-    } else {
-      return format.doFormat([value], {loc: 0})[0]
-    }
-  }
-
-  pretty(value: number): string {
-    if (this.format!=null)
-      return this._formatter(value, this.format)
-    else
-      return `${value}`
   }
 }

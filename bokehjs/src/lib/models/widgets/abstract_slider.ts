@@ -3,11 +3,12 @@ import * as noUiSlider from "nouislider"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {div, span, empty} from "core/dom"
+import {build_view} from "core/build_views"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
 import {Control, ControlView} from "./control"
-import {TickFormatter} from "../formatters/tick_formatter"
+import {TickFormatter, TickFormatterView} from "../formatters/tick_formatter"
 
 import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"
@@ -26,6 +27,18 @@ abstract class AbstractBaseSliderView extends ControlView {
   protected group_el: HTMLElement
   protected slider_el: HTMLElement
   protected title_el: HTMLElement
+
+  protected _formatter_view?: TickFormatterView
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {format} = this.model
+    if (format instanceof TickFormatter) {
+      // XXX: any because we are using a tick formatter out of context
+      this._formatter_view = await build_view(format, {parent: this as any})
+    }
+  }
 
   *controls() {
     yield this.slider_el as any
@@ -76,7 +89,7 @@ abstract class AbstractBaseSliderView extends ControlView {
 
       if (this.model.show_value) {
         const {value} = this._calc_to()
-        const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
+        const pretty = value.map((v) => this.pretty(v)).join(" .. ")
         this.title_el.appendChild(span({class: sliders.slider_value}, pretty))
       }
     }
@@ -101,7 +114,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     let tooltips: boolean | any[] // XXX
     if (this.model.tooltips) {
       const formatter = {
-        to: (value: number): string => this.model.pretty(value),
+        to: (value: number): string => this.pretty(value),
       }
 
       tooltips = repeat(formatter, value.length)
@@ -164,6 +177,12 @@ abstract class AbstractBaseSliderView extends ControlView {
   protected _change(values: number[]): void {
     const value = this._calc_from(values)
     this.model.setv({value, value_throttled: value})
+  }
+
+  protected abstract _formatter(value: number, format: string | TickFormatter): string
+
+  pretty(value: number): string {
+    return this._formatter(value, this.model.format)
   }
 }
 
@@ -248,10 +267,4 @@ export abstract class AbstractSlider extends Control {
 
   behaviour: "drag" | "tap"
   connected: false | boolean[] = false
-
-  protected abstract _formatter(value: number, format: string | TickFormatter): string
-
-  pretty(value: number): string {
-    return this._formatter(value, this.format)
-  }
 }

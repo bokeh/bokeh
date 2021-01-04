@@ -1,6 +1,6 @@
 import tz from "timezone"
 
-import {TickFormatter} from "./tick_formatter"
+import {TickFormatter, TickFormatterView} from "./tick_formatter"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {sprintf} from "core/util/templating"
@@ -48,46 +48,8 @@ const format_order = [
   'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
 ]
 
-export namespace DatetimeTickFormatter {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = TickFormatter.Props & {
-    microseconds: p.Property<string[]>
-    milliseconds: p.Property<string[]>
-    seconds: p.Property<string[]>
-    minsec: p.Property<string[]>
-    minutes: p.Property<string[]>
-    hourmin: p.Property<string[]>
-    hours: p.Property<string[]>
-    days: p.Property<string[]>
-    months: p.Property<string[]>
-    years: p.Property<string[]>
-  }
-}
-
-export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
-
-export class DatetimeTickFormatter extends TickFormatter {
-  properties: DatetimeTickFormatter.Props
-
-  constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
-  static init_DatetimeTickFormatter(): void {
-    this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
-      microseconds: [ Array(String), ['%fus'] ],
-      milliseconds: [ Array(String), ['%3Nms', '%S.%3Ns'] ],
-      seconds:      [ Array(String), ['%Ss'] ],
-      minsec:       [ Array(String), [':%M:%S'] ],
-      minutes:      [ Array(String), [':%M', '%Mm'] ],
-      hourmin:      [ Array(String), ['%H:%M'] ],
-      hours:        [ Array(String), ['%Hh', '%H:%M'] ],
-      days:         [ Array(String), ['%m/%d', '%a%d'] ],
-      months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
-      years:        [ Array(String), ['%Y'] ],
-    }))
-  }
+export class DatetimeTickFormatterView extends TickFormatterView {
+  model: DatetimeTickFormatter
 
   // Whether or not to strip the leading zeros on tick labels.
   protected strip_leading_zeros = true
@@ -108,17 +70,18 @@ export class DatetimeTickFormatter extends TickFormatter {
       return unzip(sorted)
     }
 
+    const {model} = this
     this._width_formats = {
-      microseconds: _widths(this.microseconds),
-      milliseconds: _widths(this.milliseconds),
-      seconds:      _widths(this.seconds),
-      minsec:       _widths(this.minsec),
-      minutes:      _widths(this.minutes),
-      hourmin:      _widths(this.hourmin),
-      hours:        _widths(this.hours),
-      days:         _widths(this.days),
-      months:       _widths(this.months),
-      years:        _widths(this.years),
+      microseconds: _widths(model.microseconds),
+      milliseconds: _widths(model.milliseconds),
+      seconds:      _widths(model.seconds),
+      minsec:       _widths(model.minsec),
+      minutes:      _widths(model.minutes),
+      hourmin:      _widths(model.hourmin),
+      hours:        _widths(model.hours),
+      days:         _widths(model.days),
+      months:       _widths(model.months),
+      years:        _widths(model.years),
     }
   }
 
@@ -145,7 +108,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks: number[], _opts: {loc: number}): string[] {
+  format(ticks: number[]): string[] {
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if
     // it's provided, or by computing the resolution from the actual
@@ -240,5 +203,50 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
 
     return labels
+  }
+}
+
+export namespace DatetimeTickFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = TickFormatter.Props & {
+    microseconds: p.Property<string[]>
+    milliseconds: p.Property<string[]>
+    seconds: p.Property<string[]>
+    minsec: p.Property<string[]>
+    minutes: p.Property<string[]>
+    hourmin: p.Property<string[]>
+    hours: p.Property<string[]>
+    days: p.Property<string[]>
+    months: p.Property<string[]>
+    years: p.Property<string[]>
+  }
+}
+
+export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
+
+export class DatetimeTickFormatter extends TickFormatter {
+  properties: DatetimeTickFormatter.Props
+  __view_type__: DatetimeTickFormatterView
+
+  constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_DatetimeTickFormatter(): void {
+    this.prototype.default_view = DatetimeTickFormatterView
+
+    this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
+      microseconds: [ Array(String), ['%fus'] ],
+      milliseconds: [ Array(String), ['%3Nms', '%S.%3Ns'] ],
+      seconds:      [ Array(String), ['%Ss'] ],
+      minsec:       [ Array(String), [':%M:%S'] ],
+      minutes:      [ Array(String), [':%M', '%Mm'] ],
+      hourmin:      [ Array(String), ['%H:%M'] ],
+      hours:        [ Array(String), ['%Hh', '%H:%M'] ],
+      days:         [ Array(String), ['%m/%d', '%a%d'] ],
+      months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
+      years:        [ Array(String), ['%Y'] ],
+    }))
   }
 }

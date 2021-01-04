@@ -7,6 +7,13 @@ import {isString} from "core/util/types"
 
 export class SliderView extends AbstractSliderView {
   model: Slider
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format))
+      return numbro.format(value, format)
+    else
+      return this._formatter_view!.compute(value)
+  }
 }
 
 export namespace Slider {
@@ -35,11 +42,4 @@ export class Slider extends AbstractSlider {
 
   behaviour = "tap" as "tap"
   connected = [true, false]
-
-  protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format))
-      return numbro.format(value, format)
-    else
-      return format.compute(value)
-  }
 }

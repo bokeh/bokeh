@@ -7,6 +7,13 @@ import {isString} from "core/util/types"
 
 export class RangeSliderView extends AbstractRangeSliderView {
   model: RangeSlider
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format))
+      return numbro.format(value, format)
+    else
+      return this._formatter_view!.compute(value)
+  }
 }
 
 export namespace RangeSlider {
@@ -35,11 +42,4 @@ export class RangeSlider extends AbstractSlider {
 
   behaviour = "drag" as "drag"
   connected = [false, true, false]
-
-  protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format))
-      return numbro.format(value, format)
-    else
-      return format.compute(value)
-  }
 }

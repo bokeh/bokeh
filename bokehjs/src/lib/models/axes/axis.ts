@@ -1,6 +1,6 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Ticker} from "../tickers/ticker"
-import {TickFormatter} from "../formatters/tick_formatter"
+import {TickFormatter, TickFormatterView} from "../formatters/tick_formatter"
 import {LabelingPolicy, AllLabels, DistanceMeasure} from "../policies/labeling"
 import {Range} from "../ranges/range"
 
@@ -9,6 +9,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation} from "core/enums"
+import {build_view} from "core/build_views"
 import {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
@@ -40,6 +41,13 @@ export class AxisView extends GuideRendererView {
 
   panel: Panel
   layout: Layoutable
+
+  protected formatter_view: TickFormatterView
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    this.formatter_view = await build_view(this.model.formatter, {parent: this})
+  }
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -369,7 +377,7 @@ export class AxisView extends GuideRendererView {
   }
 
   compute_labels(ticks: number[]): GraphicsBoxes {
-    const labels = this.model.formatter.format_graphics(ticks, this)
+    const labels = this.formatter_view.format_graphics(ticks)
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
       const override = major_label_overrides[ticks[i]]

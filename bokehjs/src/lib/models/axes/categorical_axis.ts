@@ -99,7 +99,7 @@ export class CategoricalAxisView extends AxisView {
     }
 
     const format = (ticks: L1Factor[]) => {
-      return map(this.model.formatter.doFormat(ticks, this))
+      return map(this.formatter_view.format(ticks))
     }
 
     if (range.levels == 1) {

@@ -995,7 +995,6 @@ export class Figure extends Plot {
         const axis = new MercatorAxis()
         const dimension = dim == 0 ? "lon" : "lat"
         axis.ticker.dimension = dimension
-        axis.formatter.dimension = dimension
         return axis
       }
       case "auto":

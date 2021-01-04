@@ -1,4 +1,4 @@
-import {TickFormatter} from "./tick_formatter"
+import {TickFormatter, TickFormatterView} from "./tick_formatter"
 import {to_fixed} from "core/util/string"
 import * as p from "core/properties"
 
@@ -13,47 +13,21 @@ export function unicode_replace(input: string): string {
   return output
 }
 
-export namespace BasicTickFormatter {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = TickFormatter.Props & {
-    precision: p.Property<number | "auto">
-    use_scientific: p.Property<boolean>
-    power_limit_high: p.Property<number>
-    power_limit_low: p.Property<number>
-  }
-}
-
-export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
-
-export class BasicTickFormatter extends TickFormatter {
-  properties: BasicTickFormatter.Props
-
-  constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
-    super(attrs)
-  }
-
-  static init_BasicTickFormatter(): void {
-    this.define<BasicTickFormatter.Props>(({Boolean, Int, Auto, Or}) => ({
-      precision:        [ Or(Int, Auto), "auto" ],
-      use_scientific:   [ Boolean, true],
-      power_limit_high: [ Int, 5 ],
-      power_limit_low:  [ Int, -3 ],
-    }))
-  }
+export class BasicTickFormatterView extends TickFormatterView {
+  model: BasicTickFormatter
 
   protected last_precision: number = 3
 
   get scientific_limit_low(): number {
-    return 10.0**this.power_limit_low
+    return 10.0**this.model.power_limit_low
   }
 
   get scientific_limit_high(): number {
-    return 10.0**this.power_limit_high
+    return 10.0**this.model.power_limit_high
   }
 
   _need_sci(ticks: number[]): boolean {
-    if (!this.use_scientific)
+    if (!this.model.use_scientific)
       return false
 
     const {scientific_limit_high} = this
@@ -109,11 +83,44 @@ export class BasicTickFormatter extends TickFormatter {
     return this.last_precision
   }
 
-  doFormat(ticks: number[], _opts: {loc: number}): string[] {
+  format(ticks: number[]): string[] {
     if (ticks.length == 0)
       return []
     const need_sci = this._need_sci(ticks)
-    const precision = this.precision == "auto" ? this._auto_precision(ticks, need_sci) : this.precision
+    const precision = this.model.precision == "auto" ? this._auto_precision(ticks, need_sci) : this.model.precision
     return this._format_with_precision(ticks, need_sci, precision)
+  }
+}
+
+export namespace BasicTickFormatter {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = TickFormatter.Props & {
+    precision: p.Property<number | "auto">
+    use_scientific: p.Property<boolean>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
+}
+
+export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
+
+export class BasicTickFormatter extends TickFormatter {
+  properties: BasicTickFormatter.Props
+  __view_type__: BasicTickFormatterView
+
+  constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
+    super(attrs)
+  }
+
+  static init_BasicTickFormatter(): void {
+    this.prototype.default_view = BasicTickFormatterView
+
+    this.define<BasicTickFormatter.Props>(({Boolean, Int, Auto, Or}) => ({
+      precision:        [ Or(Int, Auto), "auto" ],
+      use_scientific:   [ Boolean, true],
+      power_limit_high: [ Int, 5 ],
+      power_limit_low:  [ Int, -3 ],
+    }))
   }
 }

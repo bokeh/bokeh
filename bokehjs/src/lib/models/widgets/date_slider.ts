@@ -7,6 +7,13 @@ import {isString} from "core/util/types"
 
 export class DateSliderView extends AbstractSliderView {
   model: DateSlider
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format))
+      return tz(value, format)
+    else
+      return this._formatter_view!.compute(value)
+  }
 }
 
 export namespace DateSlider {
@@ -35,11 +42,4 @@ export class DateSlider extends AbstractSlider {
 
   behaviour = "tap" as "tap"
   connected = [true, false]
-
-  protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format))
-      return tz(value, format)
-    else
-      return format.compute(value)
-  }
 }
