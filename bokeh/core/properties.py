@@ -114,6 +114,7 @@ Container Properties
 .. autoclass:: RelativeDelta
 .. autoclass:: Seq
 .. autoclass:: Tuple
+.. autoclass:: RestrictedDict
 
 DataSpec Properties
 -------------------
@@ -232,6 +233,7 @@ __all__ = (
     'RGB',
     'Regex',
     'RelativeDelta',
+    'RestrictedDict',
     'ScreenDistanceSpec',
     'Seq',
     'Size',
@@ -269,6 +271,7 @@ from .property.container import List; List
 from .property.container import Seq; Seq
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
+from .property.container import RestrictedDict; RestrictedDict
 
 from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
