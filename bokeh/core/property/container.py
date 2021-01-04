@@ -362,16 +362,13 @@ class RestrictedDict(Dict):
     """
 
     def __init__(self, disallow, keys_type, values_type, default={}, help=None):
-        self._disallow = disallow
+        self._disallow = set(disallow)
         super.__init__(self, keys_type, values_type, default={}, help=None)
         
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        disallowed_keys = self._disallow
-        user_keys = self.keys()
         
-        error_keys = list(set(disallowed_keys) & set(user_keys))
+        error_keys = self._disallow & value.keys()
         
         if not error_keys:
             msg = "The key(s): " + " ".join(error_keys) + " are disallowed."
