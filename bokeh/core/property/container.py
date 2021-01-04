@@ -371,7 +371,7 @@ class RestrictedDict(Dict):
         error_keys = self._disallow & value.keys()
         
         if not error_keys:
-            msg = "The key(s): " + " ".join(error_keys) + " are disallowed."
+            msg = msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
             raise ValueError(msg)
             
 #-----------------------------------------------------------------------------
