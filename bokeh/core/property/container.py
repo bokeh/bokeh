@@ -356,6 +356,22 @@ class RelativeDelta(Dict):
     def __str__(self):
         return self.__class__.__name__
 
+class RestrictedDict(Dict):
+    """ Check for disallowed key(s).
+
+    """
+
+    def validate(self, value, detail=True):
+        super().validate(value, detail)
+
+        disallowed_keys = self.disallow
+        user_keys = self.keys()
+
+        for k in user_keys:
+            if k in disallowed_keys:
+                msg = f"{k} key is disallowed"
+                raise ValueError(msg)
+            break
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
