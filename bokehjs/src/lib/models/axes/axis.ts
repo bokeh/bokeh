@@ -18,9 +18,10 @@ import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
 
-export interface Extents {
+export type Extents = {
   tick: number
-  tick_label: number[]
+  tick_labels: number[]
+  tick_label: number
   axis_label: number
 }
 
@@ -45,7 +46,8 @@ export class AxisView extends GuideRendererView {
   get_size(): Size {
     const {visible, fixed_location} = this.model
     if (visible && fixed_location == null && this.is_renderable) {
-      const height = Math.round(this._tick_extent() + this._tick_label_extent() + this._axis_label_extent())
+      const {extents} = this
+      const height = Math.round(extents.tick + extents.tick_label + extents.axis_label)
       return {width: 0, height}
     } else
       return {width: 0, height: 0}
@@ -60,12 +62,7 @@ export class AxisView extends GuideRendererView {
     if (!this.is_renderable)
       return
 
-    const extents = {
-      tick: this._tick_extent(),
-      tick_label: this._tick_label_extents(),
-      axis_label: this._axis_label_extent(),
-    }
-    const {tick_coords} = this
+    const {tick_coords, extents} = this
 
     const ctx = this.layer.ctx
     ctx.save()
@@ -168,7 +165,7 @@ export class AxisView extends GuideRendererView {
     }
 
     const coords: Coords = [[sx], [sy]]
-    const standoff = extents.tick + sum(extents.tick_label) + this.model.axis_label_standoff
+    const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
     const visuals  = this.visuals.axis_label_text
 
     this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
@@ -256,10 +253,6 @@ export class AxisView extends GuideRendererView {
     return this.model.major_tick_out
   }
 
-  /*protected*/ _tick_label_extent(): number {
-    return sum(this._tick_label_extents())
-  }
-
   protected _tick_label_extents(): number[] {
     const coords = this.tick_coords.major
     const labels = this.compute_labels(coords[this.dimension])
@@ -269,6 +262,16 @@ export class AxisView extends GuideRendererView {
     const visuals = this.visuals.major_label_text
 
     return [this._oriented_labels_extent(labels, orient, this.panel.side, standoff, visuals)]
+  }
+
+  get extents(): Extents {
+    const tick_labels = this._tick_label_extents()
+    return {
+      tick: this._tick_extent(),
+      tick_labels,
+      tick_label: sum(tick_labels),
+      axis_label: this._axis_label_extent(),
+    }
   }
 
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
