@@ -13,7 +13,7 @@ import {Size, Layoutable} from "core/layout"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
-import {isString, isNumber} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
@@ -223,14 +223,12 @@ export class AxisView extends GuideRendererView {
     const nxd = nx * (xoff + standoff)
     const nyd = ny * (yoff + standoff)
 
-    visuals.set_value(ctx)
-    this.panel.apply_label_text_heuristics(ctx, orient)
+    const {baseline, align} = this.panel.get_label_text_heuristics(orient)
+    const angle = this.panel.get_label_angle_heuristic(orient)
 
-    let angle: number
-    if (isString(orient))
-      angle = this.panel.get_label_angle_heuristic(orient)
-    else
-      angle = -orient
+    visuals.set_value(ctx)
+    ctx.textBaseline = baseline
+    ctx.textAlign = align
 
     for (let i = 0; i < sxs.length; i++) {
       const sx = Math.round(sxs[i] + nxd)
@@ -281,13 +279,7 @@ export class AxisView extends GuideRendererView {
     const ctx = this.layer.ctx
     visuals.set_value(ctx)
 
-    let angle: number
-    if (isString(orient)) {
-      angle = this.panel.get_label_angle_heuristic(orient)
-    } else {
-      angle = -orient
-    }
-    angle = Math.abs(angle)
+    const angle = Math.abs(this.panel.get_label_angle_heuristic(orient))
 
     const c = Math.cos(angle)
     const s = Math.sin(angle)

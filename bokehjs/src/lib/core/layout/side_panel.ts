@@ -166,31 +166,27 @@ export class Panel {
     return this.dimension == 1
   }
 
-  apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: Orient | number): void {
+  get_label_text_heuristics(orient: Orient | number): {baseline: CanvasTextBaseline, align: CanvasTextAlign} {
     const {side} = this
 
-    let baseline: CanvasTextBaseline
-    let align: CanvasTextAlign
-
     if (isString(orient)) {
-      baseline = _baseline_lookup[side][orient]
-      align = _align_lookup[side][orient]
+      return {
+        baseline: _baseline_lookup[side][orient],
+        align: _align_lookup[side][orient],
+      }
     } else {
-      if (orient < 0) {
-        baseline = 'middle'
-        align = _align_lookup_negative[side]
-      } else {
-        baseline = 'middle'
-        align = _align_lookup_positive[side]
+      return {
+        baseline: "middle",
+        align: (orient < 0 ? _align_lookup_negative : _align_lookup_positive)[side],
       }
     }
-
-    ctx.textBaseline = baseline
-    ctx.textAlign = align
   }
 
-  get_label_angle_heuristic(orient: Orient): number {
-    return _angle_lookup[this.side][orient]
+  get_label_angle_heuristic(orient: Orient | number): number {
+    if (isString(orient))
+      return _angle_lookup[this.side][orient]
+    else
+      return -orient
   }
 }
 
