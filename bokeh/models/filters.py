@@ -102,7 +102,7 @@ class CustomJSFilter(Filter):
 
     '''
 
-    args = RestrictedDict(String, AnyRef, disallowed=("source",), help="""
+    args = RestrictedDict(String, AnyRef, disallow=("source",), help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.
