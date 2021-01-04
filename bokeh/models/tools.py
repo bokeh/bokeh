@@ -971,6 +971,9 @@ class HoverTool(InspectTool):
             ("(x,y)", "($x, $y)"),
             ("radius", "@radius"),
             ("fill color", "$color[hex, swatch]:fill_color"),
+            ("fill color", "$color[hex]:fill_color"),
+            ("fill color", "$color:fill_color"),
+            ("fill color", "$swatch:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
@@ -1055,8 +1058,9 @@ class HoverTool(InspectTool):
     :$sy: y-coordinate under the cursor in screen (canvas) space
     :$color: color data from data source, with the syntax:
         ``$color[options]:field_name``. The available options
-        are: 'hex' (to display the color as a hex value), and
-        'swatch' to also display a small color swatch.
+        are: ``hex`` (to display the color as a hex value), ``swatch``
+        (color data from data source displayed as a small color box)
+    :$swatch: color data from data source displayed as a small color box
 
     Field names that begin with ``@`` are associated with columns in a
     ``ColumnDataSource``. For instance the field name ``"@price"`` will
