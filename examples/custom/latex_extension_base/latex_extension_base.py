@@ -4,15 +4,13 @@ import numpy as np
 from scipy.special import jv
 
 from bokeh.ext import build
+from bokeh.io import show
 from bokeh.palettes import Spectral4
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure
 from latex_label import LatexLabel
 
-build("latex_label")
-
-
-
-output_file('latex_extension.html')
+if not build("latex_label"):
+    raise RuntimeError("unable to build latex_label extension")
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
            background_fill_color="#fafafa")
@@ -31,8 +29,8 @@ J_\nu = \sum_{m=0}^{\infty}\frac{(-1)^m}{m!\ \Gamma(m+\nu+1)}
 
 latex = LatexLabel(text=text, x=4.5, y=250,
                    x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='8pt',
-                   background_fill_color="white", border_line_color="lightgrey")
+                   render_mode='css', text_font_size='11px',
+                   border_line_color="lightgrey")
 p.add_layout(latex)
 
 show(p)

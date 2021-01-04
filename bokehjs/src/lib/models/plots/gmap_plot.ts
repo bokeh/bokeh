@@ -1,5 +1,3 @@
-import {logger} from "core/logging"
-
 import {Plot} from "./plot"
 import * as p from "core/properties"
 import {Model} from "../../model"
@@ -28,11 +26,11 @@ export class MapOptions extends Model {
   }
 
   static init_MapOptions(): void {
-    this.define<MapOptions.Props>({
-      lat:  [ p.Number     ],
-      lng:  [ p.Number     ],
-      zoom: [ p.Number, 12 ],
-    })
+    this.define<MapOptions.Props>(({Int, Number}) => ({
+      lat:  [ Number ],
+      lng:  [ Number ],
+      zoom: [ Int, 12 ],
+    }))
   }
 }
 
@@ -57,12 +55,12 @@ export class GMapOptions extends MapOptions {
   }
 
   static init_GMapOptions(): void {
-    this.define<GMapOptions.Props>({
-      map_type:      [ p.String,  "roadmap" ],
-      scale_control: [ p.Boolean, false     ],
-      styles:        [ p.String             ],
-      tilt:          [ p.Int,     45        ],
-    })
+    this.define<GMapOptions.Props>(({Boolean, Int, String}) => ({
+      map_type:      [ String,  "roadmap" ],
+      scale_control: [ Boolean, false     ],
+      styles:        [ String             ],
+      tilt:          [ Int,     45        ],
+    }))
   }
 }
 
@@ -80,8 +78,7 @@ export interface GMapPlot extends GMapPlot.Attrs {}
 export class GMapPlot extends Plot {
   properties: GMapPlot.Props
 
-  /*override*/ width: number | null
-  /*override*/ height: number | null
+  use_map = true
 
   constructor(attrs?: Partial<GMapPlot.Attrs>) {
     super(attrs)
@@ -93,21 +90,14 @@ export class GMapPlot extends Plot {
     // This seems to be necessary so that everything can initialize.
     // Feels very clumsy, but I'm not sure how the properties system wants
     // to handle something like this situation.
-    this.define<GMapPlot.Props>({
-      map_options: [ p.Instance ],
-      api_key:     [ p.String   ],
-    })
+    this.define<GMapPlot.Props>(({String, Ref}) => ({
+      map_options: [ Ref(GMapOptions) ],
+      api_key:     [ String ],
+    }))
 
-    this.override({
+    this.override<GMapPlot.Props>({
       x_range: () => new Range1d(),
       y_range: () => new Range1d(),
     })
-  }
-
-  initialize(): void {
-    super.initialize()
-    this.use_map = true
-    if (!this.api_key)
-      logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
   }
 }

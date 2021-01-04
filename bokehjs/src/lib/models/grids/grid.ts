@@ -12,11 +12,8 @@ export class GridView extends GuideRendererView {
   model: Grid
   visuals: Grid.Visuals
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
-    const ctx = this.plot_view.canvas_view.ctx
+  protected _render(): void {
+    const ctx = this.layer.ctx
     ctx.save()
     this._draw_regions(ctx)
     this._draw_minor_grids(ctx)
@@ -40,13 +37,13 @@ export class GridView extends GuideRendererView {
       if (i % 2 != 1)
         continue
 
-      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this.model.x_range_name, this.model.y_range_name)
-      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this.model.x_range_name, this.model.y_range_name)
+      const [sx0, sy0] = this.coordinates.map_to_screen(xs[i],   ys[i])
+      const [sx1, sy1] = this.coordinates.map_to_screen(xs[i+1], ys[i+1])
 
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
 
-      this.visuals.band_hatch.doit2(ctx, i, () => {
+      this.visuals.band_hatch.doit2(ctx, () => {
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
       }, () => this.request_render())
     }
@@ -68,25 +65,22 @@ export class GridView extends GuideRendererView {
 
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
+    ctx.beginPath()
     for (let i = 0; i < xs.length; i++) {
-      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this.model.x_range_name, this.model.y_range_name)
-      ctx.beginPath()
+      const [sx, sy] = this.coordinates.map_to_screen(xs[i], ys[i])
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-      for (let i = 1; i < sx.length; i++)
+      for (let i = 1; i < sx.length; i++) {
         ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
-      ctx.stroke()
+      }
     }
+    ctx.stroke()
   }
 
   // {{{ TODO: state
   ranges(): [Range, Range] {
     const i = this.model.dimension
     const j = (i + 1) % 2
-    const frame = this.plot_view.frame
-    const ranges = [
-      frame.x_ranges[this.model.x_range_name],
-      frame.y_ranges[this.model.y_range_name],
-    ]
+    const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
 
@@ -146,7 +140,7 @@ export class GridView extends GuideRendererView {
       return coords
     }
 
-    const ticks = ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+    const ticks = ticker.get_ticks(start, end, range, cross_range.min)[location]
 
     const min = range.min
     const max = range.max
@@ -188,13 +182,14 @@ export namespace Grid {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
     axis: p.Property<Axis>
-    ticker: p.Property<Ticker<any>>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
-  } & mixins.GridLine
-    & mixins.MinorGridLine
-    & mixins.BandFill
-    & mixins.BandHatch
+    ticker: p.Property<Ticker>
+  } & Mixins
+
+  export type Mixins =
+    mixins.GridLine      &
+    mixins.MinorGridLine &
+    mixins.BandFill      &
+    mixins.BandHatch
 
   export type Visuals = GuideRenderer.Visuals & {
     grid_line: visuals.Line
@@ -208,6 +203,7 @@ export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
   properties: Grid.Props
+  __view_type__: GridView
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)
@@ -216,18 +212,21 @@ export class Grid extends GuideRenderer {
   static init_Grid(): void {
     this.prototype.default_view = GridView
 
-    this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_', 'hatch:band_'])
+    this.mixins<Grid.Mixins>([
+      ["grid_",       mixins.Line],
+      ["minor_grid_", mixins.Line],
+      ["band_",       mixins.Fill],
+      ["band_",       mixins.Hatch],
+    ])
 
-    this.define<Grid.Props>({
-      bounds:       [ p.Any,     'auto'    ], // TODO (bev)
-      dimension:    [ p.Any,     0         ],
-      axis:         [ p.Instance           ],
-      ticker:       [ p.Instance           ],
-      x_range_name: [ p.String,  'default' ],
-      y_range_name: [ p.String,  'default' ],
-    })
+    this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or}) => ({
+      bounds:    [ Or(Tuple(Number, Number), Auto), "auto" ],
+      dimension: [ Enum(0, 1), 0 ],
+      axis:      [ Ref(Axis) ],
+      ticker:    [ Ref(Ticker) ],
+    }))
 
-    this.override({
+    this.override<Grid.Props>({
       level: "underlay",
       band_fill_color: null,
       band_fill_alpha: 0,
@@ -236,7 +235,7 @@ export class Grid extends GuideRenderer {
     })
   }
 
-  get_ticker(): Ticker<any> | null {
+  get_ticker(): Ticker | null {
     if (this.ticker != null) {
       return this.ticker
     }
@@ -245,5 +244,4 @@ export class Grid extends GuideRenderer {
     }
     return null
   }
-
 }

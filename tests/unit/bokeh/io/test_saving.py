@@ -95,9 +95,9 @@ def test__get_save_args_missing_title(mock_warn) -> None:
     assert mock_warn.call_args[1] == {}
 
 
-@patch('io.open')
-@patch('bokeh.embed.file_html')
-def test__save_helper(mock_file_html, mock_io_open) -> None:
+@patch("builtins.open")
+@patch("bokeh.embed.file_html")
+def test__save_helper(mock_file_html, mock_open) -> None:
     obj = Plot()
     filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
 
@@ -105,11 +105,11 @@ def test__save_helper(mock_file_html, mock_io_open) -> None:
 
     assert mock_file_html.call_count == 1
     assert mock_file_html.call_args[0] == (obj, resources)
-    assert mock_file_html.call_args[1] == dict(title="title", template=None)
+    assert mock_file_html.call_args[1] == dict(title="title", template=None, theme=None)
 
-    assert mock_io_open.call_count == 1
-    assert mock_io_open.call_args[0] == (filename,)
-    assert mock_io_open.call_args[1] == dict(mode="w", encoding="utf-8")
+    assert mock_open.call_count == 1
+    assert mock_open.call_args[0] == (filename,)
+    assert mock_open.call_args[1] == dict(mode="w", encoding="utf-8")
 
 #-----------------------------------------------------------------------------
 # Code

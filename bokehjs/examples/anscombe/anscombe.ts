@@ -1,4 +1,5 @@
-import * as Bokeh from "bokehjs"
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-api.esm.js"
 
 export namespace Anscombe {
   console.log(`Bokeh ${Bokeh.version}`)
@@ -19,14 +20,14 @@ export namespace Anscombe {
 
   const circles = new Bokeh.ColumnDataSource({
     data: {
-      xi   : anscombe_quartet[0],
-      yi   : anscombe_quartet[1],
-      xii  : anscombe_quartet[2],
-      yii  : anscombe_quartet[3],
-      xiii : anscombe_quartet[4],
-      yiii : anscombe_quartet[5],
-      xiv  : anscombe_quartet[6],
-      yiv  : anscombe_quartet[7],
+      xi: anscombe_quartet[0],
+      yi: anscombe_quartet[1],
+      xii: anscombe_quartet[2],
+      yii: anscombe_quartet[3],
+      xiii: anscombe_quartet[4],
+      yiii: anscombe_quartet[5],
+      xiv: anscombe_quartet[6],
+      yiv: anscombe_quartet[7],
     },
   })
 
@@ -43,8 +44,8 @@ export namespace Anscombe {
       x_range: xdr,
       y_range: ydr,
       title,
-      plot_width: 400,
-      plot_height: 400,
+      width: 400,
+      height: 400,
       background_fill_color: "#F2F2F7",
     })
     const xaxis = new Bokeh.LinearAxis({axis_line_color: null})

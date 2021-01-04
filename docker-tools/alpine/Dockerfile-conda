@@ -1,0 +1,31 @@
+#/* vim: set filetype=dockerfile : */
+FROM frolvlad/alpine-miniconda3
+LABEL org.pydata.bokeh.maintainer="Karel-van-de-Plassche <karelvandeplassche@gmail.com>"
+
+RUN apk add --no-cache \
+    bash
+
+# set default conda channels
+RUN conda config --set auto_update_conda off
+RUN conda config --append channels bokeh
+RUN conda config --append channels conda-forge
+RUN conda config --get channels
+
+ARG BOKEH_VERSION
+
+RUN conda install --quiet --yes \
+    bokeh=$BOKEH_VERSION \
+    nodejs ;\
+    conda clean -ay
+
+ARG TORNADO_VERSION
+RUN sh -c 'if [[ ! -z "$TORNADO_VERSION" ]]; then echo Installing old tornado $TORNADO_VERSION; conda install --quiet --yes tornado=$TORNADO_VERSION; conda clean -ay; fi'
+
+RUN python -c "import tornado; print('tornado version=' + tornado.version)"
+# Workaround, just calling `bokeh info` crashes
+# RUN env BOKEH_RESOURCES=cdn bokeh info
+
+# Add some bokeh examples to be run
+ENV BOKEH_EXAMPLE_DIR /bokeh_examples
+COPY examples/models $BOKEH_EXAMPLE_DIR/models
+COPY examples/app $BOKEH_EXAMPLE_DIR/app

@@ -64,7 +64,7 @@ plot = figure(
     outline_line_color=None, y_axis_type=None)
 
 plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
-plot.title.text_font_size = "14pt"
+plot.title.text_font_size = "19px"
 
 plot.xaxis.ticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)
 plot.xaxis.axis_line_color = None
@@ -79,13 +79,13 @@ medal = plot.circle(x="MetersBack", y="Year", radius=dict(value=5, units="screen
     fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5, source=source, level="overlay")
 
 plot.text(x="MetersBack", y="Year", x_offset=10, y_offset=-5, text="SelectedName",
-    text_align="left", text_baseline="middle", text_font_size="9pt", source=source)
+    text_align="left", text_baseline="middle", text_font_size="12px", source=source)
 
 no_olympics_label = Label(
     x=7.5, y=1942,
     text="No Olympics in 1940 or 1944",
     text_align="center", text_baseline="middle",
-    text_font_size="9pt", text_font_style="italic", text_color="silver")
+    text_font_size="12px", text_font_style="italic", text_color="silver")
 no_olympics = plot.add_layout(no_olympics_label)
 
 x = sprint[sprint.Year == 1900].MetersBack.min() - 0.5
@@ -96,13 +96,13 @@ meters_back = Label(
     x=5, x_offset=10, y=1900,
     text="Meters behind 2012 Bolt",
     text_align="left", text_baseline="middle",
-    text_font_size="10pt", text_font_style="bold")
+    text_font_size="13px", text_font_style="bold")
 plot.add_layout(meters_back)
 
 disclaimer = Label(
     x=0, y=0, x_units="screen", y_units="screen",
     text="This chart includes medals for the United States and Australia in the \"Intermediary\" Games of 1906, which the I.O.C. does not formally recognize.",
-    text_font_size="8pt", text_color="silver")
+    text_font_size="11px", text_color="silver")
 plot.add_layout(disclaimer, "below")
 
 tooltips = """

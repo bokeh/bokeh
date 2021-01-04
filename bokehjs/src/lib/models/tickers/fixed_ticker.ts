@@ -21,13 +21,13 @@ export class FixedTicker extends ContinuousTicker {
   }
 
   static init_FixedTicker(): void {
-    this.define<FixedTicker.Props>({
-      ticks: [ p.Array, [] ],
-      minor_ticks: [ p.Array, [] ],
-    })
+    this.define<FixedTicker.Props>(({Number, Array}) => ({
+      ticks: [ Array(Number), [] ],
+      minor_ticks: [ Array(Number), [] ],
+    }))
   }
 
-  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     return {
       major: this.ticks,
       minor: this.minor_ticks,
@@ -39,7 +39,12 @@ export class FixedTicker extends ContinuousTicker {
     return 0
   }
 
-  min_interval: number = 0
-  max_interval: number = 0
+  get_min_interval(): number {
+    return 0
+  }
+
+  get_max_interval(): number {
+    return 0
+  }
   //
 }

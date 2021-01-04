@@ -5,7 +5,7 @@ import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {PolyTool, PolyToolView} from "./poly_tool"
-import {bk_tool_icon_poly_draw} from "styles/icons"
+import {tool_icon_poly_draw} from "styles/icons.css"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -20,7 +20,7 @@ export class PolyDrawToolView extends PolyToolView {
     if (this._drawing)
       this._draw(ev, 'add', true)
     else
-      this._select_event(ev, ev.shiftKey, this.model.renderers)
+      this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
@@ -89,12 +89,14 @@ export class PolyDrawToolView extends PolyToolView {
       const glyph: any = renderer.glyph
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
       if (xkey) {
-        for (const array of cds.get_array(xkey))
-          Array.prototype.push.apply(xs, array)
+        for (const array of cds.get_array<number[]>(xkey)) {
+          xs.push(...array)
+        }
       }
       if (ykey) {
-        for (const array of cds.get_array(ykey))
-          Array.prototype.push.apply(ys, array)
+        for (const array of cds.get_array<number[]>(ykey)) {
+          ys.push(...array)
+        }
       }
       if (this._drawing && (i == (this.model.renderers.length-1))) {
         // Skip currently drawn vertex
@@ -160,7 +162,7 @@ export class PolyDrawToolView extends PolyToolView {
   _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
-    this._select_event(ev, true, this.model.renderers)
+    this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
@@ -248,6 +250,7 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
   properties: PolyDrawTool.Props
+  __view_type__: PolyDrawToolView
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
@@ -256,14 +259,14 @@ export class PolyDrawTool extends PolyTool {
   static init_PolyDrawTool(): void {
     this.prototype.default_view = PolyDrawToolView
 
-    this.define<PolyDrawTool.Props>({
-      drag:        [ p.Boolean, true ],
-      num_objects: [ p.Int,     0    ],
-    })
+    this.define<PolyDrawTool.Props>(({Boolean, Int}) => ({
+      drag:        [ Boolean, true ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Polygon Draw Tool"
-  icon = bk_tool_icon_poly_draw
+  icon = tool_icon_poly_draw
   event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }

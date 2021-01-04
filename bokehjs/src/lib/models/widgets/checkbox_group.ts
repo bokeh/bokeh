@@ -2,11 +2,9 @@ import {InputGroup, InputGroupView} from "./input_group"
 
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
-import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
-import {bk_inline} from "styles/mixins"
-import {bk_input_group} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
@@ -14,14 +12,16 @@ export class CheckboxGroupView extends InputGroupView {
   render(): void {
     super.render()
 
-    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
+    const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
     this.el.appendChild(group)
 
     const {active, labels} = this.model
 
+    this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const checkbox = input({type: `checkbox`, value: `${i}`})
       checkbox.addEventListener("change", () => this.change_active(i))
+      this._inputs.push(checkbox)
 
       if (this.model.disabled)
         checkbox.disabled = true
@@ -36,8 +36,8 @@ export class CheckboxGroupView extends InputGroupView {
 
   change_active(i: number): void {
     const active = new Set(this.model.active)
-    active.toggle(i)
-    this.model.active = active.values
+    active.has(i) ? active.delete(i) : active.add(i)
+    this.model.active = [...active].sort()
   }
 }
 
@@ -55,6 +55,7 @@ export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
+  __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)
@@ -63,10 +64,10 @@ export class CheckboxGroup extends InputGroup {
   static init_CheckboxGroup(): void {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define<CheckboxGroup.Props>({
-      active:   [ p.Array,   []    ],
-      labels:   [ p.Array,   []    ],
-      inline:   [ p.Boolean, false ],
-    })
+    this.define<CheckboxGroup.Props>(({Boolean, Int, String, Array}) => ({
+      active: [ Array(Int), [] ],
+      labels: [ Array(String), [] ],
+      inline: [ Boolean, false ],
+    }))
   }
 }

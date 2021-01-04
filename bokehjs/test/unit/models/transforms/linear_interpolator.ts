@@ -1,7 +1,8 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LinearInterpolator} from "@bokehjs/models/transforms/linear_interpolator"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("linear_interpolator_transform module", () => {
 
@@ -36,11 +37,11 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.deep.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new NumberArray([10, 14, 20]))
     })
 
-    it("should map to a Float64Array", () => {
-      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should map to a NumberArray", () => {
+      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
     })
   })
 
@@ -58,11 +59,11 @@ describe("linear_interpolator_transform module", () => {
     })
 
     it("should linearly interpolate a vector of points", () => {
-      expect(transform.v_compute([0, 2, 5])).to.be.deep.equal(new Float64Array([10, 14, 20]))
+      expect(transform.v_compute([0, 2, 5])).to.be.equal(new NumberArray([10, 14, 20]))
     })
 
-    it("should map to a Float64Array", () => {
-      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should map to a NumberArray", () => {
+      expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
     })
   })
 })

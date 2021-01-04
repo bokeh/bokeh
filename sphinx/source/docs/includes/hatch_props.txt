@@ -15,7 +15,7 @@
     a string name (or abbreviation) for a built-in pattern, or a string name
     of a pattern provided in ``hatch_extra``. The built-in patterns are:
 
-    .. list-table:: Built in Hatch Patterns
+    .. list-table:: Built-in Hatch Patterns
         :widths: 35 25 40
         :header-rows: 1
 
@@ -77,7 +77,7 @@
 
 ``hatch_extra``
     a dict mapping string names to custom pattern implementations. The name
-    can be referred to by ``hatch_pattern``. For example, if the follwing value
+    can be referred to by ``hatch_pattern``. For example, if the following value
     is set for ``hatch_extra``:
 
     .. code-block:: python

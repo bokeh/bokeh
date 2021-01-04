@@ -1,4 +1,7 @@
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
+import * as p from "@bokehjs/core/properties"
+
+import css from "./styles/latex_label.css"
 
 declare namespace katex {
   function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
@@ -7,7 +10,13 @@ declare namespace katex {
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
-  render(): void {
+  styles(): string[] {
+    return [...super.styles(), css]
+  }
+
+  protected _render(): void {
+    this.el?.classList.add("label-style")
+
     // Here because AngleSpec does units tranform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
@@ -23,27 +32,39 @@ export class LatexLabelView extends LabelView {
         throw new Error("unreachable")
     }
 
-    const panel = this.panel || this.plot_view.frame
-
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
+    const panel = this.layout ?? this.plot_view.layout.center_panel
 
     const {x, y} = this.model
-    let sx = this.model.x_units == "data" ? xscale.compute(x) : panel.xview.compute(x)
-    let sy = this.model.y_units == "data" ? yscale.compute(y) : panel.yview.compute(y)
+    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(x) : panel.xview.compute(x)
+    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(y) : panel.yview.compute(y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
-    katex.render(this.model.text, this.el, {displayMode: true})
+    this._css_text(this.layer.ctx, "", sx, sy, angle)
+    katex.render(this.model.text, this.el!, {displayMode: true})
   }
 }
 
+export namespace LatexLabel {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Label.Props
+}
+
+export interface LatexLabel extends LatexLabel.Attrs {}
+
 export class LatexLabel extends Label {
+  properties: LatexLabel.Props
+  __view_type__: LatexLabelView
+
   static __module__ = "latex_label"
 
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
+
+    this.override<LatexLabel.Props>({
+      render_mode: "css",
+    })
   }
 }

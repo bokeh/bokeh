@@ -1,74 +1,44 @@
-import {Transform} from "./transform"
-import {Range} from "../ranges/range"
-import {Factor, FactorRange} from "../ranges/factor_range"
+import {RangeTransform} from "./range_transform"
+import {Factor} from "../ranges/factor_range"
 import {Distribution} from "core/enums"
 import {Arrayable} from "core/types"
-import {isNumber, isArrayableOf} from "core/util/types"
 import * as p from "core/properties"
 import * as bokeh_math from "core/util/math"
 
 export namespace Jitter {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Transform.Props & {
+  export type Props = RangeTransform.Props & {
     mean: p.Property<number>
     width: p.Property<number>
     distribution: p.Property<Distribution>
-    range: p.Property<Range>
-    previous_values: p.Property<Arrayable<number>>
   }
 }
 
 export interface Jitter extends Jitter.Attrs {}
 
-export class Jitter extends Transform {
+export class Jitter extends RangeTransform {
   properties: Jitter.Props
+
+  previous_values: Arrayable<number>
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
   }
 
   static init_Jitter(): void {
-    this.define<Jitter.Props>({
-      mean:         [ p.Number, 0        ],
-      width:        [ p.Number, 1        ],
-      distribution: [ p.Distribution, 'uniform'],
-      range:        [ p.Instance               ],
-    })
-
-    this.internal({
-      previous_values: [ p.Array ],
-    })
+    this.define<Jitter.Props>(({Number}) => ({
+      mean:         [ Number, 0 ],
+      width:        [ Number, 1 ],
+      distribution: [ Distribution, "uniform" ],
+    }))
   }
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
     if (this.previous_values != null && this.previous_values.length == xs0.length)
       return this.previous_values
-
-    let xs: Arrayable<number>
-    if (this.range instanceof FactorRange)
-      xs = this.range.v_synthetic(xs0)
-    else if (isArrayableOf(xs0, isNumber))
-      xs = xs0
-    else
-      throw new Error("unexpected")
-
-    const result = new Float64Array(xs.length)
-    for (let i = 0; i < xs.length; i++) {
-      const x = xs[i]
-      result[i] = this._compute(x)
-    }
-    this.previous_values = result
-    return result
-  }
-
-  compute(x: number | Factor): number {
-    if (this.range instanceof FactorRange)
-      return this._compute(this.range.synthetic(x))
-    else if (isNumber(x))
-      return this._compute(x)
-    else
-      throw new Error("unexpected")
+    this.previous_values = super.v_compute(xs0)
+    return this.previous_values
   }
 
   protected _compute(x: number): number {

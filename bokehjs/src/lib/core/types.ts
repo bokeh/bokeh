@@ -1,12 +1,25 @@
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function*() {}).constructor
 
-export type Color = string
+export type uint8  = number
+export type uint16 = number
+export type uint32 = number
 
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
+export type ByteOrder = "little" | "big"
+
+export type ID = string
+
+export type Color = string | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
+
+export type ColorArray = Uint32Array
+export const ColorArray = Uint32Array
+
+export type RGBAArray = Uint8ClampedArray
+export const RGBAArray = Uint8ClampedArray
+
+export {TypedArray} from "./util/ndarray"
+
+export type NumberArray = Float32Array
+export const NumberArray = Float32Array
 
 export type Arrayable<T = any> = {
   readonly length: number
@@ -22,6 +35,8 @@ export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 export type Data = {[key: string]: Arrayable<unknown>}
 
 export type Attrs = {[key: string]: unknown}
+
+export type PlainObject<T = unknown> = {[key: string]: T}
 
 export type Size = {
   width: number
@@ -53,3 +68,6 @@ export type Interval = {
   start: number
   end: number
 }
+
+export {BitSet as Indices} from "./util/bitset"
+export type {RaggedArray} from "./util/ragged_array"

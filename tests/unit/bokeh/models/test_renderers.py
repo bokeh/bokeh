@@ -28,8 +28,8 @@ import bokeh.models.renderers as bmr # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestGlyphRenderer(object):
 
+class TestGlyphRenderer:
     @pytest.mark.parametrize('glyph', [Line, Patch])
     def test_check_cdsview_filters_with_connected_error(self, glyph) -> None:
         renderer = bmr.GlyphRenderer()
@@ -42,8 +42,8 @@ class TestGlyphRenderer(object):
         check = renderer._check_cdsview_filters_with_connected()
         assert check != []
 
-class TestGraphRenderer(object):
 
+class TestGraphRenderer:
     def test_init_props(self) -> None:
         renderer = bmr.GraphRenderer()
         assert renderer.x_range_name == "default"

@@ -4,7 +4,8 @@ import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
-import {bk_tool_icon_box_zoom} from "styles/icons"
+import {Interval} from "core/types"
+import {tool_icon_box_zoom} from "styles/icons.css"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -126,25 +127,23 @@ export class BoxZoomToolView extends GestureToolView {
     if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
       return
 
-    const {xscales, yscales} = this.plot_view.frame
+    const {x_scales, y_scales} = this.plot_view.frame
 
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
+    const xrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of x_scales) {
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
+      xrs.set(name, {start, end})
     }
 
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
+    const yrs: Map<string, Interval> = new Map()
+    for (const [name, scale] of y_scales) {
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
+      yrs.set(name, {start, end})
     }
 
     const zoom_info = {xrs, yrs}
 
-    this.plot_view.push_state('box_zoom', {range: zoom_info})
+    this.plot_view.state.push("box_zoom", {range: zoom_info})
     this.plot_view.update_range(zoom_info)
   }
 }
@@ -152,17 +151,16 @@ export class BoxZoomToolView extends GestureToolView {
 const DEFAULT_BOX_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "css",
     top_units: "screen",
     left_units: "screen",
     bottom_units: "screen",
     right_units: "screen",
-    fill_color: {value: "lightgrey"},
-    fill_alpha: {value: 0.5},
-    line_color: {value: "black"},
-    line_alpha: {value: 1.0},
-    line_width: {value: 2},
-    line_dash: {value: [4, 4]},
+    fill_color: "lightgrey",
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 2,
+    line_dash: [4, 4],
   })
 }
 
@@ -181,6 +179,7 @@ export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
   properties: BoxZoomTool.Props
+  __view_type__: BoxZoomToolView
 
   /*override*/ overlay: BoxAnnotation
 
@@ -191,20 +190,24 @@ export class BoxZoomTool extends GestureTool {
   static init_BoxZoomTool(): void {
     this.prototype.default_view = BoxZoomToolView
 
-    this.define<BoxZoomTool.Props>({
-      dimensions:   [ p.Dimensions, "both"              ],
-      overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ p.Boolean,    false               ],
-      origin:       [ p.BoxOrigin,  "corner"            ],
-    })
+    this.define<BoxZoomTool.Props>(({Boolean, Ref}) => ({
+      dimensions:   [ Dimensions, "both" ],
+      overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
+      match_aspect: [ Boolean, false ],
+      origin:       [ BoxOrigin, "corner" ],
+    }))
+
+    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: 'both'}))
+    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: 'width'}))
+    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: 'height'}))
   }
 
   tool_name = "Box Zoom"
-  icon = bk_tool_icon_box_zoom
+  icon = tool_icon_box_zoom
   event_type = "pan" as "pan"
   default_order = 20
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

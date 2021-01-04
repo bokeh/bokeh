@@ -47,9 +47,9 @@ def _make_plot(**kw):
     plot.toolbar_sticky = False
     return plot, glyph
 
-@pytest.mark.selenium
-class Test_DataRange1d(object):
 
+@pytest.mark.selenium
+class Test_DataRange1d:
     def test_includes_hidden_glyphs_by_default(self, single_plot_page) -> None:
         plot, glyph = _make_plot()
 

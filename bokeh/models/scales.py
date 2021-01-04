@@ -65,20 +65,28 @@ class Scale(Transform):
     '''
     pass
 
-class LinearScale(Scale):
-    '''
+class ContinuousScale(Scale):
+    ''' Represent a scale transformation between continuous ranges.
 
     '''
     pass
 
-class LogScale(Scale):
-    '''
+
+class LinearScale(ContinuousScale):
+    ''' Represent a linear scale transformation between continuous ranges.
 
     '''
     pass
 
-class CategoricalScale(LinearScale):
+class LogScale(ContinuousScale):
+    ''' Represent a log scale transformation between continuous ranges.
+
     '''
+    pass
+
+class CategoricalScale(Scale):
+    ''' Represent a scale transformation between a categorical source range and
+    continuous target range.
 
     '''
     pass

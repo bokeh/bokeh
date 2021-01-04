@@ -31,6 +31,12 @@ calls it with the rendered model.
   {% endblock %}
 
   {% block autoload_init %}
+    {%- if elementid -%}
+    var element = document.getElementById({{ elementid|json }});
+    if (element == null) {
+      console.warn("Bokeh: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found.")
+    }
+    {%- endif %}
   {% endblock %}
 
   function run_callbacks() {
@@ -85,6 +91,8 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
+    const hashes = {{ bundle.hashes|json }};
+
     for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
       var element = document.createElement('script');
@@ -92,18 +100,14 @@ calls it with the rendered model.
       element.onerror = on_error;
       element.async = false;
       element.src = url;
+      if (url in hashes) {
+        element.crossOrigin = "anonymous";
+        element.integrity = "sha384-" + hashes[url];
+      }
       console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
       document.head.appendChild(element);
     }
   };
-
-  {%- if elementid -%}
-  var element = document.getElementById({{ elementid|json }});
-  if (element == null) {
-    console.error("Bokeh: ERROR: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
-    return false;
-  }
-  {%- endif %}
 
   function inject_raw_css(css) {
     const element = document.createElement("style");

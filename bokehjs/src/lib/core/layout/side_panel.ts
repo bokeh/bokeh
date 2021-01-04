@@ -1,7 +1,7 @@
 import {Size, Sizeable} from "./types"
 import {ContentLayoutable} from "./layoutable"
 
-import {Side} from "../enums"
+import {Side, Orientation} from "../enums"
 import {isString} from "../util/types"
 
 // This table lays out the rules for configuring the baseline, alignment, etc. of
@@ -48,183 +48,137 @@ export type TextOrient = "justified" | Orient
 
 const _angle_lookup: {[key in Side]: {[key in Orient]: number}} = {
   above: {
-    parallel   : 0,
-    normal     : -pi2,
-    horizontal : 0,
-    vertical   : -pi2,
+    parallel: 0,
+    normal: -pi2,
+    horizontal: 0,
+    vertical: -pi2,
   },
   below: {
-    parallel   : 0,
-    normal     : pi2,
-    horizontal : 0,
-    vertical   : pi2,
+    parallel: 0,
+    normal: pi2,
+    horizontal: 0,
+    vertical: pi2,
   },
   left: {
-    parallel   : -pi2,
-    normal     : 0,
-    horizontal : 0,
-    vertical   : -pi2,
+    parallel: -pi2,
+    normal: 0,
+    horizontal: 0,
+    vertical: -pi2,
   },
   right: {
-    parallel   : pi2,
-    normal     : 0,
-    horizontal : 0,
-    vertical   : pi2,
+    parallel: pi2,
+    normal: 0,
+    horizontal: 0,
+    vertical: pi2,
   },
 }
 
 const _baseline_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextBaseline}} = {
   above: {
-    justified  : TOP,
-    parallel   : ALPHABETIC,
-    normal     : MIDDLE,
-    horizontal : ALPHABETIC,
-    vertical   : MIDDLE,
+    justified: TOP,
+    parallel: ALPHABETIC,
+    normal: MIDDLE,
+    horizontal: ALPHABETIC,
+    vertical: MIDDLE,
   },
   below: {
-    justified  : BOTTOM,
-    parallel   : HANGING,
-    normal     : MIDDLE,
-    horizontal : HANGING,
-    vertical   : MIDDLE,
+    justified: BOTTOM,
+    parallel: HANGING,
+    normal: MIDDLE,
+    horizontal: HANGING,
+    vertical: MIDDLE,
   },
   left: {
-    justified  : TOP,
-    parallel   : ALPHABETIC,
-    normal     : MIDDLE,
-    horizontal : MIDDLE,
-    vertical   : ALPHABETIC,
+    justified: TOP,
+    parallel: ALPHABETIC,
+    normal: MIDDLE,
+    horizontal: MIDDLE,
+    vertical: ALPHABETIC,
   },
   right: {
-    justified  : TOP,
-    parallel   : ALPHABETIC,
-    normal     : MIDDLE,
-    horizontal : MIDDLE,
-    vertical   : ALPHABETIC,
+    justified: TOP,
+    parallel: ALPHABETIC,
+    normal: MIDDLE,
+    horizontal: MIDDLE,
+    vertical: ALPHABETIC,
   },
 }
 
 const _align_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextAlign}} = {
   above: {
-    justified  : CENTER,
-    parallel   : CENTER,
-    normal     : LEFT,
-    horizontal : CENTER,
-    vertical   : LEFT,
+    justified: CENTER,
+    parallel: CENTER,
+    normal: LEFT,
+    horizontal: CENTER,
+    vertical: LEFT,
   },
   below: {
-    justified  : CENTER,
-    parallel   : CENTER,
-    normal     : LEFT,
-    horizontal : CENTER,
-    vertical   : LEFT,
+    justified: CENTER,
+    parallel: CENTER,
+    normal: LEFT,
+    horizontal: CENTER,
+    vertical: LEFT,
   },
   left: {
-    justified  : CENTER,
-    parallel   : CENTER,
-    normal     : RIGHT,
-    horizontal : RIGHT,
-    vertical   : CENTER,
+    justified: CENTER,
+    parallel: CENTER,
+    normal: RIGHT,
+    horizontal: RIGHT,
+    vertical: CENTER,
   },
   right: {
-    justified  : CENTER,
-    parallel   : CENTER,
-    normal     : LEFT,
-    horizontal : LEFT,
-    vertical   : CENTER,
+    justified: CENTER,
+    parallel: CENTER,
+    normal: LEFT,
+    horizontal: LEFT,
+    vertical: CENTER,
   },
 }
 
 const _align_lookup_negative: {[key in Side]: CanvasTextAlign} = {
-  above  : RIGHT,
-  below  : LEFT,
-  left   : RIGHT,
-  right  : LEFT,
+  above: RIGHT,
+  below: LEFT,
+  left: RIGHT,
+  right: LEFT,
 }
 
 const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
-  above  : LEFT,
-  below  : RIGHT,
-  left   : RIGHT,
-  right  : LEFT,
+  above: LEFT,
+  below: RIGHT,
+  left: RIGHT,
+  right: LEFT,
 }
 
-export interface Panelable {
-  get_size(): Size
-  rotate?: boolean
-}
-
-export class SidePanel extends ContentLayoutable {
-
-  protected _dim: 0 | 1
-  protected _normals: [number, number]
-
-  constructor(readonly side: Side, readonly obj: Panelable) {
-    super()
-
-    switch(this.side) {
-      case "above":
-        this._dim = 0
-        this._normals = [0, -1]
-        break
-      case "below":
-        this._dim = 0
-        this._normals = [0, 1]
-        break
-      case "left":
-        this._dim = 1
-        this._normals = [-1, 0]
-        break
-      case "right":
-        this._dim = 1
-        this._normals = [1, 0]
-        break
-    }
-
-    if (this.is_horizontal)
-      this.set_sizing({width_policy: "max", height_policy: "fixed"})
-    else
-      this.set_sizing({width_policy: "fixed", height_policy: "max"})
-  }
-
-  protected _content_size(): Sizeable {
-    return new Sizeable(this.get_oriented_size())
-  }
-
-  get_oriented_size(): Size {
-    const {width, height} = this.obj.get_size()
-    if (!this.obj.rotate || this.is_horizontal)
-      return {width, height}
-    else
-      return {width: height, height: width}
-  }
-
-  has_size_changed(): boolean {
-    const {width, height} = this.get_oriented_size()
-    if (this.is_horizontal)
-      return this.bbox.height != height
-    else
-      return this.bbox.width != width
-  }
+export class Panel {
+  constructor(readonly side: Side) {}
 
   get dimension(): 0 | 1 {
-    return this._dim
+    return this.side == "above" || this.side == "below" ? 0 : 1
   }
 
   get normals(): [number, number] {
-    return this._normals
+    switch (this.side) {
+      case "above": return [ 0, -1]
+      case "below": return [ 0,  1]
+      case "left":  return [-1,  0]
+      case "right": return [ 1,  0]
+    }
+  }
+
+  get orientation(): Orientation {
+    return this.is_horizontal ? "horizontal" : "vertical"
   }
 
   get is_horizontal(): boolean {
-    return this._dim == 0
+    return this.dimension == 0
   }
 
   get is_vertical(): boolean {
-    return this._dim == 1
+    return this.dimension == 1
   }
 
   apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
-    const side = this.side
+    const {side} = this
 
     let baseline: CanvasTextBaseline
     let align: CanvasTextAlign
@@ -233,10 +187,7 @@ export class SidePanel extends ContentLayoutable {
       baseline = _baseline_lookup[side][orient]
       align = _align_lookup[side][orient]
     } else {
-      if (orient === 0) {
-        baseline = "whatever" as any // XXX: _baseline_lookup[side][orient]
-        align = "whatever" as any // XXX: _align_lookup[side][orient]
-      } else if (orient < 0) {
+      if (orient < 0) {
         baseline = 'middle'
         align = _align_lookup_negative[side]
       } else {
@@ -251,5 +202,33 @@ export class SidePanel extends ContentLayoutable {
 
   get_label_angle_heuristic(orient: Orient): number {
     return _angle_lookup[this.side][orient]
+  }
+}
+
+export class SideLayout extends ContentLayoutable {
+
+  constructor(readonly panel: Panel, readonly get_size: () => Size, readonly rotate: boolean = false) {
+    super()
+
+    if (this.panel.is_horizontal)
+      this.set_sizing({width_policy: "max", height_policy: "fixed"})
+    else
+      this.set_sizing({width_policy: "fixed", height_policy: "max"})
+  }
+
+  protected _content_size(): Sizeable {
+    const {width, height} = this.get_size()
+    if (!this.rotate || this.panel.is_horizontal)
+      return new Sizeable({width, height})
+    else
+      return new Sizeable({width: height, height: width})
+  }
+
+  has_size_changed(): boolean {
+    const {width, height} = this._content_size()
+    if (this.panel.is_horizontal)
+      return this.bbox.height != height
+    else
+      return this.bbox.width != width
   }
 }

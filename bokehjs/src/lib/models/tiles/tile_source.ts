@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {Extent, Bounds} from "./tile_utils"
+import {entries} from "core/util/object"
 import * as p from "core/properties"
 
 export type Tile = {
@@ -32,17 +33,17 @@ export abstract class TileSource extends Model {
   }
 
   static init_TileSource(): void {
-    this.define<TileSource.Props>({
-      url:                [ p.String, ''  ],
-      tile_size:          [ p.Number, 256 ],
-      max_zoom:           [ p.Number, 30  ],
-      min_zoom:           [ p.Number, 0   ],
-      extra_url_vars:     [ p.Any,    {}  ],
-      attribution:        [ p.String, ''  ],
-      x_origin_offset:    [ p.Number      ],
-      y_origin_offset:    [ p.Number      ],
-      initial_resolution: [ p.Number      ],
-    })
+    this.define<TileSource.Props>(({Number, String, Dict}) => ({
+      url:                [ String, "" ],
+      tile_size:          [ Number, 256 ],
+      max_zoom:           [ Number, 30 ],
+      min_zoom:           [ Number, 0 ],
+      extra_url_vars:     [ Dict(String), {} ],
+      attribution:        [ String, "" ],
+      x_origin_offset:    [ Number ],
+      y_origin_offset:    [ Number ],
+      initial_resolution: [ Number ],
+    }))
   }
 
   tiles: Map<string, Tile>
@@ -60,8 +61,7 @@ export abstract class TileSource extends Model {
 
   string_lookup_replace(str: string, lookup: {[key: string]: string}): string {
     let result_str = str
-    for (const key in lookup) {
-      const value = lookup[key]
+    for (const [key, value] of entries(lookup)) {
       result_str = result_str.replace(`{${key}}`, value)
     }
     return result_str
@@ -101,8 +101,8 @@ export abstract class TileSource extends Model {
     const center_x = ((txmax - txmin) / 2) + txmin
     const center_y = ((tymax - tymin) / 2) + tymin
     tiles.sort(function(a, b) {
-      const a_distance = Math.sqrt(Math.pow(center_x - a[0], 2) + Math.pow(center_y - a[1], 2))
-      const b_distance = Math.sqrt(Math.pow(center_x - b[0], 2) + Math.pow(center_y - b[1], 2))
+      const a_distance = Math.sqrt((center_x - a[0])**2 + (center_y - a[1])**2)
+      const b_distance = Math.sqrt((center_x - b[0])**2 + (center_y - b[1])**2)
       return a_distance - b_distance
     })
   }

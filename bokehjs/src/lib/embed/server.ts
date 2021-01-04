@@ -1,5 +1,5 @@
 import {ClientSession} from "../client/session"
-import {pull_session} from "../client/connection"
+import {parse_token, pull_session} from "../client/connection"
 import {logger} from "../core/logging"
 import {View} from "../core/view"
 
@@ -30,25 +30,27 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
 // map { websocket url to map { session id to promise of ClientSession } }
 const _sessions: {[key: string]: {[key: string]: Promise<ClientSession>}} = {}
 
-function _get_session(websocket_url: string, session_id: string, args_string: string): Promise<ClientSession> {
+function _get_session(websocket_url: string, token: string, args_string: string): Promise<ClientSession> {
+  const session_id = parse_token(token).session_id
   if (!(websocket_url in _sessions))
     _sessions[websocket_url] = {}
 
   const subsessions = _sessions[websocket_url]
   if (!(session_id in subsessions))
-    subsessions[session_id] = pull_session(websocket_url, session_id, args_string)
+    subsessions[session_id] = pull_session(websocket_url, token, args_string)
 
   return subsessions[session_id]
 }
 
-// Fill element with the roots from session_id
-export async function add_document_from_session(websocket_url: string, session_id: string, element: HTMLElement,
-    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): Promise<View[]> {
+// Fill element with the roots from token
+export async function add_document_from_session(websocket_url: string, token: string, element: HTMLElement,
+    roots: HTMLElement[] = [], use_for_title: boolean = false): Promise<View[]> {
   const args_string = window.location.search.substr(1)
   let session: ClientSession
   try {
-    session = await _get_session(websocket_url, session_id, args_string)
-  } catch (error) {
+    session = await _get_session(websocket_url, token, args_string)
+  } catch (error: unknown) {
+    const session_id = parse_token(token).session_id
     logger.error(`Failed to load Bokeh session ${session_id}: ${error}`)
     throw error
   }

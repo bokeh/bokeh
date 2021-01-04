@@ -3,14 +3,13 @@ import {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
-import {bk_tool_icon_point_draw} from "styles/icons"
+import {tool_icon_point_draw} from "styles/icons.css"
 
 export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
 
   _tap(ev: TapEvent): void {
-    const append = ev.shiftKey
-    const renderers = this._select_event(ev, append, this.model.renderers)
+    const renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
     if (renderers.length || !this.model.add) {
       return
     }
@@ -51,7 +50,7 @@ export class PointDrawToolView extends EditToolView {
   _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
-    this._select_event(ev, true, this.model.renderers)
+    this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
@@ -86,6 +85,7 @@ export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
   properties: PointDrawTool.Props
+  __view_type__: PointDrawToolView
 
   renderers: (GlyphRenderer & HasXYGlyph)[]
 
@@ -96,15 +96,15 @@ export class PointDrawTool extends EditTool {
   static init_PointDrawTool(): void {
     this.prototype.default_view = PointDrawToolView
 
-    this.define<PointDrawTool.Props>({
-      add:         [ p.Boolean, true ],
-      drag:        [ p.Boolean, true ],
-      num_objects: [ p.Int,     0    ],
-    })
+    this.define<PointDrawTool.Props>(({Boolean, Int}) => ({
+      add:         [ Boolean, true ],
+      drag:        [ Boolean, true ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Point Draw Tool"
-  icon = bk_tool_icon_point_draw
+  icon = tool_icon_point_draw
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 2
 }

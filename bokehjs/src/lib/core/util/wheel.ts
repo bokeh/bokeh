@@ -14,8 +14,8 @@ function fontSize(element: Element): number | null {
 }
 
 function lineHeight(element: HTMLElement): number {
-  const parent = element.offsetParent || document.body
-  return fontSize(parent) || fontSize(element) || 16
+  const parent = element.offsetParent ?? document.body
+  return fontSize(parent) ?? fontSize(element) ?? 16
 }
 
 function pageHeight(element: HTMLElement): number {

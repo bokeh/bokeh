@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
@@ -59,8 +62,7 @@ def enter_value_in_color_picker(driver, el, color):
 
 
 @pytest.mark.selenium
-class Test_ColorPicker(object):
-
+class Test_ColorPicker:
     def test_display_color_input(self, bokeh_model_page) -> None:
         colorpicker = ColorPicker(css_classes=["foo"])
 
@@ -95,6 +97,7 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 

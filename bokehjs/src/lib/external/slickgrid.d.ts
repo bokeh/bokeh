@@ -1,4 +1,4 @@
-declare module "slickgrid/plugins/slick.rowselectionmodel" {
+declare module "@bokeh/slickgrid/plugins/slick.rowselectionmodel" {
   class RowSelectionModel<T extends Slick.SlickData, E> extends Slick.SelectionModel<T, E> {
     constructor(options?: {selectActiveRow: boolean})
     getSelectedRows(): number[]
@@ -8,7 +8,7 @@ declare module "slickgrid/plugins/slick.rowselectionmodel" {
   }
 }
 
-declare module "slickgrid/plugins/slick.checkboxselectcolumn" {
+declare module "@bokeh/slickgrid/plugins/slick.checkboxselectcolumn" {
   export interface CheckBoxSelectColumnOptions extends Slick.PluginOptions {
     columnId?: string
     cssClass?: string
@@ -24,7 +24,7 @@ declare module "slickgrid/plugins/slick.checkboxselectcolumn" {
   }
 }
 
-declare module "slickgrid/plugins/slick.cellexternalcopymanager" {
+declare module "@bokeh/slickgrid/plugins/slick.cellexternalcopymanager" {
   export interface CellExternalCopyManagerOptions extends Slick.PluginOptions {
     copiedCellStyle?: string
     copiedCellStyleLayerKey?: string

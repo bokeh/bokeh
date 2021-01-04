@@ -1,14 +1,14 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {ArrowHead, OpenHead} from "./arrow_head"
+import {ArrowHead, ArrowHeadView, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
+import {build_view} from "core/build_views"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
-import {Context2d} from "core/util/canvas"
 
 export type Coords = [Arrayable<number>, Arrayable<number>]
 
@@ -16,16 +16,41 @@ export class ArrowView extends AnnotationView {
   model: Arrow
   visuals: Arrow.Visuals
 
+  protected start: ArrowHeadView | null
+  protected end: ArrowHeadView | null
+
   protected _x_start: Arrayable<number>
   protected _y_start: Arrayable<number>
   protected _x_end: Arrayable<number>
   protected _y_end: Arrayable<number>
 
+  protected _sx_start: NumberArray
+  protected _sy_start: NumberArray
+  protected _sx_end: NumberArray
+  protected _sy_end: NumberArray
+
+  protected _angles: NumberArray
+
   initialize(): void {
     super.initialize()
-    if (this.model.source == null)
-      this.model.source = new ColumnDataSource()
     this.set_data(this.model.source)
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {start, end} = this.model
+    const {parent} = this
+    if (start != null)
+      this.start = await build_view(start, {parent})
+    if (end != null)
+      this.end = await build_view(end, {parent})
+  }
+
+  remove(): void {
+    this.start?.remove()
+    this.end?.remove()
+    super.remove()
   }
 
   connect_signals(): void {
@@ -33,102 +58,105 @@ export class ArrowView extends AnnotationView {
     this.connect(this.model.change, () => this.set_data(this.model.source))
     this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
     this.connect(this.model.source.patching, () => this.set_data(this.model.source))
+    this.connect(this.model.source.change, () => this.set_data(this.model.source))
   }
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.visuals.warm_cache(source)
-    this.plot_view.request_render()
+    this.request_render()
   }
 
-  protected _map_data(): [Coords, Coords] {
+  protected _map_data(): void {
     const {frame} = this.plot_view
 
-    let sx_start, sy_start
-    if (this.model.start_units == 'data') {
-      sx_start = frame.xscales[this.model.x_range_name].v_compute(this._x_start)
-      sy_start = frame.yscales[this.model.y_range_name].v_compute(this._y_start)
+    if (this.model.start_units == "data") {
+      this._sx_start = this.coordinates.x_scale.v_compute(this._x_start)
+      this._sy_start = this.coordinates.y_scale.v_compute(this._y_start)
     } else {
-      sx_start = frame.xview.v_compute(this._x_start)
-      sy_start = frame.yview.v_compute(this._y_start)
+      this._sx_start = frame.bbox.xview.v_compute(this._x_start)
+      this._sy_start = frame.bbox.yview.v_compute(this._y_start)
     }
 
-    let sx_end, sy_end
-    if (this.model.end_units == 'data') {
-      sx_end = frame.xscales[this.model.x_range_name].v_compute(this._x_end)
-      sy_end = frame.yscales[this.model.y_range_name].v_compute(this._y_end)
+    if (this.model.end_units == "data") {
+      this._sx_end = this.coordinates.x_scale.v_compute(this._x_end)
+      this._sy_end = this.coordinates.y_scale.v_compute(this._y_end)
     } else {
-      sx_end = frame.xview.v_compute(this._x_end)
-      sy_end = frame.yview.v_compute(this._y_end)
+      this._sx_end = frame.bbox.xview.v_compute(this._x_end)
+      this._sy_end = frame.bbox.yview.v_compute(this._y_end)
     }
 
-    return [[sx_start, sy_start], [sx_end, sy_end]]
-  }
+    const {_sx_start, _sy_start, _sx_end, _sy_end} = this
 
-  render(): void {
-    if (!this.model.visible)
-      return
+    const n = _sx_start.length
+    const angles = this._angles = new NumberArray(n)
 
-    const {ctx} = this.plot_view.canvas_view
-    ctx.save()
-
-    // Order in this function is important. First we draw all the arrow heads.
-    const [start, end] = this._map_data()
-
-    if (this.model.end != null)
-      this._arrow_head(ctx, "render", this.model.end, start, end)
-    if (this.model.start != null)
-      this._arrow_head(ctx, "render", this.model.start, end, start)
-
-    // Next we call .clip on all the arrow heads, inside an initial canvas sized
-    // rect, to create an "inverted" clip region for the arrow heads
-    ctx.beginPath()
-    const {x, y, width, height} = this.plot_view.layout.bbox
-    ctx.rect(x, y, width, height)
-    if (this.model.end != null)
-      this._arrow_head(ctx, "clip", this.model.end, start, end)
-    if (this.model.start != null)
-      this._arrow_head(ctx, "clip", this.model.start, end, start)
-    ctx.closePath()
-    ctx.clip()
-
-    // Finally we draw the arrow body, with the clipping regions set up. This prevents
-    // "fat" arrows from overlapping the arrow head in a bad way.
-    this._arrow_body(ctx, start, end)
-
-    ctx.restore()
-  }
-
-  protected _arrow_head(ctx: Context2d, action: "render" | "clip", head: ArrowHead, start: Coords, end: Coords): void {
-    for (let i = 0, _end = this._x_start.length; i < _end; i++) {
-      // arrow head runs orthogonal to arrow body
-      const angle = Math.PI/2 + atan2([start[0][i], start[1][i]], [end[0][i], end[1][i]])
-
-      ctx.save()
-
-      ctx.translate(end[0][i], end[1][i])
-      ctx.rotate(angle)
-
-      if (action == "render")
-        head.render(ctx, i)
-      else if (action == "clip")
-        head.clip(ctx, i)
-
-      ctx.restore()
+    for (let i = 0; i < n; i++) {
+      // arrow head runs orthogonal to arrow body (???)
+      angles[i] = Math.PI/2 + atan2([_sx_start[i], _sy_start[i]], [_sx_end[i], _sy_end[i]])
     }
   }
 
-  protected _arrow_body(ctx: Context2d, start: Coords, end: Coords): void {
-    if (!this.visuals.line.doit)
-      return
+  protected _render(): void {
+    this._map_data()
 
-    for (let i = 0, n = this._x_start.length; i < n; i++) {
-      this.visuals.line.set_vectorize(ctx, i)
+    const {ctx} = this.layer
+    const {start, end} = this
 
-      ctx.beginPath()
-      ctx.moveTo(start[0][i], start[1][i])
-      ctx.lineTo(end[0][i], end[1][i])
-      ctx.stroke()
+    const {_sx_start, _sy_start, _sx_end, _sy_end, _angles} = this
+    const {x, y, width, height} = this.plot_view.frame.bbox
+
+    for (let i = 0, n = _sx_start.length; i < n; i++) {
+      if (end != null) {
+        ctx.save()
+        ctx.translate(_sx_end[i], _sy_end[i])
+        ctx.rotate(_angles[i])
+        end.render(ctx, i)
+        ctx.restore()
+      }
+
+      if (start != null) {
+        ctx.save()
+        ctx.translate(_sx_start[i], _sy_start[i])
+        ctx.rotate(_angles[i] + Math.PI)
+        start.render(ctx, i)
+        ctx.restore()
+      }
+
+      if (this.visuals.line.doit) {
+        ctx.save()
+
+        if (start != null || end != null) {
+          ctx.beginPath()
+          ctx.rect(x, y, width, height)
+
+          if (end != null) {
+            ctx.save()
+            ctx.translate(_sx_end[i], _sy_end[i])
+            ctx.rotate(_angles[i])
+            end.clip(ctx, i)
+            ctx.restore()
+          }
+
+          if (start != null) {
+            ctx.save()
+            ctx.translate(_sx_start[i], _sy_start[i])
+            ctx.rotate(_angles[i] + Math.PI)
+            start.clip(ctx, i)
+            ctx.restore()
+          }
+
+          ctx.closePath()
+          ctx.clip()
+        }
+
+        this.visuals.line.set_vectorize(ctx, i)
+        ctx.beginPath()
+        ctx.moveTo(_sx_start[i], _sy_start[i])
+        ctx.lineTo(_sx_end[i], _sy_end[i])
+        ctx.stroke()
+
+        ctx.restore()
+      }
     }
   }
 }
@@ -136,27 +164,28 @@ export class ArrowView extends AnnotationView {
 export namespace Arrow {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineVector & {
-    x_start: p.NumberSpec
-    y_start: p.NumberSpec
+  export type Props = Annotation.Props & {
+    x_start: p.XCoordinateSpec
+    y_start: p.YCoordinateSpec
     start_units: p.Property<SpatialUnits>
     start: p.Property<ArrowHead | null>
-    x_end: p.NumberSpec
-    y_end: p.NumberSpec
+    x_end: p.XCoordinateSpec
+    y_end: p.YCoordinateSpec
     end_units: p.Property<SpatialUnits>
     end: p.Property<ArrowHead | null>
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
-  }
+  } & Mixins
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Mixins = LineVector
+
+  export type Visuals = Annotation.Visuals & {line: visuals.LineVector}
 }
 
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
   properties: Arrow.Props
+  __view_type__: ArrowView
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)
@@ -165,20 +194,18 @@ export class Arrow extends Annotation {
   static init_Arrow(): void {
     this.prototype.default_view = ArrowView
 
-    this.mixins(['line'])
+    this.mixins<Arrow.Mixins>(LineVector)
 
-    this.define<Arrow.Props>({
-      x_start:      [ p.NumberSpec                           ],
-      y_start:      [ p.NumberSpec                           ],
-      start_units:  [ p.SpatialUnits, 'data'                 ],
-      start:        [ p.Instance,     null                   ],
-      x_end:        [ p.NumberSpec                           ],
-      y_end:        [ p.NumberSpec                           ],
-      end_units:    [ p.SpatialUnits, 'data'                 ],
-      end:          [ p.Instance,     () => new OpenHead({}) ],
-      source:       [ p.Instance                             ],
-      x_range_name: [ p.String,       'default'              ],
-      y_range_name: [ p.String,       'default'              ],
-    })
+    this.define<Arrow.Props>(({Ref, Nullable}) => ({
+      x_start:     [ p.XCoordinateSpec ],
+      y_start:     [ p.YCoordinateSpec ],
+      start_units: [ SpatialUnits, "data" ],
+      start:       [ Nullable(Ref(ArrowHead)), null ],
+      x_end:       [ p.XCoordinateSpec ],
+      y_end:       [ p.YCoordinateSpec ],
+      end_units:   [ SpatialUnits, "data" ],
+      end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
+      source:      [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
+    }))
   }
 }

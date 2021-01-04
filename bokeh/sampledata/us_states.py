@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 import codecs
 import csv
 import gzip
-import xml.etree.cElementTree as et
+import xml.etree.ElementTree as et
 
 # Bokeh imports
 from ..util.sampledata import package_path
@@ -66,7 +66,7 @@ def _read_data():
     with gzip.open(package_path('US_Regions_State_Boundaries.csv.gz')) as f:
         decoded = codecs.iterdecode(f, "utf-8")
         next(decoded)
-        reader = csv.reader(decoded, delimiter=str(','), quotechar=str('"'))
+        reader = csv.reader(decoded, delimiter=",", quotechar='"')
         for row in reader:
             region, name, code, geometry, dummy = row
             xml = et.fromstring(geometry)

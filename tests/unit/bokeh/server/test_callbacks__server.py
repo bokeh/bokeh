@@ -19,6 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
 # External imports
+from flaky import flaky
 from tornado.ioloop import IOLoop
 
 # Module under test
@@ -48,9 +49,8 @@ def run(loop):
         loop.start()
     except KeyboardInterrupt:
         print("Keyboard interrupt")
-        pass
 
-class LoopAndGroup(object):
+class LoopAndGroup:
     def __init__(self, quit_after=None):
         self.io_loop = IOLoop()
         self.io_loop.make_current()
@@ -71,7 +71,9 @@ class LoopAndGroup(object):
 # General API
 #-----------------------------------------------------------------------------
 
-class TestCallbackGroup(object):
+
+class TestCallbackGroup:
+    @flaky(max_runs=10)
     def test_next_tick_runs(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -82,6 +84,7 @@ class TestCallbackGroup(object):
         # check for leaks
         assert 0 == len(ctx.group._next_tick_callback_removers)
 
+    @flaky(max_runs=10)
     def test_timeout_runs(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -92,6 +95,7 @@ class TestCallbackGroup(object):
         # check for leaks
         assert 0 == len(ctx.group._timeout_callback_removers)
 
+    @flaky(max_runs=10)
     def test_periodic_runs(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
@@ -104,6 +108,7 @@ class TestCallbackGroup(object):
         ctx.group.remove_periodic_callback(cb_id)
         assert 0 == len(ctx.group._periodic_callback_removers)
 
+    @flaky(max_runs=10)
     def test_next_tick_does_not_run_if_removed_immediately(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -111,6 +116,7 @@ class TestCallbackGroup(object):
             ctx.group.remove_next_tick_callback(cb_id)
         assert 0 == func.count()
 
+    @flaky(max_runs=10)
     def test_timeout_does_not_run_if_removed_immediately(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -118,6 +124,7 @@ class TestCallbackGroup(object):
             ctx.group.remove_timeout_callback(cb_id)
         assert 0 == func.count()
 
+    @flaky(max_runs=10)
     def test_periodic_does_not_run_if_removed_immediately(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
@@ -125,6 +132,7 @@ class TestCallbackGroup(object):
             ctx.group.remove_periodic_callback(cb_id)
         assert 0 == func.count()
 
+    @flaky(max_runs=10)
     def test_same_callback_as_all_three_types(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
@@ -134,6 +142,7 @@ class TestCallbackGroup(object):
             ctx.group.add_next_tick_callback(func)
         assert 5 == func.count()
 
+    @flaky(max_runs=10)
     def test_adding_next_tick_twice(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=2)
@@ -141,6 +150,7 @@ class TestCallbackGroup(object):
             ctx.group.add_next_tick_callback(func)
         assert 2 == func.count()
 
+    @flaky(max_runs=10)
     def test_adding_timeout_twice(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=2)
@@ -148,6 +158,7 @@ class TestCallbackGroup(object):
             ctx.group.add_timeout_callback(func, timeout_milliseconds=2)
         assert 2 == func.count()
 
+    @flaky(max_runs=10)
     def test_adding_periodic_twice(self) -> None:
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=2)
@@ -155,6 +166,7 @@ class TestCallbackGroup(object):
             ctx.group.add_periodic_callback(func, period_milliseconds=2)
         assert 2 == func.count()
 
+    @flaky(max_runs=10)
     def test_remove_all_callbacks(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             # add a callback that will remove all the others
@@ -168,6 +180,7 @@ class TestCallbackGroup(object):
             ctx.group.add_next_tick_callback(func)
         assert 0 == func.count()
 
+    @flaky(max_runs=10)
     def test_removing_next_tick_twice(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -178,6 +191,7 @@ class TestCallbackGroup(object):
         assert 0 == func.count()
         assert "twice" in repr(exc.value)
 
+    @flaky(max_runs=10)
     def test_removing_timeout_twice(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
@@ -188,6 +202,7 @@ class TestCallbackGroup(object):
         assert 0 == func.count()
         assert "twice" in repr(exc.value)
 
+    @flaky(max_runs=10)
     def test_removing_periodic_twice(self) -> None:
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
@@ -198,6 +213,7 @@ class TestCallbackGroup(object):
         assert 0 == func.count()
         assert "twice" in repr(exc.value)
 
+    @flaky(max_runs=10)
     def test_adding_next_tick_from_another_thread(self) -> None:
         # The test has probabilistic nature - there's a slight change it'll give a false negative
         with LoopAndGroup(quit_after=15) as ctx:

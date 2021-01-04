@@ -10,7 +10,9 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 import pytest ; pytest
+
 # External imports
+from flaky import flaky
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
@@ -60,8 +62,7 @@ def modify_doc(doc):
 
 
 @pytest.mark.selenium
-class Test_TextInput(object):
-
+class Test_TextInput:
     def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = TextAreaInput(css_classes=["foo"])
         page = bokeh_model_page(text_input)
@@ -78,6 +79,7 @@ class Test_TextInput(object):
         assert el.get_attribute('placeholder') == "placeholder"
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 

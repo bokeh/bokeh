@@ -128,6 +128,7 @@ export interface Surface3d extends Surface3d.Attrs {}
 
 export class Surface3d extends LayoutDOM {
   properties: Surface3d.Props
+  __view_type__: Surface3dView
 
   constructor(attrs?: Partial<Surface3d.Attrs>) {
     super(attrs)
@@ -147,14 +148,14 @@ export class Surface3d extends LayoutDOM {
     // The @define block adds corresponding "properties" to the JS model. These
     // should basically line up 1-1 with the Python model class. Most property
     // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
-    // ``p.String`` in the JS implementatin. Where the JS type system is not yet
+    // ``String`` in the JS implementatin. Where the JS type system is not yet
     // as rich, you can use ``p.Any`` as a "wildcard" property type.
-    this.define<Surface3d.Props>({
-      x:            [ p.String   ],
-      y:            [ p.String   ],
-      z:            [ p.String   ],
-      data_source:  [ p.Instance ],
-    })
+    this.define<Surface3d.Props>(({String, Ref}) => ({
+      x:            [ String ],
+      y:            [ String ],
+      z:            [ String ],
+      data_source:  [ Ref(ColumnDataSource) ],
+    }))
   }
 }
 """

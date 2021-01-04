@@ -1,18 +1,17 @@
 import {Box, BoxView, BoxData} from "./box"
-import {Arrayable} from "core/types"
-import {SpatialIndex} from "core/util/spatial"
+import {NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export interface QuadData extends BoxData {
-  _right: Arrayable<number>
-  _bottom: Arrayable<number>
-  _left: Arrayable<number>
-  _top: Arrayable<number>
+  _right: NumberArray
+  _bottom: NumberArray
+  _left: NumberArray
+  _top: NumberArray
 
-  sright: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  stop: Arrayable<number>
+  sright: NumberArray
+  sbottom: NumberArray
+  sleft: NumberArray
+  stop: NumberArray
 }
 
 export interface QuadView extends QuadData {}
@@ -21,16 +20,10 @@ export class QuadView extends BoxView {
   model: Quad
   visuals: Quad.Visuals
 
-  scenterx(i: number): number {
-    return (this.sleft[i] + this.sright[i])/2
-  }
-
-  scentery(i: number): number {
-    return (this.stop[i] + this.sbottom[i])/2
-  }
-
-  protected _index_data(): SpatialIndex {
-    return this._index_box(this._right.length)
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sleft[i] + this.sright[i])/2
+    const scy = (this.stop[i] + this.sbottom[i])/2
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
@@ -59,6 +52,7 @@ export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
   properties: Quad.Props
+  __view_type__: QuadView
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)
@@ -67,6 +61,11 @@ export class Quad extends Box {
   static init_Quad(): void {
     this.prototype.default_view = QuadView
 
-    this.coords([['right', 'bottom'], ['left', 'top']])
+    this.define<Quad.Props>(({}) => ({
+      right:  [ p.XCoordinateSpec, {field: "right"} ],
+      bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
+      left:   [ p.XCoordinateSpec, {field: "left"} ],
+      top:    [ p.YCoordinateSpec, {field: "top"} ],
+    }))
   }
 }

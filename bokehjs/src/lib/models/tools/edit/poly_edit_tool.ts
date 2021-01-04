@@ -6,7 +6,7 @@ import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_poly_edit} from "styles/icons"
+import {tool_icon_poly_edit} from "styles/icons.css"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -28,7 +28,7 @@ export class PolyEditToolView extends PolyToolView {
     const [x, y] = point
 
     // Perform hit testing
-    const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer])
+    const vertex_selected = this._select_event(ev, "replace", [this.model.vertex_renderer])
     const point_cds = this.model.vertex_renderer.data_source
     // Type once dataspecs are typed
     const point_glyph: any = this.model.vertex_renderer.glyph
@@ -56,7 +56,7 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active)
       return
 
-    const renderers = this._select_event(ev, false, this.model.renderers)
+    const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (!renderers.length) {
       this._set_vertices([], [])
       this._selected_renderer = null
@@ -142,9 +142,9 @@ export class PolyEditToolView extends PolyToolView {
       this._emit_cds_changes(this._selected_renderer.data_source, true, false, true)
       return
     }
-    const append = ev.shiftKey
-    this._select_event(ev, append, [renderer])
-    this._select_event(ev, append, this.model.renderers)
+    const mode = this._select_mode(ev)
+    this._select_event(ev, mode, [renderer])
+    this._select_event(ev, mode, this.model.renderers)
   }
 
   _remove_vertex(): void {
@@ -163,7 +163,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _pan_start(ev: PanEvent): void {
-    this._select_event(ev, true, [this.model.vertex_renderer])
+    this._select_event(ev, "append", [this.model.vertex_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 
@@ -234,6 +234,7 @@ export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends PolyTool {
   properties: PolyEditTool.Props
+  __view_type__: PolyEditToolView
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
@@ -244,7 +245,7 @@ export class PolyEditTool extends PolyTool {
   }
 
   tool_name = "Poly Edit Tool"
-  icon = bk_tool_icon_poly_edit
+  icon = tool_icon_poly_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }

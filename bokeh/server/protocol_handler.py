@@ -35,7 +35,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class ProtocolHandler(object):
+class ProtocolHandler:
     ''' A Bokeh server may be expected to receive any of the following protocol
     messages:
 

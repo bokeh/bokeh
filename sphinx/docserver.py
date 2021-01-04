@@ -1,3 +1,4 @@
+import asyncio
 import os
 import sys
 import threading
@@ -9,6 +10,11 @@ import tornado
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
+
+# Needed for Windows + Python 3.8 config
+if sys.version_info.major==3 and sys.version_info.minor >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
@@ -26,7 +32,7 @@ def welcome():
 @app.route('/versions.json')
 def send_versions():
     return flask.send_from_directory(
-        os.path.join(_basedir, "sphinx"), "test_versions.json")
+        os.path.join(_basedir, "sphinx"), "versions.json")
 
 @app.route('/alert.html')
 def send_alert():
@@ -40,7 +46,7 @@ def send_docs(filename):
 def open_browser():
     # Child process
     time.sleep(0.5)
-    webbrowser.open("http://localhost:%d/en/latest/index.html" % PORT, new="tab")
+    webbrowser.open("http://localhost:%d/en/latest/index.html" % PORT, new=2)
 
 data = {}
 

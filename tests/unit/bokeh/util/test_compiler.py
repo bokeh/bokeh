@@ -15,7 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import io
 import json
 import os
 
@@ -112,7 +111,7 @@ def test_Less() -> None:
     assert obj.file == None
     assert obj.lang == "less"
 
-@patch('io.open')
+@patch("builtins.open")
 def test_FromFile(mock_open) -> None:
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
@@ -132,7 +131,7 @@ def test_exts() -> None:
 def test_jsons() -> None:
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
         if file.endswith('.json'):
-            with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
+            with open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all(['\\' not in mod for mod in json.loads(f.read())])
 
 def test_inline_extension() -> None:

@@ -21,7 +21,7 @@ import bokeh.client.states as bcs # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class MockConnection(object):
+class MockConnection:
     def __init__(self, to_pop=None): self._to_pop = to_pop
 
     async def _connect_async(self): return "_connect_async"
@@ -33,7 +33,7 @@ class MockConnection(object):
 
     async def _pop_message(self): return self._to_pop
 
-class MockMessage(object):
+class MockMessage:
     header = {'reqid': 'reqid'}
 
 #-----------------------------------------------------------------------------
@@ -45,31 +45,26 @@ class MockMessage(object):
 #-----------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio
 async def test_NOT_YET_CONNECTED() -> None:
     s = bcs.NOT_YET_CONNECTED()
     r = await s.run(MockConnection())
     assert r == "_connect_async"
 
-@pytest.mark.asyncio
 async def test_CONNECTED_BEFORE_ACK() -> None:
     s = bcs.CONNECTED_BEFORE_ACK()
     r = await s.run(MockConnection())
     assert r == "_wait_for_ack"
 
-@pytest.mark.asyncio
 async def test_CONNECTED_AFTER_ACK() -> None:
     s = bcs.CONNECTED_AFTER_ACK()
     r = await s.run(MockConnection())
     assert r == "_handle_messages"
 
-@pytest.mark.asyncio
 async def test_DISCONNECTED() -> None:
     s = bcs.DISCONNECTED()
     r = await s.run(MockConnection())
     assert r is None
 
-@pytest.mark.asyncio
 async def test_WAITING_FOR_REPLY() -> None:
     s = bcs.WAITING_FOR_REPLY("reqid")
     assert s.reply == None

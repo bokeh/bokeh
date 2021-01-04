@@ -8,6 +8,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {range} from "core/util/array"
+import {entries} from "core/util/object"
 
 type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
 
@@ -35,6 +36,8 @@ function orNaN(v: number | undefined): number {
   return v != null ? v : NaN
 }
 
+const {hasOwnProperty} = Object.prototype
+
 export class GeoJSONDataSource extends ColumnarDataSource {
   properties: GeoJSONDataSource.Props
 
@@ -43,13 +46,13 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   static init_GeoJSONDataSource(): void {
-    this.define<GeoJSONDataSource.Props>({
-      geojson: [ p.Any ], // TODO (bev)
-    })
+    this.define<GeoJSONDataSource.Props>(({String}) => ({
+      geojson: [ String ],
+    }))
 
-    this.internal({
-      data:    [ p.Any, {} ],
-    })
+    this.internal<GeoJSONDataSource.Props>(({Dict, Arrayable}) => ({
+      data: [ Dict(Arrayable), {} ],
+    }))
   }
 
   initialize(): void {
@@ -75,17 +78,16 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   private _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
-    const properties = item.properties || {}
-    for (const property in properties) {
-      if (!data.hasOwnProperty(property))
+    const properties = item.properties ?? {}
+    for (const [property, value] of entries(properties)) {
+      if (!hasOwnProperty.call(data, property))
         data[property] = this._get_new_nan_array(item_count)
       // orNaN necessary here to prevent null values from ending up in the column
-      data[property][i] = orNaN(properties[property])
+      data[property][i] = orNaN(value)
     }
   }
 
   private _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
-
     function flatten(acc: Position[], item: Position[]) {
       return acc.concat([[NaN, NaN, NaN]]).concat(item)
     }

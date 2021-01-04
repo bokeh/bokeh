@@ -1,11 +1,9 @@
 // Based on https://github.com/phosphorjs/phosphor/blob/master/packages/signaling/src/index.ts
 
-import {Constructor} from "./class"
-import {Set} from "./util/data_structures"
-import {defer} from "./util/callback"
+import {defer} from "./util/defer"
 import {find, remove_by} from "./util/array"
 
-export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
+export type Slot<Args, Sender extends object> = (args: Args, sender: Sender) => void
 
 export class Signal<Args, Sender extends object> {
 
@@ -18,11 +16,11 @@ export class Signal<Args, Sender extends object> {
 
     const receivers = receiversForSender.get(this.sender)!
 
-    if (findConnection(receivers, this, slot, context) != null) {
+    if (find_connection(receivers, this, slot, context) != null) {
       return false
     }
 
-    const receiver = context || slot
+    const receiver = context ?? slot
 
     if (!sendersForReceiver.has(receiver)) {
       sendersForReceiver.set(receiver, [])
@@ -43,23 +41,23 @@ export class Signal<Args, Sender extends object> {
       return false
     }
 
-    const connection = findConnection(receivers, this, slot, context)
+    const connection = find_connection(receivers, this, slot, context)
     if (connection == null) {
       return false
     }
 
-    const receiver = context || slot
+    const receiver = context ?? slot
     const senders = sendersForReceiver.get(receiver)!
 
     connection.signal = null
-    scheduleCleanup(receivers)
-    scheduleCleanup(senders)
+    schedule_cleanup(receivers)
+    schedule_cleanup(senders)
 
     return true
   }
 
   emit(args: Args): void {
-    const receivers = receiversForSender.get(this.sender) || []
+    const receivers = receiversForSender.get(this.sender) ?? []
 
     for (const {signal, slot, context} of receivers) {
       if (signal === this) {
@@ -76,7 +74,7 @@ export class Signal0<Sender extends object> extends Signal<void, Sender> {
 }
 
 export namespace Signal {
-  export function disconnectBetween(sender: object, receiver: object): void {
+  export function disconnect_between(sender: object, receiver: object): void {
     const receivers = receiversForSender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
@@ -93,11 +91,11 @@ export namespace Signal {
         connection.signal = null
     }
 
-    scheduleCleanup(receivers)
-    scheduleCleanup(senders)
+    schedule_cleanup(receivers)
+    schedule_cleanup(senders)
   }
 
-  export function disconnectSender(sender: object): void {
+  export function disconnect_sender(sender: object): void {
     const receivers = receiversForSender.get(sender)
     if (receivers == null || receivers.length === 0)
       return
@@ -106,15 +104,15 @@ export namespace Signal {
       if (connection.signal == null)
         return
 
-      const receiver = connection.context || connection.slot
+      const receiver = connection.context ?? connection.slot
       connection.signal = null
-      scheduleCleanup(sendersForReceiver.get(receiver)!)
+      schedule_cleanup(sendersForReceiver.get(receiver)!)
     }
 
-    scheduleCleanup(receivers)
+    schedule_cleanup(receivers)
   }
 
-  export function disconnectReceiver(receiver: object): void {
+  export function disconnect_receiver(receiver: object, slot?: Slot<any, any>, except_senders?: Set<object>): void {
     const senders = sendersForReceiver.get(receiver)
     if (senders == null || senders.length === 0)
       return
@@ -123,21 +121,27 @@ export namespace Signal {
       if (connection.signal == null)
         return
 
+      if (slot != null && connection.slot != slot)
+        continue
+
       const sender = connection.signal.sender
+      if (except_senders != null && except_senders.has(sender))
+        continue
+
       connection.signal = null
-      scheduleCleanup(receiversForSender.get(sender)!)
+      schedule_cleanup(receiversForSender.get(sender)!)
     }
 
-    scheduleCleanup(senders)
+    schedule_cleanup(senders)
   }
 
-  export function disconnectAll(obj: object): void {
+  export function disconnect_all(obj: object): void {
     const receivers = receiversForSender.get(obj)
     if (receivers != null && receivers.length !== 0) {
       for (const connection of receivers) {
         connection.signal = null
       }
-      scheduleCleanup(receivers)
+      schedule_cleanup(receivers)
     }
 
     const senders = sendersForReceiver.get(obj)
@@ -145,64 +149,67 @@ export namespace Signal {
       for (const connection of senders) {
         connection.signal = null
       }
-      scheduleCleanup(senders)
+      schedule_cleanup(senders)
     }
   }
+
+  /** @deprecated */
+  export const disconnectBetween = disconnect_between
+
+  /** @deprecated */
+  export const disconnectSender = disconnect_sender
+
+  /** @deprecated */
+  export const disconnectReceiver = disconnect_receiver
+
+  /** @deprecated */
+  export const disconnectAll = disconnect_all
 }
 
 export interface ISignalable {
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
+  disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean
 }
 
-export function Signalable<C extends Constructor>(Base?: C) {
-  // XXX: `class Foo extends Signalable(Object)` doesn't work (compiles, but fails at runtime), so
-  // we have to do this to allow signalable classes without an explict base class.
-  if (Base != null) {
-    return class extends Base implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.connect(slot, this)
-      }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.disconnect(slot, this)
-      }
+export function Signalable() {
+  return class implements ISignalable {
+    connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      return signal.connect(slot, this)
     }
-  } else {
-    return class implements ISignalable {
-      connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.connect(slot, this)
-      }
-      disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-        return signal.disconnect(slot, this)
-      }
+    disconnect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
+      return signal.disconnect(slot, this)
     }
   }
 }
 
-interface Connection {
+type Connection = {
   signal: Signal<any, object> | null
-  readonly slot: Slot<any, object>
+  readonly slot: Slot<any, any>
   readonly context: object | null
 }
 
 const receiversForSender = new WeakMap<object, Connection[]>()
 const sendersForReceiver = new WeakMap<object, Connection[]>()
 
-function findConnection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
+function find_connection(conns: Connection[], signal: Signal<any, any>, slot: Slot<any, any>, context: any): Connection | undefined {
   return find(conns, conn => conn.signal === signal && conn.slot === slot && conn.context === context)
 }
 
-const dirtySet = new Set<Connection[]>()
+const dirty_set = new Set<Connection[]>()
 
-function scheduleCleanup(connections: Connection[]): void {
-  if (dirtySet.size === 0) {
-    defer(cleanupDirtySet)
+function schedule_cleanup(connections: Connection[]): void {
+  if (dirty_set.size === 0) {
+    (async () => {
+      await defer()
+      cleanup_dirty_set()
+    })()
   }
-  dirtySet.add(connections)
+  dirty_set.add(connections)
 }
 
-function cleanupDirtySet(): void {
-  dirtySet.forEach((connections) => {
+function cleanup_dirty_set(): void {
+  for (const connections of dirty_set) {
     remove_by(connections, (connection) => connection.signal == null)
-  })
-  dirtySet.clear()
+  }
+  dirty_set.clear()
 }

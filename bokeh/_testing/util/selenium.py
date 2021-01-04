@@ -37,12 +37,17 @@ __all__ = (
     'ButtonWrapper',
     'copy_table_rows',
     'COUNT',
+    'drag_range_slider',
+    'drag_slider',
     'element_to_finish_resizing',
     'element_to_start_resizing',
     'enter_text_in_cell',
     'enter_text_in_cell_with_click_enter',
     'enter_text_in_element',
     'get_page_element',
+    'get_slider_bar_color',
+    'get_slider_title_text',
+    'get_slider_title_value',
     'get_table_cell',
     'get_table_column_cells',
     'get_table_header',
@@ -91,8 +96,8 @@ def alt_click(driver, element):
     actions.key_up(Keys.META)
     actions.perform()
 
-class ButtonWrapper(object):
 
+class ButtonWrapper:
     def __init__(self, label, callback):
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
@@ -102,7 +107,7 @@ class ButtonWrapper(object):
         button = driver.find_element_by_css_selector(".%s .bk-btn" % self.ref)
         button.click()
 
-class element_to_start_resizing(object):
+class element_to_start_resizing:
     ''' An expectation for checking if an element has started resizing
     '''
 
@@ -118,7 +123,7 @@ class element_to_start_resizing(object):
             self.previous_width = current_width
             return False
 
-class element_to_finish_resizing(object):
+class element_to_finish_resizing:
     ''' An expectation for checking if an element has finished resizing
 
     '''
@@ -139,7 +144,7 @@ def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
     actions.move_to_element(element)
     actions.click()
-    for i in range(press_number):
+    for _ in range(press_number):
         actions = ActionChains(driver)
         actions.send_keys_to_element(element, key)
         actions.perform()
@@ -165,7 +170,8 @@ def enter_text_in_element(driver, element, text, click=1, enter=True, mod=None):
 def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
-    actions.double_click()
+    actions.double_click() # start editing a cell
+    actions.double_click() # select all text and overwrite it in the next step
     actions.send_keys(text + Keys.ENTER)
     actions.perform()
 
@@ -259,6 +265,40 @@ def wait_for_canvas_resize(canvas, test_driver):
         # Put the waits in to give some time, but allow test to
         # try and process.
         pass
+
+def drag_slider(driver, css_class, distance, release=True):
+    el = driver.find_element_by_css_selector(css_class)
+    handle = el.find_element_by_css_selector('.noUi-handle')
+    actions = ActionChains(driver)
+    actions.move_to_element(handle)
+    actions.click_and_hold()
+    actions.move_by_offset(distance, 0)
+    if release:
+        actions.release()
+    actions.perform()
+
+def drag_range_slider(driver, css_class, location, distance):
+    el = driver.find_element_by_css_selector(css_class)
+    handle = el.find_element_by_css_selector('.noUi-handle-' + location)
+    actions = ActionChains(driver)
+    actions.move_to_element(handle)
+    actions.click_and_hold()
+    actions.move_by_offset(distance, 0)
+    actions.release()
+    actions.perform()
+
+def get_slider_title_text(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
+
+def get_slider_title_value(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
+
+def get_slider_bar_color(driver, css_class):
+    el = driver.find_element_by_css_selector(css_class)
+    bar = el.find_element_by_css_selector('.noUi-connect')
+    return bar.value_of_css_property('background-color')
 
 #-----------------------------------------------------------------------------
 # Dev API

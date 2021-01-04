@@ -43,7 +43,7 @@ from .core.templates import CSS_RESOURCES, JS_RESOURCES
 from .model import Model
 from .settings import settings
 from .util.paths import ROOT_DIR, bokehjsdir
-from .util.session_id import generate_session_id
+from .util.token import generate_session_id
 from .util.version import is_full_release
 
 # -----------------------------------------------------------------------------
@@ -104,7 +104,8 @@ def get_all_sri_hashes():
     global _SRI_HASHES
 
     if not _SRI_HASHES:
-        _SRI_HASHES = json.load(open(join(ROOT_DIR, "_sri.json")))
+        with open(join(ROOT_DIR, "_sri.json")) as f:
+            _SRI_HASHES = json.load(f)
 
     return dict(_SRI_HASHES)
 
@@ -126,6 +127,9 @@ def get_sri_hashes_for_version(version):
     Returns:
         dict
 
+    Raises:
+        KeyError: if the specified version does not exist
+
     Example:
 
         The returned dict for a single version will map filenames for that
@@ -138,8 +142,6 @@ def get_sri_hashes_for_version(version):
                 'bokeh-1.4.0.min.js': 'mdMpUZqu5U0cV1pLU9Ap/3jthtPth7yWSJTu1ayRgk95qqjLewIkjntQDQDQA5cZ',
                 'bokeh-api-1.4.0.js': 'Y3kNQHt7YjwAfKNIzkiQukIOeEGKzUU3mbSrraUl1KVfrlwQ3ZAMI1Xrw5o3Yg5V',
                 'bokeh-api-1.4.0.min.js': '4oAJrx+zOFjxu9XLFp84gefY8oIEr75nyVh2/SLnyzzg9wR+mXXEi+xyy/HzfBLM',
-                'bokeh-gl-1.4.0.js': '/+5P6xEUbH87YpzmmpvP7veStj9hr1IBz+r/5oBPr9WwMIft5H4rEJCnyRJsgdRz',
-                'bokeh-gl-1.4.0.min.js': 'nGZaob7Ort3hHvecwVIYtti+WDUaCkU+19+OuqX4ZWzw4ZsDQC2XRbsLEJ1OhDal',
                 'bokeh-tables-1.4.0.js': 'I2iTMWMyfU/rzKXWJ2RHNGYfsXnyKQ3YjqQV2RvoJUJCyaGBrp0rZcWiTAwTc9t6',
                 'bokeh-tables-1.4.0.min.js': 'pj14Cq5ZSxsyqBh+pnL2wlBS3UX25Yz1gVxqWkFMCExcnkN3fl4mbOF8ZUKyh7yl',
                 'bokeh-widgets-1.4.0.js': 'scpWAebHEUz99AtveN4uJmVTHOKDmKWnzyYKdIhpXjrlvOwhIwEWUrvbIHqA0ke5',
@@ -198,7 +200,7 @@ def verify_sri_hashes():
     if bad:
         raise RuntimeError(f"SRI Hash mismatches in the package: {bad!r}")
 
-class BaseResources(object):
+class BaseResources:
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
@@ -225,9 +227,19 @@ class BaseResources(object):
 
         self.mode = settings.resources(mode)
         del mode
+
+        if root_dir and not self.mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+
+        if version and not self.mode.startswith("cdn"):
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
+
+        if root_url and not self.mode.startswith("server"):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
         self.root_dir = settings.rootdir(root_dir)
         del root_dir
-        self.version = settings.version(version)
+        self.version = settings.cdn_version(version)
         del version
         self.minified = settings.minified(minified)
         del minified
@@ -256,15 +268,6 @@ class BaseResources(object):
                 "wrong value for 'mode' parameter, expected "
                 "'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode
             )
-
-        if self.root_dir and not self.mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if self.version and not self.mode.startswith("cdn"):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not self.mode.startswith("server"):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
 
         self.dev = self.mode.endswith("-dev")
         if self.dev:
@@ -311,9 +314,10 @@ class BaseResources(object):
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
-        legacy = "legacy" if self.legacy else ""
-        files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
-        paths = [join(self.base_dir, kind, legacy, file) for file in files]
+        legacy = ".legacy" if self.legacy else ""
+
+        files = [f"{component}{legacy}{minified}.{kind}" for component in self.components(kind)]
+        paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
     def _collect_external_resources(self, resource_attr):
@@ -343,6 +347,7 @@ class BaseResources(object):
     def _resolve(self, kind):
         paths = self._file_paths(kind)
         files, raw = [], []
+        hashes = {}
 
         if self.mode == "inline":
             raw = [self._inline(path) for path in paths]
@@ -354,11 +359,13 @@ class BaseResources(object):
         elif self.mode == "cdn":
             cdn = self._cdn_urls()
             files = list(cdn["urls"](self.components(kind), kind))
+            if cdn["hashes"]:
+                hashes = cdn["hashes"](self.components(kind), kind)
         elif self.mode == "server":
             server = self._server_urls()
             files = list(server["urls"](self.components(kind), kind))
 
-        return (files, raw)
+        return (files, raw, hashes)
 
     @staticmethod
     def _inline(path):
@@ -420,19 +427,19 @@ class JSResources(BaseResources):
 
     """
 
-    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
 
     # Properties --------------------------------------------------------------
 
     @property
     def js_files(self):
-        files, _ = self._resolve("js")
+        files, _, __ = self._resolve("js")
         external_resources = self._collect_external_resources("__javascript__")
         return external_resources + files
 
     @property
     def js_raw(self):
-        _, raw = self._resolve("js")
+        _, raw, __ = self._resolve("js")
 
         if self.log_level is not None:
             raw.append('Bokeh.set_log_level("%s");' % self.log_level)
@@ -442,10 +449,15 @@ class JSResources(BaseResources):
 
         return raw
 
+    @property
+    def hashes(self):
+        _, __, hashes = self._resolve("js")
+        return hashes
+
     # Public methods ----------------------------------------------------------
 
     def render_js(self):
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
+        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
 
 
 class CSSResources(BaseResources):
@@ -498,13 +510,13 @@ class CSSResources(BaseResources):
 
     @property
     def css_files(self):
-        files, _ = self._resolve("css")
+        files, _, __ = self._resolve("css")
         external_resources = self._collect_external_resources("__css__")
         return external_resources + files
 
     @property
     def css_raw(self):
-        _, raw = self._resolve("css")
+        _, raw, __ = self._resolve("css")
         return raw
 
     @property
@@ -576,7 +588,7 @@ class Resources(JSResources, CSSResources):
 # -----------------------------------------------------------------------------
 
 
-class _SessionCoordinates(object):
+class _SessionCoordinates:
     """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
 
     def __init__(self, **kwargs):
@@ -635,7 +647,7 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
 
     # check if we want minified js and css
     _minified = ".min" if minified else ""
-    _legacy = "legacy/" if legacy else ""
+    _legacy = ".legacy" if legacy else ""
 
     base_url = _cdn_base_url()
     dev_container = "bokeh/dev"
@@ -644,13 +656,17 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
     # check the 'dev' fingerprint
     container = dev_container if _DEV_PAT.match(version) else rel_container
 
-    if version.endswith(("dev", "rc")):
-        log.debug("Getting CDN URL for local dev version will not produce usable URL")
+    def mk_filename(comp, kind):
+        return f"{comp}-{version}{_legacy}{_minified}.{kind}"
 
     def mk_url(comp, kind):
-        return f"{base_url}/{container}/{_legacy}{comp}-{version}{_minified}.{kind}"
+        return f"{base_url}/{container}/" + mk_filename(comp, kind)
 
-    result = {"urls": lambda components, kind: [mk_url(component, kind) for component in components], "messages": []}
+    result = {
+        "urls": lambda components, kind: [mk_url(component, kind) for component in components],
+        "messages": [],
+        "hashes" : None
+    }
 
     if len(__version__.split("-")) > 1:
         result["messages"].append(
@@ -663,15 +679,19 @@ def _get_cdn_urls(version=None, minified=True, legacy=False):
             }
         )
 
+    if is_full_release(version):
+        sri_hashes = get_sri_hashes_for_version(version)
+        result['hashes'] = lambda components, kind: {mk_url(component, kind): sri_hashes[mk_filename(component, kind)] for component in components}
+
     return result
 
 
 def _get_server_urls(root_url, minified=True, legacy=False, path_versioner=None):
     _minified = ".min" if minified else ""
-    _legacy = "legacy/" if legacy else ""
+    _legacy = ".legacy" if legacy else ""
 
     def mk_url(comp, kind):
-        path = f"{kind}/{_legacy}{comp}{_minified}.{kind}"
+        path = f"{kind}/{comp}{_legacy}{_minified}.{kind}"
         if path_versioner is not None:
             path = path_versioner(path)
         return f"{root_url}static/{path}"

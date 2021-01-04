@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
@@ -38,9 +41,10 @@ def is_cds_data_streamed(evt):
     return evt['kind'] == 'ColumnsStreamed'
 
 
-@pytest.mark.selenium
-class Test_ColumnDataSource(object):
 
+@pytest.mark.selenium
+class Test_ColumnDataSource:
+    @flaky(max_runs=10)
     def test_client_source_patch_sends_patch_event(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
@@ -85,6 +89,7 @@ class Test_ColumnDataSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_client_source_stream_sends_patch_event(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)

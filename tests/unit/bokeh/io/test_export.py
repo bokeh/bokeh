@@ -15,8 +15,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 from typing import Tuple
+
+# External imports
+from flaky import flaky
 
 # Bokeh imports
 from bokeh.core.validation import silenced
@@ -50,6 +52,7 @@ def webdriver(request):
 # Dev API
 #-----------------------------------------------------------------------------
 
+@flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
@@ -71,10 +74,10 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
 
     data = png.tobytes()
     assert len(data) == 4*width*height
-    assert (data == b"\x00\xff\x00\xff"*width*height or
-            data == b"\x2e\xff\x05\xff"*width*height)   # XXX: Chrome on MacOS
+    assert data == b"\x00\xff\x00\xff"*width*height
 
 
+@flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]) -> None:
@@ -101,14 +104,14 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
     count = 0
     for x in range(width*height):
         pixel = data[x*4:x*4+4]
-        if pixel == b"\xff\x00\x00\xff" or \
-           pixel == b"\xfc\x00\x06\xff":     # XXX: Chrome on MacOS
+        if pixel == b"\xff\x00\x00\xff":
             count += 1
 
     w, h, b = width, height, border
     expected_count = w*h - 2*b*(w + h) + 4*b**2
     assert count == expected_count
 
+@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -118,6 +121,7 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver) -> None:
 
     assert len(png.tobytes()) > 0
 
+@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -127,49 +131,92 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
 
     assert len(png.tobytes()) > 0
 
+@flaky(max_runs=10)
+@pytest.mark.selenium
+def test_get_svg_no_svg_present() -> None:
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
+
+    with silenced(MISSING_RENDERERS):
+        svgs = bie.get_svg(layout)
+
+    assert svgs == [
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+            '<defs/>'
+            '<image width="20" height="20" preserveAspectRatio="none" xlink:href="'
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAbElEQVQ4T2P8//+/AwMDAwhTBTD+//+/gYGBoZ4'
+            'qpjEwMIwaCAnJN2/eMPz69YtgsLKxsTGIiIigqMMahs+ePWOQkpIiaCA2daMGQoJtNAxxJp+BSzbE5hRmZuYL4uLiBsheGC1tCJYHBBUAAA7h'
+            'kkaBfwzpAAAAAElFTkSuQmCC"/>'
+        '</svg>',
+    ]
+
+@flaky(max_runs=10)
+@pytest.mark.selenium
+def test_get_svg_with_svg_present(webdriver) -> None:
+    plot = lambda color: Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        plot_height=20, plot_width=20, toolbar_location=None,
+        outline_line_color=None, border_fill_color=None,
+        background_fill_color=color, output_backend="svg",
+    )
+
+    layout = row([plot("red"), plot("blue")])
+
+    with silenced(MISSING_RENDERERS):
+        svgs0 = bie.get_svg(layout, driver=webdriver)
+        svgs1 = bie.get_svg(layout, driver=webdriver)
+
+    svgs2 = [
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="40" height="20">'
+            '<defs/>'
+            '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
+            '<g transform="matrix(1, 0, 0, 1, 20, 0)">'
+                '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
+            '</g>'
+        '</svg>',
+    ]
+
+    assert svgs0 == svgs2
+    assert svgs1 == svgs2
+
+@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-              plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svgs(layout)
 
     assert svgs == []
 
+@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present(webdriver) -> None:
-
-    def fix_ids(svg):
-        svg = re.sub(r'id="\w{12}"', 'id="X"', svg)
-        svg = re.sub(r'url\(#\w{12}\)', 'url(#X)', svg)
-        return svg
-
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=20, plot_width=20, toolbar_location=None,
-                  outline_line_color=None, border_fill_color=None,
-                  background_fill_color="red", output_backend="svg")
-
-    with silenced(MISSING_RENDERERS):
-        svg0 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
-        svg1 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
-
-    svg2 = (
-        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-        'width="20" height="20" style="width: 20px; height: 20px;">'
-        '<defs/>'
-        '<g>'
-            '<g transform="scale(1,1) translate(0.5,0.5)">'
-                '<rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
-                '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/>'
-                '<g/>'
-            '</g>'
-        '</g>'
-        '</svg>'
+    plot = lambda color: Plot(
+        x_range=Range1d(), y_range=Range1d(),
+        plot_height=20, plot_width=20, toolbar_location=None,
+        outline_line_color=None, border_fill_color=None,
+        background_fill_color=color, output_backend="svg",
     )
 
-    assert svg0 == svg2
-    assert svg1 == svg2
+    layout = row([plot("red"), plot("blue")])
+
+    with silenced(MISSING_RENDERERS):
+        svgs0 = bie.get_svgs(layout, driver=webdriver)
+        svgs1 = bie.get_svgs(layout, driver=webdriver)
+
+    svgs2 = [
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+            '<defs/>'
+            '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
+        '</svg>',
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
+            '<defs/>'
+            '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
+        '</svg>',
+    ]
+
+    assert svgs0 == svgs2
+    assert svgs1 == svgs2
 
 def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250

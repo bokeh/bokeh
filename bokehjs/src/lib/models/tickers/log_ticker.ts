@@ -19,12 +19,12 @@ export class LogTicker extends AdaptiveTicker {
   }
 
   static init_LogTicker(): void {
-    this.override({
+    this.override<LogTicker.Props>({
       mantissas: [1, 5],
     })
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
 
@@ -66,10 +66,10 @@ export class LogTicker extends AdaptiveTicker {
       const interval = Math.ceil((endlog - startlog) / 9.0)
 
       ticks = range(startlog-1, endlog+1, interval)
-        .map((i) => Math.pow(base, i))
+        .map((i) => base**i)
 
       if (num_minor_ticks > 0 && ticks.length > 0) {
-        const minor_interval = Math.pow(base, interval) / num_minor_ticks
+        const minor_interval = base**interval / num_minor_ticks
         const minor_offsets = range(1, num_minor_ticks+1).map((i) => i*minor_interval)
         for (const x of minor_offsets) {
           minor_ticks.push(ticks[0] / x)

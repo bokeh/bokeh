@@ -20,9 +20,9 @@ export abstract class DataSource extends Model {
   }
 
   static init_DataSource(): void {
-    this.define<DataSource.Props>({
-      selected: [ p.Instance, () => new Selection() ], // TODO (bev)
-    })
+    this.define<DataSource.Props>(({Ref}) => ({
+      selected: [ Ref(Selection), () => new Selection() ],
+    }))
   }
 
   setup?(): void

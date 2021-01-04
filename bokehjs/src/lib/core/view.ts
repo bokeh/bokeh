@@ -1,38 +1,53 @@
-import /*type*/ {HasProps} from "./has_props"
+import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
+import {StyleSheet, stylesheet} from "./dom"
 import {isArray} from "./util/types"
-import {uniqueId} from "./util/string"
+import {Box} from "./types"
+
+import root_css from "styles/root.css"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
+export type SerializableState = {
+  type: string
+  bbox?: Box
+  children?: SerializableState[]
+}
+
 export namespace View {
   export type Options = {
-    id?: string
     model: HasProps
     parent: View | null
   }
 }
 
 export class View implements ISignalable {
-
   readonly removed = new Signal0<this>(this, "removed")
-
-  readonly id: string
 
   readonly model: HasProps
 
-  private _parent: View | null | undefined
+  readonly parent: View | null
+  readonly root: View
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
     return this._ready
   }
 
+  protected _has_finished: boolean
+
+  /** @internal */
+  protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
+
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    const new_slot = (args: Args, sender: Sender): void => {
-      const promise = Promise.resolve(slot.call(this, args, sender))
-      this._ready = this._ready.then(() => promise)
+    let new_slot = this._slots.get(slot)
+    if (new_slot == null) {
+      new_slot = (args: Args, sender: Sender): void => {
+        const promise = Promise.resolve(slot.call(this, args, sender))
+        this._ready = this._ready.then(() => promise)
+      }
+      this._slots.set(slot, new_slot)
     }
 
     return signal.connect(new_slot, this)
@@ -43,46 +58,40 @@ export class View implements ISignalable {
   }
 
   constructor(options: View.Options) {
-    if (options.model != null)
-      this.model = options.model
-    else
-      throw new Error("model of a view wasn't configured")
-
-    this._parent = options.parent
-    this.id = options.id || uniqueId()
+    const {model, parent} = options
+    this.model = model
+    this.parent = parent
+    this.root = parent == null ? this : parent.root
+    this.removed.emit()
   }
 
-  initialize(): void {}
+  initialize(): void {
+    this._has_finished = false
+    if (this.is_root) {
+      this._stylesheet = stylesheet
+    }
+    for (const style of this.styles()) {
+      this.stylesheet.append(style)
+    }
+  }
 
   async lazy_initialize(): Promise<void> {}
 
   remove(): void {
-    this._parent = undefined
     this.disconnect_signals()
     this.removed.emit()
   }
 
   toString(): string {
-    return `${this.model.type}View(${this.id})`
+    return `${this.model.type}View(${this.model.id})`
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {type: this.model.type}
   }
 
-  get parent(): View | null {
-    if (this._parent !== undefined)
-      return this._parent
-    else
-      throw new Error("parent of a view wasn't configured")
-  }
-
   get is_root(): boolean {
-    return this.parent === null
-  }
-
-  get root(): View {
-    return this.is_root ? this : this.parent!.root
+    return this.parent == null
   }
 
   assert_root(): void {
@@ -90,17 +99,42 @@ export class View implements ISignalable {
       throw new Error(`${this.toString()} is not a root layout`)
   }
 
+  has_finished(): boolean {
+    return this._has_finished
+  }
+
+  get is_idle(): boolean {
+    return this.has_finished()
+  }
+
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
-  on_change(property: Property<unknown>, fn: () => void): void
-  on_change(properties: Property<unknown>[], fn: () => void): void
-
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
-    for (const property of isArray(properties) ? properties : [properties])
+    for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
+    }
+  }
+
+  cursor(_sx: number, _sy: number): string | null {
+    return null
+  }
+
+  on_hit?(sx: number, sy: number): boolean
+
+  private _stylesheet: StyleSheet
+
+  get stylesheet(): StyleSheet {
+    if (this.is_root)
+      return this._stylesheet
+    else
+      return this.root.stylesheet
+  }
+
+  styles(): string[] {
+    return [root_css]
   }
 }

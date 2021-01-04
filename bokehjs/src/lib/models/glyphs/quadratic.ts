@@ -1,10 +1,11 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import * as visuals from "core/visuals"
+import {Rect, NumberArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
+import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import * as p from "core/properties"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -22,25 +23,25 @@ function _qbb(u: number, v: number, w: number): [number, number] {
     return [u, w]
   else {
     const t = (u - v) / ((u - (2*v)) + w)
-    const bd = (u*Math.pow((1 - t), 2)) + (2*v*(1 - t)*t) + (w*Math.pow(t, 2))
+    const bd = (u*(1 - t)**2) + (2*v*(1 - t)*t) + (w*t**2)
     return [Math.min(u, w, bd), Math.max(u, w, bd)]
   }
 }
 
 export interface QuadraticData extends GlyphData {
-  _x0: Arrayable<number>
-  _y0: Arrayable<number>
-  _x1: Arrayable<number>
-  _y1: Arrayable<number>
-  _cx: Arrayable<number>
-  _cy: Arrayable<number>
+  _x0: NumberArray
+  _y0: NumberArray
+  _x1: NumberArray
+  _y1: NumberArray
+  _cx: NumberArray
+  _cy: NumberArray
 
-  sx0: Arrayable<number>
-  sy0: Arrayable<number>
-  sx1: Arrayable<number>
-  sy1: Arrayable<number>
-  scx: Arrayable<number>
-  scy: Arrayable<number>
+  sx0: NumberArray
+  sy0: NumberArray
+  sx1: NumberArray
+  sy1: NumberArray
+  scx: NumberArray
+  scy: NumberArray
 }
 
 export interface QuadraticView extends QuadraticData {}
@@ -49,20 +50,24 @@ export class QuadraticView extends GlyphView {
   model: Quadratic
   visuals: Quadratic.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points = []
+  protected _project_data(): void {
+    inplace.project_xy(this._x0, this._y0)
+    inplace.project_xy(this._x1, this._y1)
+  }
 
-    for (let i = 0, end = this._x0.length; i < end; i++) {
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
       if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx[i] + this._cy[i]))
-        continue
+        index.add_empty()
+      else {
+        const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
+        const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
 
-      const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
-      const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
-
-      points.push({x0, y0, x1, y1, i})
+        index.add(x0, y0, x1, y1)
+      }
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1, scx, scy}: QuadraticData): void {
@@ -82,37 +87,36 @@ export class QuadraticView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterx(): number {
-    throw new Error("not implemented")
-  }
-
-  scentery(): number {
-    throw new Error("not implemented")
+  scenterxy(): [number, number] {
+    throw new Error(`${this}.scenterxy() is not implemented`)
   }
 }
 
 export namespace Quadratic {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & {
+  export type Props = Glyph.Props & {
     x0: p.CoordinateSpec
     y0: p.CoordinateSpec
     x1: p.CoordinateSpec
     y1: p.CoordinateSpec
     cx: p.CoordinateSpec
     cy: p.CoordinateSpec
-  }
+  } & Mixins
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Mixins = LineVector
+
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
   properties: Quadratic.Props
+  __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)
@@ -121,7 +125,14 @@ export class Quadratic extends Glyph {
   static init_Quadratic(): void {
     this.prototype.default_view = QuadraticView
 
-    this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])
-    this.mixins(['line'])
+    this.define<Quadratic.Props>(({}) => ({
+      x0: [ p.XCoordinateSpec, {field: "x0"} ],
+      y0: [ p.YCoordinateSpec, {field: "y0"} ],
+      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      y1: [ p.YCoordinateSpec, {field: "y1"} ],
+      cx: [ p.XCoordinateSpec, {field: "cx"} ],
+      cy: [ p.YCoordinateSpec, {field: "cy"} ],
+    }))
+    this.mixins<Quadratic.Mixins>(LineVector)
   }
 }

@@ -16,7 +16,6 @@ import pytest ; pytest
 
 # Standard library imports
 import hashlib
-import io
 from os.path import abspath, join, split
 
 # Module under test
@@ -49,7 +48,7 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-pinned_template_sha256 = "882bcee1a8d3a51f6e92680029f5cba119bb0c16e637d196524fa33384bd398f"
+pinned_template_sha256 = "7ef90f10663ac0168363c95050a718ad5a0caa27a69145b2b4cdf916787a8554"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the
@@ -57,12 +56,13 @@ def test_autoload_template_has_changed() -> None:
     plots into notebooks is working as expected. In particular, this test was
     created as part of https://github.com/bokeh/bokeh/issues/7125.
     """
-    with io.open(join(TOP_PATH, '_templates/autoload_nb_js.js'), mode='rb') as f:
-        assert pinned_template_sha256 == compute_sha256(_crlf_cr_2_lf_bin(f.read())), \
-        """It seems that the template autoload_nb_js.js has changed.
-        If this is voluntary and that proper testing of plots insertion
-        in notebooks has been completed successfully, update this test
-        with the new file SHA256 signature."""
+    with open(join(TOP_PATH, "_templates/autoload_nb_js.js"), mode="rb") as f:
+        current_template_sha256 = compute_sha256(_crlf_cr_2_lf_bin(f.read()))
+        assert pinned_template_sha256 == current_template_sha256, """\
+            It seems that the template autoload_nb_js.js has changed.
+            If this is voluntary and that proper testing of plots insertion
+            in notebooks has been completed successfully, update this test
+            with the new file SHA256 signature."""
 
 #-----------------------------------------------------------------------------
 # Private API

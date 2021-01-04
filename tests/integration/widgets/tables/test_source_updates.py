@@ -64,9 +64,10 @@ def has_cds_data_patches(msgs):
 
     return False
 
-@pytest.mark.selenium
-class Test_DataTableSource(object):
 
+@pytest.mark.selenium
+class Test_DataTableSource:
+    @flaky(max_runs=10)
     def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -121,6 +122,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_source_stream_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -175,6 +177,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_source_update_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -229,6 +232,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_edit_does_not_duplicate_data_update_event(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -278,6 +282,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_basic_selection(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
@@ -300,8 +305,8 @@ class Test_DataTableSource(object):
 
         results = page.results
         assert results ==  {'indices': []}
-        assert set(source.selected.indices) == set([])
-        assert get_table_selected_rows(page.driver) == set([])
+        assert set(source.selected.indices) == set()
+        assert get_table_selected_rows(page.driver) == set()
 
         # select the third row
         row = get_table_row(page.driver, 3)
@@ -312,7 +317,7 @@ class Test_DataTableSource(object):
         results = page.results
         assert results ==  {'indices': [2]}
         assert source.selected.indices == [2]
-        assert get_table_selected_rows(page.driver) == set([2])
+        assert get_table_selected_rows(page.driver) == {2}
 
         # select the first row
         row = get_table_row(page.driver, 1)
@@ -323,11 +328,12 @@ class Test_DataTableSource(object):
         results = page.results
         assert results ==  {'indices': [0]}
         assert source.selected.indices == [0]
-        assert get_table_selected_rows(page.driver) == set([0])
+        assert get_table_selected_rows(page.driver) == {0}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_basic_mulitselection(self, bokeh_server_page) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
@@ -350,8 +356,8 @@ class Test_DataTableSource(object):
 
         results = page.results
         assert results ==  {'indices': []}
-        assert set(source.selected.indices) == set([])
-        assert get_table_selected_rows(page.driver) == set([])
+        assert set(source.selected.indices) == set()
+        assert get_table_selected_rows(page.driver) == set()
 
         # select the third row
         row = get_table_row(page.driver, 2)
@@ -363,9 +369,9 @@ class Test_DataTableSource(object):
         page.click_custom_action()
 
         results = page.results
-        assert set(results['indices']) ==  set([1, 2, 3])
-        assert set(source.selected.indices) == set([1, 2, 3])
-        assert get_table_selected_rows(page.driver) == set([1, 2, 3])
+        assert set(results["indices"]) == {1, 2, 3}
+        assert set(source.selected.indices) == {1, 2, 3}
+        assert get_table_selected_rows(page.driver) == {1, 2, 3}
 
         row = get_table_row(page.driver, 6)
         alt_click(page.driver, row)
@@ -373,14 +379,14 @@ class Test_DataTableSource(object):
         page.click_custom_action()
 
         results = page.results
-        assert set(results['indices']) ==  set([1, 2, 3, 5])
-        assert set(source.selected.indices) == set([1, 2, 3, 5])
-        assert get_table_selected_rows(page.driver) == set([1, 2, 3, 5])
+        assert set(results["indices"]) == {1, 2, 3, 5}
+        assert set(source.selected.indices) == {1, 2, 3, 5}
+        assert get_table_selected_rows(page.driver) == {1, 2, 3, 5}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=5)
+    @flaky(max_runs=10)
     def test_server_sorted_after_data_update(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -438,6 +444,7 @@ class Test_DataTableSource(object):
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_sorted_after_patch(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -495,6 +502,7 @@ class Test_DataTableSource(object):
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_sorted_after_stream(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -552,6 +560,7 @@ class Test_DataTableSource(object):
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_sorted_after_edit(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -604,6 +613,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_source_updated_after_edit(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -646,6 +656,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_source_callback_triggered_after_edit(self, bokeh_server_page) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)

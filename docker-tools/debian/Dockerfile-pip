@@ -1,0 +1,47 @@
+FROM python:3.7-slim
+
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV NUM_PROCS=4
+ENV BOKEH_RESOURCES=cdn
+
+RUN apt-get update \
+    && apt-get install gcc -y \
+    && apt-get install git -y \
+    && apt-get clean
+
+WORKDIR /demo.bokeh.org
+
+COPY ./requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+RUN git clone --branch 1.4.0 https://github.com/bokeh/bokeh.git
+RUN mkdir -p ./examples \
+    && cp -r ./bokeh/examples/app ./examples/ \
+    && rm -rf ./bokeh
+RUN python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+RUN python ./examples/app/stocks/download_sample_data.py
+ADD https://raw.githubusercontent.com/bokeh/demo.bokeh.org/master/index.html ./index.html
+
+EXPOSE 8080
+
+CMD bokeh serve --port 8080 \
+    --allow-websocket-origin="*" \
+    --index=/demo.bokeh.org/index.html \
+    --num-procs=${NUM_PROCS} \
+    ./examples/app/clustering \
+    ./examples/app/crossfilter \
+    ./examples/app/dash \
+    ./examples/app/export_csv \
+    ./examples/app/fourier_animated.py \
+    ./examples/app/gapminder \
+    ./examples/app/image_blur.py \
+    ./examples/app/movies \
+    ./examples/app/ohlc \
+    ./examples/app/population.py \
+    ./examples/app/selection_histogram.py \
+    ./examples/app/sliders.py \
+    ./examples/app/spectrogram \
+    ./examples/app/surface3d \
+    ./examples/app/stocks \
+    ./examples/app/taylor.py \
+    ./examples/app/weather

@@ -20,7 +20,7 @@ p = figure(title="Tappy Scatter", tools=TOOLS)
 cr = p.circle(x, y, radius=radii,
               fill_color=colors, fill_alpha=0.6, line_color=None)
 
-tr = p.text(x, y, text=inds, alpha=0.5, text_font_size="5pt",
+tr = p.text(x, y, text=inds, alpha=0.5, text_font_size="7px",
             text_baseline="middle", text_align="center")
 
 # in the browser console, you will see messages when circles are clicked

@@ -176,7 +176,7 @@ def convert_bool(value):
     if val in ["no", "0", "off", "false", "False"]:
         return False
 
-    raise ValueError("Cannot convert {} to boolean value".format(value))
+    raise ValueError(f"Cannot convert {value} to boolean value")
 
 def convert_str_seq(value):
     ''' Convert a string to a lit of strings
@@ -197,7 +197,7 @@ def convert_str_seq(value):
     try:
         return value.split(",")
     except Exception:
-        raise ValueError("Cannot convert {} to list value".format(value))
+        raise ValueError(f"Cannot convert {value} to list value")
 
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
@@ -248,7 +248,7 @@ class _Unset: pass
 def is_dev():
     return convert_bool(os.environ.get("BOKEH_DEV", False))
 
-class PrioritizedSetting(object):
+class PrioritizedSetting:
     ''' Return a value for a global setting according to configuration precedence.
 
     The following methods are searched in order for the setting:
@@ -408,7 +408,7 @@ _config_user_locations = (
 
 _config_system_locations = ()
 
-class Settings(object):
+class Settings:
     '''
 
     '''
@@ -458,6 +458,12 @@ class Settings(object):
     standard library webbrowser_ module.
 
     .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+    """)
+
+    cdn_version = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
+    What version of BokehJS to use with CDN resources.
+
+    See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
     cookie_secret = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
@@ -582,7 +588,7 @@ class Settings(object):
     Whether Bokeh should use simple integers for model IDs (starting at 1000).
 
     If False, Bokeh will use UUIDs for object identifiers. This might be needed,
-    e.g., if mulitple processes are contributing to a single Bokeh Document.
+    e.g., if multiple processes are contributing to a single Bokeh Document.
     """)
 
     ssl_certfile = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
@@ -601,12 +607,6 @@ class Settings(object):
     Whether validation checks should be strict (i.e. raise errors).
     """)
 
-    version = PrioritizedSetting("version", "BOKEH_VERSION", default=None, help="""
-    What version of BokehJS to use with CDN resources.
-
-    See the :class:`~bokeh.resources.Resources` class reference for full details.
-    """)
-
     xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
     Whether to enable Tornado XSRF cookie protection on the Bokeh server. This
     is only applicable when also using an auth module or custom handlers. See
@@ -620,7 +620,7 @@ class Settings(object):
 
     # Non-settings methods
 
-    def bokehjsdir(self):
+    def bokehjsdir(self) -> str:
         ''' The location of the BokehJS source tree.
 
         '''
@@ -657,7 +657,7 @@ class Settings(object):
         try:
             self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
         except Exception:
-            raise RuntimeError("Could not load Bokeh config file: {}".format(location))
+            raise RuntimeError(f"Could not load Bokeh config file: {location}")
 
     def secret_key_bytes(self) -> Optional[bytes]:
         ''' Return the secret_key, converted to bytes and cached.

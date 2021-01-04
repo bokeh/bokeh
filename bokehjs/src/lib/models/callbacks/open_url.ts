@@ -1,6 +1,7 @@
 import {Callback} from "./callback"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {replace_placeholders} from "core/util/templating"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 export namespace OpenURL {
@@ -22,15 +23,18 @@ export class OpenURL extends Callback {
   }
 
   static init_OpenURL(): void {
-    this.define<OpenURL.Props>({
-      url: [ p.String, 'http://' ],
-      same_tab: [ p.Boolean, false ],
-    })
+    this.define<OpenURL.Props>(({Boolean, String}) => ({
+      url: [ String, "http://" ],
+      same_tab: [ Boolean, false ],
+    }))
   }
 
   execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
     const open_url = (i: number) => {
-      const url = replace_placeholders(this.url, source, i)
+      const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURIComponent)
+      if (!isString(url))
+        throw new Error("HTML output is not supported in this context")
+
       if (this.same_tab)
         window.location.href = url
       else

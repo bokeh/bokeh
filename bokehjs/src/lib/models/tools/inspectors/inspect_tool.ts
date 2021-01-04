@@ -19,6 +19,7 @@ export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
   properties: InspectTool.Props
+  __view_type__: InspectToolView
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
     super(attrs)
@@ -27,11 +28,11 @@ export abstract class InspectTool extends ButtonTool {
   static init_InspectTool(): void {
     this.prototype.button_view = OnOffButtonView
 
-    this.define<InspectTool.Props>({
-      toggleable: [ p.Boolean, true ],
-    })
+    this.define<InspectTool.Props>(({Boolean}) => ({
+      toggleable: [ Boolean, true ],
+    }))
 
-    this.override({
+    this.override<InspectTool.Props>({
       active: true,
     })
   }

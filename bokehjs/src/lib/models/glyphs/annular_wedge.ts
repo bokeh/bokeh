@@ -1,24 +1,24 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Rect} from "core/types"
-import {Line, Fill} from "core/visuals"
-import * as hittest from "core/hittest"
+import {Rect, NumberArray} from "core/types"
+import * as visuals from "core/visuals"
+import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export interface AnnularWedgeData extends XYGlyphData {
-  _inner_radius: Arrayable<number>
-  _outer_radius: Arrayable<number>
-  _start_angle: Arrayable<number>
-  _end_angle: Arrayable<number>
-  _angle: Arrayable<number>
+  _inner_radius: NumberArray
+  _outer_radius: NumberArray
+  _start_angle: NumberArray
+  _end_angle: NumberArray
+  _angle: NumberArray
 
-  sinner_radius: Arrayable<number>
-  souter_radius: Arrayable<number>
+  sinner_radius: NumberArray
+  souter_radius: NumberArray
 
   max_inner_radius: number
   max_outer_radius: number
@@ -41,7 +41,7 @@ export class AnnularWedgeView extends XYGlyphView {
     else
       this.souter_radius = this._outer_radius
 
-    this._angle = new Float32Array(this._start_angle.length)
+    this._angle = new NumberArray(this._start_angle.length)
 
     for (let i = 0, end = this._start_angle.length; i < end; i++) {
       this._angle[i] = this._end_angle[i] - this._start_angle[i]
@@ -50,7 +50,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[],
                     {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
@@ -59,12 +59,12 @@ export class AnnularWedgeView extends XYGlyphView {
       ctx.translate(sx[i], sy[i])
       ctx.rotate(_start_angle[i])
 
-      ctx.moveTo(souter_radius[i], 0)
       ctx.beginPath()
-      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], direction)
+      ctx.moveTo(souter_radius[i], 0)
+      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], anticlock)
       ctx.rotate(_angle[i])
       ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !direction)
+      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !anticlock)
       ctx.closePath()
 
       ctx.rotate(-_angle[i]-_start_angle[i])
@@ -106,68 +106,65 @@ export class AnnularWedgeView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const candidates = []
+    const candidates: number[] = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      const or2 = Math.pow(this.souter_radius[i], 2)
-      const ir2 = Math.pow(this.sinner_radius[i], 2)
+      const or2 = this.souter_radius[i]**2
+      const ir2 = this.sinner_radius[i]**2
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
       const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-      const dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+      const dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= or2 && dist >= ir2)
-        candidates.push([i, dist])
+        candidates.push(i)
     }
 
-    const direction = this.model.properties.direction.value()
-    const hits: [number, number][] = []
-    for (const [i, dist] of candidates) {
+    const anticlock = this.model.direction == "anticlock"
+    const indices: number[] = []
+    for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
-      const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
-        hits.push([i, dist])
+      const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
+      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
+        indices.push(i)
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  private _scenterxy(i: number): {x: number, y: number} {
+  scenterxy(i: number): [number, number] {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2
     const a = (this._start_angle[i]  + this._end_angle[i])   /2
-    return {x: this.sx[i] + (r*Math.cos(a)), y: this.sy[i] + (r*Math.sin(a))}
-  }
-
-  scenterx(i: number): number {
-    return this._scenterxy(i).x
-  }
-
-  scentery(i: number): number {
-    return this._scenterxy(i).y
+    const scx = this.sx[i] + r*Math.cos(a)
+    const scy = this.sy[i] + r*Math.sin(a)
+    return [scx, scy]
   }
 }
 
 export namespace AnnularWedge {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
-    direction: p.Direction
+  export type Props = XYGlyph.Props & {
+    direction: p.Property<Direction>
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  }
+  } & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Mixins = LineVector & FillVector
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
   properties: AnnularWedge.Props
+  __view_type__: AnnularWedgeView
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)
@@ -176,13 +173,14 @@ export class AnnularWedge extends XYGlyph {
   static init_AnnularWedge(): void {
     this.prototype.default_view = AnnularWedgeView
 
-    this.mixins(['line', 'fill'])
-    this.define<AnnularWedge.Props>({
-      direction:    [ p.Direction,   'anticlock' ],
-      inner_radius: [ p.DistanceSpec             ],
-      outer_radius: [ p.DistanceSpec             ],
-      start_angle:  [ p.AngleSpec                ],
-      end_angle:    [ p.AngleSpec                ],
-    })
+    this.mixins<AnnularWedge.Mixins>([LineVector, FillVector])
+
+    this.define<AnnularWedge.Props>(({}) => ({
+      direction:    [ Direction, "anticlock" ],
+      inner_radius: [ p.DistanceSpec ],
+      outer_radius: [ p.DistanceSpec ],
+      start_angle:  [ p.AngleSpec ],
+      end_angle:    [ p.AngleSpec ],
+    }))
   }
 }

@@ -1,73 +1,67 @@
 .bk-root {
-  @noUi-css-prefix: bk-noUi;
-  @nouislider: "../../../node_modules/nouislider/src";
-  @import "@{nouislider}/nouislider.base.less";
+  @import (less) "../../../node_modules/nouislider/distribute/nouislider.css";
 
-  .@{noUi-css-prefix}-handle {
+  .noUi-handle {
     cursor: grab;
     cursor: -webkit-grab;
-    &.@{noUi-css-prefix}-active {
+
+    &.noUi-active {
       cursor: grabbing;
       cursor: -webkit-grabbing;
     }
+
+    &:after, &:before {
+      display: none;
+    }
   }
 
-  .@{noUi-css-prefix}-tooltip {
+  .noUi-tooltip {
     display: none;
     white-space: nowrap;
   }
 
-  .@{noUi-css-prefix}-handle:hover {
-    .@{noUi-css-prefix}-tooltip {
+  .noUi-handle:hover {
+    .noUi-tooltip {
       display: block;
     }
   }
 
   @slider-size: 10px;
 
+  .noUi-horizontal {
+    width: 100%;
+    height: @slider-size;
+  }
+  .noUi-vertical {
+    width: @slider-size;
+    height: 100%;
+  }
+
   @handle-width: 14px;
   @handle-height: 18px;
-  @handle-left: -@handle-width/2;
+  @handle-right: -@handle-width/2;
   @handle-top: -(@handle-height - @slider-size)/2 - 1;
+
+  .noUi-horizontal .noUi-handle {
+    width: @handle-width;
+    height: @handle-height;
+    right: @handle-right;
+    top: @handle-top;
+  }
+  .noUi-vertical .noUi-handle {
+    width: @handle-height;
+    height: @handle-width;
+    right: @handle-top;
+    top: @handle-right;
+  }
 
   @slider-margin: (@handle-height - @slider-size)/2 + 1;
 
-  .@{noUi-css-prefix}-horizontal {
-    width: 100%;
-    height: @slider-size;
-
-    &.@{noUi-css-prefix}-target {
-      margin: @slider-margin 0px;
-    }
-  }
-  .@{noUi-css-prefix}-horizontal .@{noUi-css-prefix}-handle {
-    width: @handle-width;
-    height: @handle-height;
-    left: @handle-left;
-    top: @handle-top;
-  }
-  .@{noUi-css-prefix}-vertical {
-    width: @slider-size;
-    height: 100%;
-
-    &.@{noUi-css-prefix}-target {
-      margin: 0px @slider-margin;
-    }
-  }
-  .@{noUi-css-prefix}-vertical .@{noUi-css-prefix}-handle {
-    width: @handle-height;
-    height: @handle-width;
-    left: @handle-top;
-    top: @handle-left;
+  .noUi-target.noUi-horizontal {
+    margin: @slider-margin 0px;
   }
 
-  .@{noUi-css-prefix}-handle {
-    &:after, &:before {
-      display: none;
-    }
-  }
-
-  .@{noUi-css-prefix}-connect {
-    box-shadow: none;
+  .noUi-target.noUi-vertical {
+    margin: 0px @slider-margin;
   }
 }

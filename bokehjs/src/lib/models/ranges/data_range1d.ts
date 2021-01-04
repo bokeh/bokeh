@@ -1,15 +1,17 @@
 import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
-import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
+import {concat} from "core/util/array"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {includes} from "core/util/array"
+import type {Plot} from "../plots/plot"
+import {compute_renderers} from "../util"
 
 export type Dim = 0 | 1
-export type Bounds = {[key: string]: Rect}
+export type Bounds = Map<Renderer, Rect>
 
 export namespace DataRange1d {
   export type Attrs = p.AttrsOf<Props>
@@ -20,8 +22,8 @@ export namespace DataRange1d {
     range_padding: p.Property<number>
     range_padding_units: p.Property<PaddingUnits>
     flipped: p.Property<boolean>
-    follow: p.Property<StartEnd>
-    follow_interval: p.Property<number>
+    follow: p.Property<StartEnd | null>
+    follow_interval: p.Property<number | null>
     default_span: p.Property<number>
     only_visible: p.Property<boolean>
 
@@ -39,32 +41,32 @@ export class DataRange1d extends DataRange {
   }
 
   static init_DataRange1d(): void {
-    this.define<DataRange1d.Props>({
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-      range_padding:       [ p.Number,       0.1       ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd                ],
-      follow_interval:     [ p.Number                  ],
-      default_span:        [ p.Number,       2         ],
-      only_visible:        [ p.Boolean,      false     ],
-    })
+    this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
+      start:               [ Number ],
+      end:                 [ Number ],
+      range_padding:       [ Number, 0.1 ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      flipped:             [ Boolean, false ],
+      follow:              [ Nullable(StartEnd), null ],
+      follow_interval:     [ Nullable(Number), null ],
+      default_span:        [ Number, 2.0 ],
+      only_visible:        [ Boolean, false ],
+    }))
 
-    this.internal({
-      scale_hint: [ p.String, 'auto' ],
-    })
+    this.internal<DataRange1d.Props>(({Enum}) => ({
+      scale_hint: [ Enum("log", "auto"), "auto" ],
+    }))
   }
 
-  protected _initial_start: number
-  protected _initial_end: number
+  protected _initial_start: number | null
+  protected _initial_end: number | null
   protected _initial_range_padding: number
   protected _initial_range_padding_units: PaddingUnits
-  protected _initial_follow: StartEnd
-  protected _initial_follow_interval: number
+  protected _initial_follow: StartEnd | null
+  protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Bounds = {}
+  protected _plot_bounds: Map<Plot, Rect>
 
   have_updated_interactively: boolean = false
 
@@ -78,6 +80,8 @@ export class DataRange1d extends DataRange {
     this._initial_follow = this.follow
     this._initial_follow_interval = this.follow_interval
     this._initial_default_span = this.default_span
+
+    this._plot_bounds = new Map()
   }
 
   get min(): number {
@@ -88,35 +92,21 @@ export class DataRange1d extends DataRange {
     return Math.max(this.start, this.end)
   }
 
-  computed_renderers(): Renderer[] {
+  computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
-    const names = this.names
-    let renderers = this.renderers
-
-    if (renderers.length == 0) {
-      for (const plot of this.plots) {
-        const rs = plot.renderers.filter((r) => r instanceof GlyphRenderer)
-        renderers = renderers.concat(rs)
-      }
-    }
-
-    if (names.length > 0)
-      renderers = renderers.filter((r) => includes(names, r.name))
-
-    logger.debug(`computed ${renderers.length} renderers for DataRange1d ${this.id}`)
-    for (const r of renderers) {
-      logger.trace(` - ${r.type} ${r.id}`)
-    }
-
-    return renderers
+    const {renderers, names} = this
+    const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers, names)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
     let result = bbox.empty()
 
     for (const r of renderers) {
-      if (bounds[r.id] != null && (r.visible || !this.only_visible))
-        result = bbox.union(result, bounds[r.id])
+      const rect = bounds.get(r)
+      if (rect != null && (r.visible || !this.only_visible)) {
+        result = bbox.union(result, rect)
+      }
     }
 
     return result
@@ -148,11 +138,10 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<Rect>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
-    for (const k in plot_bounds) {
-      const v = plot_bounds[k]
-      overall = bbox.union(overall, v)
+    for (const rect of plot_bounds) {
+      overall = bbox.union(overall, rect)
     }
 
     let min, max: number
@@ -168,6 +157,12 @@ export class DataRange1d extends DataRange {
     const range_padding = this.range_padding // XXX: ? 0
 
     let start, end: number
+
+    if (this._initial_start != null)
+      min = this._initial_start
+
+    if (this._initial_end != null)
+      max = this._initial_end
     if (this.scale_hint == "log") {
       if (isNaN(min) || !isFinite(min) || min <= 0) {
         if (isNaN(max) || !isFinite(max) || max <= 0)
@@ -201,8 +196,8 @@ export class DataRange1d extends DataRange {
         }
         center = (log_min + log_max) / 2.0
       }
-      start = Math.pow(10, center - span / 2.0)
-      end   = Math.pow(10, center + span / 2.0)
+      start = 10**(center - span / 2.0)
+      end   = 10**(center + span / 2.0)
     } else {
       let span: number
       if (max == min)
@@ -235,7 +230,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, bounds_id: string, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, plot: Plot, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 
@@ -247,10 +242,10 @@ export class DataRange1d extends DataRange {
     if (ratio != null)
       total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
 
-    this._plot_bounds[bounds_id] = total_bounds
+    this._plot_bounds.set(plot, total_bounds)
 
     // compute the min/mix for our specified dimension
-    const [min, max] = this._compute_min_max(this._plot_bounds, dimension)
+    const [min, max] = this._compute_min_max(this._plot_bounds.values(), dimension)
 
     // derive start, end from bounds and data range config
     let [start, end] = this._compute_range(min, max)
@@ -270,6 +265,12 @@ export class DataRange1d extends DataRange {
         end = this._initial_end
     }
 
+    let needs_emit = false
+    if (this.bounds == "auto") {
+      this.setv({bounds: [start, end]}, {silent: true})
+      needs_emit = true
+    }
+
     // only trigger updates when there are changes
     const [_start, _end] = [this.start, this.end]
     if (start != _start || end != _end) {
@@ -279,12 +280,11 @@ export class DataRange1d extends DataRange {
       if (end != _end)
         new_range.end = end
       this.setv(new_range)
+      needs_emit = false
     }
 
-    if (this.bounds == 'auto')
-      this.setv({bounds: [start, end]}, {silent: true})
-
-    this.change.emit()
+    if (needs_emit)
+      this.change.emit()
   }
 
   reset(): void {

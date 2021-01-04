@@ -1,16 +1,40 @@
 import {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
-import fs = require("fs")
-import path = require("path")
+import fs from "fs"
+import path from "path"
+import readline from "readline"
 import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
-import {State, create_baseline, load_baseline, diff_baseline} from "./baselines"
+import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
+import {diff_image} from "./image"
+import {platform} from "./sys"
+
+let rl: readline.Interface | undefined
+if (process.platform == "win32") {
+  rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  rl.on("SIGINT", () => {
+    process.emit("SIGINT", "SIGINT")
+  })
+}
+
+process.on("SIGINT", () => {
+  console.log()
+  process.exit(130)
+})
+
+process.on("exit", () => {
+  rl?.close()
+})
 
 const url = argv._[0]
-const verbose = argv.verbose ?? false
+const port = parseInt(argv.port as string | undefined ?? "9222")
 
 interface CallFrame {
   name: string
@@ -46,36 +70,27 @@ function timeout(ms: number): Promise<void> {
   })
 }
 
-/*
-function defer(ms: number = 0): Promise<void> {
-  return new Promise((resolve, _reject) => {
-    const timer = setTimeout(() => resolve(), ms)
-    timer.unref()
-  })
-}
-*/
-
 function encode(s: string): string {
-  return s.replace(/[ \/]/g, "_")
+  return s.replace(/[ \/\[\]]/g, "_")
 }
 
-//type Rect = {x: number, y: number, width: number, height: number}
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean}
-type Result = {error: {str: string, stack?: string} | null, time: number, state?: State}
+type Test = {description: string, skip: boolean, threshold?: number, dpr?: number}
 
-async function run_tests(): Promise<void> {
+type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
+
+async function run_tests(): Promise<boolean> {
   let client
   let failure = false
   let exception = false
   let handle_exceptions = true
   try {
-    client = await CDP()
-    const {Network, Page, Runtime, Log} = client
+    client = await CDP({port})
+    const {Emulation, Network, Page, Runtime, Log} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName || "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName ?? "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -83,23 +98,28 @@ async function run_tests(): Promise<void> {
         const {text, exception, url, lineNumber, columnNumber, stackTrace} = exceptionDetails
         return {
           text: exception != null && exception.description != null ? exception.description : text,
-          url: url || "(inline)",
+          url: url ?? "(inline)",
           line: lineNumber+1,
           col: columnNumber+1,
           trace: stackTrace ? collect_trace(stackTrace) : [],
         }
       }
 
-      Runtime.consoleAPICalled(({args}) => {
-        if (verbose) {
+      type LogEntry = {level: "warning" | "error", text: string}
+
+      let entries: LogEntry[] = []
+      Runtime.consoleAPICalled(({type, args}) => {
+        if (type == "warning" || type == "error") {
           const text = args.map(({value}) => value ? value.toString() : "").join(" ")
-          console.log(text)
+          entries.push({level: type, text})
         }
       })
 
       Log.entryAdded(({entry}) => {
-        if (verbose)
-          console.log(entry.text)
+        const {level, text} = entry
+        if (level == "warning" || level == "error") {
+          entries.push({level, text})
+        }
       })
 
       Runtime.exceptionThrown(({exceptionDetails}) => {
@@ -126,7 +146,7 @@ async function run_tests(): Promise<void> {
       async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
         try {
           return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err) {
+        } catch (err: unknown) {
           if (err instanceof TimeoutError) {
             return new Timeout()
           } else {
@@ -135,8 +155,8 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      async function evaluate<T>(expression: string, timeout: number = 5000): Promise<Value<T> | Failure | Timeout> {
-        const output = await with_timeout(Runtime.evaluate({expression, awaitPromise: true}), timeout)
+      async function evaluate<T>(expression: string, timeout: number = 10000): Promise<Value<T> | Failure | Timeout> {
+        const output = await with_timeout(Runtime.evaluate({expression, returnByValue: true, awaitPromise: true}), timeout)
         if (output instanceof Timeout) {
           return output
         } else {
@@ -159,9 +179,22 @@ async function run_tests(): Promise<void> {
       await Network.enable()
       await Network.setCacheDisabled({cacheDisabled: true})
 
-      await Runtime.enable()
       await Page.enable()
+      await Page.navigate({url: "about:blank"})
+
+      await Runtime.enable()
       await Log.enable()
+
+      async function override_metrics(dpr: number = 1): Promise<void> {
+        await Emulation.setDeviceMetricsOverride({
+          width: 2000,
+          height: 4000,
+          deviceScaleFactor: dpr,
+          mobile: false,
+        })
+      }
+
+      override_metrics()
 
       const {errorText} = await Page.navigate({url})
 
@@ -174,21 +207,22 @@ async function run_tests(): Promise<void> {
       }
 
       await Page.loadEventFired()
-      const ready = await is_ready()
+      await evaluate("preload_fonts()")
 
+      const ready = await is_ready()
       if (!ready) {
         fail(`failed to render ${url}`)
       }
 
       handle_exceptions = false
 
-      const ret = await evaluate<string>("JSON.stringify(Tests.top_level)")
-      if (!(ret instanceof Value)) {
+      const result = await evaluate<Suite>("Tests.top_level")
+      if (!(result instanceof Value)) {
         // TODO: Failure.text
         fail("internal error: failed to collect tests")
       }
 
-      const top_level = JSON.parse(ret.value) as Suite
+      const top_level = result.value
 
       type Status = {
         success?: boolean
@@ -196,6 +230,12 @@ async function run_tests(): Promise<void> {
         timeout?: boolean
         skipped?: boolean
         errors: string[]
+        baseline_name?: string
+        baseline?: string
+        baseline_diff?: string
+        reference?: Buffer
+        image?: Buffer
+        image_diff?: Buffer
       }
 
       type TestItem = [Suite[], Test, Status]
@@ -214,34 +254,39 @@ async function run_tests(): Promise<void> {
         return [...suites, test].map((obj) => obj.description)
       }
 
+      function description(suites: Suite[], test: Test, sep: string = " "): string {
+        return descriptions(suites, test).join(sep)
+      }
+
       const all_tests = [...iter(top_level)]
+      const test_suite = all_tests
 
-      const test_suite = (() => {
-        if (argv.k != null || argv.grep != null) {
-          let selected_tests = all_tests
-
-          if (argv.k != null) {
-            const keyword = argv.k as string
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.includes(keyword))
-            })
+      if (argv.k != null || argv.grep != null) {
+        if (argv.k != null) {
+          const keyword = argv.k as string
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).includes(keyword)) {
+              test.skip = true
+            }
           }
+        }
 
-          if (argv.grep != null) {
-            const regex = new RegExp(argv.grep as string)
-            selected_tests = selected_tests.filter(([suites, test]) => {
-              return descriptions(suites, test).some((description) => description.match(regex) != null)
-            })
+        if (argv.grep != null) {
+          const regex = new RegExp(argv.grep as string)
+          for (const [suites, test] of test_suite) {
+            if (!description(suites, test).match(regex) != null) {
+              test.skip = true
+            }
           }
-
-          console.log(`selected ${selected_tests.length} tests from ${all_tests.length} total`)
-          return selected_tests
-        } else
-          return all_tests
-      })()
+        }
+      }
 
       if (test_suite.length == 0) {
         fail("nothing to test")
+      }
+
+      if (!test_suite.some(([, test]) => !test.skip)) {
+        fail("nothing to test because all tests were skipped")
       }
 
       const progress = new Bar({
@@ -251,6 +296,7 @@ async function run_tests(): Promise<void> {
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
 
+      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
       const baseline_names = new Set<string>()
 
       let skipped = 0
@@ -258,13 +304,13 @@ async function run_tests(): Promise<void> {
 
       function to_seq(suites: Suite[], test: Test): [number[], number] {
         let current = top_level
-        const seq = []
+        const si = []
         for (const suite of suites) {
-          seq.push(current.suites.indexOf(suite))
+          si.push(current.suites.indexOf(suite))
           current = suite
         }
-        const i = current.tests.indexOf(test)
-        return [seq, i]
+        const ti = current.tests.indexOf(test)
+        return [si, ti]
       }
 
       function state(): object {
@@ -275,7 +321,6 @@ async function run_tests(): Promise<void> {
             return ` | 1 ${single}`
           else
             return ` | ${value} ${plural ?? single}`
-
         }
         return {
           failures: format(failures, "failure", "failures"),
@@ -285,64 +330,158 @@ async function run_tests(): Promise<void> {
 
       progress.start(test_suite.length, 0, state())
 
-      for (const [suites, test, status] of test_suite) {
-        if (test.skip) {
-          status.skipped = true
-        } else {
-          const [seq, i] = to_seq(suites, test)
-          const output = await evaluate<string>(`Tests.run_test(${JSON.stringify(seq)}, ${JSON.stringify(i)})`)
+      try {
+        for (const [suites, test, status] of test_suite) {
+          entries = []
 
-          if (output instanceof Failure) {
-            status.errors.push(output.text)
+          const baseline_name = encode(description(suites, test, "__"))
+          status.baseline_name = baseline_name
+
+          if (baseline_names.has(baseline_name)) {
+            status.errors.push("duplicated description")
             status.failure = true
-          } else if (output instanceof Timeout) {
-            status.errors.push("timeout")
-            status.timeout = true
           } else {
-            const result = JSON.parse(output.value) as Result
-            if (result.error != null) {
-              if (result.error.stack != null) {
-                status.errors.push(result.error.stack)
-              } else {
-                status.errors.push(result.error.str)
-              }
-              status.failure = true
-            } else if (result.state != null) {
-              const baseline_name = descriptions(suites, test).map(encode).join("__")
+            baseline_names.add(baseline_name)
+          }
 
-              if (baseline_names.has(baseline_name)) {
-                status.errors.push("duplicated description")
-                status.failure = true
-              } else {
-                baseline_names.add(baseline_name)
+          if (test.skip) {
+            status.skipped = true
+          } else {
+            async function run_test(i: number | null, status: Status): Promise<boolean> {
+              let may_retry = false
+              const seq = JSON.stringify(to_seq(suites, test))
+              const output = await (async () => {
+                if (test.dpr != null)
+                  override_metrics(test.dpr)
+                try {
+                  return await evaluate<Result>(`Tests.run(${seq})`)
+                } finally {
+                  if (test.dpr != null)
+                    override_metrics()
+                }
+              })()
+              try {
+                const errors = entries.filter((entry) => entry.level == "error")
+                if (errors.length != 0) {
+                  status.errors.push(...errors.map((entry) => entry.text))
+                  // status.failure = true // XXX: too chatty right now
+                }
 
-                const baseline_path = path.join("test", "baselines", baseline_name)
-                const baseline = create_baseline([result.state])
-                await fs.promises.writeFile(baseline_path, baseline)
+                if (output instanceof Failure) {
+                  status.errors.push(output.text)
+                  status.failure = true
+                } else if (output instanceof Timeout) {
+                  status.errors.push("timeout")
+                  status.timeout = true
+                } else {
+                  const result = output.value
+                  if (result.error != null) {
+                    const {str, stack} = result.error
+                    status.errors.push(stack ?? str)
+                    status.failure = true
+                  } else if (baselines_root != null) {
+                    const {state} = result
+                    if (state == null) {
+                      status.errors.push("state not present in output")
+                      status.failure = true
+                    } else {
+                      await (async () => {
+                        const baseline_path = path.join(baselines_root, baseline_name)
 
-                const existing = load_baseline(baseline_path)
-                if (existing != baseline) {
-                  if (existing == null) {
-                    status.errors.push("missing baseline")
+                        const baseline = create_baseline([state])
+                        await fs.promises.writeFile(baseline_path, baseline)
+                        status.baseline = baseline
+
+                        const existing = load_baseline(baseline_path)
+                        if (existing != baseline) {
+                          if (existing == null) {
+                            status.errors.push("missing baseline")
+                          }
+                          const diff = diff_baseline(baseline_path)
+                          status.failure = true
+                          status.baseline_diff = diff
+                          status.errors.push(diff)
+                        }
+                      })()
+
+                      await (async () => {
+                        const baseline_path = path.join(baselines_root, platform, baseline_name)
+
+                        const {bbox} = result
+                        if (bbox != null) {
+                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                          const current = Buffer.from(image.data, "base64")
+                          status.image = current
+
+                          const image_path = `${baseline_path}.png`
+                          const write_image = async () => fs.promises.writeFile(image_path, current)
+                          const existing = load_baseline_image(image_path)
+
+                          switch (argv.screenshot) {
+                            case undefined:
+                            case "test":
+                              if (existing == null) {
+                                status.failure = true
+                                status.errors.push("missing baseline image")
+                                await write_image()
+                              } else {
+                                status.reference = existing
+                                const diff_result = diff_image(existing, current)
+                                if (diff_result != null) {
+                                  may_retry = true
+                                  const {diff, pixels, percent} = diff_result
+                                  const threshold = test.threshold ?? 0
+                                  if (pixels > threshold) {
+                                    await write_image()
+                                    status.failure = true
+                                    status.image_diff = diff
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                  }
+                                }
+                              }
+                              break
+                            case "save":
+                              await write_image()
+                              break
+                            case "skip":
+                              break
+                            default:
+                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                          }
+                        }
+                      })()
+                    }
                   }
-                  const diff = diff_baseline(baseline_path)
-                  status.errors.push(diff)
+                }
+              } finally {
+                const output = await evaluate(`Tests.clear(${seq})`)
+                if (output instanceof Failure) {
+                  status.errors.push(output.text)
                   status.failure = true
                 }
               }
+
+              return may_retry
+            }
+
+            const retry = await run_test(null, status)
+            if (argv.retry && retry) {
+              for (let i = 0; i < 10; i++) {
+                await run_test(i, status)
+              }
             }
           }
+
+          if (status.skipped)
+            skipped++
+          if (status.failure || status.timeout)
+            failures++
+
+          progress.increment(1, state())
         }
-
-        if (status.skipped)
-          skipped++
-        if (status.failure || status.timeout)
-          failures++
-
-        progress.increment(1, state())
+      } finally {
+        progress.stop()
       }
-
-      progress.stop()
 
       for (const [suites, test, status] of test_suite) {
         if (status.failure || status.timeout) {
@@ -361,23 +500,88 @@ async function run_tests(): Promise<void> {
         }
       }
 
-      if (failures != 0)
+      if (baselines_root != null) {
+        const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+          const {failure, image, image_diff, reference} = status
+          return [descriptions(suites, test), {failure, image, image_diff, reference}]
+        }), (_key, value) => {
+          if (value?.type == "Buffer")
+            return Buffer.from(value.data).toString("base64")
+          else
+            return value
+        })
+        await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
+
+        const files = new Set(await fs.promises.readdir(baselines_root))
+
+        files.delete("linux")
+        files.delete("macos")
+        files.delete("windows")
+
+        for (const name of baseline_names) {
+          files.delete(name)
+        }
+
+        if (files.size != 0) {
+          fail(`there are outdated baselines:\n${[...files].join("\n")}`)
+        }
+      }
+
+      if (failures != 0) {
         throw new Exit(1)
+      }
     } finally {
       await Runtime.discardConsoleEntries()
     }
-  } catch (err) {
+  } catch (error: unknown) {
     failure = true
-    if (!(err instanceof Exit))
-      console.error("INTERNAL ERROR:", err)
+    if (!(error instanceof Exit)) {
+      const msg = error instanceof Error && error.stack ? error.stack : error
+      console.error(`INTERNAL ERROR: ${msg}`)
+    }
   } finally {
     if (client) {
       await client.close()
     }
   }
 
-  if (failure)
-    process.exit(1)
+  return !failure
 }
 
-run_tests()
+async function get_version(): Promise<{browser: string, protocol: string}> {
+  const version = await CDP.Version({port})
+  return {
+    browser: version.Browser,
+    protocol: version["Protocol-Version"],
+  }
+}
+
+const chrome_min_version = 87
+
+async function check_version(version: string): Promise<boolean> {
+  const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
+  const major = parseInt(match?.groups?.major ?? "0")
+  const ok = chrome_min_version <= major
+  if (!ok)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chrome_min_version)}`)
+  return ok
+}
+
+async function run(): Promise<void> {
+  const {browser, protocol} = await get_version()
+  console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
+  const ok0 = await check_version(browser)
+  const ok1 = await run_tests()
+  process.exit(ok0 && ok1 ? 0 : 1)
+}
+
+async function main(): Promise<void> {
+  try {
+    await run()
+  } catch (e: unknown) {
+    console.log(`CRITICAL ERROR: ${e}`)
+    process.exit(1)
+  }
+}
+
+main()

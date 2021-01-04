@@ -1,11 +1,11 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_scalar_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {Arrayable, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
@@ -40,7 +40,7 @@ export class PatchView extends XYGlyphView {
       this._inner_loop(ctx, indices, sx, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
+    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
@@ -48,35 +48,37 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_area_scalar_legend(this.visuals, ctx, bbox)
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, this.sx, this.sy)) {
       result.add_to_selected_glyphs(this.model)
-      result.get_view = () => this
+      result.view = this
     }
 
     return result
   }
-
 }
 
 export namespace Patch {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & HatchVector
+  export type Props = XYGlyph.Props & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
 }
 
 export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
   properties: Patch.Props
+  __view_type__: PatchView
 
   constructor(attrs?: Partial<Patch.Attrs>) {
     super(attrs)
@@ -85,6 +87,6 @@ export class Patch extends XYGlyph {
   static init_Patch(): void {
     this.prototype.default_view = PatchView
 
-    this.mixins(['line', 'fill', 'hatch'])
+    this.mixins<Patch.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/, mixins.Hatch/*Scalar*/])
   }
 }

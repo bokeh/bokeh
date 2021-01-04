@@ -46,8 +46,8 @@ ALL = (
 # TODO (bev) class Test_ColumnData
 # TODO (bev) class Test_RelativeDelta
 
-class Test_Array(object):
 
+class Test_Array:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpc.Array()
@@ -85,8 +85,8 @@ class Test_Array(object):
         prop = bcpc.Array(Float)
         assert str(prop) == "Array(Float)"
 
-class Test_Dict(object):
 
+class Test_Dict:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpc.Dict()
@@ -130,8 +130,8 @@ class Test_Dict(object):
         prop = bcpc.Dict(String, Int)
         assert str(prop) == "Dict(String, Int)"
 
-class Test_List(object):
 
+class Test_List:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpc.List()
@@ -175,8 +175,8 @@ class Test_List(object):
         prop = bcpc.List(Int)
         assert str(prop) == "List(Int)"
 
-class Test_Seq(object):
 
+class Test_Seq:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpc.Seq()
@@ -206,7 +206,7 @@ class Test_Seq(object):
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
 
-        assert not prop.is_valid(set([]))
+        assert not prop.is_valid(set())
         assert not prop.is_valid({})
 
         assert not prop.is_valid({1, 2})
@@ -233,8 +233,8 @@ class Test_Seq(object):
         prop = bcpc.Seq(Int)
         assert str(prop) == "Seq(Int)"
 
-class Test_Tuple(object):
 
+class Test_Tuple:
     def test_Tuple(self) -> None:
         with pytest.raises(TypeError):
             bcpc.Tuple()

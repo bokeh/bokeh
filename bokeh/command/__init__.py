@@ -11,9 +11,6 @@ The following subcommands are available:
 build
     Manage and build a bokeh extension
 
-html
-    Create standalone HTML files for one or more applications
-
 info
     Print information about Bokeh and Bokeh server configuration
 
@@ -22,9 +19,6 @@ init
 
 json
     Create JSON files for one or more applications
-
-png
-    Create standalone PNG files for one or more applications
 
 sampledata
     Download the bokeh sample data sets
@@ -37,8 +31,5 @@ serve
 
 static
     Serve bokehjs' static assets (JavaScript, CSS, images, fonts, etc.)
-
-svg
-    Create standalone SVG files for one or more applications
 
 '''

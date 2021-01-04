@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class EventCallbackManager(object):
+class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
     triggering event callbacks on the Python side.
 
@@ -49,6 +49,12 @@ class EventCallbackManager(object):
         self._event_callbacks = dict()
 
     def on_event(self, event, *callbacks):
+        ''' Run callbacks when the specified event occurs on this Model
+
+        Not all Events are supported for all Models.
+        See specific Events in :ref:`bokeh.events` for more information on
+        which Models are able to trigger them.
+        '''
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
@@ -94,7 +100,7 @@ class EventCallbackManager(object):
             self.document._subscribed_models[key].add(self)
 
 
-class PropertyCallbackManager(object):
+class PropertyCallbackManager:
     ''' A mixin class to provide an interface for registering and
     triggering callbacks.
 

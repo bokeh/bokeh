@@ -26,7 +26,7 @@ period of deprecation.
 Specifying Font Sizes
 '''''''''''''''''''''
 
-Setting text font size properties directly as strings (e.g. ``font_size="10pt"``)
+Setting text font size properties directly as strings (e.g. ``font_size="13px"``)
 has been UN-DEPRECATED. This usage will continue to work, without any further
 deprecation warning. (https://github.com/bokeh/bokeh/pull/5274)
 

@@ -27,6 +27,7 @@ from collections import Counter
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (
+    Auto,
     Bool,
     Datetime,
     Either,
@@ -43,7 +44,7 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-from .renderers import Renderer
+from .renderers import DataRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -152,9 +153,13 @@ class DataRange(Range):
     A list of names to query for. If set, only renderers that
     have a matching value for their ``name`` attribute will be used
     for autoranging.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
-    renderers = List(Instance(Renderer), help="""
+    renderers = Either(List(Instance(DataRenderer)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
     defaults to all renderers on a plot.
     """)
@@ -395,7 +400,7 @@ class FactorRange(Range):
     The start of the range, in synthetic coordinates.
 
         Synthetic coordinates are only computed in the browser, based on the
-        factors and various padding properties. The value of ``end`` will only
+        factors and various padding properties. The value of ``start`` will only
         be available in situations where bidirectional communication is
         available (e.g. server, notebook).
     """)

@@ -22,11 +22,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from urllib.parse import quote_plus
-
 # External imports
-from tornado.httpclient import HTTPRequest
+from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
@@ -34,12 +31,15 @@ from tornado.websocket import WebSocketError, websocket_connect
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
+from ..util.string import format_url_query_arguments
+from ..util.tornado import fixup_windows_event_loop_policy
 from .states import (
     CONNECTED_AFTER_ACK,
     CONNECTED_BEFORE_ACK,
     DISCONNECTED,
     NOT_YET_CONNECTED,
     WAITING_FOR_REPLY,
+    ErrorReason,
 )
 from .websocket import WebSocketClientConnectionWrapper
 
@@ -59,7 +59,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ClientConnection(object):
+class ClientConnection:
     ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
 
     '''
@@ -103,6 +103,33 @@ class ClientConnection(object):
     def url(self):
         ''' The URL of the websocket this Connection is to. '''
         return self._url
+
+    @property
+    def error_reason(self):
+        ''' The reason of the connection loss encoded as a ``DISCONNECTED.ErrorReason`` enum value '''
+        if not isinstance(self._state, DISCONNECTED):
+            return None
+        return self._state.error_reason
+
+    @property
+    def error_code(self):
+        ''' If there was an error that caused a disconnect, this property holds
+        the error code. None otherwise.
+
+        '''
+        if not isinstance(self._state, DISCONNECTED):
+            return 0
+        return self._state.error_code
+
+    @property
+    def error_detail(self):
+        ''' If there was an error that caused a disconnect, this property holds
+        the error detail. Empty string otherwise.
+
+        '''
+        if not isinstance(self._state, DISCONNECTED):
+            return ""
+        return self._state.error_detail
 
     # Internal methods --------------------------------------------------------
 
@@ -236,32 +263,27 @@ class ClientConnection(object):
 
     # Private methods ---------------------------------------------------------
 
-    def _formatted_url(self):
-        formatted_url = "%s?bokeh-session-id=%s" % (self._url, self._session.id)
-        if self._arguments is not None:
-            for key, value in self._arguments.items():
-                formatted_url += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
-        return formatted_url
-
-
     async def _connect_async(self):
-        formatted_url = self._formatted_url()
+        formatted_url = format_url_query_arguments(self._url, self._arguments)
         request = HTTPRequest(formatted_url)
         try:
-            socket = await websocket_connect(request)
+            socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token])
             self._socket = WebSocketClientConnectionWrapper(socket)
+        except HTTPClientError as e:
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, e.code, e.message))
+            return
         except Exception as e:
             log.info("Failed to connect to server: %r", e)
 
         if self._socket is None:
-            await self._transition_to_disconnected()
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.NETWORK_ERROR, None, "Socket invalid."))
         else:
             await self._transition(CONNECTED_BEFORE_ACK())
 
     async def _handle_messages(self):
         message = await self._pop_message()
         if message is None:
-            await self._transition_to_disconnected()
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
         else:
             if message.msgtype == 'PATCH-DOC':
                 log.debug("Got PATCH-DOC, applying to session")
@@ -367,9 +389,9 @@ class ClientConnection(object):
         self._state = new_state
         await self._next()
 
-    async def _transition_to_disconnected(self):
+    async def _transition_to_disconnected(self, dis_state):
         self._tell_session_about_disconnect()
-        await self._transition(DISCONNECTED())
+        await self._transition(dis_state)
 
     async def _wait_for_ack(self):
         message = await self._pop_message()
@@ -377,7 +399,7 @@ class ClientConnection(object):
             log.debug("Received %r", message)
             await self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
-            await self._transition_to_disconnected()
+            await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
         else:
             raise ProtocolError("Received %r instead of ACK" % message)
 
@@ -388,3 +410,5 @@ class ClientConnection(object):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+fixup_windows_event_loop_policy()

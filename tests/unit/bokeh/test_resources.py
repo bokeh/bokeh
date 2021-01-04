@@ -17,11 +17,16 @@ import pytest  # noqa isort:skip
 # Standard library imports
 import os
 import re
+import subprocess
+import sys
+from os.path import basename
 
 # External imports
+import bs4
 from packaging.version import Version as V
 
 # Bokeh imports
+import bokeh.util.version as buv
 from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
@@ -41,6 +46,9 @@ LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
+def teardown_module() -> None :
+    Model._clear_extensions()
+
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
@@ -48,7 +56,7 @@ DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
-class TestSRIHashes(object):
+class TestSRIHashes:
     def test_get_all_hashes_valid_format(self) -> None:
         all_hashes = resources.get_all_sri_hashes()
         for key, value in all_hashes.items():
@@ -84,45 +92,62 @@ class TestSRIHashes(object):
             h = resources.get_sri_hashes_for_version(key)
             assert h == all_hashes[key]
 
-
-## Test JSResources
-
-
-def test_js_resources_default_mode_is_cdn() -> None:
-    r = resources.JSResources()
-    assert r.mode == "cdn"
+    def test_get_sri_hashes_for_version_bad(self) -> None:
+        with pytest.raises(KeyError):
+            resources.get_sri_hashes_for_version("junk")
 
 
-def test_js_resources_inline_has_no_css_resources() -> None:
-    r = resources.JSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
-
-    assert len(r.js_raw) == 5
-    assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
-    assert hasattr(r, "css_raw") is False
-    assert r.messages == []
+class TestJSResources:
+    def test_js_resources_default_mode_is_cdn(self) -> None:
+        r = resources.JSResources()
+        assert r.mode == "cdn"
 
 
-## Test CSSResources
+    def test_js_resources_inline_has_no_css_resources(self) -> None:
+        r = resources.JSResources(mode="inline")
+        assert r.mode == "inline"
+        assert r.dev is False
+
+        assert len(r.js_raw) == 4
+        assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
+        assert hasattr(r, "css_raw") is False
+        assert r.messages == []
+
+    def test_js_resources_hashes_mock_full(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "1.4.0")
+        monkeypatch.setattr(resources, "__version__", "1.4.0")
+        r = resources.JSResources()
+        assert r.mode == "cdn"
+        hashes = resources.get_sri_hashes_for_version("1.4.0")
+        min_hashes = {v for k, v in hashes.items() if k.endswith(".min.js") and "api" not in k and "gl" not in k}
+        assert set(r.hashes.values()) == min_hashes
+
+    @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
+    def test_js_resources_hashes_mock_non_full(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        r = resources.JSResources()
+        assert r.mode == "cdn"
+        assert r.hashes == {}
 
 
-def test_css_resources_default_mode_is_cdn() -> None:
-    r = resources.CSSResources()
-    assert r.mode == "cdn"
+class TestCSSResources:
+    def test_css_resources_default_mode_is_cdn(self) -> None:
+        r = resources.CSSResources()
+        assert r.mode == "cdn"
 
 
-def test_inline_css_resources() -> None:
-    r = resources.CSSResources(mode="inline")
-    assert r.mode == "inline"
-    assert r.dev is False
+    def test_inline_css_resources(self) -> None:
+        r = resources.CSSResources(mode="inline")
+        assert r.mode == "inline"
+        assert r.dev is False
 
-    assert len(r.css_raw) == 0
-    assert hasattr(r, "js_raw") is False
-    assert r.messages == []
+        assert len(r.css_raw) == 0
+        assert hasattr(r, "js_raw") is False
+        assert r.messages == []
 
 
-class TestResources(object):
+class TestResources:
     def test_basic(self) -> None:
         r = resources.Resources()
         assert r.mode == "cdn"
@@ -146,7 +171,7 @@ class TestResources(object):
         assert r.mode == "inline"
         assert r.dev == False
 
-        assert len(r.js_raw) == 5
+        assert len(r.js_raw) == 4
         assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
         assert len(r.css_raw) == 0
         assert r.messages == []
@@ -157,8 +182,8 @@ class TestResources(object):
         url = result["urls"](["bokeh"], "js")[0]
         assert "bokeh/dev" in url
 
-    def test_cdn(self) -> None:
-        resources.__version__ = "1.0"
+    def test_cdn(self, monkeypatch) -> None:
+        monkeypatch.setattr(resources, "__version__", "1.0")
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
         assert r.dev == False
@@ -189,7 +214,6 @@ class TestResources(object):
             "http://localhost:5006/static/js/bokeh.min.js",
             "http://localhost:5006/static/js/bokeh-widgets.min.js",
             "http://localhost:5006/static/js/bokeh-tables.min.js",
-            "http://localhost:5006/static/js/bokeh-gl.min.js",
         ]
 
     def test_server_root_url(self) -> None:
@@ -203,7 +227,6 @@ class TestResources(object):
             "http://foo/static/js/bokeh.min.js",
             "http://foo/static/js/bokeh-widgets.min.js",
             "http://foo/static/js/bokeh-tables.min.js",
-            "http://foo/static/js/bokeh-gl.min.js",
         ]
 
     def test_server_root_url_empty(self) -> None:
@@ -217,7 +240,6 @@ class TestResources(object):
             "static/js/bokeh.min.js",
             "static/js/bokeh-widgets.min.js",
             "static/js/bokeh-tables.min.js",
-            "static/js/bokeh-gl.min.js",
         ]
 
     def test_server_with_versioner(self) -> None:
@@ -230,7 +252,6 @@ class TestResources(object):
             "http://foo/static/js/bokeh.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED",
             "http://foo/static/js/bokeh-tables.min.js?v=VERSIONED",
-            "http://foo/static/js/bokeh-gl.min.js?v=VERSIONED",
         ]
 
     def test_server_dev(self) -> None:
@@ -300,6 +321,61 @@ class TestResources(object):
             with pytest.raises(ValueError):
                 resources.Resources(mode, root_url="foo")
 
+    @pytest.mark.parametrize('env', ["BOKEH_CDN_VERSION", "BOKEH_ROOTDIR"])
+    def test_builtin_importable_with_env(self, monkeypatch, env) -> None:
+        cmd = [sys.executable, "-c", "import bokeh.resources"]
+        monkeypatch.setenv(env, "foo")
+        try:
+            subprocess.check_call(cmd, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError:
+            pytest.fail(f"resources import failed with {env} set")
+
+    def test_render_js_cdn_release(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0")
+        monkeypatch.setattr(resources, "__version__", "2.0.0")
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "html.parser")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            if "src" not in script.attrs:
+                continue
+            assert script.attrs['crossorigin'] == "anonymous"
+            assert script.attrs['integrity'].startswith("sha384-")
+
+    @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
+    def test_render_js_cdn_dev_release(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "html.parser")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
+
+    def test_render_js_cdn_dev_local(self, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
+        monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
+        out = resources.CDN.render_js()
+        html = bs4.BeautifulSoup(out, "html.parser")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            if "src" not in script.attrs:
+                continue
+            assert script.attrs['crossorigin'] == "anonymous"
+            assert script.attrs['integrity'].startswith("sha384-")
+
+    @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
+    def test_render_js_inline(self, v, monkeypatch) -> None:
+        monkeypatch.setattr(buv, "__version__", v)
+        monkeypatch.setattr(resources, "__version__", v)
+        out = resources.INLINE.render_js()
+        html = bs4.BeautifulSoup(out, "html.parser")
+        scripts = html.findAll(name='script')
+        for script in scripts:
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
+
 
 ## Test external resources
 
@@ -356,6 +432,35 @@ def test_external_js_and_css_resource_ordering() -> None:
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
 
+
+def test_legacy_resources():
+    r = resources.Resources(minified=True, legacy=True)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.legacy.min.js",
+        "bokeh-widgets.legacy.min.js",
+        "bokeh-tables.legacy.min.js",
+    ]
+
+    r = resources.Resources(minified=True, legacy=False)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.min.js",
+        "bokeh-widgets.min.js",
+        "bokeh-tables.min.js",
+    ]
+
+    r = resources.Resources(minified=False, legacy=True)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.legacy.js",
+        "bokeh-widgets.legacy.js",
+        "bokeh-tables.legacy.js",
+    ]
+
+    r = resources.Resources(minified=False, legacy=False)
+    assert [ basename(f) for f in r._file_paths("js") ] == [
+        "bokeh.js",
+        "bokeh-widgets.js",
+        "bokeh-tables.js",
+    ]
 
 # -----------------------------------------------------------------------------
 # Dev API

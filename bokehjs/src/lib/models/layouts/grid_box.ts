@@ -8,7 +8,8 @@ export class GridBoxView extends LayoutDOMView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.children.change, () => this.rebuild())
+    const {children, rows, cols, spacing} = this.model.properties
+    this.on_change([children, rows, cols, spacing], () => this.rebuild())
   }
 
   get child_models(): LayoutDOM[] {
@@ -22,7 +23,7 @@ export class GridBoxView extends LayoutDOMView {
     this.layout.spacing = this.model.spacing
 
     for (const [child, row, col, row_span, col_span] of this.model.children) {
-      const child_view = this._child_views[child.id]
+      const child_view = this._child_views.get(child)!
       this.layout.items.push({layout: child_view.layout, row, col, row_span, col_span})
     }
 
@@ -45,6 +46,7 @@ export interface GridBox extends GridBox.Attrs {}
 
 export class GridBox extends LayoutDOM {
   properties: GridBox.Props
+  __view_type__: GridBoxView
 
   constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)
@@ -53,11 +55,11 @@ export class GridBox extends LayoutDOM {
   static init_GridBox(): void {
     this.prototype.default_view = GridBoxView
 
-    this.define<GridBox.Props>({
-      children: [ p.Array,  []     ],
-      rows:     [ p.Any,    "auto" ],
-      cols:     [ p.Any,    "auto" ],
-      spacing:  [ p.Any,    0      ],
-    })
+    this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({
+      children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
+      rows:     [ Any /*TODO*/, "auto" ],
+      cols:     [ Any /*TODO*/, "auto" ],
+      spacing:  [ Or(Number, Tuple(Number, Number)), 0 ],
+    }))
   }
 }

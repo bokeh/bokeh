@@ -39,14 +39,13 @@ def get_prop_set(class_object):
     return class_properties
 
 
-class TestPanel(object):
-
+class TestPanel:
     def setup_method(self):
         from bokeh.models import Panel
         self.panelCls = Panel
 
     def test_expectedprops(self) -> None:
-        expected_properties = set(['title', 'child'])
+        expected_properties = {"title", "child"}
         actual_properties = get_prop_set(self.panelCls)
         assert expected_properties.issubset(actual_properties)
 
@@ -58,15 +57,14 @@ class TestPanel(object):
         assert p1.child == None
 
 
-class TestTabs(object):
-
+class TestTabs:
     def setup_method(self):
         from bokeh.models import Tabs, Panel
         self.tabsCls = Tabs
         self.panelCls = Panel
 
     def test_expected_props(self) -> None:
-        expected_properties = set(['tabs', 'active'])
+        expected_properties = {"tabs", "active"}
         actual_properties = get_prop_set(self.tabsCls)
         assert expected_properties.issubset(actual_properties)
 

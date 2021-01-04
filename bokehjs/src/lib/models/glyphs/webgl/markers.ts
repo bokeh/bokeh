@@ -1,23 +1,81 @@
-import {Program, VertexBuffer, IndexBuffer} from "gloo2"
-import {BaseGLGlyph, Transform, attach_float, attach_color} from "./base"
-import {vertex_shader} from "./markers.vert"
-import {fragment_shader} from "./markers.frag"
-import {MarkerView} from "../../markers/marker"
+import {Program, VertexBuffer, IndexBuffer} from "./utils"
+import {BaseGLGlyph, Transform} from "./base"
+import vertex_shader from "./markers.vert"
+import fragment_shader from "./markers.frag"
+import {ScatterView} from "../scatter"
 import {CircleView} from "../circle"
-import {Class} from "core/class"
 import {map} from "core/util/arrayable"
 import {logger} from "core/logging"
+import {MarkerType} from "core/enums"
+import {ColorArray, RGBAArray} from "core/types"
+import {color2rgba} from "core/util/color"
+import * as visuals from "core/visuals"
+import * as p from "core/properties"
+
+type MarkerLikeView = ScatterView | CircleView
+
+function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
+    visual: visuals.LineVector | visuals.FillVector, prop: p.NumberSpec): void {
+  // Attach a float attribute to the program. Use singleton value if we can,
+  // otherwise use VBO to apply array.
+  if (!visual.doit) {
+    vbo.used = false
+    prog.set_attribute(att_name, 'float', [0])
+  } else if (prop.is_value) {
+    vbo.used = false
+    prog.set_attribute(att_name, 'float', [prop.value()])
+  } else {
+    vbo.used = true
+    const a = new Float32Array(visual.get_array(prop))
+    vbo.set_size(n*4)
+    vbo.set_data(0, a)
+    prog.set_attribute(att_name, 'float', vbo)
+  }
+}
+
+function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number,
+    visual: visuals.LineVector | visuals.FillVector, color_prop: p.ColorSpec, alpha_prop: p.NumberSpec): void {
+  // Attach the color attribute to the program. If there's just one color,
+  // then use this single color for all vertices (no VBO). Otherwise we
+  // create an array and upload that to the VBO, which we attahce to the prog.
+  if (!visual.doit) {
+    // Don't draw (draw transparent)
+    vbo.used = false
+    prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
+  } else if (color_prop.is_value && alpha_prop.is_value) {
+    vbo.used = false
+    const [r, g, b, a] = color2rgba(color_prop.value(), alpha_prop.value())
+    prog.set_attribute(att_name, 'vec4', [r/255, g/255, b/255, a/255])
+  } else {
+    // Use vbo; we need an array for both the color and the alpha
+    vbo.used = true
+
+    // TODO: compose alpha in visuals or earlier to avoid this copy
+    const array = new ColorArray(visual.get_array(color_prop))
+    const colors = new RGBAArray(array.buffer)
+    const alphas = visual.get_array(alpha_prop)
+
+    for (let i = 0; i < n; i++) {
+      const k = 4*i + 3
+      const a = colors[k]
+      if (a == 255) {
+        colors[k] = alphas[i]*255
+      }
+    }
+
+    // Attach vbo
+    vbo.set_size(4*n)
+    vbo.set_data(0, colors)
+    prog.set_attribute(att_name, 'vec4_uint8', vbo, 0, 0, true)
+  }
+}
 
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
-export abstract class MarkerGLGlyph extends BaseGLGlyph {
-  readonly glyph: MarkerView | CircleView
-
-  protected abstract get _marker_code(): string
-
+export class MarkerGL extends BaseGLGlyph {
   protected prog: Program
-  protected vbo_x: VertexBuffer
-  protected vbo_y: VertexBuffer
+  protected vbo_sx: VertexBuffer
+  protected vbo_sy: VertexBuffer
   protected vbo_s: VertexBuffer
   protected vbo_a: VertexBuffer
   protected vbo_linewidth: VertexBuffer & {used?: boolean}
@@ -25,24 +83,43 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
   protected vbo_bg_color: VertexBuffer & {used?: boolean}
   protected index_buffer: IndexBuffer
 
-  protected last_trans: Transform
+  static is_supported(marker_type: MarkerType): boolean {
+    switch (marker_type) {
+      case "asterisk":
+      case "circle":
+      case "circle_cross":
+      case "circle_x":
+      case "cross":
+      case "diamond":
+      case "diamond_cross":
+      case "hex":
+      case "inverted_triangle":
+      case "square":
+      case "square_cross":
+      case "square_x":
+      case "triangle":
+      case "x":
+        return true
+      default:
+        return false
+    }
+  }
 
-  protected _baked_offset: [number, number]
+  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+    super(gl, glyph)
 
-  protected init(): void {
-    const {gl} = this
-
+    const defs = [`#define USE_${marker_type.toUpperCase()}`]
     const vert = vertex_shader
-    const frag = fragment_shader(this._marker_code)
+    const frag = `${defs.join("\n")}\n\n${fragment_shader}`
 
     // The program
     this.prog = new Program(gl)
     this.prog.set_shaders(vert, frag)
     // Real attributes
-    this.vbo_x = new VertexBuffer(gl)
-    this.prog.set_attribute('a_x', 'float', this.vbo_x)
-    this.vbo_y = new VertexBuffer(gl)
-    this.prog.set_attribute('a_y', 'float', this.vbo_y)
+    this.vbo_sx = new VertexBuffer(gl)
+    this.prog.set_attribute('a_sx', 'float', this.vbo_sx)
+    this.vbo_sy = new VertexBuffer(gl)
+    this.prog.set_attribute('a_sy', 'float', this.vbo_sy)
     this.vbo_s = new VertexBuffer(gl)
     this.prog.set_attribute('a_size', 'float', this.vbo_s)
     this.vbo_a = new VertexBuffer(gl)
@@ -54,24 +131,19 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     this.index_buffer = new IndexBuffer(gl)
   }
 
-  draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
+  draw(indices: number[], main_glyph: MarkerLikeView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
-    const mainGlGlyph = mainGlyph.glglyph
+    const mainGlGlyph = main_glyph.glglyph!
     const {nvertices} = mainGlGlyph
 
     // Upload data if we must. Only happens for main glyph.
     if (mainGlGlyph.data_changed) {
-      if (!(isFinite(trans.dx) && isFinite(trans.dy))) {
-        return  // not sure why, but it happens on init sometimes (#4367)
-      }
-      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  // float32 precision workaround; used in _set_data() and below
       mainGlGlyph._set_data(nvertices)
+      if (this.glyph instanceof CircleView && this.glyph._radius != null) {
+        // Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
+        this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
+      }
       mainGlGlyph.data_changed = false
-    } else if (this.glyph instanceof CircleView && this.glyph._radius != null &&
-               (this.last_trans == null || trans.sx != this.last_trans.sx || trans.sy != this.last_trans.sy)) {
-      // Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
-      this.last_trans = trans
-      this.vbo_s.set_data(0, new Float32Array(map(this.glyph.sradius, (s) => s*2)))
     }
 
     // Update visuals if we must. Can happen for all glyphs.
@@ -81,17 +153,13 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     }
 
     // Handle transformation to device coordinates
-    // Note the baked-in offset to avoid float32 precision problems
-    const baked_offset = mainGlGlyph._baked_offset
     this.prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
     this.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    this.prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
-    this.prog.set_uniform('u_scale', 'vec2', [trans.sx, trans.sy])
 
     // Select buffers from main glyph
     // (which may be this glyph but maybe not if this is a (non)selection glyph)
-    this.prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x)
-    this.prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y)
+    this.prog.set_attribute('a_sx', 'float', mainGlGlyph.vbo_sx)
+    this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy)
     this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s)
     this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a)
 
@@ -133,18 +201,18 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
         if (these_indices.length === 0) {
           continue
         }
-        this.prog.set_attribute('a_x', 'float', mainGlGlyph.vbo_x, 0, offset)
-        this.prog.set_attribute('a_y', 'float', mainGlGlyph.vbo_y, 0, offset)
+        this.prog.set_attribute('a_sx', 'float', mainGlGlyph.vbo_sx, 0, offset)
+        this.prog.set_attribute('a_sy', 'float', mainGlGlyph.vbo_sy, 0, offset)
         this.prog.set_attribute('a_size', 'float', mainGlGlyph.vbo_s, 0, offset)
         this.prog.set_attribute('a_angle', 'float', mainGlGlyph.vbo_a, 0, offset)
         if (this.vbo_linewidth.used) {
           this.prog.set_attribute('a_linewidth', 'float', this.vbo_linewidth, 0, offset)
         }
         if (this.vbo_fg_color.used) {
-          this.prog.set_attribute('a_fg_color', 'vec4', this.vbo_fg_color, 0, offset * 4)
+          this.prog.set_attribute('a_fg_color', 'vec4_uint8', this.vbo_fg_color, 0, offset*4, true)
         }
         if (this.vbo_bg_color.used) {
-          this.prog.set_attribute('a_bg_color', 'vec4', this.vbo_bg_color, 0, offset * 4)
+          this.prog.set_attribute('a_bg_color', 'vec4_uint8', this.vbo_bg_color, 0, offset*4, true)
         }
         // The actual drawing
         this.index_buffer.set_size(these_indices.length*2)
@@ -157,62 +225,27 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
   protected _set_data(nvertices: number): void {
     const n = nvertices * 4  // in bytes
     // Set buffer size
-    this.vbo_x.set_size(n)
-    this.vbo_y.set_size(n)
+    this.vbo_sx.set_size(n)
+    this.vbo_sy.set_size(n)
     this.vbo_a.set_size(n)
     this.vbo_s.set_size(n)
-    // Upload data for x and y, apply a baked-in offset for float32 precision (issue #3795)
-    // The exact value for the baked_offset does not matter, as long as it brings the data to less extreme values
-    const xx = new Float64Array(this.glyph._x)
-    const yy = new Float64Array(this.glyph._y)
-    for (let i = 0, end = nvertices; i < end; i++) {
-      xx[i] += this._baked_offset[0]
-      yy[i] += this._baked_offset[1]
-    }
-    this.vbo_x.set_data(0, new Float32Array(xx))
-    this.vbo_y.set_data(0, new Float32Array(yy))
-    // Angle if available; circle does not have angle. If we don't set data, angle is default 0 in glsl
+    this.vbo_sx.set_data(0, this.glyph.sx)
+    this.vbo_sy.set_data(0, this.glyph.sy)
     if (this.glyph._angle != null) {
       this.vbo_a.set_data(0, new Float32Array(this.glyph._angle))
     }
-    // Radius is special; some markers allow radius in data-coords instead of screen coords
-    // @radius tells us that radius is in units, sradius is the pre-calculated screen radius
     if (this.glyph instanceof CircleView && this.glyph._radius != null)
-      this.vbo_s.set_data(0, new Float32Array(map(this.glyph.sradius, (s) => s*2)))
+      this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
     else
       this.vbo_s.set_data(0, new Float32Array(this.glyph._size))
   }
 
   protected _set_visuals(nvertices: number): void {
-    attach_float(this.prog, this.vbo_linewidth, 'a_linewidth', nvertices, this.glyph.visuals.line, 'line_width')
-    attach_color(this.prog, this.vbo_fg_color, 'a_fg_color', nvertices, this.glyph.visuals.line, 'line')
-    attach_color(this.prog, this.vbo_bg_color, 'a_bg_color', nvertices, this.glyph.visuals.fill, 'fill')
+    const {line, fill} = this.glyph.visuals
+    attach_float(this.prog, this.vbo_linewidth, 'a_linewidth', nvertices, line, line.line_width)
+    attach_color(this.prog, this.vbo_fg_color, 'a_fg_color', nvertices, line, line.line_color, line.line_alpha)
+    attach_color(this.prog, this.vbo_bg_color, 'a_bg_color', nvertices, fill, fill.fill_color, fill.fill_alpha)
     // Static value for antialias. Smaller aa-region to obtain crisper images
     this.prog.set_uniform('u_antialias', 'float', [0.8])
   }
 }
-
-function mk_marker(code: string): Class<MarkerGLGlyph> {
-  return class extends MarkerGLGlyph {
-    protected get _marker_code(): string {
-      return code
-    }
-  }
-}
-
-import * as glsl from "./markers.frag"
-
-export const CircleGLGlyph           = mk_marker(glsl.circle)
-export const SquareGLGlyph           = mk_marker(glsl.square)
-export const DiamondGLGlyph          = mk_marker(glsl.diamond)
-export const TriangleGLGlyph         = mk_marker(glsl.triangle)
-export const InvertedTriangleGLGlyph = mk_marker(glsl.invertedtriangle)
-export const HexGLGlyph              = mk_marker(glsl.hex)
-export const CrossGLGlyph            = mk_marker(glsl.cross)
-export const CircleCrossGLGlyph      = mk_marker(glsl.circlecross)
-export const SquareCrossGLGlyph      = mk_marker(glsl.squarecross)
-export const DiamondCrossGLGlyph     = mk_marker(glsl.diamondcross)
-export const XGLGlyph                = mk_marker(glsl.x)
-export const CircleXGLGlyph          = mk_marker(glsl.circlex)
-export const SquareXGLGlyph          = mk_marker(glsl.squarex)
-export const AsteriskGLGlyph         = mk_marker(glsl.asterisk)

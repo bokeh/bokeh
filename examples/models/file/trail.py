@@ -37,7 +37,7 @@ def prep_data(dataset):
     df = dataset.copy()
 
     latlon = list(zip(df.lat, df.lon))
-    dist = np.array([distance(latlon[i + 1], latlon[i]) for i in range(len((latlon[:-1])))])
+    dist = np.array([distance(latlon[i + 1], latlon[i]) for i in range(len(latlon[:-1]))])
 
     df["dist"] = np.concatenate(([0], np.cumsum(dist)))
 

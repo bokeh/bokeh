@@ -1,53 +1,49 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {LineScalar} from "core/property_mixins"
-import {Line} from "core/visuals"
-import {Color} from "core/types"
+import * as mixins from "core/property_mixins"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class SlopeView extends AnnotationView {
   model: Slope
   visuals: Slope.Visuals
 
-  initialize(): void {
-    super.initialize()
-  }
-
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
   }
 
-  render(): void {
-    if (!this.model.visible)
+  protected _render(): void {
+    const {gradient, y_intercept} = this.model
+    if (gradient == null || y_intercept == null)
       return
-    this._draw_slope()
-  }
-
-  protected _draw_slope(): void {
-    const gradient = this.model.gradient
-    const y_intercept = this.model.y_intercept
-    if(gradient == null || y_intercept == null){
-      return
-    }
 
     const {frame} = this.plot_view
 
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
-    const sy_start = frame._top.value
-    const sy_end = sy_start + frame._height.value
+    let sy_start, sy_end, sx_start, sx_end
+    if (gradient == 0) {
+      sy_start = yscale.compute(y_intercept)
+      sy_end = sy_start
 
-    const y_start = yscale.invert(sy_start)
-    const y_end = yscale.invert(sy_end)
+      sx_start = frame.bbox.left
+      sx_end = sx_start + frame.bbox.width
+    } else {
+      sy_start = frame.bbox.top
+      sy_end = sy_start + frame.bbox.height
 
-    const x_start = (y_start - y_intercept) / gradient
-    const x_end = (y_end - y_intercept) / gradient
+      const y_start = yscale.invert(sy_start)
+      const y_end = yscale.invert(sy_end)
 
-    const sx_start = xscale.compute(x_start)
-    const sx_end = xscale.compute(x_end)
+      const x_start = (y_start - y_intercept) / gradient
+      const x_end = (y_end - y_intercept) / gradient
 
-    const {ctx} = this.plot_view.canvas_view
+      sx_start = xscale.compute(x_start)
+      sx_end = xscale.compute(x_end)
+    }
+
+    const {ctx} = this.layer
     ctx.save()
 
     ctx.beginPath()
@@ -63,24 +59,21 @@ export class SlopeView extends AnnotationView {
 export namespace Slope {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineScalar & {
+  export type Props = Annotation.Props & {
     gradient: p.Property<number | null>
     y_intercept: p.Property<number | null>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
+  } & Mixins
 
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_alpha: p.Property<number>
-  }
+  export type Mixins = mixins.Line/*Scalar*/
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Slope extends Slope.Attrs {}
 
 export class Slope extends Annotation {
   properties: Slope.Props
+  __view_type__: SlopeView
 
   constructor(attrs?: Partial<Slope.Attrs>) {
     super(attrs)
@@ -89,18 +82,15 @@ export class Slope extends Annotation {
   static init_Slope(): void {
     this.prototype.default_view = SlopeView
 
-    this.mixins(['line'])
+    this.mixins<Slope.Mixins>(mixins.Line/*Scalar*/)
 
-    this.define<Slope.Props>({
-      gradient:       [ p.Number,       null      ],
-      y_intercept:    [ p.Number,       null      ],
-      x_range_name:   [ p.String,       'default' ],
-      y_range_name:   [ p.String,       'default' ],
-    })
+    this.define<Slope.Props>(({Number, Nullable}) => ({
+      gradient:    [ Nullable(Number), null ],
+      y_intercept: [ Nullable(Number), null ],
+    }))
 
-    this.override({
+    this.override<Slope.Props>({
       line_color: 'black',
     })
-
   }
 }

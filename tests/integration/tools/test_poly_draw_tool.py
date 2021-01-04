@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 import time
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
@@ -78,8 +81,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PolyDrawTool(object):
-
+class Test_PolyDrawTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
@@ -201,6 +203,7 @@ class Test_PolyDrawTool(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_poly_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325]],
                     "ys": [[1, 1], [1.5, 0.75]]}
@@ -217,6 +220,7 @@ class Test_PolyDrawTool(object):
 
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_poly_drag_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [2.1891891891891895, 3]],
                     "ys": [[1, 1], [1.125, 0.375]]}
@@ -232,6 +236,7 @@ class Test_PolyDrawTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
+    @flaky(max_runs=10)
     def test_poly_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2]],
                     "ys": [[1, 1]]}
@@ -242,9 +247,9 @@ class Test_PolyDrawTool(object):
         page.double_click_canvas_at_position(300, 300)
         time.sleep(0.4) # hammerJS click timeout
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003') # Backspace
-        time.sleep(0.4) # hammerJS click timeout
+        time.sleep(0.4)  # hammerJS click timeout
+        page.send_keys("\ue003")  # Backspace
+        time.sleep(0.4)  # hammerJS click timeout
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

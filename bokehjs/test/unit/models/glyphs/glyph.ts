@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Selection} from "@bokehjs/models/selections"
@@ -7,7 +7,7 @@ import {SpatialIndex} from "@bokehjs/core/util/spatial"
 import {Context2d} from "@bokehjs/core/util/canvas"
 import {with_log_level} from "@bokehjs/core/logging"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {trap} from "../../../util"
 
 describe("glyph module", () => {
@@ -18,18 +18,14 @@ describe("glyph module", () => {
       class SomeGlyphView extends GlyphView {
         model: SomeGlyph
 
-        protected _index_data(): SpatialIndex {
-          return new SpatialIndex([])
+        protected _index_data(index: SpatialIndex): void {
+          index.add_empty()
         }
 
         protected _render(_ctx: Context2d, _indices: number[], {}: object): void {}
 
-        scenterx(_i: number): number {
-          return 0
-        }
-
-        scentery(_i: number): number {
-          return 0
+        scenterxy(): [number, number] {
+          return [0, 0]
         }
 
         protected _hit_point?(_geometry: PointGeometry): Selection {
@@ -55,13 +51,13 @@ describe("glyph module", () => {
       with_log_level("debug", () => {
         const point: PointGeometry = {type: "point", sx: 0, sy: 0}
         const out_point = trap(() => {
-          expect(glyph_view.hit_test(point)).to.be.instanceOf(Selection)
+          expect(glyph_view.hit_test(point)).to.be.instanceof(Selection)
         })
         expect(out_point.debug).to.be.equal("")
 
         const span: SpanGeometry = {type: "span", sx: 0, sy: 0, direction: "h"}
         const out_span = trap(() => {
-          expect(glyph_view.hit_test(span)).to.be.instanceOf(Selection)
+          expect(glyph_view.hit_test(span)).to.be.instanceof(Selection)
         })
         expect(out_span.debug).to.be.equal("")
 

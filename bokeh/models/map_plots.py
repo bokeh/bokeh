@@ -21,7 +21,16 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import MapType
 from ..core.has_props import abstract
-from ..core.properties import JSON, Bool, Enum, Float, Instance, Int, Override, String
+from ..core.properties import (
+    JSON,
+    Base64String,
+    Bool,
+    Enum,
+    Float,
+    Instance,
+    Int,
+    Override,
+)
 from ..core.validation import error, warning
 from ..core.validation.errors import (
     INCOMPATIBLE_MAP_RANGE_TYPE,
@@ -129,6 +138,10 @@ class GMapPlot(MapPlot):
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
     web mercator projection to display properly over google maps tiles.
 
+    The ``api_key`` property must be configured with a Google API Key in order
+    for ``GMapPlot`` to function. The key will be stored in the Bokeh Document
+    JSON.
+
     Note that Google Maps exert explicit control over aspect ratios at all
     times, which imposes some limitations on ``GMapPlot``:
 
@@ -162,7 +175,7 @@ class GMapPlot(MapPlot):
 
     border_fill_color = Override(default="#ffffff")
 
-    api_key = String(help="""
+    api_key = Base64String(help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
     """)

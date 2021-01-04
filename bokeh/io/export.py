@@ -24,7 +24,7 @@ import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
-from typing import Any, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union, cast
 
 # External imports
 from PIL import Image
@@ -35,7 +35,6 @@ from ..embed import file_html
 from ..models.layouts import LayoutDOM
 from ..resources import INLINE, Resources
 from .util import default_filename
-from .webdriver import WebDriver, webdriver_control
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,18 +42,22 @@ from .webdriver import WebDriver, webdriver_control
 
 __all__ = (
     'export_png',
+    'export_svg',
     'export_svgs',
     'get_layout_html',
     'get_screenshot_as_png',
     'get_svgs',
 )
 
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> str:
+        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -104,8 +107,44 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
 
     return abspath(filename)
 
+def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
+        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
+    ''' Export a layout as SVG file or a document as a set of SVG files.
+
+    If the filename is not given, it is derived from the script name
+    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
+
+    Args:
+        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+
+        filename (str, optional) : filename to save document under (default: None)
+            If None, infer from the filename.
+
+        width (int) : the desired width of the exported layout obj only if
+            it's a Plot instance. Otherwise the width kwarg is ignored.
+
+        height (int) : the desired height of the exported layout obj only if
+            it's a Plot instance. Otherwise the height kwarg is ignored.
+
+        webdriver (selenium.webdriver) : a selenium webdriver instance to use
+            to export the image.
+
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5)
+
+    Returns:
+        filenames (list(str)) : the list of filenames where the SVGs files are saved.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    '''
+    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    return _write_collection(svgs, filename, "svg")
+
 def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
+        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -131,8 +170,7 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
             Bokeh to initialize (default: 5) (Added in 1.1.1).
 
     Returns:
-        filenames (list(str)) : the list of filenames where the SVGs files are
-        saved.
+        filenames (list(str)) : the list of filenames where the SVGs files are saved.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and
@@ -145,28 +183,13 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
         log.warning("No SVG Plots were found.")
         return []
 
-    if filename is None:
-        filename = default_filename("svg")
-
-    filenames = []
-
-    for i, svg in enumerate(svgs):
-        if i > 0:
-            idx = filename.find(".svg")
-            filename = filename[:idx] + "_{}".format(i) + filename[idx:]
-
-        with io.open(filename, mode="w", encoding="utf-8") as f:
-            f.write(svg)
-
-        filenames.append(filename)
-
-    return filenames
+    return _write_collection(svgs, filename, "svg")
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
+def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
@@ -189,36 +212,56 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[W
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
+    from .webdriver import webdriver_control
+
     with _tmp_html() as tmp:
         html = get_layout_html(obj, resources=resources, width=width, height=height)
-        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+        with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.maximize_window()
         web_driver.get("file:///" + tmp.path)
         wait_until_render_complete(web_driver, timeout)
-        [width, height] = _maximize_viewport(web_driver)
+        [width, height, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
-    return Image.open(io.BytesIO(png)).convert("RGBA").crop((0, 0, width, height))
+    return (Image.open(io.BytesIO(png))
+                 .convert("RGBA")
+                 .crop((0, 0, width*dpr, height*dpr))
+                 .resize((width, height)))
 
-def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
+def get_svg(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
-    '''
+    from .webdriver import webdriver_control
 
-    '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, resources=resources, width=width, height=height)
-        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+        with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get("file:///" + tmp.path)
         wait_until_render_complete(web_driver, timeout)
-        svgs = web_driver.execute_script(_SVG_SCRIPT)
+        svgs = cast(List[str], web_driver.execute_script(_SVG_SCRIPT))
 
-    return cast(List[str], svgs)
+    return svgs
+
+def get_svgs(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
+    from .webdriver import webdriver_control
+
+    with _tmp_html() as tmp:
+        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        with open(tmp.path, mode="w", encoding="utf-8") as file:
+            file.write(html)
+
+        web_driver = driver if driver is not None else webdriver_control.get()
+        web_driver.get("file:///" + tmp.path)
+        wait_until_render_complete(web_driver, timeout)
+        svgs = cast(List[str], web_driver.execute_script(_SVGS_SCRIPT))
+
+    return svgs
 
 def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = INLINE,
         width: Optional[int] = None, height: Optional[int] = None) -> str:
@@ -268,14 +311,14 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
 
     return html
 
-def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
+def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
     '''
 
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
 
-    def is_bokeh_loaded(driver: WebDriver) -> bool:
+    def is_bokeh_loaded(driver: "WebDriver") -> bool:
         return cast(bool, driver.execute_script('''
             return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
         '''))
@@ -288,7 +331,7 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
 
     driver.execute_script(_WAIT_SCRIPT)
 
-    def is_bokeh_render_complete(driver: WebDriver) -> bool:
+    def is_bokeh_render_complete(driver: "WebDriver") -> bool:
         return cast(bool, driver.execute_script('return window._bokeh_render_complete;'))
 
     try:
@@ -304,7 +347,25 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _log_console(driver: WebDriver) -> None:
+def _write_collection(items: List[str], filename: Union[str, None], ext: str) -> List[str]:
+    if filename is None:
+        filename = default_filename(ext)
+
+    filenames = []
+
+    for i, item in enumerate(items):
+        if i > 0:
+            idx = filename.find(f".{ext}")
+            filename = filename[:idx] + f"_{i}" + filename[idx:]
+
+        with open(filename, mode="w", encoding="utf-8") as f:
+            f.write(item)
+
+        filenames.append(filename)
+
+    return filenames
+
+def _log_console(driver: "WebDriver") -> None:
     levels = {'WARNING', 'ERROR', 'SEVERE'}
     try:
         logs = driver.get_log('browser')
@@ -316,19 +377,19 @@ def _log_console(driver: WebDriver) -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int]:
+def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
     calculate_viewport_size = """\
         const root = document.getElementsByClassName("bk-root")[0]
         const {width, height} = root.children[0].getBoundingClientRect()
-        return [width, height]
+        return [width, height, window.devicePixelRatio]
     """
-    viewport_size: Tuple[int, int] = web_driver.execute_script(calculate_viewport_size)
+    viewport_size: Tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
-        const [width, height] = arguments
+        const [width, height, dpr] = arguments
         return [
             // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
-            Math.max(0, window.outerWidth - window.innerWidth) + width,
-            Math.max(0, window.outerHeight - window.innerHeight) + height,
+            Math.max(0, window.outerWidth - window.innerWidth) + width*dpr,
+            Math.max(0, window.outerHeight - window.innerHeight) + height*dpr,
         ]
     """
     [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
@@ -336,14 +397,37 @@ def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int]:
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
 
-_SVG_SCRIPT = """
-var serialized_svgs = [];
-var svgs = document.getElementsByClassName('bk-root')[0].getElementsByTagName("svg");
-for (var i = 0; i < svgs.length; i++) {
-    var source = (new XMLSerializer()).serializeToString(svgs[i]);
-    serialized_svgs.push(source);
-};
-return serialized_svgs
+_SVGS_SCRIPT = """
+const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
+const {PlotView} = Bokeh.require("models/plots/plot")
+
+function* collect_svgs(views) {
+  for (const view of views) {
+    if (view instanceof LayoutDOMView) {
+      yield* collect_svgs(view.child_views.values())
+    }
+    if (view instanceof PlotView && view.model.output_backend == "svg") {
+      const {ctx} = view.canvas_view.compose()
+      yield ctx.get_serialized_svg(true)
+    }
+  }
+}
+
+const root_views = Object.values(Bokeh.index)
+return [...collect_svgs(root_views)]
+"""
+
+_SVG_SCRIPT = """\
+function* export_svgs(views) {
+  for (const view of views) {
+    // TODO: use to_blob() API in future
+    const {ctx} = view.export("svg")
+    yield ctx.get_serialized_svg(true)
+  }
+}
+
+const root_views = Object.values(Bokeh.index)
+return [...export_svgs(root_views)]
 """
 
 _WAIT_SCRIPT = """
@@ -353,7 +437,7 @@ function done() {
   window._bokeh_render_complete = true;
 }
 
-var doc = window.Bokeh.documents[0];
+var doc = Bokeh.documents[0];
 
 if (doc.is_idle)
   done();
@@ -361,8 +445,8 @@ else
   doc.idle.connect(done);
 """
 
-class _TempFile(object):
 
+class _TempFile:
     _closed: bool = False
 
     fd: int
@@ -386,12 +470,12 @@ class _TempFile(object):
 
         try:
             os.close(self.fd)
-        except (OSError, IOError):
+        except OSError:
             pass
 
         try:
             os.unlink(self.path)
-        except (OSError, IOError):
+        except OSError:
             pass
 
         self._closed = True

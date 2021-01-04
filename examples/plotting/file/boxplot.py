@@ -28,11 +28,8 @@ out = groups.apply(outliers).dropna()
 
 # prepare outlier data for plotting, we need coordinates for every outlier.
 if not out.empty:
-    outx = []
-    outy = []
-    for keys in out.index:
-        outx.append(keys[0])
-        outy.append(out.loc[keys[0]].loc[keys[1]])
+    outx = list(out.index.get_level_values(0))
+    outy = list(out.values)
 
 p = figure(tools="", background_fill_color="#efefef", x_range=cats, toolbar_location=None)
 
@@ -61,7 +58,7 @@ if not out.empty:
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = "white"
 p.grid.grid_line_width = 2
-p.xaxis.major_label_text_font_size="12pt"
+p.xaxis.major_label_text_font_size="16px"
 
 output_file("boxplot.html", title="boxplot.py example")
 

@@ -7,6 +7,8 @@ import {read, read_json, write, rename, file_exists, directory_exists, hash, has
 import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
         default_transformers, compiler_host, report_diagnostics} from "./compiler"
 import {Linker} from "./linker"
+import {compile_styles, wrap_css_modules} from "./styles"
+import * as preludes from "./prelude"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
 
@@ -19,6 +21,20 @@ import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
 
 import * as readline from "readline"
+
+const toString = Object.prototype.toString
+export function isString(obj: unknown): obj is string {
+  return toString.call(obj) === "[object String]"
+}
+
+export function isObject(obj: unknown): obj is object {
+  const tp = typeof obj
+  return tp === 'function' || tp === 'object' && !!obj
+}
+
+export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
+  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+}
 
 function print(str: string): void {
   console.log(str)
@@ -136,7 +152,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
   if (setup.interactive) {
     const rl = readline.createInterface({input: process.stdin, output: process.stdout})
 
-    async function ask(question: string, default_value?: string): Promise<string> {
+    async function ask(question: string, default_value: string): Promise<string> {
       return new Promise((resolve, _reject) => {
         rl.question(`${question} `, (answer) => {
           resolve(answer.length != 0 ? answer : default_value)
@@ -206,9 +222,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   }
 
   const bokeh_ext_json_path = join(base_dir, "bokeh.ext.json")
-  const is_extension = file_exists(bokeh_ext_json_path)
+  const bokeh_ext = read_json(bokeh_ext_json_path)
 
-  if (!is_extension) {
+  if (!isPlainObject(bokeh_ext)) {
     print("Not a bokeh extension. Quitting.")
     return false
   }
@@ -273,7 +289,21 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return false
   }
 
+  let success = true
   const {files, options} = tsconfig
+
+  const dist_dir = join(base_dir, "dist")
+  const lib_dir = options.outDir ?? dist_dir
+  const dts_dir = options.declarationDir ?? lib_dir
+
+  const styles_dir = join(base_dir, "styles")
+  const css_dir = join(dist_dir, "css")
+
+  print("Compiling styles")
+  if (!await compile_styles(styles_dir, css_dir))
+    success = false
+
+  wrap_css_modules(css_dir, lib_dir, dts_dir)
 
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, bokehjs_dir)
@@ -294,9 +324,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     lint(lint_config, files)
   }
 
-  const dist_dir = join(base_dir, "dist")
-  const lib_dir = options.outDir || dist_dir
-
   const artifact = basename(base_dir)
 
   const bases = [lib_dir]
@@ -309,20 +336,53 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     cache: join(dist_dir, `${artifact}.json`),
     excluded: (dep) => dep == "tslib" || dep.startsWith("@bokehjs/"),
     plugin: true,
-    transpile: "ES2017",
+    target: "ES2017",
   })
 
   print("Linking modules")
   if (!setup.rebuild) linker.load_cache()
-  const bundles = linker.link()
+  const {bundles, status} = await linker.link()
+  if (!status)
+    success = false
   linker.store_cache()
   const outputs = [join(dist_dir, `${artifact}.js`)]
 
   const min_js = (js: string) => rename(js, {ext: '.min.js'})
 
+  const license = (() => {
+    if (isPlainObject(bokeh_ext.license)) {
+      if (isString(bokeh_ext.license.file)) {
+        const license_path = join(base_dir, bokeh_ext.license.file)
+        const text = read(license_path)
+        if (text != null)
+          return text
+        else
+          print(`Failed to license text from ${magenta(license_path)}`)
+      }
+      if (isString(bokeh_ext.license.text)) {
+        return bokeh_ext.license.text
+      }
+    }
+    return null
+  })()
+
+  const license_text = license ? preludes.comment(license) + "\n" : ""
+
+  const prelude_base = `${license_text}${preludes.plugin_prelude()}`
+  const prelude = {main: prelude_base, plugin: prelude_base}
+
+  const postlude_base = preludes.plugin_postlude()
+  const postlude = {main: postlude_base, plugin: postlude_base}
+
+  // HACK {{{
+  for (const bundle of bundles) {
+    bundle.bases.push({} as any)
+  }
+  // }}}
+
   function bundle(minified: boolean, outputs: string[]) {
     bundles
-      .map((bundle) => bundle.assemble(minified))
+      .map((bundle) => bundle.assemble({prelude, postlude, minified}))
       .map((artifact, i) => artifact.write(outputs[i]))
   }
 
@@ -340,5 +400,5 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   print(`Output written to ${cyan(dist_dir)}`)
   print("All done.")
-  return !is_failed(tsoutput)
+  return !is_failed(tsoutput) && success
 }

@@ -29,15 +29,16 @@ export interface Box extends Box.Attrs {}
 
 export abstract class Box extends LayoutDOM {
   properties: Box.Props
+  __view_type__: BoxView
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)
   }
 
   static init_Box(): void {
-    this.define<Box.Props>({
-      children: [ p.Array,  [] ],
-      spacing:  [ p.Number, 0  ],
-    })
+    this.define<Box.Props>(({Number, Array, Ref}) => ({
+      children: [ Array(Ref(LayoutDOM)), [] ],
+      spacing:  [ Number, 0 ],
+    }))
   }
 }

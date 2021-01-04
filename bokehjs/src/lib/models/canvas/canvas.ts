@@ -2,11 +2,15 @@ import {HasProps} from "core/has_props"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {div, canvas, append} from "core/dom"
+import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
+import {extend} from "core/util/object"
+import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
-import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
-import {bk_canvas, bk_canvas_underlays, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
+import {Context2d, CanvasLayer} from "core/util/canvas"
+import {PlotView} from "../plots/plot"
+
+export type FrameBox = [number, number, number, number]
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -40,65 +44,60 @@ const global_webgl: WebGLState | undefined = (() => {
   }
 })()
 
-import canvas2svg, {SVGRenderingContext2D} from "canvas2svg"
+const style = {
+  position: "absolute",
+  top: "0",
+  left: "0",
+  width: "100%",
+  height: "100%",
+}
 
 export class CanvasView extends DOMView {
   model: Canvas
 
-  bbox: BBox
+  bbox: BBox = new BBox()
 
   webgl?: WebGLState
 
-  private _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
+  underlays_el: HTMLElement
+  primary: CanvasLayer
+  overlays: CanvasLayer
+  overlays_el: HTMLElement
+  events_el: HTMLElement
 
-  get ctx(): Context2d {
-    return this._ctx as Context2d
-  }
-
-  protected underlays_el: HTMLElement
-  protected canvas_el: HTMLCanvasElement | SVGSVGElement
-  protected overlays_el: HTMLElement
-  /*protected*/ events_el: HTMLElement
+  ui_event_bus: UIEventBus
 
   initialize(): void {
     super.initialize()
 
-    const style = {
-      position: "absolute",
-      top: "0",
-      left: "0",
-      width: "100%",
-      height: "100%",
+    const {output_backend, hidpi} = this.model
+    if (output_backend == "webgl") {
+      this.webgl = global_webgl
     }
 
-    switch (this.model.output_backend) {
-      case "webgl":
-        this.webgl = global_webgl
-      case "canvas": {
-        this.canvas_el = canvas({class: bk_canvas, style})
-        const ctx = this.canvas_el.getContext('2d')
-        if (ctx == null)
-          throw new Error("unable to obtain 2D rendering context")
-        this._ctx = ctx
-        break
-      }
-      case "svg": {
-        const ctx = new canvas2svg() as SVGRenderingContext2D
-        this._ctx = ctx
-        this.canvas_el = ctx.getSvg()
-        break
-      }
-    }
+    this.underlays_el = div({style})
+    this.primary = new CanvasLayer(output_backend, hidpi)
+    this.overlays = new CanvasLayer(output_backend, hidpi)
+    this.overlays_el = div({style})
+    this.events_el = div({class: "bk-canvas-events", style})
 
-    this.underlays_el = div({class: bk_canvas_underlays, style})
-    this.overlays_el = div({class: bk_canvas_overlays, style})
-    this.events_el = div({class: bk_canvas_events, style})
+    const elements = [
+      this.underlays_el,
+      this.primary.el,
+      this.overlays.el,
+      this.overlays_el,
+      this.events_el,
+    ]
 
-    append(this.el, this.underlays_el, this.canvas_el, this.overlays_el, this.events_el)
+    extend(this.el.style, style)
+    append(this.el, ...elements)
 
-    fixup_ctx(this._ctx)
+    this.ui_event_bus = new UIEventBus(this)
+  }
 
-    logger.debug("CanvasView initialized")
+  remove(): void {
+    this.ui_event_bus.destroy()
+    super.remove()
   }
 
   add_underlay(el: HTMLElement): void {
@@ -113,63 +112,100 @@ export class CanvasView extends DOMView {
     this.events_el.appendChild(el)
   }
 
-  prepare_canvas(width: number, height: number): void {
-    // Ensure canvas has the correct size, taking HIDPI into account
+  get pixel_ratio(): number {
+    return this.primary.pixel_ratio // XXX: primary
+  }
+
+  resize(width: number, height: number): void {
     this.bbox = new BBox({left: 0, top: 0, width, height})
 
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
-
-    const pixel_ratio = get_scale_ratio(this.ctx, this.model.use_hidpi, this.model.output_backend)
-    this.model.pixel_ratio = pixel_ratio
-
-    this.canvas_el.style.width = `${width}px`
-    this.canvas_el.style.height = `${height}px`
-
-    // XXX: io.export and canvas2svg don't like this
-    // this.canvas_el.width = width*pixel_ratio
-    // this.canvas_el.height = height*pixel_ratio
-    this.canvas_el.setAttribute("width", `${width*pixel_ratio}`)
-    this.canvas_el.setAttribute("height", `${height*pixel_ratio}`)
-
-    logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
+    this.primary.resize(width, height)
+    this.overlays.resize(width, height)
   }
 
-  save(name: string): void {
-    if (this.canvas_el instanceof HTMLCanvasElement) {
-      const canvas = this.canvas_el
-      if (canvas.msToBlob != null) {
-        const blob = canvas.msToBlob()
-        window.navigator.msSaveBlob(blob, name)
-      } else {
-        const link = document.createElement("a")
-        link.href = canvas.toDataURL("image/png")
-        link.download = name + ".png"
-        link.target = "_blank"
-        link.dispatchEvent(new MouseEvent("click"))
-      }
-    } else {
-      const ctx = this._ctx as SVGRenderingContext2D
-      const svg = ctx.getSerializedSvg(true)
-      const svgblob = new Blob([svg], {type: "text/plain"})
-      const downloadLink = document.createElement("a")
-      downloadLink.download = name + ".svg"
-      downloadLink.innerHTML = "Download svg"
-      downloadLink.href = window.URL.createObjectURL(svgblob)
-      downloadLink.onclick = (event) => document.body.removeChild(event.target as HTMLElement)
-      downloadLink.style.display = "none"
-      document.body.appendChild(downloadLink)
-      downloadLink.click()
+  prepare_webgl(frame_box: FrameBox): void {
+    // Prepare WebGL for a drawing pass
+    const {webgl} = this
+    if (webgl != null) {
+      // Sync canvas size
+      const {width, height} = this.bbox
+      webgl.canvas.width = this.pixel_ratio*width
+      webgl.canvas.height = this.pixel_ratio*height
+      const {gl} = webgl
+      // Clipping
+      gl.enable(gl.SCISSOR_TEST)
+      const [sx, sy, w, h] = frame_box
+      const {xview, yview} = this.bbox
+      const vx = xview.compute(sx)
+      const vy = yview.compute(sy + h)
+      const ratio = this.pixel_ratio
+      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
+      // Setup blending
+      gl.enable(gl.BLEND)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
+      this._clear_webgl()
     }
   }
+
+  blit_webgl(ctx: Context2d): void {
+    // This should be called when the ctx has no state except the HIDPI transform
+    const {webgl} = this
+    if (webgl != null) {
+      // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
+      // to remove the hidpi transform, then blit, then restore.
+      // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
+      logger.debug('Blitting WebGL canvas')
+      ctx.restore()
+      ctx.drawImage(webgl.canvas, 0, 0)
+      // Set back hidpi transform
+      ctx.save()
+      if (this.model.hidpi) {
+        const ratio = this.pixel_ratio
+        ctx.scale(ratio, ratio)
+        ctx.translate(0.5, 0.5)
+      }
+      this._clear_webgl()
+    }
+  }
+
+  protected _clear_webgl(): void {
+    const {webgl} = this
+    if (webgl != null) {
+      // Prepare GL for drawing
+      const {gl, canvas} = webgl
+      gl.viewport(0, 0, canvas.width, canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    }
+  }
+
+  compose(): CanvasLayer {
+    const {output_backend, hidpi} = this.model
+    const {width, height} = this.bbox
+    const composite = new CanvasLayer(output_backend, hidpi)
+    composite.resize(width, height)
+    composite.ctx.drawImage(this.primary.canvas, 0, 0)
+    composite.ctx.drawImage(this.overlays.canvas, 0, 0)
+    return composite
+  }
+
+  to_blob(): Promise<Blob> {
+    return this.compose().to_blob()
+  }
+
+  plot_views: PlotView[]
+  /*
+  get plot_views(): PlotView[] {
+    return [] // XXX
+  }
+  */
 }
 
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HasProps.Props & {
-    use_hidpi: p.Property<boolean>
-    pixel_ratio: p.Property<number>
+    hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
 }
@@ -178,7 +214,7 @@ export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
   properties: Canvas.Props
-  default_view: typeof CanvasView
+  __view_type__: CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)
@@ -187,10 +223,9 @@ export class Canvas extends HasProps {
   static init_Canvas(): void {
     this.prototype.default_view = CanvasView
 
-    this.internal({
-      use_hidpi:      [ p.Boolean,       true     ],
-      pixel_ratio:    [ p.Number,        1        ],
-      output_backend: [ p.OutputBackend, "canvas" ],
-    })
+    this.internal<Canvas.Props>(({Boolean}) => ({
+      hidpi:          [ Boolean, true ],
+      output_backend: [ OutputBackend, "canvas" ],
+    }))
   }
 }

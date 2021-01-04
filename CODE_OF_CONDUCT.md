@@ -80,7 +80,7 @@ further defined and clarified by project maintainers.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported by contacting the project team at [conduct@bokeh.org](mailto:conduct@bokeh.org). All
-complaints will be reviewed and investigated and any appropriate measures
+reports will be reviewed by the [Conduct Sub-committee](https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#conduct-sub-committee) and investigated and any appropriate measures
 will be taken. The project team commits to maintaining confidentiality
 with regard to the reporter of an incident. Further details of specific
 enforcement policies may be posted separately.
@@ -88,6 +88,10 @@ enforcement policies may be posted separately.
 Project maintainers who do not follow or enforce the Code of Conduct in good
 faith will face temporary or permanent repercussions as determined by other
 members of the project's leadership.
+
+### Escalation
+
+In the event it is necessary to make a report involving someone on the NumFocus committee itself, please use the general [NumFocus CoC reporting form](https://numfocus.org/code-of-conduct).
 
 ### Attribution
 
@@ -99,4 +103,8 @@ available at [http://contributor-covenant.org/version/1/4][version]
 
 ### Revisions
 
-2019-03-01 updated reporting email to conduct@bokeh.org
+|Date| Change|
+|------|---------------------------|
+|2019-03-01 | Updated reporting email to conduct@bokeh.org |
+|2020-05-03 | Link to conduct subcommittee and NF CoC form for escalation|
+|2020-05-04 | Typos and minor word edits |

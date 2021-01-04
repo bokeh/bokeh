@@ -1,10 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "models/glyphs/xy_glyph"
-import {generic_area_legend} from "models/glyphs/utils"
+import {generic_area_vector_legend} from "models/glyphs/utils"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {Arrayable, Rect} from "core/types"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 import {Draw, gear_tooth, internal_gear_tooth}  from "./gear_utils"
@@ -142,29 +142,32 @@ export class GearView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
 export namespace Gear {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     angle:          p.AngleSpec
     module:         p.NumberSpec
     pressure_angle: p.NumberSpec
     shaft_size:     p.NumberSpec
     teeth:          p.NumberSpec
     internal:       p.BooleanSpec
-  }
+  } & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Mixins = LineVector & FillVector
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Gear extends Gear.Attrs {}
 
 export class Gear extends XYGlyph {
   properties: Gear.Props
+  __view_type__: GearView
 
   constructor(attrs?: Partial<Gear.Attrs>) {
     super(attrs)
@@ -173,14 +176,15 @@ export class Gear extends XYGlyph {
   static init_Gear(): void {
     this.prototype.default_view = GearView
 
-    this.mixins(['line', 'fill'])
-    this.define<Gear.Props>({
-      angle:          [ p.AngleSpec,   0     ],
-      module:         [ p.NumberSpec         ],
-      pressure_angle: [ p.NumberSpec,  20    ], // TODO: units: deg
-      shaft_size:     [ p.NumberSpec,  0.3   ],
-      teeth:          [ p.NumberSpec         ],
+    this.mixins<Gear.Mixins>([LineVector, FillVector])
+
+    this.define<Gear.Props>(({}) => ({
+      angle:          [ p.AngleSpec, 0 ],
+      module:         [ p.NumberSpec ],
+      pressure_angle: [ p.NumberSpec, 20 ], // TODO: units: deg
+      shaft_size:     [ p.NumberSpec, 0.3 ],
+      teeth:          [ p.NumberSpec ],
       internal:       [ p.BooleanSpec, false ],
-    })
+    }))
   }
 }

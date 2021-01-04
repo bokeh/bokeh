@@ -12,9 +12,6 @@ For this reason, in order to develop Bokeh from a source checkout, you must
 first be able to build BokehJS. This chapter will walk you through getting a
 full development environment set up.
 
-.. contents::
-    :local:
-    :depth: 2
 
 .. dev_guide_preliminaries:
 
@@ -25,8 +22,8 @@ Git
 ~~~
 
 The Bokeh source code is stored in a `Git`_ source control repository.
-The first step to working on Bokeh is to install Git on to your system.
-There are different ways to do this depending on whether, you are using
+The first step to working on Bokeh is to install Git on your system.
+There are different ways to do this, depending on whether you are using
 Windows, OSX, or Linux.
 
 To install Git on any platform, refer to the `Installing Git`_ section of
@@ -44,32 +41,15 @@ greatly. It is *strongly* recommended that anyone developing Bokeh also use
 ``conda``, and the remainder of the instructions will assume that ``conda``
 is available.
 
-To install Conda on any platform, see the `Downloading conda`_ section of the
-`conda documentation`_.
-
-Conda environment
-~~~~~~~~~~~~~~~~~
-
-Setting up an isolated conda environment to guarantee package compatibility
-is considered best practice. To set up a clean environment, issue the following
-command:
-
-.. code-block:: sh
-
-    conda create --name bokeh-dev
-
-Then, to activate the environment:
-
-.. code-block:: sh
-
-    conda activate bokeh-dev
+To install Conda on any platform, see the `Anaconda Installers`_ section at
+the bottom of the `Anaconda Individual Edition`_ page.
 
 .. _devguide_cloning:
 
 Cloning the Repository
 ----------------------
 
-The source code for the Bokeh project is hosted on GitHub_. To clone the
+The source code for the Bokeh project is hosted on GitHub_. To clone the main
 source repository, issue the following command:
 
 .. code-block:: sh
@@ -81,108 +61,56 @@ source repository, issue the following command:
     Active @bokeh/dev contributors should clone the main source repository to
     make sure the complete CI testing automation runs successfully.
 
-New or casual contributors are required to clone their forks of the `bokeh source
-repository`_. To fork and clone Github repositories, refer to `Fork a repo`_
-section of `GitHub Help`_.
+    New or casual contributors are required to clone their forks of the `bokeh source
+    repository`_. To fork and clone Github repositories, refer to `Fork a repo`_
+    section of `GitHub Help`_.
 
 This will create a ``bokeh`` directory at your file system location. This
 ``bokeh`` directory is referred to as the *source checkout* for the remainder
 of this document.
 
-.. _dev_guide_installing_dependencies:
+.. _dev_guide_creating_conda_env:
 
-Installing Dependencies
------------------------
+Creating a Conda Environment
+----------------------------
 
-Bokeh requires many additional packages for development and testing. Many
-of these are on the main Anaconda default channel, but others are only
-available from additional conda channels, or via the Node Package Manager.
+The Bokeh repo contains an :bokeh-tree:`environment.yml` file that can be used
+to create a conda environment named ``bkdev`` with all the packages necessary
+for basic Bokeh development.
 
-.. _dev_guide_installing_dependencies_conda:
-
-Conda Packages
-~~~~~~~~~~~~~~
-
-On all platforms, execute the following two commands at your command prompt
-to add the "bokeh" and "conda-forge" channels to your list of package
-sources:
+At the top level of the repository, issue the following command in a terminal:
 
 .. code-block:: sh
 
-    conda config --append channels bokeh
-    conda config --append channels conda-forge
+    conda env create environment.yml
 
-.. note::
-    If you do not wish to make configuration changes to your ``conda``
-    configuration, then the channels above can be added on a per-command
-    basis with the ``-c`` command line option to ``conda``, e.g.
-    ``conda install -c bokeh -c conda-forge <pkgs>``. Alternatively, add the
-    channels to the current active conda environment with the ``--env`` flag.
-
-It's also necessary to install `jinja2` and `pyyaml` first, to bootstrap
-the rest of these instructions. To do that, execute:
+Then, to activate the environment:
 
 .. code-block:: sh
 
-    conda install jinja2 pyyaml
+    conda activate bkdev
 
-From the top level of the *source checkout* directory, execute the following
-command at your command prompt to install all the required packages:
+.. _dev_guide_installing_node_packages:
 
-* OSX / Linux (bash / sh)
+Installing Node Packages
+------------------------
 
-    .. code-block:: sh
-
-        conda install `python scripts/deps.py build run test`
-
-    Note the required backticks in the command.
-
-* OSX / Linux (fish)
-
-    .. code-block:: fish
-
-        conda install (python scripts/deps.py build run test | string replace -ar '\s\s+' ' ' | string split ' ' | string escape)
-
-* Windows (Powershell)
-
-    .. code-block:: sh
-
-        conda install $(python scripts/deps.py build run test).split() | where {$_}
-
-* Windows (DOS Command Prompt)
-
-    .. code-block:: sh
-
-        for /F "delims=" %i in ('python scripts\deps.py build run test') do (conda install %i)
-
-.. note::
-    The ``test`` category has been omitted from the Windows installs above
-    because not all of the testing packages are easily installable on Windows
-    yet. The commands above will install everything necessary to build and run,
-    however. If you are interested in helping out and becoming a Windows
-    maintainer for Bokeh, please `contact the developers`_.
-
-.. _dev_guide_installing_dependencies_node:
-
-Node Packages
-~~~~~~~~~~~~~
-
-Building BokehJS also requires installing  JavaScript dependencies using
+Building BokehJS also requires installing JavaScript dependencies using
 the Node Package Manager. If you have followed the instructions above,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.
 
 Bokeh is typically updated to require the latest major revision of ``npm``
-in order to build. To install the lastest version globally, start from the
+in order to build. To install the latest version globally, start from the
 top level of the *source checkout* directory, and execute the following
-commands
+commands:
 
 .. code-block:: sh
 
     cd bokehjs
-    npm install -g npm
+    npm install -g npm@7
 
-If you do not wish to install globally (i.e. with ``-g``) then all
+If you do not wish to install globally (i.e. with ``-g``), then all
 subsequent ``npm`` commands will need to be adjusted to use the local
 version installed under ``bokehjs/node_modules``.
 
@@ -196,11 +124,10 @@ to install all of BokehJS JavaScript dependencies:
 This command will install the necessary packages into the ``node_modules``
 subdirectory.
 
-----
-
-Typically, these instructions only need to be followed once, when you are
-first getting set up. Occasionally, however, dependencies may be added or
-changed, in which case these instructions will need to be followed again.
+.. note::
+    Typically, these instructions only need to be followed once, when you are
+    first getting set up. Occasionally, however, dependencies may be added or
+    changed, in which case these instructions will need to be followed again.
 
 .. _devguide_configuring_git:
 
@@ -223,7 +150,7 @@ In order to help prevent some accidental errors, here are some git hooks
 that may be useful. The scripts below should be placed in the ``.git/hooks``
 subdirectory in the top level of the *source checkout* directory and be
 marked executable with e.g. ``chmod +x pre-commit``. For more information
-on git hooks, see `this turorial`_.
+on git hooks, see `this tutorial`_.
 
 ``pre-commit``
 
@@ -235,7 +162,7 @@ on git hooks, see `this turorial`_.
 
         #!/bin/bash
 
-        py.test -m codebase
+        pytest tests/codebase
         exit $?
 
 ``pre-push``
@@ -285,7 +212,7 @@ You can replace ``vim`` with whatever your favorite editor command is.
 Building and Installing
 -----------------------
 
-Once you have all the required depencies installed, the simplest way to
+Once you have all the required dependencies installed, the simplest way to
 build and install Bokeh and BokehJS is to use the ``setup.py`` script at
 the top level of the *source checkout* directory.
 
@@ -331,7 +258,7 @@ install.
 .. note::
     Occasionally the list of JavaScript dependencies also changes. If this
     occurs, you will also need to re-run the instructions in the
-    :ref:`dev_guide_installing_dependencies_node` section above.
+    :ref:`dev_guide_installing_node_packages` section above.
 
 Downloading Sample Data
 -----------------------
@@ -344,7 +271,7 @@ executing the following command at a Bash or Windows prompt:
 
     bokeh sampledata
 
-It's also possible to configue the download location, or to start the download
+It's also possible to configure the download location, or to start the download
 programmatically. For full details see the :ref:`install_sampledata` section of
 the User's Guide.
 
@@ -362,17 +289,18 @@ You should see output similar to:
 
 .. code-block:: sh
 
-    Python version      :  3.6.1 |Anaconda, Inc.| (default, May 11 2017, 13:04:09)
-    IPython version     :  5.3.0
-    Bokeh version       :  0.12.7dev3-17-g184f1ed7a
+    Python version      :  3.8.3 | packaged by conda-forge | (default, Jun  1 2020, 17:21:09)
+    IPython version     :  7.15.0
+    Tornado version     :  6.0.4
+    Bokeh version       :  2.0.2-95-g8e0b447c0-dirty
     BokehJS static path :  /Users/bryan/work/bokeh/bokeh/server/static
-    node.js version     :  v6.10.3
-    npm version         :  3.10.10
+    node.js version     :  v14.4.0
+    npm version         :  6.14.5
 
 The next check that can be made is to run some of the examples. There are
-different ways in which bokeh can be used which suit a variety of use cases.
+different ways in which Bokeh can be used to suit a variety of use cases.
 
-To create an html file,
+To create an HTML file,
 
 .. code-block:: sh
 
@@ -387,11 +315,11 @@ which will create a file ``iris.html`` locally and open up a web browser.
 The variable ``BOKEH_RESOURCES`` determines where the css and JavaScript
 resources required by bokeh are found. By specifying ``inline`` we are using
 the version of BokehJS we just built to include the resources inline as part of
-the html file. The ``BOKEH_RESOURCES`` variable is required as the default
-behaviour is to use CDN resources.
+the HTML file. The ``BOKEH_RESOURCES`` variable is required as the default
+behavior is to use CDN resources.
 
 Another method of running bokeh is as a server. An example of this mode of
-operation can be run using the command
+operation can be run using the command:
 
 .. code-block:: sh
 
@@ -413,8 +341,8 @@ If you have any problems with the steps here, please `contact the developers`_.
 .. _bokeh source repository: https://github.com/bokeh/bokeh
 .. _contact the developers: https://discourse.bokeh.org/c/development
 .. _conda package manager: https://docs.conda.io/projects/conda/en/latest/
-.. _conda documentation: https://docs.conda.io/projects/conda/en/latest/
-.. _Downloading conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html
+.. _Anaconda Installers: https://www.anaconda.com/products/individual
+.. _Anaconda Individual Edition: https://www.anaconda.com/products/individual
 .. _Fork a repo: https://help.github.com/en/github/getting-started-with-github/fork-a-repo
 .. _Git: https://git-scm.com
 .. _GitHub: https://github.com
@@ -422,4 +350,4 @@ If you have any problems with the steps here, please `contact the developers`_.
 .. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 .. _meta.yaml: http://github.com/bokeh/bokeh/blob/master/conda.recipe/meta.yaml
 .. _Pro Git Book: https://git-scm.com/book/en/v2
-.. _this turorial: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks
+.. _this tutorial: https://www.digitalocean.com/community/tutorials/how-to-use-git-hooks-to-automate-development-and-deployment-tasks

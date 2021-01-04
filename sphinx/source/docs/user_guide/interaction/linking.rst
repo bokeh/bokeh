@@ -4,7 +4,7 @@ Linking Behavior
 ----------------
 
 It's often useful to link plots to add connected interactivity between plots.
-This section shows an easy way to do it using the |bokeh.plotting| interface.
+This section shows an easy way to do this, using the |bokeh.plotting| interface.
 
 .. _userguide_interaction_linked_panning:
 

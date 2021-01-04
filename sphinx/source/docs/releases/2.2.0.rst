@@ -1,0 +1,51 @@
+.. _release-2-2-0:
+
+2.2.0
+=====
+
+Bokeh Version ``2.2.0`` (Aug 2020) is a minor-release that focused with
+substantial improvements to performance, SVG export, and DataTable.
+
+* Improvements to ``DataTable`` styling and functionality (:bokeh-issue:`6864`, :bokeh-issue:`8595`, :bokeh-issue:`10251`, :bokeh-issue:`10353`, :bokeh-issue:`10363`, :bokeh-issue:`10374`, :bokeh-issue:`10416`)
+* Improvements and fixes to SVG rendering  (:bokeh-issue:`6775`, :bokeh-issue:`8046`, :bokeh-issue:`8446`, :bokeh-issue:`8744`, :bokeh-issue:`9001`, :bokeh-issue:`9169`, :bokeh-issue:`9213`, :bokeh-issue:`9551`, :bokeh-issue:`10273`, :bokeh-issue:`10305`)
+* Memory and Performance improvements (:bokeh-issue:`10162`, :bokeh-issue:`10176`, :bokeh-issue:`10225`, :bokeh-issue:`10226`, :bokeh-issue:`10234`, :bokeh-issue:`10235`, :bokeh-issue:`10272`, :bokeh-issue:`10384`)
+* Fixes for properties not triggering updates (:bokeh-issue:`9436`, :bokeh-issue:`10147`, :bokeh-issue:`10215`, :bokeh-issue:`10247`)
+* Fix over-quoting problem with ``components`` API (:bokeh-issue:`10271`)
+* Support save to clipboard on supported browsers (:bokeh-issue:`10066`)
+* Ensure auth hooks apply to Websocket updgrade in addition to HTTPS connection (:bokeh-issue:`10316`)
+* Add a new ``DocumentReady`` event usable in Bokeh server apps (:bokeh-issue:`10265`)
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-2-2-0-migration:
+
+`Migration Guide <releases.html#release-2-2-0-migration>`__
+-----------------------------------------------------------
+
+Oval glyph deprecated
+~~~~~~~~~~~~~~~~~~~~~
+
+The ``Ovall`` glyph is largely duplicative of the ellipse glyph, and will be
+removed in version 3.0. Use ``Ellipse`` instead.
+
+``Tooltip.inner_only`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This property was non-functional an unnecessary and has been removed. No
+replacement is provided.
+
+``scenterx`` and ``scentery`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previosuly, glyphs could implement separate ``scenterx`` and ``scentery`` to
+report a "center" location that could anchor hovers. These have been combined in
+to a single ``Glyph.scenterxy()`` method that should be implemented instead.
+(This change is only relevant if you are implementing a new glyph in Bokeh or in
+a custom extension.)
+
+Implement ``Renderer._render`` instead of ``Renderer.render``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Renderers must implement abstract method ``_render`` instead ``render``, which is
+now "final". This breaking change affects only extension developers.

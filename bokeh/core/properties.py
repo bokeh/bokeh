@@ -71,6 +71,7 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
+.. autoclass:: Alpha
 .. autoclass:: Angle
 .. autoclass:: Any
 .. autoclass:: AnyRef
@@ -117,6 +118,7 @@ Container Properties
 DataSpec Properties
 -------------------
 
+.. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
 .. autoclass:: ColorSpec
 .. autoclass:: DataDistanceSpec
@@ -125,6 +127,7 @@ DataSpec Properties
 .. autoclass:: FontSizeSpec
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
+.. autoclass:: PropertyUnitsSpec
 .. autoclass:: ScreenDistanceSpec
 .. autoclass:: StringSpec
 .. autoclass:: UnitsSpec
@@ -178,12 +181,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alpha',
+    'AlphaSpec',
     'Angle',
     'AngleSpec',
     'Any',
     'AnyRef',
     'Array',
     'Auto',
+    'Base64String',
     'Bool',
     'Byte',
     'Color',
@@ -222,6 +228,7 @@ __all__ = (
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
+    'PropertyUnitsSpec',
     'RGB',
     'Regex',
     'RelativeDelta',
@@ -250,6 +257,7 @@ from .property.any import AnyRef; AnyRef
 
 from .property.auto import Auto; Auto
 
+from .property.color import Alpha; Alpha
 from .property.color import Color; Color
 from .property.color import RGB; RGB
 from .property.color import ColorHex; ColorHex
@@ -262,6 +270,7 @@ from .property.container import Seq; Seq
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
 
+from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DataSpec; DataSpec
@@ -273,6 +282,7 @@ from .property.dataspec import FontSizeSpec; FontSizeSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NumberSpec; NumberSpec
+from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import UnitsSpec; UnitsSpec
@@ -311,7 +321,8 @@ from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
 
-from .property.regex import Regex; Regex
+from .property.string import Base64String; Base64String
+from .property.string import Regex; Regex
 
 from .property.struct import Struct; Struct
 

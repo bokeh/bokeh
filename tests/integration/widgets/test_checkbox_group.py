@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
@@ -38,9 +41,9 @@ pytest_plugins = (
 
 LABELS = ["Option 1", "Option 2", "Option 3"]
 
-@pytest.mark.selenium
-class Test_CheckboxGroup(object):
 
+@pytest.mark.selenium
+class Test_CheckboxGroup:
     @pytest.mark.parametrize('inline', [True, False])
     def test_displays_options_list_of_string_labels_setting_inline(self, inline, bokeh_model_page) -> None:
         group = CheckboxGroup(labels=LABELS, css_classes=["foo"], inline=inline)
@@ -57,6 +60,7 @@ class Test_CheckboxGroup(object):
             assert input.get_attribute('value') == str(i)
             assert input.get_attribute('type') == 'checkbox'
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))

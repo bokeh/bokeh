@@ -3,6 +3,4 @@
 bokeh.models.markers.DiamondCross
 ---------------------------------
 
-.. autoclass:: bokeh.models.markers.DiamondCross
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.DiamondCross

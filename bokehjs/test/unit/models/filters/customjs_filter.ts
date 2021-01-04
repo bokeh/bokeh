@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {CustomJSFilter} from "@bokehjs/models/filters/customjs_filter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -6,11 +6,11 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("CustomJSFilter", () => {
 
-  describe("default creation", () => {
+  describe("default constructor", () => {
     const filter = new CustomJSFilter()
 
     it("should have empty args", () => {
-      expect(filter.args).to.be.deep.equal({})
+      expect(filter.args).to.be.equal({})
     })
 
     it("should have empty code property", () => {
@@ -22,14 +22,14 @@ describe("CustomJSFilter", () => {
 
     it("should return an array", () => {
       const filter = new CustomJSFilter()
-      expect(filter.values).to.be.an.instanceof(Array)
+      expect(filter.values).to.be.instanceof(Array)
     })
 
     it("should contain the args values in order", () => {
       const rng1 = new Range1d()
       const rng2 = new Range1d()
       const filter = new CustomJSFilter({args: {foo: rng1, bar: rng2}})
-      expect(filter.values).to.be.deep.equal([rng1, rng2])
+      expect(filter.values).to.be.equal([rng1, rng2])
     })
   })
 
@@ -37,7 +37,7 @@ describe("CustomJSFilter", () => {
 
     it("should return a Function", () => {
       const filter = new CustomJSFilter()
-      expect(filter.func).to.be.an.instanceof(Function)
+      expect(filter.func).to.be.instanceof(Function)
     })
 
     it("should have code property as function body", () => {
@@ -65,34 +65,34 @@ describe("CustomJSFilter", () => {
 
     it("should execute the code and return the result", () => {
       const filter = new CustomJSFilter({code: "return [0]"})
-      expect(filter.compute_indices(cds)).to.be.deep.equal([0])
+      expect([...filter.compute_indices(cds)]).to.be.equal([0])
     })
 
     it("should compute indices using a source", () => {
       const code = `
-        var column = source.data["x"];
-        var indices = [];
-        for (var i = 0; i < source.get_length(); i++) {
-          indices.push(column[i] == "a");
+        const column = source.data["x"]
+        const indices = []
+        for (let i = 0; i < source.length; i++) {
+          indices.push(column[i] == "a")
         }
-        return indices;
+        return indices
       `
       const filter = new CustomJSFilter({code})
-      expect(filter.compute_indices(cds)).to.be.deep.equal([0, 1])
+      expect([...filter.compute_indices(cds)]).to.be.equal([0, 1])
     })
 
     it("should compute indices using an arg property", () => {
       const code = `
-        var column = source.data["y"];
-        var indices = [];
-        for (var i = 0; i < source.get_length(); i++) {
+        const column = source.data["y"]
+        const indices = []
+        for (let i = 0; i < source.length; i++) {
           indices.push(column[i] == foo.start)
         }
-        return indices;
+        return indices
       `
       const rng = new Range1d({start: 5, end: 21})
       const filter = new CustomJSFilter({args: {foo: rng}, code})
-      expect(filter.compute_indices(cds)).to.be.deep.equal([4])
+      expect([...filter.compute_indices(cds)]).to.be.equal([4])
     })
   })
 })

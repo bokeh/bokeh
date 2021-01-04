@@ -52,6 +52,8 @@ class Glyph(Model):
 
     '''
 
+    # a canonical order for positional args that can be
+    # used for any functions derived from this class
     _args = ()
 
     _extra_kws = {}
@@ -66,19 +68,21 @@ class Glyph(Model):
 
         '''
         arg_params = []
+        no_more_defaults = False
 
-        for arg in cls._args:
+        for arg in reversed(cls._args):
             descriptor = cls.lookup(arg)
             default = descriptor.class_default(cls)
+            if default is None:
+                no_more_defaults = True
             param = Parameter(
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
-
-                # for positional arg properties, default=None means no default
-                default=Parameter.empty if default is None else default
+                # For positional arg properties, default=None means no default.
+                default=Parameter.empty if no_more_defaults else default
             )
             typ = descriptor.property._sphinx_type()
-            arg_params.append((param, typ, descriptor.__doc__))
+            arg_params.insert(0, (param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
         omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
@@ -118,6 +122,26 @@ class ConnectedXYGlyph(XYGlyph):
     ''' Base class of glyphs with `x` and `y` coordinate attributes and
     a connected topology.
 
+    '''
+
+@abstract
+class LineGlyph(Glyph):
+    ''' Glyphs with line properties
+    '''
+
+@abstract
+class FillGlyph(Glyph):
+    ''' Glyphs with fill properties
+    '''
+
+@abstract
+class TextGlyph(Glyph):
+    ''' Glyphs with text properties
+    '''
+
+@abstract
+class HatchGlyph(Glyph):
+    ''' Glyphs with Hatch properties
     '''
 
 #-----------------------------------------------------------------------------

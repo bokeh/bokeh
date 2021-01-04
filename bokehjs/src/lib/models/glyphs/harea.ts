@@ -1,20 +1,20 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
-import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
 export interface HAreaData extends AreaData {
-  _x1: Arrayable<number>
-  _x2: Arrayable<number>
-  _y: Arrayable<number>
+  _x1: NumberArray
+  _x2: NumberArray
+  _y: NumberArray
 
-  sx1: Arrayable<number>
-  sx2: Arrayable<number>
-  sy: Arrayable<number>
+  sx1: NumberArray
+  sx2: NumberArray
+  sy: NumberArray
 }
 
 export interface HAreaView extends HAreaData {}
@@ -23,21 +23,20 @@ export class HAreaView extends AreaView {
   model: HArea
   visuals: HArea.Visuals
 
-  protected _index_data(): SpatialIndex {
-    const points: IndexedRect[] = []
+  protected _index_data(index: SpatialIndex): void {
+    const {min, max} = Math
+    const {data_size} = this
 
-    for (let i = 0, end = this._x1.length; i < end; i++) {
+    for (let i = 0; i < data_size; i++) {
       const x1 = this._x1[i]
       const x2 = this._x2[i]
       const y = this._y[i]
 
       if (isNaN(x1 + x2 + y) || !isFinite(x1 + x2 + y))
-        continue
-
-      points.push({x0: Math.min(x1, x2), y0: y, x1: Math.max(x1, x2), y1: y, i})
+        index.add_empty()
+      else
+        index.add(min(x1, x2), y, max(x1, x2), y)
     }
-
-    return new SpatialIndex(points)
   }
 
   protected _inner(ctx: Context2d, sx1: Arrayable<number>, sx2: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
@@ -54,22 +53,18 @@ export class HAreaView extends AreaView {
   }
 
   protected _render(ctx: Context2d, _indices: number[], {sx1, sx2, sy}: HAreaData): void {
-
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner(ctx, sx1, sx2, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
-
+    this.visuals.hatch.doit2(ctx, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    const result = hittest.create_empty_hit_test_result()
-
     const L = this.sy.length
-    const sx = new Float64Array(2*L)
-    const sy = new Float64Array(2*L)
+    const sx = new NumberArray(2*L)
+    const sy = new NumberArray(2*L)
 
     for (let i = 0, end = L; i < end; i++) {
       sx[i] = this.sx1[i]
@@ -78,20 +73,20 @@ export class HAreaView extends AreaView {
       sy[L+i] = this.sy[L-i-1]
     }
 
+    const result = new Selection()
+
     if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
       result.add_to_selected_glyphs(this.model)
-      result.get_view = () => this
+      result.view = this
     }
 
     return result
   }
 
-  scenterx(i: number): number {
-    return (this.sx1[i] + this.sx2[i])/2
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sx1[i] + this.sx2[i])/2
+    const scy = this.sy[i]
+    return [scx, scy]
   }
 
   protected _map_data(): void {
@@ -117,6 +112,7 @@ export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
   properties: HArea.Props
+  __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)
@@ -125,10 +121,10 @@ export class HArea extends Area {
   static init_HArea(): void {
     this.prototype.default_view = HAreaView
 
-    this.define<HArea.Props>({
-      x1: [ p.CoordinateSpec ],
-      x2: [ p.CoordinateSpec ],
-      y:  [ p.CoordinateSpec ],
-    })
+    this.define<HArea.Props>(({}) => ({
+      x1: [ p.XCoordinateSpec, {field: "x1"} ],
+      x2: [ p.XCoordinateSpec, {field: "x2"} ],
+      y:  [ p.YCoordinateSpec, {field: "y"} ],
+    }))
   }
 }

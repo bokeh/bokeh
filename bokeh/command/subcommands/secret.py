@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 from argparse import Namespace
 
 # Bokeh imports
-from bokeh.util.session_id import generate_secret_key
+from bokeh.util.token import generate_secret_key
 
 # Bokeh imports
 from ..subcommand import Subcommand

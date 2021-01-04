@@ -29,12 +29,16 @@ from ...core.properties import (
     Either,
     Enum,
     Float,
+    Instance,
     Int,
+    Interval,
     List,
+    Override,
     PositiveInt,
     String,
     Tuple,
 )
+from ..formatters import TickFormatter
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -47,7 +51,9 @@ __all__ = (
     'DatePicker',
     'FileInput',
     'InputWidget',
+    'MultiChoice',
     'MultiSelect',
+    'NumericInput',
     'PasswordInput',
     'Select',
     'Spinner',
@@ -87,26 +93,49 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 
 class FileInput(Widget):
-    ''' Present a file-chooser dialog to users and return the contents of a
-    selected file.
-
+    ''' Present a file-chooser dialog to users and return the contents of the
+    selected files.
     '''
 
-    value = String(default="", readonly=True, help="""
-    A base64-encoded string of the contents of the selected file.
-    """)
+    value = Either(String, List(String), default='', readonly=True, help='''
+    The base64-enconded contents of the file or files that were loaded.
 
-    mime_type = String(default="", readonly=True, help="""
-    The mime type of the selected file.
-    """)
+    If `mulitiple` is set to False (default), this value is a single string with the contents
+    of the single file that was chosen.
 
-    filename = String(default="", readonly=True, help="""
-    The filename of the selected file.
+    If `multiple` is True, this value is a list of strings, each containing the contents of
+    one of the multiple files that were chosen.
+
+    The sequence of files is given by the list of filenames (see below)
+    ''')
+
+    mime_type = Either(String, List(String), default='', readonly=True, help='''
+    The mime-type of the file or files that were loaded.
+
+    If `mulitiple` is set to False (default), this value is a single string with the
+    mime-type of the single file that was chosen.
+
+    If `multiple` is True, this value is a list of strings, each containing the
+    mime-type of one of the multiple files that were chosen.
+
+    The sequence of files is given by the list of filename (see below)
+    ''')
+
+    filename = Either(String, List(String), default='', readonly=True, help='''
+    The name(s) of the file or files that were loaded.
+
+    If `mulitiple` is set to False (default), this value is a single string with the
+    name of the single file that was chosen.
+
+    If `multiple` is True, this value is a list of strings, each containing the
+    name of one of the multiple files that were chosen.
+
+    This list provides the sequence of files for the respective lists in value and mime-type
 
     .. note::
         The full file path is not included since browsers will not provide
         access to that information for security reasons.
-    """)
+    ''')
 
     accept = String(default="", help="""
     Comma-separated list of standard HTML file input filters that restrict what
@@ -130,9 +159,74 @@ class FileInput(Widget):
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
     """)
 
+    multiple = Bool(default=False, help="""
+    set multiple=False (default) for single file selection, set multiple=True if
+    selection of more than one file at a time should be possible.
+    """)
 
-class TextInput(InputWidget):
-    ''' Single-line input widget.
+
+class NumericInput(InputWidget):
+    ''' Numeric input widget.
+
+    '''
+
+    value = Either(Float, Int, help="""
+    Initial or entered value.
+
+    Change events are triggered whenever <enter> is pressed.
+    """)
+
+    low = Either(Float, Int, help="""
+    Optional lowest allowable value.
+    """)
+
+    high = Either(Float, Int, help="""
+    Optional highest allowable value.
+    """)
+
+    placeholder = String(default="", help="""
+    Placeholder for empty input field.
+    """)
+
+    mode = Enum("int", "float", help="""
+    Define the type of number which can be enter in the input
+
+    example
+    mode int: 1, -1, 156
+    mode float: 1, -1.2, 1.1e-25
+    """)
+
+    format = Either(String, Instance(TickFormatter), help="""
+    """)
+
+
+class Spinner(NumericInput):
+    ''' Numeric Spinner input widget.
+
+    '''
+
+    value_throttled = Either(Float, Int, help="""
+    value reported at the end of interactions
+    """)
+
+    mode = Override(default="float")
+
+    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    The step added or subtracted to the current value
+    """)
+
+    page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
+    Defines the multiplication factor applied to step when the page up and page
+    down keys are pressed
+    """)
+
+    wheel_wait = Either(Int, Float, default=100, help="""
+    Defines the debounce time in ms before updating `value_throttled` when the
+    mouse wheel is used to change the input
+    """)
+
+class TextLikeInput(InputWidget):
+    ''' Base class for text-like input widgets.
 
     '''
 
@@ -153,8 +247,17 @@ class TextInput(InputWidget):
     Placeholder for empty input field.
     """)
 
+    max_length = Int(default=None, help="""
+    Max count of characters in field
+    """)
 
-class TextAreaInput(TextInput):
+class TextInput(TextLikeInput):
+    ''' Single-line input widget.
+
+    '''
+
+
+class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.
 
     '''
@@ -167,9 +270,7 @@ class TextAreaInput(TextInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Int(default=500, help="""
-    Max count of characters in field
-    """)
+    max_length = Override(default=500)
 
 
 class PasswordInput(TextInput):
@@ -198,13 +299,19 @@ class AutocompleteInput(TextInput):
     The number of characters a user must type before completions are presented.
     """)
 
+    case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
+
+    restrict = Bool(default=True, help="""
+    Set to False in order to allow users to enter text that is not present in the list of completion strings.
+    """)
+
 
 class Select(InputWidget):
     ''' Single-select widget.
 
     '''
-    options = Either(List(Either(String, Tuple(Either(Int, String), String))),
-        Dict(String, List(Either(String, Tuple(Either(Int, String), String)))), help="""
+    options = Either(List(Either(String, Tuple(String, String))),
+        Dict(String, List(Either(String, Tuple(String, String)))), help="""
     Available selection options. Options may be provided either as a list of
     possible string values, or as a list of tuples, each of the form
     ``(value, label)``. In the latter case, the visible widget text for each
@@ -238,6 +345,42 @@ class MultiSelect(InputWidget):
     ``select`` HTML element's ``size`` attribute. Some browsers might not
     show less than 3 options.)
     """)
+
+
+class MultiChoice(InputWidget):
+    ''' MultiChoice widget.
+
+    '''
+
+    options = List(Either(String, Tuple(String, String)), help="""
+    Available selection options. Options may be provided either as a list of
+    possible string values, or as a list of tuples, each of the form
+    ``(value, label)``. In the latter case, the visible widget text for each
+    value will be corresponding given label.
+    """)
+
+    value = List(String, help="""
+    Initial or selected values.
+    """)
+
+    delete_button = Bool(default=True, help="""
+    Whether to add a button to remove a selected option.
+    """)
+
+    max_items = Int(default=None, help="""
+    The maximum number of items that can be selected.
+    """)
+
+    option_limit = Int(default=None, help="""
+    The number of choices that will be rendered in the dropdown.
+    """)
+
+    placeholder = String(default=None, help="""
+    A string that is displayed if not item is added.
+    """)
+
+    solid = Bool(default=True, help="""
+    Specify whether the choices should be solidly filled.""")
 
 
 class DatePicker(InputWidget):
@@ -292,27 +435,6 @@ class ColorPicker(InputWidget):
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
-    """)
-
-class Spinner(InputWidget):
-    ''' Spinner widget for numerical inputs
-
-    '''
-
-    value = Float(default=0, help="""
-    The initial value of the spinner
-    """)
-
-    step = Float(default=1, help="""
-    The step added or subtracted to the current value
-    """)
-
-    low = Float(help="""
-    Optional lowest allowable value.
-    """)
-
-    high = Float(help="""
-    Optional highest allowable value.
     """)
 
 #-----------------------------------------------------------------------------

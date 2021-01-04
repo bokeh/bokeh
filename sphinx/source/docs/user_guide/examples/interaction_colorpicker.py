@@ -1,8 +1,12 @@
-from bokeh.io import output_file, show
+from bokeh.io import show
+from bokeh.layouts import column
 from bokeh.models import ColorPicker
+from bokeh.plotting import Figure
 
-output_file("color_picker.html")
+plot = Figure(x_range=(0, 1), y_range=(0, 1), plot_width=350, plot_height=350)
+line = plot.line(x=(0,1), y=(0,1), color="black", line_width=4)
 
-color_picker = ColorPicker(color="#ff4466", title="Choose color:", width=200)
+picker = ColorPicker(title="Line Color")
+picker.js_link('color', line.glyph, 'line_color')
 
-show(color_picker)
+show(column(plot, picker))

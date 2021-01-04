@@ -51,7 +51,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Application(object):
+class Application:
     ''' An Application is a factory for Document instances.
 
     '''
@@ -143,7 +143,7 @@ class Application(object):
         self._handlers.append(handler)
 
         # make sure there is at most one static path
-        static_paths = set(h.static_path() for h in self.handlers)
+        static_paths = {h.static_path() for h in self.handlers}
         static_paths.discard(None)
         if len(static_paths) > 1:
             raise RuntimeError("More than one static path requested for app: %r" % list(static_paths))
@@ -226,6 +226,23 @@ class Application(object):
         for h in self._handlers:
             await h.on_session_destroyed(session_context)
         return None
+
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        request_data = {}
+        for h in self._handlers:
+            request_data.update(h.process_request(request))
+        return request_data
+
 
 class ServerContext(metaclass=ABCMeta):
     ''' A harness for server-specific information and tasks related to

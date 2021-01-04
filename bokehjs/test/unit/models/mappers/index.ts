@@ -1,6 +1,0 @@
-import "./categorical_color_mapper"
-import "./categorical_marker_mapper"
-import "./categorical_pattern_mapper"
-import "./color_mapper"
-import "./linear_color_mapper"
-import "./log_color_mapper"

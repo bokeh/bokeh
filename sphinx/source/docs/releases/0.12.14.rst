@@ -34,8 +34,8 @@ New Runtime Dependency
 The package ``packaging``, available via both conda and pip, was added as a
 new runtime dependency.
 
-Mapping of Unknown Catgorical Factors
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Mapping of Unknown Categorical Factors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, data (e.g in a CDS column) referring to a categorical factor that
 did not exist in the relevant ``FactorRange``, would cause an error in the
@@ -56,7 +56,7 @@ Previously Text Glyphs added to legends would always unconditionally render
 the word "text" as the visual symbol, which was not useful. Now, text glyphs
 render an empty space in legends. This is helpful when it is desired to use
 an interactive legend mute or hide both a primary glyph, as well as some
-associated text that goes with it. For more discssion, see :bokeh-issue:`7337`.
+associated text that goes with it. For more discussion, see :bokeh-issue:`7337`.
 
 MercatorTileSource change
 ~~~~~~~~~~~~~~~~~~~~~~~~~

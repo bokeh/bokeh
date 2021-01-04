@@ -21,6 +21,7 @@ import os
 import sys
 
 # External imports
+from flaky import flaky
 from mock import patch
 from tornado.httpclient import HTTPError
 
@@ -42,6 +43,7 @@ from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
 from bokeh.models import Plot
+from bokeh.util.token import generate_jwt_token
 from server._util_server import http_get, url, websocket_open, ws_url
 
 # Module under test
@@ -71,8 +73,8 @@ class UnitsSpecModel(Model):
 
 logging.basicConfig(level=logging.DEBUG)
 
-class TestClientServer(object):
 
+class TestClientServer:
     def test_minimal_connect_and_disconnect(self, ManagedServerLoop) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:
@@ -123,49 +125,49 @@ class TestClientServer(object):
             session.close()
             session._loop_until_closed()
 
-    @pytest.mark.asyncio
     async def check_http_gets_fail(self, server):
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server))
         with pytest.raises(HTTPError):
             await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    @pytest.mark.asyncio
     async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
+            subprotocols = ["bokeh", generate_jwt_token("foo")]
             await websocket_open(server.io_loop,
-                                 ws_url(server)+"?bokeh-session-id=foo",
-                                 origin=origin)
+                                 ws_url(server),
+                                 origin=origin,
+                                 subprotocols=subprotocols)
 
-    @pytest.mark.asyncio
     async def check_http_gets(self, server):
         await http_get(server.io_loop, url(server))
         await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    @pytest.mark.asyncio
     async def check_connect_session(self, server, origin):
+        subprotocols = ["bokeh", generate_jwt_token("foo")]
         await websocket_open(server.io_loop,
-                             ws_url(server)+"?bokeh-session-id=foo",
-                             origin=origin)
+                             ws_url(server),
+                             origin=origin,
+                             subprotocols=subprotocols)
 
-    @pytest.mark.asyncio
     async def check_http_ok_socket_ok(self, server, origin=None):
         await self.check_http_gets(server)
         await self.check_connect_session(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def check_http_ok_socket_blocked(self, server, origin=None):
         await self.check_http_gets(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def check_http_blocked_socket_blocked(self, server, origin=None):
         await self.check_http_gets_fail(server)
         await self.check_connect_session_fails(server, origin=origin)
 
-    @pytest.mark.asyncio
     async def test_allow_websocket_origin(self, ManagedServerLoop) -> None:
         application = Application()
+
+        # allow good local origin with random port
+        with ManagedServerLoop(application, port=0) as server:
+            await self.check_http_ok_socket_ok(server, origin="http://localhost:%s" % server.port)
 
         # allow good origin
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
@@ -286,6 +288,14 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
+    def test__check_error_404(self, ManagedServerLoop) -> None:
+        application = Application()
+        with ManagedServerLoop(application) as server:
+            with pytest.raises(IOError):
+                pull_session(session_id='test__check_error_404',
+                                              url=url(server) + 'file_not_found',
+                                              io_loop=server.io_loop)
+
     def test_request_server_info(self, ManagedServerLoop) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:
@@ -308,6 +318,7 @@ class TestClientServer(object):
             assert not session.connected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
+    @flaky(max_runs=10)
     def test_ping(self, ManagedServerLoop) -> None:
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
@@ -985,7 +996,6 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch, ManagedServerLoop) -> N
         client_session._loop_until_closed()
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
-
 
 @patch('bokeh.client.session.show_session')
 def test_session_show_adds_obj_to_curdoc_if_necessary(m) -> None:

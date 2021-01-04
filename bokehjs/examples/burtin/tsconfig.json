@@ -1,4 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "files": ["./burtin.ts", "../bokehjs.d.ts"]
-}

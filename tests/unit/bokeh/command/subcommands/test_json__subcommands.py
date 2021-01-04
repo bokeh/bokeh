@@ -105,7 +105,7 @@ def test_basic_script(capsys) -> None:
         assert err == ""
         assert out == ""
 
-        assert set(["scatter.json", "scatter.py"]) == set(os.listdir(dirname))
+        assert {"scatter.json", "scatter.py"} == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
@@ -118,7 +118,7 @@ def test_basic_script_with_output_after(capsys) -> None:
         assert err == ""
         assert out == ""
 
-        assert set(["foo.json", "scatter.py"]) == set(os.listdir(dirname))
+        assert {"foo.json", "scatter.py"} == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)
@@ -131,7 +131,7 @@ def test_basic_script_with_output_before(capsys) -> None:
         assert err == ""
         assert out == ""
 
-        assert set(["foo.json", "scatter.py"]) == set(os.listdir(dirname))
+        assert {"foo.json", "scatter.py"} == set(os.listdir(dirname))
 
     with_directory_contents({ 'scatter.py' : basic_scatter_script },
                             run)

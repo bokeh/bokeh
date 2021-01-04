@@ -1,4 +1,4 @@
-import {Arrayable, Rect, Box, Interval} from "../types"
+import {Arrayable, NumberArray, Rect, Box, Interval, Size} from "../types"
 
 const {min, max} = Math
 
@@ -51,13 +51,12 @@ export type VerticalPosition =
 
 export type Position = HorizontalPosition & VerticalPosition
 
-export interface CoordinateTransform {
+export type CoordinateMapper = {
   compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => Arrayable<number>
+  v_compute: (vv: Arrayable<number>) => NumberArray
 }
 
 export class BBox implements Rect {
-
   readonly x0: number
   readonly y0: number
   readonly x1: number
@@ -150,6 +149,8 @@ export class BBox implements Rect {
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
+  get size(): Size { return {width: this.width, height: this.height} }
+
   get rect(): Rect { return {x0: this.x0, y0: this.y0, x1: this.x1, y1: this.y1} }
   get box(): Box { return {x: this.x, y: this.y, width: this.width, height: this.height} }
 
@@ -162,6 +163,15 @@ export class BBox implements Rect {
 
   get hcenter(): number { return (this.left + this.right)/2 }
   get vcenter(): number { return (this.top + this.bottom)/2 }
+
+  relative(): BBox {
+    const {width, height} = this
+    return new BBox({x: 0, y: 0, width, height})
+  }
+
+  relativize(x: number, y: number): [number, number] {
+    return [x - this.x, y - this.y]
+  }
 
   contains(x: number, y: number): boolean {
     return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
@@ -194,13 +204,13 @@ export class BBox implements Rect {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 
-  get xview(): CoordinateTransform {
+  get xview(): CoordinateMapper {
     return {
       compute: (x: number): number => {
         return this.left + x
       },
-      v_compute: (xx: Arrayable<number>): Arrayable<number> => {
-        const _xx = new Float64Array(xx.length)
+      v_compute: (xx: Arrayable<number>): NumberArray => {
+        const _xx = new NumberArray(xx.length)
         const left = this.left
         for (let i = 0; i < xx.length; i++) {
           _xx[i] = left + xx[i]
@@ -210,13 +220,13 @@ export class BBox implements Rect {
     }
   }
 
-  get yview(): CoordinateTransform {
+  get yview(): CoordinateMapper {
     return {
       compute: (y: number): number => {
         return this.bottom - y
       },
-      v_compute: (yy: Arrayable<number>): Arrayable<number> => {
-        const _yy = new Float64Array(yy.length)
+      v_compute: (yy: Arrayable<number>): NumberArray => {
+        const _yy = new NumberArray(yy.length)
         const bottom = this.bottom
         for (let i = 0; i < yy.length; i++) {
           _yy[i] = bottom - yy[i]

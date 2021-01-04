@@ -1,5 +1,4 @@
 import {Arrayable} from "./types"
-import {sort_by} from "./util/array"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
@@ -33,27 +32,13 @@ export function point_in_ellipse(x: number, y: number, angle: number, b: number,
   return inside
 }
 
-export function create_empty_hit_test_result(): Selection {
-  return new Selection()
-}
-
-export function create_hit_test_result_from_hits(hits: [number, number][]): Selection {
-  const result = new Selection()
-  result.indices = sort_by(hits, ([_i, dist]) => dist).map(([i, _dist]) => i)
-  return result
-}
-
-function sqr(x: number): number {
-  return x * x
-}
-
-export interface Point {
+export type Point = {
   x: number
   y: number
 }
 
 export function dist_2_pts(p0: Point, p1: Point): number {
-  return sqr(p0.x - p1.x) + sqr(p0.y - p1.y)
+  return (p0.x - p1.x)**2 + (p0.y - p1.y)**2
 }
 
 export function dist_to_segment_squared(p: Point, v: Point, w: Point): number {
@@ -77,9 +62,9 @@ export function dist_to_segment(p: Point, v: Point, w: Point): number {
 export function check_2_segments_intersect(
   l0_x0: number, l0_y0: number, l0_x1: number, l0_y1: number,
   l1_x0: number, l1_y0: number, l1_x1: number, l1_y1: number): {
-    hit: boolean,
-    x: number | null,
-    y: number | null,
+    hit: boolean
+    x: number | null
+    y: number | null
   } {
   /*
    *  Check if 2 segments (l0 and l1) intersect. Returns a structure with

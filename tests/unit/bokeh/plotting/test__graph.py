@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, Scatter, X
+from bokeh.models import ColumnDataSource, Scatter
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -32,8 +32,8 @@ import bokeh.plotting._graph as bpg # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_get_graph_kwargs(object):
 
+class Test_get_graph_kwargs:
     def test_convert_dataframes_to_sources(self, pd) -> None:
         node_source = pd.DataFrame(data=dict(foo=[]))
         edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))
@@ -76,7 +76,7 @@ class Test_get_graph_kwargs(object):
     def test_handle_node_marker(self) -> None:
         kw = bpg.get_graph_kwargs({}, {}, node_marker='x')
         node_glyph = kw['node_renderer'].glyph
-        assert isinstance(node_glyph, X)
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
 
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}

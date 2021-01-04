@@ -30,8 +30,8 @@ import bokeh.application.handlers.handler as bahh # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_Handler(object):
 
+class Test_Handler:
     # Public methods ----------------------------------------------------------
 
     def test_create(self) -> None:
@@ -52,7 +52,6 @@ class Test_Handler(object):
         assert h.on_server_loaded("context") is None
         assert h.on_server_unloaded("context") is None
 
-    @pytest.mark.asyncio
     async def test_default_sesssion_hooks_return_none(self) -> None:
         h = bahh.Handler()
         assert await h.on_session_created("context") is None
@@ -65,6 +64,10 @@ class Test_Handler(object):
         assert h.static_path() == "path"
         h._failed = True
         assert h.static_path() is None
+
+    def test_process_request(self) -> None:
+        h = bahh.Handler()
+        assert h.process_request("request") == {}
 
 #-----------------------------------------------------------------------------
 # Private API

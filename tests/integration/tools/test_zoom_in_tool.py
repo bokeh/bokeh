@@ -48,9 +48,9 @@ def _make_plot():
     plot.toolbar_sticky = False
     return plot
 
-@pytest.mark.selenium
-class Test_ZoomInTool(object):
 
+@pytest.mark.selenium
+class Test_ZoomInTool:
     def test_deselected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 

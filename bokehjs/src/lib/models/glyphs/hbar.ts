@@ -1,20 +1,19 @@
 import {Box, BoxView, BoxData} from "./box"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import * as p from "core/properties"
-import {SpatialIndex} from "core/util/spatial"
 
 export interface HBarData extends BoxData {
-  _left: Arrayable<number>
-  _y: Arrayable<number>
-  _height: Arrayable<number>
-  _right: Arrayable<number>
+  _left: NumberArray
+  _y: NumberArray
+  _height: NumberArray
+  _right: NumberArray
 
-  sy: Arrayable<number>
-  sh: Arrayable<number>
-  sleft: Arrayable<number>
-  sright: Arrayable<number>
-  stop: Arrayable<number>
-  sbottom: Arrayable<number>
+  sy: NumberArray
+  sh: NumberArray
+  sleft: NumberArray
+  sright: NumberArray
+  stop: NumberArray
+  sbottom: NumberArray
 
   max_height: number
 }
@@ -25,16 +24,10 @@ export class HBarView extends BoxView {
   model: HBar
   visuals: HBar.Visuals
 
-  scenterx(i: number): number {
-    return (this.sleft[i] + this.sright[i])/2
-  }
-
-  scentery(i: number): number {
-    return this.sy[i]
-  }
-
-  protected _index_data(): SpatialIndex {
-    return this._index_box(this._y.length)
+  scenterxy(i: number): [number, number] {
+    const scx = (this.sleft[i] + this.sright[i])/2
+    const scy = this.sy[i]
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
@@ -52,8 +45,8 @@ export class HBarView extends BoxView {
     this.sright = this.renderer.xscale.v_compute(this._right)
 
     const n = this.sy.length
-    this.stop = new Float64Array(n)
-    this.sbottom = new Float64Array(n)
+    this.stop = new NumberArray(n)
+    this.sbottom = new NumberArray(n)
     for (let i = 0; i < n; i++) {
       this.stop[i] = this.sy[i] - this.sh[i]/2
       this.sbottom[i] = this.sy[i] + this.sh[i]/2
@@ -80,6 +73,7 @@ export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
   properties: HBar.Props
+  __view_type__: HBarView
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)
@@ -88,11 +82,11 @@ export class HBar extends Box {
   static init_HBar(): void {
     this.prototype.default_view = HBarView
 
-    this.coords([['left', 'y']])
-    this.define<HBar.Props>({
-      height: [ p.NumberSpec     ],
-      right:  [ p.CoordinateSpec ],
-    })
-    this.override({ left: 0 })
+    this.define<HBar.Props>(({}) => ({
+      left:   [ p.XCoordinateSpec, {value: 0} ],
+      y:      [ p.YCoordinateSpec, {field: "y"} ],
+      height: [ p.NumberSpec,      {value: 1} ],
+      right:  [ p.XCoordinateSpec, {field: "right"} ],
+    }))
   }
 }

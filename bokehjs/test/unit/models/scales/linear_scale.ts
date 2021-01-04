@@ -1,7 +1,8 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("linear_scale module", () => {
 
@@ -16,7 +17,7 @@ describe("linear_scale module", () => {
     const scale = mkscale()
 
     it("should compute scale state", () => {
-      expect(scale._compute_state()).to.be.deep.equal([6, 20])
+      expect(scale._linear_compute_state()).to.be.equal([6, 20])
     })
 
     it("should map values linearly", () => {
@@ -28,11 +29,11 @@ describe("linear_scale module", () => {
     })
 
     it("should vector map values linearly", () => {
-      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.deep.equal(new Float64Array([14, 20, 50, 80, 86]))
+      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.equal(new NumberArray([14, 20, 50, 80, 86]))
     })
 
-    it("should map to a Float64Array", () => {
-      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should map to a NumberArray", () => {
+      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
     })
 
     it("should inverse map values linearly", () => {
@@ -44,11 +45,11 @@ describe("linear_scale module", () => {
     })
 
     it("should vector in inverse map values linearly", () => {
-      expect(scale.v_invert([14, 20, 50, 80, 86])).to.be.deep.equal(new Float64Array([-1, 0, 5, 10, 11]))
+      expect(scale.v_invert([14, 20, 50, 80, 86])).to.be.equal(new NumberArray([-1, 0, 5, 10, 11]))
     })
 
-    it("should inverse map to a Float64Array", () => {
-      expect(scale.v_invert([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+    it("should inverse map to a NumberArray", () => {
+      expect(scale.v_invert([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
     })
   })
 })

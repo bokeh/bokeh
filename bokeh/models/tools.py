@@ -37,17 +37,24 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import difflib
+import typing as tp
+from typing_extensions import Literal
+
 # Bokeh imports
 from ..core.enums import (
     Anchor,
     Dimension,
     Dimensions,
     Location,
+    SelectionMode,
     TooltipAttachment,
     TooltipFieldFormatter,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alpha,
     Auto,
     Bool,
     Color,
@@ -61,6 +68,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Override,
     Percent,
     Seq,
     String,
@@ -69,6 +77,8 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
+    INCOMPATIBLE_LINE_EDIT_RENDERER,
     INCOMPATIBLE_POINT_DRAW_RENDERER,
     INCOMPATIBLE_POLY_DRAW_RENDERER,
     INCOMPATIBLE_POLY_EDIT_RENDERER,
@@ -76,12 +86,14 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
+from ..util.deprecation import deprecated
+from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import MultiLine, Patches, Rect, XYGlyph
+from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
 from .layouts import LayoutDOM
 from .ranges import Range1d
-from .renderers import GlyphRenderer, Renderer
+from .renderers import DataRenderer, GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -89,6 +101,7 @@ from .renderers import GlyphRenderer, Renderer
 
 __all__ = (
     'Action',
+    'ActionTool',
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
@@ -101,8 +114,11 @@ __all__ = (
     'HelpTool',
     'HoverTool',
     'Inspection',
+    'InspectTool',
     'Gesture',
+    'GestureTool',
     'LassoSelectTool',
+    'LineEditTool',
     'PanTool',
     'PointDrawTool',
     'PolyDrawTool',
@@ -137,43 +153,100 @@ class Tool(Model):
 
     '''
 
+    description = String(default=None, help="""
+    A string describing the purpose of this tool. If not defined, an auto-generated
+    description will be used. This description will be typically presented in the
+    user interface as a tooltip.
+    """)
+
+    _known_aliases: tp.ClassVar[tp.Dict[str, tp.Callable[[], "Tool"]]] = {}
+
+    @classmethod
+    def from_string(cls, name: str) -> "Tool":
+        """ Takes a string and returns a corresponding `Tool` instance. """
+        constructor = cls._known_aliases.get(name)
+        if constructor is not None:
+            return constructor()
+        else:
+            known_names = cls._known_aliases.keys()
+            matches, text = difflib.get_close_matches(name.lower(), known_names), "similar"
+            if not matches:
+                matches, text = known_names, "possible"
+            raise ValueError(f"unexpected tool name '{name}', {text} tools are {nice_join(matches)}")
+
+    @classmethod
+    def register_alias(cls, name: str, constructor: tp.Callable[[], "Tool"]) -> None:
+        cls._known_aliases[name] = constructor
+
 @abstract
-class Action(Tool):
+class ActionTool(Tool):
     ''' A base class for tools that are buttons in the toolbar.
 
     '''
     pass
 
+# TODO: deprecated, remove at bokeh 3.0
+Action = ActionTool
+
 @abstract
-class Gesture(Tool):
+class GestureTool(Tool):
+    ''' A base class for tools that respond to drag events.
+
+    '''
+    pass
+
+# TODO: deprecated, remove at bokeh 3.0
+Gesture = GestureTool
+
+@abstract
+class Drag(GestureTool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
 
 @abstract
-class Drag(Gesture):
-    ''' A base class for tools that respond to drag events.
-
-    '''
-    pass
-
-@abstract
-class Scroll(Gesture):
+class Scroll(GestureTool):
     ''' A base class for tools that respond to scroll events.
 
     '''
     pass
 
 @abstract
-class Tap(Gesture):
+class Tap(GestureTool):
     ''' A base class for tools that respond to tap/click events.
 
     '''
     pass
 
 @abstract
-class Inspection(Gesture):
+class SelectTool(GestureTool):
+    ''' A base class for tools that perfrom "selections", e.g. ``BoxSelectTool``.
+
+    '''
+
+    names = List(String, help="""
+    A list of names to query for. If set, only renderers that have a matching
+    value for their ``name`` attribute will be used.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
+    """)
+
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset, defaults to
+    all renderers on a plot.
+    """)
+
+    mode = Enum(SelectionMode, default="replace", help="""
+    Defines what should happen when a new selection is made. The default
+    is to replace the existing selection. Other options are to append to
+    the selection, intersect with it or subtract from it.
+    """)
+
+@abstract
+class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
@@ -182,6 +255,9 @@ class Inspection(Gesture):
     inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
+
+# TODO: deprecated, remove at bokeh 3.0
+Inspection = InspectTool
 
 @abstract
 class ToolbarBase(Model):
@@ -208,24 +284,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect = Either(Auto, Instance(Inspection), Seq(Instance(Inspection)), help="""
+    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
+        Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Auto, Instance(Tap), help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi = Instance((Gesture), help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -240,6 +317,9 @@ class ProxyToolbar(ToolbarBase):
     plots.
 
     '''
+
+    toolbars = List(Instance(Toolbar), help="""
+    """)
 
 class ToolbarBox(LayoutDOM):
     ''' A layoutable toolbar that can accept the tools of multiple plots, and
@@ -264,7 +344,7 @@ class PanTool(Drag):
     a pan in the vertical direction only, with horizontal dimension kept fixed.
 
     .. |pan_icon| image:: /_images/icons/Pan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -277,7 +357,6 @@ class PanTool(Drag):
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="canvas",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -299,7 +378,7 @@ class RangeTool(Drag):
     automatically.
 
     .. |range_icon| image:: /_images/icons/Range.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -349,7 +428,7 @@ class WheelPanTool(Scroll):
     dimension using the scroll wheel.
 
     .. |wheel_pan_icon| image:: /_images/icons/WheelPan.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -370,7 +449,7 @@ class WheelZoomTool(Scroll):
     horizontal dimension kept fixed.
 
     .. |wheel_zoom_icon| image:: /_images/icons/WheelZoom.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -397,7 +476,7 @@ class WheelZoomTool(Scroll):
     0.001 and 0.09. High values will be clipped. Speed may very between browsers.
     """)
 
-class CustomAction(Action):
+class CustomAction(ActionTool):
     ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
     icon is activated.
 
@@ -412,9 +491,23 @@ class CustomAction(Action):
 
     '''
 
-    action_tooltip = String(default="Perform a Custom Action", help="""
-    Tooltip displayed when hovering over the custom action icon.
-    """)
+    def __init__(self, *args, **kwargs):
+        action_tooltip = kwargs.pop("action_tooltip", None)
+        if action_tooltip is not None:
+            deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+            kwargs["description"] = action_tooltip
+        super().__init__(*args, **kwargs)
+
+    @property
+    def action_tooltip(self):
+        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+        return self.description
+    @action_tooltip.setter
+    def action_tooltip(self, description):
+        deprecated((2, 3, 0), "CustomAction.action_tooltip", "CustomAction.description")
+        self.description = description
+
+    description = Override(default="Perform a Custom Action")
 
     callback = Instance(Callback, help="""
     A Bokeh callback to execute when the custom action icon is activated.
@@ -427,7 +520,7 @@ class CustomAction(Action):
     object, or an RGB(A) NumPy array.
     """)
 
-class SaveTool(Action):
+class SaveTool(ActionTool):
     ''' *toolbar icon*: |save_icon|
 
     The save tool is an action. When activated, the tool opens a download dialog
@@ -438,11 +531,11 @@ class SaveTool(Action):
     menu item.
 
     .. |save_icon| image:: /_images/icons/Save.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
-class ResetTool(Action):
+class ResetTool(ActionTool):
     ''' *toolbar icon*: |reset_icon|
 
     The reset tool is an action. When activated in the toolbar, the tool resets
@@ -450,13 +543,13 @@ class ResetTool(Action):
     created.
 
     .. |reset_icon| image:: /_images/icons/Reset.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
     pass
 
-class TapTool(Tap):
+class TapTool(Tap, SelectTool):
     ''' *toolbar icon*: |tap_icon|
 
     The tap selection tool allows the user to select at single points by
@@ -466,7 +559,7 @@ class TapTool(Tap):
     on styling selected and unselected glyphs.
 
     .. |tap_icon| image:: /_images/icons/Tap.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         Selections can be comprised of multiple regions, even those
@@ -476,22 +569,17 @@ class TapTool(Tap):
 
     '''
 
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that
-    have a matching value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
-    """)
-
     behavior = Enum("select", "inspect", default="select", help="""
     This tool can be configured to either make selections or inspections
     on associated data sources. The difference is that selection changes
     propagate across bokeh and other components (e.g. selection glyph)
     will be notified. Inspections don't act like this, so it's useful to
     configure `callback` when setting `behavior='inspect'`.
+    """)
+
+    gesture = Enum("tap", "doubletap", default="tap", help="""
+    Specifies which kind of gesture will be used to trigger the tool,
+    either a single or double tap.
     """)
 
     callback = Instance(Callback, help="""
@@ -523,7 +611,7 @@ class TapTool(Tap):
 
     """)
 
-class CrosshairTool(Inspection):
+class CrosshairTool(InspectTool):
     ''' *toolbar icon*: |crosshair_icon|
 
     The crosshair tool is a passive inspector tool. It is generally on at all
@@ -536,7 +624,7 @@ class CrosshairTool(Inspection):
     ``width`` or ``height``.
 
     .. |crosshair_icon| image:: /_images/icons/Crosshair.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
@@ -549,33 +637,18 @@ class CrosshairTool(Inspection):
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
+    """)
 
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
+    line_alpha = Alpha(help="""
+    An alpha value to use to stroke paths with.
     """)
 
     line_width = Float(default=1, help="""
     Stroke width in units of pixels.
     """)
 
-    line_alpha = Float(default=1.0, help="""
-    An alpha value to use to stroke paths with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
-    """)
-
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="css",
     top_units="screen",
     left_units="screen",
     bottom_units="screen",
@@ -596,7 +669,7 @@ class BoxZoomTool(Drag):
     the drag event indicates the selection region is ready.
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
-        :height: 18pt
+        :height: 24px
 
     .. note::
         ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
@@ -633,14 +706,14 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-class ZoomInTool(Action):
+class ZoomInTool(ActionTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
     by a fixed amount.
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
-        :height: 18pt
+        :height: 24px
 
     '''
     # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
@@ -655,14 +728,14 @@ class ZoomInTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class ZoomOutTool(Action):
+class ZoomOutTool(ActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out
     by a fixed amount.
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
-        :height: 18pt
+        :height: 24px
 
     '''
     dimensions = Enum(Dimensions, default="both", help="""
@@ -676,7 +749,7 @@ class ZoomOutTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class BoxSelectTool(Drag):
+class BoxSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a Plot by showing
@@ -688,19 +761,9 @@ class BoxSelectTool(Drag):
 
 
     .. |box_select_icon| image:: /_images/icons/BoxSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset,
-    defaults to all renderers on a plot.
-    """)
 
     select_every_mousemove = Bool(False, help="""
     Whether a selection computation should happen on every mouse event, or only
@@ -737,7 +800,7 @@ DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Drag):
+class LassoSelectTool(Drag, SelectTool):
     ''' *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a Plot by
@@ -755,19 +818,9 @@ class LassoSelectTool(Drag):
         might exist.
 
     .. |lasso_select_icon| image:: /_images/icons/LassoSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
-    all renderers on a plot.
-    """)
 
     select_every_mousemove = Bool(True, help="""
     Whether a selection computation should happen on every mouse event, or only
@@ -778,7 +831,7 @@ class LassoSelectTool(Drag):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class PolySelectTool(Tap):
+class PolySelectTool(Tap, SelectTool):
     ''' *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a
@@ -797,19 +850,9 @@ class PolySelectTool(Tap):
         previous selection that might exist.
 
     .. |poly_select_icon| image:: /_images/icons/PolygonSelect.png
-        :height: 18pt
+        :height: 24px
 
     '''
-
-    names = List(String, help="""
-    A list of names to query for. If set, only renderers that  have a matching
-    value for their ``name`` attribute will be used.
-    """)
-
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
-    all renderers on a plot.
-    """)
 
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
@@ -850,13 +893,13 @@ class CustomJSHover(Model):
                 var projections = Bokeh.require("core/util/projections");
                 var x = special_vars.x
                 var y = special_vars.y
-                var coords = projections.wgs84_mercator.inverse([x, y])
+                var coords = projections.wgs84_mercator.invert(x, y)
                 return "" + coords[1]
             """)
 
             p.add_tools(HoverTool(
                 tooltips=[( 'lat','@y{custom}' )],
-                formatters=dict(y=lat_custom)
+                formatters={'@y':lat_custom}
             ))
 
     .. warning::
@@ -906,7 +949,7 @@ class CustomJSHover(Model):
             '''
     """)
 
-class HoverTool(Inspection):
+class HoverTool(InspectTool):
     ''' *toolbar icon*: |hover_icon|
 
     The hover tool is a passive inspector tool. It is generally on at all
@@ -928,6 +971,9 @@ class HoverTool(Inspection):
             ("(x,y)", "($x, $y)"),
             ("radius", "@radius"),
             ("fill color", "$color[hex, swatch]:fill_color"),
+            ("fill color", "$color[hex]:fill_color"),
+            ("fill color", "$color:fill_color"),
+            ("fill color", "$swatch:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
@@ -953,8 +999,6 @@ class HoverTool(Inspection):
             * annulus
             * arc
             * bezier
-            * image
-            * image_rgba
             * image_url
             * oval
             * patch
@@ -964,16 +1008,20 @@ class HoverTool(Inspection):
             * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
     names = List(String, help="""
     A list of names to query for. If set, only renderers that have a matching
     value for their ``name`` attribute will be used.
+
+    .. note:
+        This property is deprecated and will be removed in bokeh 3.0.
+
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
@@ -1010,8 +1058,9 @@ class HoverTool(Inspection):
     :$sy: y-coordinate under the cursor in screen (canvas) space
     :$color: color data from data source, with the syntax:
         ``$color[options]:field_name``. The available options
-        are: 'hex' (to display the color as a hex value), and
-        'swatch' to also display a small color swatch.
+        are: ``hex`` (to display the color as a hex value), ``swatch``
+        (color data from data source displayed as a small color box)
+    :$swatch: color data from data source displayed as a small color box
 
     Field names that begin with ``@`` are associated with columns in a
     ``ColumnDataSource``. For instance the field name ``"@price"`` will
@@ -1064,7 +1113,7 @@ class HoverTool(Inspection):
 
     .. code-block:: python
 
-        tool.formatters = dict(date="datetime")
+        tool.formatters = {"@date": "datetime"}
 
     will cause format specifications for the "date" column to be interpreted
     according to the "datetime" formatting scheme. The following schemes are
@@ -1095,6 +1144,11 @@ class HoverTool(Inspection):
     mode = Enum("mouse", "hline", "vline", help="""
     Whether to consider hover pointer as a point (x/y values), or a
     span on h or v directions.
+    """)
+
+    muted_policy = Enum("show", "ignore",
+                        default="show", help="""
+    Whether to avoid showing tooltips on muted glyphs.
     """)
 
     point_policy = Enum("snap_to_data", "follow_mouse", "none", help="""
@@ -1129,7 +1183,7 @@ class HoverTool(Inspection):
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
 DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
 
-class HelpTool(Action):
+class HelpTool(ActionTool):
     ''' A button tool to provide a "help" link to users.
 
     The hover text can be customized through the ``help_tooltip`` attribute
@@ -1137,45 +1191,71 @@ class HelpTool(Action):
 
     '''
 
-    help_tooltip = String(default=DEFAULT_HELP_TIP, help="""
-    Tooltip displayed when hovering over the help icon.
-    """)
+    def __init__(self, *args, **kwargs):
+        help_tooltip = kwargs.pop("help_tooltip", None)
+        if help_tooltip is not None:
+            deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+            kwargs["description"] = help_tooltip
+        super().__init__(*args, **kwargs)
+
+    @property
+    def help_tooltip(self):
+        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+        return self.description
+    @help_tooltip.setter
+    def help_tooltip(self, description):
+        deprecated((2, 3, 0), "HelpTool.help_tooltip", "HelpTool.description")
+        self.description = description
+
+    description = Override(default=DEFAULT_HELP_TIP)
 
     redirect = String(default=DEFAULT_HELP_URL, help="""
     Site to be redirected through upon click.
     """)
 
-class UndoTool(Action):
+class UndoTool(ActionTool):
     ''' *toolbar icon*: |undo_icon|
 
     Undo tool allows to restore previous state of the plot.
 
     .. |undo_icon| image:: /_images/icons/Undo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
-class RedoTool(Action):
+class RedoTool(ActionTool):
     ''' *toolbar icon*: |redo_icon|
 
     Redo tool reverses the last action performed by undo tool.
 
     .. |redo_icon| image:: /_images/icons/Redo.png
-        :height: 18pt
+        :height: 24px
 
     '''
 
 @abstract
-class EditTool(Gesture):
+class EditTool(GestureTool):
     ''' A base class for all interactive draw tool types.
 
     '''
 
-    custom_tooltip = String(None, help="""
-    A custom tooltip label to override the default name.
-    """)
+    def __init__(self, *args, **kwargs):
+        custom_tooltip = kwargs.pop("custom_tooltip", None)
+        if custom_tooltip is not None:
+            deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+            kwargs["description"] = custom_tooltip
+        super().__init__(*args, **kwargs)
 
-    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
+    @property
+    def custom_tooltip(self):
+        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+        return self.description
+    @custom_tooltip.setter
+    def custom_tooltip(self, description):
+        deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
+        self.description = description
+
+    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
@@ -1190,10 +1270,26 @@ class EditTool(Gesture):
     object, or an RGB(A) NumPy array.
     """)
 
-    renderers = List(Instance(Renderer), help="""
+    renderers = List(Instance(GlyphRenderer), help="""
     An explicit list of renderers corresponding to scatter glyphs that may
     be edited.
     """)
+
+@abstract
+class PolyTool(EditTool):
+    ''' A base class for polygon draw/edit tools. '''
+
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the vertices of a selected line or polygon.
+    """)
+
+    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
+    def _check_compatible_vertex_renderer(self):
+        if self.vertex_renderer is None:
+            return
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, XYGlyph):
+            return "glyph type %s found." % type(glyph).__name__
 
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
@@ -1231,7 +1327,7 @@ class BoxEditTool(EditTool, Drag, Tap):
       tool) then press <<backspace>> while the mouse is within the plot area.
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
-        :height: 18pt
+        :height: 24px
     '''
 
     dimensions = Enum(Dimensions, default="both", help="""
@@ -1291,7 +1387,7 @@ class PointDrawTool(EditTool, Drag, Tap):
       key while the mouse is within the plot area.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     add = Bool(default=True, help="""
@@ -1318,7 +1414,7 @@ class PointDrawTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
-class PolyDrawTool(EditTool, Drag, Tap):
+class PolyDrawTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
 
     The PolyDrawTool allows drawing, selecting and deleting ``Patches`` and
@@ -1349,7 +1445,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
       press <<backspace>> key while the mouse is within the plot area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     drag = Bool(default=True, help="""
@@ -1363,10 +1459,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
     patch or multi-line.
     """)
 
-    vertex_renderer = Instance(GlyphRenderer, help="""
-    The renderer used to render the vertices of a selected line or polygon.
-    """)
-
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1376,14 +1468,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
         if incompatible_renderers:
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        if self.vertex_renderer is None:
-            return
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
@@ -1404,7 +1488,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
       <<backspace>> key while the mouse is within the plot area.
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
-        :height: 18pt
+        :height: 24px
     '''
 
     num_objects = Int(default=0, help="""
@@ -1424,7 +1508,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
-class PolyEditTool(EditTool, Drag, Tap):
+class PolyEditTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
     The PolyEditTool allows editing the vertices of one or more ``Patches`` or
@@ -1452,18 +1536,8 @@ class PolyEditTool(EditTool, Drag, Tap):
       while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
-        :height: 18pt
+        :height: 24px
     '''
-
-    vertex_renderer = Instance(GlyphRenderer, help="""
-    The renderer used to render the vertices of a selected line or
-    polygon.""")
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
     @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
     def _check_compatible_renderers(self):
@@ -1476,6 +1550,60 @@ class PolyEditTool(EditTool, Drag, Tap):
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
+
+class LineEditTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |line_edit_icon|
+
+    The LineEditTool allows editing the intersection points of one or more ``Line`` glyphs.
+    Glyphs to be edited are defined via the ``renderers``
+    property and a renderer for the intersections is set via the ``intersection_renderer``
+    property (must render a point-like Glyph (a subclass of ``XYGlyph``).
+
+    The tool will modify the columns on the data source corresponding to the
+    ``x`` and ``y`` values of the glyph. Any additional columns in the data
+    source will be padded with the declared``empty_value``, when adding a new
+    point.
+
+    The supported actions include:
+
+    * Show intersections: Double tap an existing line
+
+    * Move point: Drag an existing point and let go of the mouse button to
+      release it.
+
+    .. |line_edit_icon| image:: /_images/icons/LineEdit.png
+        :height: 24px
+     '''
+
+    intersection_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the intersections of a selected line
+    """)
+
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions this edit tool is constrained to act in. By default
+    the line edit tool allows moving points in any dimension, but can be
+    configured to only allow horizontal movement across the width of the
+    plot, or vertical across the height of the plot.
+    """)
+
+    @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
+    def _check_compatible_intersection_renderer(self):
+        glyph = self.intersection_renderer.glyph
+        if not isinstance(glyph, LineGlyph):
+            return "glyph type %s found." % type(glyph).__name__
+
+    @error(INCOMPATIBLE_LINE_EDIT_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (Line,)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join(type(renderer.glyph).__name__
+                                    for renderer in incompatible_renderers)
+            return "%s glyph type(s) found." % glyph_types
+
+#
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -1487,3 +1615,45 @@ class PolyEditTool(EditTool, Drag, Tap):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Tool.register_alias("pan", lambda: PanTool(dimensions="both"))
+Tool.register_alias("xpan", lambda: PanTool(dimensions="width"))
+Tool.register_alias("ypan", lambda: PanTool(dimensions="height"))
+Tool.register_alias("xwheel_pan", lambda: WheelPanTool(dimension="width"))
+Tool.register_alias("ywheel_pan", lambda: WheelPanTool(dimension="height"))
+Tool.register_alias("wheel_zoom", lambda: WheelZoomTool(dimensions="both"))
+Tool.register_alias("xwheel_zoom", lambda: WheelZoomTool(dimensions="width"))
+Tool.register_alias("ywheel_zoom", lambda: WheelZoomTool(dimensions="height"))
+Tool.register_alias("zoom_in", lambda: ZoomInTool(dimensions="both"))
+Tool.register_alias("xzoom_in", lambda: ZoomInTool(dimensions="width"))
+Tool.register_alias("yzoom_in", lambda: ZoomInTool(dimensions="height"))
+Tool.register_alias("zoom_out", lambda: ZoomOutTool(dimensions="both"))
+Tool.register_alias("xzoom_out", lambda: ZoomOutTool(dimensions="width"))
+Tool.register_alias("yzoom_out", lambda: ZoomOutTool(dimensions="height"))
+Tool.register_alias("click", lambda: TapTool(behavior="inspect"))
+Tool.register_alias("tap", lambda: TapTool())
+Tool.register_alias("doubletap", lambda: TapTool(gesture="doubletap"))
+Tool.register_alias("crosshair", lambda: CrosshairTool())
+Tool.register_alias("box_select", lambda: BoxSelectTool())
+Tool.register_alias("xbox_select", lambda: BoxSelectTool(dimensions="width"))
+Tool.register_alias("ybox_select", lambda: BoxSelectTool(dimensions="height"))
+Tool.register_alias("poly_select", lambda: PolySelectTool())
+Tool.register_alias("lasso_select", lambda: LassoSelectTool())
+Tool.register_alias("box_zoom", lambda: BoxZoomTool(dimensions="both"))
+Tool.register_alias("xbox_zoom", lambda: BoxZoomTool(dimensions="width"))
+Tool.register_alias("ybox_zoom", lambda: BoxZoomTool(dimensions="height"))
+Tool.register_alias("save", lambda: SaveTool())
+Tool.register_alias("undo", lambda: UndoTool())
+Tool.register_alias("redo", lambda: RedoTool())
+Tool.register_alias("reset", lambda: ResetTool())
+Tool.register_alias("help", lambda: HelpTool())
+Tool.register_alias("box_edit", lambda: BoxEditTool())
+Tool.register_alias("line_edit", lambda: LineEditTool())
+Tool.register_alias("point_draw", lambda: PointDrawTool())
+Tool.register_alias("poly_draw", lambda: PolyDrawTool())
+Tool.register_alias("poly_edit", lambda: PolyEditTool())
+Tool.register_alias("hover", lambda: HoverTool(tooltips=[
+    ("index", "$index"),
+    ("data (x, y)", "($x, $y)"),
+    ("screen (x, y)", "($sx, $sy)"),
+]))

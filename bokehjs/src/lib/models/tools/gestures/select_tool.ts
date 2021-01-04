@@ -1,67 +1,95 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer} from "../../renderers/data_renderer"
-import {compute_renderers, RendererSpec} from "../util"
+import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
+import {DataSource} from "../../sources/data_source"
+import {compute_renderers} from "../../util"
 import * as p from "core/properties"
-import {KeyEvent} from "core/ui_events"
+import {KeyEvent, UIEvent} from "core/ui_events"
+import {SelectionMode} from "core/enums"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
-import {Geometry} from "core/geometry"
+import {Geometry, GeometryData} from "core/geometry"
+import {Signal0} from "core/signaling"
+import {MenuItem} from "core/util/menus"
+import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.model.clear.connect(() => this._clear())
+  }
+
   get computed_renderers(): DataRenderer[] {
-    const renderers = this.model.renderers
-    const all_renderers = this.plot_model.renderers
-    const names = this.model.names
+    const {renderers, names} = this.model
+    const all_renderers = this.plot_model.data_renderers
     return compute_renderers(renderers, all_renderers, names)
   }
 
-  _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
-    const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+  _computed_renderers_by_data_source(): Map<DataSource, DataRenderer[]> {
+    const renderers_by_source: Map<DataSource, DataRenderer[]> = new Map()
 
     for (const r of this.computed_renderers) {
-      let source_id: string
+      let source: DataSource
       if (r instanceof GlyphRenderer)
-        source_id = r.data_source.id
+        source = r.data_source
       else if (r instanceof GraphRenderer)
-        source_id = r.node_renderer.data_source.id
+        source = r.node_renderer.data_source
       else
         continue
 
-      if (!(source_id in renderers_by_source))
-        renderers_by_source[source_id] = []
-
-      renderers_by_source[source_id].push(r)
+      const renderers = renderers_by_source.get(source) ?? []
+      renderers_by_source.set(source, [...renderers, r])
     }
 
     return renderers_by_source
   }
 
+  protected _select_mode(ev: UIEvent): SelectionMode {
+    const {shiftKey, ctrlKey} = ev
+
+    if (!shiftKey && !ctrlKey)
+      return this.model.mode
+    else if (shiftKey && !ctrlKey)
+      return "append"
+    else if (!shiftKey && ctrlKey)
+      return "intersect"
+    else if (shiftKey && ctrlKey)
+      return "subtract"
+    else
+      unreachable()
+  }
+
   _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
-      for (const r of this.computed_renderers) {
-        r.get_selection_manager().clear()
-      }
-      this.plot_view.request_render()
+      this._clear()
     }
   }
 
-  _select(geometry: Geometry, final: boolean, append: boolean): void {
+  _clear(): void {
+    for (const renderer of this.computed_renderers) {
+      renderer.get_selection_manager().clear()
+    }
+    const renderer_views = this.computed_renderers.map((r) => this.plot_view.renderer_view(r)!)
+    this.plot_view.request_paint(renderer_views)
+  }
+
+  _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
     const renderers_by_source = this._computed_renderers_by_data_source()
 
-    for (const id in renderers_by_source) {
-      const renderers = renderers_by_source[id]
+    for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
 
-      const r_views = []
+      const r_views: DataRendererView[] = []
       for (const r of renderers) {
-        if (r.id in this.plot_view.renderer_views)
-          r_views.push(this.plot_view.renderer_views[r.id])
+        const r_view = this.plot_view.renderer_view(r)
+        if (r_view != null) {
+          r_views.push(r_view as DataRendererView)
+        }
       }
-      sm.select(r_views, geometry, final, append)
+      sm.select(r_views, geometry, final, mode)
     }
 
     // XXX: messed up class structure
@@ -72,37 +100,41 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   _emit_selection_event(geometry: Geometry, final: boolean = true): void {
-    const {frame} = this.plot_view
-    const xm = frame.xscales.default
-    const ym = frame.yscales.default
-    let g: any // XXX: Geometry & something
+    const {x_scale, y_scale} = this.plot_view.frame
+
+    let geometry_data: GeometryData
     switch (geometry.type) {
-      case 'point': {
+      case "point": {
         const {sx, sy} = geometry
-        const x = xm.invert(sx)
-        const y = ym.invert(sy)
-        g = {...geometry, x, y}
+        const x = x_scale.invert(sx)
+        const y = y_scale.invert(sy)
+        geometry_data = {...geometry, x, y}
         break
       }
-      case 'rect': {
+      case "span": {
+        const {sx, sy} = geometry
+        const x = x_scale.invert(sx)
+        const y = y_scale.invert(sy)
+        geometry_data = {...geometry, x, y}
+        break
+      }
+      case "rect": {
         const {sx0, sx1, sy0, sy1} = geometry
-        const [x0, x1] = xm.r_invert(sx0, sx1)
-        const [y0, y1] = ym.r_invert(sy0, sy1)
-        g = {...geometry, x0, y0, x1, y1}
+        const [x0, x1] = x_scale.r_invert(sx0, sx1)
+        const [y0, y1] = y_scale.r_invert(sy0, sy1)
+        geometry_data = {...geometry, x0, y0, x1, y1}
         break
       }
-      case 'poly': {
+      case "poly": {
         const {sx, sy} = geometry
-        const x = xm.v_invert(sx)
-        const y = ym.v_invert(sy)
-        g = {...geometry, x, y}
+        const x = x_scale.v_invert(sx)
+        const y = y_scale.v_invert(sy)
+        geometry_data = {...geometry, x, y}
         break
       }
-      default:
-        throw new Error(`Unrecognized selection geometry type: '${geometry.type}'`)
     }
 
-    this.plot_model.trigger_event(new SelectionGeometry(g, final))
+    this.plot_model.trigger_event(new SelectionGeometry(geometry_data, final))
   }
 }
 
@@ -110,8 +142,10 @@ export namespace SelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    renderers: p.Property<RendererSpec>
+    renderers: p.Property<DataRenderer[] | "auto">
+    /** @deprecated */
     names: p.Property<string[]>
+    mode: p.Property<SelectionMode>
   }
 }
 
@@ -119,15 +153,70 @@ export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
   properties: SelectTool.Props
+  __view_type__: SelectToolView
+
+  clear: Signal0<this>
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)
   }
 
+  initialize(): void {
+    super.initialize()
+    this.clear = new Signal0(this, "clear")
+  }
+
   static init_SelectTool(): void {
-    this.define<SelectTool.Props>({
-      renderers: [ p.Any,   'auto' ],
-      names:     [ p.Array, []     ],
-    })
+    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
+      renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+      names:     [ Array(String), [] ],
+      mode:      [ SelectionMode, "replace" ],
+    }))
+  }
+
+  get menu(): MenuItem[] | null {
+    return [
+      {
+        icon: "bk-tool-icon-replace-mode",
+        tooltip: "Replace the current selection",
+        active: () => this.mode == "replace",
+        handler: () => {
+          this.mode = "replace"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-append-mode",
+        tooltip: "Append to the current selection (Shift)",
+        active: () => this.mode == "append",
+        handler: () => {
+          this.mode = "append"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-intersect-mode",
+        tooltip: "Intersect with the current selection (Ctrl)",
+        active: () => this.mode == "intersect",
+        handler: () => {
+          this.mode = "intersect"
+          this.active = true
+        },
+      }, {
+        icon: "bk-tool-icon-subtract-mode",
+        tooltip: "Subtract from the current selection (Shift+Ctrl)",
+        active: () => this.mode == "subtract",
+        handler: () => {
+          this.mode = "subtract"
+          this.active = true
+        },
+      },
+      null,
+      {
+        icon: "bk-tool-icon-clear-selection",
+        tooltip: "Clear the current selection (Esc)",
+        handler: () => {
+          this.clear.emit()
+        },
+      },
+    ]
   }
 }

@@ -33,8 +33,8 @@ import bokeh.application.handlers.script as bahs # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_ScriptHandler(object):
 
+class Test_ScriptHandler:
     # Public methods ----------------------------------------------------------
 
     def test_runner_uses_source_from_filename(self) -> None:

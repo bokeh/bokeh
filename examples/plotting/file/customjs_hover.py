@@ -16,7 +16,7 @@ code = """
     var projections = Bokeh.require("core/util/projections");
     var x = special_vars.x
     var y = special_vars.y
-    var coords = projections.wgs84_mercator.inverse([x, y])
+    var coords = projections.wgs84_mercator.invert(x, y)
     return coords[%d].toFixed(2)
 """
 

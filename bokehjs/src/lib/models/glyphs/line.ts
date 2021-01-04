@@ -1,13 +1,14 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_scalar_legend, line_interpolation} from "./utils"
+import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {LineVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
+import * as p from "core/properties"
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import * as p from "core/properties"
 
 export interface LineData extends XYGlyphData {}
 
@@ -16,6 +17,18 @@ export interface LineView extends LineData {}
 export class LineView extends XYGlyphView {
   model: Line
   visuals: Line.Visuals
+
+  /** @internal */
+  glglyph?: LineGL
+
+  initialize(): void {
+    super.initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null) {
+      this.glglyph = new LineGL(webgl.gl, this)
+    }
+  }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
     let drawing = false
@@ -62,20 +75,20 @@ export class LineView extends XYGlyphView {
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
     */
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
     const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
-      const p0 = {x: this.sx[i],     y: this.sy[i]    }
+      const p0 = {x: this.sx[i],     y: this.sy[i]}
       const p1 = {x: this.sx[i + 1], y: this.sy[i + 1]}
       const dist = hittest.dist_to_segment(point, p0, p1)
 
       if (dist < threshold && dist < shortest) {
         shortest = dist
         result.add_to_selected_glyphs(this.model)
-        result.get_view = () => this
+        result.view = this
         result.line_indices = [i]
       }
     }
@@ -85,7 +98,7 @@ export class LineView extends XYGlyphView {
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = hittest.create_empty_hit_test_result()
+    const result = new Selection()
 
     let val: number
     let values: Arrayable<number>
@@ -100,7 +113,7 @@ export class LineView extends XYGlyphView {
     for (let i = 0, end = values.length-1; i < end; i++) {
       if ((values[i] <= val && val <= values[i + 1]) || (values[i + 1] <= val && val <= values[i])) {
         result.add_to_selected_glyphs(this.model)
-        result.get_view = () => this
+        result.view = this
         result.line_indices.push(i)
       }
     }
@@ -113,23 +126,26 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 
 export namespace Line {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector
+  export type Props = XYGlyph.Props & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Mixins = mixins.Line/*Scalar*/
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/}
 }
 
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
   properties: Line.Props
+  __view_type__: LineView
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)
@@ -138,6 +154,6 @@ export class Line extends XYGlyph {
   static init_Line(): void {
     this.prototype.default_view = LineView
 
-    this.mixins(['line'])
+    this.mixins<Line.Mixins>(mixins.Line/*Scalar*/)
   }
 }

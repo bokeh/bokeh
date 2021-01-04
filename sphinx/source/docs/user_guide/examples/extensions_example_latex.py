@@ -33,13 +33,10 @@ export class LatexLabelView extends LabelView {
         throw new Error("unreachable code")
     }
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout ?? this.plot_view.layout.center_panel
 
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
-
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? this.coordinates.x_scale.compute(this.model.x) : panel.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? this.coordinates.y_scale.compute(this.model.y) : panel.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
@@ -47,7 +44,7 @@ export class LatexLabelView extends LabelView {
     //--- End of copied section from ``Label.render`` implementation
     // Must render as superpositioned div (not on canvas) so that KaTex
     // css can properly style the text
-    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
+    this._css_text(this.layer.ctx, "", sx, sy, angle)
 
     // ``katex`` is loaded into the global window at runtime
     // katex.renderToString returns a html ``span`` element
@@ -65,6 +62,7 @@ export interface LatexLabel extends LatexLabel.Attrs {}
 
 export class LatexLabel extends Label {
   properties: LatexLabel.Props
+  __view_type__: LatexLabelView
 
   constructor(attrs?: Partial<LatexLabel.Attrs>) {
     super(attrs)
@@ -99,10 +97,16 @@ p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 # Note: must set ``render_mode="css"``
-latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=40, y=420, x_units='screen', y_units='screen',
-                   render_mode='css', text_font_size='16pt',
-                   background_fill_alpha=0)
+latex = LatexLabel(
+    text="f = \\sum_{n=1}^\\infty\\frac{-e^{i\\pi}}{2^n}!",
+    x=40,
+    y=420,
+    x_units="screen",
+    y_units="screen",
+    render_mode="css",
+    text_font_size="21px",
+    background_fill_alpha=0,
+)
 
 p.add_layout(latex)
 

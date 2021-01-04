@@ -40,13 +40,19 @@ based off information in some database:
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
 
+
+
+# Standard library imports
+#-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+import os
+import sys
+import traceback
 
 __all__ = (
     'Handler',
@@ -60,7 +66,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Handler(object):
+class Handler:
     ''' Provide a mechanism for Bokeh applications to build up new Bokeh
     Documents.
 
@@ -174,6 +180,19 @@ class Handler(object):
         '''
         pass
 
+    def process_request(self, request):
+        ''' Processes incoming HTTP request returning a dictionary of
+        additional data to add to the session_context.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            A dictionary of JSON serializable data to be included on
+            the session context.
+        '''
+        return {}
+
     def static_path(self):
         ''' Return a path to app-specific static resources, if applicable.
 
@@ -194,6 +213,19 @@ class Handler(object):
 
         '''
         return None
+
+
+def handle_exception(handler, e):
+    ''' Record an exception and details on a Handler.
+
+    '''
+    handler._failed = True
+    handler._error_detail = traceback.format_exc()
+
+    _exc_type, _exc_value, exc_traceback = sys.exc_info()
+    filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
+
+    handler._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
 
 #-----------------------------------------------------------------------------
 # Private API

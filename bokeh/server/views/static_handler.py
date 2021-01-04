@@ -68,7 +68,7 @@ class StaticHandler(StaticFileHandler):
             return path
         else:
             version = StaticFileHandler.get_version(dict(static_path=settings.bokehjsdir()), path)
-            return ("%s?v=%s" % (path, version))
+            return f"{path}?v={version}"
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="/fonts/fonts.css">
+    <style>
+      html, body {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+
+      .bk-root {
+        -webkit-font-smoothing: antialiased;
+        font-family: Bokeh;
+      }
+
+      .bk-root pre.bk {
+        font-family: BokehMono;
+      }
+    </style>
+    <script type="text/javascript" src="/static/js/bokeh.js"></script>
+    <script type="text/javascript" src="/static/js/bokeh-api.js"></script>
+    <script type="text/javascript" src="/static/js/bokeh-widgets.js"></script>
+    <script type="text/javascript" src="/static/js/bokeh-tables.js"></script>
+    <script type="text/javascript">
+      Bokeh.settings.dev = true
+    </script>
+    <script type="text/javascript">
+      const {require} = Bokeh
+    </script>
+  </head>
+  <body>
+    <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
+    <script type="text/javascript">
+      async function preload_fonts() {
+        for (let i = 5; i < 36; i++) {
+          await document.fonts.load(`normal ${i}px Bokeh`)
+          await document.fonts.load(`bold ${i}px Bokeh`)
+          await document.fonts.load(`italic normal ${i}px Bokeh`)
+          await document.fonts.load(`italic bold ${i}px Bokeh`)
+          await document.fonts.load(`normal ${i}px BokehMono`)
+        }
+      }
+    </script>
+    <script type="text/javascript" src="/static/test/{{ main }}"></script>
+    {%- if run %}
+    <script>
+      (async () => {
+        await preload_fonts()
+        const params = new URLSearchParams(location.search)
+        await Tests.run_all(params.get("k"))
+      })()
+    </script>
+    {% else %}
+    <script>
+      preload_fonts()
+    </script>
+    {% endif -%}
+  </body>
+</html>

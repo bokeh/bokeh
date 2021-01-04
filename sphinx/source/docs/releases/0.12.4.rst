@@ -32,7 +32,7 @@ Broken Dialog Removed
 
 The ``Dialog`` widget has been broken for some time. Due to lack of user
 reports about it, and because custom extensions now provide a path for users
-to integrate third party JS dialog libaries, this widget has been removed
+to integrate third party JS dialog libraries, this widget has been removed
 immediately.
 
 Custom Extension Import/Export

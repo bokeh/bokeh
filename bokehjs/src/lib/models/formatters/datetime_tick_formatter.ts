@@ -75,18 +75,18 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static init_DatetimeTickFormatter(): void {
-    this.define<DatetimeTickFormatter.Props>({
-      microseconds: [ p.Array, ['%fus'] ],
-      milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ],
-      seconds:      [ p.Array, ['%Ss'] ],
-      minsec:       [ p.Array, [':%M:%S'] ],
-      minutes:      [ p.Array, [':%M', '%Mm'] ],
-      hourmin:      [ p.Array, ['%H:%M'] ],
-      hours:        [ p.Array, ['%Hh', '%H:%M'] ],
-      days:         [ p.Array, ['%m/%d', '%a%d'] ],
-      months:       [ p.Array, ['%m/%Y', '%b %Y'] ],
-      years:        [ p.Array, ['%Y'] ],
-    })
+    this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
+      microseconds: [ Array(String), ['%fus'] ],
+      milliseconds: [ Array(String), ['%3Nms', '%S.%3Ns'] ],
+      seconds:      [ Array(String), ['%Ss'] ],
+      minsec:       [ Array(String), [':%M:%S'] ],
+      minutes:      [ Array(String), [':%M', '%Mm'] ],
+      hourmin:      [ Array(String), ['%H:%M'] ],
+      hours:        [ Array(String), ['%Hh', '%H:%M'] ],
+      days:         [ Array(String), ['%m/%d', '%a%d'] ],
+      months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
+      years:        [ Array(String), ['%Y'] ],
+    }))
   }
 
   // Whether or not to strip the leading zeros on tick labels.
@@ -188,7 +188,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       try {
         tm = _array(t)
         s = _strftime(t, format)
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn(`unable to format tick for timestamp value ${t}`)
         logger.warn(` - ${error}`)
         labels.push("ERR")

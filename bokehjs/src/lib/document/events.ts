@@ -1,65 +1,74 @@
-import {Document, References} from "./document"
+import {Document} from "./document"
 import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
 import {PatchSet} from "models/sources/column_data_source"
+import {serialize, Serializable, Serializer} from "core/serializer"
 
-export interface ModelChanged {
+export type ModelChanged = {
   kind: "ModelChanged"
   model: Ref
   attr: string
-  new: any
-  hint?: any
+  new: unknown
+  hint?: unknown
 }
 
-export interface MessageSent {
+export type MessageSent = {
   kind: "MessageSent"
   msg_type: string
-  msg_data: unknown
+  msg_data?: unknown
 }
 
-export interface TitleChanged {
+export type TitleChanged = {
   kind: "TitleChanged"
   title: string
 }
 
-export interface RootAdded {
+export type RootAdded = {
   kind: "RootAdded"
   model: Ref
 }
 
-export interface RootRemoved {
+export type RootRemoved = {
   kind: "RootRemoved"
   model: Ref
 }
 
-export interface ColumnDataChanged {
+export type ColumnDataChanged = {
   kind: "ColumnDataChanged"
   column_source: Ref
   cols?: any
-  new: any
+  new: unknown
 }
 
-export interface ColumnsStreamed {
+export type ColumnsStreamed = {
   kind: "ColumnsStreamed"
   column_source: Ref
   data: Data
   rollover?: number
 }
 
-export interface ColumnsPatched {
+export type ColumnsPatched = {
   kind: "ColumnsPatched"
   column_source: Ref
-  patches: PatchSet
+  patches: PatchSet<unknown>
 }
 
 export type DocumentChanged =
   ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
 
-export abstract class DocumentChangedEvent {
+export abstract class DocumentEvent {
   constructor(readonly document: Document) {}
+}
 
-  abstract json(references: References): DocumentChanged
+export class DocumentEventBatch<T extends DocumentChangedEvent> extends DocumentEvent {
+  constructor(document: Document, readonly events: T[], readonly setter_id?: string) {
+    super(document)
+  }
+}
+
+export abstract class DocumentChangedEvent extends DocumentEvent implements Serializable {
+  abstract [serialize](serializer: Serializer): DocumentChanged
 }
 
 export class MessageSentEvent extends DocumentChangedEvent {
@@ -67,20 +76,13 @@ export class MessageSentEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): DocumentChanged {
+  [serialize](serializer: Serializer): DocumentChanged {
     const value = this.msg_data
-    const value_json = HasProps._value_to_json("", value, null)
-    const value_refs: {[key: string]: HasProps} = {}
-    HasProps._value_record_references(value, value_refs, true)
-    /* XXX: this will cause all referenced models to be reinitialized
-    for (const id in value_refs) {
-      references[id] = value_refs[id]
-    }
-    */
+    const value_serialized = serializer.to_serializable(value)
     return {
       kind: "MessageSent",
       msg_type: this.msg_type,
-      msg_data: value_json,
+      msg_data: value_serialized,
     }
   }
 }
@@ -90,38 +92,31 @@ export class ModelChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly old: any,
-      readonly new_: any,
+      readonly old: unknown,
+      readonly new_: unknown,
       readonly setter_id?: string,
-      readonly hint?: any) {
+      readonly hint?: DocumentChangedEvent) {
     super(document)
   }
 
-  json(references: References): DocumentChanged {
-    if (this.attr === "id") {
-      throw new Error("'id' field should never change, whatever code just set it is wrong")
-    }
-
+  [serialize](serializer: Serializer): DocumentChanged {
     if (this.hint != null)
-      return this.hint.json(references)
+      return serializer.to_serializable(this.hint)
 
     const value = this.new_
-    const value_json = HasProps._value_to_json(this.attr, value, this.model)
-    const value_refs: {[key: string]: HasProps} = {}
-    HasProps._value_record_references(value, value_refs, true) // true = recurse
-    if (this.model.id in value_refs && this.model !== value) {
+    const value_serialized = serializer.to_serializable(value)
+
+    if (this.model != value) {
       // we know we don't want a whole new copy of the obj we're
       // patching unless it's also the value itself
-      delete value_refs[this.model.id]
+      serializer.remove_def(this.model)
     }
-    for (const id in value_refs) {
-      references[id] = value_refs[id]
-    }
+
     return {
       kind: "ModelChanged",
       model: this.model.ref(),
       attr: this.attr,
-      new: value_json,
+      new: value_serialized,
     }
   }
 }
@@ -130,11 +125,11 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
       readonly column_source: Ref,
-      readonly patches: PatchSet) {
+      readonly patches: PatchSet<unknown>) {
     super(document)
   }
 
-  json(_references: References): ColumnsPatched {
+  [serialize](_serializer: Serializer): ColumnsPatched {
     return {
       kind: "ColumnsPatched",
       column_source: this.column_source,
@@ -152,7 +147,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): ColumnsStreamed {
+  [serialize](_serializer: Serializer): ColumnsStreamed {
     return {
       kind: "ColumnsStreamed",
       column_source: this.column_source,
@@ -168,7 +163,7 @@ export class TitleChangedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): TitleChanged {
+  [serialize](_serializer: Serializer): TitleChanged {
     return {
       kind: "TitleChanged",
       title: this.title,
@@ -182,11 +177,10 @@ export class RootAddedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(references: References): RootAdded {
-    HasProps._value_record_references(this.model, references, true)
+  [serialize](serializer: Serializer): RootAdded {
     return {
       kind: "RootAdded",
-      model: this.model.ref(),
+      model: serializer.to_serializable(this.model),
     }
   }
 }
@@ -197,7 +191,7 @@ export class RootRemovedEvent extends DocumentChangedEvent {
     super(document)
   }
 
-  json(_references: References): RootRemoved {
+  [serialize](_serializer: Serializer): RootRemoved {
     return {
       kind: "RootRemoved",
       model: this.model.ref(),

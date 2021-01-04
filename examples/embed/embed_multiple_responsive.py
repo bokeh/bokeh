@@ -1,4 +1,3 @@
-import io
 import random
 
 from jinja2 import Template
@@ -59,7 +58,7 @@ html = template.render(resources=resources,
 
 filename = 'embed_multiple_responsive.html'
 
-with io.open(filename, mode='w', encoding='utf-8') as f:
+with open(filename, mode="w", encoding="utf-8") as f:
     f.write(html)
 
 view(filename)

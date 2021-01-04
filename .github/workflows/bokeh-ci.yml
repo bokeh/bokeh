@@ -1,9 +1,10 @@
-name: GitHub-CI
+name: Bokeh-CI
 
 on:
   push:
     branches:
       - master
+      - branch-*
   pull_request:
 
 jobs:
@@ -12,40 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
-
-      - name: Install conda packages
-        run: |
-          BUILD_DEPS=`python scripts/deps.py build`
-          conda install --yes --quiet $BUILD_DEPS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-build.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -54,18 +27,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
       - name: Build BokehJS
-        run: |
-          pushd bokehjs
-          node make build
-          popd
-          tar czf bokehjs-build.tgz "bokehjs/build"
+        shell: bash -l {0}
+        run: bash ci/build_bokehjs.sh
 
       - name: Upload BokehJS
         uses: actions/upload-artifact@v1
@@ -74,12 +41,8 @@ jobs:
           path: bokehjs-build.tgz
 
       - name: Build conda package
-        run: |
-          conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
-          pushd $HOME
-          tar czf conda-bld-noarch.tgz "miniconda3/conda-bld/noarch"
-          popd
-          mv $HOME/conda-bld-noarch.tgz .
+        shell: bash -l {0}
+        run: bash ci/build_conda_pacakge.sh
 
       - name: Upload conda package
         uses: actions/upload-artifact@v1
@@ -87,56 +50,16 @@ jobs:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
 
-
-
-
-
   codebase:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
-
-      # XXX: until channels is available on conda-forge
-      - name: Install pip packages
-        shell: bash
-        run: |
-          pip install channels
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -145,75 +68,42 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
       # Don't cache sampledata - want to test at least one real download
 
       - name: Install sampledata
-        shell: bash
-        run: |
-          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+
+      # - name: Run bokehjs codebase checks
+      #   working-directory: ./bokehjs
+      #   shell: bash -l {0}
+      #   run: |
+      #     node make build:all lint
 
       - name: Run codebase checks
-        shell: bash
-        run: |
-          pushd bokehjs
-          node make scripts:compile --emit-error
-          node make test:compile --emit-error
-          PARSER_NO_WATCH=true node make lint --emit-error
-          popd
-
-          py.test --color=yes tests/codebase
+        shell: bash -l {0}
+        run: pytest --color=yes tests/codebase
 
       - name: MyPy
-        shell: bash
+        shell: bash -l {0}
         run: |
           mypy bokeh
-
-
-
-
-
+          mypy release
 
   examples:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -226,19 +116,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -247,27 +126,17 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          node make examples --no-build
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-      - name: Install chrome
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Start chrome headless
-        shell: bash
-        run: |
-          chromium-browser --headless --no-sandbox --remote-debugging-port=9222 &
+        working-directory: ./bokehjs
+        shell: bash -l {0}
+        run: node make test:run:headless # starts chrome in the background on port 9222
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -276,65 +145,43 @@ jobs:
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
-        shell: bash
-        run: |
-          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        shell: bash -l {0}
+        run: |
+          pytest -s -v --color=yes --tb line tests/test_examples.py
+
+      - name: Collect results
+        if: always()
         shell: bash
         run: |
-          UPLOAD="`[ -z $AWS_ACCESS_KEY_ID ] && echo '' || echo '--upload'`"
-          py.test -s -v                 \
-            --color=yes                 \
-            --tb line                   \
-            --diff-ref FETCH_HEAD       \
-            --self-contained-html       \
-            --report-path=examples.html $UPLOAD \
-            tests/test_examples.py
+          DST="examples-report"
+          mkdir -p ${DST}
+          cp --parents examples-report.html $(cat .images-list) ${DST}
 
-
-
-
-
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: examples-report
+          path: examples-report
 
   js-test:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -347,19 +194,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -368,65 +204,29 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-      - name: Install chrome
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository ppa:canonical-chromium-builds/stage
-          sudo apt-get update
-          sudo apt-get install chromium-browser
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Run tests
-        shell: bash
-        run: |
-          py.test -s --color=yes tests/test_bokehjs.py
-
-
-
+        working-directory: bokehjs
+        shell: bash -l {0}
+        run: node make test --screenshot=skip
 
   integration-tests:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.8.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -439,19 +239,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -460,32 +249,16 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
 
-      - name: Install chromedriver
-        shell: bash
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install unzip xvfb libxi6 libgconf-2-4
-          sudo apt-get -y install google-chrome-stable
-          curl -o  chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/79.0.3945.36/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/bin/chromedriver
-          sudo chown root:root /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Run tests
-        shell: bash
-        run: |
-          py.test -v --tb=short --driver chrome --color=yes tests/integration
-
-
-
+        shell: bash -l {0}
+        run: pytest -v --tb=short --driver chrome --color=yes tests/integration
 
   unit-test:
     needs: build
@@ -496,50 +269,15 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-            curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-            ./Miniconda3-latest-Windows-x86_64.exe //InstallationType=JustMe //RegisterPython=0 //S
-          fi
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Windows" ]]; then
-            echo "::add-path::$HOME/miniconda3"
-            echo "::add-path::$HOME/miniconda3/Scripts"
-          else
-            echo "::add-path::$HOME/miniconda3/bin"
-            echo "::add-path::$HOME/miniconda3/envs/test/bin"
-          fi
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          # XXX (bev) note C-F just for unit tests
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-${{ matrix.python-version }}.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -552,19 +290,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda create -n test --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install -n test --yes --quiet --use-local bokeh `python scripts/deps.py run test` python=${{ matrix.python-version }}
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -573,12 +300,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -587,58 +314,26 @@ jobs:
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
-        shell: bash
-        run: |
-          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
-        shell: bash
+        shell: bash -l {0}
         run: |
-          if [[ "${{ runner.os }}" = "Windows" ]]; then
-            source activate test
-          fi
-          # verify python being used is the expected one
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          py.test --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
-
-
-
+          pytest --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
   minimal-deps:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -651,20 +346,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
-          conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -673,61 +356,32 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
+
+      - name: Remove extra packages
+        shell: bash -l {0}
+        run: conda remove --yes --quiet --no-pin pandas scipy notebook scikit-learn sympy flask
 
       - name: Run tests
-        shell: bash
-        run: |
-          py.test -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
-
-
-
-
-
-
-
-
+        shell: bash -l {0}
+        run: pytest -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
 
   documentation:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -740,19 +394,8 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
-
-      - name: Install conda packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -761,12 +404,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
 
       - name: Install node modules
-        run: |
-          pushd bokehjs
-          npm install -g npm
-          npm ci --no-progress
-          popd
-          python setup.py --install-js
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -775,58 +418,24 @@ jobs:
           key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
       - name: Install sampledata
-        shell: bash
-        run: |
-          python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Build docs
-        shell: bash
-        run: |
-          cd sphinx
-          export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
-          make SPHINXOPTS=-v all
-
-
-
-
-
-
+        shell: bash -l {0}
+        run: bash ci/build_docs.sh
 
   downstream:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-
-      - name: Install Miniconda
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" = "Linux" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          elif [[ "${{ runner.os }}" = "macOS" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-MacOSX-x86_64.sh
-          elif [[ "${{ runner.os }}" = "Windows" ]]; then
-            MINICONDA_FILENAME=Miniconda3-latest-Windows-x86_64.exe
-          fi
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-
-      - name: Setup paths
-        shell: bash
-        run: |
-          echo "::add-path::$HOME/miniconda3/bin"
-
-      - name: Configure conda
-        shell: bash
-        env:
-          CONDA_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-        run: |
-          conda config --set auto_update_conda off
-          conda config --append channels bokeh
-          conda config --append channels conda-forge
-          conda config --get channels
-          conda install --yes --quiet $CONDA_REQS
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: ci/environment-test-3.6.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -839,33 +448,27 @@ jobs:
           name: conda-bld-noarch
 
       - name: Unpack artifacts
-        shell: bash
-        run: |
-          mv conda-bld-noarch/conda-bld-noarch.tgz $HOME
-          pushd $HOME
-          tar xzf conda-bld-noarch.tgz
-          popd
-          tar xvzf bokehjs-build/bokehjs-build.tgz
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
-      - name: Install test packages
-        shell: bash
-        run: |
-          conda install --yes --quiet python=${{ matrix.python-version }} jinja2 pyyaml
-          conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
-          conda install --yes --quiet distributed
-          conda install --yes --quiet -c pyviz/label/dev holoviews nose
-          pip install pandas_bokeh
-          pip install geopandas
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+
+      - name: Install node modules
+        shell: bash -l {0}
+        run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: bash ci/install_bokeh_package.sh
+
+      - name: Install downstream packages
+        shell: bash -l {0}
+        run: bash ci/install_downstream_packages.sh
 
       - name: Run tests
-        shell: bash
-        run: |
-          set +e
-          pushd `python -c "import site; print(site.getsitepackages()[0])"`
-          py.test distributed/dashboard
-          nosetests holoviews/tests/plotting/bokeh
-          git clone https://github.com/PatrikHlobil/Pandas-Bokeh.git
-          pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
-          pytest Pandas-Bokeh/Tests/test_GeoPandasBokeh.py
-          popd
-          exit 0
+        shell: bash -l {0}
+        run: bash ci/run_downstream_tests.sh

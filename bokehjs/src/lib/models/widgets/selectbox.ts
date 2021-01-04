@@ -1,64 +1,82 @@
-import {select, option, optgroup} from "core/dom"
+import {select, option, optgroup, empty, append} from "core/dom"
 import {isString, isArray} from "core/util/types"
-import {logger} from "core/logging"
+import {entries} from "core/util/object"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class SelectView extends InputWidgetView {
   model: Select
 
-  protected select_el: HTMLSelectElement
+  protected input_el: HTMLSelectElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    const {value, options} = this.model.properties
+    this.on_change(value, () => {
+      this._update_value()
+    })
+    this.on_change(options, () => {
+      empty(this.input_el)
+      append(this.input_el, ...this.options_el())
+      this._update_value()
+    })
   }
 
-  build_options(values: (string | [string, string])[]): HTMLElement[] {
-    return values.map((el) => {
-      let value, _label
-      if (isString(el))
-        value = _label  = el
-      else
-        [value, _label] = el
+  private _known_values = new Set<string>()
 
-      const selected = this.model.value == value
-      return option({selected, value}, _label)
-    })
+  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[] {
+    const {_known_values} = this
+    _known_values.clear()
+
+    function build_options(values: (string | [string, string])[]): HTMLOptionElement[] {
+      return values.map((el) => {
+        let value, label
+        if (isString(el))
+          value = label = el
+        else
+          [value, label] = el
+
+        _known_values.add(value)
+        return option({value}, label)
+      })
+    }
+
+    const {options} = this.model
+    if (isArray(options))
+      return build_options(options)
+    else
+      return entries(options).map(([label, values]) => optgroup({label}, build_options(values)))
   }
 
   render(): void {
     super.render()
 
-    let contents: HTMLElement[]
-    if (isArray(this.model.options))
-      contents = this.build_options(this.model.options)
-    else {
-      contents = []
-      const options = this.model.options
-      for (const key in options) {
-        const value = options[key]
-        contents.push(optgroup({label: key}, this.build_options(value)))
-      }
-    }
-
-    this.select_el = select({
-      class: bk_input,
-      id: this.model.id,
+    this.input_el = select({
+      class: inputs.input,
       name: this.model.name,
-      disabled: this.model.disabled}, contents)
+      disabled: this.model.disabled,
+    }, this.options_el())
 
-    this.select_el.addEventListener("change", () => this.change_input())
-    this.group_el.appendChild(this.select_el)
+    this._update_value()
+
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    const value = this.select_el.value
-    logger.debug(`selectbox: value = ${value}`)
+    const value = this.input_el.value
     this.model.value = value
     super.change_input()
+  }
+
+  protected _update_value(): void {
+    const {value} = this.model
+    if (this._known_values.has(value))
+      this.input_el.value = value
+    else
+      this.input_el.removeAttribute("value")
   }
 }
 
@@ -75,6 +93,7 @@ export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
   properties: Select.Props
+  __view_type__: SelectView
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)
@@ -83,9 +102,12 @@ export class Select extends InputWidget {
   static init_Select(): void {
     this.prototype.default_view = SelectView
 
-    this.define<Select.Props>({
-      value:   [ p.String, '' ],
-      options: [ p.Any,    [] ], // TODO (bev) is this used?
+    this.define<Select.Props>(({String, Array, Tuple, Dict, Or}) => {
+      const Options = Array(Or(String, Tuple(String, String)))
+      return {
+        value:   [ String, "" ],
+        options: [ Or(Options, Dict(Options)), [] ],
+      }
     })
   }
 }

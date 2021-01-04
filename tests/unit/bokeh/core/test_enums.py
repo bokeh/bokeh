@@ -30,6 +30,7 @@ ALL  = (
     'Align',
     'Anchor',
     'AngleUnits',
+    'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
     'DashPattern',
@@ -65,6 +66,7 @@ ALL  = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -94,7 +96,7 @@ def test_Enumeration_default() -> None:
     e = bce.Enumeration()
     assert e.__slots__ == ()
 
-class Test_enumeration(object):
+class Test_enumeration:
     def test_basic(self) -> None:
         e = bce.enumeration("foo", "bar", "baz")
         assert isinstance(e, bce.Enumeration)
@@ -131,20 +133,21 @@ class Test_enumeration(object):
         e = bce.enumeration("foo", "bar", "baz")
         assert len(e) == 3
 
-class Test_bce(object):
 
+class Test_bce:
     def test_Anchor(self) -> None:
         assert tuple(bce.Anchor) == (
             "top_left",    "top_center",    "top_right",
-            "center_left", "center",        "center_right",
-            "bottom_left", "bottom_center", "bottom_right"
+            "center_left", "center_center", "center_right",
+            "bottom_left", "bottom_center", "bottom_right",
+            "top", "left", "center", "right", "bottom",
         )
 
     def test_AngleUnits(self) -> None:
-        assert tuple(bce.AngleUnits) == ('deg', 'rad')
+        assert tuple(bce.AngleUnits) == ("deg", "rad", "grad", "turn")
 
     def test_ButtonType(self) -> None:
-        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
+        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")
 
     def test_CalendarPosition(self) -> None:
         assert tuple(bce.CalendarPosition) == ("auto", "above", "below")
@@ -200,8 +203,9 @@ class Test_bce(object):
     def test_LegendLocation(self) -> None:
         assert tuple(bce.LegendLocation) == (
             "top_left",    "top_center",    "top_right",
-            "center_left", "center",        "center_right",
-            "bottom_left", "bottom_center", "bottom_right"
+            "center_left", "center_center", "center_right",
+            "bottom_left", "bottom_center", "bottom_right",
+            "top", "left", "center", "right", "bottom",
         )
 
     def test_LineCap(self) -> None:
@@ -220,12 +224,13 @@ class Test_bce(object):
         assert tuple(bce.MapType) == ("satellite", "roadmap", "terrain", "hybrid")
 
     def test_MarkerType(self) -> None:
-        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                                         "square", "square_cross", "square_x", "triangle", "x")
+        assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_dot", "circle_x", "circle_y", "cross",
+                                         "dash", "diamond", "diamond_cross", "diamond_dot", "dot", "hex", "hex_dot", "inverted_triangle",
+                                         "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+                                         "triangle_dot", "triangle_pin", "x", "y")
 
     def test_NamedColor(self) -> None:
-        assert len(tuple(bce.NamedColor)) == 147
+        assert len(tuple(bce.NamedColor)) == 148
         assert tuple(bce.NamedColor) == tuple(named.__all__)
 
     def test_NumeralLanguage(self) -> None:
@@ -247,7 +252,7 @@ class Test_bce(object):
         assert tuple(bce.Palette) == tuple(__palettes__)
 
     def test_RenderLevel(self) -> None:
-        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "annotation", "overlay")
+        assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
     def test_RenderMode(self) -> None:
         assert tuple(bce.RenderMode) == ("canvas", "css")
@@ -257,6 +262,9 @@ class Test_bce(object):
 
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+    def test_SelectionMode(self) -> None:
+        assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract")
 
     def test_SizingMode(self) -> None:
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
@@ -303,6 +311,7 @@ def test_enums_contents() -> None:
         'Align',
         'Anchor',
         'AngleUnits',
+        'AutosizeMode',
         'ButtonType',
         'CalendarPosition',
         'DashPattern',
@@ -337,6 +346,7 @@ def test_enums_contents() -> None:
         'RenderMode',
         'ResetPolicy',
         'RoundingFunction',
+        'SelectionMode',
         'SizingMode',
         'SizingPolicy',
         'SortDirection',

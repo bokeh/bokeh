@@ -1,7 +1,8 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {NumberArray} from '@bokehjs/core/types'
 
 describe("LogScale module", () => {
 
@@ -16,7 +17,7 @@ describe("LogScale module", () => {
 
     it("should correctly compute the scale state", () => {
       const scale = mkscale()
-      expect(scale._compute_state()).to.be.deep.equal([ 100, 10, 9.210340371976184, 0 ])
+      expect(scale._compute_state()).to.be.equal([ 100, 10, 9.210340371976184, 0 ])
     })
   })
 
@@ -46,23 +47,23 @@ describe("LogScale module", () => {
 
     it("should vector map NaN values to NaN", () => {
       const scale = mkscale()
-      expect(scale.v_compute([NaN])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(scale.v_compute([NaN])).to.be.equal(new NumberArray([NaN]))
     })
 
     it("should vector map infinity values to NaN", () => {
       const scale = mkscale()
       scale.source_range.start = 0
-      expect(scale.v_compute([0])).to.be.deep.equal(new Float64Array([NaN]))
+      expect(scale.v_compute([0])).to.be.equal(new NumberArray([NaN]))
     })
 
     it("should vector map values logly", () => {
       const scale = mkscale()
-      expect(scale.v_compute([1, 10, 100, 10000])).to.be.deep.equal(new Float64Array([10, 35, 60, 110]))
+      expect(scale.v_compute([1, 10, 100, 10000])).to.be.equal(new NumberArray([10, 35, 60, 110]))
     })
 
-    it("should map to a Float64Array", () => {
+    it("should map to a NumberArray", () => {
       const scale = mkscale()
-      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
+      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
     })
   })
 
@@ -70,12 +71,8 @@ describe("LogScale module", () => {
 
     it("should inverse map values logly", () => {
       const scale = mkscale()
-      expect(scale.invert(-15)).to.be.closeTo(0.1, 1e-10)
-      expect(scale.invert(10)).to.be.closeTo(1, 1e-10)
-      expect(scale.invert(35)).to.be.closeTo(10, 1e-10)
-      expect(scale.invert(60)).to.be.closeTo(100, 1e-10)
-      expect(scale.invert(85)).to.be.closeTo(1000, 1e-10)
-      expect(scale.invert(110)).to.be.closeTo(10000, 1e-10)
+      const values = [-15, 10, 35, 60, 85, 110].map((v) => scale.invert(v))
+      expect(values).to.be.similar([0.1, 1, 10, 100, 1000, 10000])
     })
   })
 
@@ -83,17 +80,8 @@ describe("LogScale module", () => {
 
     it("should vector map inverse map values logly", () => {
       const scale = mkscale()
-      const value = scale.v_invert([-15, 10, 35, 60, 85, 110])
-
-      expect(value).to.be.instanceof(Float64Array)
-      expect(value.length).to.be.equal(6)
-
-      expect(value[0]).to.be.closeTo(0.1, 1e-10)
-      expect(value[1]).to.be.closeTo(1, 1e-10)
-      expect(value[2]).to.be.closeTo(10, 1e-10)
-      expect(value[3]).to.be.closeTo(100, 1e-10)
-      expect(value[4]).to.be.closeTo(1000, 1e-10)
-      expect(value[5]).to.be.closeTo(10000, 1e-10)
+      const values = scale.v_invert([-15, 10, 35, 60, 85, 110])
+      expect(values).to.be.similar(new NumberArray([0.1, 1, 10, 100, 1000, 10000]))
     })
   })
 })

@@ -1,20 +1,19 @@
 import {Box, BoxView, BoxData} from "./box"
-import {Arrayable} from "core/types"
+import {NumberArray} from "core/types"
 import * as p from "core/properties"
-import {SpatialIndex} from "core/util/spatial"
 
 export interface VBarData extends BoxData {
-  _x: Arrayable<number>
-  _bottom: Arrayable<number>
-  _width: Arrayable<number>
-  _top: Arrayable<number>
+  _x: NumberArray
+  _bottom: NumberArray
+  _width: NumberArray
+  _top: NumberArray
 
-  sx: Arrayable<number>
-  sw: Arrayable<number>
-  stop: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  sright: Arrayable<number>
+  sx: NumberArray
+  sw: NumberArray
+  stop: NumberArray
+  sbottom: NumberArray
+  sleft: NumberArray
+  sright: NumberArray
 
   max_width: number
 }
@@ -25,16 +24,10 @@ export class VBarView extends BoxView {
   model: VBar
   visuals: VBar.Visuals
 
-  scenterx(i: number): number {
-    return this.sx[i]
-  }
-
-  scentery(i: number): number {
-    return (this.stop[i] + this.sbottom[i])/2
-  }
-
-  protected _index_data(): SpatialIndex {
-    return this._index_box(this._x.length)
+  scenterxy(i: number): [number, number] {
+    const scx = this.sx[i]
+    const scy = (this.stop[i] + this.sbottom[i])/2
+    return [scx, scy]
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
@@ -52,8 +45,8 @@ export class VBarView extends BoxView {
     this.sbottom = this.renderer.yscale.v_compute(this._bottom)
 
     const n = this.sx.length
-    this.sleft = new Float64Array(n)
-    this.sright = new Float64Array(n)
+    this.sleft = new NumberArray(n)
+    this.sright = new NumberArray(n)
     for (let i = 0; i < n; i++) {
       this.sleft[i] = this.sx[i] - this.sw[i]/2
       this.sright[i] = this.sx[i] + this.sw[i]/2
@@ -80,6 +73,7 @@ export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
   properties: VBar.Props
+  __view_type__: VBarView
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)
@@ -88,13 +82,11 @@ export class VBar extends Box {
   static init_VBar(): void {
     this.prototype.default_view = VBarView
 
-    this.coords([['x', 'bottom']])
-    this.define<VBar.Props>({
-      width:  [ p.NumberSpec     ],
-      top:    [ p.CoordinateSpec ],
-    })
-    this.override({
-      bottom: 0,
-    })
+    this.define<VBar.Props>(({}) => ({
+      x:      [ p.XCoordinateSpec, {field: "x"} ],
+      bottom: [ p.YCoordinateSpec, {value: 0} ],
+      width:  [ p.NumberSpec,      {value: 1} ],
+      top:    [ p.YCoordinateSpec, {field: "top"} ],
+    }))
   }
 }

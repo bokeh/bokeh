@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
@@ -37,9 +40,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_Toggle(object):
 
+@pytest.mark.selenium
+class Test_Toggle:
     def test_displays_label(self, bokeh_model_page) -> None:
         button = Toggle(label="label", css_classes=["foo"])
 
@@ -57,6 +60,7 @@ class Test_Toggle(object):
         button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert typ in button.get_attribute('class')
 
+    @flaky(max_runs=10)
     def test_server_on_click_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):

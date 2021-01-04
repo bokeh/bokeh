@@ -50,6 +50,12 @@ class AutoloadJsHandler(SessionHandler):
     ''' Implements a custom Tornado handler for the autoload JS chunk
 
     '''
+
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Headers", "*")
+        self.set_header('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS')
+        self.set_header("Access-Control-Allow-Origin", "*")
+
     async def get(self, *args, **kwargs):
         session = await self.get_session()
 
@@ -70,13 +76,16 @@ class AutoloadJsHandler(SessionHandler):
         resources = self.application.resources(server_url) if resources_param != "none" else None
         bundle = bundle_for_objs_and_resources(None, resources)
 
-        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
+        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
 
         self.set_header("Content-Type", 'application/javascript')
         self.write(js)
+
+    async def options(self, *args, **kwargs):
+        '''Browsers make OPTIONS requests under the hood before a GET request'''
 
 #-----------------------------------------------------------------------------
 # Private API

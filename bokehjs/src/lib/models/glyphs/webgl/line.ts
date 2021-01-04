@@ -1,40 +1,39 @@
-import {Program, VertexBuffer, IndexBuffer, Texture2D} from "gloo2"
+import {Program, VertexBuffer, IndexBuffer, Texture2d} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
-import {vertex_shader} from "./line.vert"
-import {fragment_shader} from "./line.frag"
+import vertex_shader from "./line.vert"
+import fragment_shader from "./line.frag"
 import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
 
 class DashAtlas {
+  protected readonly _atlas: Map<string, [number, number]> = new Map()
+  protected readonly _width = 256
+  protected readonly _height = 256
 
-  protected _atlas: {[key: string]: [number, number]} = {}
-  protected _index = 0
-  protected _width = 256
-  protected _height = 256
-
-  tex: Texture2D
+  tex: Texture2d
 
   constructor(gl: WebGLRenderingContext) {
     // Init texture
-    this.tex = new Texture2D(gl)
+    this.tex = new Texture2d(gl)
     this.tex.set_wrapping(gl.REPEAT, gl.REPEAT)
     this.tex.set_interpolation(gl.NEAREST, gl.NEAREST)
-    this.tex.set_size([this._height, this._width], gl.RGBA)
-    this.tex.set_data([0, 0], [this._height, this._width], new Uint8Array(this._height * this._width * 4))
+    this.tex.set_size([this._width, this._height], gl.RGBA)
+    this.tex.set_data([0, 0], [this._width, this._height], new Uint8Array(4*this._width*this._height))
     // Init with solid line (index 0 is reserved for this)
     this.get_atlas_data([1])
   }
 
   get_atlas_data(pattern: number[]): [number, number] {
-    const key = pattern.join('-')
-    const findex_period = this._atlas[key]
-    if (findex_period === undefined) {
+    const key = pattern.join("-")
+    let atlas_data = this._atlas.get(key)
+    if (atlas_data == null) {
       const [data, period] = this.make_pattern(pattern)
-      this.tex.set_data([this._index, 0], [1, this._width], new Uint8Array(data.map((x) => x+10)))
-      this._atlas[key] = [this._index / this._height, period]
-      this._index += 1
+      const index = this._atlas.size
+      this.tex.set_data([0, index], [this._width, 1], new Uint8Array(data.map((x) => x + 10)))
+      atlas_data = [index/this._height, period]
+      this._atlas.set(key, atlas_data)
     }
-    return this._atlas[key]
+    return atlas_data
   }
 
   make_pattern(pattern: number[]): [Float32Array, number] {
@@ -98,9 +97,7 @@ const caps: {[key: string]: number} = {
   butt: 5, '|': 5,
 }
 
-export class LineGLGlyph extends BaseGLGlyph {
-  readonly glyph: LineView
-
+export class LineGL extends BaseGLGlyph {
   protected prog: Program
   protected index_buffer: IndexBuffer
   protected vbo_position: VertexBuffer
@@ -127,8 +124,9 @@ export class LineGLGlyph extends BaseGLGlyph {
 
   protected cumsum: number
 
-  protected init(): void {
-    const {gl} = this
+  constructor(gl: WebGLRenderingContext, readonly glyph: LineView) {
+    super(gl, glyph)
+
     this._scale_aspect = 0  // keep track, so we know when we need to update segment data
 
     const vert = vertex_shader
@@ -152,10 +150,6 @@ export class LineGLGlyph extends BaseGLGlyph {
     const mainGlGlyph = mainGlyph.glglyph!
 
     if (mainGlGlyph.data_changed) {
-      if (!(isFinite(trans.dx) && isFinite(trans.dy))) {
-        return  // not sure why, but it happens on init sometimes (#4367)
-      }
-      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  // float32 precision workaround; used in _bake() and below
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
@@ -165,17 +159,8 @@ export class LineGLGlyph extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    // Decompose x-y scale into scalar scale and aspect-vector.
-    let {sx, sy} = trans
-    const scale_length = Math.sqrt(sx*sx + sy*sy)
-    sx /= scale_length
-    sy /= scale_length
-
-    // Do we need to re-calculate segment data and cumsum?
-    if (Math.abs(this._scale_aspect - sy/sx) > Math.abs(1e-3 * this._scale_aspect)) {
-      mainGlGlyph._update_scale(sx, sy)
-      this._scale_aspect = sy / sx
-    }
+    mainGlGlyph._update_scale(1, 1)
+    this._scale_aspect = 1
 
     // Select buffers from main glyph
     // (which may be this glyph but maybe not if this is a (non)selection glyph)
@@ -189,12 +174,10 @@ export class LineGLGlyph extends BaseGLGlyph {
     this.prog.set_texture('u_dash_atlas', this.dash_atlas.tex)
 
     // Handle transformation to device coordinates
-    const baked_offset = mainGlGlyph._baked_offset
     this.prog.set_uniform('u_pixel_ratio', 'float', [trans.pixel_ratio])
     this.prog.set_uniform('u_canvas_size', 'vec2', [trans.width, trans.height])
-    this.prog.set_uniform('u_offset', 'vec2', [trans.dx - baked_offset[0], trans.dy - baked_offset[1]])
-    this.prog.set_uniform('u_scale_aspect', 'vec2', [sx, sy])
-    this.prog.set_uniform('u_scale_length', 'float', [scale_length])
+    this.prog.set_uniform('u_scale_aspect', 'vec2', [1, 1])
+    this.prog.set_uniform('u_scale_length', 'float', [Math.sqrt(2)])
 
     this.I_triangles = mainGlGlyph.I_triangles
     if (this.I_triangles.length < 65535) {
@@ -255,12 +238,15 @@ export class LineGLGlyph extends BaseGLGlyph {
   }
 
   protected _set_visuals(): void {
-    const color = color2rgba(this.glyph.visuals.line.line_color.value(), this.glyph.visuals.line.line_alpha.value())
-    const cap = caps[this.glyph.visuals.line.line_cap.value()]
-    const join = joins[this.glyph.visuals.line.line_join.value()]
+    const {line_color, line_alpha, line_width, line_cap, line_join, line_dash, line_dash_offset} = this.glyph.visuals.line
 
-    this.prog.set_uniform('u_color', 'vec4', color)
-    this.prog.set_uniform('u_linewidth', 'float', [this.glyph.visuals.line.line_width.value()])
+    const [r, g, b, a] = color2rgba(line_color.value(), line_alpha.value())
+    const width = line_width.value()
+    const cap = caps[line_cap.value()]
+    const join = joins[line_join.value()]
+
+    this.prog.set_uniform('u_color', 'vec4', [r/255, g/255, b/255, a/255])
+    this.prog.set_uniform('u_linewidth', 'float', [width])
     this.prog.set_uniform('u_antialias', 'float', [0.9])  // Smaller aa-region to obtain crisper images
 
     this.prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
@@ -268,13 +254,14 @@ export class LineGLGlyph extends BaseGLGlyph {
     this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-    const dash_pattern = this.glyph.visuals.line.line_dash.value()
-    let dash_index = 0; let dash_period = 1
+    const dash_pattern = line_dash.value()
+    let dash_index = 0
+    let dash_period = 1
     if (dash_pattern.length) {
       [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern)
     }
     this.prog.set_uniform('u_dash_index', 'float', [dash_index])  // 0 means solid line
-    this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.value()])
+    this.prog.set_uniform('u_dash_phase', 'float', [line_dash_offset.value()])
     this.prog.set_uniform('u_dash_period', 'float', [dash_period])
     this.prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
     this.prog.set_uniform('u_closed', 'float', [0])  // We dont do closed lines
@@ -296,8 +283,8 @@ export class LineGLGlyph extends BaseGLGlyph {
     // Init array of implicit shape nx2
     let I, T, V_angles2, V_position2, V_tangents2, V_texcoord2, Vp, Vt
     const n = this.nvertices
-    const _x = new Float64Array(this.glyph._x)
-    const _y = new Float64Array(this.glyph._y)
+    const sx = this.glyph.sx
+    const sy = this.glyph.sy
 
     // Init vertex data
     const V_position = (Vp = new Float32Array(n*2))
@@ -305,10 +292,10 @@ export class LineGLGlyph extends BaseGLGlyph {
     const V_angles = new Float32Array(n*2)
     const V_tangents = (Vt = new Float32Array(n*4))  // mind the 4!
 
-    // Position
+    // Position, replacing non-finite numbers with zeros
     for (let i = 0, end = n; i < end; i++) {
-      V_position[(i*2)+0] = _x[i] + this._baked_offset[0]
-      V_position[(i*2)+1] = _y[i] + this._baked_offset[1]
+      V_position[(i*2)+0] = isFinite(sx[i]) ? sx[i] : 0.0
+      V_position[(i*2)+1] = isFinite(sy[i]) ? sy[i] : 0.0
     }
 
     // Tangents & norms (need tangents to calculate segments based on scale)
@@ -337,12 +324,24 @@ export class LineGLGlyph extends BaseGLGlyph {
     // Angles
     const A = new Float32Array(n)
     for (let i = 0, end = n; i < end; i++) {
-      A[i] = Math.atan2((Vt[(i*4)+0]*Vt[(i*4)+3]) - (Vt[(i*4)+1]*Vt[(i*4)+2]),
-                        (Vt[(i*4)+0]*Vt[(i*4)+2]) + (Vt[(i*4)+1]*Vt[(i*4)+3]))
+      A[i] = Math.atan2(
+        (Vt[(i*4)+0]*Vt[(i*4)+3]) - (Vt[(i*4)+1]*Vt[(i*4)+2]),
+        (Vt[(i*4)+0]*Vt[(i*4)+2]) + (Vt[(i*4)+1]*Vt[(i*4)+3]),
+      )
     }
     for (let i = 0, end = n-1; i < end; i++) {
       V_angles[(i*2)+0] = A[i]
       V_angles[(i*2)+1] = A[i+1]
+    }
+
+    // Position, non-finite numbers
+    for (let i = 0, end = n; i < end; i++) {
+      if (!isFinite(sx[i])) {
+        V_position[(i*2)+0] = sx[i]
+      }
+      if (!isFinite(sy[i])) {
+        V_position[(i*2)+1] = sy[i]
+      }
     }
 
     // Step 1: A -- B -- C  =>  A -- B, B' -- C
@@ -413,7 +412,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     this.V_segment = (V_segment2 = new Float32Array(m*2))
     // Calculate vector lengths - with scale aspect ratio taken into account
     for (let i = 0, end = n-1; i < end; i++) {
-      N[i] = Math.sqrt(Math.pow(T[(i*2)+0] * sx, 2) + Math.pow(T[(i*2)+1] * sy, 2))
+      N[i] = Math.sqrt((T[(i*2)+0] * sx)**2 + (T[(i*2)+1] * sy)**2)
     }
     // Calculate Segments
     let cumsum = 0

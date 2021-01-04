@@ -1,81 +1,40 @@
 # Standard library imports
-import inspect
-import io
 import os
 import sys
 import warnings
 from json import loads
 
 # Bokeh imports
-import bokeh.models as models
 from bokeh.core.json_encoder import serialize_json
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
+import bokeh.models; bokeh.models # isort:skip
+
 dest_dir = sys.argv[1]
 
-classes = [member for name, member in inspect.getmembers(models) if inspect.isclass(member)]
-
-model_class = next(klass for klass in classes if klass.__name__ == 'Model')
-widget_class = next(klass for klass in classes if klass.__name__ == 'Widget')
-
-# getclasstree returns a list which contains [ (class, parentClass), [(subClassOfClass, class), ...]]
-# where the subclass list is omitted if there are no subclasses.
-# If you say unique=True then mixins will be registered as leaves so don't use unique=True,
-# and expect to have duplicates in the result of leaves()
-all_tree = inspect.getclasstree(classes, unique=False)
-
-def leaves(tree, underneath):
-    if len(tree) == 0:
-        return []
-    elif len(tree) > 1 and isinstance(tree[1], list):
-        subs = tree[1]
-        if underneath is None or tree[0][0] != underneath:
-            return leaves(subs, underneath) + leaves(tree[2:], underneath)
-        else:
-            # underneath=None to return all leaves from here out
-            return leaves(subs, underneath=None)
-    else:
-        leaf = tree[0]
-        tail = tree[1:]
-        if leaf[0] == underneath:
-            return [leaf]
-        elif underneath is not None:
-            return leaves(tail, underneath)
-        else:
-            return [leaf] + leaves(tail, underneath)
-
 all_json = {}
-for leaf in leaves(all_tree, model_class):
-    klass = leaf[0]
-    vm_name = klass.__view_model__
-    if vm_name in all_json:
-        continue
-    defaults = {}
+for name, model in Model.model_class_reverse_map.items():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
-        instance = klass()
-    props_with_values = instance.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
-    for name, default in props_with_values.items():
+        obj = model()
+
+    props_with_values = obj.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
+    defaults = {}
+
+    for attr, default in props_with_values.items():
         if isinstance(default, Model):
             struct = default.struct
             raw_attrs = default._to_json_like(include_defaults=True)
             attrs = loads(serialize_json(raw_attrs))
-            struct['attributes'] = attrs
-            del struct['id'] # there's no way the ID will match bokehjs
+            struct["attributes"] = attrs
+            del struct["id"] # there's no way the ID will match bokehjs
             default = struct
-        elif isinstance(default, float) and default == float('inf'):
+        elif isinstance(default, float) and default == float("inf"):
             default = None
-        defaults[name] = default
-    all_json[vm_name] = defaults
+        defaults[attr] = default
 
-widgets_json = {}
-for leaf_widget in leaves(all_tree, widget_class):
-    klass = leaf_widget[0]
-    vm_name = klass.__view_model__
-    if vm_name not in widgets_json:
-        widgets_json[vm_name] = all_json[vm_name]
-        del all_json[vm_name]
+    all_json[name] = defaults
 
 def output_defaults_module(filename, defaults):
     dest = os.path.join(dest_dir, ".generated_defaults", filename)
@@ -87,10 +46,9 @@ def output_defaults_module(filename, defaults):
 
     output = serialize_json(defaults, indent=2)
 
-    with io.open(dest, "w", encoding="utf-8") as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(output)
 
-    print("Wrote %s with %d model classes" % (filename, len(defaults)))
+    print("Wrote %s with %d models" % (filename, len(defaults)))
 
-output_defaults_module('models_defaults.json', all_json)
-output_defaults_module('widgets_defaults.json', widgets_json)
+output_defaults_module("defaults.json", all_json)

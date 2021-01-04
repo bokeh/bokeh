@@ -9,6 +9,7 @@ models in various ways.
 
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_JS
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_NB_JS
+.. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_REQUEST_TAG
 .. bokeh-jinja:: bokeh.core.templates.AUTOLOAD_TAG
 .. bokeh-jinja:: bokeh.core.templates.CSS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.DOC_JS
@@ -47,6 +48,7 @@ from jinja2 import Environment, FileSystemLoader, Markup
 __all__ = (
     'AUTOLOAD_JS',
     'AUTOLOAD_NB_JS',
+    'AUTOLOAD_REQUEST_TAG',
     'AUTOLOAD_TAG',
     'CSS_RESOURCES',
     'DOC_JS',
@@ -113,6 +115,8 @@ AUTOLOAD_JS = _env.get_template("autoload_js.js")
 AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
+
+AUTOLOAD_REQUEST_TAG = _env.get_template("autoload_request_tag.html")
 
 #-----------------------------------------------------------------------------
 # Code

@@ -20,12 +20,12 @@ export class CategoricalAxisView extends AxisView {
   model: CategoricalAxis
   visuals: CategoricalAxis.Visuals
 
-  protected _render(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
+  protected _paint(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     this._draw_group_separators(ctx, extents, tick_coords)
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
@@ -83,11 +83,11 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
     const info: [string[], Coords, Orient | number, visuals.Text][] = []
@@ -113,14 +113,13 @@ export class CategoricalAxisView extends AxisView {
     return info
   }
 
-  // {{{ TODO: state
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
 
     const coords: CategoricalTickCoords = {
       major: [[], []],
@@ -130,21 +129,20 @@ export class CategoricalAxisView extends AxisView {
     }
 
     coords.major[i] = ticks.major as any
-    coords.major[j] = ticks.major.map((_x) => this.loc)
+    coords.major[j] = ticks.major.map(() => this.loc)
 
     if (range.levels == 3) {
       coords.mids[i] = ticks.mids as any
-      coords.mids[j] = ticks.mids.map((_x) => this.loc)
+      coords.mids[j] = ticks.mids.map(() => this.loc)
     }
 
     if (range.levels > 1) {
       coords.tops[i] = ticks.tops as any
-      coords.tops[j] = ticks.tops.map((_x) => this.loc)
+      coords.tops[j] = ticks.tops.map(() => this.loc)
     }
 
     return coords
   }
-  // }}}
 }
 
 export namespace CategoricalAxis {
@@ -155,14 +153,17 @@ export namespace CategoricalAxis {
     formatter: p.Property<CategoricalTickFormatter>
     group_label_orientation: p.Property<TickLabelOrientation | number>
     subgroup_label_orientation: p.Property<TickLabelOrientation | number>
-  } & mixins.SeparatorLine
-    & mixins.GroupText
-    & mixins.SubGroupText
+  } & Mixins
+
+  export type Mixins =
+    mixins.SeparatorLine &
+    mixins.GroupText     &
+    mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
-    separator_line: visuals.Line,
-    group_text: visuals.Text,
-    subgroup_text: visuals.Text,
+    separator_line: visuals.Line
+    group_text: visuals.Text
+    subgroup_text: visuals.Text
   }
 }
 
@@ -170,6 +171,7 @@ export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
   properties: CategoricalAxis.Props
+  __view_type__: CategoricalAxisView
 
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter
@@ -181,27 +183,27 @@ export class CategoricalAxis extends Axis {
   static init_CategoricalAxis(): void {
     this.prototype.default_view = CategoricalAxisView
 
-    this.mixins([
-      "line:separator_",
-      "text:group_",
-      "text:subgroup_",
+    this.mixins<CategoricalAxis.Mixins>([
+      ["separator_", mixins.Line],
+      ["group_",     mixins.Text],
+      ["subgroup_",  mixins.Text],
     ])
 
-    this.define<CategoricalAxis.Props>({
-      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-    })
+    this.define<CategoricalAxis.Props>(({Number, Or}) => ({
+      group_label_orientation:    [ Or(TickLabelOrientation, Number), "parallel" ],
+      subgroup_label_orientation: [ Or(TickLabelOrientation, Number), "parallel" ],
+    }))
 
-    this.override({
+    this.override<CategoricalAxis.Props>({
       ticker: () => new CategoricalTicker(),
       formatter: () => new CategoricalTickFormatter(),
       separator_line_color: "lightgrey",
       separator_line_width: 2,
       group_text_font_style: "bold",
-      group_text_font_size: "8pt",
+      group_text_font_size: "11px",
       group_text_color: "grey",
       subgroup_text_font_style: "bold",
-      subgroup_text_font_size: "8pt",
+      subgroup_text_font_size: "11px",
     })
   }
 }

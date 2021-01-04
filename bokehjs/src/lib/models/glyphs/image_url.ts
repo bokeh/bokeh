@@ -1,9 +1,8 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect} from "core/types"
-import {Class} from "core/class"
+import {Arrayable, Rect, NumberArray} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
-import {map, min, max} from "core/util/arrayable"
+import {map, minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
@@ -11,21 +10,21 @@ import {ImageLoader} from "core/util/image"
 export type CanvasImage = HTMLImageElement
 
 export interface ImageURLData extends XYGlyphData {
-  _url: Arrayable<string>
-  _angle: Arrayable<number>
-  _w: Arrayable<number>
-  _h: Arrayable<number>
+  _url: string[]
+  _angle: NumberArray
+  _w: NumberArray
+  _h: NumberArray
   _bounds_rect: Rect
 
-  sx: Arrayable<number>
-  sy: Arrayable<number>
-  sw: Arrayable<number>
-  sh: Arrayable<number>
+  sx: NumberArray
+  sy: NumberArray
+  sw: NumberArray
+  sh: NumberArray
 
   max_w: number
   max_h: number
 
-  image: Arrayable<CanvasImage | null>
+  image: (CanvasImage | null)[]
 }
 
 export interface ImageURLView extends ImageURLData {}
@@ -41,8 +40,13 @@ export class ImageURLView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _index_data(): SpatialIndex {
-    return new SpatialIndex([])
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
+      // TODO: add a proper implementation (same as ImageBase?)
+      index.add_empty()
+    }
   }
 
   protected _set_data(): void {
@@ -72,28 +76,72 @@ export class ImageURLView extends XYGlyphView {
 
     const n = this._x.length
 
-    const xs = new Array<number>(w_data ? 2*n : n)
-    const ys = new Array<number>(h_data ? 2*n : n)
+    const xs = new NumberArray(w_data ? 2*n : n)
+    const ys = new NumberArray(h_data ? 2*n : n)
 
-    for (let i = 0; i < n; i++) {
-      xs[i] = this._x[i]
-      ys[i] = this._y[i]
+    const {anchor} = this.model
+
+    function x0x1(x: number, w: number): [number, number] {
+      switch (anchor) {
+        case "top_left":
+        case "bottom_left":
+        case "left":
+        case "center_left":
+          return [x, x + w]
+        case "top":
+        case "top_center":
+        case "bottom":
+        case "bottom_center":
+        case "center":
+        case "center_center":
+          return [x - w/2, x + w/2]
+        case "top_right":
+        case "bottom_right":
+        case "right":
+        case "center_right":
+          return [x - w, x]
+      }
+    }
+
+    function y0y1(y: number, h: number): [number, number] {
+      switch (anchor) {
+        case "top_left":
+        case "top":
+        case "top_center":
+        case "top_right":
+          return [y, y - h]
+        case "bottom_left":
+        case "bottom":
+        case "bottom_center":
+        case "bottom_right":
+          return [y + h, y]
+        case "left":
+        case "center_left":
+        case "center":
+        case "center_center":
+        case "right":
+        case "center_right":
+          return [y + h/2, y - h/2]
+      }
     }
 
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {
-      for (let i = 0; i < n; i++)
-        xs[n + i] = this._x[i] + this._w[i]
-    }
-    if (h_data) {
-      for (let i = 0; i < n; i++)
-        ys[n + i] = this._y[i] + this._h[i]
-    }
+      for (let i = 0; i < n; i++) {
+        [xs[i], xs[n + i]] = x0x1(this._x[i], this._w[i])
+      }
+    } else
+      xs.set(this._x, 0)
 
-    const x0 = min(xs)
-    const x1 = max(xs)
-    const y0 = min(ys)
-    const y1 = max(ys)
+    if (h_data) {
+      for (let i = 0; i < n; i++) {
+        [ys[i], ys[n + i]] = y0y1(this._y[i], this._h[i])
+      }
+    } else
+      ys.set(this._y, 0)
+
+    const [x0, x1] = minmax(xs)
+    const [y0, y1] = minmax(ys)
 
     this._bounds_rect = {x0, x1, y0, y1}
   }
@@ -108,27 +156,15 @@ export class ImageURLView extends XYGlyphView {
     const ws = this.model.w != null ? this._w : map(this._x, () => NaN)
     const hs = this.model.h != null ? this._h : map(this._x, () => NaN)
 
-    switch (this.model.properties.w.units) {
-      case "data": {
-        this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sw = ws
-        break
-      }
-    }
+    if (this.model.properties.w.units == "data")
+      this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
+    else
+      this.sw = ws
 
-    switch (this.model.properties.h.units) {
-      case "data": {
-        this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sh = hs
-        break
-      }
-    }
+    if (this.model.properties.h.units == "data")
+      this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
+    else
+      this.sh = hs
   }
 
   protected _render(ctx: Context2d, indices: number[],
@@ -137,8 +173,8 @@ export class ImageURLView extends XYGlyphView {
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
     ctx.rect(
-      frame._left.value+1, frame._top.value+1,
-      frame._width.value-2, frame._height.value-2,
+      frame.bbox.left+1, frame.bbox.top+1,
+      frame.bbox.width-2, frame.bbox.height-2,
     )
     ctx.clip()
 
@@ -167,14 +203,19 @@ export class ImageURLView extends XYGlyphView {
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
       case 'top_left':      return [sx, sy         ]
+      case 'top':
       case 'top_center':    return [sx - (sw/2), sy         ]
       case 'top_right':     return [sx - sw, sy         ]
+      case 'right':
       case 'center_right':  return [sx - sw, sy - (sh/2)]
       case 'bottom_right':  return [sx - sw, sy - sh    ]
+      case 'bottom':
       case 'bottom_center': return [sx - (sw/2), sy - sh    ]
       case 'bottom_left':   return [sx, sy - sh    ]
+      case 'left':
       case 'center_left':   return [sx, sy - (sh/2)]
-      case 'center':        return [sx - (sw/2), sy - (sh/2)]
+      case 'center':
+      case 'center_center': return [sx - (sw/2), sy - (sh/2)]
     }
   }
 
@@ -190,12 +231,23 @@ export class ImageURLView extends XYGlyphView {
 
     ctx.save()
     ctx.globalAlpha = this.model.global_alpha
+    const sw2 = sw[i]/2
+    const sh2 = sh[i]/2
 
     if (angle[i]) {
       ctx.translate(sxi, syi)
+
+      //rotation about center of image
+      ctx.translate(sw2, sh2)
       ctx.rotate(angle[i])
+      ctx.translate(-sw2, -sh2)
+
       ctx.drawImage(image, 0, 0, sw[i], sh[i])
+
+      ctx.translate(sw2, sh2)
       ctx.rotate(-angle[i])
+      ctx.translate(-sw2, -sh2)
+
       ctx.translate(-sxi, -syi)
     } else
       ctx.drawImage(image, sxi, syi, sw[i], sh[i])
@@ -230,7 +282,7 @@ export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
   properties: ImageURL.Props
-  default_view: Class<ImageURLView>
+  __view_type__: ImageURLView
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)
@@ -239,16 +291,16 @@ export class ImageURL extends XYGlyph {
   static init_ImageURL(): void {
     this.prototype.default_view = ImageURLView
 
-    this.define<ImageURL.Props>({
-      url:            [ p.StringSpec            ],
-      anchor:         [ p.Anchor,    'top_left' ],
-      global_alpha:   [ p.Number,    1.0        ],
-      angle:          [ p.AngleSpec, 0          ],
-      w:              [ p.DistanceSpec          ],
-      h:              [ p.DistanceSpec          ],
-      dilate:         [ p.Boolean,   false      ],
-      retry_attempts: [ p.Number,    0          ],
-      retry_timeout:  [ p.Number,    0          ],
-    })
+    this.define<ImageURL.Props>(({Boolean, Int, Alpha}) => ({
+      url:            [ p.StringSpec ],
+      anchor:         [ Anchor, "top_left" ],
+      global_alpha:   [ Alpha, 1.0 ],
+      angle:          [ p.AngleSpec, 0 ],
+      w:              [ p.DistanceSpec, null ], // TODO: nullable
+      h:              [ p.DistanceSpec, null ], // TODO: nullable
+      dilate:         [ Boolean, false ],
+      retry_attempts: [ Int, 0 ],
+      retry_timeout:  [ Int, 0 ],
+    }))
   }
 }

@@ -18,19 +18,18 @@ def display_event(div, attributes=[]):
     Function to build a suitable CustomJS to display the current event
     in the div model.
     """
-    style = 'float: left; clear: left; font-size: 10pt'
+    style = 'float: left; clear: left; font-size: 13px'
     return CustomJS(args=dict(div=div), code="""
-        var attrs = %s;
-        var args = [];
-        for (var i = 0; i<attrs.length; i++ ) {
-            var val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
-                return val.toFixed ? Number(val.toFixed(2)) : val;
-            })
+        const {to_string} = Bokeh.require("core/util/pretty")
+        const attrs = %s;
+        const args = [];
+        for (let i = 0; i<attrs.length; i++ ) {
+            const val = to_string(cb_obj[attrs[i]], {precision: 2})
             args.push(attrs[i] + '=' + val)
         }
-        var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
-        var text = div.text.concat(line);
-        var lines = text.split("\\n")
+        const line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        const text = div.text.concat(line);
+        const lines = text.split("\\n")
         if (lines.length > 35)
             lines.shift();
         div.text = lines.join("\\n");
@@ -44,7 +43,8 @@ def print_event(attributes=[]):
         cls_name = event.__class__.__name__
         attrs = ', '.join(['{attr}={val}'.format(attr=attr, val=event.__dict__[attr])
                        for attr in attributes])
-        print('{cls_name}({attrs})'.format(cls_name=cls_name, attrs=attrs))
+        print(f"{cls_name}({attrs})")
+
     return python_callback
 
 # Follows the color_scatter gallery example

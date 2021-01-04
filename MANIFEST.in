@@ -1,7 +1,15 @@
+# Include only unit tests
+prune tests
+graft tests/unit
+
+# Don't include documentation
+prune sphinx
+
 # Things to always exclude
 global-exclude .git*
 global-exclude .ipynb_checkpoints
 global-exclude *.py[co]
+global-exclude __pycache__/**
 
 # Top-level Config
 include CHANGELOG
@@ -12,16 +20,15 @@ include setup.cfg
 include versioneer.py
 include _setup_support.py
 
-# Tests
-recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png
-
-# Docs
-graft sphinx
-prune sphinx/_build
-
-# Examples
-recursive-include examples *.html *.py *.ipynb *.md *.yaml
-prune examples/embed/*.html
-prune examples/models/file/*.html
-prune examples/plotting/file/*.html
-prune examples/webgl/*.html
+# Package files and data
+include bokeh/LICENSE.txt
+graft bokeh/core/_templates
+graft bokeh/sampledata/_data
+graft bokeh/sphinxext/_templates
+graft bokeh/server/static
+exclude bokeh/server/static/js/*.json
+global-exclude *.js.map
+include bokeh/server/static/js/bokeh.json
+include bokeh/server/views/*.html
+include bokeh/util/sampledata.json
+include bokeh/_sri.json

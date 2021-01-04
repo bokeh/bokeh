@@ -5,12 +5,11 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {Model} from "../../model"
+import {Panel} from "./panel"
 
-import {bk_left, bk_right, bk_active, bk_side} from "styles/mixins"
-import {bk_tabs_header, bk_headers, bk_headers_wrapper, bk_tab, bk_close} from "styles/tabs"
-import {bk_btn, bk_btn_default, bk_btn_group} from "styles/buttons"
-import {bk_caret} from "styles/menus"
+import tabs_css, * as tabs from "styles/tabs.css"
+import buttons_css, * as buttons from "styles/buttons.css"
+import menus_css, * as menus from "styles/menus.css"
 
 export class TabsView extends LayoutDOMView {
   model: Tabs
@@ -26,6 +25,10 @@ export class TabsView extends LayoutDOMView {
     super.connect_signals()
     this.connect(this.model.properties.tabs.change, () => this.rebuild())
     this.connect(this.model.properties.active.change, () => this.on_active_change())
+  }
+
+  styles(): string[] {
+    return [...super.styles(), buttons_css, menus_css, tabs_css]
   }
 
   get child_models(): LayoutDOM[] {
@@ -128,13 +131,13 @@ export class TabsView extends LayoutDOMView {
     const vertical = loc == "above" || loc == "below"
 
     const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: [bk_tab, i == active ? bk_active : null]}, tab.title)
+      const el = div({class: [tabs.tab, i == active ? tabs.active : null]}, tab.title)
       el.addEventListener("click", (event) => {
         if (event.target == event.currentTarget)
           this.change_active(i)
       })
       if (tab.closable) {
-        const close_el = div({class: bk_close})
+        const close_el = div({class: tabs.close})
         close_el.addEventListener("click", (event) => {
           if (event.target == event.currentTarget) {
             this.model.tabs = remove_at(this.model.tabs, i)
@@ -148,11 +151,11 @@ export class TabsView extends LayoutDOMView {
       }
       return el
     })
-    this.headers_el = div({class: [bk_headers]}, headers)
-    this.wrapper_el = div({class: bk_headers_wrapper}, this.headers_el)
+    this.headers_el = div({class: [tabs.headers]}, headers)
+    this.wrapper_el = div({class: tabs.headers_wrapper}, this.headers_el)
 
-    const left_el = div({class: [bk_btn, bk_btn_default], disabled: ""}, div({class: [bk_caret, bk_left]}))
-    const right_el = div({class: [bk_btn, bk_btn_default]}, div({class: [bk_caret, bk_right]}))
+    const left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [menus.caret, tabs.left]}))
+    const right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [menus.caret, tabs.right]}))
 
     let scroll_index = 0
     const do_scroll = (dir: "left" | "right") => {
@@ -191,9 +194,9 @@ export class TabsView extends LayoutDOMView {
     left_el.addEventListener("click", do_scroll("left"))
     right_el.addEventListener("click", do_scroll("right"))
 
-    this.scroll_el = div({class: bk_btn_group}, left_el, right_el)
+    this.scroll_el = div({class: buttons.btn_group}, left_el, right_el)
 
-    this.header_el = div({class: [bk_tabs_header, bk_side(loc)]}, this.scroll_el, this.wrapper_el)
+    this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
     this.el.appendChild(this.header_el)
   }
 
@@ -208,9 +211,9 @@ export class TabsView extends LayoutDOMView {
 
     const headers = children(this.headers_el)
     for (const el of headers)
-      el.classList.remove(bk_active)
+      el.classList.remove(tabs.active)
 
-    headers[i].classList.add(bk_active)
+    headers[i].classList.add(tabs.active)
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -234,6 +237,7 @@ export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends LayoutDOM {
   properties: Tabs.Props
+  __view_type__: TabsView
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)
@@ -242,38 +246,10 @@ export class Tabs extends LayoutDOM {
   static init_Tabs(): void {
     this.prototype.default_view = TabsView
 
-    this.define<Tabs.Props>({
-      tabs:          [ p.Array,    []      ],
-      tabs_location: [ p.Location, "above" ],
-      active:        [ p.Number,   0       ],
-    })
-  }
-}
-
-export namespace Panel {
-  export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Model.Props & {
-    title: p.Property<string>
-    child: p.Property<LayoutDOM>
-    closable: p.Property<boolean>
-  }
-}
-
-export interface Panel extends Panel.Attrs {}
-
-export class Panel extends Model {
-  properties: Panel.Props
-
-  constructor(attrs?: Partial<Panel.Attrs>) {
-    super(attrs)
-  }
-
-  static init_Panel(): void {
-    this.define<Panel.Props>({
-      title:    [ p.String,  ""    ],
-      child:    [ p.Instance       ],
-      closable: [ p.Boolean, false ],
-    })
+    this.define<Tabs.Props>(({Int, Array, Ref}) => ({
+      tabs:          [ Array(Ref(Panel)), [] ],
+      tabs_location: [ Location, "above" ],
+      active:        [ Int, 0 ],
+    }))
   }
 }

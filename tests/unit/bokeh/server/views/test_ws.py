@@ -21,6 +21,7 @@ import logging
 from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
+from bokeh.server.views.auth_mixin import AuthMixin
 from bokeh.util.logconfig import basicConfig
 
 # Module under test
@@ -37,9 +38,8 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.asyncio
 async def test_send_message_raises(caplog) -> None:
-    class ExcMessage(object):
+    class ExcMessage:
         def send(self, handler):
             raise WebSocketClosedError()
     assert len(caplog.records) == 0
@@ -49,6 +49,9 @@ async def test_send_message_raises(caplog) -> None:
         assert len(caplog.records) == 1
         assert caplog.text.endswith("Failed sending message as connection was closed\n")
         assert ret is None
+
+def test_uses_auth_mixin() -> None:
+    assert issubclass(WSHandler, AuthMixin)
 
 #-----------------------------------------------------------------------------
 # Dev API

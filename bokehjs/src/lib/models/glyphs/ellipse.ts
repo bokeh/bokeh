@@ -23,6 +23,7 @@ export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends EllipseOval {
   properties: Ellipse.Props
+  __view_type__: EllipseView
 
   constructor(attrs?: Partial<Ellipse.Attrs>) {
     super(attrs)

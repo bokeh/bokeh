@@ -57,6 +57,7 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'ServerSentDataSource',
+    'WebDataSource',
     'WebSource',
 )
 
@@ -71,7 +72,9 @@ class DataSource(Model):
     '''
 
     selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
-    A Selection that indicates selected indices on this ``DataSource``.
+    An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
+    This is a read-only property. You may only change the attributes of this object
+    to change the selection (e.g., ``selected.indices``).
     """)
 
 @abstract
@@ -167,7 +170,7 @@ class ColumnDataSource(ColumnarDataSource):
         PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
     ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
-    ).asserts(lambda _, data: len(set(len(x) for x in data.values())) <= 1,
+    ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warnings.warn(
                     "ColumnDataSource's columns must be of the same length. " +
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
@@ -707,7 +710,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     """)
 
 @abstract
-class WebSource(ColumnDataSource):
+class WebDataSource(ColumnDataSource):
     ''' Base class for web column data sources that can update from data
     URLs.
 
@@ -742,13 +745,16 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-class ServerSentDataSource(WebSource):
+# TODO: deprecated, remove at bokeh 3.0
+WebSource = WebDataSource
+
+class ServerSentDataSource(WebDataSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(WebSource):
+class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 

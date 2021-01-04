@@ -1,16 +1,16 @@
-import {Scale} from "./scale"
-import {Arrayable} from "core/types"
+import {ContinuousScale} from "./continuous_scale"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LinearScale {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Scale.Props
+  export type Props = ContinuousScale.Props
 }
 
 export interface LinearScale extends LinearScale.Attrs {}
 
-export class LinearScale extends Scale {
+export class LinearScale extends ContinuousScale {
   properties: LinearScale.Props
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
@@ -18,45 +18,18 @@ export class LinearScale extends Scale {
   }
 
   compute(x: number): number {
-    const [factor, offset] = this._compute_state()
-    return factor * x + offset
+    return this._linear_compute(x)
   }
 
-  v_compute(xs: Arrayable<number>): Arrayable<number> {
-    const [factor, offset] = this._compute_state()
-    const result = new Float64Array(xs.length)
-    for (let i = 0; i < xs.length; i++)
-      result[i] = factor*xs[i] + offset
-    return result
+  v_compute(xs: Arrayable<number>): NumberArray {
+    return this._linear_v_compute(xs)
   }
 
   invert(xprime: number): number {
-    const [factor, offset] = this._compute_state()
-    return (xprime - offset) / factor
+    return this._linear_invert(xprime)
   }
 
-  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
-    const [factor, offset] = this._compute_state()
-    const result = new Float64Array(xprimes.length)
-    for (let i = 0; i < xprimes.length; i++)
-      result[i] = (xprimes[i] - offset) / factor
-    return result
-  }
-
-  /*protected*/ _compute_state(): [number, number] {
-    //
-    //  (t1 - t0)       (t1 - t0)
-    //  --------- * x - --------- * s0 + t0
-    //  (s1 - s0)       (s1 - s0)
-    //
-    // [  factor  ]     [    offset    ]
-    //
-    const source_start = this.source_range.start
-    const source_end   = this.source_range.end
-    const target_start = this.target_range.start
-    const target_end   = this.target_range.end
-    const factor = (target_end - target_start)/(source_end - source_start)
-    const offset = -(factor * source_start) + target_start
-    return [factor, offset]
+  v_invert(xprimes: Arrayable<number>): NumberArray {
+    return this._linear_v_invert(xprimes)
   }
 }

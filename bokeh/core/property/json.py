@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the JSON property.
+""" Provide the JSON property.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -34,7 +34,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class JSON(String):
-    ''' Accept JSON string values.
+    """ Accept JSON string values.
 
     The value is transmitted and received by BokehJS as a *string*
     containing JSON content. i.e., you must use ``JSON.parse`` to unpack
@@ -58,17 +58,18 @@ class JSON(String):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None: return
+        if value is None:
+            return
 
         try:
             import json
             json.loads(value)
         except ValueError:
-            msg = "" if not detail else "expected JSON text, got %r" % value
+            msg = "" if not detail else f"expected JSON text, got {value!r}"
             raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

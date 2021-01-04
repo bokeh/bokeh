@@ -1,17 +1,15 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
-import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Class} from "core/class"
 import {Size} from "core/layout"
+import {SideLayout} from "core/layout/side_panel"
 import {measure_font} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every} from "core/util/array"
-import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
@@ -20,8 +18,16 @@ export class LegendView extends AnnotationView {
   model: Legend
   visuals: Legend.Visuals
 
+  update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size())
+    else
+      this.layout = undefined
+  }
+
   protected max_label_height: number
-  protected text_widths: {[key: string]: number}
+  protected text_widths: Map<string, number>
   protected title_height: number
   protected title_width: number
 
@@ -35,8 +41,8 @@ export class LegendView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.item_change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.item_change, () => this.request_render())
   }
 
   compute_legend_bbox(): BBox {
@@ -50,12 +56,12 @@ export class LegendView extends AnnotationView {
     )
 
     // this is to measure text properties
-    const { ctx } = this.plot_view.canvas_view
+    const {ctx} = this.layer
     ctx.save()
     this.visuals.label_text.set_value(ctx)
-    this.text_widths = {}
+    this.text_widths = new Map()
     for (const name of legend_names) {
-      this.text_widths[name] = max([ctx.measureText(name).width, label_width])
+      this.text_widths.set(name, max([ctx.measureText(name).width, label_width]))
     }
 
     this.visuals.title_text.set_value(ctx)
@@ -64,7 +70,7 @@ export class LegendView extends AnnotationView {
 
     ctx.restore()
 
-    const max_label_width = Math.max(max(values(this.text_widths)), 0)
+    const max_label_width = Math.max(max([...this.text_widths.values()]), 0)
 
     const legend_margin = this.model.margin
     const {legend_padding} = this
@@ -77,15 +83,14 @@ export class LegendView extends AnnotationView {
       legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
       let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
-      for (const name in this.text_widths) {
-        const width = this.text_widths[name]
+      for (const [, width] of this.text_widths) {
         item_width += max([width, label_width]) + glyph_width + label_standoff
       }
       legend_width = max([this.title_width + 2*legend_padding, item_width])
       legend_height = this.max_label_height + this.title_height + 2*legend_padding
     }
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
 
     const {location} = this.model
@@ -96,6 +101,7 @@ export class LegendView extends AnnotationView {
           sx = hr.start + legend_margin
           sy = vr.start + legend_margin
           break
+        case 'top':
         case 'top_center':
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.start + legend_margin
@@ -108,6 +114,7 @@ export class LegendView extends AnnotationView {
           sx = hr.end - legend_margin - legend_width
           sy = vr.end - legend_margin - legend_height
           break
+        case 'bottom':
         case 'bottom_center':
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.end - legend_margin - legend_height
@@ -116,14 +123,17 @@ export class LegendView extends AnnotationView {
           sx = hr.start + legend_margin
           sy = vr.end - legend_margin - legend_height
           break
+        case 'left':
         case 'center_left':
           sx = hr.start + legend_margin
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
         case 'center':
+        case 'center_center':
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
+        case 'right':
         case 'center_right':
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
@@ -131,8 +141,8 @@ export class LegendView extends AnnotationView {
       }
     } else if (isArray(location) && location.length == 2) {
       const [vx, vy] = location
-      sx = panel.xview.compute(vx)
-      sy = panel.yview.compute(vy) - legend_height
+      sx = panel.bbox.xview.compute(vx)
+      sy = panel.bbox.yview.compute(vy) - legend_height
     } else
       unreachable()
 
@@ -150,10 +160,10 @@ export class LegendView extends AnnotationView {
 
   on_hit(sx: number, sy: number): boolean {
     let yoffset
-    const { glyph_width } = this.model
-    const { legend_padding } = this
+    const {glyph_width} = this.model
+    const {legend_padding} = this
     const legend_spacing = this.model.spacing
-    const { label_standoff } = this.model
+    const {label_standoff} = this.model
 
     let xoffset = (yoffset = legend_padding)
 
@@ -171,7 +181,7 @@ export class LegendView extends AnnotationView {
         if (vertical)
           [w, h] = [legend_bbox.width - 2*legend_padding, this.max_label_height]
         else
-          [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]
+          [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
 
         const bbox = new BBox({left: x1, top: y1, width: w, height: h})
 
@@ -194,17 +204,14 @@ export class LegendView extends AnnotationView {
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths[label] + glyph_width + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
       }
     }
 
     return false
   }
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     if (this.model.items.length == 0)
       return
 
@@ -214,7 +221,7 @@ export class LegendView extends AnnotationView {
       item.legend = this.model
     }
 
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     const bbox = this.compute_legend_bbox()
 
     ctx.save()
@@ -271,13 +278,13 @@ export class LegendView extends AnnotationView {
         if (vertical)
           yoffset += this.max_label_height + legend_spacing
         else
-          xoffset += this.text_widths[label] + glyph_width + label_standoff + legend_spacing
+          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
 
         this.visuals.label_text.set_value(ctx)
         ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
         for (const r of item.renderers) {
-          const view = this.plot_view.renderer_views[r.id] as GlyphRendererView
-          view.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
+          const view = this.plot_view.renderer_view(r)
+          view?.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
         }
 
         if (!active) {
@@ -285,7 +292,7 @@ export class LegendView extends AnnotationView {
           if (vertical)
             [w, h] = [bbox.width - 2*legend_padding, this.max_label_height]
           else
-            [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]
+            [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
 
           ctx.beginPath()
           ctx.rect(x1, y1, w, h)
@@ -322,8 +329,8 @@ export namespace Legend {
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<string>,
-    title_standoff: p.Property<number>,
+    title: p.Property<string>
+    title_standoff: p.Property<number>
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
     glyph_width: p.Property<number>
@@ -334,10 +341,14 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
-  } & mixins.LabelText
-    & mixins.InactiveFill
-    & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.LabelText      &
+    mixins.TitleText      &
+    mixins.InactiveFill   &
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
@@ -352,7 +363,7 @@ export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   properties: Legend.Props
-  default_view: Class<LegendView>
+  __view_type__: LegendView
 
   item_change: Signal0<this>
 
@@ -368,32 +379,32 @@ export class Legend extends Annotation {
   static init_Legend(): void {
     this.prototype.default_view = LegendView
 
-    this.mixins([
-      'text:label_',
-      'text:title_',
-      'fill:inactive_',
-      'line:border_',
-      'fill:background_',
+    this.mixins<Legend.Mixins>([
+      ["label_",      mixins.Text],
+      ["title_",      mixins.Text],
+      ["inactive_",   mixins.Fill],
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>({
-      orientation:      [ p.Orientation,    'vertical'  ],
-      location:         [ p.Any,            'top_right' ], // TODO (bev)
-      title:            [ p.String                      ],
-      title_standoff:   [ p.Number,         5           ],
-      label_standoff:   [ p.Number,         5           ],
-      glyph_height:     [ p.Number,         20          ],
-      glyph_width:      [ p.Number,         20          ],
-      label_height:     [ p.Number,         20          ],
-      label_width:      [ p.Number,         20          ],
-      margin:           [ p.Number,         10          ],
-      padding:          [ p.Number,         10          ],
-      spacing:          [ p.Number,         3           ],
-      items:            [ p.Array,          []          ],
-      click_policy:     [ p.Any,            "none"      ],
-    })
+    this.define<Legend.Props>(({Number, String, Array, Tuple, Or, Ref}) => ({
+      orientation:      [ Orientation, "vertical" ],
+      location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
+      title:            [ String ],
+      title_standoff:   [ Number, 5 ],
+      label_standoff:   [ Number, 5 ],
+      glyph_height:     [ Number, 20 ],
+      glyph_width:      [ Number, 20 ],
+      label_height:     [ Number, 20 ],
+      label_width:      [ Number, 20 ],
+      margin:           [ Number, 10 ],
+      padding:          [ Number, 10 ],
+      spacing:          [ Number, 3 ],
+      items:            [ Array(Ref(LegendItem)), [] ],
+      click_policy:     [ LegendClickPolicy, "none" ],
+    }))
 
-    this.override({
+    this.override<Legend.Props>({
       border_line_color: "#e5e5e5",
       border_line_alpha: 0.5,
       border_line_width: 1,
@@ -401,9 +412,9 @@ export class Legend extends Annotation {
       background_fill_alpha: 0.95,
       inactive_fill_color: "white",
       inactive_fill_alpha: 0.7,
-      label_text_font_size: "10pt",
+      label_text_font_size: "13px",
       label_text_baseline: "middle",
-      title_text_font_size: "10pt",
+      title_text_font_size: "13px",
       title_text_font_style: "italic",
     })
   }

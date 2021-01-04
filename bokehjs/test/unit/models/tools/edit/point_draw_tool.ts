@@ -1,18 +1,18 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
-import {create_hit_test_result_from_hits} from "@bokehjs/core/hittest"
 import {build_view} from "@bokehjs/core/build_views"
 
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PointDrawTool, PointDrawToolView} from "@bokehjs/models/tools/edit/point_draw_tool"
 
-import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
@@ -50,8 +50,8 @@ async function make_testcase(): Promise<PointDrawTestCase> {
   plot.add_tools(draw_tool)
   await plot_view.ready
 
-  const draw_tool_view = plot_view.tool_views[draw_tool.id] as PointDrawToolView
-  plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
+  const draw_tool_view = plot_view.tool_views.get(draw_tool)! as PointDrawToolView
+  plot_view.renderer_views.set(glyph_renderer, glyph_renderer_view)
 
   return {
     data,
@@ -66,11 +66,11 @@ describe("PointDrawTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new PointDrawTool()
-      expect(tool.tooltip).to.be.equal('Point Draw Tool')
+      const tool0 = new PointDrawTool()
+      expect(tool0.tooltip).to.be.equal("Point Draw Tool")
 
-      const custom_tool = new PointDrawTool({custom_tooltip: 'Point Draw Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Point Draw Custom')
+      const tool1 = new PointDrawTool({description: "My Point Draw"})
+      expect(tool1.tooltip).to.be.equal("My Point Draw")
     })
   })
 
@@ -80,25 +80,25 @@ describe("PointDrawTool", (): void => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
+      expect(testcase.data_source.selected.indices).to.be.equal([1])
     })
 
     it("should select multiple point on shift-tap", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       let tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
-      hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]))
+      hit_test_stub.returns(new Selection({indices: [2]}))
       tap_event = make_tap_event(560, 560, true)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([2, 1])
+      expect(testcase.data_source.selected.indices).to.be.equal([1, 2])
     })
 
     it("should add point on tap", async () => {
@@ -109,9 +109,9 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, 0.04424778761061947])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.3389830508474576])
     })
 
     it("should add and pop point on tap", async () => {
@@ -123,9 +123,9 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0.5, 1, 0.04424778761061947])
+      expect(testcase.data_source.data.y).to.be.equal([0.5, 1, 0.3389830508474576])
     })
 
     it("should insert empty_value on other columns", async () => {
@@ -136,14 +136,14 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null, 'Test'])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null, 'Test'])
     })
 
     it("should delete selected on delete key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -152,17 +152,17 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null])
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 1])
+      expect(testcase.data_source.data.y).to.be.equal([0, 1])
+      expect(testcase.data_source.data.z).to.be.equal([null, null])
     })
 
     it("should clear selection on escape key", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(560, 560)
       testcase.draw_tool_view._tap(tap_event)
 
@@ -171,82 +171,82 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data).to.be.deep.equal(testcase.data)
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
     it("should drag point on pan", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       let drag_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([300, 300])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([200, 200])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
+      expect(testcase.draw_tool_view._basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
     })
 
     it("should drag previously selected on pan", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
       hit_test_stub.returns(null)
       let drag_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([300, 300])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([200, 200])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
+      expect(testcase.draw_tool_view._basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
     })
 
     it("should drag all selected points on pan", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
+      hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._tap(tap_event)
 
-      hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]))
+      hit_test_stub.returns(new Selection({indices: [2]}))
       let drag_event = make_pan_event(300, 300, true)
       testcase.draw_tool_view._pan_start(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([300, 300])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200])
+      expect(testcase.draw_tool_view._basepoint).to.be.equal([200, 200])
 
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
-      expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 0.6460176991150443])
-      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
+      expect(testcase.draw_tool_view._basepoint).to.be.null
+      expect(testcase.data_source.selected.indices).to.be.equal([])
+      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 0.6460176991150443])
+      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1.3389830508474576])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
     })
   })
 })

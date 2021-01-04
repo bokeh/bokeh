@@ -17,6 +17,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import asyncio
+import calendar
+import datetime as dt
 import json
 from typing import Any, Dict, Optional, Set
 from urllib.parse import parse_qs, urljoin, urlparse
@@ -44,7 +46,13 @@ from bokeh.server.protocol_handler import ProtocolHandler
 from bokeh.server.session import ServerSession
 from bokeh.server.views.static_handler import StaticHandler
 from bokeh.settings import settings
-from bokeh.util.session_id import check_session_id_signature, generate_session_id
+from bokeh.util.token import (
+    check_token_signature,
+    generate_jwt_token,
+    generate_session_id,
+    get_session_id,
+    get_token_payload,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -90,7 +98,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
     application_context: ApplicationContext
 
     def __init__(self, scope: Dict[str, Any]) -> None:
-        super(SessionConsumer, self).__init__(scope)
+        super().__init__(scope)
 
         kwargs = self.scope["url_route"]["kwargs"]
         self.application_context = kwargs["app_context"]
@@ -100,8 +108,17 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
             self.application_context._loop = IOLoop.current()
 
     async def _get_session(self) -> ServerSession:
-        session_id = generate_session_id(secret_key=None, signed=False)
-        session = await self.application_context.create_session_if_needed(session_id, self.request)
+        session_id = self.arguments.get('bokeh-session-id',
+                                        generate_session_id(secret_key=None, signed=False))
+        payload = {'headers': {k.decode('utf-8'): v.decode('utf-8')
+                               for k, v in self.request.headers},
+                   'cookies': dict(self.request.cookies)}
+        token = generate_jwt_token(session_id,
+                                   secret_key=None,
+                                   signed=False,
+                                   expiration=300,
+                                   extra_payload=payload)
+        session = await self.application_context.create_session_if_needed(session_id, self.request, token)
         return session
 
 class AutoloadJsConsumer(SessionConsumer):
@@ -126,11 +143,17 @@ class AutoloadJsConsumer(SessionConsumer):
         resources = self.resources(server_url) if resources_param != "none" else None
         bundle = bundle_for_objs_and_resources(None, resources)
 
-        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
+        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
-        await self.send_response(200, js.encode(), headers=[(b"Content-Type", b"application/javascript")])
+        headers = [
+            (b"Access-Control-Allow-Headers", b"*"),
+            (b"Access-Control-Allow-Methods", b"PUT, GET, OPTIONS"),
+            (b"Access-Control-Allow-Origin", b"*"),
+            (b"Content-Type", b"application/javascript")
+        ]
+        await self.send_response(200, js.encode(), headers=headers)
 
 class DocConsumer(SessionConsumer):
 
@@ -150,7 +173,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
     application_context: ApplicationContext
 
     def __init__(self, scope: Dict[str, Any]) -> None:
-        super(WSConsumer, self).__init__(scope)
+        super().__init__(scope)
 
         kwargs = self.scope['url_route']["kwargs"]
         self.application_context = kwargs["app_context"]
@@ -164,16 +187,30 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
     async def connect(self):
         log.info('WebSocket connection opened')
 
-        session_id = self.get_argument("bokeh-session-id")
-        if session_id is None:
+        subprotocols = self.scope["subprotocols"]
+        if len(subprotocols) != 2 or subprotocols[0] != 'bokeh':
             self.close()
-            raise RuntimeError("No bokeh-session-id specified")
+            raise RuntimeError("Subprotocol header is not 'bokeh'")
 
-        if not check_session_id_signature(session_id,
-                                          signed=False,
-                                          secret_key=None):
-            log.error("Session id had invalid signature: %r", session_id)
-            raise RuntimeError("Invalid session ID")
+        token = subprotocols[1]
+        if token is None:
+            self.close()
+            raise RuntimeError("No token received in subprotocol header")
+
+        now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
+        payload = get_token_payload(token)
+        if 'session_expiry' not in payload:
+            self.close()
+            raise RuntimeError("Session expiry has not been provided")
+        elif now >= payload['session_expiry']:
+            self.close()
+            raise RuntimeError("Token is expired.")
+        elif not check_token_signature(token,
+                                       signed=False,
+                                       secret_key=None):
+            session_id = get_session_id(token)
+            log.error("Token for session %r had invalid signature", session_id)
+            raise RuntimeError("Invalid token signature")
 
         def on_fully_opened(future):
             e = future.exception()
@@ -183,16 +220,16 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
                 # immediately, most likely.
                 log.debug("Failed to fully open connlocksection %r", e)
 
-        future = self._async_open(session_id)
+        future = self._async_open(token)
 
         # rewrite above line using asyncio
         # this task is scheduled to run soon once context is back to event loop
         task = asyncio.ensure_future(future)
         task.add_done_callback(on_fully_opened)
-        await self.accept()
+        await self.accept("bokeh")
 
     async def disconnect(self, close_code):
-        pass
+        self.connection.session.destroy()
 
     async def receive(self, text_data) -> None:
         fragment = text_data
@@ -203,9 +240,10 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
             if work:
                 await self._send_bokeh_message(work)
 
-    async def _async_open(self, session_id: str) -> None:
+    async def _async_open(self, token: str) -> None:
         try:
-            await self.application_context.create_session_if_needed(session_id, self.request)
+            session_id = get_session_id(token)
+            await self.application_context.create_session_if_needed(session_id, self.request, token)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol()

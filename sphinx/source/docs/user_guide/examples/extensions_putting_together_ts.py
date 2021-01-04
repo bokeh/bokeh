@@ -22,11 +22,11 @@ export class CustomView extends HTMLBoxView {
   }
 
   render(): void {
-    // BokehJS Views create <div> elements by default, accessible as ``this.el``.
-    // Many Bokeh views extend this default <div> with additional elements
-    // (e.g. <canvas>), and instead do things like paint on the HTML canvas.
-    // In this case though, we change the contents of the <div>, based on the
-    // current slider value.
+    // BokehJS views create <div> elements by default. These are accessible
+    // as ``this.el``. Many Bokeh views ignore the default <div> and
+    // instead do things like draw to the HTML canvas. In this case though,
+    // the program changes the contents of the <div> based on the current
+    // slider value.
     super.render()
 
     this.content_el = div({style: {
@@ -59,6 +59,7 @@ export interface Custom extends Custom.Attrs {}
 
 export class Custom extends HTMLBox {
   properties: Custom.Props
+  __view_type__: CustomView
 
   constructor(attrs?: Partial<Custom.Attrs>) {
     super(attrs)
@@ -68,19 +69,21 @@ export class Custom extends HTMLBox {
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView
 
-    // The define block adds corresponding "properties" to the JS model. These
-    // should normally line up 1-1 with the Python model class. Most property
-    // types have counterparts, e.g. bokeh.core.properties.String will be
-    // ``p.String`` in the JS implementation. Any time the JS type system is not
-    // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-    this.define<Custom.Props>({
-      text:   [ p.String ],
-      slider: [ p.Any    ],
-    })
+    // The this.define() block adds corresponding "properties" to the JS
+    // model. These should normally line up 1-1 with the Python model
+    // class. Most property types have counterparts. For example,
+    // bokeh.core.properties.String will correspond to ``String`` in the
+    // JS implementation. Where JS lacks a given type, you can use
+    // ``p.Any`` as a "wildcard" property type.
+    this.define<Custom.Props>(({String, Ref}) => ({
+      text:   [ String ],
+      slider: [ Ref(Slider) ],
+    }))
 
-    this.override({
+    this.override<Custom.Props>({
       margin: 5,
     })
+
   }
 }
 """

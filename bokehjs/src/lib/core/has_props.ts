@@ -2,49 +2,49 @@
 import {View} from "./view"
 import {Class} from "./class"
 import {Attrs} from "./types"
-import {Signal0, Signal, Signalable} from "./signaling"
-import * as property_mixins from "./property_mixins"
+import {Signal0, Signal, Signalable, ISignalable} from "./signaling"
 import {Struct, Ref, is_ref} from "./util/refs"
 import * as p from "./properties"
+import * as k from "./kinds"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
-import {max, copy} from "./util/array"
-import {values, clone, isEmpty} from "./util/object"
-import {isPlainObject, isObject, isArray, isFunction} from "./util/types"
-import {isEqual} from './util/eq'
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {Document} from "../document"
+import {values, entries, extend} from "./util/object"
+import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
+import {is_equal} from './util/eq'
+import {serialize, Serializable, Serializer} from "./serializer"
+import type {Document} from "../document/document"
+import {DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document/events"
+import {equals, Equatable, Comparator} from "./util/eq"
+import {pretty, Printable, Printer} from "./util/pretty"
+import {clone, Cloneable, Cloner} from "./util/cloneable"
+import * as kinds from "./kinds"
 
 export module HasProps {
   export type Attrs = p.AttrsOf<Props>
+  export type Props = {}
 
-  export type Props = {
-    id: p.Property<string>
-  }
-
-  export interface SetOptions {
+  export type SetOptions = {
     check_eq?: boolean
     silent?: boolean
     no_change?: boolean
-    defaults?: boolean
     setter_id?: string
   }
 }
 
-export interface HasProps extends HasProps.Attrs {
+export interface HasProps extends HasProps.Attrs, ISignalable {
   constructor: Function & {
     __name__: string
     __module__?: string
     __qualified__: string
   }
-
-  // XXX: this may indicate a bug in the compiler, because --project and
-  // --build disagree whether this is necessary or not (it shouldn't).
-  id: string
 }
 
-export abstract class HasProps extends Signalable() {
+export type PropertyGenerator = Generator<Property, void, undefined>
+
+export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
   __view_type__: View
+
+  readonly id: string
 
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
@@ -64,47 +64,43 @@ export abstract class HasProps extends Signalable() {
     return __module__ != null ? `${__module__}.${__name__}` : __name__
   }
 
-  static init_HasProps(): void {
-    this.prototype.props = {}
-    this.prototype.mixins = []
-
-    this.define<HasProps.Props>({
-      id: [ p.Any ],
-    })
+  static get [Symbol.toStringTag](): string {
+    return this.__name__
   }
 
-  // {{{ prototype
+  static init_HasProps(): void {
+    this.prototype._props = {}
+    this.prototype._mixins = []
+  }
+
+  /** @prototype */
   default_view: Class<View, [View.Options]>
-  props: {[key: string]: {
-    type: Class<Property<any>>,  // T
-    default_value: any,          // T
-    internal: boolean,
+
+  /** @prototype */
+  _props: {[key: string]: {
+    type: p.PropertyConstructor<unknown>
+    default_value?: (self: HasProps) => unknown // T
+    options: p.PropertyOptions<unknown>
   }}
-  mixins: string[]
-  // }}}
+
+  /** @prototype */
+  _mixins: [string, object][]
 
   private static _fix_default(default_value: any, _attr: string): undefined | (() => any) {
-    if (default_value === undefined)
-      return undefined
-    else if (isFunction(default_value))
+    if (default_value === undefined || isFunction(default_value))
       return default_value
-    else if (!isObject(default_value))
+    else if (isPrimitive(default_value))
       return () => default_value
     else {
-      //logger.warn(`${this.prototype.type}.${attr} uses unwrapped non-primitive default value`)
-
-      if (isArray(default_value))
-        return () => copy(default_value)
-      else
-        return () => clone(default_value)
+      const cloner = new Cloner()
+      return () => cloner.clone(default_value)
     }
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
-  static define<T>(obj: Partial<p.DefineOf<T>>): void {
-    for (const name in obj) {
-      const prop = obj[name]
-      if (this.prototype.props[name] != null)
+  static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
+      if (this.prototype._props[name] != null)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)
 
       if ((this.prototype as any)[name] != null)
@@ -113,7 +109,7 @@ export abstract class HasProps extends Signalable() {
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
         get(this: HasProps): any {
-          const value = this.getv(name)
+          const value = this.properties[name].get_value()
           return value
         },
         set(this: HasProps, value: any): HasProps {
@@ -124,48 +120,65 @@ export abstract class HasProps extends Signalable() {
         enumerable: true,
       })
 
-      const [type, default_value, internal] = prop as any
+      const [type, default_value, options] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
-        internal: internal || false,
+        options,
       }
 
-      const props = clone(this.prototype.props)
+      const props = {...this.prototype._props}
       props[name] = refined_prop
-      this.prototype.props = props
+      this.prototype._props = props
     }
   }
 
-  static internal(obj: any): void {
+  static internal<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
     const _object: any = {}
-    for (const name in obj) {
-      const prop = obj[name]
-      const [type, default_value] = prop
-      _object[name] = [type, default_value, true]
+    for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
+      const [type, default_value, options = {}] = prop as any
+      _object[name] = [type, default_value, {...options, internal: true}]
     }
     this.define(_object)
   }
 
-  static mixin(...names: string[]): void {
-    this.define(property_mixins.create(names) as any)
-    const mixins = this.prototype.mixins.concat(names)
-    this.prototype.mixins = mixins
+  static mixins<_T>(defs: Attrs | (Attrs | [string, Attrs])[]): void {
+    function rename(prefix: string, mixin: Attrs): Attrs {
+      const result: Attrs = {}
+      for (const [name, prop] of entries(mixin)) {
+        result[prefix + name] = prop
+      }
+      return result
+    }
+
+    const mixin_defs: Attrs = {}
+    const mixins: [string, Attrs][] = []
+
+    for (const def of isArray(defs) ? defs : [defs]) {
+      if (isArray(def)) {
+        const [prefix, mixin] = def
+        extend(mixin_defs, rename(prefix, mixin))
+        mixins.push([prefix, mixin])
+      } else {
+        const mixin = def
+        extend(mixin_defs, mixin)
+        mixins.push(["", mixin])
+      }
+    }
+
+    this.define(mixin_defs as any)
+    this.prototype._mixins = [...this.prototype._mixins, ...mixins]
   }
 
-  static mixins(names: string[]): void {
-    this.mixin(...names)
-  }
-
-  static override(obj: any): void {
-    for (const name in obj) {
-      const default_value = this._fix_default(obj[name], name)
-      const value = this.prototype.props[name]
+  static override<T>(obj: Partial<p.DefaultsOf<T>>): void {
+    for (const [name, prop] of entries(obj)) {
+      const default_value = this._fix_default(prop, name)
+      const value = this.prototype._props[name]
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
-      const props = clone(this.prototype.props)
+      const props = {...this.prototype._props}
       props[name] = {...value, default_value}
-      this.prototype.props = props
+      this.prototype._props = props
     }
   }
 
@@ -180,62 +193,118 @@ export abstract class HasProps extends Signalable() {
   readonly destroyed       = new Signal0<this>(this, "destroyed")
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
+  readonly exprchange      = new Signal0<this>(this, "exprchange")
 
-  readonly attributes: {[key: string]: any} = {}
-  readonly properties: {[key: string]: any} = {}
+  readonly properties: {[key: string]: Property} = {}
 
-  protected readonly _set_after_defaults: {[key: string]: boolean} = {}
+  property(name: string): Property {
+    const prop = this.properties[name]
+    if (prop != null)
+      return prop
+    else
+      throw new Error(`unknown property ${this.type}.${name}`)
+  }
 
-  constructor(attrs: Attrs = {}) {
+  get attributes(): Attrs {
+    const attrs: Attrs = {}
+    for (const prop of this) {
+      attrs[prop.attr] = prop.get_value()
+    }
+    return attrs
+  }
+
+  [clone](cloner: Cloner): this {
+    const attrs = new Map<string, unknown>()
+    for (const prop of this) {
+      if (prop.dirty) {
+        attrs.set(prop.attr, cloner.clone(prop.get_value()))
+      }
+    }
+    return new (this.constructor as any)(attrs)
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    for (const p0 of this) {
+      const p1 = that.property(p0.attr)
+      if (cmp.eq(p0.get_value(), p1.get_value()))
+        return false
+    }
+    return true
+  }
+
+  [pretty](printer: Printer): string {
+    const T = printer.token
+
+    const items = []
+    for (const prop of this) {
+      if (prop.dirty) {
+        const value = prop.get_value()
+        items.push(`${prop.attr}${T(":")} ${printer.to_string(value)}`)
+      }
+    }
+
+    const cls = this.constructor.__qualified__
+    return `${cls}${T("(")}${T("{")}${items.join(`${T(",")} `)}${T("}")}${T(")")}`
+  }
+
+  [serialize](serializer: Serializer): Ref {
+    const ref = this.ref()
+    serializer.add_ref(this, ref)
+
+    const struct = this.struct()
+    for (const prop of this) {
+      if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
+        struct.attributes[prop.attr] = serializer.to_serializable(prop.get_value())
+      }
+    }
+    serializer.add_def(this, struct)
+
+    return ref
+  }
+
+  constructor(attrs: Attrs | Map<string, unknown> = {}) {
     super()
 
-    for (const name in this.props) {
-      const {type, default_value} = this.props[name]
-      if (type != null)
-        this.properties[name] = new type(this, name, default_value)
+    const get = attrs instanceof Map ? attrs.get.bind(attrs) : (name: string) => attrs[name]
+
+    this.id = (get("id") as string | undefined) ?? uniqueId()
+
+    for (const [name, {type, default_value, options}] of entries(this._props)) {
+      let property: p.Property<unknown>
+
+      if (type instanceof p.PropertyAlias) {
+        property = new Proxy(this.properties[type.attr], {
+          get(target, member) {
+            return member == "attr" ? name : target[member as keyof typeof target]
+          },
+        })
+      } else if (type instanceof k.Kind)
+        property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
       else
-        throw new Error(`undefined property type for ${this.type}.${name}`)
+        property = new type(this, name, k.Any, default_value, get(name), options)
+
+      this.properties[name] = property
     }
-
-    // auto generating ID
-    if (attrs.id == null)
-      this.setv({id: uniqueId()}, {silent: true})
-
-    const deferred = attrs.__deferred__ || false
-    if (deferred) {
-      attrs = clone(attrs)
-      delete attrs.__deferred__
-    }
-
-    this.setv(attrs, {silent: true})
 
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
-
-    if (!deferred)
+    if (!(get("__deferred__") ?? false)) {
       this.finalize()
+      this.connect_signals()
+    }
   }
 
   finalize(): void {
-    // This is necessary because the initial creation of properties relies on
-    // model.get which is not usable at that point yet in the constructor. This
-    // initializer is called when deferred initialization happens for all models
-    // and insures that the Bokeh properties are initialized from Backbone
-    // attributes in a consistent way.
-    //
-    // TODO (bev) split property creation up into two parts so that only the
-    // portion of init that can be done happens in HasProps constructor and so
-    // that subsequent updates do not duplicate that setup work.
-    for (const name in this.properties) {
-      const prop = this.properties[name]
-      prop.update()
-      if (prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
+    for (const prop of this) {
+      const {transform, expr} = prop.spec
+      if (transform != null)
+        this.connect(transform.change, () => this.transformchange.emit())
+      if (expr != null)
+        this.connect(expr.change, () => this.exprchange.emit())
     }
 
     this.initialize()
-    this.connect_signals()
   }
 
   initialize(): void {}
@@ -251,9 +320,10 @@ export abstract class HasProps extends Signalable() {
     this.destroyed.emit()
   }
 
-  // Create a new model with identical attributes to this one.
+  // Create a new model with exact attribute values to this one, but new identity.
   clone(): this {
-    return new (this.constructor as any)(this.attributes)
+    const cloner = new Cloner()
+    return cloner.clone(this)
   }
 
   private _pending: boolean = false
@@ -262,40 +332,32 @@ export abstract class HasProps extends Signalable() {
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  private _setv(attrs: Attrs, options: HasProps.SetOptions): void {
+  private _setv(changes: Map<Property, unknown>, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
-    const silent     = options.silent
-    const changes    = []
+    const changed    = []
     const changing   = this._changing
     this._changing = true
 
-    const current = this.attributes
-
-    // For each `set` attribute, update or delete the current value.
-    for (const attr in attrs) {
-      const val = attrs[attr]
-      if (check_eq !== false) {
-        if (!isEqual(current[attr], val))
-          changes.push(attr)
-      } else
-        changes.push(attr)
-      current[attr] = val
+    for (const [prop, value] of changes) {
+      if (check_eq === false || !is_equal(prop.get_value(), value)) {
+        prop.set_value(value)
+        changed.push(prop)
+      }
     }
 
     // Trigger all relevant attribute changes.
-    if (!silent) {
-      if (changes.length > 0)
-        this._pending = true
-      for (let i = 0; i < changes.length; i++)
-        this.properties[changes[i]].change.emit()
+    if (changed.length > 0)
+      this._pending = true
+    for (const prop of changed) {
+      prop.change.emit()
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
     // be recursively nested within `"change"` events.
     if (changing)
       return
-    if (!silent && !options.no_change) {
+    if (!options.no_change) {
       while (this._pending) {
         this._pending = false
         this.change.emit()
@@ -306,38 +368,51 @@ export abstract class HasProps extends Signalable() {
     this._changing = false
   }
 
-  setv(attrs: Attrs, options: HasProps.SetOptions = {}): void {
-    for (const key in attrs) {
-      if (!attrs.hasOwnProperty(key))
-        continue
+  setv(changed_attrs: Attrs, options: HasProps.SetOptions = {}): void {
+    const changes = entries(changed_attrs)
 
-      const prop_name = key
-      if (this.props[prop_name] == null)
-        throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
+    if (changes.length == 0)
+      return
 
-      if (!(options != null && options.defaults))
-        this._set_after_defaults[key] = true
+    if (options.silent === true) {
+      for (const [attr, value] of changes) {
+        this.properties[attr].set_value(value)
+      }
+      return
     }
 
-    if (!isEmpty(attrs)) {
-      const old: typeof attrs = {}
-      for (const key in attrs)
-        old[key] = this.getv(key)
-      this._setv(attrs, options)
+    const changed = new Map<Property, unknown>()
+    const previous = new Map<Property, unknown>()
 
-      const silent = options.silent
-      if (silent == null || !silent) {
-        for (const key in attrs)
-          this._tell_document_about_change(key, old[key], this.getv(key), options)
+    for (const [attr, value] of changes) {
+      const prop = this.properties[attr]
+      changed.set(prop, value)
+      previous.set(prop, prop.get_value())
+    }
+
+    this._setv(changed, options)
+
+    const {document} = this
+    if (document != null) {
+      const changed: [Property, unknown, unknown][] = []
+      for (const [prop, value] of previous) {
+        changed.push([prop, value, prop.get_value()])
       }
+
+      for (const [, old_value, new_value] of changed) {
+        if (this._needs_invalidate(old_value, new_value)) {
+          document._invalidate_all_models()
+          break
+        }
+      }
+
+      this._push_changes(changed, options)
     }
   }
 
-  getv(prop_name: string): any {
-    if (this.props[prop_name] == null)
-      throw new Error(`property ${this.type}.${prop_name} wasn't declared`)
-    else
-      return this.attributes[prop_name]
+  /** @deprecated */
+  getv(name: string): unknown {
+    return this.property(name).get_value()
   }
 
   ref(): Ref {
@@ -362,84 +437,41 @@ export abstract class HasProps extends Signalable() {
     this._subtype = subtype
   }
 
-  attribute_is_serializable(attr: string): boolean {
-    const prop = this.props[attr]
-    if (prop == null)
-      throw new Error(`${this.type}.attribute_is_serializable('${attr}'): ${attr} wasn't declared`)
-    else
-      return !prop.internal
+  *[Symbol.iterator](): PropertyGenerator {
+    yield* values(this.properties)
   }
 
-  // dict of attributes that should be serialized to the server. We
-  // sometimes stick things in attributes that aren't part of the
-  // Document's models, subtypes that do that have to remove their
-  // extra attributes here.
+  *syncable_properties(): PropertyGenerator {
+    for (const prop of this) {
+      if (prop.syncable)
+        yield prop
+    }
+  }
+
+  /** @deprecated */
   serializable_attributes(): Attrs {
     const attrs: Attrs = {}
-    for (const name in this.attributes) {
-      const value = this.attributes[name]
-      if (this.attribute_is_serializable(name))
-        attrs[name] = value
+    for (const prop of this.syncable_properties()) {
+      attrs[prop.attr] = prop.get_value()
     }
     return attrs
   }
 
-  static _value_to_json(_key: string, value: any, _optional_parent_object: any): any {
-    if (value instanceof HasProps)
-      return value.ref()
-    else if (isArray(value)) {
-      const ref_array: unknown[] = []
-      for (let i = 0; i < value.length; i++) {
-        const v = value[i]
-        ref_array.push(HasProps._value_to_json(i.toString(), v, value))
-      }
-      return ref_array
-    } else if (isPlainObject(value)) {
-      const ref_obj: Attrs = {}
-      for (const subkey in value) {
-        if (value.hasOwnProperty(subkey))
-          ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
-      }
-      return ref_obj
-    } else
-      return value
-  }
-
-  // Convert attributes to "shallow" JSON (values which are themselves models
-  // are included as just references)
-  attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
-    const serializable = this.serializable_attributes()
-    const attrs: Attrs = {}
-    for (const key in serializable) {
-      if (serializable.hasOwnProperty(key)) {
-        const value = serializable[key]
-        if (include_defaults)
-          attrs[key] = value
-        else if (key in this._set_after_defaults)
-          attrs[key] = value
-      }
-    }
-    return value_to_json("attributes", attrs, this)
-  }
-
   // this is like _value_record_references but expects to find refs
   // instead of models, and takes a doc to look up the refs in
-  static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, recurse: boolean): void {
-    if (v == null) {
-    } else if (is_ref(v)) {
-      if (!(v.id in result)) {
-        const model = doc.get_model_by_id(v.id)
-        HasProps._value_record_references(model, result, recurse)
+  static _json_record_references(doc: Document, v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+    const {recursive} = options
+    if (is_ref(v)) {
+      const model = doc.get_model_by_id(v.id)
+      if (model != null && !refs.has(model)) {
+        HasProps._value_record_references(model, refs, {recursive})
       }
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._json_record_references(doc, elem, result, recurse)
+        HasProps._json_record_references(doc, elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._json_record_references(doc, elem, result, recurse)
-        }
+      for (const elem of values(v)) {
+        HasProps._json_record_references(doc, elem, refs, {recursive})
       }
     }
   }
@@ -447,51 +479,36 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, result: Attrs, recurse: boolean): void {
-    if (v == null) {
-    } else if (v instanceof HasProps) {
-      if (!(v.id in result)) {
-        result[v.id] = v
-        if (recurse) {
-          const immediate = v._immediate_references()
-          for (const obj of immediate)
-            HasProps._value_record_references(obj, result, true) // true=recurse
+  static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+    const {recursive} = options
+    if (v instanceof HasProps) {
+      if (!refs.has(v)) {
+        refs.add(v)
+        if (recursive) {
+          for (const prop of v.syncable_properties()) {
+            const value = prop.get_value()
+            HasProps._value_record_references(value, refs, {recursive})
+          }
         }
       }
-    } else if (v.buffer instanceof ArrayBuffer) {
     } else if (isArray(v)) {
       for (const elem of v)
-        HasProps._value_record_references(elem, result, recurse)
+        HasProps._value_record_references(elem, refs, {recursive})
     } else if (isPlainObject(v)) {
-      for (const k in v) {
-        if (v.hasOwnProperty(k)) {
-          const elem = v[k]
-          HasProps._value_record_references(elem, result, recurse)
-        }
+      for (const elem of values(v)) {
+        HasProps._value_record_references(elem, refs, {recursive})
       }
     }
   }
 
-  // Get models that are immediately referenced by our properties
-  // (do not recurse, do not include ourselves)
-  protected _immediate_references(): HasProps[] {
-    const result = {}
-    const attrs = this.serializable_attributes()
-    for (const key in attrs) {
-      const value = attrs[key]
-      HasProps._value_record_references(value, result, false) // false = no recurse
-    }
-
-    return values(result)
-  }
-
-  references(): HasProps[] {
-    const references = {}
-    HasProps._value_record_references(this, references, true)
-    return values(references)
+  references(): Set<HasProps> {
+    const refs = new Set<HasProps>()
+    HasProps._value_record_references(this, refs, {recursive: true})
+    return refs
   }
 
   protected _doc_attached(): void {}
+  protected _doc_detached(): void {}
 
   attach_document(doc: Document): void {
     // This should only be called by the Document implementation to set the document field
@@ -504,64 +521,56 @@ export abstract class HasProps extends Signalable() {
 
   detach_document(): void {
     // This should only be called by the Document implementation to unset the document field
+    this._doc_detached()
     this.document = null
   }
 
-  protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
-    if (!this.attribute_is_serializable(attr))
+  protected _needs_invalidate(old_value: unknown, new_value: unknown): boolean {
+    const new_refs = new Set<HasProps>()
+    HasProps._value_record_references(new_value, new_refs, {recursive: false})
+
+    const old_refs = new Set<HasProps>()
+    HasProps._value_record_references(old_value, old_refs, {recursive: false})
+
+    for (const new_id of new_refs) {
+      if (!old_refs.has(new_id))
+        return true
+    }
+
+    for (const old_id of old_refs) {
+      if (!new_refs.has(old_id))
+        return true
+    }
+
+    return false
+  }
+
+  protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    const {document} = this
+    if (document == null)
       return
 
-    if (this.document != null) {
-      const new_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(new_, new_refs, false)
+    const {setter_id} = options
 
-      const old_refs: {[key: string]: HasProps} = {}
-      HasProps._value_record_references(old, old_refs, false)
+    const events = []
+    for (const [prop, old_value, new_value] of changes) {
+      if (prop.syncable)
+        events.push(new ModelChangedEvent(document, this, prop.attr, old_value, new_value, setter_id))
+    }
 
-      let need_invalidate = false
-      for (const new_id in new_refs) {
-        if (!(new_id in old_refs)) {
-          need_invalidate = true
-          break
-        }
-      }
-
-      if (!need_invalidate) {
-        for (const old_id in old_refs) {
-          if (!(old_id in new_refs)) {
-            need_invalidate = true
-            break
-          }
-        }
-      }
-
-      if (need_invalidate)
-        this.document._invalidate_all_models()
-
-      this.document._notify_change(this, attr, old, new_, options)
+    if (events.length != 0) {
+      let event: DocumentEvent
+      if (events.length == 1)
+        [event] = events
+      else
+        event = new DocumentEventBatch(document, events, setter_id)
+      document._trigger_on_change(event)
     }
   }
 
-  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
-    // Note: this should be moved to a function separate from HasProps
-    const data: {[key: string]: unknown[] | number} = {}
-    for (const name in this.properties) {
-      const prop = this.properties[name]
-      if (!(prop instanceof p.VectorSpec))
-        continue
-      // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
-        continue
-
-      const array = prop.array(source)
-      data[`_${name}`] = array
-      // the shapes are indexed by the column name, but when we materialize the dataspec, we should
-      // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
-      if (prop.spec.field != null && prop.spec.field in source._shapes)
-        data[`_${name}_shape`] = source._shapes[prop.spec.field]
-      if (prop instanceof p.DistanceSpec)
-        data[`max_${name}`] = max(array)
+  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
+    for (const property of isArray(properties) ? properties : [properties]) {
+      this.connect(property.change, fn)
     }
-    return data
   }
 }

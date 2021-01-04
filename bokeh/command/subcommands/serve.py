@@ -203,7 +203,7 @@ variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
 setting the ``--ssl-keyfile`` command line argument, or by setting the
-``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+``BOKEH_SSL_KEYFILE`` environment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
 
@@ -245,7 +245,7 @@ secure session IDs are allowed but anyone can connect to the server.
 In ``external-signed`` mode, the session ID must be signed but the server
 itself won't generate a session ID; the ``?bokeh-session-id=`` parameter will
 be required. To use this mode, an external process (such as another web app)
-would use the function ``bokeh.util.session_id.generate_session_id()`` to
+would use the function ``bokeh.util.token.generate_session_id()`` to
 create valid session IDs. The external process and the Bokeh server must share
 the same ``BOKEH_SECRET_KEY`` environment variable.
 
@@ -412,7 +412,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import List
+from typing import Any, Dict, List
 
 # External imports
 from tornado.autoreload import watch
@@ -421,7 +421,10 @@ from tornado.autoreload import watch
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.server.auth_provider import AuthModule, NullAuth
-from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
+from bokeh.server.tornado import (
+    DEFAULT_SESSION_TOKEN_EXPIRATION,
+    DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+)
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import format_docstring, nice_join
@@ -633,6 +636,38 @@ class Serve(Subcommand):
                       'when this setting is enabled.'
         )),
 
+        ('--exclude-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to exclude from the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--exclude-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to exclude from the session '
+                      'context (by default all cookies are included).'
+        )),
+
+        ('--include-headers', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request headers to make available in the session '
+                      'context (by default all headers are included).'
+        )),
+
+        ('--include-cookies', dict(
+            action  = 'store',
+            default = None,
+            nargs='+',
+            help    = 'A list of request cookies to make available in the session '
+                      'context (by default all cookies are included).'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
@@ -666,6 +701,17 @@ class Serve(Subcommand):
             type    = int,
         )),
 
+        ('--session-token-expiration', dict(
+            metavar = 'N',
+            action  = 'store',
+            help    = "Duration in seconds that a new session token "
+                      "is valid for session creation. After the expiry "
+                      "time has elapsed, the token will not be able "
+                      "create a new session (defaults to  seconds).",
+            default = DEFAULT_SESSION_TOKEN_EXPIRATION,
+            type    = int,
+        )),
+
         ('--websocket-max-message-size', dict(
             metavar = 'BYTES',
             action  = 'store',
@@ -680,6 +726,13 @@ class Serve(Subcommand):
             help='Process all filename arguments as globs',
         )),
     )
+
+    def customize_kwargs(self, args: argparse.Namespace, server_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        '''Allows subclasses to customize ``server_kwargs``.
+
+        Should modify and return a copy of the ``server_kwargs`` dictionary.
+        '''
+        return dict(server_kwargs)
 
     def invoke(self, args: argparse.Namespace) -> None:
         '''
@@ -696,7 +749,7 @@ class Serve(Subcommand):
         logging.getLogger('bokeh').setLevel(log_level)
 
         if args.use_config is not None:
-            log.info("Using override config file: {}".format(args.use_config))
+            log.info(f"Using override config file: {args.use_config}")
             settings.load_config(args.use_config)
 
         # protect this import inside a function so that "bokeh info" can work
@@ -746,6 +799,11 @@ class Serve(Subcommand):
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                               'websocket_max_message_size',
+                                                              'include_cookies',
+                                                              'include_headers',
+                                                              'exclude_cookies',
+                                                              'exclude_headers',
+                                                              'session_token_expiration',
                                                             ]
                           if getattr(args, key, None) is not None }
 
@@ -815,6 +873,8 @@ class Serve(Subcommand):
 
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
+
+        server_kwargs = self.customize_kwargs(args, server_kwargs)
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)

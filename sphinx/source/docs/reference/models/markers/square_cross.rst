@@ -3,6 +3,4 @@
 bokeh.models.markers.SquareCross
 --------------------------------
 
-.. autoclass:: bokeh.models.markers.SquareCross
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.SquareCross

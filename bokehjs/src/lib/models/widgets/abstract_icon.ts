@@ -16,6 +16,7 @@ export interface AbstractIcon extends AbstractIcon.Attrs {}
 
 export abstract class AbstractIcon extends Model {
   properties: AbstractIcon.Props
+  __view_type__: AbstractIconView
 
   constructor(attrs?: Partial<AbstractIcon.Attrs>) {
     super(attrs)

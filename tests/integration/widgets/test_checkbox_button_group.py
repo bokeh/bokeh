@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
@@ -40,8 +43,8 @@ LABELS = ["Option 1", "Option 2", "Option 3"]
 
 
 @pytest.mark.selenium
-class Test_CheckboxButtonGroup(object):
-
+class Test_CheckboxButtonGroup:
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))

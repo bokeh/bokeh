@@ -1,22 +1,30 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 
+namespace SomeModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & {
+    foo: p.Property<boolean>
+    bar: p.Property<string>
+    baz: p.Property<number>
+  }
+}
+interface SomeModel extends SomeModel.Attrs {}
 class SomeModel extends Model {
-
-  foo: number
-  bar: string
-  baz: number
-
-  static init_SomeModel(): void {
-    this.define<any>({
-      foo: [ p.Number, 2 ],
-      bar: [ p.String    ],
-      baz: [ p.Number, 1 ],
-    })
+  properties: SomeModel.Props
+  constructor(attrs?: Partial<SomeModel.Attrs>) {
+    super(attrs)
+  }
+  static init_SomeModel() {
+    this.define<SomeModel.Props>(({Boolean, Number, String}) => ({
+      foo: [ Boolean, false ],
+      bar: [ String ],
+      baz: [ Number, 1 ],
+    }))
   }
 }
 
@@ -30,11 +38,11 @@ describe("Model objects", () => {
     })
 
     it("should have empty tags", () => {
-      expect(m.tags).to.be.deep.equal([])
+      expect(m.tags).to.be.equal([])
     })
 
     it("should have empty js_property_callbacks", () => {
-      expect(m.js_property_callbacks).to.be.deep.equal({})
+      expect(m.js_property_callbacks).to.be.equal({})
     })
   })
 
@@ -59,7 +67,7 @@ describe("Model objects", () => {
 
       // check the correct number of calls for m.foo change
       expect(spy.called).to.be.false
-      m.foo = 10
+      m.foo = true
       expect(spy.callCount).to.be.equal(0)
 
       // check the correct number of calls for m.bar change

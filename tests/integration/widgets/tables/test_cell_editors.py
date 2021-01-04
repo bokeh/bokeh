@@ -40,9 +40,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_CellEditor_Base(object):
 
+@pytest.mark.selenium
+class Test_CellEditor_Base:
     def setup_method(self):
         source = ColumnDataSource({'values': self.values})
         column = TableColumn(field='values', title='values', editor=self.editor())

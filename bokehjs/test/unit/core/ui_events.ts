@@ -1,4 +1,4 @@
-import {expect, assert} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import * as dom from "@bokehjs/core/dom"
@@ -14,10 +14,10 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {UIEvents, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import {build_view} from "@bokehjs/core/build_views"
 
-describe("ui_events module", () => {
+describe("ui_event_bus module", () => {
 
   async function new_plot(): Promise<PlotView> {
     const plot = new Plot({
@@ -29,15 +29,13 @@ describe("ui_events module", () => {
 
   let hammer_stub: sinon.SinonStub
   let plot_view: PlotView
-  let ui_events: UIEvents
-  let ANY_ui_events: any
+  let ui_event_bus: UIEventBus
 
   before_each(async () => {
-    hammer_stub = sinon.stub(UIEvents.prototype as any, "_configure_hammerjs") // XXX: protected
+    hammer_stub = sinon.stub(UIEventBus.prototype as any, "_configure_hammerjs") // XXX: protected
 
     plot_view = await new_plot()
-    ui_events = (plot_view as any).ui_event_bus // XXX: protected
-    ANY_ui_events = ui_events // XXX: protected
+    ui_event_bus = plot_view.canvas_view.ui_event_bus
   })
 
   after_each(() => {
@@ -45,11 +43,10 @@ describe("ui_events module", () => {
   })
 
   describe("_trigger method", () => {
-
     let spy_trigger: sinon.SinonSpy
 
     before_each(() => {
-      spy_trigger = sinon.spy(ui_events, "trigger")
+      spy_trigger = sinon.spy(ui_event_bus, "trigger")
     })
 
     after_each(() => {
@@ -57,12 +54,12 @@ describe("ui_events module", () => {
     })
 
     describe("base_type=move", () => {
-
       let e: UIEvent
       let spy_cursor: sinon.SinonSpy
+
       before_each(() => {
-        e = {type: "mousemove", sx: 0, sy: 0}
-        spy_cursor = sinon.spy(plot_view, "set_cursor")
+        e = {type: "mousemove", sx: 0, sy: 0, ctrlKey: false, shiftKey: false}
+        spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
       after_each(() => {
@@ -74,10 +71,10 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
 
-        assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.move, e, inspector.id])
+        expect(spy_trigger.calledTwice).to.be.true
+        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move, e, inspector.id])
       })
 
       it("should not trigger move event for inactive inspectors", async () => {
@@ -85,16 +82,16 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
 
-        assert(spy_trigger.notCalled)
+        expect(spy_trigger.notCalled).to.be.true
       })
 
       it("should use default cursor no active inspector", () => {
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
 
-        assert(spy_cursor.calledOnce)
-        assert(spy_cursor.calledWith("default"))
+        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledWith("default")).to.be.true
       })
 
       it("should use default cursor if active inspector but mouse is off-frame", async () => {
@@ -102,11 +99,11 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_events as any, "_hit_test_frame").returns(false) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(false) // XXX: protected
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
-        assert(spy_cursor.calledOnce)
-        assert(spy_cursor.calledWith("default"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledWith("default")).to.be.true
 
         ss.restore()
       })
@@ -116,11 +113,11 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_events as any, "_hit_test_frame").returns(true) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(true) // XXX: protected
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
-        assert(spy_cursor.calledOnce)
-        assert(spy_cursor.calledWith("crosshair"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledWith("crosshair")).to.be.true
 
         ss.restore()
       })
@@ -129,11 +126,11 @@ describe("ui_events module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
-        assert(spy_cursor.calledOnce)
-        assert(spy_cursor.calledWith("pointer"))
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledWith("pointer")).to.be.true
 
         ss.restore()
       })
@@ -146,29 +143,28 @@ describe("ui_events module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
 
-        ui_events._trigger(ui_events.move, e, new Event("mousemove"))
-        assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.move_exit, e, inspector.id])
+        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        expect(spy_trigger.calledTwice).to.be.true
+        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move_exit, e, inspector.id])
         // should also use view renderer cursor and not inspector cursor
-        assert(spy_cursor.calledOnce)
-        assert(spy_cursor.calledWith("pointer"))
+        expect(spy_cursor.calledTwice).to.be.true
+        expect(spy_cursor.calledWith("pointer")).to.be.true
 
         ss.restore()
       })
     })
 
     describe("base_type=tap", () => {
-
       let e: UIEvent
       before_each(() => {
-        e = {type: "tap", sx: 10, sy: 15, shiftKey: false}
+        e = {type: "tap", sx: 10, sy: 15, ctrlKey: false, shiftKey: false}
       })
 
       it("should not trigger tap event if no active tap tool", () => {
-        ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
-        assert(spy_trigger.notCalled)
+        ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
+        expect(spy_trigger.notCalled).to.be.true
       })
 
       it("should trigger tap event if exists an active tap tool", async () => {
@@ -176,22 +172,22 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
-        ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
 
-        assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.tap, e, gesture.id])
+        expect(spy_trigger.calledOnce).to.be.true
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture.id])
       })
 
       it("should call on_hit method on view renderer if exists", async () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_events as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
         const on_hit = sinon.stub(legend_view, "on_hit")
 
-        ui_events._trigger(ui_events.tap, e, new Event("mousemove"))
-        assert(on_hit.calledOnce)
-        expect(on_hit.args[0]).to.be.deep.equal([10, 15])
+        ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
+        expect(on_hit.calledOnce).to.be.true
+        expect(on_hit.args[0]).to.be.equal([10, 15])
 
         on_hit.restore()
         ss.restore()
@@ -199,14 +195,13 @@ describe("ui_events module", () => {
     })
 
     describe("base_type=scroll", () => {
-
       let e: UIEvent
       let srcEvent: Event
       let preventDefault: sinon.SinonSpy
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1}
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrlKey: false, shiftKey: false}
         srcEvent = new Event("scroll")
 
         preventDefault = sinon.spy(srcEvent, "preventDefault")
@@ -220,12 +215,12 @@ describe("ui_events module", () => {
 
       it("should not trigger scroll event if no active scroll tool", () => {
         plot_view.model.toolbar.gestures.scroll.active = null
-        ui_events._trigger(ui_events.scroll, e, srcEvent)
-        assert(spy_trigger.notCalled)
+        ui_event_bus._trigger(ui_event_bus.scroll, e, srcEvent)
+        expect(spy_trigger.notCalled).to.be.true
 
         // assert that default scrolling isn't hijacked
-        assert(preventDefault.notCalled)
-        assert(stopPropagation.notCalled)
+        expect(preventDefault.notCalled).to.be.true
+        expect(stopPropagation.notCalled).to.be.true
       })
 
       it("should trigger scroll event if exists an active tap tool", async () => {
@@ -236,26 +231,26 @@ describe("ui_events module", () => {
         // unclear why add_tools doesn't activate the tool, so have to do it manually
         plot_view.model.toolbar.gestures.scroll.active = gesture
 
-        ui_events._trigger(ui_events.scroll, e, srcEvent)
+        ui_event_bus._trigger(ui_event_bus.scroll, e, srcEvent)
 
         // assert that default scrolling is disabled
-        assert(preventDefault.calledOnce)
-        assert(stopPropagation.calledOnce)
+        expect(preventDefault.calledOnce).to.be.true
+        expect(stopPropagation.calledOnce).to.be.true
 
-        assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.scroll, e, gesture.id])
+        expect(spy_trigger.calledOnce).to.be.true
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.scroll, e, gesture.id])
       })
     })
 
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, shiftKey: false}
+        e = {type: "panstart", sx: 0, sy: 0, deltaX: 0, deltaY: 0, ctrlKey: false, shiftKey: false}
       })
 
       it("should not trigger event if no active tool", () => {
-        ui_events._trigger(ui_events.pan, e, new Event("pointerdown"))
-        assert(spy_trigger.notCalled)
+        ui_event_bus._trigger(ui_event_bus.pan_start, e, new Event("pointerdown"))
+        expect(spy_trigger.notCalled).to.be.true
       })
 
       it("should trigger event if exists an active related tool", async () => {
@@ -263,16 +258,15 @@ describe("ui_events module", () => {
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
-        ui_events._trigger(ui_events.pan, e, new Event("pointerdown"))
+        ui_event_bus._trigger(ui_event_bus.pan_start, e, new Event("pointerdown"))
 
-        assert(spy_trigger.calledOnce)
-        expect(spy_trigger.args[0]).to.be.deep.equal([ui_events.pan, e, gesture.id])
+        expect(spy_trigger.callCount).to.be.equal(1)
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.pan_start, e, gesture.id])
       })
     })
   })
 
   describe("_bokify methods", () => {
-
     let dom_stub: sinon.SinonStub
     let spy: sinon.SinonSpy
 
@@ -291,8 +285,8 @@ describe("ui_events module", () => {
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      const ev = ANY_ui_events._tap_event(e)
-      ANY_ui_events._trigger_bokeh_event(ev)
+      const ev = ui_event_bus._tap_event(e)
+      ui_event_bus._trigger_bokeh_event(plot_view, ev)
 
       const bk_event = spy.args[0][0]
 
@@ -307,8 +301,8 @@ describe("ui_events module", () => {
       e.pageX = 100 // XXX: readonly
       e.pageY = 200 // XXX: readonly
 
-      const ev = ANY_ui_events._move_event(e)
-      ANY_ui_events._trigger_bokeh_event(ev)
+      const ev = ui_event_bus._move_event(e)
+      ui_event_bus._trigger_bokeh_event(plot_view, ev)
 
       const bk_event = spy.args[0][0]
 
@@ -322,7 +316,7 @@ describe("ui_events module", () => {
   describe("_event methods", () => {
     // These tests are mildly integration tests. Based on an Event (as would be
     // initiated by event listeners attached in the _register_tool method), they
-    // check whether the BokehEvent and UIEvents are correctly triggered.
+    // check whether the BokehEvent and UIEventBus are correctly triggered.
 
     let dom_stub: sinon.SinonStub
     let spy_plot: sinon.SinonSpy
@@ -333,7 +327,7 @@ describe("ui_events module", () => {
       // The BokehEvent that is triggered by the plot
       spy_plot = sinon.spy(plot_view.model, "trigger_event")
       // The event is that triggered on UIEvent for tool interactions
-      spy_uievent = sinon.spy(ui_events, "trigger")
+      spy_uievent = sinon.spy(ui_event_bus, "trigger")
     })
 
     after_each(() => {
@@ -345,108 +339,114 @@ describe("ui_events module", () => {
     it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       plot_view.model.add_tools(new TapTool())
       await plot_view.ready
 
-      ANY_ui_events._tap(e)
+      ui_event_bus._tap(e)
 
       expect(spy_plot.callCount).to.be.equal(2) // tap event and selection event
-      assert(spy_uievent.calledOnce)
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_doubletap method should handle doubletap event", async () => {
       const e: any = new Event("doubletap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
       plot_view.model.add_tools(new PolySelectTool())
       await plot_view.ready
 
-      ANY_ui_events._doubletap(e)
+      ui_event_bus._doubletap(e)
 
       expect(spy_plot.callCount).to.be.equal(2) // tap event and selection event
-      assert(spy_uievent.calledOnce)
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_press method should handle press event", () => {
       const e: any = new Event("press") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
-      ANY_ui_events._press(e)
+      ui_event_bus._press(e)
 
-      assert(spy_plot.calledOnce)
+      expect(spy_plot.calledOnce).to.be.true
       // There isn't a tool that uses the _press method
-      // assert(spy_uievent.calledOnce)
+      // expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_pressup method should handle pressup event", () => {
       const e: any = new Event("pressup") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}}
 
-      ANY_ui_events._pressup(e)
+      ui_event_bus._pressup(e)
 
-      assert(spy_plot.calledOnce)
+      expect(spy_plot.calledOnce).to.be.true
     })
 
     it("_pan_start method should handle panstart event", async () => {
-      const e: any = new Event("panstart") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
-        assert.ok(true, 'preventDefault ref')
-      }}
+      const e: any = { // XXX: not a hammerjs event
+        type: "panstart",
+        deltaX: 0,
+        deltaY: 0,
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
       await plot_view.ready
 
-      ANY_ui_events._pan_start(e)
+      ui_event_bus._pan_start(e)
 
-      assert(spy_plot.called)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(1)
+      expect(spy_uievent.callCount).to.be.equal(1)
     })
 
     it("_pan method should handle pan event", async () => {
-      const e: any = new Event("pan") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
-        assert.ok(true, 'preventDefault ref')
-      }}
+      const e: any = { // XXX: not a hammerjs event
+        type: "pan",
+        deltaX: 0,
+        deltaY: 0,
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
       await plot_view.ready
 
-      ANY_ui_events._pan(e)
+      ui_event_bus._pan_start({...e, type: "panstart"})
+      ui_event_bus._pan(e)
 
-      assert(spy_plot.called)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_pan_end method should handle pan end event", async () => {
-      const e: any = new Event("panend") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
-        assert.ok(true, 'preventDefault ref')
-      }}
+      const e: any = { // XXX: not a hammerjs event
+        type: "panend",
+        deltaX: 0,
+        deltaY: 0,
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
       await plot_view.ready
 
-      ANY_ui_events._pan_end(e)
+      ui_event_bus._pan_start({...e, type: "panstart"})
+      ui_event_bus._pan_end(e)
 
-      assert(spy_plot.calledOnce)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_pinch_start method should handle pinchstart event", async () => {
-      const e: any = new Event("pinchstart") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      const e: any = { // XXX: not a hammerjs event
+        type: "pinchstart",
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -455,17 +455,18 @@ describe("ui_events module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
 
-      ANY_ui_events._pinch_start(e)
+      ui_event_bus._pinch_start(e)
 
-      assert(spy_plot.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(1)
       // wheelzoomtool doesn't have _pinch_start but will emit event anyway
-      assert(spy_uievent.calledOnce)
+      expect(spy_uievent.callCount).to.be.equal(1)
     })
 
     it("_pinch method should handle pinch event", async () => {
-      const e: any = new Event("pinch") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      const e: any = { // XXX: not a hammerjs event
+        type: "pinch",
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -474,16 +475,18 @@ describe("ui_events module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
 
-      ANY_ui_events._pinch(e)
+      ui_event_bus._pinch_start({...e, type: "pinchstart"})
+      ui_event_bus._pinch(e)
 
-      assert(spy_plot.calledOnce)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_pinch_end method should handle pinchend event", async () => {
-      const e: any = new Event("pinchend") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
+      const e: any = { // XXX: not a hammerjs event
+        type: "pinchend",
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -492,54 +495,55 @@ describe("ui_events module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
 
-      ANY_ui_events._pinch_end(e)
+      ui_event_bus._pinch_start({...e, type: "pinchstart"})
+      ui_event_bus._pinch_end(e)
 
-      assert(spy_plot.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(2)
       // wheelzoomtool doesn't have _pinch_start but will emit event anyway
-      assert(spy_uievent.calledOnce)
+      expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_move_enter method should handle mouseenter event", async () => {
-      const e = new Event("mouseenter")
+      const e = new MouseEvent("mouseenter")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ANY_ui_events._mouse_enter(e)
+      ui_event_bus._mouse_enter(e)
 
-      assert(spy_plot.calledOnce)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.calledOnce).to.be.true
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_move method should handle mousemove event", async () => {
-      const e = new Event("mousemove")
+      const e = new MouseEvent("mousemove")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ANY_ui_events._mouse_move(e)
+      ui_event_bus._mouse_move(e)
 
-      assert(spy_plot.calledOnce)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_move_exit method should handle mouseleave event", async () => {
-      const e = new Event("mouseleave")
+      const e = new MouseEvent("mouseleave")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ANY_ui_events._mouse_exit(e)
+      ui_event_bus._mouse_exit(e)
 
-      assert(spy_plot.calledOnce)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.calledOnce).to.be.true
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_mouse_wheel method should handle wheel event", async () => {
-      const e = new Event("wheel")
+      const e = new WheelEvent("wheel")
 
       const wheel_zoom_tool = new WheelZoomTool()
       plot_view.model.add_tools(wheel_zoom_tool)
@@ -548,31 +552,31 @@ describe("ui_events module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.scroll.active = wheel_zoom_tool
 
-      ANY_ui_events._mouse_wheel(e)
+      ui_event_bus._mouse_wheel(e)
 
-      assert(spy_plot.called)
-      assert(spy_uievent.calledOnce)
+      expect(spy_plot.called).to.be.true
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("_key_up method should handle keyup event", async () => {
-      const e = new Event("keyup")
+      const e = new KeyboardEvent("keyup")
 
       const poly_select_tool = new PolySelectTool()
       plot_view.model.add_tools(poly_select_tool)
       await plot_view.ready
 
-      ANY_ui_events._key_up(e)
+      ui_event_bus._key_up(e)
 
       // There isn't a BokehEvent model for keydown events
-      // assert(spy_plot.calledOnce)
+      // expect(spy_plot.calledOnce).to.be.true
       // This is a event on select tools that should probably be removed
-      assert(spy_uievent.calledOnce)
+      expect(spy_uievent.calledOnce).to.be.true
     })
 
     it("multi-gesture tool should receive multiple events", async () => {
       class MultiToolView extends SelectToolView {
         _tap(_e: TapEvent): void {}
-        _pan(_e: PanEvent): void {}
+        _pan_start(_e: PanEvent): void {}
       }
 
       class MultiTool extends SelectTool {
@@ -586,22 +590,22 @@ describe("ui_events module", () => {
       tool.active = true
       await plot_view.ready
 
-      const etap: any = new Event("tap") // XXX: not a hammerjs event
-      etap.pointerType = "mouse"
-      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
-        assert.ok(true, 'preventDefault ref')
-      }}
+      const etap: any = { // XXX: not a hammerjs event
+        type: "tap",
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
 
-      ANY_ui_events._tap(etap)
-      assert(spy_uievent.calledOnce, "Tap event not triggered")
+      ui_event_bus._tap(etap)
+      expect(spy_uievent.calledOnce).to.be.true
 
-      const epan: any = new Event("pan") // XXX: not a hammerjs event
-      epan.pointerType = "mouse"
-      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault(): void {
-        assert.ok(true, 'preventDefault ref')
-      }}
-      ANY_ui_events._pan(epan)
-      assert(spy_uievent.calledTwice, "Pan event not triggered")
+      const epan: any = { // XXX: not a hammerjs event
+        type: "panstart",
+        deltaX: 0,
+        deltaY: 0,
+        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}},
+      }
+      ui_event_bus._pan_start(epan)
+      expect(spy_uievent.calledTwice).to.be.true
     })
   })
 })

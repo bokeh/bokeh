@@ -16,8 +16,8 @@ important features and fixes several bugs. Some of the highlights include:
 * New module :ref:`bokeh.transform` with helper functions for simplifying
   ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
   :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
-* Added :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
-  :func:`~bokeh.plotting.figure.Figure.vbar_stack` to greatly simplify
+* Added :func:`~bokeh.plotting.Figure.hbar_stack` and
+  :func:`~bokeh.plotting.Figure.vbar_stack` to greatly simplify
   creation of stacked bar charts.
 * Improvements for using Bokeh with Categorical data:
 
@@ -95,7 +95,7 @@ two simpler functions :func:`~bokeh.embed.server_document` and
 ``bokeh.models.tools.tool_events`` has been deprecated. Users should instead
 use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
 
-``DynamicImageRenderer`` and ``Plot.add_dyanamic_image`` have been deprecated.
+``DynamicImageRenderer`` and ``Plot.add_dynamic_image`` have been deprecated.
 For GIS-related use-cases built on top of Bokeh, consider using
 GeoViews_, or creating a `Custom Extension`_.
 
@@ -118,7 +118,7 @@ TapTool Callback Calling Convention
 
 The TapTool strayed from usual callback calling convention by passing a glyph
 data source as ``cb_obj``. This has been rectified, and now the tool follows the
-usual convetion: the tool itself is passed as ``cb_obj`` and the data source is
+usual convention: the tool itself is passed as ``cb_obj`` and the data source is
 passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
 unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
 will need to be updated to reflect this change.

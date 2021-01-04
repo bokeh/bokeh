@@ -11,7 +11,7 @@ export namespace LegendItem {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    label: p.DataSpec<string | null>
+    label: p.DataSpec<string | null> // TODO: spec!
     renderers: p.Property<GlyphRenderer[]>
     index: p.Property<number | null>
   }
@@ -29,11 +29,11 @@ export class LegendItem extends Model {
   }
 
   static init_LegendItem(): void {
-    this.define<LegendItem.Props>({
-      label:     [ p.StringSpec, null ],
-      renderers: [ p.Array,      []   ],
-      index:     [ p.Number,     null ],
-    })
+    this.define<LegendItem.Props>(({Int, Array, Ref, Nullable}) => ({
+      label:     [ p.NullStringSpec, null ],
+      renderers: [ Array(Ref(GlyphRenderer)), [] ],
+      index:     [ Nullable(Int), null ],
+    }))
   }
 
   /*protected*/ _check_data_sources_on_renderers(): boolean {
@@ -71,8 +71,7 @@ export class LegendItem extends Model {
   initialize(): void {
     super.initialize()
     this.legend = null
-    this.connect(this.change,
-                 () => { if (this.legend != null) this.legend.item_change.emit() })
+    this.connect(this.change, () => this.legend?.item_change.emit())
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()

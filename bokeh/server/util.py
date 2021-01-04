@@ -28,8 +28,8 @@ from tornado import netutil
 
 __all__ = (
     'bind_sockets',
-    'check_whitelist',
-    'create_hosts_whitelist',
+    'check_allowlist',
+    'create_hosts_allowlist',
     'match_host',
 )
 
@@ -66,48 +66,48 @@ def bind_sockets(address, port):
         assert actual_port == port
     return ss, actual_port
 
-def check_whitelist(host, whitelist):
-    ''' Check a given request host against a whitelist.
+def check_allowlist(host, allowlist):
+    ''' Check a given request host against a allowlist.
 
     Args:
         host (str) :
-            A host string to compare against a whitelist.
+            A host string to compare against a allowlist.
 
             If the host does not specify a port, then ``":80"`` is implicitly
             assumed.
 
-        whitelist (seq[str]) :
+        allowlist (seq[str]) :
             A list of host patterns to match against
 
     Returns:
-        ``True``, if ``host`` matches any pattern in ``whitelist``, otherwise
+        ``True``, if ``host`` matches any pattern in ``allowlist``, otherwise
         ``False``
 
      '''
     if ':' not in host:
         host = host + ':80'
 
-    if host in whitelist:
+    if host in allowlist:
         return True
 
-    return any(match_host(host, pattern) for pattern in whitelist)
+    return any(match_host(host, pattern) for pattern in allowlist)
 
-def create_hosts_whitelist(host_list, port):
+def create_hosts_allowlist(host_list, port):
     '''
 
-    This whitelist can be used to restrict websocket or other connections to
+    This allowlist can be used to restrict websocket or other connections to
     only those explicitly originating from approved hosts.
 
     Args:
         host_list (seq[str]) :
             A list of string `<name>` or `<name>:<port>` values to add to the
-            whitelist.
+            allowlist.
 
             If no port is specified in a host string, then ``":80"``  is
             implicitly assumed.
 
         port (int) :
-            If ``host_list`` is empty or ``None``, then the whitelist will
+            If ``host_list`` is empty or ``None``, then the allowlist will
             be the single item list `` [ 'localhost:<port>' ]``
 
             If ``host_list`` is not empty, this parameter has no effect.

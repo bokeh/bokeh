@@ -17,7 +17,7 @@ p.circle('x', 'y', color='color', size=20, source=source)
 # use the "color" column of the CDS to complete the URL
 # e.g. if the glyph at index 10 is selected, then @color
 # will be replaced with source.data['color'][10]
-url = "http://www.colors.commutercreative.com/@color/"
+url = "http://www.html-color-names.com/@color.php"
 taptool = p.select(type=TapTool)
 taptool.callback = OpenURL(url=url)
 

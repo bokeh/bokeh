@@ -1,6 +1,87 @@
-@import "./mixins.less";
+@import "./_mixins.less";
 
 .bk-root {
+  .bk-menu-icon {
+    width: 28px;
+    height: 28px;
+
+    background-size: 60%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  .bk-context-menu {
+    position: absolute;
+    .inline-flex();
+    .flex-wrap(nowrap);
+    .no-user-select();
+
+    &.bk-horizontal {
+      .flex-direction(row);
+    }
+    &.bk-vertical {
+      .flex-direction(column);
+    }
+
+    width: auto;
+    height: auto;
+
+    .bring-to-front();
+
+    cursor: pointer;
+    font-size: @font-size;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: @border-radius;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+
+    & > .bk-divider {
+      cursor: default;
+      overflow: hidden;
+      background-color: #e5e5e5;
+    }
+    &.bk-horizontal > .bk-divider {
+      width: 1px;
+      margin: 5px 0;
+    }
+    &.bk-vertical > .bk-divider {
+      height: 1px;
+      margin: 0 5px;
+    }
+
+    & > :not(.bk-divider) {
+      border: 1px solid transparent;
+
+      &.bk-active {
+        border-color: #26aae1; // TODO @activeToolHighlight;
+      }
+      &:hover {
+        background-color: #f9f9f9;
+      }
+    }
+    &.bk-horizontal > :not(.bk-divider) {
+      &:first-child {
+        border-top-left-radius: @border-radius;
+        border-bottom-left-radius: @border-radius;
+      }
+      &:last-child {
+        border-top-right-radius: @border-radius;
+        border-bottom-right-radius: @border-radius;
+      }
+    }
+    &.bk-vertical > :not(.bk-divider) {
+      &:first-child {
+        border-top-left-radius: @border-radius;
+        border-top-right-radius: @border-radius;
+      }
+      &:last-child {
+        border-bottom-left-radius: @border-radius;
+        border-bottom-right-radius: @border-radius;
+      }
+    }
+  }
+
   .bk-menu {
     &.bk-above {
       bottom: 100%;

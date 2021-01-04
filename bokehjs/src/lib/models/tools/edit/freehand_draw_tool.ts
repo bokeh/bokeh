@@ -3,7 +3,7 @@ import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {EditTool, EditToolView} from "./edit_tool"
-import {bk_tool_icon_freehand_draw} from "styles/icons"
+import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
   model: FreehandDrawTool
@@ -62,7 +62,7 @@ export class FreehandDrawToolView extends EditToolView {
   }
 
   _tap(ev: TapEvent): void {
-    this._select_event(ev, ev.shiftKey, this.model.renderers)
+    this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _keyup(ev: KeyEvent): void {
@@ -90,6 +90,7 @@ export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
   properties: FreehandDrawTool.Props
+  __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)
@@ -98,12 +99,12 @@ export class FreehandDrawTool extends EditTool {
   static init_FreehandDrawTool(): void {
     this.prototype.default_view = FreehandDrawToolView
 
-    this.define<FreehandDrawTool.Props>({
-      num_objects: [ p.Int, 0 ],
-    })
+    this.define<FreehandDrawTool.Props>(({Int}) => ({
+      num_objects: [ Int, 0 ],
+    }))
   }
   tool_name = "Freehand Draw Tool"
-  icon = bk_tool_icon_freehand_draw
+  icon = tool_icon_freehand_draw
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }

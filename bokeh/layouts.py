@@ -272,7 +272,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         children = []
 
     # Make the grid
-    tools = []
+    toolbars = []
     items = []
 
     for y, row in enumerate(children):
@@ -282,7 +282,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             elif isinstance(item, LayoutDOM):
                 if merge_tools:
                     for plot in item.select(dict(type=Plot)):
-                        tools += plot.toolbar.tools
+                        toolbars.append(plot.toolbar)
                         plot.toolbar_location = None
 
                 if isinstance(item, Plot):
@@ -302,7 +302,8 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         return GridBox(children=items, sizing_mode=sizing_mode)
 
     grid = GridBox(children=items)
-    proxy = ProxyToolbar(tools=tools, **toolbar_options)
+    tools = sum([ toolbar.tools for toolbar in toolbars ], [])
+    proxy = ProxyToolbar(toolbars=toolbars, tools=tools, **toolbar_options)
     toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
     if toolbar_location == 'above':
@@ -390,7 +391,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                     return Grid(0, 0, [])
 
                 nrows = lcm(*[ child.nrows for child in children ])
-                ncols = sum([ child.ncols for child in children ])
+                ncols = sum(child.ncols for child in children)
 
                 items = []
                 offset = 0
@@ -408,7 +409,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 if not children:
                     return Grid(0, 0, [])
 
-                nrows = sum([ child.nrows for child in children ])
+                nrows = sum(child.nrows for child in children)
                 ncols = lcm(*[ child.ncols for child in children ])
 
                 items = []
@@ -482,13 +483,16 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GridSpec(object):
+class GridSpec:
     """ Simplifies grid layout specification. """
 
     def __init__(self, nrows, ncols):
         self.nrows = nrows
         self.ncols = ncols
         self._arrangement = {}
+
+        from .util.deprecation import deprecated
+        deprecated("'GridSpec' is deprecated and will be removed in Bokeh 3.0")
 
     def __setitem__(self, key, obj):
         k1, k2 = key
@@ -526,13 +530,13 @@ class GridSpec(object):
             self._arrangement[row1, col1] = obj
         elif row2 is None:
             for col in range(col1, col2):
-                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None)
+                self._arrangement[row1, col] = get_or_else(lambda: obj[col-col1], None) # lgtm [py/loop-variable-capture]
         elif col2 is None:
             for row in range(row1, row2):
-                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None)
+                self._arrangement[row, col1] = get_or_else(lambda: obj[row-row1], None) # lgtm [py/loop-variable-capture]
         else:
             for row, col in zip(range(row1, row2), range(col1, col2)):
-                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None)
+                self._arrangement[row, col] = get_or_else(lambda: obj[row-row1][col-col1], None) # lgtm [py/loop-variable-capture]
 
     def __iter__(self):
         array = [ [ None ]*self.ncols for _ in range(0, self.nrows) ]

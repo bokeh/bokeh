@@ -63,7 +63,7 @@ SPEC = {
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Protocol(object):
+class Protocol:
     ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''

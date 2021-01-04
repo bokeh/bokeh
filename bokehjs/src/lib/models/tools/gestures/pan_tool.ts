@@ -2,7 +2,18 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
+import {Interval} from "core/types"
+import {Scale} from "models/scales/scale"
+import * as icons from "styles/icons.css"
+
+export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): Map<string, Interval> {
+  const r: Map<string, Interval> = new Map()
+  for (const [name, scale] of scales) {
+    const [start, end] = scale.r_invert(p0, p1)
+    r.set(name, {start, end})
+  }
+  return r
+}
 
 export class PanToolView extends GestureToolView {
   model: PanTool
@@ -14,8 +25,8 @@ export class PanToolView extends GestureToolView {
   protected h_axis_only: boolean
 
   protected pan_info: {
-    xrs: {[key: string]: {start: number, end: number}}
-    yrs: {[key: string]: {start: number, end: number}}
+    xrs: Map<string, Interval>
+    yrs: Map<string, Interval>
     sdx: number
     sdy: number
   }
@@ -34,15 +45,12 @@ export class PanToolView extends GestureToolView {
         this.h_axis_only = true
     }
 
-    if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model)
   }
 
   _pan(ev: PanEvent): void {
     this._update(ev.deltaX, ev.deltaY)
-
-    if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model)
   }
 
   _pan_end(_e: PanEvent): void {
@@ -50,7 +58,7 @@ export class PanToolView extends GestureToolView {
     this.v_axis_only = false
 
     if (this.pan_info != null)
-      this.plot_view.push_state('pan', {range: this.pan_info})
+      this.plot_view.state.push("pan", {range: this.pan_info})
   }
 
   _update(dx: number, dy: number): void {
@@ -98,24 +106,12 @@ export class PanToolView extends GestureToolView {
     this.last_dx = dx
     this.last_dy = dy
 
-    const {xscales, yscales} = frame
-
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
-      const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
-    }
-
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
-      const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
-    }
+    const {x_scales, y_scales} = frame
+    const xrs = update_ranges(x_scales, sx0, sx1)
+    const yrs = update_ranges(y_scales, sy0, sy1)
 
     this.pan_info = {xrs, yrs, sdx, sdy}
-    this.plot_view.update_range(this.pan_info, true)
+    this.plot_view.update_range(this.pan_info, {panning: true})
   }
 }
 
@@ -131,6 +127,7 @@ export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
   properties: PanTool.Props
+  __view_type__: PanToolView
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)
@@ -139,9 +136,27 @@ export class PanTool extends GestureTool {
   static init_PanTool(): void {
     this.prototype.default_view = PanToolView
 
-    this.define<PanTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-    })
+    this.define<PanTool.Props>(() => ({
+      dimensions: [ Dimensions, "both", {
+        on_update(value: Dimensions, obj: PanTool) {
+          switch (value) {
+            case "both":
+              obj.icon = icons.tool_icon_pan
+              break
+            case "width":
+              obj.icon = icons.tool_icon_xpan
+              break
+            case "height":
+              obj.icon = icons.tool_icon_ypan
+              break
+          }
+        },
+      }],
+    }))
+
+    this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
+    this.register_alias("xpan", () => new PanTool({dimensions: 'width'}))
+    this.register_alias("ypan", () => new PanTool({dimensions: 'height'}))
   }
 
   tool_name = "Pan"
@@ -149,14 +164,6 @@ export class PanTool extends GestureTool {
   default_order = 10
 
   get tooltip(): string {
-    return this._get_dim_tooltip("Pan", this.dimensions)
-  }
-
-  get icon(): string {
-    switch (this.dimensions) {
-      case "both":   return bk_tool_icon_pan
-      case "width":  return bk_tool_icon_xpan
-      case "height": return bk_tool_icon_ypan
-    }
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

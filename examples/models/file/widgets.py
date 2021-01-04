@@ -2,13 +2,14 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup, CheckboxGroup,
-                          ColorPicker, Column, ColumnDataSource, DataTable, DatePicker,
-                          DateRangeSlider, DateSlider, Div, Dropdown, IntEditor,
-                          MultiSelect, NumberEditor, NumberFormatter, Panel, Paragraph,
-                          PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
-                          Select, SelectEditor, Slider, Spinner, StringEditor,
-                          StringFormatter, TableColumn, Tabs, TextInput, Toggle,)
+from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
+                          CheckboxGroup, ColorPicker, Column, ColumnDataSource,
+                          DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
+                          Dropdown, IntEditor, MultiSelect, NumberEditor,
+                          NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
+                          RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
+                          Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
+                          TextAreaInput, TextInput, Toggle,)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -36,6 +37,8 @@ text_input = TextInput(placeholder="Enter value ...")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
 autocomplete_input = AutocompleteInput(placeholder="Enter value (auto-complete) ...", completions=completions)
+
+text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 
 select = Select(options=["Option 1", "Option 2", "Option 3"])
 
@@ -113,7 +116,7 @@ widgets = Column(children=[
             checkbox_button_group, radio_button_group,
         ]),
         Column(children=[
-            text_input, autocomplete_input,
+            text_input, autocomplete_input, text_area,
             select, multi_select,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,

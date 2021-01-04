@@ -1,156 +1,99 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
-import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
-import {keys, extend} from "@bokehjs/core/util/object"
+import {keys} from "@bokehjs/core/util/object"
 
 class TestModel extends HasProps {}
 
+namespace SubclassWithProps {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    foo: p.Property<number>
+    bar: p.Property<boolean>
+  }
+}
+interface SubclassWithProps extends SubclassWithProps.Attrs {}
 class SubclassWithProps extends HasProps {
-  foo: number
-  bar: boolean
+  properties: SubclassWithProps.Props
+  constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
+    super(attrs)
+  }
+  static init_SubclassWithProps() {
+    this.define<SubclassWithProps.Props>(({Boolean, Number}) => ({
+      foo: [ Number, 0 ],
+      bar: [ Boolean, true ],
+    }))
+  }
 }
-SubclassWithProps.define<any>({
-  foo: [ p.Number,  0    ],
-  bar: [ p.Boolean, true ],
-})
 
+namespace SubSubclassWithProps {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = SubclassWithProps.Props & {
+    baz: p.Property<string>
+  }
+}
+interface SubSubclassWithProps extends SubSubclassWithProps.Attrs {}
 class SubSubclassWithProps extends SubclassWithProps {
-  baz: string
+  properties: SubSubclassWithProps.Props
+  constructor(attrs?: Partial<SubSubclassWithProps.Attrs>) {
+    super(attrs)
+  }
+  static init_SubSubclassWithProps() {
+    this.define<SubSubclassWithProps.Props>(({String}) => ({
+      baz: [ String, "" ],
+    }))
+  }
 }
-SubSubclassWithProps.define<any>({
-  baz: [ p.String, '' ],
-})
 
+// TODO {{{
 class SubclassWithMixins extends HasProps {}
-SubclassWithMixins.mixin('line')
+SubclassWithMixins.mixins([mixins.Line])
 
 class SubSubclassWithMixins extends SubclassWithMixins {}
-SubSubclassWithMixins.mixin('fill:foo_')
+SubSubclassWithMixins.mixins([["foo_", mixins.Fill]])
 
 class SubclassWithMultipleMixins extends HasProps {}
-SubclassWithMultipleMixins.mixin('line', 'text:bar_')
+SubclassWithMultipleMixins.mixins([mixins.Line, ["bar_", mixins.Text]])
+// }}}
 
-class SubclassWithNumberSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
-}
-SubclassWithNumberSpec.define<any>({
-  foo: [ p.NumberSpec, {field: 'colname'} ],
-  bar: [ p.Boolean,    true               ],
-})
-
-class SubclassWithDistanceSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
-}
-SubclassWithDistanceSpec.define<any>({
-  foo: [ p.DistanceSpec, {field: 'colname'} ],
-  bar: [ p.Boolean,      true               ],
-})
-
-class SubclassWithTransformSpec extends HasProps {
-  foo: any // XX
-  bar: boolean
-}
-SubclassWithTransformSpec.define<any>({
-  foo: [ p.NumberSpec, {field: 'colname', transform: new TestModel()} ],
-  bar: [ p.Boolean,    true               ],
-})
-
-class SubclassWithOptionalSpec extends HasProps {
-  foo: any // XXX
-  bar: boolean
-  baz: any // XXX
-}
-SubclassWithOptionalSpec.define<any>({
-  foo: [ p.NumberSpec, {value: null}      ],
-  bar: [ p.Boolean,    true               ],
-  baz: [ p.NumberSpec, {field: 'colname'} ],
-})
-
-describe("has_properties module", () => {
-
-  /*
-  before ->
-    Models.register('TestObject', TestModel)
-  after ->
-    Models.unregister('TestObject')
-  */
+describe("core/has_props module", () => {
 
   describe("creation", () => {
 
-    it("should have only id property", () => {
+    it("empty model should have no properties", () => {
       const obj = new TestModel()
-      expect(keys(obj.properties)).to.be.deep.equal(['id'])
-      expect(keys(obj.attributes)).to.be.deep.equal(['id'])
+      expect(keys(obj.properties)).to.be.equal([])
+      expect(keys(obj.attributes)).to.be.equal([])
     })
 
     it("should combine props from subclasses", () => {
       const obj = new SubclassWithProps()
-      expect(keys(obj.properties)).to.be.deep.equal(['id', 'foo', 'bar'])
+      expect(keys(obj.properties)).to.be.equal(['foo', 'bar'])
     })
 
     it("should combine props from sub-subclasses", () => {
       const obj = new SubSubclassWithProps()
-      expect(keys(obj.properties)).to.be.deep.equal(['id', 'foo', 'bar', 'baz'])
+      expect(keys(obj.properties)).to.be.equal(['foo', 'bar', 'baz'])
     })
 
     it("should combine mixins from subclasses", () => {
       const obj = new SubclassWithMixins()
-      const props = keys(mixins.line(""))
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      const props = keys(mixins.Line)
+      expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine mixins from sub-subclasses", () => {
       const obj = new SubSubclassWithMixins()
-      const props = keys(extend(mixins.line(""), mixins.fill("foo_")))
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
+      const props = [...keys(mixins.Line), ...keys(mixins.Fill).map((key) => `foo_${key}`)]
+      expect(keys(obj.properties)).to.be.equal(props)
     })
 
     it("should combine multiple mixins from subclasses", () => {
       const obj = new SubclassWithMultipleMixins()
-      const props = keys(extend(mixins.line(""), mixins.text("bar_")))
-      expect(keys(obj.properties)).to.be.deep.equal(['id'].concat(props))
-    })
-  })
-
-  describe("materialize_dataspecs", () => {
-    it("should collect dataspecs", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      const obj = new SubclassWithNumberSpec()
-      const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_foo: [1, 2, 3, 4]})
-    })
-
-    it("should collect shapes when they are present", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      r._shapes.colname = [2, 2]
-      const obj = new SubclassWithNumberSpec()
-      const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_foo: [1, 2, 3, 4], _foo_shape: [2, 2]})
-    })
-
-    it("should collect max vals for distance specs", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4, 2]}})
-      const obj = new SubclassWithDistanceSpec()
-
-      const data0 = obj.materialize_dataspecs(r)
-      expect(data0).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], max_foo: 4})
-
-      r._shapes.colname = [2, 2]
-      const data1 = obj.materialize_dataspecs(r)
-      expect(data1).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], _foo_shape: [2, 2], max_foo: 4})
-    })
-
-    it("should collect ignore optional specs with null values", () => {
-      const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      const obj = new SubclassWithOptionalSpec()
-      obj.properties.foo.optional = true
-      const data = obj.materialize_dataspecs(r)
-      expect(data).to.be.deep.equal({_baz: [1, 2, 3, 4]})
+      const props = [...keys(mixins.Line), ...keys(mixins.Text).map((key) => `bar_${key}`)]
+      expect(keys(obj.properties)).to.be.equal(props)
     })
   })
 

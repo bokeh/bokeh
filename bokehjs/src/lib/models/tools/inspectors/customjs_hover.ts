@@ -22,10 +22,10 @@ export class CustomJSHover extends Model {
   }
 
   static init_CustomJSHover(): void {
-    this.define<CustomJSHover.Props>({
-      args: [ p.Any,    {} ], // TODO (bev) better type
-      code: [ p.String, "" ],
-    })
+    this.define<CustomJSHover.Props>(({Unknown, String, Dict}) => ({
+      args: [ Dict(Unknown), {} ],
+      code: [ String, "" ],
+    }))
   }
 
   get values(): any[] {
@@ -42,5 +42,4 @@ export class CustomJSHover extends Model {
     const formatter = this._make_code("value", "format", "special_vars", this.code)
     return formatter(...this.values, value, format, special_vars)
   }
-
 }

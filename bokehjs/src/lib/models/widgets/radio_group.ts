@@ -4,8 +4,7 @@ import * as p from "core/properties"
 
 import {InputGroup, InputGroupView} from "./input_group"
 
-import {bk_inline} from "styles/mixins"
-import {bk_input_group} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends InputGroupView {
   model: RadioGroup
@@ -13,15 +12,17 @@ export class RadioGroupView extends InputGroupView {
   render(): void {
     super.render()
 
-    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
+    const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
     this.el.appendChild(group)
 
     const name = uniqueId()
     const {active, labels} = this.model
 
+    this._inputs = []
     for (let i = 0; i < labels.length; i++) {
       const radio = input({type: `radio`, name, value: `${i}`})
       radio.addEventListener("change", () => this.change_active(i))
+      this._inputs.push(radio)
 
       if (this.model.disabled)
         radio.disabled = true
@@ -52,6 +53,7 @@ export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
   properties: RadioGroup.Props
+  __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)
@@ -60,10 +62,10 @@ export class RadioGroup extends InputGroup {
   static init_RadioGroup(): void {
     this.prototype.default_view = RadioGroupView
 
-    this.define<RadioGroup.Props>({
-      active:   [ p.Number         ],
-      labels:   [ p.Array,   []    ],
-      inline:   [ p.Boolean, false ],
-    })
+    this.define<RadioGroup.Props>(({Boolean, Int, String, Array}) => ({
+      active:   [ Int ],
+      labels:   [ Array(String), [] ],
+      inline:   [ Boolean, false ],
+    }))
   }
 }

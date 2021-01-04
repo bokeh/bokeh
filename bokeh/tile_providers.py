@@ -6,113 +6,111 @@
 #-----------------------------------------------------------------------------
 ''' Pre-configured tile sources for common third party tile services.
 
+get_provider
+    Use this function to retrieve an instance of a predefined tile provider.
 
-Attributes:
+    Args:
+        provider_name (Union[str, Vendors])
+            Name of the tile provider to supply.
 
-    .. bokeh-enum:: Vendors
-        :module: bokeh.tile_providers
+            Use a ``tile_providers.Vendors`` enumeration value, or the string
+            name of one of the known providers.
 
-    get_provider
-        Use this function to retrieve an instance of a predefined tile provider.
+    Returns:
+        WMTSTileProviderSource: The desired tile provider instance
 
-        Args:
-            provider_name (Union[str, Vendors])
-                Name of the tile provider to supply.
-                Use tile_providers.Vendors enum, or the name of a provider as string
+    Raises:
+        ValueError, if the specified provider can not be found
 
-        Returns:
-            WMTSTileProviderSource: The desired tile provider instance
+    Example:
 
-        Raises:
-            ValueError, if the provider can not be found
-            ValueError, if the attribution for that provider can not be found
+        .. code-block:: python
 
+                >>> from bokeh.tile_providers import get_provider, Vendors
+                >>> get_provider(Vendors.CARTODBPOSITRON)
+                <class 'bokeh.models.tiles.WMTSTileSource'>
+                >>> get_provider('CARTODBPOSITRON')
+                <class 'bokeh.models.tiles.WMTSTileSource'>
 
-        Example:
+The available built-in tile providers are listed in the ``Vendors`` enum:
 
-            .. code-block:: python
+.. bokeh-enum:: Vendors
+    :module: bokeh.tile_providers
+    :noindex:
 
-                    >>> from bokeh.tile_providers import get_provider, Vendors
-                    >>> get_provider(Vendors.CARTODBPOSITRON)
-                    <class 'bokeh.models.tiles.WMTSTileSource'>
-                    >>> get_provider('CARTODBPOSITRON')
-                    <class 'bokeh.models.tiles.WMTSTileSource'>
+Any of these values may be be passed to the ``get_provider`` function in order
+to obtain a tile provider to use with a Bokeh plot. Representative samples of
+each tile provider are shown below.
 
+CARTODBPOSITRON
+    Tile Source for CartoDB Tile Service
 
-    CARTODBPOSITRON
-        Tile Source for CartoDB Tile Service
+    .. raw:: html
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+        <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
 
-        .. raw:: html
+CARTODBPOSITRON_RETINA
+    Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
 
-            <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
+    .. raw:: html
 
-    CARTODBPOSITRON_RETINA
-        Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
+        <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+ESRI_IMAGERY
+    Tile Source for ESRI public tiles.
 
-        .. raw:: html
+    .. raw:: html
 
-            <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
+        <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6331/2627.jpg" />
 
-    STAMEN_TERRAIN
-        Tile Source for Stamen Terrain Service
+OSM
+    Tile Source for Open Street Maps.
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+    .. raw:: html
 
-        .. raw:: html
+        <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
-            <img src="http://c.tile.stamen.com/terrain/14/2627/6331.png" />
+STAMEN_TERRAIN
+    Tile Source for Stamen Terrain Service
 
-    STAMEN_TERRAIN_RETINA
-        Tile Source for Stamen Terrain Service
+    .. raw:: html
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
 
-        .. raw:: html
+STAMEN_TERRAIN_RETINA
+    Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
 
-            <img src="http://c.tile.stamen.com/terrain/14/2627/6331@2x.png" />
+    .. raw:: html
 
-    STAMEN_TONER
-        Tile Source for Stamen Toner Service
+        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+STAMEN_TONER
+    Tile Source for Stamen Toner Service
 
-        .. raw:: html
+    .. raw:: html
 
-            <img src="http://c.tile.stamen.com/toner/14/2627/6331.png" />
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
 
-    STAMEN_TONER_BACKGROUND
-        Tile Source for Stamen Toner Background Service which does not include labels
+STAMEN_TONER_BACKGROUND
+    Tile Source for Stamen Toner Background Service which does not include labels
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+    .. raw:: html
 
-        .. raw:: html
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
 
-            <img src="http://c.tile.stamen.com/toner-background/14/2627/6331.png" />
+STAMEN_TONER_LABELS
+    Tile Source for Stamen Toner Service which includes only labels
 
-    STAMEN_TONER_LABELS
-        Tile Source for Stamen Toner Service which includes only labels
+    .. raw:: html
 
-        Warns:
-            BokehDeprecationWarning: Deprecated in bokeh 1.1.0. Use get_provider instead
+        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
 
-        .. raw:: html
+WIKIMEDIA
+    Tile Source for Wikimedia tile service.
 
-            <img src="http://c.tile.stamen.com/toner-labels/14/2627/6331.png" />
+    .. raw:: html
 
-Additional information available at:
-
-* Stamen tile service - http://maps.stamen.com/
-* CartoDB tile service - https://carto.com/location-data-services/basemaps/
+        <img src="https://maps.wikimedia.org/osm-intl/14/2627/6331@2x.png" />
 
 '''
 
@@ -181,11 +179,11 @@ class _TileProvidersModule(types.ModuleType):
     _SERVICE_URLS = dict(
         CARTODBPOSITRON='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
         CARTODBPOSITRON_RETINA='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-        STAMEN_TERRAIN='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-        STAMEN_TERRAIN_RETINA='http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-        STAMEN_TONER='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_BACKGROUND='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-        STAMEN_TONER_LABELS='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
+        STAMEN_TERRAIN='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}.png',
+        STAMEN_TERRAIN_RETINA='https://stamen-tiles.a.ssl.fastly.net/terrain/{Z}/{X}/{Y}@2x.png',
+        STAMEN_TONER='https://stamen-tiles.a.ssl.fastly.net/toner/{Z}/{X}/{Y}.png',
+        STAMEN_TONER_BACKGROUND='https://stamen-tiles.a.ssl.fastly.net/toner-background/{Z}/{X}/{Y}.png',
+        STAMEN_TONER_LABELS='https://stamen-tiles.a.ssl.fastly.net/toner-labels/{Z}/{X}/{Y}.png',
         OSM='https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
         WIKIMEDIA='https://maps.wikimedia.org/osm-intl/{Z}/{X}/{Y}@2x.png',
         ESRI_IMAGERY='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{Z}/{Y}/{X}.jpg'
@@ -229,7 +227,8 @@ class _TileProvidersModule(types.ModuleType):
         elif selected_provider.startswith('ESRI_IMAGERY'):
             attribution = self._ESRI_IMAGERY_ATTRIBUTION
         else:
-            raise ValueError('Can not retrieve attribution for %s' % selected_provider)
+
+            raise RuntimeError('Can not retrieve attribution for %s' % selected_provider)
         return WMTSTileSource(url=url, attribution=attribution)
 
     # Properties --------------------------------------------------------------
@@ -249,7 +248,7 @@ class _TileProvidersModule(types.ModuleType):
 # Code
 #-----------------------------------------------------------------------------
 
-_mod = _TileProvidersModule(str('bokeh.tile_providers'))
+_mod = _TileProvidersModule("bokeh.tile_providers")
 _mod.__doc__ = __doc__
 _mod.__all__ = (
     'CARTODBPOSITRON',

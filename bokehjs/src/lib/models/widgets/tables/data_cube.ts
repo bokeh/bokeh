@@ -1,25 +1,25 @@
 import * as p from 'core/properties'
 import {span} from 'core/dom'
-import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from 'slickgrid'
-import {TableDataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
-import {Item} from "./table_column"
+import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from '@bokeh/slickgrid'
+import {DTINDEX_NAME, Item} from "./definitions"
+import {TableDataProvider, DataTableView, DataTable} from './data_table'
 import {ColumnDataSource} from '../../sources/column_data_source'
 import {CDSView} from '../../sources/cds_view'
 import {RowAggregator} from './row_aggregators'
 import {Model} from 'model'
 
 interface GroupDataContext {
-  collapsed: boolean,
-  level: number,
-  title: string,
+  collapsed: boolean
+  level: number
+  title: string
 }
 
 function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column<Item>, dataContext: GroupDataContext): string {
-  const { collapsed, level, title } = dataContext
+  const {collapsed, level, title} = dataContext
 
   const toggle = span({
     class: `slick-group-toggle ${collapsed ? 'collapsed' : 'expanded'}`,
-    style: { 'margin-left': `${level * 15}px`},
+    style: {'margin-left': `${level * 15}px`},
   })
   const titleElement = span({
     class: 'slick-group-title',
@@ -32,7 +32,7 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
   return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item) => {
     const spacer = span({
       class: 'slick-group-toggle',
-      style: { 'margin-left': `${(indent || 0) * 15}px`},
+      style: {'margin-left': `${(indent ?? 0) * 15}px`},
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
@@ -76,11 +76,11 @@ export class GroupingInfo extends Model {
   }
 
   static init_GroupingInfo(): void {
-    this.define<GroupingInfo.Props>({
-      getter:      [ p.String,   ''    ],
-      aggregators: [ p.Array,    []    ],
-      collapsed:   [ p.Boolean,  false ],
-    })
+    this.define<GroupingInfo.Props>(({Boolean, String, Array, Ref}) => ({
+      getter:      [ String, "" ],
+      aggregators: [ Array(Ref(RowAggregator)), [] ],
+      collapsed:   [ Boolean, false ],
+    }))
   }
 
   get comparer(): (a: { value: any }, b: { value: any }) => number {
@@ -91,7 +91,6 @@ export class GroupingInfo extends Model {
 }
 
 export class DataCubeProvider extends TableDataProvider {
-
   readonly columns: Column<Item>[]
   groupingInfos: GroupingInfo[]
   readonly groupingDelimiter: string
@@ -118,7 +117,7 @@ export class DataCubeProvider extends TableDataProvider {
     const groups: Group<number>[] = []
     const groupsByValue: Map<any, Group<number>> = new Map()
     const level = parentGroup ? parentGroup.level + 1 : 0
-    const { comparer, getter } = this.groupingInfos[level]
+    const {comparer, getter} = this.groupingInfos[level]
 
     rows.forEach((row) => {
       const value = this.source.data[getter][row]
@@ -144,10 +143,10 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   private calculateTotals(group: Group<number>, aggregators: RowAggregator[]): GroupTotals<number> {
-    const totals: GroupTotals<number> = { avg: {}, max: {}, min: {}, sum: {} } as any
-    const { source: { data } } = this
+    const totals: GroupTotals<number> = {avg: {}, max: {}, min: {}, sum: {}} as any
+    const {source: {data}} = this
     const keys = Object.keys(data)
-    const items = group.rows.map(i => keys.reduce((o, c) => ({ ...o, [c]: data[c][i] }), {}))
+    const items = group.rows.map(i => keys.reduce((o, c) => ({...o, [c]: data[c][i]}), {}))
 
     aggregators.forEach((aggregator) => {
       aggregator.init()
@@ -158,7 +157,7 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   private addTotals(groups: Group<number>[], level = 0): void {
-    const { aggregators, collapsed: groupCollapsed } = this.groupingInfos[level]
+    const {aggregators, collapsed: groupCollapsed} = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
     groups.forEach((group) => {
@@ -191,7 +190,7 @@ export class DataCubeProvider extends TableDataProvider {
   }
 
   refresh(): void {
-    const groups = this.extractGroups(this.view.indices)
+    const groups = this.extractGroups([...this.view.indices])
     const labels = this.source.data[this.columns[0].field!]
 
     if (groups.length) {
@@ -228,7 +227,7 @@ export class DataCubeProvider extends TableDataProvider {
 
     function adapter(column: Column<Item>): ColumnMetadata<Item> {
       const {field: myField, formatter} = column
-      const aggregator = aggregators.find(({ field_ }) => field_ === myField)
+      const aggregator = aggregators.find(({field_}) => field_ === myField)
 
       if (aggregator) {
         const {key} = aggregator
@@ -246,7 +245,7 @@ export class DataCubeProvider extends TableDataProvider {
         selectable: false,
         focusable: false,
         cssClasses: 'slick-group',
-        columns: [{ formatter: groupCellFormatter }, ...columns.map(adapter)] as any,
+        columns: [{formatter: groupCellFormatter}, ...columns.map(adapter)] as any,
       }
       : {}
   }
@@ -275,10 +274,10 @@ export class DataCubeView extends DataTableView {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
-      forceFitColumns: this.model.fit_columns,
+      autosizeColsMode: this.autosize,
       multiColumnSort: false,
       editable: this.model.editable,
-      autoEdit: false,
+      autoEdit: this.model.auto_edit,
       rowHeight: this.model.row_height,
     }
 
@@ -311,8 +310,8 @@ export namespace DataCube {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataTable.Props & {
-    grouping: p.Property<GroupingInfo[]>,
-    target:   p.Property<ColumnDataSource>,
+    grouping: p.Property<GroupingInfo[]>
+    target:   p.Property<ColumnDataSource>
   }
 }
 
@@ -328,9 +327,9 @@ export class DataCube extends DataTable {
   static init_DataCube(): void {
     this.prototype.default_view = DataCubeView
 
-    this.define<DataCube.Props>({
-      grouping: [p.Array,   []],
-      target:   [p.Instance   ],
-    })
+    this.define<DataCube.Props>(({Array, Ref}) => ({
+      grouping: [ Array(Ref(GroupingInfo)), [] ],
+      target:   [ Ref(ColumnDataSource) ],
+    }))
   }
 }

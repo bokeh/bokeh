@@ -50,7 +50,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
     MISSING_RENDERERS,
 )
-from ..model import Model, collect_filtered_models
+from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
@@ -70,6 +70,8 @@ from .tools import HoverTool, Tool, Toolbar
 __all__ = (
     'Plot',
 )
+
+_VALID_PLACES = ('left', 'right', 'above', 'below', 'center')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -253,10 +255,9 @@ class Plot(LayoutDOM):
             None
 
         '''
-        valid_places = ['left', 'right', 'above', 'below', 'center']
-        if place not in valid_places:
+        if place not in _VALID_PLACES:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(_VALID_PLACES))
             )
 
         getattr(self, place).append(obj)
@@ -382,19 +383,20 @@ class Plot(LayoutDOM):
 
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
-        msg  = ""
-        filt = lambda x: x is not self and isinstance(x, Plot)
-        for ref in collect_filtered_models(filt, self):
-            prop_names = ref.properties()
-            bad = []
-            if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
-                if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
-                    bad.append(('x_range_name', ref.x_range_name))
-                if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
-                    bad.append(('y_range_name', ref.y_range_name))
-            if bad:
-                if msg: msg += ", "
-                msg += (", ".join("%s=%r" % (a, b) for (a,b) in bad) + " [%s]" % ref)
+        msg   = ""
+        valid = {
+            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
+            for axis in ("x_range", "y_range")
+        }
+        for place in _VALID_PLACES + ('renderers',):
+            for ref in getattr(self, place):
+                bad = ', '.join(
+                    f"{axis}='{getattr(ref, axis)}'"
+                    for axis, keys in valid.items()
+                    if getattr(ref, axis, 'default') not in keys
+                )
+                if bad:
+                    msg += (", " if msg else "") + f"{bad} [{ref}]"
         if msg:
             return msg
 
@@ -460,7 +462,7 @@ class Plot(LayoutDOM):
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
-    in addition to glyphs and markers.
+    in addition to glyphs.
 
     This property can be manipulated by hand, but the ``add_glyph`` and
     ``add_layout`` methods are recommended to help make sure all necessary
@@ -502,7 +504,9 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    plot_width = Int(600, help="""
+    width = Override(default=600)
+
+    plot_width: int = Int(600, help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
 
     .. note::
@@ -510,7 +514,9 @@ class Plot(LayoutDOM):
 
     """)
 
-    plot_height = Int(600, help="""
+    height = Override(default=600)
+
+    plot_height: int = Int(600, help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
 
     .. note::
@@ -747,7 +753,7 @@ class _list_attr_splat(list):
             raise AttributeError("Trying to access %r attribute on a 'splattable' list, but list items have no %r attribute" % (attr, attr))
 
     def __dir__(self):
-        if len(set(type(x) for x in self)) == 1:
+        if len({type(x) for x in self}) == 1:
             return dir(self[0])
         else:
             return dir(self)

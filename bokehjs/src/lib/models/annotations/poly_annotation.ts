@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {LineScalar, FillScalar} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as mixins from "core/property_mixins"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Signal0} from "core/signaling"
 import * as p from "core/properties"
@@ -13,14 +13,11 @@ export class PolyAnnotationView extends AnnotationView {
     super.connect_signals()
     // need to respond to either normal BB change events or silent
     // "data only updates" that tools might want to use
-    this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.data_update, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.data_update, () => this.request_render())
   }
 
-  render(): void {
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     const {xs, ys} = this.model
 
     if (xs.length != ys.length)
@@ -30,18 +27,18 @@ export class PolyAnnotationView extends AnnotationView {
       return
 
     const {frame} = this.plot_view
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx: number
       if (this.model.xs_units == 'screen')
-        sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i])
+        sx = this.model.screen ? xs[i] : frame.bbox.xview.compute(xs[i])
       else
         throw new Error("not implemented")
 
       let sy: number
       if (this.model.ys_units == 'screen')
-        sy = this.model.screen ? ys[i] : frame.yview.compute(ys[i])
+        sy = this.model.screen ? ys[i] : frame.bbox.yview.compute(ys[i])
       else
         throw new Error("not implemented")
 
@@ -70,23 +67,24 @@ export class PolyAnnotationView extends AnnotationView {
 export namespace PolyAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineScalar & FillScalar & {
+  export type Props = Annotation.Props & {
     xs: p.Property<number[]>
     xs_units: p.Property<SpatialUnits>
     ys: p.Property<number[]>
     ys_units: p.Property<SpatialUnits>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     screen: p.Property<boolean>
-  }
+  } & Mixins
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
   properties: PolyAnnotation.Props
+  __view_type__: PolyAnnotationView
 
   data_update: Signal0<this>
 
@@ -97,22 +95,20 @@ export class PolyAnnotation extends Annotation {
   static init_PolyAnnotation(): void {
     this.prototype.default_view = PolyAnnotationView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<PolyAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
-    this.define<PolyAnnotation.Props>({
-      xs:           [ p.Array,        []        ],
-      xs_units:     [ p.SpatialUnits, 'data'    ],
-      ys:           [ p.Array,        []        ],
-      ys_units:     [ p.SpatialUnits, 'data'    ],
-      x_range_name: [ p.String,       'default' ],
-      y_range_name: [ p.String,       'default' ],
-    })
+    this.define<PolyAnnotation.Props>(({Number, Array}) => ({
+      xs:           [ Array(Number), [] ],
+      xs_units:     [ SpatialUnits, "data" ],
+      ys:           [ Array(Number), [] ],
+      ys_units:     [ SpatialUnits, "data" ],
+    }))
 
-    this.internal({
-      screen: [ p.Boolean, false ],
-    })
+    this.internal<PolyAnnotation.Props>(({Boolean}) => ({
+      screen: [ Boolean, false ],
+    }))
 
-    this.override({
+    this.override<PolyAnnotation.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",

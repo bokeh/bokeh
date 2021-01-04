@@ -1,8 +1,10 @@
-import {SidePanel} from "core/layout/side_panel"
-import {Size} from "core/layout"
+import {Panel} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {Arrayable} from "core/types"
+import {SerializableState} from "core/view"
+import * as p from "core/properties"
 import * as proj from "core/util/projections"
-import {extend} from "core/util/object"
-import {Context2d} from "core/util/canvas"
+import {max} from "core/util/array"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -10,11 +12,11 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
-  layout: SidePanel
+  layout?: Layoutable
+  panel?: Panel
 
-  get panel(): SidePanel | undefined { // XXX
-    return this.layout
-  }
+  update_layout?(): void
+  after_layout?(): void
 
   get_size(): Size {
     if (this.model.visible) {
@@ -24,27 +26,40 @@ export abstract class AnnotationView extends RendererView {
       return {width: 0, height: 0}
   }
 
-  connect_signals(): void {
-    super.connect_signals()
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
-
   protected _get_size(): Size {
     throw new Error("not implemented")
   }
 
-  get ctx(): Context2d {
-    return this.plot_view.canvas_view.ctx
+  connect_signals(): void {
+    super.connect_signals()
+
+    const p = this.model.properties
+    this.on_change(p.visible, () => {
+      if (this.layout != null) {
+        this.layout.visible = this.model.visible
+        this.plot_view.request_layout()
+      }
+    })
   }
 
   set_data(source: ColumnarDataSource): void {
-    const data = this.model.materialize_dataspecs(source)
-    extend(this as any, data)
+    const self = this as any
+
+    for (const prop of this.model) {
+      if (!(prop instanceof p.VectorSpec))
+        continue
+
+      // this skips optional properties like radius for circles
+      if (prop.optional && prop.spec.value == null && !prop.dirty)
+        continue
+
+      const array = prop.array(source)
+      self[`_${prop.attr}`] = array
+      if (prop instanceof p.DistanceSpec)
+        self[`max_${prop.attr}`] = max(array as Arrayable<number>)
+    }
 
     if (this.plot_model.use_map) {
-      const self = this as any
       if (self._x != null)
         [self._x, self._y] = proj.project_xy(self._x, self._y)
       if (self._xs != null)
@@ -56,7 +71,7 @@ export abstract class AnnotationView extends RendererView {
     return this.layout == null // TODO: change this, when center layout is fully implemented
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     const state = super.serializable_state()
     return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
   }
@@ -74,13 +89,14 @@ export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
   properties: Annotation.Props
+  __view_type__: AnnotationView
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)
   }
 
   static init_Annotation(): void {
-    this.override({
+    this.override<Annotation.Props>({
       level: 'annotation',
     })
   }

@@ -6,9 +6,8 @@ import {div, display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
-import {bk_below, bk_down} from "styles/mixins"
-import {bk_dropdown_toggle} from "styles/buttons"
-import {bk_menu, bk_caret, bk_divider} from "styles/menus"
+import * as buttons from "styles/buttons.css"
+import menus_css, * as menus from "styles/menus.css"
 
 export class DropdownView extends AbstractButtonView {
   model: Dropdown
@@ -17,23 +16,27 @@ export class DropdownView extends AbstractButtonView {
 
   protected menu: HTMLElement
 
+  styles(): string[] {
+    return [...super.styles(), menus_css]
+  }
+
   render(): void {
     super.render()
 
-    const caret = div({class: [bk_caret, bk_down]})
+    const caret = div({class: [menus.caret, menus.down]})
 
     if (!this.model.is_split)
       this.button_el.appendChild(caret)
     else {
       const toggle = this._render_button(caret)
-      toggle.classList.add(bk_dropdown_toggle)
+      toggle.classList.add(buttons.dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
       this.group_el.appendChild(toggle)
     }
 
     const items = this.model.menu.map((item, i) => {
       if (item == null)
-        return div({class: bk_divider})
+        return div({class: menus.divider})
       else {
         const label = isString(item) ? item : item[0]
         const el = div({}, label)
@@ -42,7 +45,7 @@ export class DropdownView extends AbstractButtonView {
       }
     })
 
-    this.menu = div({class: [bk_menu, bk_below]}, items)
+    this.menu = div({class: [menus.menu, menus.below]}, items)
     this.el.appendChild(this.menu)
     undisplay(this.menu)
   }
@@ -115,6 +118,7 @@ export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
   properties: Dropdown.Props
+  __view_type__: DropdownView
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)
@@ -123,12 +127,12 @@ export class Dropdown extends AbstractButton {
   static init_Dropdown(): void {
     this.prototype.default_view = DropdownView
 
-    this.define<Dropdown.Props>({
-      split:         [ p.Boolean, false ],
-      menu:          [ p.Array,   []    ],
-    })
+    this.define<Dropdown.Props>(({Null, Boolean, String, Array, Tuple, Or}) => ({
+      split: [ Boolean, false ],
+      menu:  [ Array(Or(String, Tuple(String, Or(String, /*TODO*/)), Null)), [] ],
+    }))
 
-    this.override({
+    this.override<Dropdown.Props>({
       label: "Dropdown",
     })
   }

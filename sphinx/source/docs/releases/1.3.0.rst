@@ -14,4 +14,4 @@ interesting new features:
 And several other bug fixes and docs additions. For more details see the
 :bokeh-tree:`CHANGELOG` or the `blog announcement`_.
 
-.. _blog announcement: https://blog.bokeh.org/posts/release-1-3-0
+.. _blog announcement: https://medium.com/bokeh/bokeh-1-3-0-released-cca6b7af20ef

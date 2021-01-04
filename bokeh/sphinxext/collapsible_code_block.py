@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Display code blocks in collapsible sections when outputting to HTML.
+# -----------------------------------------------------------------------------
+""" Display code blocks in collapsible sections when outputting to HTML.
 
 This directive takes a heading to use for the collapsible code block:
 
@@ -34,17 +34,18 @@ The inline example code above produces the following output:
 
         print("Hello, Bokeh!")
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from os.path import basename
@@ -57,25 +58,26 @@ from sphinx.directives.code import CodeBlock
 # Bokeh imports
 from .templates import CCB_EPILOGUE, CCB_PROLOGUE
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
-    'collapsible_code_block',
-    'CollapsibleCodeBlock',
-    'html_depart_collapsible_code_block',
-    'html_visit_collapsible_code_block',
-    'setup',
+    "collapsible_code_block",
+    "CollapsibleCodeBlock",
+    "html_depart_collapsible_code_block",
+    "html_visit_collapsible_code_block",
+    "setup",
 )
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 class collapsible_code_block(nodes.General, nodes.Element):
     pass
@@ -89,16 +91,17 @@ class CollapsibleCodeBlock(CodeBlock):
     def run(self):
         env = self.state.document.settings.env
 
-        rst_source = self.state_machine.node.document['source']
+        rst_source = self.state_machine.node.document["source"]
         rst_filename = basename(rst_source)
 
-        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('ccb'))
+        serial_no = env.new_serialno("ccb")
+        target_id = f"{rst_filename}.ccb-{serial_no}"
         target_id = target_id.replace(".", "-")
-        target_node = nodes.target('', '', ids=[target_id])
+        target_node = nodes.target("", "", ids=[target_id])
 
         node = collapsible_code_block()
-        node['target_id'] = target_id
-        node['heading'] = self.options.get('heading', "Code")
+        node["target_id"] = target_id
+        node["heading"] = self.options.get("heading", "Code")
 
         cb = CodeBlock.run(self)
         node.setup_child(cb[0])
@@ -106,32 +109,25 @@ class CollapsibleCodeBlock(CodeBlock):
 
         return [target_node, node]
 
+
 def html_visit_collapsible_code_block(self, node):
-    self.body.append(
-        CCB_PROLOGUE.render(
-            id=node['target_id'],
-            heading=node['heading']
-        )
-    )
+    self.body.append(CCB_PROLOGUE.render(id=node["target_id"], heading=node["heading"]))
+
 
 def html_depart_collapsible_code_block(self, node):
     self.body.append(CCB_EPILOGUE.render())
 
+
 def setup(app):
-    ''' Required Sphinx extension setup function. '''
-    app.add_node(
-        collapsible_code_block,
-        html=(
-            html_visit_collapsible_code_block,
-            html_depart_collapsible_code_block
-        )
-    )
-    app.add_directive('collapsible-code-block', CollapsibleCodeBlock)
+    """ Required Sphinx extension setup function. """
+    app.add_node(collapsible_code_block, html=(html_visit_collapsible_code_block, html_depart_collapsible_code_block))
+    app.add_directive("collapsible-code-block", CollapsibleCodeBlock)
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

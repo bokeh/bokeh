@@ -1,26 +1,40 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Text, Line, Fill} from "core/visuals"
-import {display, undisplay} from "core/dom"
+import * as visuals from "core/visuals"
+import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
+import {SideLayout} from "core/layout/side_panel"
 import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
-import {bk_annotation} from "styles/annotations"
-import {unreachable} from "core/util/assert"
+import {assert, unreachable} from "core/util/assert"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
   visuals: TextAnnotation.Visuals
 
-  readonly rotate: boolean = true
+  update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size(), true)
+    else
+      this.layout = undefined
+  }
+
+  protected el?: HTMLElement
 
   initialize(): void {
     super.initialize()
 
     if (this.model.render_mode == 'css') {
-      this.el.classList.add(bk_annotation)
+      this.el = div()
       this.plot_view.canvas_view.add_overlay(this.el)
     }
+  }
+
+  remove(): void {
+    if (this.el != null)
+      remove(this.el)
+    super.remove()
   }
 
   connect_signals(): void {
@@ -29,8 +43,15 @@ export abstract class TextAnnotationView extends AnnotationView {
       // dispatch CSS update immediately
       this.connect(this.model.change, () => this.render())
     } else {
-      this.connect(this.model.change, () => this.plot_view.request_render())
+      this.connect(this.model.change, () => this.request_render())
     }
+  }
+
+  render(): void {
+    if (!this.model.visible && this.model.render_mode == "css")
+      undisplay(this.el!)
+
+    super.render()
   }
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
@@ -67,8 +88,6 @@ export abstract class TextAnnotationView extends AnnotationView {
     return [x_offset, y_offset, width, height]
   }
 
-  abstract render(): void
-
   protected _canvas_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     this.visuals.text.set_value(ctx)
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
@@ -102,7 +121,10 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    undisplay(this.el)
+    const {el} = this
+    assert(el != null)
+
+    undisplay(el)
 
     this.visuals.text.set_value(ctx)
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
@@ -114,30 +136,30 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.visuals.border_line.set_value(ctx)
     this.visuals.background_fill.set_value(ctx)
 
-    this.el.style.position = 'absolute'
-    this.el.style.left = `${sx + bbox_dims[0]}px`
-    this.el.style.top = `${sy + bbox_dims[1]}px`
-    this.el.style.color = `${this.visuals.text.text_color.value()}`
-    this.el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    this.el.style.font = `${this.visuals.text.font_value()}`
-    this.el.style.lineHeight = "normal" // needed to prevent ipynb css override
+    el.style.position = 'absolute'
+    el.style.left = `${sx + bbox_dims[0]}px`
+    el.style.top = `${sy + bbox_dims[1]}px`
+    el.style.color = `${this.visuals.text.text_color.value()}`
+    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
+    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
-      this.el.style.transform = `rotate(${angle}rad)`
+      el.style.transform = `rotate(${angle}rad)`
     }
 
     if (this.visuals.background_fill.doit) {
-      this.el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
+      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
     }
 
     if (this.visuals.border_line.doit) {
-      this.el.style.borderStyle = `${line_dash}`
-      this.el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
-      this.el.style.borderColor = `${this.visuals.border_line.color_value()}`
+      el.style.borderStyle = `${line_dash}`
+      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
+      el.style.borderColor = `${this.visuals.border_line.color_value()}`
     }
 
-    this.el.textContent = text
-    display(this.el)
+    el.textContent = text
+    display(el)
   }
 }
 
@@ -149,9 +171,9 @@ export namespace TextAnnotation {
   }
 
   export type Visuals = Annotation.Visuals & {
-    text: Text
-    border_line: Line
-    background_fill: Fill
+    text: visuals.Text
+    border_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 
@@ -159,14 +181,15 @@ export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
   properties: TextAnnotation.Props
+  __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
   }
 
   static init_TextAnnotation(): void {
-    this.define<TextAnnotation.Props>({
-      render_mode: [ p.RenderMode, "canvas" ],
-    })
+    this.define<TextAnnotation.Props>(() => ({
+      render_mode: [ RenderMode, "canvas" ],
+    }))
   }
 }

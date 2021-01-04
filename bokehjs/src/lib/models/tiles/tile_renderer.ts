@@ -2,7 +2,7 @@ import {Tile} from "./tile_source"
 import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
-import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
@@ -13,9 +13,8 @@ import {Image, ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {SelectionManager} from "core/selection_manager"
-import {ColumnDataSource} from "../sources/column_data_source"
-import {bk_tile_attribution} from "styles/tiles"
+
+import tiles_css, {tile_attribution} from "styles/tiles.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -27,7 +26,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
   y_coord: number
 }
 
-export class TileRendererView extends DataRendererView {
+export class TileRendererView extends RendererView {
   model: TileRenderer
 
   protected attribution_el?: HTMLElement
@@ -53,6 +52,10 @@ export class TileRendererView extends DataRendererView {
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
+  styles(): string[] {
+    return [...super.styles(), tiles_css]
+  }
+
   get_extent(): Extent {
     return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end]
   }
@@ -62,7 +65,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   private get map_canvas(): Context2d {
-    return this.plot_view.canvas_view.ctx
+    return this.layer.ctx
   }
 
   private get map_frame(): CartesianFrame {
@@ -91,11 +94,11 @@ export class TileRendererView extends DataRendererView {
 
     if (isString(attribution) && attribution.length > 0) {
       const {layout, frame} = this.plot_view
-      const offset_right = layout._width.value - frame._right.value
-      const offset_bottom = layout._height.value - frame._bottom.value
-      const max_width = frame._width.value
+      const offset_right = layout.bbox.width - frame.bbox.right
+      const offset_bottom = layout.bbox.height - frame.bbox.bottom
+      const max_width = frame.bbox.width
       this.attribution_el = div({
-        class: bk_tile_attribution,
+        class: tile_attribution,
         style: {
           position: "absolute",
           right: `${offset_right}px`,
@@ -103,7 +106,7 @@ export class TileRendererView extends DataRendererView {
           'max-width': `${max_width - 4 /*padding*/}px`,
           padding: "2px",
           'background-color': 'rgba(255,255,255,0.5)',
-          'font-size': '7pt',
+          'font-size': '9px',
           'line-height': '1.05',
           'white-space': 'nowrap',
           overflow: 'hidden',
@@ -120,8 +123,8 @@ export class TileRendererView extends DataRendererView {
 
   protected _map_data(): void {
     this.initial_extent = this.get_extent()
-    const zoom_level = this.model.tile_source.get_level_by_extent(this.initial_extent, this.map_frame._height.value, this.map_frame._width.value)
-    const new_extent = this.model.tile_source.snap_to_zoom_level(this.initial_extent, this.map_frame._height.value, this.map_frame._width.value, zoom_level)
+    const zoom_level = this.model.tile_source.get_level_by_extent(this.initial_extent, this.map_frame.bbox.height, this.map_frame.bbox.width)
+    const new_extent = this.model.tile_source.snap_to_zoom_level(this.initial_extent, this.map_frame.bbox.height, this.map_frame.bbox.width, zoom_level)
     this.x_range.start = new_extent[0]
     this.y_range.start = new_extent[1]
     this.x_range.end = new_extent[2]
@@ -175,15 +178,15 @@ export class TileRendererView extends DataRendererView {
 
   protected _enforce_aspect_ratio(): void {
     // brute force way of handling resize or sizing_mode event -------------------------------------------------------------
-    if ((this._last_height !== this.map_frame._height.value) || (this._last_width !== this.map_frame._width.value)) {
+    if ((this._last_height !== this.map_frame.bbox.height) || (this._last_width !== this.map_frame.bbox.width)) {
       const extent = this.get_extent()
-      const zoom_level = this.model.tile_source.get_level_by_extent(extent, this.map_frame._height.value, this.map_frame._width.value)
-      const new_extent = this.model.tile_source.snap_to_zoom_level(extent, this.map_frame._height.value, this.map_frame._width.value, zoom_level)
-      this.x_range.setv({start:new_extent[0], end: new_extent[2]})
-      this.y_range.setv({start:new_extent[1], end: new_extent[3]})
+      const zoom_level = this.model.tile_source.get_level_by_extent(extent, this.map_frame.bbox.height, this.map_frame.bbox.width)
+      const new_extent = this.model.tile_source.snap_to_zoom_level(extent, this.map_frame.bbox.height, this.map_frame.bbox.width, zoom_level)
+      this.x_range.setv({start: new_extent[0], end: new_extent[2]})
+      this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent
-      this._last_height = this.map_frame._height.value
-      this._last_width = this.map_frame._width.value
+      this._last_height = this.map_frame.bbox.height
+      this._last_width = this.map_frame.bbox.width
     }
   }
 
@@ -205,7 +208,7 @@ export class TileRendererView extends DataRendererView {
     return true
   }
 
-  render(): void {
+  protected _render(): void {
     if (this.map_initialized == null) {
       this._set_data()
       this._map_data()
@@ -229,8 +232,8 @@ export class TileRendererView extends DataRendererView {
   _draw_tile(tile_key: string): void {
     const tile_data = this.model.tile_source.tiles.get(tile_key) as TileData | undefined
     if (tile_data != null && tile_data.loaded) {
-      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_data.bounds[0]], [tile_data.bounds[3]])
-      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_data.bounds[2]], [tile_data.bounds[1]])
+      const [[sxmin], [symin]] = this.coordinates.map_to_screen([tile_data.bounds[0]], [tile_data.bounds[3]])
+      const [[sxmax], [symax]] = this.coordinates.map_to_screen([tile_data.bounds[2]], [tile_data.bounds[1]])
       const sw = sxmax - sxmin
       const sh = symax - symin
       const sx = sxmin
@@ -245,10 +248,10 @@ export class TileRendererView extends DataRendererView {
 
   protected _set_rect(): void {
     const outline_width = this.plot_model.properties.outline_line_width.value()
-    const l = this.map_frame._left.value + (outline_width/2)
-    const t = this.map_frame._top.value + (outline_width/2)
-    const w = this.map_frame._width.value - outline_width
-    const h = this.map_frame._height.value - outline_width
+    const l = this.map_frame.bbox.left + (outline_width/2)
+    const t = this.map_frame.bbox.top + (outline_width/2)
+    const w = this.map_frame.bbox.width - outline_width
+    const h = this.map_frame.bbox.height - outline_width
     this.map_canvas.rect(l, t, w, h)
     this.map_canvas.clip()
   }
@@ -264,10 +267,10 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _prefetch_tiles(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
     const extent = this.get_extent()
-    const h = this.map_frame._height.value
-    const w = this.map_frame._width.value
+    const h = this.map_frame.bbox.height
+    const w = this.map_frame.bbox.width
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w)
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level)
     for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
@@ -292,15 +295,15 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _update(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
 
-    const { min_zoom } = tile_source
-    const { max_zoom } = tile_source
+    const {min_zoom} = tile_source
+    const {max_zoom} = tile_source
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])
-    const h = this.map_frame._height.value
-    const w = this.map_frame._width.value
+    const h = this.map_frame.bbox.height
+    const w = this.map_frame.bbox.width
     let zoom_level = tile_source.get_level_by_extent(extent, h, w)
     let snap_back = false
 
@@ -375,7 +378,7 @@ export class TileRendererView extends DataRendererView {
 export namespace TileRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = DataRenderer.Props & {
+  export type Props = Renderer.Props & {
     alpha: p.Property<number>
     smoothing: p.Property<boolean>
     tile_source: p.Property<TileSource>
@@ -385,8 +388,9 @@ export namespace TileRenderer {
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
-export class TileRenderer extends DataRenderer {
+export class TileRenderer extends Renderer {
   properties: TileRenderer.Props
+  __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)
@@ -395,20 +399,15 @@ export class TileRenderer extends DataRenderer {
   static init_TileRenderer(): void {
     this.prototype.default_view = TileRendererView
 
-    this.define<TileRenderer.Props>({
-      alpha:          [ p.Number,   1.0              ],
-      smoothing:      [ p.Boolean,  true             ],
-      tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-      render_parents: [ p.Boolean,  true             ],
+    this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({
+      alpha:          [ Number, 1.0 ],
+      smoothing:      [ Boolean, true ],
+      tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
+      render_parents: [ Boolean, true ],
+    }))
+
+    this.override<TileRenderer.Props>({
+      level: "image",
     })
-  }
-
-  // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs
-  private _selection_manager = new SelectionManager({
-    source: new ColumnDataSource(),
-  })
-
-  get_selection_manager(): SelectionManager {
-    return this._selection_manager
   }
 }

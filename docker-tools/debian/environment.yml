@@ -1,0 +1,17 @@
+channels:
+    - defaults
+    - bokeh
+    - conda-forge
+dependencies:
+    - bokeh >=1.4.0
+    - jinja2
+    - nomkl             # opt-out from MKL for smaller image footprint
+    - numba
+    - numpy
+    - pandas
+    - python=3.7
+    - pyyaml
+    - scikit-learn
+    - scipy
+    - sympy
+    - nodejs>=8.8

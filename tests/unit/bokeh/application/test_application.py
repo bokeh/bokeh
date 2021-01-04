@@ -21,7 +21,7 @@ import logging
 import mock
 
 # Bokeh imports
-from bokeh.application.handlers import CodeHandler, FunctionHandler
+from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler
 from bokeh.core.properties import Instance, Int
 from bokeh.document import Document
 from bokeh.model import Model
@@ -45,12 +45,21 @@ class SomeModelInTestApplication(Model):
     foo = Int(2)
     child = Instance(Model)
 
+class RequestHandler(Handler):
+    _failed = False
+    _static = None
+    def __init__(self, data):
+        self._data = data
+
+    def process_request(self, request):
+        return self._data
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Application(object):
 
+class Test_Application:
     # Public methods ----------------------------------------------------------
 
     def test_empty(self) -> None:
@@ -61,6 +70,13 @@ class Test_Application(object):
     def test_invalid_kwarg(self) -> None:
         with pytest.raises(TypeError):
             baa.Application(junk="foo")
+
+    def test_process_request(self) -> None:
+        a = baa.Application()
+        a.add(RequestHandler(dict(a=10)))
+        a.add(RequestHandler(dict(b=20)))
+        a.add(RequestHandler(dict(a=30)))
+        assert a.process_request("request") == dict(a=30, b=20)
 
     def test_one_handler(self) -> None:
         a = baa.Application()
@@ -190,16 +206,16 @@ class Test_Application(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Test_ServerContext(object):
 
+class Test_ServerContext:
     # Public methods ----------------------------------------------------------
 
     def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.ServerContext()
 
-class Test_SessionContext(object):
 
+class Test_SessionContext:
     def test_abstract(self) -> None:
         with pytest.raises(TypeError):
             baa.SessionContext()

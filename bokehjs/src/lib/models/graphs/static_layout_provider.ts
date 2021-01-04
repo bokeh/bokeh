@@ -1,6 +1,7 @@
 import {LayoutProvider} from "./layout_provider"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import * as p from "../../core/properties"
+import {Arrayable, NumberArray} from "core/types"
+import * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>
@@ -20,41 +21,46 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static init_StaticLayoutProvider(): void {
-    this.define<StaticLayoutProvider.Props>({
-      graph_layout: [ p.Any, {} ],
-    })
+    this.define<StaticLayoutProvider.Props>(({Number, Tuple, Dict}) => ({
+      graph_layout: [ Dict(Tuple(Number, Number)), {} ],
+    }))
   }
 
-  get_node_coordinates(node_source: ColumnarDataSource): [number[], number[]] {
-    const xs: number[] = []
-    const ys: number[] = []
-    const index = node_source.data.index
-    for (let i = 0, end = index.length; i < end; i++) {
+  get_node_coordinates(node_source: ColumnarDataSource): [NumberArray, NumberArray] {
+    const index = node_source.data.index ?? []
+    const n = index.length
+    const xs = new NumberArray(n)
+    const ys = new NumberArray(n)
+    for (let i = 0; i < n; i++) {
       const point = this.graph_layout[index[i]]
-      const [x, y] = point != null ? point : [NaN, NaN]
-      xs.push(x)
-      ys.push(y)
+      const [x, y] = point ?? [NaN, NaN]
+      xs[i] = x
+      ys[i] = y
     }
     return [xs, ys]
   }
 
-  get_edge_coordinates(edge_source: ColumnarDataSource): [[number, number][], [number, number][]] {
-    const xs: [number, number][] = []
-    const ys: [number, number][] = []
-    const starts = edge_source.data.start
-    const ends = edge_source.data.end
-    const has_paths = (edge_source.data.xs != null) && (edge_source.data.ys != null)
-    for (let i = 0, endi = starts.length; i < endi; i++) {
-      const in_layout = (this.graph_layout[starts[i]] != null) && (this.graph_layout[ends[i]] != null)
+  get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
+    const starts = edge_source.data.start ?? []
+    const ends = edge_source.data.end ?? []
+    const n = Math.min(starts.length, ends.length)
+    const xs: number[][] = []
+    const ys: number[][] = []
+    const has_paths = edge_source.data.xs != null && edge_source.data.ys != null
+    for (let i = 0; i < n; i++) {
+      const in_layout = this.graph_layout[starts[i]] != null && this.graph_layout[ends[i]] != null
       if (has_paths && in_layout) {
         xs.push(edge_source.data.xs[i])
         ys.push(edge_source.data.ys[i])
       } else {
-        let end, start
-        if (in_layout)
-          [start, end] = [this.graph_layout[starts[i]], this.graph_layout[ends[i]]]
-        else
-          [start, end] = [[NaN, NaN], [NaN, NaN]]
+        let start, end
+        if (in_layout) {
+          start = this.graph_layout[starts[i]]
+          end = this.graph_layout[ends[i]]
+        } else {
+          start = [NaN, NaN]
+          end = [NaN, NaN]
+        }
         xs.push([start[0], end[0]])
         ys.push([start[1], end[1]])
       }

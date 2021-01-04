@@ -46,7 +46,7 @@ from ..core.validation.errors import (
 from ..model import Model
 from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebSource
+from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------
@@ -84,14 +84,6 @@ class Renderer(Model):
     Is the renderer visible.
     """)
 
-@abstract
-class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
-
-    '''
-
-    level = Override(default="glyph")
-
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default x-range.
@@ -102,7 +94,7 @@ class DataRenderer(Renderer):
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
 
-class TileRenderer(DataRenderer):
+class TileRenderer(Renderer):
     '''
 
     '''
@@ -122,6 +114,16 @@ class TileRenderer(DataRenderer):
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
+
+    level = Override(default="image")
+
+@abstract
+class DataRenderer(Renderer):
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``GraphRenderer``).
+
+    '''
+
+    level = Override(default="glyph")
 
 class GlyphRenderer(DataRenderer):
     '''
@@ -152,7 +154,7 @@ class GlyphRenderer(DataRenderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
-        if isinstance(self.data_source, WebSource): return
+        if isinstance(self.data_source, WebDataSource): return
         missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
@@ -277,7 +279,7 @@ class GuideRenderer(Renderer):
 
     '''
 
-    level = Override(default="overlay")
+    level = Override(default="guide")
 
 #-----------------------------------------------------------------------------
 # Private API

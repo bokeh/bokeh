@@ -19,6 +19,7 @@ export interface ParallelResetTool extends ParallelResetTool.Attrs {}
 
 export class ParallelResetTool extends ActionTool {
   properties: ParallelResetTool.Props
+  __view_type__: ParallelResetToolView
 
   constructor(attrs?: Partial<ParallelResetTool.Attrs>) {
     super(attrs)

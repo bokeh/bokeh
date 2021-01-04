@@ -20,10 +20,12 @@ import logging
 import re
 import ssl
 import sys
+import time
 from datetime import timedelta
 
 # External imports
 import mock
+from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -37,7 +39,12 @@ from bokeh.core.properties import List, String
 from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
-from bokeh.util.session_id import check_session_id_signature
+from bokeh.util.token import (
+    check_token_signature,
+    generate_jwt_token,
+    get_session_id,
+    get_token_payload,
+)
 
 # Module under test
 import bokeh.server.server as server # isort:skip
@@ -163,7 +170,7 @@ def test_prefix(ManagedServerLoop) -> None:
         assert server.prefix == ""
 
     with ManagedServerLoop(application, prefix="foo") as server:
-        assert server.prefix == "foo"
+        assert server.prefix == "/foo"
 
 def test_index(ManagedServerLoop) -> None:
     application = Application()
@@ -173,7 +180,6 @@ def test_index(ManagedServerLoop) -> None:
     with ManagedServerLoop(application, index="foo") as server:
         assert server.index == "foo"
 
-@pytest.mark.asyncio
 async def test_get_sessions(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -223,12 +229,12 @@ async def test_get_sessions(ManagedServerLoop) -> None:
 # examples:
 # "sessionid" : "NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5"
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
-sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
-def extract_sessionid_from_json(html):
+token_in_json = re.compile("""["']token["'] *: *["']([^"]+)["']""")
+def extract_token_from_json(html):
     if not isinstance(html, str):
         import codecs
         html = codecs.decode(html, 'utf-8')
-    match = sessionid_in_json.search(html)
+    match = token_in_json.search(html)
     return match.group(1)
 
 # examples:
@@ -299,7 +305,6 @@ def test_base_server() -> None:
     server.stop()
     server.io_loop.close()
 
-@pytest.mark.asyncio
 async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
     def modify_doc(doc):
         doc.title = "Hello, world!"
@@ -314,6 +319,58 @@ async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
         session = server.get_sessions('/foo')[0]
         assert session.document.title == "Hello, world!"
 
+async def test__include_headers(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, include_headers=['Custom']) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server), headers={'Custom': 'Test'})
+        html = response.body
+        token = extract_token_from_json(html)
+        payload = get_token_payload(token)
+        assert 'headers' in payload
+        assert payload['headers'] == {'Custom': 'Test'}
+
+async def test__exclude_headers(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, exclude_headers=['Connection', 'Host']) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server))
+        html = response.body
+        token = extract_token_from_json(html)
+        payload = get_token_payload(token)
+        assert 'headers' in payload
+        assert payload["headers"].get("Accept-Encoding") == "gzip"
+
+async def test__include_cookies(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, include_cookies=['custom']) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server), headers={'Cookie': 'custom = test ; custom2 = test2'})
+        html = response.body
+        token = extract_token_from_json(html)
+        payload = get_token_payload(token)
+        assert 'cookies' in payload
+        assert payload['cookies'] == {'custom': 'test'}
+
+async def test__exclude_cookies(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, exclude_cookies=['custom']) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server), headers={'Cookie': 'custom = test ; custom2 = test2'})
+        html = response.body
+        token = extract_token_from_json(html)
+        payload = get_token_payload(token)
+        assert 'cookies' in payload
+        assert payload['cookies'] == {'custom2': 'test2'}
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -324,6 +381,7 @@ async def test_server_applications_callable_arg(ManagedServerLoop) -> None:
 
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="Lifecycle hooks order different on Windows (TODO open issue)")
+@flaky(max_runs=10)
 def test__lifecycle_hooks(ManagedServerLoop) -> None:
     application = Application()
     handler = HookTestHandler()
@@ -391,13 +449,13 @@ def test__lifecycle_hooks(ManagedServerLoop) -> None:
     assert client_hook_list.hooks == ["session_created", "modify"]
     assert server_hook_list.hooks == ["session_created", "modify"]
 
-@pytest.mark.asyncio
 async def test__request_in_session_context(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server) + "?foo=10")
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
 
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
@@ -405,13 +463,13 @@ async def test__request_in_session_context(ManagedServerLoop) -> None:
         # do we have a request
         assert session_context.request is not None
 
-@pytest.mark.asyncio
 async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server) + "?foo=10")
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
 
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
@@ -419,13 +477,13 @@ async def test__request_in_session_context_has_arguments(ManagedServerLoop) -> N
         # test if we can get the argument from the request
         assert session_context.request.arguments['foo'] == [b'10']
 
-@pytest.mark.asyncio
 async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         response = await http_get(server.io_loop, url(server))
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
 
         server_session = server.get_session('/', sessionid)
         server_doc = server_session.document
@@ -441,7 +499,6 @@ async def test__no_request_arguments_in_session_context(ManagedServerLoop) -> No
     ("&resources=none", False),
 ])
 
-@pytest.mark.asyncio
 async def test__resource_files_requested(querystring, requested, ManagedServerLoop) -> None:
     """
     Checks if the loading of resource files is requested by the autoload.js
@@ -452,7 +509,6 @@ async def test__resource_files_requested(querystring, requested, ManagedServerLo
         response = await http_get(server.io_loop, autoload_url(server) + querystring)
         resource_files_requested(response.body, requested=requested)
 
-@pytest.mark.asyncio
 async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -461,13 +517,13 @@ async def test__autocreate_session_autoload(ManagedServerLoop) -> None:
 
         response = await http_get(server.io_loop, autoload_url(server))
         js = response.body
-        sessionid = extract_sessionid_from_json(js)
+        token = extract_token_from_json(js)
+        sessionid = get_session_id(token)
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-@pytest.mark.asyncio
 async def test__no_set_title_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -479,7 +535,6 @@ async def test__no_set_title_autoload(ManagedServerLoop) -> None:
         use_for_title = extract_use_for_title_from_json(js)
         assert use_for_title == "false"
 
-@pytest.mark.asyncio
 async def test__autocreate_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -488,25 +543,25 @@ async def test__autocreate_session_doc(ManagedServerLoop) -> None:
 
         response = await http_get(server.io_loop, url(server))
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-@pytest.mark.asyncio
 async def test__no_autocreate_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        await websocket_open(server.io_loop, ws_url(server))
+        token = generate_jwt_token("")
+        await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-@pytest.mark.asyncio
 async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -516,14 +571,50 @@ async def test__use_provided_session_autoload(ManagedServerLoop) -> None:
         expected = 'foo'
         response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
         js = response.body
-        sessionid = extract_sessionid_from_json(js)
+        token = extract_token_from_json(js)
+        sessionid = get_session_id(token)
         assert expected == sessionid
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-@pytest.mark.asyncio
+async def test__use_provided_session_header_autoload(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        response = await http_get(server.io_loop, autoload_url(server), headers={'Bokeh-Session-Id': expected})
+        js = response.body
+        token = extract_token_from_json(js)
+        sessionid = get_session_id(token)
+        assert expected == sessionid
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
+async def test__use_provided_session_autoload_token(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        expected_token = generate_jwt_token(expected)
+        response = await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + expected_token)
+        js = response.body
+        token = extract_token_from_json(js)
+        assert expected_token == token
+        sessionid = get_session_id(token)
+        assert expected == sessionid
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+        assert expected == sessions[0].id
+
 async def test__use_provided_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -533,14 +624,14 @@ async def test__use_provided_session_doc(ManagedServerLoop) -> None:
         expected = 'foo'
         response = await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
         assert expected == sessionid
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-@pytest.mark.asyncio
 async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -548,14 +639,13 @@ async def test__use_provided_session_websocket(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + "?bokeh-session-id=" + expected
-        await websocket_open(server.io_loop, url)
+        token = generate_jwt_token(expected)
+        await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert expected == sessions[0].id
 
-@pytest.mark.asyncio
 async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
@@ -564,15 +654,15 @@ async def test__autocreate_signed_session_autoload(ManagedServerLoop) -> None:
 
         response = await http_get(server.io_loop, autoload_url(server))
         js = response.body
-        sessionid = extract_sessionid_from_json(js)
+        token = extract_token_from_json(js)
+        sessionid = get_session_id(token)
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+        assert check_token_signature(token, signed=True, secret_key='foo')
 
-@pytest.mark.asyncio
 async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='foo') as server:
@@ -581,15 +671,76 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop) -> None:
 
         response = await http_get(server.io_loop, url(server))
         html = response.body
-        sessionid = extract_sessionid_from_json(html)
+        token = extract_token_from_json(html)
+        sessionid = get_session_id(token)
 
         sessions = server.get_sessions('/')
         assert 1 == len(sessions)
         assert sessionid == sessions[0].id
 
-        assert check_session_id_signature(sessionid, signed=True, secret_key='foo')
+        assert check_token_signature(token, signed=True, secret_key='foo')
 
-@pytest.mark.asyncio
+@flaky(max_runs=10)
+async def test__accept_session_websocket(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, session_token_expiration=1) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server))
+        html = response.body
+        token = extract_token_from_json(html)
+
+        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
+        msg = await ws.read_queue.get()
+        assert isinstance(msg, str)
+        assert 'ACK' in msg
+
+async def test__reject_expired_session_websocket(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, session_token_expiration=1) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server))
+        html = response.body
+        token = extract_token_from_json(html)
+
+        time.sleep(1.1)
+
+        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
+        assert await ws.read_queue.get() is None
+
+async def test__reject_wrong_subprotocol_websocket(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        response = await http_get(server.io_loop, url(server))
+        html = response.body
+        token = extract_token_from_json(html)
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+
+        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["foo", token])
+        assert await ws.read_queue.get() is None
+
+async def test__reject_no_token_websocket(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        await http_get(server.io_loop, url(server))
+
+        sessions = server.get_sessions('/')
+        assert 1 == len(sessions)
+
+        ws = await websocket_open(server.io_loop, ws_url(server), subprotocols=["foo"])
+        assert await ws.read_queue.get() is None
+
 async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -599,12 +750,26 @@ async def test__reject_unsigned_session_autoload(ManagedServerLoop) -> None:
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, autoload_url(server) + "&bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+        assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-@pytest.mark.asyncio
+async def test__reject_unsigned_token_autoload(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        token = generate_jwt_token(expected)
+        with (pytest.raises(HTTPError)) as info:
+            await http_get(server.io_loop, autoload_url(server) + "&bokeh-token=" + token)
+        assert 'Invalid token or session ID' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
 async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -614,12 +779,25 @@ async def test__reject_unsigned_session_doc(ManagedServerLoop) -> None:
         expected = 'foo'
         with (pytest.raises(HTTPError)) as info:
             await http_get(server.io_loop, url(server) + "?bokeh-session-id=" + expected)
-        assert 'Invalid session ID' in repr(info.value)
+        assert 'Invalid token or session ID' in repr(info.value)
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-@pytest.mark.asyncio
+async def test__reject_unsigned_session_header_doc(ManagedServerLoop) -> None:
+    application = Application()
+    with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
+        expected = 'foo'
+        with (pytest.raises(HTTPError)) as info:
+            await http_get(server.io_loop, url(server), headers={"Bokeh-Session-Id": expected})
+        assert 'Invalid token or session ID' in repr(info.value)
+
+        sessions = server.get_sessions('/')
+        assert 0 == len(sessions)
+
 async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, sign_sessions=True, secret_key='bar') as server:
@@ -627,12 +805,12 @@ async def test__reject_unsigned_session_websocket(ManagedServerLoop) -> None:
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + "?bokeh-session-id=" + expected
-        await websocket_open(server.io_loop, url)
+        token = generate_jwt_token(expected)
+        await websocket_open(server.io_loop, ws_url(server), subprotocols=["bokeh", token])
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
-@pytest.mark.asyncio
+
 async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
@@ -646,7 +824,6 @@ async def test__no_generate_session_autoload(ManagedServerLoop) -> None:
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-@pytest.mark.asyncio
 async def test__no_generate_session_doc(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, generate_session_ids=False) as server:
@@ -679,7 +856,6 @@ def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, e
         with ManagedServerLoop(application, io_loop=loop, num_procs=3):
             pass
 
-@pytest.mark.asyncio
 async def test__actual_port_number(ManagedServerLoop) -> None:
     application = Application()
     with ManagedServerLoop(application, port=0) as server:

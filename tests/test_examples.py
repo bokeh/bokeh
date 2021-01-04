@@ -11,30 +11,101 @@ import platform
 import signal
 import subprocess
 import time
-from os.path import basename, dirname, split
+from os.path import abspath, basename, dirname, join, relpath, split
+
+# External imports
+import pytest
 
 # Bokeh imports
+from bokeh._testing.util.examples import Flags, collect_examples
 from bokeh._testing.util.screenshot import run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from bokeh.util.terminal import fail, info, ok, red, warn, white
+from bokeh.util.terminal import fail, info, red, warn, white
 
 is_windows = platform.system() == "Windows"
 
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh_server",
-    "bokeh._testing.plugins.examples_report",
 )
 
-def test_js_examples(js_example, example, config, report) -> None:
-    if example.no_js:
-        if not config.option.no_js:
-            warn("skipping bokehjs for %s" % example.relpath)
-    else:
-        _run_in_browser(example, "file://%s" % example.path, config.option.verbose)
+BASE_DIR = abspath(dirname(dirname(__file__)))
 
-def test_file_examples(file_example, example, config, report) -> None:
+_examples = None
+
+def get_all_examples(config):
+    global _examples
+    if _examples is None:
+        _examples = collect_examples(join(BASE_DIR, "tests", "examples.yaml"))
+
+        for example in _examples:
+            if config.option.no_js:
+                example.flags |= Flags.no_js
+
+    return _examples
+
+def pytest_generate_tests(metafunc):
+    if 'example' in metafunc.fixturenames:
+        config = metafunc.config
+        examples = get_all_examples(config)
+
+        def marks(example):
+            result = []
+            if example.is_skip:
+                result.append(pytest.mark.skip(reason="skipping %s" % example.relpath))
+            if example.is_xfail and not example.no_js:
+                result.append(pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True))
+            return result
+
+        if 'file_example' in metafunc.fixturenames:
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_file ]
+            metafunc.parametrize('file_example,example,config', params)
+        if 'server_example' in metafunc.fixturenames:
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_server ]
+            metafunc.parametrize('server_example,example,config', params)
+        if 'notebook_example' in metafunc.fixturenames:
+            params = [ pytest.param(e.path, e, config, marks=marks(e)) for e in examples if e.is_notebook ]
+            metafunc.parametrize('notebook_example,example,config', params)
+
+@pytest.fixture(scope="session", autouse=True)
+def report():
+    report = []
+    yield report
+
+    images = ""
+    for example in report:
+        images += relpath(example.img_path, BASE_DIR) + "\n"
+
+    contents = ""
+    for example in report:
+        path = relpath(example.path, BASE_DIR)
+        img_path = relpath(example.img_path, BASE_DIR)
+        contents += """<div>"""
+        contents += f"""<div><b>{path}</b></div>\n"""
+        contents += f"""<a href="{img_path}" target="_blank"><img src={img_path}></img></a>\n"""
+        contents += """</div>"""
+
+    html = f"""\
+<html>
+<head>
+<title>Examples report</title>
+</head>
+<body style="display: flex; flex-direction: column;">
+{contents}\
+</body>
+</html>
+"""
+
+    with open(join(BASE_DIR, ".images-list"), "w") as f:
+        f.write(images)
+
+    with open(join(BASE_DIR, "examples-report.html"), "w") as f:
+        f.write(html)
+
+def test_file_examples(file_example, example, report, config) -> None:
+    if config.option.verbose:
+        print()
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
 
@@ -55,9 +126,11 @@ def test_file_examples(file_example, example, config, report) -> None:
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
+        _run_in_browser(example, "file://%s.html" % example.path_no_ext, report, config.option.verbose)
 
-def test_server_examples(server_example, example, config, report, bokeh_server) -> None:
+def test_server_examples(server_example, example, report, config, bokeh_server) -> None:
+    if config.option.verbose:
+        print()
     app = build_single_handler_application(example.path)
     doc = app.create_document()
 
@@ -79,7 +152,7 @@ def test_server_examples(server_example, example, config, report, bokeh_server) 
         if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, config.option.verbose)
+        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, report, config.option.verbose)
 
 def _get_path_parts(path):
     parts = []
@@ -111,30 +184,7 @@ def _print_webengine_output(result):
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
-def _create_baseline(items):
-    lines = []
-
-    def descend(items, level):
-        for item in items:
-            type = item["type"]
-
-            bbox = item.get("bbox", None)
-            children = item.get("children", [])
-
-            line = "%s%s" % ("  "*level, type)
-
-            if bbox is not None:
-                line += " bbox=[%s, %s, %s, %s]" % (bbox["x"], bbox["y"], bbox["width"], bbox["height"])
-
-            line += "\n"
-
-            lines.append(line)
-            descend(children, level+1)
-
-    descend(items, 0)
-    return "".join(lines)
-
-def _run_in_browser(example, url, verbose=False):
+def _run_in_browser(example, url, report, verbose=False):
     start = time.time()
     result = run_in_chrome(url)
     end = time.time()
@@ -144,8 +194,10 @@ def _run_in_browser(example, url, verbose=False):
     success = result["success"]
     timeout = result["timeout"]
     errors = result["errors"]
-    state = result["state"]
+
     image = result["image"]
+    example.store_img(image["data"])
+    report.append(example)
 
     no_errors = len(errors) == 0
 
@@ -157,52 +209,7 @@ def _run_in_browser(example, url, verbose=False):
 
     assert success, "%s failed to load" % example.relpath
 
-    has_image = image is not None
-    has_state = state is not None
-    has_baseline = example.has_baseline
-    baseline_ok = True
-
-    if not has_state:
-        fail("no state data was produced for comparison with the baseline")
-    else:
-        new_baseline = _create_baseline(state)
-        example.store_baseline(new_baseline)
-
-        if not has_baseline:
-            fail("%s baseline doesn't exist" % example.baseline_path)
-        else:
-            result = example.diff_baseline()
-
-            if result is not None:
-                baseline_ok = False
-                fail("BASELINE DOESN'T MATCH (make sure to update baselines before running tests):")
-
-                for line in result.split("\n"):
-                    fail(line)
-
-    example.store_img(image["data"])
-    ref = example.fetch_ref()
-
-    if not ref:
-        warn("reference image %s doesn't exist" % example.ref_url)
-
-    if example.no_diff:
-        warn("skipping image diff for %s" % example.relpath)
-    elif not has_image:
-        fail("no image data was produced for comparison with the reference image")
-    elif ref:
-        pixels = example.image_diff()
-        if pixels != 0:
-            comment = white("%.02f%%" % pixels) + " of pixels"
-            warn("generated and reference images differ: %s" % comment)
-        else:
-            ok("generated and reference images match")
-
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
-    assert has_state, "%s didn't produce state data" % example.relpath
-    assert has_baseline, "%s doesn't have a baseline" % example.relpath
-    assert baseline_ok, "%s's baseline differs" % example.relpath
-
 
 def _run_example(example):
     code = """\

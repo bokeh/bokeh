@@ -1,36 +1,10 @@
-import lesscss from "less"
-
-import chalk from "chalk"
-import {argv} from "yargs"
-
-import {task, log} from "../task"
-import {scan, read, write, rename} from "@compiler/sys"
+import {compile_styles} from "@compiler/styles"
+import {task, BuildError} from "../task"
 import * as paths from "../paths"
 
 task("styles:compile", async () => {
-  const errors = []
-  for (const src of scan(paths.src_dir.less, [".less"])) {
-    try {
-      const less = read(src)!
-      const {css} = await lesscss.render(less, {filename: src})
-      const dst = rename(src, {
-        base: paths.src_dir.less,
-        dir: paths.build_dir.css,
-        ext: ".css",
-      })
-      write(dst, css)
-    } catch (error) {
-      errors.push(error.toString())
-    }
-  }
-
-  if (errors.length != 0) {
-    log(`There were ${chalk.red("" + errors.length)} Less errors:\n${errors.join("\n")}`)
-    if (argv.emitError)
-      process.exit(1)
-  }
+  const less_dir = paths.src_dir.less
+  const css_dir = paths.build_dir.css
+  if (!await compile_styles(less_dir, css_dir))
+    throw new BuildError("styles:compile", "failed to compile *.less and *.css source files")
 })
-
-task("styles:build", ["styles:compile"])
-
-task("styles", ["styles:build"])

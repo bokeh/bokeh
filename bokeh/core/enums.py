@@ -81,6 +81,7 @@ __all__ = (
     'Align',
     'Anchor',
     'AngleUnits',
+    'AutosizeMode',
     'ButtonType',
     'CalendarPosition',
     'DashPattern',
@@ -116,6 +117,7 @@ __all__ = (
     'RenderMode',
     'ResetPolicy',
     'RoundingFunction',
+    'SelectionMode',
     'SizingMode',
     'SizingPolicy',
     'SortDirection',
@@ -141,7 +143,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Enumeration(object):
+class Enumeration:
     ''' Represent an enumerated collection of values.
 
     .. note::
@@ -217,7 +219,7 @@ def enumeration(*values, **kwargs):
         "_quote": kwargs.get("quote", False),
     })
 
-    return type(str("Enumeration"), (Enumeration,), attrs)()
+    return type("Enumeration", (Enumeration,), attrs)()
 
 #: Alignment (vertical or horizontal) of a child item
 Align = enumeration("start", "center", "end")
@@ -225,14 +227,19 @@ Align = enumeration("start", "center", "end")
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
-    "center_left", "center",        "center_right",
-    "bottom_left", "bottom_center", "bottom_right")
+    "center_left", "center_center", "center_right",
+    "bottom_left", "bottom_center", "bottom_right",
+    "top", "left", "center", "right", "bottom",
+)
 
 #: Specify the units for an angle value
-AngleUnits = enumeration("deg", "rad")
+AngleUnits = enumeration("deg", "rad", "grad", "turn")
+
+#: Specify autosize mode for DataTable
+AutosizeMode = enumeration("fit_columns", "fit_viewport", "force_fit", "none")
 
 #: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger", "light")
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")
@@ -342,11 +349,15 @@ Location = enumeration("above", "below", "left", "right")
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 
 #: Specify one of the built-in marker types
-MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
-                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
-                         "square", "square_cross", "square_x", "triangle", "x")
+MarkerType = enumeration(
+    "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
+    "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
+    "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
+    "square_cross", "square_dot", "square_pin", "square_x", "triangle",
+    "triangle_dot", "triangle_pin", "x", "y"
+)
 
-#: Specify one of the 137 named CSS colors
+#: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify a locale for printing numeric values
@@ -368,7 +379,7 @@ PaddingUnits = enumeration("percent", "absolute")
 Palette = enumeration(*palettes.__palettes__)
 
 #: Specify a position in the render order for a Bokeh renderer
-RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
+RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
@@ -378,6 +389,9 @@ ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Selection modes
+SelectionMode = enumeration("replace", "append", "intersect", "subtract")
 
 #: Sizing mode policies
 SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",

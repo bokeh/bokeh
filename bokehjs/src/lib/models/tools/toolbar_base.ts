@@ -6,8 +6,10 @@ import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
-import {Set} from "core/util/data_structures"
+import {values} from "core/util/object"
 import {isString} from "core/util/types"
+import {CanvasLayer} from "core/util/canvas"
+import {BBox} from "core/util/bbox"
 import {Model} from "model"
 import {Tool} from "./tool"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
@@ -16,9 +18,9 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {bk_toolbar, bk_toolbar_hidden, bk_button_bar} from "styles/toolbar"
-import {bk_logo, bk_logo_small, bk_grey} from "styles/logo"
-import {bk_side} from "styles/mixins"
+
+import toolbars_css, * as toolbars from "styles/toolbar.css"
+import logos_css, * as logos from "styles/logo.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -39,10 +41,10 @@ export class ToolbarViewModel extends Model {
   }
 
   static init_ToolbarViewModel(): void {
-    this.define<ToolbarViewModel.Props>({
-      _visible: [ p.Any,     null  ],
-      autohide: [ p.Boolean, false ],
-    })
+    this.define<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
+      _visible: [ Nullable(Boolean), null ],
+      autohide: [ Boolean, false ],
+    }))
   }
 
   get visible(): boolean {
@@ -53,16 +55,17 @@ export class ToolbarViewModel extends Model {
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
 
-  protected _tool_button_views: {[key: string]: ButtonToolButtonView}
+  protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
 
   initialize(): void {
     super.initialize()
-    this._tool_button_views = {}
+    this._tool_button_views = new Map()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
   }
 
   async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     await this._build_tool_button_views()
   }
 
@@ -79,6 +82,10 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
+  styles(): string[] {
+    return [...super.styles(), toolbars_css, logos_css]
+  }
+
   remove(): void {
     remove_views(this._tool_button_views)
     super.remove()
@@ -86,7 +93,7 @@ export class ToolbarBaseView extends DOMView {
 
   protected async _build_tool_button_views(): Promise<void> {
     const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
-    await build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
+    await build_views(this._tool_button_views as any, tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {
@@ -97,7 +104,7 @@ export class ToolbarBaseView extends DOMView {
 
   protected _on_visible_change(): void {
     const visible = this._toolbar_view_model.visible
-    const hidden_class = bk_toolbar_hidden
+    const hidden_class = toolbars.toolbar_hidden
     if (this.el.classList.contains(hidden_class) && visible) {
       this.el.classList.remove(hidden_class)
     } else if (!visible) {
@@ -107,26 +114,30 @@ export class ToolbarBaseView extends DOMView {
 
   render(): void {
     empty(this.el)
-    this.el.classList.add(bk_toolbar)
-    this.el.classList.add(bk_side(this.model.toolbar_location))
+    this.el.classList.add(toolbars.toolbar)
+    this.el.classList.add(toolbars[this.model.toolbar_location])
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
 
     if (this.model.logo != null) {
-      const gray = this.model.logo === "grey" ? bk_grey : null
-      const logo = a({href: "https://bokeh.org/", target: "_blank", class: [bk_logo, bk_logo_small, gray]})
-      this.el.appendChild(logo)
+      const gray = this.model.logo === "grey" ? logos.grey : null
+      const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
+      this.el.appendChild(logo_el)
+    }
+
+    for (const [, button_view] of this._tool_button_views) {
+      button_view.render()
     }
 
     const bars: HTMLElement[][] = []
 
-    const el = (tool: Tool) => {
-      return this._tool_button_views[tool.id].el
+    const el = (tool: ButtonTool) => {
+      return this._tool_button_views.get(tool)!.el
     }
 
     const {gestures} = this.model
-    for (const et in gestures) {
-      bars.push(gestures[et as EventType].tools.map(el))
+    for (const gesture of values(gestures)) {
+      bars.push(gesture.tools.map(el))
     }
 
     bars.push(this.model.actions.map(el))
@@ -134,11 +145,13 @@ export class ToolbarBaseView extends DOMView {
 
     for (const bar of bars) {
       if (bar.length !== 0) {
-        const el = div({class: bk_button_bar}, bar)
+        const el = div({class: toolbars.button_bar}, bar)
         this.el.appendChild(el)
       }
     }
   }
+
+  layout = {bbox: new BBox()}
 
   update_layout(): void {}
 
@@ -147,19 +160,26 @@ export class ToolbarBaseView extends DOMView {
   after_layout(): void {
     this._has_finished = true
   }
+
+  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "png" ? "canvas" : "svg"
+    const canvas = new CanvasLayer(output_backend, hidpi)
+    canvas.resize(0, 0)
+    return canvas
+  }
 }
 
 export type GesturesMap = {
-  pan:       { tools: GestureTool[], active: Tool | null },
-  scroll:    { tools: GestureTool[], active: Tool | null },
-  pinch:     { tools: GestureTool[], active: Tool | null },
-  tap:       { tools: GestureTool[], active: Tool | null },
-  doubletap: { tools: GestureTool[], active: Tool | null },
-  press:     { tools: GestureTool[], active: Tool | null },
-  pressup:   { tools: GestureTool[], active: Tool | null },
-  rotate:    { tools: GestureTool[], active: Tool | null },
-  move:      { tools: GestureTool[], active: Tool | null },
-  multi:     { tools: GestureTool[], active: Tool | null },
+  pan:       { tools: GestureTool[], active: Tool | null }
+  scroll:    { tools: GestureTool[], active: Tool | null }
+  pinch:     { tools: GestureTool[], active: Tool | null }
+  tap:       { tools: GestureTool[], active: Tool | null }
+  doubletap: { tools: GestureTool[], active: Tool | null }
+  press:     { tools: GestureTool[], active: Tool | null }
+  pressup:   { tools: GestureTool[], active: Tool | null }
+  rotate:    { tools: GestureTool[], active: Tool | null }
+  move:      { tools: GestureTool[], active: Tool | null }
+  multi:     { tools: GestureTool[], active: Tool | null }
 }
 
 export type GestureType = keyof GesturesMap
@@ -170,7 +190,7 @@ export namespace ToolbarBase {
   export type Props = Model.Props & {
     tools: p.Property<Tool[]>
     logo: p.Property<Logo>
-    gestures: p.Property<GesturesMap>,
+    gestures: p.Property<GesturesMap>
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
     help: p.Property<HelpTool[]>
@@ -181,18 +201,18 @@ export namespace ToolbarBase {
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}
 
-function createGestureMap(): GesturesMap {
+function create_gesture_map(): GesturesMap {
   return {
-    pan:       { tools: [], active: null },
-    scroll:    { tools: [], active: null },
-    pinch:     { tools: [], active: null },
-    tap:       { tools: [], active: null },
-    doubletap: { tools: [], active: null },
-    press:     { tools: [], active: null },
-    pressup:   { tools: [], active: null },
-    rotate:    { tools: [], active: null },
-    move:      { tools: [], active: null },
-    multi:     { tools: [], active: null },
+    pan:       {tools: [], active: null},
+    scroll:    {tools: [], active: null},
+    pinch:     {tools: [], active: null},
+    tap:       {tools: [], active: null},
+    doubletap: {tools: [], active: null},
+    press:     {tools: [], active: null},
+    pressup:   {tools: [], active: null},
+    rotate:    {tools: [], active: null},
+    move:      {tools: [], active: null},
+    multi:     {tools: [], active: null},
   }
 }
 
@@ -206,18 +226,36 @@ export class ToolbarBase extends Model {
   static init_ToolbarBase(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<ToolbarBase.Props>({
-      tools:      [ p.Array,   []       ],
-      logo:       [ p.Logo,    'normal' ], // TODO (bev)
-      autohide:   [ p.Boolean, false    ],
-    })
+    this.define<ToolbarBase.Props>(({Boolean, Array, Ref}) => ({
+      tools:    [ Array(Ref(Tool)), [] ],
+      logo:     [ Logo, "normal" ],
+      autohide: [ Boolean, false ],
+    }))
 
-    this.internal({
-      gestures:         [ p.Any,      createGestureMap ],
-      actions:          [ p.Array,    []      ],
-      inspectors:       [ p.Array,    []      ],
-      help:             [ p.Array,    []      ],
-      toolbar_location: [ p.Location, 'right' ],
+    this.internal<ToolbarBase.Props>(({Array, Struct, Ref, Nullable}) => {
+      const GestureEntry = Struct({
+        tools: Array(Ref(GestureTool)),
+        active: Nullable(Ref(Tool)),
+      })
+      const GestureMap = Struct({
+        pan:       GestureEntry,
+        scroll:    GestureEntry,
+        pinch:     GestureEntry,
+        tap:       GestureEntry,
+        doubletap: GestureEntry,
+        press:     GestureEntry,
+        pressup:   GestureEntry,
+        rotate:    GestureEntry,
+        move:      GestureEntry,
+        multi:     GestureEntry,
+      })
+      return {
+        gestures:         [ GestureMap, create_gesture_map ],
+        actions:          [ Array(Ref(ActionTool)), [] ],
+        inspectors:       [ Array(Ref(InspectTool)), [] ],
+        help:             [ Array(Ref(HelpTool)), [] ],
+        toolbar_location: [ Location, "right" ],
+      }
     })
   }
 
@@ -251,10 +289,10 @@ export class ToolbarBase extends Model {
     }
     const check_event_type = (et: EventType, tool: Tool) => {
       if (!(et in this.gestures)) {
-        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
+        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
       }
     }
-    const new_gestures = createGestureMap()
+    const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
       if (tool instanceof GestureTool && tool.event_type) {
         if (isString(tool.event_type)) {
@@ -299,11 +337,11 @@ export class ToolbarBase extends Model {
       if (tool.active) {
         const currently_active_tool = this.gestures[et].active
         if (currently_active_tool != null && tool != currently_active_tool) {
-          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`)
+          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool} for event type '${et}'`)
           currently_active_tool.active = false
         }
         this.gestures[et].active = tool
-        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`)
+        logger.debug(`Toolbar: activating tool: ${tool} for event type '${et}'`)
       } else
         this.gestures[et].active = null
     }

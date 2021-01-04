@@ -25,6 +25,7 @@ export interface Spacer extends Spacer.Attrs {}
 
 export class Spacer extends LayoutDOM {
   properties: Spacer.Props
+  __view_type__: SpacerView
 
   constructor(attrs?: Partial<Spacer.Attrs>) {
     super(attrs)

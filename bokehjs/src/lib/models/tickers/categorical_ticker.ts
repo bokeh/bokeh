@@ -2,7 +2,7 @@ import {Ticker, TickSpec} from "./ticker"
 import {FactorRange, Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 
-export interface FactorTickSpec extends TickSpec<Factor> {
+export type FactorTickSpec = TickSpec<Factor> & {
   tops: Factor[]
   mids: Factor[]
 }
@@ -15,18 +15,18 @@ export namespace CategoricalTicker {
 
 export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 
-export class CategoricalTicker extends Ticker<Factor> {
+export class CategoricalTicker extends Ticker {
   properties: CategoricalTicker.Props
 
   constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
     super(attrs)
   }
 
-  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any): FactorTickSpec {
+  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: number): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 
-    const tops = this._collect(range.tops || [], range, start, end)
-    const mids = this._collect(range.mids || [], range, start, end)
+    const tops = this._collect(range.tops ?? [], range, start, end)
+    const mids = this._collect(range.mids ?? [], range, start, end)
 
     return {
       major: majors,

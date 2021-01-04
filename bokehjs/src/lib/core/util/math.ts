@@ -1,14 +1,16 @@
-const enum Direction {clock, anticlock}
+import {AngleUnits} from "../enums"
+
+const {PI} = Math
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
     return 0
   }
   while (angle <= 0) {
-    angle += 2*Math.PI
+    angle += 2*PI
   }
-  while (angle > 2*Math.PI) {
-    angle -= 2*Math.PI
+  while (angle > 2*PI) {
+    angle -= 2*PI
   }
   return angle
 }
@@ -17,15 +19,15 @@ export function angle_dist(lhs: number, rhs: number): number {
   return angle_norm(lhs-rhs)
 }
 
-export function angle_between(mid: number, lhs: number, rhs: number, direction: Direction): boolean {
+export function angle_between(mid: number, lhs: number, rhs: number, anticlock: boolean = false): boolean {
   const d = angle_dist(lhs, rhs)
   if (d == 0)
     return false
-  if (d == 2*Math.PI)
+  if (d == 2*PI)
     return true
   const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
-  return (direction == Direction.clock) ? cond : !cond
+  return !anticlock ? cond : !cond
 }
 
 export function random(): number {
@@ -49,6 +51,28 @@ export function atan2(start: [number, number], end: [number, number]): number {
   return Math.atan2(end[1] - start[1], end[0] - start[0])
 }
 
+export function radians(degrees: number): number {
+  return degrees*(PI/180)
+}
+
+export function degrees(radians: number): number {
+  return radians/(PI/180)
+}
+
+export function resolve_angle(angle: number, units: AngleUnits): number {
+  /** Convert CCW angle with units to CW radians (canvas). */
+  return -to_radians_coeff(units)*angle
+}
+
+export function to_radians_coeff(units: AngleUnits): number {
+  switch (units) {
+    case "deg":  return PI/180
+    case "rad":  return 1
+    case "grad": return PI/200
+    case "turn": return 2*PI
+  }
+}
+
 // http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)
 export function rnorm(mu: number, sigma: number): number {
   // Generate a random normal with a mean of 0 and a sigma of 1
@@ -70,9 +94,9 @@ export function rnorm(mu: number, sigma: number): number {
 }
 
 export function clamp(val: number, min: number, max: number): number {
-  if (val > max)
-    return max
-  if (val < min)
-    return min
-  return val
+  return val < min ? min : (val > max ? max : val)
+}
+
+export function log(x: number, base: number = Math.E): number {
+  return Math.log(x)/Math.log(base)
 }

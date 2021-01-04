@@ -9,10 +9,62 @@ import {Plot, PlotView} from "../plots/plot"
 import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
+import type {PanTool} from "./gestures/pan_tool"
+import type {WheelPanTool} from "./gestures/wheel_pan_tool"
+import type {WheelZoomTool} from "./gestures/wheel_zoom_tool"
+import type {ZoomInTool} from "./actions/zoom_in_tool"
+import type {ZoomOutTool} from "./actions/zoom_out_tool"
+import type {TapTool} from "./gestures/tap_tool"
+import type {CrosshairTool} from "./inspectors/crosshair_tool"
+import type {BoxSelectTool} from "./gestures/box_select_tool"
+import type {PolySelectTool} from "./gestures/poly_select_tool"
+import type {LassoSelectTool} from "./gestures/lasso_select_tool"
+import type {BoxZoomTool} from "./gestures/box_zoom_tool"
+import type {HoverTool} from "./inspectors/hover_tool"
+import type {SaveTool} from "./actions/save_tool"
+import type {UndoTool} from "./actions/undo_tool"
+import type {RedoTool} from "./actions/redo_tool"
+import type {ResetTool} from "./actions/reset_tool"
+import type {HelpTool} from "./actions/help_tool"
+
+export type ToolAliases = {
+  pan:          PanTool
+  xpan:         PanTool
+  ypan:         PanTool
+  xwheel_pan:   WheelPanTool
+  ywheel_pan:   WheelPanTool
+  wheel_zoom:   WheelZoomTool
+  xwheel_zoom:  WheelZoomTool
+  ywheel_zoom:  WheelZoomTool
+  zoom_in:      ZoomInTool
+  xzoom_in:     ZoomInTool
+  yzoom_in:     ZoomInTool
+  zoom_out:     ZoomOutTool
+  xzoom_out:    ZoomOutTool
+  yzoom_out:    ZoomOutTool
+  click:        TapTool
+  tap:          TapTool
+  crosshair:    CrosshairTool
+  box_select:   BoxSelectTool
+  xbox_select:  BoxSelectTool
+  ybox_select:  BoxSelectTool
+  poly_select:  PolySelectTool
+  lasso_select: LassoSelectTool
+  box_zoom:     BoxZoomTool
+  xbox_zoom:    BoxZoomTool
+  ybox_zoom:    BoxZoomTool
+  hover:        HoverTool
+  save:         SaveTool
+  undo:         UndoTool
+  redo:         RedoTool
+  reset:        ResetTool
+  help:         HelpTool
+}
+
 export abstract class ToolView extends View {
   model: Tool
 
-  parent: PlotView
+  readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent
@@ -69,6 +121,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    description: p.Property<string | null>
     active: p.Property<boolean>
   }
 }
@@ -79,31 +132,28 @@ export interface Tool extends Tool.Attrs {
 
 export abstract class Tool extends Model {
   properties: Tool.Props
+  __view_type__: ToolView
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)
   }
 
   static init_Tool(): void {
-    this.internal({
-      active: [ p.Boolean, false ],
-    })
+    this.prototype._known_aliases = new Map()
+
+    this.define<Tool.Props>(({String, Nullable}) => ({
+      description: [ Nullable(String), null ],
+    }))
+
+    this.internal<Tool.Props>(({Boolean}) => ({
+      active: [ Boolean, false ],
+    }))
   }
 
   readonly event_type?: EventType | EventType[]
 
   get synthetic_renderers(): Renderer[] {
     return []
-  }
-
-  // utility function to return a tool name, modified
-  // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(name: string, dims: Dimensions): string {
-    switch (dims) {
-      case "width":  return `${name} (x-axis)`
-      case "height": return `${name} (y-axis)`
-      case "both":   return name
-    }
   }
 
   // utility function to get limits along both dimensions, given
@@ -128,5 +178,25 @@ export abstract class Tool extends Model {
       sylim = [vr.start, vr.end]
 
     return [sxlim, sylim]
+  }
+
+  /** @prototype */
+  private _known_aliases: Map<string, () => Tool>
+
+  static register_alias(name: string, fn: () => Tool): void {
+    this.prototype._known_aliases.set(name, fn)
+  }
+
+  static from_string<K extends keyof ToolAliases>(name: K): ToolAliases[K]
+  static from_string(name: string): Tool
+
+  static from_string(name: string): Tool {
+    const fn = this.prototype._known_aliases.get(name)
+    if (fn != null)
+      return fn()
+    else {
+      const names = [...this.prototype._known_aliases.keys()]
+      throw new Error(`unexpected tool name '${name}', possible tools are ${names.join(", ")}`)
+    }
   }
 }

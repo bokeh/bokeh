@@ -1,46 +1,100 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable} from "core/types"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import * as hittest from "core/hittest"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
+import {concat} from "core/util/array"
+import {NDArray, is_NDArray} from "core/util/ndarray"
+import {assert} from "core/util/assert"
 
 export interface ImageDataBase extends XYGlyphData {
-  image_data: Arrayable<HTMLCanvasElement>
+  image_data: HTMLCanvasElement[]
 
-  _image: Arrayable<Arrayable<number> | number[][]>
-  _dw: Arrayable<number>
-  _dh: Arrayable<number>
+  _image: (NDArray | number[][])[]
+  _dw: NumberArray
+  _dh: NumberArray
 
-  _image_shape?: Arrayable<[number, number]>
-
-  sw: Arrayable<number>
-  sh: Arrayable<number>
+  sw: NumberArray
+  sh: NumberArray
 }
 
 export interface ImageBaseView extends ImageDataBase {}
 
-export class ImageBaseView extends XYGlyphView {
+export abstract class ImageBaseView extends XYGlyphView {
   model: ImageBase
   visuals: ImageBase.Visuals
 
-  protected _width: Arrayable<number>
-  protected _height: Arrayable<number>
+  protected _width: NumberArray
+  protected _height: NumberArray
 
-  protected _render(_ctx: Context2d, _indices: number[], _data: ImageDataBase): void {}
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
+  }
 
-  _index_data(): SpatialIndex {
-    const points = []
-    for (let i = 0, end = this._x.length; i < end; i++) {
-      const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b)) {
+  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: ImageDataBase): void {
+    const old_smoothing = ctx.getImageSmoothingEnabled()
+    ctx.setImageSmoothingEnabled(false)
+
+    ctx.globalAlpha = this.model.global_alpha
+
+    for (const i of indices) {
+      if (image_data[i] == null || isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
         continue
-      }
-      points.push({x0: l, y0: b, x1: r, y1: t, i})
+
+      const y_offset = sy[i]
+
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
+      ctx.drawImage(image_data[i], sx[i]|0, sy[i]|0, sw[i], sh[i])
+      ctx.translate(0, y_offset)
+      ctx.scale(1, -1)
+      ctx.translate(0, -y_offset)
     }
-    return new SpatialIndex(points)
+
+    ctx.setImageSmoothingEnabled(old_smoothing)
+  }
+
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
+
+  protected _set_data(indices: number[] | null): void {
+    this._set_width_heigh_data()
+
+    for (let i = 0, end = this._image.length; i < end; i++) {
+      if (indices != null && indices.indexOf(i) < 0)
+        continue
+
+      const img = this._image[i]
+      let flat_img: Arrayable<number>
+      if (is_NDArray(img)) {
+        assert(img.dimension == 2, "expected a 2D array")
+        flat_img = img
+        this._height[i] = img.shape[0]
+        this._width[i] = img.shape[1]
+      } else {
+        flat_img = concat(img)
+        this._height[i] = img.length
+        this._width[i] = img[0].length
+      }
+
+      const buf8 = this._flat_img_to_buf8(flat_img)
+      this._set_image_data_from_buffer(i, buf8)
+    }
+  }
+
+  protected _index_data(index: SpatialIndex): void {
+    const {data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
+      const [l, r, t, b] = this._lrtb(i)
+      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
+        index.add_empty()
+      else
+        index.add(l, b, r, t)
+    }
   }
 
   _lrtb(i: number): [number, number, number, number]{
@@ -62,10 +116,10 @@ export class ImageBaseView extends XYGlyphView {
       this.image_data = new Array(this._image.length)
 
     if (this._width == null || this._width.length != this._image.length)
-      this._width = new Array(this._image.length)
+      this._width = new NumberArray(this._image.length)
 
     if (this._height == null || this._height.length != this._image.length)
-      this._height = new Array(this._image.length)
+      this._height = new NumberArray(this._image.length)
   }
 
   protected _get_or_create_canvas(i: number): HTMLCanvasElement {
@@ -81,7 +135,7 @@ export class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _set_image_data_from_buffer(i: number, buf8: Uint8Array): void {
+  protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
     const canvas = this._get_or_create_canvas(i)
     const ctx = canvas.getContext('2d')!
     const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i])
@@ -91,27 +145,15 @@ export class ImageBaseView extends XYGlyphView {
   }
 
   protected _map_data(): void {
-    switch (this.model.properties.dw.units) {
-      case "data": {
-        this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sw = this._dw
-        break
-      }
-    }
+    if (this.model.properties.dw.units == "data")
+      this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
+    else
+      this.sw = this._dw
 
-    switch (this.model.properties.dh.units) {
-      case "data": {
-        this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
-        break
-      }
-      case "screen": {
-        this.sh = this._dh
-        break
-      }
-    }
+    if (this.model.properties.dh.units == "data")
+      this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
+    else
+      this.sh = this._dh
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {
@@ -133,25 +175,25 @@ export class ImageBaseView extends XYGlyphView {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
-    const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
-    const result = hittest.create_empty_hit_test_result()
 
-    result.image_indices = []
+    const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
+    const result = new Selection()
+
     for (const index of candidates) {
-      if ((sx != Infinity) && (sy != Infinity)) {
+      if (sx != Infinity && sy != Infinity) {
         result.image_indices.push(this._image_index(index, x, y))
       }
     }
+
     return result
   }
-
 }
 
 export namespace ImageBase {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    image: p.NumberSpec
+    image: p.NDArraySpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
     global_alpha: p.Property<number>
@@ -163,22 +205,21 @@ export namespace ImageBase {
 
 export interface ImageBase extends ImageBase.Attrs {}
 
-export class ImageBase extends XYGlyph {
+export abstract class ImageBase extends XYGlyph {
   properties: ImageBase.Props
+  __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)
   }
 
   static init_ImageBase(): void {
-    this.prototype.default_view = ImageBaseView
-
-    this.define<ImageBase.Props>({
-      image:        [ p.NumberSpec       ], // TODO (bev) array spec?
-      dw:           [ p.DistanceSpec     ],
-      dh:           [ p.DistanceSpec     ],
-      dilate:       [ p.Boolean,   false ],
-      global_alpha: [ p.Number,    1.0   ],
-    })
+    this.define<ImageBase.Props>(({Boolean, Alpha}) => ({
+      image:        [ p.NDArraySpec ],
+      dw:           [ p.DistanceSpec ],
+      dh:           [ p.DistanceSpec ],
+      dilate:       [ Boolean, false ],
+      global_alpha: [ Alpha, 1.0 ],
+    }))
   }
 }

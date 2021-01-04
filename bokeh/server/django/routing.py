@@ -8,6 +8,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ class Routing:
 
     def _normalize(self, obj: ApplicationLike) -> Application:
         if callable(obj):
-            return Application(FunctionHandler(obj))
+            return Application(FunctionHandler(obj, trap_exceptions=True))
         elif isinstance(obj, Path):
             return build_single_handler_application(obj)
         else:
@@ -92,12 +93,12 @@ def directory(*apps_paths: Path) -> List[Routing]:
         if apps_path.exists():
             paths += [ entry for entry in apps_path.glob("*") if is_bokeh_app(entry) ]
         else:
-            log.warn("bokeh applications directory '{}' doesn't exist".format(apps_path))
+            log.warn(f"bokeh applications directory '{apps_path}' doesn't exist")
 
     return [ document(url, app) for url, app in build_single_handler_applications(paths).items() ]
 
-class RoutingConfiguration(object):
 
+class RoutingConfiguration:
     _http_urlpatterns: List[str] = []
     _websocket_urlpatterns: List[str] = []
 

@@ -30,7 +30,7 @@ cmap = {
 
 source = ColumnDataSource(df)
 
-p = figure(plot_width=900, plot_height=500, title="Periodic Table (omitting LA and AC Series)",
+p = figure(plot_width=900, plot_height=500, title="Periodic table (omitting LA and AC series)",
            x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="hover")
 
 p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend_field="metal",
@@ -44,13 +44,13 @@ r = p.text(x=x, y="period", text="symbol", **text_props)
 r.glyph.text_font_style="bold"
 
 r = p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number", **text_props)
-r.glyph.text_font_size="8pt"
+r.glyph.text_font_size="11px"
 
 r = p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name", **text_props)
-r.glyph.text_font_size="5pt"
+r.glyph.text_font_size="7px"
 
 r = p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", **text_props)
-r.glyph.text_font_size="5pt"
+r.glyph.text_font_size="7px"
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 

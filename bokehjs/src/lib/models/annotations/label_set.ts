@@ -1,15 +1,14 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {TextVector} from "core/property_mixins"
-import {LineJoin, LineCap} from "core/enums"
+import * as mixins from "core/property_mixins"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {div, display, undisplay} from "core/dom"
+import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
-import {bk_annotation_child} from "styles/annotations"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -29,8 +28,8 @@ export class LabelSetView extends TextAnnotationView {
 
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
-        const el = div({class: bk_annotation_child, style: {display: "none"}})
-        this.el.appendChild(el)
+        const el = div({style: {display: "none"}})
+        this.el!.appendChild(el)
       }
     }
   }
@@ -58,49 +57,38 @@ export class LabelSetView extends TextAnnotationView {
     } else {
       this.connect(this.model.change, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.streaming, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.patching, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
       this.connect(this.model.source.change, () => {
         this.set_data(this.model.source)
-        this.plot_view.request_render()
+        this.request_render()
       })
     }
   }
 
-  set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.visuals.warm_cache(source)
-  }
-
   protected _map_data(): [Arrayable<number>, Arrayable<number>] {
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
-    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
+    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.bbox.xview.v_compute(this._x)
+    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.bbox.yview.v_compute(this._y)
 
     return [sx, sy]
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
 
     const [sx, sy] = this._map_data()
 
@@ -110,7 +98,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _get_size(): Size {
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
     const {width, ascent} = ctx.measureText(this._text[0])
@@ -148,7 +136,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _v_css_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
-    const el = this.el.children[i] as HTMLElement
+    const el = this.el!.children[i] as HTMLElement
     el.textContent = text
 
     this.visuals.text.set_vectorize(ctx, i)
@@ -190,9 +178,9 @@ export class LabelSetView extends TextAnnotationView {
 export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = TextAnnotation.Props & TextVector & {
-    x: p.NumberSpec
-    y: p.NumberSpec
+  export type Props = TextAnnotation.Props & {
+    x: p.XCoordinateSpec
+    y: p.YCoordinateSpec
     x_units: p.Property<SpatialUnits>
     y_units: p.Property<SpatialUnits>
     text: p.StringSpec
@@ -200,30 +188,25 @@ export namespace LabelSet {
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
+  } & Mixins
 
-    // line:border_ v
-    border_line_color: p.ColorSpec
-    border_line_width: p.NumberSpec
-    border_line_alpha: p.NumberSpec
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
+  export type Mixins =
+    mixins.TextVector &
+    mixins.Prefixed<"border", mixins.LineVector> &
+    mixins.Prefixed<"background", mixins.FillVector>
 
-    // fill:background_ v
-    background_fill_color: p.ColorSpec
-    background_fill_alpha: p.NumberSpec
+  export type Visuals = TextAnnotation.Visuals & {
+    text: visuals.TextVector
+    border_line: visuals.LineVector
+    background_fill: visuals.FillVector
   }
-
-  export type Visuals = TextAnnotation.Visuals
 }
 
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
   properties: LabelSet.Props
+  __view_type__: LabelSetView
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)
@@ -232,23 +215,25 @@ export class LabelSet extends TextAnnotation {
   static init_LabelSet(): void {
     this.prototype.default_view = LabelSetView
 
-    this.mixins(['text', 'line:border_', 'fill:background_'])
+    this.mixins<LabelSet.Mixins>([
+      mixins.TextVector,
+      ["border_",     mixins.LineVector],
+      ["background_", mixins.FillVector],
+    ])
 
-    this.define<LabelSet.Props>({
-      x:            [ p.NumberSpec                      ],
-      y:            [ p.NumberSpec                      ],
-      x_units:      [ p.SpatialUnits, 'data'            ],
-      y_units:      [ p.SpatialUnits, 'data'            ],
-      text:         [ p.StringSpec,   { field: "text" } ],
-      angle:        [ p.AngleSpec,    0                 ],
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      source:       [ p.Instance,     () => new ColumnDataSource()  ],
-      x_range_name: [ p.String,      'default'          ],
-      y_range_name: [ p.String,      'default'          ],
-    })
+    this.define<LabelSet.Props>(({Ref}) => ({
+      x:            [ p.XCoordinateSpec ],
+      y:            [ p.YCoordinateSpec ],
+      x_units:      [ SpatialUnits, "data" ],
+      y_units:      [ SpatialUnits, "data" ],
+      text:         [ p.StringSpec, {field: "text"} ],
+      angle:        [ p.AngleSpec, 0 ],
+      x_offset:     [ p.NumberSpec, {value: 0} ],
+      y_offset:     [ p.NumberSpec, {value: 0} ],
+      source:       [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
+    }))
 
-    this.override({
+    this.override<LabelSet.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

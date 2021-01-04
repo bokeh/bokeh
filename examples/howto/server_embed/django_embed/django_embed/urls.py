@@ -22,7 +22,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
 import bokeh
-from bokeh.server.django import autoload, directory, document
+from bokeh.server.django import autoload, directory, document, static_extensions
 
 from . import views
 
@@ -46,4 +46,5 @@ bokeh_apps = [
 apps_path = Path(bokeh.__file__).parent.parent / "examples" / "app"
 bokeh_apps += directory(apps_path)
 
+urlpatterns += static_extensions()
 urlpatterns += staticfiles_urlpatterns()

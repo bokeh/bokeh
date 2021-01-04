@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from enum import Enum, auto
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -27,6 +30,7 @@ __all__ = (
     'CONNECTED_BEFORE_ACK',
     'CONNECTED_AFTER_ACK',
     'DISCONNECTED',
+    'ErrorReason',
     'NOT_YET_CONNECTED',
     'WAITING_FOR_REPLY',
 )
@@ -39,7 +43,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class NOT_YET_CONNECTED(object):
+class ErrorReason(Enum):
+    NO_ERROR        = auto()
+    HTTP_ERROR      = auto()
+    NETWORK_ERROR   = auto()
+
+class NOT_YET_CONNECTED:
     ''' The ``ClientConnection`` is not yet connected.
 
     '''
@@ -47,7 +56,7 @@ class NOT_YET_CONNECTED(object):
     async def run(self, connection):
         return await connection._connect_async()
 
-class CONNECTED_BEFORE_ACK(object):
+class CONNECTED_BEFORE_ACK:
     ''' The ``ClientConnection`` connected to a Bokeh server, but has not yet
     received an ACK from it.
 
@@ -56,7 +65,7 @@ class CONNECTED_BEFORE_ACK(object):
     async def run(self, connection):
         return await connection._wait_for_ack()
 
-class CONNECTED_AFTER_ACK(object):
+class CONNECTED_AFTER_ACK:
     ''' The ``ClientConnection`` connected to a Bokeh server, and has
     received an ACK from it.
 
@@ -65,16 +74,47 @@ class CONNECTED_AFTER_ACK(object):
     async def run(self, connection):
         return await connection._handle_messages()
 
-class DISCONNECTED(object):
+class DISCONNECTED:
     ''' The ``ClientConnection`` was connected to a Bokeh server, but is
     now disconnected.
 
     '''
 
+    def __init__(self, reason=ErrorReason.NO_ERROR, error_code=None, error_detail=""):
+        ''' Constructs a DISCONNECT-State with given reason (``ErrorReason``
+        enum), error id and additional information provided as string.
+
+        '''
+        self._error_code = error_code
+        self._error_detail = error_detail
+        self._error_reason = reason
+
+
+    @property
+    def error_reason(self):
+        ''' The reason for the error encoded as an enumeration value.
+
+        '''
+        return self._error_reason
+
+    @property
+    def error_code(self):
+        ''' Holds the error code, if any. None otherwise.
+
+        '''
+        return self._error_code
+
+    @property
+    def error_detail(self):
+        ''' Holds the error message, if any. Empty string otherwise.
+
+        '''
+        return self._error_detail
+
     async def run(self, connection):
         return None
 
-class WAITING_FOR_REPLY(object):
+class WAITING_FOR_REPLY:
     ''' The ``ClientConnection`` has sent a message to the Bokeh Server which
     should generate a paired reply, and is waiting for the reply.
 

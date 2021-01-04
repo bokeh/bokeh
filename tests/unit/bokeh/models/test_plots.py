@@ -22,6 +22,7 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.models import (
     CategoricalScale,
+    CustomJS,
     DataRange1d,
     FactorRange,
     GlyphRenderer,
@@ -52,8 +53,8 @@ Before legend properties can be set, you must add a Legend explicitly, or call a
 # General API
 #-----------------------------------------------------------------------------
 
-class TestPlotLegendProperty(object):
 
+class TestPlotLegendProperty:
     def test_basic(self) -> None:
         plot = figure(tools='')
         x = plot.legend
@@ -71,8 +72,8 @@ class TestPlotLegendProperty(object):
             assert len(warns) == 1
             assert warns[0].message.args[0] == _LEGEND_EMPTY_WARNING
 
-class TestPlotSelect(object):
 
+class TestPlotSelect:
     def setup_method(self):
         self._plot = figure(tools='pan')
         self._plot.circle([1,2,3], [3,2,1], name='foo')
@@ -128,8 +129,8 @@ class TestPlotSelect(object):
             self._plot.select('foo', type=PanTool)
         assert 'select accepts EITHER a positional argument, OR keyword arguments (not both).' == str(exc.value)
 
-class TestPlotValidation(object):
 
+class TestPlotValidation:
     def test_missing_renderers(self) -> None:
         p = figure()
         p.renderers = []
@@ -187,11 +188,13 @@ class TestPlotValidation(object):
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
+    def test_bad_extra_range_only_immediate_refs(self) -> None:
         # test whether adding a figure (*and* it's extra ranges)
         # to another's references doesn't create a false positive
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
         dep.grid.x_range_name="foo"
+        p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0
@@ -221,14 +224,14 @@ def test_sizing_mode_property_is_fixed_by_default() -> None:
     assert plot.sizing_mode is None
 
 
-class BaseTwinAxis(object):
+class BaseTwinAxis:
     """Base class for testing extra ranges"""
 
     def verify_axis(self, axis_name):
         plot = Plot()
-        range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
-        range_obj['foo_range'] = self.get_range_instance()
-        assert range_obj['foo_range']
+        range_obj = getattr(plot, f"extra_{axis_name}_ranges")
+        range_obj["foo_range"] = self.get_range_instance()
+        assert range_obj["foo_range"]
 
     def test_x_range(self) -> None:
         self.verify_axis('x')
@@ -241,7 +244,7 @@ class BaseTwinAxis(object):
         raise NotImplementedError
 
 
-class TestCategoricalTwinAxis(BaseTwinAxis, object):
+class TestCategoricalTwinAxis(BaseTwinAxis):
     """Test whether extra x and y ranges can be categorical"""
 
     @staticmethod
@@ -249,7 +252,7 @@ class TestCategoricalTwinAxis(BaseTwinAxis, object):
         return FactorRange('foo', 'bar')
 
 
-class TestLinearTwinAxis(BaseTwinAxis, object):
+class TestLinearTwinAxis(BaseTwinAxis):
     """Test whether extra x and y ranges can be Range1d"""
 
     @staticmethod
@@ -319,8 +322,8 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test_list_attr_splat(object):
 
+class Test_list_attr_splat:
     def test_set(self) -> None:
         obj = bmp._list_attr_splat([DataRange1d(), DataRange1d()])
         assert len(obj) == 2

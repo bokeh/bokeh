@@ -50,13 +50,13 @@ x = dodge("group", -0.4, range=p.x_range)
 p.text(x=x, y="period", text="symbol", text_font_style="bold", **text_props)
 
 p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number",
-       text_font_size="8pt", **text_props)
+       text_font_size="11px", **text_props)
 
 p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name",
-       text_font_size="5pt", **text_props)
+       text_font_size="7px", **text_props)
 
 p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass",
-       text_font_size="5pt", **text_props)
+       text_font_size="7px", **text_props)
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 

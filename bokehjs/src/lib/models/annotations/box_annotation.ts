@@ -1,13 +1,11 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import {Signal0} from "core/signaling"
-import {LineScalar, FillScalar} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as mixins from "core/property_mixins"
+import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
-import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
-import {BBox, CoordinateTransform} from "core/util/bbox"
-import {bk_shading} from "styles/annotations"
+import {BBox, CoordinateMapper} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -20,45 +18,23 @@ export class BoxAnnotationView extends AnnotationView {
   private sbottom: number
   private stop: number
 
-  initialize(): void {
-    super.initialize()
-    this.plot_view.canvas_view.add_overlay(this.el)
-    this.el.classList.add(bk_shading)
-    undisplay(this.el)
-  }
-
   connect_signals(): void {
     super.connect_signals()
-    // need to respond to either normal BB change events or silent
-    // "data only updates" that tools might want to use
-    if (this.model.render_mode == 'css') {
-      // dispatch CSS update immediately
-      this.connect(this.model.change, () => this.render())
-      this.connect(this.model.data_update, () => this.render())
-    } else {
-      this.connect(this.model.change, () => this.plot_view.request_render())
-      this.connect(this.model.data_update, () => this.plot_view.request_render())
-    }
+    this.connect(this.model.change, () => this.plot_view.request_paint(this))
+    this.connect(this.model.data_update, () => this.plot_view.request_paint(this))
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
-
-    if (!this.model.visible)
-      return
-
+  protected _render(): void {
     // don't render if *all* position are null
     if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
-      undisplay(this.el)
       return
     }
 
     const {frame} = this.plot_view
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateMapper, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
         if (this.model.screen)
@@ -74,50 +50,29 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame._left.value)
-    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
-    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
-    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
+    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left)
+    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right)
+    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top)
+    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.bbox.yview, frame.bbox.bottom)
 
-    const draw = this.model.render_mode == 'css' ? this._css_box.bind(this) : this._canvas_box.bind(this)
-
-    draw(this.sleft, this.sright, this.sbottom, this.stop)
+    this._paint_box(this.sleft, this.sright, this.sbottom, this.stop)
   }
 
-  protected _css_box(sleft: number, sright: number, sbottom: number, stop: number): void {
-    const line_width = this.model.properties.line_width.value()
-    const sw = Math.floor(sright - sleft) - line_width
-    const sh = Math.floor(sbottom - stop) - line_width
-
-    this.el.style.left = `${sleft}px`
-    this.el.style.width = `${sw}px`
-    this.el.style.top = `${stop}px`
-    this.el.style.height = `${sh}px`
-    this.el.style.borderWidth = `${line_width}px`
-    this.el.style.borderColor = this.model.properties.line_color.value()
-    this.el.style.backgroundColor = this.model.properties.fill_color.value()
-    this.el.style.opacity = this.model.properties.fill_alpha.value()
-
-    // try our best to honor line dashing in some way, if we can
-    const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
-    this.el.style.borderStyle = ld
-
-    display(this.el)
-  }
-
-  protected _canvas_box(sleft: number, sright: number, sbottom: number, stop: number): void {
-    const {ctx} = this.plot_view.canvas_view
+  protected _paint_box(sleft: number, sright: number, sbottom: number, stop: number): void {
+    const {ctx} = this.layer
     ctx.save()
 
     ctx.beginPath()
     ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
 
-    this.visuals.fill.set_value(ctx)
-    ctx.fill()
-
-    this.visuals.line.set_value(ctx)
-    ctx.stroke()
-
+    if (this.visuals.fill.doit) {
+      this.visuals.fill.set_value(ctx)
+      ctx.fill()
+    }
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx)
+      ctx.stroke()
+    }
     ctx.restore()
   }
 
@@ -154,10 +109,8 @@ export class BoxAnnotationView extends AnnotationView {
 export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & LineScalar & FillScalar & {
+  export type Props = Annotation.Props & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     top: p.Property<number | null>
     top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
@@ -170,15 +123,18 @@ export namespace BoxAnnotation {
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
-  }
+  } & Mixins
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+
+  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
   properties: BoxAnnotation.Props
+  __view_type__: BoxAnnotationView
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)
@@ -187,30 +143,28 @@ export class BoxAnnotation extends Annotation {
   static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins(['line', 'fill'])
+    this.mixins<BoxAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
 
-    this.define<BoxAnnotation.Props>({
-      render_mode:  [ p.RenderMode,   'canvas'  ],
-      x_range_name: [ p.String,       'default' ],
-      y_range_name: [ p.String,       'default' ],
-      top:          [ p.Number,       null      ],
-      top_units:    [ p.SpatialUnits, 'data'    ],
-      bottom:       [ p.Number,       null      ],
-      bottom_units: [ p.SpatialUnits, 'data'    ],
-      left:         [ p.Number,       null      ],
-      left_units:   [ p.SpatialUnits, 'data'    ],
-      right:        [ p.Number,       null      ],
-      right_units:  [ p.SpatialUnits, 'data'    ],
-    })
+    this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
+      render_mode:  [ RenderMode, "canvas" ],
+      top:          [ Nullable(Number), null ],
+      top_units:    [ SpatialUnits, "data" ],
+      bottom:       [ Nullable(Number), null ],
+      bottom_units: [ SpatialUnits, "data" ],
+      left:         [ Nullable(Number), null ],
+      left_units:   [ SpatialUnits, "data" ],
+      right:        [ Nullable(Number), null ],
+      right_units:  [ SpatialUnits, "data" ],
+    }))
 
-    this.internal({
-      screen:    [ p.Boolean, false ],
-      ew_cursor: [ p.String,  null  ],
-      ns_cursor: [ p.String,  null  ],
-      in_cursor: [ p.String,  null  ],
-    })
+    this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({
+      screen:    [ Boolean, false ],
+      ew_cursor: [ Nullable(String), null ],
+      ns_cursor: [ Nullable(String), null ],
+      in_cursor: [ Nullable(String), null ],
+    }))
 
-    this.override({
+    this.override<BoxAnnotation.Props>({
       fill_color: '#fff9ba',
       fill_alpha: 0.4,
       line_color: '#cccccc',

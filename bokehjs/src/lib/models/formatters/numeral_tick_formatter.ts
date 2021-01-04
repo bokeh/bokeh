@@ -1,4 +1,4 @@
-import * as Numbro from "numbro"
+import * as Numbro from "@bokeh/numbro"
 
 import {TickFormatter} from "./tick_formatter"
 import {RoundingFunction} from "core/enums"
@@ -24,12 +24,12 @@ export class NumeralTickFormatter extends TickFormatter {
   }
 
   static init_NumeralTickFormatter(): void {
-    this.define<NumeralTickFormatter.Props>({
+    this.define<NumeralTickFormatter.Props>(({String}) => ({
       // TODO (bev) all of these could be tightened up
-      format:   [ p.String,           '0,0'   ],
-      language: [ p.String,           'en'    ],
-      rounding: [ p.RoundingFunction, 'round' ],
-    })
+      format:   [ String,           "0,0"   ],
+      language: [ String,           "en"    ],
+      rounding: [ RoundingFunction, "round" ],
+    }))
   }
 
   private get _rounding_fn(): (v: number) => number {

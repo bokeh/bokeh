@@ -1,10 +1,9 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
-import {Class} from "core/class"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_active} from "styles/mixins"
+import * as buttons from "styles/buttons.css"
 
 export class RadioButtonGroupView extends ButtonGroupView {
   model: RadioButtonGroup
@@ -19,7 +18,7 @@ export class RadioButtonGroupView extends ButtonGroupView {
     const {active} = this.model
 
     this._buttons.forEach((button, i) => {
-      classes(button).toggle(bk_active, active === i)
+      classes(button).toggle(buttons.active, active === i)
     })
   }
 }
@@ -36,7 +35,7 @@ export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends ButtonGroup {
   properties: RadioButtonGroup.Props
-  default_view: Class<RadioButtonGroupView>
+  __view_type__: RadioButtonGroupView
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
     super(attrs)
@@ -45,8 +44,8 @@ export class RadioButtonGroup extends ButtonGroup {
   static init_RadioButtonGroup(): void {
     this.prototype.default_view = RadioButtonGroupView
 
-    this.define<RadioButtonGroup.Props>({
-      active: [ p.Any, null ],
-    })
+    this.define<RadioButtonGroup.Props>(({Int, Nullable}) => ({
+      active: [ Nullable(Int), null ],
+    }))
   }
 }

@@ -1,10 +1,12 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
+import {DEFAULT_POLY_OVERLAY} from "./poly_select_tool"
+import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {PanEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import * as p from "core/properties"
-import {bk_tool_icon_lasso_select} from "styles/icons"
+import {tool_icon_lasso_select} from "styles/icons.css"
 
 export class LassoSelectToolView extends SelectToolView {
   model: LassoSelectTool
@@ -47,41 +49,24 @@ export class LassoSelectToolView extends SelectToolView {
     overlay.update({xs: this.data!.sx, ys: this.data!.sy})
 
     if (this.model.select_every_mousemove) {
-      const append = ev.shiftKey
-      this._do_select(this.data!.sx, this.data!.sy, false, append)
+      this._do_select(this.data!.sx, this.data!.sy, false, this._select_mode(ev))
     }
   }
 
   _pan_end(ev: PanEvent): void {
     this._clear_overlay()
-    const append = ev.shiftKey
-    this._do_select(this.data!.sx, this.data!.sy, true, append)
-    this.plot_view.push_state('lasso_select', {selection: this.plot_view.get_selection()})
+    this._do_select(this.data!.sx, this.data!.sy, true, this._select_mode(ev))
+    this.plot_view.state.push("lasso_select", {selection: this.plot_view.get_selection()})
   }
 
   _clear_overlay(): void {
     this.model.overlay.update({xs: [], ys: []})
   }
 
-  _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
+  _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
-    this._select(geometry, final, append)
+    this._select(geometry, final, mode)
   }
-
-}
-
-const DEFAULT_POLY_OVERLAY = () => {
-  return new PolyAnnotation({
-    level: "overlay",
-    xs_units: "screen",
-    ys_units: "screen",
-    fill_color: {value: "lightgrey"},
-    fill_alpha: {value: 0.5},
-    line_color: {value: "black"},
-    line_alpha: {value: 1.0},
-    line_width: {value: 2},
-    line_dash: {value: [4, 4]},
-  })
 }
 
 export namespace LassoSelectTool {
@@ -97,6 +82,7 @@ export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
   properties: LassoSelectTool.Props
+  __view_type__: LassoSelectToolView
 
   /*override*/ overlay: PolyAnnotation
 
@@ -107,14 +93,16 @@ export class LassoSelectTool extends SelectTool {
   static init_LassoSelectTool(): void {
     this.prototype.default_view = LassoSelectToolView
 
-    this.define<LassoSelectTool.Props>({
-      select_every_mousemove: [ p.Boolean, true                  ],
-      overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
-    })
+    this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
+      select_every_mousemove: [ Boolean, true ],
+      overlay:                [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+    }))
+
+    this.register_alias("lasso_select", () => new LassoSelectTool())
   }
 
   tool_name = "Lasso Select"
-  icon = bk_tool_icon_lasso_select
+  icon = tool_icon_lasso_select
   event_type = "pan" as "pan"
   default_order = 12
 }

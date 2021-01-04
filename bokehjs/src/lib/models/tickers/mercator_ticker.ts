@@ -8,7 +8,7 @@ export namespace MercatorTicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BasicTicker.Props & {
-    dimension: p.Property<LatLon | null | undefined>
+    dimension: p.Property<LatLon | null>
   }
 }
 
@@ -22,57 +22,68 @@ export class MercatorTicker extends BasicTicker {
   }
 
   static init_MercatorTicker(): void {
-    this.define<MercatorTicker.Props>({
-      dimension: [ p.LatLon ],
-    })
+    this.define<MercatorTicker.Props>(() => ({
+      dimension: [ LatLon ],
+    }))
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     if (this.dimension == null) {
-      throw new Error("MercatorTicker.dimension not configured")
+      throw new Error(`${this}.dimension wasn't configured`)
     }
 
     [data_low, data_high] = clip_mercator(data_low, data_high, this.dimension)
-    let proj_low: number, proj_high: number, proj_cross_loc: any
 
-    if (this.dimension === "lon") {
-      [proj_low,  proj_cross_loc] = wgs84_mercator.inverse([data_low,  cross_loc]); // lgtm [js/useless-assignment-to-local]
-      [proj_high, proj_cross_loc] = wgs84_mercator.inverse([data_high, cross_loc])
-    } else {
-      [proj_cross_loc, proj_low ] = wgs84_mercator.inverse([cross_loc, data_low ]); // lgtm [js/useless-assignment-to-local]
-      [proj_cross_loc, proj_high] = wgs84_mercator.inverse([cross_loc, data_high])
-    }
+    if (this.dimension == "lon")
+      return this._get_ticks_lon(data_low, data_high, cross_loc, desired_n_ticks)
+    else
+      return this._get_ticks_lat(data_low, data_high, cross_loc, desired_n_ticks)
+  }
+
+  protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+    const [proj_low] = wgs84_mercator.invert(data_low, cross_loc)
+    const [proj_high, proj_cross_loc] = wgs84_mercator.invert(data_high, cross_loc)
 
     const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks)
 
     const major: number[] = []
-    const minor: number[] = []
+    for (const tick of proj_ticks.major) {
+      if (in_bounds(tick, "lon")) {
+        const [lon] = wgs84_mercator.compute(tick, proj_cross_loc)
+        major.push(lon)
+      }
+    }
 
-    if (this.dimension === "lon") {
-      for (const tick of proj_ticks.major) {
-        if (in_bounds(tick, 'lon')) {
-          const [lon] = wgs84_mercator.forward([tick, proj_cross_loc])
-          major.push(lon)
-        }
+    const minor: number[] = []
+    for (const tick of proj_ticks.minor) {
+      if (in_bounds(tick, "lon")) {
+        const [lon] = wgs84_mercator.compute(tick, proj_cross_loc)
+        minor.push(lon)
       }
-      for (const tick of proj_ticks.minor) {
-        if (in_bounds(tick, 'lon')) {
-          const [lon] = wgs84_mercator.forward([tick, proj_cross_loc])
-          minor.push(lon)
-        }
+    }
+
+    return {major, minor}
+  }
+
+  protected _get_ticks_lat(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+    const [, proj_low] = wgs84_mercator.invert(cross_loc, data_low)
+    const [proj_cross_loc, proj_high] = wgs84_mercator.invert(cross_loc, data_high)
+
+    const proj_ticks = super.get_ticks_no_defaults(proj_low, proj_high, cross_loc, desired_n_ticks)
+
+    const major: number[] = []
+    for (const tick of proj_ticks.major) {
+      if (in_bounds(tick, "lat")) {
+        const [, lat] = wgs84_mercator.compute(proj_cross_loc, tick)
+        major.push(lat)
       }
-    } else {
-      for (const tick of proj_ticks.major) {
-        if (in_bounds(tick, 'lat')) {
-          const [, lat] = wgs84_mercator.forward([proj_cross_loc, tick])
-          major.push(lat)
-        }
-      }
-      for (const tick of proj_ticks.minor) {
-        if (in_bounds(tick, 'lat')) {
-          const [, lat] = wgs84_mercator.forward([proj_cross_loc, tick])
-          minor.push(lat)
-        }
+    }
+
+    const minor: number[] = []
+    for (const tick of proj_ticks.minor) {
+      if (in_bounds(tick, "lat")) {
+        const [, lat] = wgs84_mercator.compute(proj_cross_loc, tick)
+        minor.push(lat)
       }
     }
 

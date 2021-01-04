@@ -1,22 +1,21 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import * as visuals from "core/visuals"
+import {Rect, NumberArray} from "core/types"
 import {Direction} from "core/enums"
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export interface WedgeData extends XYGlyphData {
-  _radius: Arrayable<number>
-  _start_angle: Arrayable<number>
-  _end_angle: Arrayable<number>
+  _radius: NumberArray
+  _start_angle: NumberArray
+  _end_angle: NumberArray
 
-  sradius: Arrayable<number>
+  sradius: NumberArray
 
   max_radius: number
 }
@@ -35,14 +34,14 @@ export class WedgeView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {
-    const direction = this.model.properties.direction.value()
+    const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction)
+      ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], anticlock)
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
@@ -72,7 +71,6 @@ export class WedgeView extends XYGlyphView {
 
       y0 = y - max_diameter
       y1 = y + max_diameter
-
     } else {
       sx0 = sx - max_diameter
       sx1 = sx + max_diameter
@@ -83,67 +81,65 @@ export class WedgeView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const candidates = []
+    const candidates: number[] = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      const r2 = Math.pow(this.sradius[i], 2)
+      const r2 = this.sradius[i]**2
       ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
       ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-      dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+      dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
-        candidates.push([i, dist])
+        candidates.push(i)
       }
     }
 
-    const direction = this.model.properties.direction.value()
-    const hits: [number, number][] = []
-    for (const [i, dist] of candidates) {
+    const anticlock = this.model.direction == "anticlock"
+    const indices: number[] = []
+
+    for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
-      const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], direction)) {
-        hits.push([i, dist])
+      const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
+      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
+        indices.push(i)
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  private _scenterxy(i: number): {x: number, y: number} {
+  scenterxy(i: number): [number, number] {
     const r = this.sradius[i] / 2
     const a = (this._start_angle[i] + this._end_angle[i]) / 2
-    return {x: this.sx[i] + (r * Math.cos(a)), y: this.sy[i] + (r * Math.sin(a))}
-  }
-
-  scenterx(i: number): number {
-    return this._scenterxy(i).x
-  }
-
-  scentery(i: number): number {
-    return this._scenterxy(i).y
+    const scx = this.sx[i] + r*Math.cos(a)
+    const scy = this.sy[i] + r*Math.sin(a)
+    return [scx, scy]
   }
 }
 
 export namespace Wedge {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & FillVector & {
+  export type Props = XYGlyph.Props & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
-  }
+  } & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Mixins = LineVector & FillVector
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
 }
 
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
   properties: Wedge.Props
+  __view_type__: WedgeView
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)
@@ -152,12 +148,12 @@ export class Wedge extends XYGlyph {
   static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
-    this.mixins(['line', 'fill'])
-    this.define<Wedge.Props>({
-      direction:    [ p.Direction,   'anticlock' ],
-      radius:       [ p.DistanceSpec             ],
-      start_angle:  [ p.AngleSpec                ],
-      end_angle:    [ p.AngleSpec                ],
-    })
+    this.mixins<Wedge.Mixins>([LineVector, FillVector])
+    this.define<Wedge.Props>(({}) => ({
+      direction:    [ Direction, "anticlock" ],
+      radius:       [ p.DistanceSpec ],
+      start_angle:  [ p.AngleSpec ],
+      end_angle:    [ p.AngleSpec ],
+    }))
   }
 }

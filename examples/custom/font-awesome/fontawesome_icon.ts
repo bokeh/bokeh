@@ -44,6 +44,7 @@ export interface FontAwesomeIcon extends FontAwesomeIcon.Attrs {}
 
 export class FontAwesomeIcon extends AbstractIcon {
   properties: FontAwesomeIcon.Props
+  __view_type__: FontAwesomeIconView
 
   constructor(attrs?: Partial<FontAwesomeIcon.Attrs>) {
     super(attrs)
@@ -52,11 +53,11 @@ export class FontAwesomeIcon extends AbstractIcon {
   static init_FontAwesomeIcon(): void {
     this.prototype.default_view = FontAwesomeIconView
 
-    this.define<FontAwesomeIcon.Props>({
-      icon_name: [ p.String,  "check" ], // TODO (bev) enum?
-      size:      [ p.Number,  1       ],
-      flip:      [ p.Any              ], // TODO (bev)
-      spin:      [ p.Boolean, false   ],
-    })
+    this.define<FontAwesomeIcon.Props>(({Boolean, String, Number, Enum, Nullable}) => ({
+      icon_name: [ String, "check" ],
+      size:      [ Number, 1 ],
+      flip:      [ Nullable(Enum("horizontal", "vertical")) ],
+      spin:      [ Boolean, false ],
+    }))
   }
 }

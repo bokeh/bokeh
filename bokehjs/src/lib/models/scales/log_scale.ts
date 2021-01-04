@@ -1,16 +1,16 @@
-import {Scale} from "./scale"
-import {Arrayable} from "core/types"
+import {ContinuousScale} from "./continuous_scale"
+import {Arrayable, NumberArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LogScale {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Scale.Props
+  export type Props = ContinuousScale.Props
 }
 
 export interface LogScale extends LogScale.Attrs {}
 
-export class LogScale extends Scale {
+export class LogScale extends ContinuousScale {
   properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
@@ -34,10 +34,10 @@ export class LogScale extends Scale {
     return value
   }
 
-  v_compute(xs: Arrayable<number>): Arrayable<number> {
+  v_compute(xs: Arrayable<number>): NumberArray {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 
-    const result = new Float64Array(xs.length)
+    const result = new NumberArray(xs.length)
 
     if (inter_factor == 0) {
       for (let i = 0; i < xs.length; i++)
@@ -63,9 +63,9 @@ export class LogScale extends Scale {
     return Math.exp(inter_factor*value + inter_offset)
   }
 
-  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
+  v_invert(xprimes: Arrayable<number>): NumberArray {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-    const result = new Float64Array(xprimes.length)
+    const result = new NumberArray(xprimes.length)
     for (let i = 0; i < xprimes.length; i++) {
       const value = (xprimes[i] - offset) / factor
       result[i] = Math.exp(inter_factor*value + inter_offset)
@@ -82,12 +82,12 @@ export class LogScale extends Scale {
         [start, end] = [1, 10]
       else {
         const log_val = Math.log(start) / Math.log(10)
-        start = Math.pow(10, Math.floor(log_val))
+        start = 10**Math.floor(log_val)
 
         if (Math.ceil(log_val) != Math.floor(log_val))
-          end = Math.pow(10, Math.ceil(log_val))
+          end = 10**Math.ceil(log_val)
         else
-          end = Math.pow(10, Math.ceil(log_val) + 1)
+          end = 10**(Math.ceil(log_val) + 1)
       }
     }
 

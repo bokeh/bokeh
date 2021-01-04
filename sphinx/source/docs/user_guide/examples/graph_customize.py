@@ -1,21 +1,21 @@
 import math
 
 from bokeh.io import output_file, show
-from bokeh.models import GraphRenderer, Oval, StaticLayoutProvider
+from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider
 from bokeh.palettes import Spectral8
 from bokeh.plotting import figure
 
 N = 8
 node_indices = list(range(N))
 
-plot = figure(title='Graph Layout Demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
+plot = figure(title='Graph layout demonstration', x_range=(-1.1,1.1), y_range=(-1.1,1.1),
               tools='', toolbar_location=None)
 
 graph = GraphRenderer()
 
 graph.node_renderer.data_source.add(node_indices, 'index')
 graph.node_renderer.data_source.add(Spectral8, 'color')
-graph.node_renderer.glyph = Oval(height=0.1, width=0.2, fill_color='color')
+graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2, fill_color='color')
 
 graph.edge_renderer.data_source.data = dict(
     start=[0]*N,

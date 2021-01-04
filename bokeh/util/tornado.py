@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 import threading
 from collections import defaultdict
 from traceback import format_exception
@@ -43,11 +44,20 @@ __all__ = ()
 # Dev API
 #-----------------------------------------------------------------------------
 
+# See https://github.com/bokeh/bokeh/issues/9507
+def fixup_windows_event_loop_policy() -> None:
+    if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
+        import asyncio
+        if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
+            # WindowsProactorEventLoopPolicy is not compatible with tornado 6
+            # fallback to the pre-3.8 default of WindowsSelectorEventLoopPolicy
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-class _AsyncPeriodic(object):
+class _AsyncPeriodic:
     """Like ioloop.PeriodicCallback except the 'func' can be async and
         return a Future, and we wait for func to finish each time
         before we call it again.  Plain ioloop.PeriodicCallback
@@ -100,7 +110,7 @@ class _AsyncPeriodic(object):
     def stop(self):
         self._stopped = True
 
-class _CallbackGroup(object):
+class _CallbackGroup:
     """ A collection of callbacks added to a Tornado IOLoop that we may
     want to remove as a group. """
 

@@ -1,7 +1,7 @@
 import {Ticker, TickSpec} from "./ticker"
+import {Range} from "../ranges/range"
 import * as p from "core/properties"
 import {range} from "core/util/array"
-import {isStrictNaN} from "core/util/types"
 
 // The base class for all Ticker objects.  It needs to be subclassed before
 // being used.  The simplest subclass is SingleIntervalTicker.
@@ -27,7 +27,7 @@ export namespace ContinuousTicker {
 
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
-export abstract class ContinuousTicker extends Ticker<number> {
+export abstract class ContinuousTicker extends Ticker {
   properties: ContinuousTicker.Props
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
@@ -35,16 +35,13 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 
   static init_ContinuousTicker(): void {
-    this.define<ContinuousTicker.Props>({
-      num_minor_ticks:   [ p.Number, 5 ],
-      desired_num_ticks: [ p.Number, 6 ],
-    })
+    this.define<ContinuousTicker.Props>(({Int}) => ({
+      num_minor_ticks:   [ Int, 5 ],
+      desired_num_ticks: [ Int, 6 ],
+    }))
   }
 
-  min_interval: number
-  max_interval: number
-
-  get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any): TickSpec<number> {
+  get_ticks(data_low: number, data_high: number, _range: Range, cross_loc: number): TickSpec<number> {
     return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
   }
 
@@ -61,12 +58,12 @@ export abstract class ContinuousTicker extends Ticker<number> {
 
   // The version of get_ticks() that does the work (and the version that
   // should be overridden in subclasses).
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const interval = this.get_interval(data_low, data_high, desired_n_ticks)
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
     let factors: number[]
-    if (isStrictNaN(start_factor) || isStrictNaN(end_factor))
+    if (!isFinite(start_factor) || !isFinite(end_factor))
       factors = []
     else
       factors = range(start_factor, end_factor + 1)
@@ -100,14 +97,10 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 
   // Returns the smallest interval that can be returned by get_interval().
-  get_min_interval(): number {
-    return this.min_interval
-  }
+  abstract get_min_interval(): number
 
   // Returns the largest interval that can be returned by get_interval().
-  get_max_interval(): number {
-    return this.max_interval != null ? this.max_interval : Infinity
-  }
+  abstract get_max_interval(): number
 
   // Returns the interval size that would produce exactly the number of
   // desired ticks.  (In general we won't use exactly this interval, because

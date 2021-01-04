@@ -1,6 +1,5 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
@@ -15,18 +14,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   model: EllipseOval
   visuals: EllipseOval.Visuals
 
-  protected _set_data(): void {
-    this.max_w2 = 0
-    if (this.model.properties.width.units == "data")
-      this.max_w2 = this.max_width/2
-
-    this.max_h2 = 0
-    if (this.model.properties.height.units == "data")
-      this.max_h2 = this.max_height/2
-  }
-
   protected _map_data(): void {
-
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
     else
@@ -59,13 +47,13 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
-    let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
+    let x0, x1, y0, y1, cond, sx0, sx1, sy0, sy1
 
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    if (this.model.properties.width.units == "data"){
+    if (this.model.properties.width.units == "data") {
       x0 = x - this.max_width
       x1 = x + this.max_width
     } else {
@@ -74,7 +62,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     }
 
-    if (this.model.properties.height.units == "data"){
+    if (this.model.properties.height.units == "data") {
       y0 = y - this.max_height
       y1 = y + this.max_height
     } else {
@@ -84,19 +72,16 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     }
 
     const candidates = this.index.indices({x0, x1, y0, y1})
-    const hits: [number, number][] = []
+    const indices: number[] = []
 
     for (const i of candidates) {
       cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
-        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
-        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
-        hits.push([i, dist])
+        indices.push(i)
       }
     }
 
-    return hittest.create_hit_test_result_from_hits(hits)
+    return new Selection({indices})
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
@@ -122,21 +107,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
 
     this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
   }
-
-  protected _bounds({x0, x1, y0, y1}: Rect): Rect {
-    return {
-      x0: x0 - this.max_w2,
-      x1: x1 + this.max_w2,
-      y0: y0 - this.max_h2,
-      y1: y1 + this.max_h2,
-    }
-  }
 }
 
 export namespace EllipseOval {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = CenterRotatable.Props & LineVector & FillVector
+  export type Props = CenterRotatable.Props
 
   export type Visuals = CenterRotatable.Visuals
 }
@@ -145,6 +121,7 @@ export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
   properties: EllipseOval.Props
+  __view_type__: EllipseOvalView
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)

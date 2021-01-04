@@ -1,4 +1,5 @@
-import * as Bokeh from "bokehjs"
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-api.esm.js"
 
 export namespace TappyScatter {
   import plt = Bokeh.Plotting
@@ -24,12 +25,12 @@ export namespace TappyScatter {
   const indices = range(N).map((i) => i.toString())
   const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
-  const colors: string[] = []
+  const colors: [number, number, number][] = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
-    colors.push(plt.color(r, g, 150))
+    colors.push([r, g, 150])
 
   const source = new Bokeh.ColumnDataSource({
-    data: {x: xx, y: yy, radius: radii, colors },
+    data: {x: xx, y: yy, radius: radii, colors},
   })
 
   const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,save"
@@ -41,7 +42,7 @@ export namespace TappyScatter {
   })
 
   p.text({field: "x"}, {field: "y"}, indices, {
-    source, alpha: 0.5, text_font_size: "5pt", text_baseline: "middle", text_align: "center",
+    source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)

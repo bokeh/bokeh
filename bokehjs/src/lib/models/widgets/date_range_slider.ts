@@ -1,7 +1,9 @@
 import tz from "timezone"
 
 import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
+import {TickFormatter} from "../formatters/tick_formatter"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 
 export class DateRangeSliderView extends AbstractRangeSliderView {
   model: DateRangeSlider
@@ -17,6 +19,7 @@ export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
   properties: DateRangeSlider.Props
+  __view_type__: DateRangeSliderView
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
     super(attrs)
@@ -25,7 +28,7 @@ export class DateRangeSlider extends AbstractSlider {
   static init_DateRangeSlider(): void {
     this.prototype.default_view = DateRangeSliderView
 
-    this.override({
+    this.override<DateRangeSlider.Props>({
       format: "%d %b %Y",
     })
   }
@@ -33,7 +36,10 @@ export class DateRangeSlider extends AbstractSlider {
   behaviour = "drag" as "drag"
   connected = [false, true, false]
 
-  protected _formatter(value: number, format: string): string {
-    return tz(value, format)
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format))
+      return tz(value, format)
+    else
+      return format.compute(value)
   }
 }

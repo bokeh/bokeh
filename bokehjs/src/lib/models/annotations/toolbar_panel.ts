@@ -2,46 +2,70 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_view} from "core/build_views"
-import {empty, position, display, undisplay} from "core/dom"
-import {Size} from "core/layout"
+import {div, empty, position, display, undisplay, remove} from "core/dom"
+import {Size, Layoutable} from "core/layout"
+import {Panel, SideLayout} from "core/layout/side_panel"
+import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
 
-  readonly rotate: boolean = true
+  panel: Panel
+  layout: Layoutable
+
+  update_layout(): void {
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+  }
 
   protected _toolbar_view: ToolbarBaseView
+  protected el: HTMLElement
 
   initialize(): void {
     super.initialize()
+    this.el = div()
     this.plot_view.canvas_view.add_event(this.el)
   }
 
   async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     this._toolbar_view = await build_view(this.model.toolbar, {parent: this}) as ToolbarBaseView
     this.plot_view.visibility_callbacks.push((visible) => this._toolbar_view.set_visibility(visible))
   }
 
   remove(): void {
     this._toolbar_view.remove()
+    remove(this.el)
     super.remove()
   }
 
   render(): void {
-    super.render()
-    if (!this.model.visible) {
+    if (!this.model.visible)
       undisplay(this.el)
-      return
+
+    super.render()
+  }
+
+  private _invalidate_toolbar = true
+  private _previous_bbox: BBox = new BBox()
+
+  protected _render(): void {
+    // TODO: this should be handled by the layout
+    const {bbox} = this.layout
+    if (!this._previous_bbox.equals(bbox)) {
+      position(this.el, bbox)
+      this._previous_bbox = bbox
     }
 
-    this.el.style.position = "absolute"
-    this.el.style.overflow = "hidden"
+    if (this._invalidate_toolbar) {
+      this.el.style.position = "absolute"
+      this.el.style.overflow = "hidden"
+      this._toolbar_view.render()
+      empty(this.el)
+      this.el.appendChild(this._toolbar_view.el)
+      this._invalidate_toolbar = false
+    }
 
-    position(this.el, this.panel!.bbox)
-    this._toolbar_view.render()
-    empty(this.el)
-    this.el.appendChild(this._toolbar_view.el)
     display(this.el)
   }
 
@@ -66,6 +90,7 @@ export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
   properties: ToolbarPanel.Props
+  __view_type__: ToolbarPanelView
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)
@@ -74,8 +99,8 @@ export class ToolbarPanel extends Annotation {
   static init_ToolbarPanel(): void {
     this.prototype.default_view = ToolbarPanelView
 
-    this.define<ToolbarPanel.Props>({
-      toolbar: [ p.Instance ],
-    })
+    this.define<ToolbarPanel.Props>(({Ref}) => ({
+      toolbar: [ Ref(Toolbar) ],
+    }))
   }
 }

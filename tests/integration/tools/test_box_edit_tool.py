@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 import time
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
@@ -76,8 +79,7 @@ def _make_server_plot(expected, num_objects=0):
 
 
 @pytest.mark.selenium
-class Test_BoxEditTool(object):
-
+class Test_BoxEditTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot('both')
 
@@ -135,7 +137,7 @@ class Test_BoxEditTool(object):
         page = single_plot_page(plot)
 
         # ensure double clicking added a box
-        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        page.drag_canvas_at_position(100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
         page.click_custom_action()
         expected = {"x": [1, 2, 1.0135135135135136],
@@ -180,7 +182,7 @@ class Test_BoxEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(150, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
         page.click_custom_action()
@@ -196,7 +198,7 @@ class Test_BoxEditTool(object):
         page = single_plot_page(plot)
 
         # ensure double clicking added a box
-        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        page.drag_canvas_at_position(100, 100, 50, 50, mod="\ue008")
         time.sleep(0.5)
         page.click_custom_action()
 
@@ -208,6 +210,7 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_box_draw_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 1.2162162162162162],
                     "y": [1, 1, 1.875],
@@ -225,6 +228,7 @@ class Test_BoxEditTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
+    @flaky(max_runs=10)
     def test_box_drag_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5000000000000002],
@@ -245,6 +249,7 @@ class Test_BoxEditTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
+    @flaky(max_runs=10)
     def test_box_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"x": [2], "y": [1],
                     "width": [0.5], "height": [0.5]}
@@ -258,7 +263,7 @@ class Test_BoxEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(150, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
         time.sleep(0.5)
 
         page.click_custom_action()

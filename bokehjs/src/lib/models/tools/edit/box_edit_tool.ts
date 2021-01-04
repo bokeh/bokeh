@@ -6,7 +6,7 @@ import {Rect} from "../../glyphs/rect"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
-import {bk_tool_icon_box_edit} from "styles/icons"
+import {tool_icon_box_edit} from "styles/icons.css"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -20,8 +20,7 @@ export class BoxEditToolView extends EditToolView {
   _tap(ev: TapEvent): void {
     if ((this._draw_basepoint != null) || (this._basepoint != null))
       return
-    const append = ev.shiftKey
-    this._select_event(ev, append, this.model.renderers)
+    this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   _keyup(ev: KeyEvent): void {
@@ -41,14 +40,14 @@ export class BoxEditToolView extends EditToolView {
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
-    const frame = this.plot_view.frame
+    const renderer_view = this.plot_view.renderer_view(renderer)
+    if (renderer_view == null)
+      return
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
-    const xscale = frame.xscales[renderer.x_range_name]
-    const yscale = frame.yscales[renderer.y_range_name]
-    const [x0, x1] = xscale.r_invert(sx0, sx1)
-    const [y0, y1] = yscale.r_invert(sy0, sy1)
+    const [x0, x1] = renderer_view.coordinates.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = renderer_view.coordinates.y_scale.r_invert(sy0, sy1)
     const [x, y] = [(x0+x1)/2, (y0+y1)/2]
     const [w, h] = [x1-x0, y1-y0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
@@ -91,7 +90,7 @@ export class BoxEditToolView extends EditToolView {
       this._draw_basepoint = null
     } else {
       this._draw_basepoint = [ev.sx, ev.sy]
-      this._select_event(ev, true, this.model.renderers)
+      this._select_event(ev, "append", this.model.renderers)
       this._update_box(ev, true, false)
     }
   }
@@ -109,7 +108,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       if (this._basepoint != null)
         return
-      this._select_event(ev, true, this.model.renderers)
+      this._select_event(ev, "append", this.model.renderers)
       this._basepoint = [ev.sx, ev.sy]
     }
   }
@@ -152,6 +151,7 @@ export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
   properties: BoxEditTool.Props
+  __view_type__: BoxEditToolView
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 
@@ -162,14 +162,14 @@ export class BoxEditTool extends EditTool {
   static init_BoxEditTool(): void {
     this.prototype.default_view = BoxEditToolView
 
-    this.define<BoxEditTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-      num_objects: [ p.Int, 0 ],
-    })
+    this.define<BoxEditTool.Props>(({Int}) => ({
+      dimensions:  [ Dimensions, "both" ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Box Edit Tool"
-  icon = bk_tool_icon_box_edit
+  icon = tool_icon_box_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }

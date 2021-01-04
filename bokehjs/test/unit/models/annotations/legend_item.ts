@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 import * as sinon from 'sinon'
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -37,10 +37,10 @@ describe("LegendItem", () => {
   describe("_check_data_sources_on_renderers", () => {
 
     it("should return false if field label and different data sources", () => {
-      const gr_1 = new GlyphRenderer({ data_source: new ColumnDataSource() })
-      const gr_2 = new GlyphRenderer({ data_source: new ColumnDataSource() })
+      const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
+      const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -48,17 +48,17 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
     })
 
     it("should return true if value label and different data sources", () => {
-      const gr_1 = new GlyphRenderer({ data_source: new ColumnDataSource() })
-      const gr_2 = new GlyphRenderer({ data_source: new ColumnDataSource() })
+      const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
+      const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: { value: 'label' },
+        label: {value: 'label'},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.true
@@ -72,7 +72,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {foo: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -80,7 +80,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -91,7 +91,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {label: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: { field: 'label' },
+        label: {field: 'label'},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.true
@@ -130,7 +130,7 @@ describe("LegendItem", () => {
       const gr = new GlyphRenderer({data_source: source})
       const legend_item = new LegendItem({label: {field: 'label'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['foo', 'bar'])
+      expect(field).to.be.equal(['foo', 'bar'])
     })
 
     it("should return 'Invalid field' list if field is not in datasource", () => {
@@ -142,32 +142,32 @@ describe("LegendItem", () => {
       const gr = new GlyphRenderer({data_source: source})
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['Invalid field'])
+      expect(field).to.be.equal(['Invalid field'])
     })
 
     it("should return 'No source found' list if no renderer and field used", () => {
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: []})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['No source found'])
+      expect(field).to.be.equal(['No source found'])
     })
 
     it("should return 'No source found' list if no source on renderer", () => {
       const gr = new GlyphRenderer()
       const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['No source found'])
+      expect(field).to.be.equal(['No source found'])
     })
 
     it("should return value in single list if label is value", () => {
       const legend_item = new LegendItem({label: {value: 'milk'}})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal(['milk'])
+      expect(field).to.be.equal(['milk'])
     })
 
     it("should return empty list if label is null", () => {
       const legend_item = new LegendItem({label: null})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.deep.equal([])
+      expect(field).to.be.equal([])
     })
   })
 })

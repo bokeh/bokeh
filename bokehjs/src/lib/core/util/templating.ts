@@ -1,15 +1,17 @@
-import * as Numbro from "numbro"
+import * as Numbro from "@bokeh/numbro"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 
-import {escape} from "./string"
+import {Enum} from "../kinds"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
+import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {ImageIndex} from "models/selections/selection"
 
+export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
+
 export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = {[key: string]: FormatterSpec}
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
@@ -17,7 +19,7 @@ export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
 
 export const DEFAULT_FORMATTERS = {
-  numeral:  (value: string | number, format: string, _special_vars: Vars) => Numbro.format(value, format),
+  numeral:  (value: unknown, format: string, _special_vars: Vars) => Numbro.format(value, format),
   datetime: (value: unknown, format: string, _special_vars: Vars) => tz(value, format),
   printf:   (value: unknown, format: string, _special_vars: Vars) => sprintf(format, value),
 }
@@ -51,7 +53,6 @@ export function get_formatter(raw_spec: string, format?: string, formatters?: Fo
 
   // format spec in the formatters dict, use that
   if (formatters != null && raw_spec in formatters) {
-
     const formatter = formatters[raw_spec]
 
     if (isString(formatter)) {
@@ -91,7 +92,6 @@ function  _get_column_value(name: string, data_source: ColumnarDataSource, i: In
   // image index
   const data = column[i.index]
   if (isTypedArray(data) || isArray(data)) {
-
     // inspect array of arrays
     if (isArray(data[0])) {
       const row: any = data[i.dim2]
@@ -103,7 +103,6 @@ function  _get_column_value(name: string, data_source: ColumnarDataSource, i: In
 }
 
 export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
-
   if (raw_name[0] == "$") {
     const name = raw_name.substring(1)
     return _get_special_value(name, special_vars)
@@ -113,7 +112,18 @@ export function get_value(raw_name: string, data_source: ColumnarDataSource, i: 
   }
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
+export function replace_placeholders(content: string | {html: string}, data_source: ColumnarDataSource,
+    i: Index, formatters?: Formatters, special_vars: Vars = {}, encode?: (v: string) => string): string | Node[]  {
+  let str: string
+  let has_html: boolean
+
+  if (isString(content)) {
+    str = content
+    has_html = false
+  } else {
+    str = content.html
+    has_html = true
+  }
 
   // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
   str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
@@ -130,16 +140,25 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
 
     // missing value, return ???
     if (value == null)
-      return `${escape("???")}`
+      return encode ? encode("???") : "???"
 
     // 'safe' format, return the value as-is
-    if (format == 'safe')
+    if (format == 'safe') {
+      has_html = true
       return `${value}`
+    }
 
     // format and escape everything else
     const formatter = get_formatter(spec, format, formatters)
-    return `${escape(formatter(value, format, special_vars))}`
+    const result = `${formatter(value, format, special_vars)}`
+    return encode ? encode(result) : result
   })
 
-  return str
+  if (!has_html)
+    return str
+  else {
+    const parser = new DOMParser()
+    const document = parser.parseFromString(str, "text/html")
+    return [...document.body.childNodes]
+  }
 }

@@ -1,2 +1,0 @@
-import "./customjs"
-import "./openurl"

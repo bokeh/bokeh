@@ -19,12 +19,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import inspect
 import time
 
 # External imports
 from tornado import locks
 
 # Bokeh imports
+from ..util.token import generate_jwt_token
 from .callbacks import _DocumentCallbackGroup
 
 #-----------------------------------------------------------------------------
@@ -63,6 +65,10 @@ def _needs_document_lock(func):
                 self._pending_writes = []
                 try:
                     result = func(self, *args, **kwargs)
+                    if inspect.isawaitable(result):
+                        # Note that this must not be outside of the critical section.
+                        # Otherwise, the async callback will be ran without document locking.
+                        result = await result
                 finally:
                     # we want to be very sure we reset this or we'll
                     # keep hitting the RuntimeError above as soon as
@@ -86,17 +92,18 @@ def current_time():
     '''
     return time.monotonic() * 1000
 
-class ServerSession(object):
+class ServerSession:
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
     '''
 
-    def __init__(self, session_id, document, io_loop=None):
+    def __init__(self, session_id, document, io_loop=None, token=None):
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
             raise ValueError("Sessions must have a document")
         self._id = session_id
+        self._token = token
         self._document = document
         self._loop = io_loop
         self._subscribed_connections = set()
@@ -120,6 +127,13 @@ class ServerSession(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def token(self):
+        ''' A JWT token to authenticate the session. '''
+        if self._token:
+            return self._token
+        return generate_jwt_token(self.id)
 
     @property
     def destroyed(self):

@@ -18,7 +18,6 @@ export class IonRangeSliderView extends InputWidgetView {
   model: IonRangeSlider
 
   private value_el?: HTMLInputElement
-  private slider_el: HTMLInputElement
 
   render(): void {
     // BokehJS Views create <div> elements by default, accessible as @el.
@@ -32,8 +31,8 @@ export class IonRangeSliderView extends InputWidgetView {
       this.group_el.appendChild(this.value_el)
     }
 
-    this.slider_el = input({type: "text"})
-    this.group_el.appendChild(div({style: {width: "100%"}}, this.slider_el))
+    this.input_el = input({type: "text"})
+    this.group_el.appendChild(div({style: {width: "100%"}}, this.input_el))
 
     // Set up parameters
     const max = this.model.end
@@ -52,7 +51,7 @@ export class IonRangeSliderView extends InputWidgetView {
       onFinish: (data: SliderData) => this.slidestop(data),
     }
 
-    jQuery(this.slider_el).ionRangeSlider(opts)
+    jQuery(this.input_el).ionRangeSlider(opts)
     if (this.value_el != null)
       this.value_el.value = `${from} - ${to}`
   }
@@ -84,6 +83,7 @@ export interface IonRangeSlider extends IonRangeSlider.Attrs {}
 
 export class IonRangeSlider extends InputWidget {
   properties: IonRangeSlider.Props
+  __view_type__: IonRangeSliderView
 
   constructor(attrs?: Partial<IonRangeSlider.Attrs>) {
     super(attrs)
@@ -96,14 +96,14 @@ export class IonRangeSlider extends InputWidget {
     // The @define block adds corresponding "properties" to the JS model. These
     // should basically line up 1-1 with the Python model class. Most property
     // types have counterparts, e.g. bokeh.core.properties.String will be
-    // p.String in the JS implementation. Where the JS type system is not yet
+    // String in the JS implementation. Where the JS type system is not yet
     // as rich, you can use p.Any as a "wildcard" property type.
-    this.define<IonRangeSlider.Props>({
-      range:             [ p.Any                              ],
-      start:             [ p.Number,               0          ],
-      end:               [ p.Number,               1          ],
-      step:              [ p.Number,               0.1        ],
-      grid:              [ p.Boolean,              true       ],
-    })
+    this.define<IonRangeSlider.Props>(({Boolean, Number, Tuple}) => ({
+      range: [ Tuple(Number, Number) ],
+      start: [ Number, 0 ],
+      end:   [ Number, 1 ],
+      step:  [ Number, 0.1 ],
+      grid:  [ Boolean, true ],
+    }))
   }
 }

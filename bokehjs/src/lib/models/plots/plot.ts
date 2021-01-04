@@ -1,10 +1,9 @@
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
-import {remove_by, concat} from "core/util/array"
+import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
+import {concat, remove_by} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
 
@@ -22,12 +21,14 @@ import {Scale} from "../scales/scale"
 import {Glyph} from "../glyphs/glyph"
 import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {DataRange1d} from '../ranges/data_range1d'
 
 import {PlotView} from "./plot_canvas"
+
 export {PlotView}
 
 export namespace Plot {
@@ -38,8 +39,8 @@ export namespace Plot {
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
 
-    plot_width: p.Property<number>
-    plot_height: p.Property<number>
+    plot_width: p.Property<number | null>
+    plot_height: p.Property<number | null>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -53,7 +54,7 @@ export namespace Plot {
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
 
-    renderers: p.Property<DataRenderer[]>
+    renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
     extra_x_ranges: p.Property<{[key: string]: Range}>
@@ -86,11 +87,14 @@ export namespace Plot {
     aspect_scale: p.Property<number>
 
     reset_policy: p.Property<ResetPolicy>
-  } & mixins.OutlineLine
-    & mixins.BackgroundFill
-    & mixins.BorderFill
+  } & Mixins
 
-  export type Visuals = visuals.Visuals & {
+  export type Mixins =
+    mixins.OutlineLine    &
+    mixins.BackgroundFill &
+    mixins.BorderFill
+
+  export type Visuals = {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     border_fill: visuals.Fill
@@ -101,9 +105,9 @@ export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
   properties: Plot.Props
-  default_view: Class<PlotView, [PlotView.Options]>
+  __view_type__: PlotView
 
-  use_map?: boolean
+  readonly use_map: boolean = false
 
   reset: Signal0<this>
 
@@ -114,84 +118,82 @@ export class Plot extends LayoutDOM {
   static init_Plot(): void {
     this.prototype.default_view = PlotView
 
-    this.mixins(["line:outline_", "fill:background_", "fill:border_"])
+    this.mixins<Plot.Mixins>([
+      ["outline_",    mixins.Line],
+      ["background_", mixins.Fill],
+      ["border_",     mixins.Fill],
+    ])
 
-    this.define<Plot.Props>({
-      toolbar:           [ p.Instance, () => new Toolbar()     ],
-      toolbar_location:  [ p.Location, 'right'                 ],
-      toolbar_sticky:    [ p.Boolean,  true                    ],
+    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar_location:  [ Nullable(Location), "right" ],
+      toolbar_sticky:    [ Boolean, true ],
 
-      plot_width:        [ p.Number,   600                     ],
-      plot_height:       [ p.Number,   600                     ],
+      plot_width:        [ p.Alias("width") ],
+      plot_height:       [ p.Alias("height") ],
 
-      frame_width:       [ p.Number,   null                    ],
-      frame_height:      [ p.Number,   null                    ],
+      frame_width:       [ Nullable(Number), null ],
+      frame_height:      [ Nullable(Number), null ],
 
-      title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
-      title_location:    [ p.Location, 'above'                 ],
+      title:             [ Or(Ref(Title), String, Null), () => new Title({text: ""}) ],
+      title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ p.Array,    []                      ],
-      below:             [ p.Array,    []                      ],
-      left:              [ p.Array,    []                      ],
-      right:             [ p.Array,    []                      ],
-      center:            [ p.Array,    []                      ],
+      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ p.Array,    []                      ],
+      renderers:         [ Array(Ref(Renderer)), [] ],
 
-      x_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-      y_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+      x_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      y_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
-      x_scale:           [ p.Instance, () => new LinearScale() ],
-      y_scale:           [ p.Instance, () => new LinearScale() ],
+      x_scale:           [ Ref(Scale), () => new LinearScale() ],
+      y_scale:           [ Ref(Scale), () => new LinearScale() ],
 
-      lod_factor:        [ p.Number,   10                      ],
-      lod_interval:      [ p.Number,   300                     ],
-      lod_threshold:     [ p.Number,   2000                    ],
-      lod_timeout:       [ p.Number,   500                     ],
+      lod_factor:        [ Number, 10 ],
+      lod_interval:      [ Number, 300 ],
+      lod_threshold:     [ Number, 2000 ],
+      lod_timeout:       [ Number, 500 ],
 
-      hidpi:             [ p.Boolean,  true                    ],
-      output_backend:    [ p.OutputBackend, "canvas"           ],
+      hidpi:             [ Boolean, true ],
+      output_backend:    [ OutputBackend, "canvas" ],
 
-      min_border:        [ p.Number,   5                       ],
-      min_border_top:    [ p.Number,   null                    ],
-      min_border_left:   [ p.Number,   null                    ],
-      min_border_bottom: [ p.Number,   null                    ],
-      min_border_right:  [ p.Number,   null                    ],
+      min_border:        [ Nullable(Number), 5 ],
+      min_border_top:    [ Nullable(Number), null ],
+      min_border_left:   [ Nullable(Number), null ],
+      min_border_bottom: [ Nullable(Number), null ],
+      min_border_right:  [ Nullable(Number), null ],
 
-      inner_width:       [ p.Number                            ],
-      inner_height:      [ p.Number                            ],
-      outer_width:       [ p.Number                            ],
-      outer_height:      [ p.Number                            ],
+      inner_width:       [ Number ],
+      inner_height:      [ Number ],
+      outer_width:       [ Number ],
+      outer_height:      [ Number ],
 
-      match_aspect:      [ p.Boolean,  false                   ],
-      aspect_scale:      [ p.Number,   1                       ],
+      match_aspect:      [ Boolean, false ],
+      aspect_scale:      [ Number, 1 ],
 
-      reset_policy:      [ p.ResetPolicy,  "standard"          ],
-    })
+      reset_policy:      [ ResetPolicy, "standard" ],
+    }))
 
-    this.override({
+    this.override<Plot.Props>({
+      width: 600,
+      height: 600,
       outline_line_color: "#e5e5e5",
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
   }
 
-  get width(): number | null {
-    const width = this.getv("width")
-    return width != null ? width : this.plot_width
-  }
-
-  get height(): number | null {
-    const height = this.getv("height")
-    return height != null ? height : this.plot_height
-  }
-
   protected _doc_attached(): void {
     super._doc_attached()
-    this._tell_document_about_change('inner_height', null, this.inner_height, {})
-    this._tell_document_about_change('inner_width', null, this.inner_width, {})
+    this._push_changes([
+      [this.properties.inner_height, null, this.inner_height],
+      [this.properties.inner_width, null, this.inner_width],
+    ])
   }
 
   initialize(): void {
@@ -217,8 +219,8 @@ export class Plot extends LayoutDOM {
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
-    const side_renderers = this.getv(side)
-    side_renderers.push(renderer as any /* XXX */)
+    const renderers = this.properties[side].get_value()
+    this.setv({[side]: [...renderers, renderer]})
   }
 
   remove_layout(renderer: Annotation | GuideRenderer): void {
@@ -234,7 +236,11 @@ export class Plot extends LayoutDOM {
     del(this.center)
   }
 
-  add_renderers(...renderers: DataRenderer[]): void {
+  get data_renderers(): DataRenderer[] {
+    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+  }
+
+  add_renderers(...renderers: Renderer[]): void {
     this.renderers = this.renderers.concat(renderers)
   }
 
@@ -250,7 +256,7 @@ export class Plot extends LayoutDOM {
   }
 
   get panels(): (Annotation | Axis | Grid)[] {
-    return this.side_panels.concat(this.center)
+    return [...this.side_panels, ...this.center]
   }
 
   get side_panels(): (Annotation | Axis)[] {

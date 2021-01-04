@@ -2,12 +2,13 @@ import {WebDataSource} from "./web_data_source"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {entries} from "core/util/object"
 
 export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = WebDataSource.Props & {
-    polling_interval: p.Property<number>
+    polling_interval: p.Property<number | null>
     content_type: p.Property<string>
     http_headers: p.Property<{[key: string]: string}>
     method: p.Property<HTTPMethod>
@@ -25,16 +26,16 @@ export class AjaxDataSource extends WebDataSource {
   }
 
   static init_AjaxDataSource(): void {
-    this.define<AjaxDataSource.Props>({
-      polling_interval: [ p.Number ],
-      content_type: [ p.String,     'application/json' ],
-      http_headers: [ p.Any,         {}                ],
-      method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
-      if_modified:  [ p.Boolean,     false             ],
-    })
+    this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
+      polling_interval: [ Nullable(Int), null ],
+      content_type:     [ String, "application/json" ],
+      http_headers:     [ Dict(String), {} ],
+      method:           [ HTTPMethod, "POST" ],
+      if_modified:      [ Boolean, false ],
+    }))
   }
 
-  protected interval: number
+  protected interval: number | null = null
   protected initialized: boolean = false
 
   destroy(): void {
@@ -47,7 +48,7 @@ export class AjaxDataSource extends WebDataSource {
     if (!this.initialized) {
       this.initialized = true
       this.get_data(this.mode)
-      if (this.polling_interval) {
+      if (this.polling_interval != null) {
         const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
         this.interval = setInterval(callback, this.polling_interval)
       }
@@ -71,8 +72,7 @@ export class AjaxDataSource extends WebDataSource {
     xhr.setRequestHeader("Content-Type", this.content_type)
 
     const http_headers = this.http_headers
-    for (const name in http_headers) {
-      const value = http_headers[name]
+    for (const [name, value] of entries(http_headers)) {
       xhr.setRequestHeader(name, value)
     }
 

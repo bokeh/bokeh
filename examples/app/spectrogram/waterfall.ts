@@ -38,8 +38,8 @@ export class WaterfallRendererView extends RendererView {
     this.col = 0
     this.tile = 0
     this.cmap = new LinearColorMapper({palette: this.model.palette, low: 0, high: 5})
-    this.xscale = this.plot_view.frame.xscales.default
-    this.yscale = this.plot_view.frame.yscales.default
+    this.xscale = this.plot_view.frame.x_scale
+    this.yscale = this.plot_view.frame.y_scale
     this.max_freq = this.plot_view.frame.y_range.end
   }
 
@@ -48,8 +48,8 @@ export class WaterfallRendererView extends RendererView {
     this.connect(this.model.change, this.request_render)
   }
 
-  render(): void {
-    const ctx = this.plot_view.canvas_view.ctx
+  protected _render(): void {
+    const {ctx} = this.layer
     ctx.save()
 
     const smoothing = ctx.getImageSmoothingEnabled()
@@ -123,6 +123,7 @@ export interface WaterfallRenderer extends WaterfallRenderer.Attrs {}
 
 export class WaterfallRenderer extends Renderer {
   properties: WaterfallRenderer.Props
+  __view_type__: WaterfallRendererView
 
   constructor(attrs?: Partial<WaterfallRenderer.Attrs>) {
     super(attrs)
@@ -131,15 +132,15 @@ export class WaterfallRenderer extends Renderer {
   static init_WaterfallRenderer(): void {
     this.prototype.default_view = WaterfallRendererView
 
-    this.define<WaterfallRenderer.Props>({
-      latest:      [ p.Any ],
-      palette:     [ p.Any ],
-      num_grams:   [ p.Int ],
-      gram_length: [ p.Int ],
-      tile_width:  [ p.Int ],
-    })
+    this.define<WaterfallRenderer.Props>(({Int, Number, Color, Array}) => ({
+      latest:      [ Array(Number) ],
+      palette:     [ Array(Color) ],
+      num_grams:   [ Int ],
+      gram_length: [ Int ],
+      tile_width:  [ Int ],
+    }))
 
-    this.override({
+    this.override<WaterfallRenderer.Props>({
       level: "glyph",
     })
   }

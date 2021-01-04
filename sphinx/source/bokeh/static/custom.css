@@ -1,3 +1,18 @@
+:root {
+    /* Logo image height + all the paddings/margins make the navbar height. */
+    --navbar-height: calc(30px + .3125rem * 2 + 0.5rem * 2);
+}
+
+html {
+  width: 100%;
+}
+
+.navbar-brand {
+    /* Overriding Bootstrap's value since we have only image there and we want
+    to keep it valigned and prevent its parent from growing.*/
+    font-size: 1rem;
+}
+
 .navbar-brand img {
     max-height: 50px;
 }
@@ -23,13 +38,15 @@
 }
 
 .bd-search {
-    position: relative;
-    padding: 1rem 15px;
-    margin-right: -15px;
-    margin-left: -15px;
-    border-bottom: 1px solid rgba(0,0,0,.05);
+  position: relative;
+  padding-bottom: 20px;
 }
 
+@media (min-width: 768px) {
+  .search-front-page {
+    width: 50%;
+  }
+}
 
 /* minimal copy paste from bootstrap docs css to get sidebars working */
 
@@ -79,11 +96,14 @@
     text-decoration: none;
   }
 
-
   .bd-sidebar {
     -ms-flex-order: 0;
     order: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  table {
+    margin: 0 auto;
   }
 
   @media (min-width: 768px) {
@@ -94,9 +114,9 @@
       .bd-sidebar {
         position: -webkit-sticky;
         position: sticky;
-        top: 5rem;
+        top: var(--navbar-height);
         z-index: 1000;
-        height: calc(100vh - 4rem);
+        height: calc(100vh - var(--navbar-height));
       }
     }
   }
@@ -181,7 +201,7 @@
 
   .bd-sidebar .nav > .active > a,
   .bd-sidebar .nav > .active:hover > a {
-    font-weight: 00;
+    font-weight: 400;
     color: #130654;
     /* adjusted from original
     color: rgba(0, 0, 0, 0.85);
@@ -206,19 +226,23 @@
     color: #542437;
   }
 
-/* offsetting html anchor titles to adjust for fixed header, https://github.com/pandas-dev/pandas-sphinx-theme/issues/6*/
-  h2::before, h3::before,
-  h4::before, h5::before,
-  h6::before  {
-    display: block;
-    content: "";
-    height: 80px;
-    margin: -80px 0 0;
+dt:target {
+    background-color: initial;
 }
 
-/* add padding to body to avid overlap with navbar   */
+/* Offsetting anchored elements within the main content to adjust for fixed header
+   https://github.com/pandas-dev/pandas-sphinx-theme/issues/6 */
+main *:target::before {
+    display: block;
+    content: "";
+    height: var(--navbar-height);
+    margin-top: calc(-1 * var(--navbar-height));
+}
+
 body {
-  padding-top: 80px
+    /* Add padding to body to avoid overlap with navbar. */
+    padding-top: var(--navbar-height);
+    width:100%;
 }
 
 
@@ -258,14 +282,6 @@ body {
   display: block;
 }
 
-
-
-
-
-
-
-
-
 ul.gallery li {
     list-style-type: none;
     float:left
@@ -283,14 +299,14 @@ body { font-family: "Lato", sans-serif; }
 .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
-a { color: #D95B43; }
+a { color: #CF462A; }
 
 h1 { font-family: "Work Sans", sans-serif; }
 h2 { font-family: "Work Sans", sans-serif; }
 h3 { font-family: "Work Sans", sans-serif; }
 h4 { font-family: "Work Sans", sans-serif; }
 
-.link { color: #D95B43; }
+.link { color: #CF462A; }
 
 .links { background-color: #542437; color: #fff; font-family: "Lato", sans-serif; }
 .links h6 { font-family: "Work Sans", sans-serif; font-weight: 700; font-size: 14px; }
@@ -306,7 +322,7 @@ h4 { font-family: "Work Sans", sans-serif; }
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    color: #D95B43;
+    color: #CF462A;
     cursor: pointer;
     display: block;
     font-size: 1em;
@@ -345,7 +361,7 @@ h4 { font-family: "Work Sans", sans-serif; }
 }
 
 #banner .version-alert {
-  background-color: #D95B43;
+  background-color: #CF462A;
   padding: 1em;
   color: #fff;
   font-family: "Work Sans", sans-serif;
@@ -374,7 +390,11 @@ div.bk-root {
 }
 
 code {
-  color: #D95B43;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, "Lucida Console", Courier, monospace;
+  color: rgb(33, 37, 41);
+  padding: 2px 3px 0px 3px;
+  font-size: 80%;
+  background-color:#eef0f1;
 }
 
 a.headerlink {
@@ -396,4 +416,71 @@ a.nav-external:after {
 
 span.highlighted {
   background-color: #ECD078;
+}
+
+/* Custom styles for documentation landing page (index.rst) and other pages
+using sphinx_panels */
+
+.bokeh-examples {
+  padding: 0px;
+}
+
+.bokeh-examples img {
+  width: 100%;
+  height: 100%;
+}
+
+.bg-bokeh-one {
+  background-color: rgba(246,169,27,0.3);
+}
+
+.bg-bokeh-two {
+  background-color: rgba(165,205,57,0.3);
+}
+
+.bg-bokeh-three {
+  background-color: rgba(0,170,174,0.3);
+}
+
+.bg-bokeh-four {
+  background-color: rgba(240,82,35,0.3);
+}
+
+.bg-bokeh-five {
+  background-color: rgba(138,40,137,0.3);
+}
+
+.bg-bokeh-six {
+  background-color: rgba(32,178,84,0.3);
+}
+
+.bg-bokeh-seven {
+  background-color: rgba(236,21,87,0.3);
+}
+
+.card-header p {
+  font-weight: 600;
+  font-size: 125%;
+}
+
+.card-text a {
+  font-weight: 600;
+}
+
+@media (max-width: 575px) {
+  .examples-container .d-flex {
+    width: 25%;
+  }
+}
+
+/* customize highlight color for sphinx code blocks */
+.highlight .hll {
+  background-color: rgba(246,169,27,0.3);
+}
+
+/* image style for styling.rst examples */
+
+.theme-examples img {
+  border: 2px solid #eeeeee;
+  margin-bottom: 3px;
 }

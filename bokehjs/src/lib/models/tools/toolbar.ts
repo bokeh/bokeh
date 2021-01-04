@@ -1,18 +1,23 @@
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {sort_by, includes, intersection} from "core/util/array"
+import {values, entries} from "core/util/object"
 
 import {Tool} from "./tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 
-import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
+import {ToolbarBase, ToolbarBaseView} from "./toolbar_base"
 
 // XXX: add appropriate base classes to get rid of this
 export type Drag = Tool
+export const Drag = Tool
 export type Inspection = Tool
+export const Inspection = Tool
 export type Scroll = Tool
+export const Scroll = Tool
 export type Tap = Tool
+export const Tap = Tool
 
 type ActiveGestureToolsProps = {
   active_drag: p.Property<Drag | "auto" | null>
@@ -58,18 +63,20 @@ export class Toolbar extends ToolbarBase {
   static init_Toolbar(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<Toolbar.Props>({
-      active_drag:     [ p.Any, 'auto' ],
-      active_inspect:  [ p.Any, 'auto' ],
-      active_scroll:   [ p.Any, 'auto' ],
-      active_tap:      [ p.Any, 'auto' ],
-      active_multi:    [ p.Any, null   ],
-    })
+    this.define<Toolbar.Props>(({Or, Ref, Auto, Null, Nullable}) => ({
+      active_drag:     [ Or(Ref(Drag), Auto, Null), "auto" ],
+      active_inspect:  [ Or(Ref(Inspection), Auto, Null), "auto" ],
+      active_scroll:   [ Or(Ref(Scroll), Auto, Null), "auto" ],
+      active_tap:      [ Or(Ref(Tap), Auto, Null), "auto" ],
+      active_multi:    [ Nullable(Ref(GestureTool)), null ],
+    }))
   }
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.properties.tools.change, () => this._init_tools())
+
+    const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
+    this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => this._init_tools())
   }
 
   protected _init_tools(): void {
@@ -111,21 +118,18 @@ export class Toolbar extends ToolbarBase {
     }
 
     // Connecting signals has to be done before changing the active state of the tools.
-    for (const et in this.gestures) {
-      const gesture = this.gestures[et as GestureType]
-
+    for (const gesture of values(this.gestures)) {
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
-        this.connect(tool.properties.active.change, this._active_change.bind(this, tool))
+        this.connect(tool.properties.active.change, () => this._active_change(tool))
       }
     }
 
-    for (const et in this.gestures) {
+    for (const [et, gesture] of entries(this.gestures)) {
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
         if (active_tool == 'auto') {
-          const gesture = this.gestures[et as GestureType]
           if (gesture.tools.length != 0 && _supports_auto(et)) {
             _activate_gesture(gesture.tools[0])
           }

@@ -1,17 +1,17 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
+import {entries} from "./util/object"
 import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
-export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
+export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
+export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
     element.classList.add("bk")
 
-    for (const attr in attrs) {
-      let value = attrs[attr]
-
+    for (let [attr, value] of entries(attrs)) {
       if (value == null || isBoolean(value) && !value)
         continue
 
@@ -29,15 +29,15 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
       }
 
       if (attr === "style" && isPlainObject(value)) {
-        for (const prop in value) {
-          (element.style as any)[prop] = value[prop]
+        for (const [prop, data] of entries(value)) {
+          (element.style as any)[prop] = data
         }
         continue
       }
 
       if (attr === "data" && isPlainObject(value)) {
-        for (const key in value) {
-          element.dataset[key] = value[key] as string | undefined // XXX: attrs needs a better type
+        for (const [key, data] of entries(value)) {
+          element.dataset[key] = data as string | undefined // XXX: attrs needs a better type
         }
         continue
       }
@@ -45,13 +45,17 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
       element.setAttribute(attr, value)
     }
 
-    function append(child: HTMLElement | string) {
-      if (child instanceof HTMLElement)
-        element.appendChild(child)
-      else if (isString(child))
+    function append(child: HTMLItem) {
+      if (isString(child))
         element.appendChild(document.createTextNode(child))
-      else if (child != null && child !== false)
-        throw new Error(`expected an HTMLElement, string, false or null, got ${JSON.stringify(child)}`)
+      else if (child instanceof Node)
+        element.appendChild(child)
+      else if (child instanceof NodeList || child instanceof HTMLCollection) {
+        for (const el of child) {
+          element.appendChild(el)
+        }
+      } else if (child != null && child !== false)
+        throw new Error(`expected a DOM element, string, false or null, got ${JSON.stringify(child)}`)
     }
 
     for (const child of children) {
@@ -121,10 +125,15 @@ export function prepend(element: HTMLElement, ...nodes: Node[]): void {
   }
 }
 
-export function empty(element: HTMLElement): void {
-  let child
-  while (child = element.firstChild) {
-    element.removeChild(child)
+export function empty(node: Node, attrs: boolean = false): void {
+  let child: ChildNode | null
+  while (child = node.firstChild) {
+    node.removeChild(child)
+  }
+  if (attrs && node instanceof Element) {
+    for (const attr of node.attributes) {
+      node.removeAttributeNode(attr)
+    }
   }
 }
 
@@ -154,7 +163,7 @@ export function offset(element: HTMLElement) {
 
 export function matches(el: HTMLElement, selector: string): boolean {
   const p: any = Element.prototype
-  const f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector
+  const f = p.matches ?? p.webkitMatchesSelector ?? p.mozMatchesSelector ?? p.msMatchesSelector
   return f.call(el, selector)
 }
 
@@ -261,7 +270,6 @@ export function children(el: HTMLElement): HTMLElement[] {
 }
 
 export class ClassList {
-
   private readonly classList: DOMTokenList
 
   constructor(readonly el: HTMLElement) {
@@ -316,6 +324,17 @@ export function classes(el: HTMLElement): ClassList {
   return new ClassList(el)
 }
 
+export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean): void {
+  if (state == null) {
+    state = !el.hasAttribute(attr)
+  }
+
+  if (state)
+    el.setAttribute(attr, "true")
+  else
+    el.removeAttribute(attr)
+}
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,
@@ -362,15 +381,27 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
 
 export class StyleSheet {
   private readonly style: HTMLStyleElement
+  private readonly known: Set<string> = new Set()
 
-  constructor() {
+  constructor(readonly root: HTMLElement) {
     this.style = style({type: "text/css"})
-    prepend(document.head, this.style)
+    prepend(root, this.style)
   }
 
   append(css: string): void {
-    this.style.appendChild(document.createTextNode(css))
+    if (!this.known.has(css)) {
+      this.style.appendChild(document.createTextNode(css))
+      this.known.add(css)
+    }
   }
 }
 
-export const styles = new StyleSheet()
+export const stylesheet = new StyleSheet(document.head)
+
+export async function dom_ready(): Promise<void> {
+  if (document.readyState == "loading") {
+    return new Promise((resolve, _reject) => {
+      document.addEventListener("DOMContentLoaded", () => resolve(), {once: true})
+    })
+  }
+}

@@ -15,10 +15,7 @@ import subprocess
 import sys
 import time
 from glob import glob
-from os.path import dirname, exists, join, realpath, relpath
-
-# Bokeh imports
-import versioneer
+from os.path import dirname, exists, join, realpath
 
 # provide fallbacks for highlights in case colorama is not installed
 try:
@@ -160,24 +157,22 @@ def conda_rendering():
     return os.getenv("CONDA_BUILD_STATE" ,"junk") == "RENDER"
 
 
-def fixup_building_sdist():
-    ''' Check for 'sdist' and ensure we always build BokehJS when packaging
+def check_building_sdist():
+    ''' Check for 'sdist' and ensure we always build or install BokehJS when
+    packaging
 
     Source distributions do not ship with BokehJS source code, but must ship
-    with a pre-built BokehJS library. This function modifies ``sys.argv`` as
-    necessary so that ``--build-js`` IS present, and ``--install-js` is NOT.
+    with a pre-built BokehJS library. This function checks ``sys.argv`` to
+    ensure that ``--build-js`` or ``--install-js` is present.
 
     Returns:
         None
 
     '''
     if "sdist" in sys.argv:
-        if "--install-js" in sys.argv:
-            print("Removing '--install-js' incompatible with 'sdist'")
-            sys.argv.remove('--install-js')
-        if "--build-js" not in sys.argv:
-            print("Adding '--build-js' required for 'sdist'")
-            sys.argv.append('--build-js')
+        if "--install-js" not in sys.argv and "--build-js" not in sys.argv:
+            print("Error: Option '--build-js' or '--install-js' must be present with 'sdist', exiting.")
+            sys.exit(1)
 
 def fixup_for_packaged():
     ''' If we are installing FROM an sdist, then a pre-built BokehJS is
@@ -202,47 +197,6 @@ def fixup_for_packaged():
                 sys.argv.remove('--install-js')
         if "--existing-js" not in sys.argv:
             sys.argv.append('--existing-js')
-
-# Horrible hack: workaround to allow creation of bdist_wheel on pip
-# installation. Why, for God's sake, is pip forcing the generation of wheels
-# when installing a package?
-def get_cmdclass():
-    ''' A ``cmdclass`` that works around a setuptools deficiency.
-
-    There is no need to build wheels when installing a package, however some
-    versions of setuptools seem to mandate this. This is a hacky workaround
-    that modifies the ``cmdclass`` returned by versioneer so that not having
-    wheel installed is not a fatal error.
-
-    '''
-    cmdclass = versioneer.get_cmdclass()
-
-    try:
-        from wheel.bdist_wheel import bdist_wheel
-    except ImportError:
-        # pip is not claiming for bdist_wheel when wheel is not installed
-        bdist_wheel = None
-
-    if bdist_wheel is not None:
-        cmdclass["bdist_wheel"] = bdist_wheel
-
-    return cmdclass
-
-def get_package_data():
-    ''' All of all of the "extra" package data files collected by the
-    ``package_files`` and ``package_path`` functions in ``setup.py``.
-
-    '''
-    return { 'bokeh': _PACKAGE_DATA }
-
-def get_version():
-    ''' The version of Bokeh currently checked out
-
-    Returns:
-        str : the version string
-
-    '''
-    return versioneer.get_version()
 
 # -----------------------------------------------------------------------------
 # Helpers for operation in the bokehjs dir
@@ -281,7 +235,7 @@ def build_js():
     sys.stdout.flush()
     os.chdir('bokehjs')
 
-    cmd = ["node", "make", 'build', '--emit-error']
+    cmd = ["node", "make", "build"]
 
     t0 = time.time()
     try:
@@ -363,33 +317,6 @@ def install_js():
         os.mkdir(target_tslibdir)
         for lib_file in glob(join(TSLIB, "lib.*.d.ts")):
             shutil.copy(lib_file, target_tslibdir)
-
-# -----------------------------------------------------------------------------
-# Helpers for collecting package data
-# -----------------------------------------------------------------------------
-
-_PACKAGE_DATA = []
-
-def package_files(*paths):
-    '''
-
-    '''
-    _PACKAGE_DATA.extend(paths)
-
-def package_path(path, filters=()):
-    '''
-
-    '''
-    if not os.path.exists(path):
-        raise RuntimeError("packaging non-existent path: %s" % path)
-    elif os.path.isfile(path):
-        _PACKAGE_DATA.append(relpath(path, 'bokeh'))
-    else:
-        for path, dirs, files in os.walk(path):
-            path = relpath(path, 'bokeh')
-            for f in files:
-                if not filters or f.endswith(filters):
-                    _PACKAGE_DATA.append(join(path, f))
 
 # -----------------------------------------------------------------------------
 # Status and error message strings

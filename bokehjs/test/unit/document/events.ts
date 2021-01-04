@@ -1,7 +1,7 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
-import * as p from "@bokehjs/core/properties"
+import {Serializer} from "@bokehjs/core/serializer"
 import {Document} from "@bokehjs/document/document"
 import * as events from "@bokehjs/document/events"
 
@@ -17,18 +17,15 @@ const EVENTS = [
   "RootRemovedEvent",
 ]
 
-const EMPTY_REFS = {}
-
 class TestModel extends HasProps {}
 
 class TestModelWithRefs extends HasProps {
-
-  foo: any
+  foo: number[]
 
   static init_TestModelWithRefs(): void {
-    this.define<any>({
-      foo: [ p.Any, [] ],
-    })
+    this.define<any>(({Number, Array}) => ({
+      foo: [ Array(Number), [] ],
+    }))
   }
 }
 
@@ -36,21 +33,21 @@ describe("events module", () => {
 
   describe("exports", () => {
 
-    for (const evt of EVENTS) {
-      it(`"should have ${evt}"`, () => {
-        expect(evt in events).to.be.true
+    for (const event of EVENTS) {
+      it(`"should have ${event}"`, () => {
+        expect(event in events).to.be.true
       })
     }
-
   })
 
   describe("ColumnsPatchedEvent", () => {
     it("should generate json", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsPatchedEvent(d, m.ref(), {foo: [[1, 2]]})
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.ColumnsPatchedEvent(d, m.ref(), {foo: [[1, 2]]})
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ColumnsPatched",
         column_source: m.ref(),
         patches: {foo: [[1, 2]]},
@@ -62,9 +59,10 @@ describe("events module", () => {
     it("should generate json with rollover", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]}, 10)
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]}, 10)
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -75,9 +73,10 @@ describe("events module", () => {
     it("should generate json without rollover", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -87,20 +86,13 @@ describe("events module", () => {
   })
 
   describe("ModelChangedEvent", () => {
-    it ("should throw an error if attr=id", () => {
-      const d = new Document()
-      const m = new TestModel()
-      const evt = new events.ModelChangedEvent(d, m, "id", 1, 2)
-      expect(() => evt.json(EMPTY_REFS)).to.throw(Error)
-    })
-
     it("should generating json with no references", () =>{
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2)
-      const refs = {}
-      const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2)
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ModelChanged",
         model: m.ref(),
         attr: "foo",
@@ -111,19 +103,18 @@ describe("events module", () => {
     it("should generating json with references", () =>{
       const d = new Document()
       const m = new TestModel()
-      const m2 = new TestModelWithRefs({foo:[]})
-      const evt = new events.ModelChangedEvent(d, m2, "foo", [], [m])
-      const refs = {}
-      const json = evt.json(refs)
-      expect(json).to.be.deep.equal({
+      const m2 = new TestModelWithRefs({foo: []})
+      const event = new events.ModelChangedEvent(d, m2, "foo", [], [m])
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ModelChanged",
         model: m2.ref(),
         attr: "foo",
         new: [m.ref()],
       })
-      const expected_refs: {[key: string]: HasProps} = {}
-      expected_refs[m.id] = m
-      expect(refs).to.be.deep.equal(expected_refs)
+      const expected_refs = new Set([m])
+      expect(serializer.objects).to.be.equal(expected_refs)
     })
 
     // TODO (bev) test the case with references returned
@@ -132,9 +123,10 @@ describe("events module", () => {
       const d = new Document()
       const m = new TestModel()
       const hint = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
-      const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
         data: {foo: [1, 2], bar: [3, 4]},
@@ -146,9 +138,10 @@ describe("events module", () => {
   describe("TitleChangedEvent", () => {
     it("should generate json", () => {
       const d = new Document()
-      const evt = new events.TitleChangedEvent(d, "foo")
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.TitleChangedEvent(d, "foo")
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "TitleChanged",
         title: "foo",
       })
@@ -159,9 +152,10 @@ describe("events module", () => {
     it("should generate json", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.RootAddedEvent(d, m)
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.RootAddedEvent(d, m)
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "RootAdded",
         model: m.ref(),
       })
@@ -172,9 +166,10 @@ describe("events module", () => {
     it("should generate json", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.RootRemovedEvent(d, m)
-      const json = evt.json(EMPTY_REFS)
-      expect(json).to.be.deep.equal({
+      const event = new events.RootRemovedEvent(d, m)
+      const serializer = new Serializer()
+      const result = serializer.to_serializable(event)
+      expect(result).to.be.equal({
         kind: "RootRemoved",
         model: m.ref(),
       })

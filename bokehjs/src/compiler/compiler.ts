@@ -4,13 +4,12 @@ import * as ts from "typescript"
 import {basename, dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
-import {read, Path} from "./sys"
+import {Path} from "./sys"
+import {BuildError} from "./error"
 
 export type CompileConfig = {
-  log?: (message: string) => void
-  out_dir?: OutDir
-  css_dir?: Path
   bokehjs_dir?: Path
+  inputs?(files: Path[]): Inputs
 }
 
 export type Inputs = Map<Path, string>
@@ -86,21 +85,12 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokeh
   return host
 }
 
-export function default_transformers(options: ts.CompilerOptions, css_dir?: Path): ts.CustomTransformers {
+export function default_transformers(options: ts.CompilerOptions): ts.CustomTransformers {
   const transformers: Required<ts.CustomTransformers> = {
     before: [],
     after: [],
     afterDeclarations: [],
   }
-
-  const import_txt = transforms.import_txt((txt_path) => read(txt_path))
-  transformers.before.push(import_txt)
-
-  const import_css = transforms.import_css((css_path) => {
-    const resolved_path = css_path.startsWith(".") || css_dir == null ? css_path : join(css_dir, css_path)
-    return read(resolved_path)
-  })
-  transformers.before.push(import_css)
 
   const insert_class_name = transforms.insert_class_name()
   transformers.before.push(insert_class_name)
@@ -115,7 +105,8 @@ export function default_transformers(options: ts.CompilerOptions, css_dir?: Path
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file) ||
             ts.sys.fileExists(module_file + ".ts") ||
-            ts.sys.fileExists(join(module_file, "index.ts"))) {
+            ts.sys.fileExists(join(module_file, "index.ts")) ||
+            options.outDir != null && ts.sys.fileExists(join(options.outDir, module_path + ".js"))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
         }
@@ -165,39 +156,26 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
   return parse_tsconfig(tsconfig_file.config, dirname(tsconfig_path), preconfigure)
 }
 
-export function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
-  const preconfigure: ts.CompilerOptions = (() => {
-    const {out_dir} = config
-    if (out_dir != null) {
-      if (typeof out_dir == "string")
-        return {outDir: out_dir}
-      else
-        return {outDir: out_dir.js, declarationDir: out_dir.dts, declaration: true}
-    } else
-      return {}
-  })()
-
-  const tsconfig = read_tsconfig(tsconfig_path, preconfigure)
+function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
+  const tsconfig = read_tsconfig(tsconfig_path)
   if (is_failed(tsconfig))
     return {diagnostics: tsconfig.diagnostics}
 
   const {files, options} = tsconfig
 
-  const transformers = default_transformers(tsconfig.options, config.css_dir)
-  const host = compiler_host(new Map(), options, config.bokehjs_dir)
+  const transformers = default_transformers(tsconfig.options)
+  const inputs = config.inputs?.(files) ?? new Map()
+  const host = compiler_host(inputs, options, config.bokehjs_dir)
 
-  return compile_files(files, options, transformers, host)
+  const input_files = [...inputs.keys(), ...files]
+  return compile_files(input_files, options, transformers, host)
 }
 
-export function compile_typescript(tsconfig_path: Path, config: CompileConfig): boolean {
+export function compile_typescript(tsconfig_path: Path, config: CompileConfig = {}): void {
   const result = compile_project(tsconfig_path, config)
 
   if (is_failed(result)) {
-    const failure = report_diagnostics(result.diagnostics)
-    if (config.log != null)
-      config.log(`There were ${chalk.red("" + failure.count)} TypeScript errors:\n${failure.text}`)
-    return false
+    const {count, text} = report_diagnostics(result.diagnostics)
+    throw new BuildError("typescript", `There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
   }
-
-  return true
 }

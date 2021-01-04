@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 import time
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
@@ -85,8 +88,7 @@ def _make_server_plot(expected):
 
 
 @pytest.mark.selenium
-class Test_PolyEditTool(object):
-
+class Test_PolyEditTool:
     def _test_selected_by_default(self, single_plot_page):
         plot = _make_plot()
 
@@ -172,7 +174,7 @@ class Test_PolyEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.drag_canvas_at_position(250, 150, 70, 50)
         time.sleep(0.5)
         page.click_custom_action()
@@ -195,10 +197,10 @@ class Test_PolyEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.click_canvas_at_position(298, 298)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Escape
+        page.send_keys("\ue003")  # Escape
         page.click_custom_action()
 
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
@@ -207,6 +209,7 @@ class Test_PolyEditTool(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def _test_poly_edit_syncs_to_server(self, bokeh_server_page):
         expected = {'xs': [[1, 2], [1.6, 2.45, 2.027027027027027]],
                     'ys': [[1, 1], [1.5, 0.75, 1.8749999999999998]]}
@@ -223,6 +226,7 @@ class Test_PolyEditTool(object):
         page.click_custom_action()
         assert page.results == {"matches": "True"}
 
+    @flaky(max_runs=10)
     def _test_poly_drag_syncs_to_server(self, bokeh_server_page):
         expected = {"xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]],
                     "ys": [[1, 1], [1.5, 0.75, 1.5]]}
@@ -236,7 +240,7 @@ class Test_PolyEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.drag_canvas_at_position(250, 150, 70, 50)
         time.sleep(0.5)
 
@@ -245,6 +249,7 @@ class Test_PolyEditTool(object):
 
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_poly_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
                     "ys": [[1, 1], [1.5, 1.8749999999999998]]}
@@ -257,10 +262,10 @@ class Test_PolyEditTool(object):
         time.sleep(0.5)
         page.click_canvas_at_position(250, 150)
         time.sleep(0.5)
-        page.send_keys(u'\ue00c') # Escape
+        page.send_keys("\ue00c")  # Escape
         page.click_canvas_at_position(298, 298)
         time.sleep(0.5)
-        page.send_keys(u'\ue003') # Backspace
+        page.send_keys("\ue003")  # Backspace
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

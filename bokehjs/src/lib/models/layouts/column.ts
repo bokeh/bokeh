@@ -26,6 +26,7 @@ export interface Column extends Column.Attrs {}
 
 export class Column extends Box {
   properties: Column.Props
+  __view_type__: ColumnView
 
   constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)
@@ -34,8 +35,8 @@ export class Column extends Box {
   static init_Column(): void {
     this.prototype.default_view = ColumnView
 
-    this.define<Column.Props>({
-      rows: [ p.Any, "auto" ],
-    })
+    this.define<Column.Props>(({Any}) => ({
+      rows: [ Any /*TODO*/, "auto" ],
+    }))
   }
 }

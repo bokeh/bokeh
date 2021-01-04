@@ -28,8 +28,10 @@ from ...core.properties import (
     Bool,
     Color,
     Datetime,
+    Either,
     Enum,
     Float,
+    Instance,
     Int,
     Override,
     String,
@@ -37,6 +39,7 @@ from ...core.properties import (
 )
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
+from ..formatters import TickFormatter
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -63,6 +66,7 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
+
         super().__init__(**kwargs)
 
     title = String(default="", help="""
@@ -73,7 +77,7 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    format = String(help="""
+    format = Either(String, Instance(TickFormatter), help="""
     """)
 
     direction = Enum("ltr", "rtl", help="""
@@ -89,7 +93,7 @@ class AbstractSlider(Widget):
     def _check_missing_dimension(self):
         if hasattr(self, 'start') and hasattr(self, 'end'):
             if self.start == self.end:
-                return '{!s} with title {!s}'.format(self, self.title)
+                return f"{self!s} with title {self.title!s}"
 
 #-----------------------------------------------------------------------------
 # General API
@@ -148,6 +152,35 @@ class RangeSlider(AbstractSlider):
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
 
+    @property
+    def value_as_datetime(self):
+        ''' Convenience property to retrieve the value as a datetime object.
+
+        Added in version 2.0
+        '''
+        if self.value is None:
+            return None
+
+        if isinstance(self.value, numbers.Number):
+            return datetime.utcfromtimestamp(self.value / 1000)
+
+        return self.value
+
+    @property
+    def value_as_date(self):
+        ''' Convenience property to retrieve the value as a date object.
+
+        Added in version 2.0
+        '''
+        if self.value is None:
+            return None
+
+        if isinstance(self.value, numbers.Number):
+            dt = datetime.utcfromtimestamp(self.value / 1000)
+            return date(*dt.timetuple()[:3])
+
+        return self.value
+
     value = Datetime(help="""
     Initial or selected value.
     """)
@@ -178,6 +211,7 @@ class DateRangeSlider(AbstractSlider):
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
 
+        Added in version 1.1
         '''
         if self.value is None:
             return None
@@ -190,7 +224,7 @@ class DateRangeSlider(AbstractSlider):
             d2 = datetime.utcfromtimestamp(v2 / 1000)
         else:
             d2 = v2
-        return d1, d2    \
+        return d1, d2
 
     @property
     def value_as_date(self):

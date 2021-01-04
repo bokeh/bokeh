@@ -4,12 +4,12 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the Instance property.
+""" Provide the Instance property.
 
 The Instance property is used to construct object graphs of Bokeh models,
 where one Bokeh model refers to another.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -40,28 +40,30 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Instance(Property):
-    ''' Accept values that are instances of |HasProps|.
+    """ Accept values that are instances of |HasProps|.
 
     Args:
         readonly (bool, optional) :
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
         if not isinstance(instance_type, (type, str)):
-            raise ValueError("expected a type or string, got %s" % instance_type)
+            raise ValueError(f"expected a type or string, got {instance_type}")
 
         from ..has_props import HasProps
         if isinstance(instance_type, type) and not issubclass(instance_type, HasProps):
-            raise ValueError("expected a subclass of HasProps, got %s" % instance_type)
+            raise ValueError(f"expected a subclass of HasProps, got {instance_type}")
 
         self._instance_type = instance_type
 
         super().__init__(default=default, help=help, readonly=readonly, serialized=True)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
+        class_name = self.__class__.__name__
+        instance_type = self.instance_type.__name__
+        return f"{class_name}({instance_type})"
 
     @property
     def has_ref(self):
@@ -77,19 +79,20 @@ class Instance(Property):
 
     def from_json(self, json, models=None):
         if json is None:
-            return None
+            return
+
         elif isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
                 if models is None:
-                    raise DeserializationError("%s can't deserialize without models" % self)
+                    raise DeserializationError(f"{self} can't deserialize without models")
                 else:
                     model = models.get(json["id"])
 
                     if model is not None:
                         return model
                     else:
-                        raise DeserializationError("%s failed to deserialize reference to %s" % (self, json))
+                        raise DeserializationError(f"{self} failed to deserialize reference to {json}")
             else:
                 attrs = {}
 
@@ -101,23 +104,26 @@ class Instance(Property):
                 # Serialization dict must carry type information to resolve this.
                 return self.instance_type(**attrs)
         else:
-            raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
+            raise DeserializationError(f"{self} expected a dict or None, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is not None:
-            if not isinstance(value, self.instance_type):
-                msg = "" if not detail else "expected an instance of type %s, got %s of type %s" % (self.instance_type.__name__, value, type(value).__name__)
-                raise ValueError(msg)
+        if value is None or isinstance(value, self.instance_type):
+            return
+
+        instance_type = self.instance_type.__name__
+        value_type = type(value).__name__
+        msg = "" if not detail else f"expected an instance of type {instance_type}, got {value} of type {value_type}"
+        raise ValueError(msg)
 
     def _may_have_unstable_default(self):
         # because the instance value is mutable
         return True
 
     def _sphinx_type(self):
-        fullname = "%s.%s" % (self.instance_type.__module__, self.instance_type.__name__)
-        return self._sphinx_prop_link() + "( %s )" % self._sphinx_model_link(fullname)
+        fullname = f"{self.instance_type.__module__}.{self.instance_type.__name__}"
+        return f"{self._sphinx_prop_link()}({self._sphinx_model_link(fullname)})"
 
 #-----------------------------------------------------------------------------
 # Dev API

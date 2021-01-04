@@ -1,7 +1,8 @@
 import {Model} from "../../model"
-import {TextureRepetition} from 'core/enums'
+import {Color} from "core/types"
+import {TextureRepetition} from "core/enums"
 import * as p from "core/properties"
-import {Context2d} from 'core/util/canvas'
+import {Context2d} from "core/util/canvas"
 
 export namespace Texture {
   export type Attrs = p.AttrsOf<Props>
@@ -21,15 +22,14 @@ export abstract class Texture extends Model {
   }
 
   static init_Texture(): void {
-    this.define<Texture.Props>({
-      repetition: [ p.TextureRepetition, "repeat" ],
-    })
+    this.define<Texture.Props>(() => ({
+      repetition: [ TextureRepetition, "repeat" ],
+    }))
   }
 
-  abstract get_pattern(color: any, alpha: number, scale: number, weight: number):  (ctx: Context2d) => CanvasPattern | null
+  abstract get_pattern(color: Color, alpha: number, scale: number, weight: number): (ctx: Context2d) => CanvasPattern | null
 
   onload(defer_func: () => void): void {
     defer_func()
   }
-
 }

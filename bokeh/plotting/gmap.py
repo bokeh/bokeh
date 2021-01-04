@@ -27,7 +27,7 @@ from ..models import (
     Title,
     Tool,
 )
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..util.options import Options
 from ._tools import process_active_tools, process_tools_arg
 from .figure import Figure
@@ -58,7 +58,7 @@ class GMap(GMapPlot):
 
             https://developers.google.com/maps/documentation/javascript/get-api-key
 
-        map_options: (GMapOptions)
+        map_options: (:class:`~bokeh.models.map_plots.GMapOptions`)
             Configuration specific to a Google Map
 
     In addition to all the Bokeh model property attributes documented below,
@@ -66,7 +66,7 @@ class GMap(GMapPlot):
     help simplify configuration:
 
     .. bokeh-options:: GMapFigureOptions
-        :module: bokeh.plotting.figure
+        :module: bokeh.plotting.gmap
 
     '''
 
@@ -216,7 +216,9 @@ def gmap(google_api_key, map_options, **kwargs):
 
             https://developers.google.com/maps/documentation/javascript/get-api-key
 
-        map_options: (GMapOptions)
+            The Google API key will be stored in the Bokeh Document JSON.
+
+        map_options: (:class:`~bokeh.models.map_plots.GMapOptions`)
             Configuration specific to a Google Map
 
     In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
@@ -230,7 +232,6 @@ def gmap(google_api_key, map_options, **kwargs):
        GMap
 
     '''
-
     return GMap(api_key=google_api_key, map_options=map_options, **kwargs)
 
 #-----------------------------------------------------------------------------
@@ -271,7 +272,7 @@ class GMapFigureOptions(Options):
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 

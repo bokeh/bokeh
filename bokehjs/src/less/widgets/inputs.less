@@ -1,4 +1,4 @@
-@import "../mixins.less";
+@import "../_mixins.less";
 
 .bk-root {
   .bk-input {
@@ -21,10 +21,22 @@
 
     .placeholder(#999);
 
-    &[disabled], {
+    &[disabled] {
       cursor: not-allowed;
       background-color: #eee;
       opacity: 1;
+    }
+  }
+
+  select:not([multiple]), select:not([size]) {
+    &.bk-input {
+      height: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg version="1.1" viewBox="0 0 25 20" xmlns="http://www.w3.org/2000/svg"><path d="M 0,0 25,0 12.5,20 Z" fill="black" /></svg>');
+      background-position: right 0.5em center;
+      background-size: 8px 6px;
+      background-repeat: no-repeat;
     }
   }
 
@@ -58,6 +70,66 @@
         position: relative;
         top: -2px;
         margin-left: 3px;
+      }
+    }
+
+    >.bk-spin-wrapper {
+      display: inherit;
+      width: inherit;
+      height: inherit;
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+      vertical-align: middle;
+
+      input {
+        padding-right: 20px;
+      }
+
+      >.bk-spin-btn {
+        position: absolute;
+        display: block;
+        height: 50%;
+        min-height: 0;
+        min-width: 0;
+        width: 30px;
+        padding: 0;
+        margin: 0;
+        right: 0;
+        border: none;
+        background: none;
+        cursor: pointer;
+
+        &:before {
+          content: "";
+          display: inline-block;
+          transform: translateY(-50%);
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+        }
+
+        &.bk-spin-btn-up {
+          top: 0;
+
+          &:before {
+            border-bottom: 5px solid black;
+          }
+          &:disabled:before {
+            border-bottom-color: grey;
+          }
+        }
+
+        &.bk-spin-btn-down {
+          bottom: 0;
+
+          &:before {
+            border-top: 5px solid black;
+          }
+
+          &:disabled:before {
+            border-top-color: grey;
+          }
+        }
       }
     }
   }

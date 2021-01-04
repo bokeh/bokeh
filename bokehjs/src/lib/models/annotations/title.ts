@@ -1,68 +1,69 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {undisplay} from "core/dom"
-import {Size} from "core/layout"
-import {Text} from "core/visuals"
+import {Size, Layoutable} from "core/layout"
+import {Panel} from "core/layout/side_panel"
+import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
+  layout: Layoutable
+  panel: Panel
 
   initialize(): void {
     super.initialize()
-    this.visuals.text = new Text(this.model)
+    this.visuals.text = new visuals.Text(this)
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.panel!
-
     const hmargin = this.model.offset
-    const vmargin = 5
+    const vmargin = this.model.standoff/2
 
     let sx: number, sy: number
-    switch (panel.side) {
+    const {bbox} = this.layout
+    switch (this.panel.side) {
       case 'above':
       case 'below': {
         switch (this.model.vertical_align) {
-          case 'top':    sy = panel._top.value     + vmargin; break
-          case 'middle': sy = panel._vcenter.value;           break
-          case 'bottom': sy = panel._bottom.value  - vmargin; break
+          case 'top':    sy = bbox.top     + vmargin; break
+          case 'middle': sy = bbox.vcenter;           break
+          case 'bottom': sy = bbox.bottom  - vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sx = panel._left.value    + hmargin; break
-          case 'center': sx = panel._hcenter.value;           break
-          case 'right':  sx = panel._right.value   - hmargin; break
+          case 'left':   sx = bbox.left    + hmargin; break
+          case 'center': sx = bbox.hcenter;           break
+          case 'right':  sx = bbox.right   - hmargin; break
         }
         break
       }
       case 'left': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = panel._left.value    - vmargin; break
-          case 'middle': sx = panel._hcenter.value;           break
-          case 'bottom': sx = panel._right.value   + vmargin; break
+          case 'top':    sx = bbox.left    - vmargin; break
+          case 'middle': sx = bbox.hcenter;           break
+          case 'bottom': sx = bbox.right   + vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = panel._bottom.value  - hmargin; break
-          case 'center': sy = panel._vcenter.value;           break
-          case 'right':  sy = panel._top.value     + hmargin; break
+          case 'left':   sy = bbox.bottom  - hmargin; break
+          case 'center': sy = bbox.vcenter;           break
+          case 'right':  sy = bbox.top     + hmargin; break
         }
         break
       }
       case 'right': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = panel._right.value   - vmargin; break
-          case 'middle': sx = panel._hcenter.value;           break
-          case 'bottom': sx = panel._left.value    + vmargin; break
+          case 'top':    sx = bbox.right   - vmargin; break
+          case 'middle': sx = bbox.hcenter;           break
+          case 'bottom': sx = bbox.left    + vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = panel._top.value     + hmargin; break
-          case 'center': sy = panel._vcenter.value;           break
-          case 'right':  sy = panel._bottom.value  - hmargin; break
+          case 'left':   sy = bbox.top     + hmargin; break
+          case 'center': sy = bbox.vcenter;           break
+          case 'right':  sy = bbox.bottom  - hmargin; break
         }
         break
       }
@@ -71,13 +72,7 @@ export class TitleView extends TextAnnotationView {
     return [sx, sy]
   }
 
-  render(): void {
-    if (!this.model.visible) {
-      if (this.model.render_mode == 'css')
-        undisplay(this.el)
-      return
-    }
-
+  protected _render(): void {
     const {text} = this.model
     if (text == null || text.length == 0)
       return
@@ -86,10 +81,10 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
+    draw(this.layer.ctx, text, sx, sy, angle)
   }
 
   protected _get_size(): Size {
@@ -97,9 +92,9 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.ctx)
-      const {width, ascent} = this.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
+      this.visuals.text.set_value(this.layer.ctx)
+      const {width, ascent} = this.layer.ctx.measureText(text)
+      return {width, height: ascent * this.visuals.text.text_line_height.value() + this.model.standoff}
     }
   }
 }
@@ -109,19 +104,23 @@ export namespace Title {
 
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
-    text_font: p.Property<string> // XXX: Font
-    text_font_size: p.FontSizeSpec
+    text_font: p.Property<string>
+    text_font_size: p.StringSpec
     text_font_style: p.Property<FontStyle>
     text_color: p.ColorSpec
     text_alpha: p.NumberSpec
-    text_line_height: p.NumberSpec
+    text_line_height: p.Property<number>
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
+    standoff: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
-  } & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
+
+  export type Mixins =
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -130,6 +129,7 @@ export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
   properties: Title.Props
+  __view_type__: TitleView
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)
@@ -138,29 +138,33 @@ export class Title extends TextAnnotation {
   static init_Title(): void {
     this.prototype.default_view = TitleView
 
-    this.mixins(['line:border_', 'fill:background_'])
+    this.mixins<Title.Mixins>([
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
 
-    this.define<Title.Props>({
-      text:             [ p.String                     ],
-      text_font:        [ p.Font,          'helvetica' ],
-      text_font_size:   [ p.FontSizeSpec,  '10pt'      ],
-      text_font_style:  [ p.FontStyle,     'bold'      ],
-      text_color:       [ p.ColorSpec,     '#444444'   ],
-      text_alpha:       [ p.NumberSpec,    1.0         ],
-      text_line_height: [ p.Number,        1.0         ],
-      vertical_align:   [ p.VerticalAlign, 'bottom'    ],
-      align:            [ p.TextAlign,     'left'      ],
-      offset:           [ p.Number,        0           ],
-    })
+    this.define<Title.Props>(({Number, String}) => ({
+      text:             [ String ],
+      text_font:        [ p.Font, "helvetica" ],
+      text_font_size:   [ p.StringSpec, "13px" ],
+      text_font_style:  [ FontStyle, "bold" ],
+      text_color:       [ p.ColorSpec, "#444444" ],
+      text_alpha:       [ p.NumberSpec, 1.0 ],
+      text_line_height: [ Number, 1.0 ],
+      vertical_align:   [ VerticalAlign, "bottom" ],
+      align:            [ TextAlign, "left" ],
+      offset:           [ Number, 0 ],
+      standoff:         [ Number, 10 ],
+    }))
 
-    this.override({
+    this.internal<Title.Props>(() => ({
+      text_align:    [ TextAlign, "left" ],
+      text_baseline: [ TextBaseline, "bottom" ],
+    }))
+
+    this.override<Title.Props>({
       background_fill_color: null,
       border_line_color: null,
-    })
-
-    this.internal({
-      text_align:    [ p.TextAlign,    'left'   ],
-      text_baseline: [ p.TextBaseline, 'bottom' ],
     })
   }
 }

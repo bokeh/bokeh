@@ -22,6 +22,7 @@ export interface PreText extends PreText.Attrs {}
 
 export class PreText extends Markup {
   properties: PreText.Props
+  __view_type__: PreTextView
 
   constructor(attrs?: Partial<PreText.Attrs>) {
     super(attrs)

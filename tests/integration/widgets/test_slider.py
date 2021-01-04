@@ -18,11 +18,17 @@ import pytest ; pytest
 # Standard library imports
 from time import sleep
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import (
     RECORD,
-    ActionChains,
     Keys,
+    drag_slider,
+    get_slider_bar_color,
+    get_slider_title_text,
+    get_slider_title_value,
     select_element_and_press_key,
 )
 from bokeh.layouts import column
@@ -44,33 +50,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-def drag_slider(driver, css_class, distance, release=True):
-    el = driver.find_element_by_css_selector(css_class)
-    handle = el.find_element_by_css_selector('.bk-noUi-handle')
-    actions = ActionChains(driver)
-    actions.move_to_element(handle)
-    actions.click_and_hold()
-    actions.move_by_offset(distance, 0)
-    if release:
-        actions.release()
-    actions.perform()
-
-def get_title_text(driver, css_class):
-    el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
-
-def get_title_value(driver, css_class):
-    el = driver.find_element_by_css_selector(css_class)
-    return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
-
-def get_bar_color(driver, css_class):
-    el = driver.find_element_by_css_selector(css_class)
-    bar = el.find_element_by_css_selector('.bk-noUi-connect')
-    return bar.value_of_css_property('background-color')
 
 @pytest.mark.selenium
-class Test_Slider(object):
-
+class Test_Slider:
     def test_display(self, bokeh_model_page) -> None:
         slider = Slider(start=0, end=10, value=1, css_classes=["foo"], width=300)
 
@@ -90,8 +72,8 @@ class Test_Slider(object):
         el = page.driver.find_element_by_css_selector('.foo')
         assert len(el.find_elements_by_css_selector('div.bk-input-group > div')) == 2
 
-        assert get_title_text(page.driver, ".foo") == "bar: 1"
-        assert float(get_title_value(page.driver, ".foo")) == 1
+        assert get_slider_title_text(page.driver, ".foo") == "bar: 1"
+        assert float(get_slider_title_value(page.driver, ".foo")) == 1
 
         assert page.has_no_console_errors()
 
@@ -100,18 +82,18 @@ class Test_Slider(object):
 
         page = bokeh_model_page(slider)
 
-        assert float(get_title_value(page.driver, ".foo")) == 1
+        assert float(get_slider_title_value(page.driver, ".foo")) == 1
 
         drag_slider(page.driver, ".foo", 50)
-        value = get_title_value(page.driver, ".foo")
+        value = get_slider_title_value(page.driver, ".foo")
         assert float(value) > 1
         assert float(value) == int(value) # integral step size
 
         drag_slider(page.driver, ".foo", 50)
-        assert float(get_title_value(page.driver, ".foo")) > 2
+        assert float(get_slider_title_value(page.driver, ".foo")) > 2
 
         drag_slider(page.driver, ".foo", -135)
-        assert float(get_title_value(page.driver, ".foo")) == 0
+        assert float(get_slider_title_value(page.driver, ".foo")) == 0
 
         assert page.has_no_console_errors()
 
@@ -120,13 +102,13 @@ class Test_Slider(object):
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
         page = bokeh_model_page(slider)
         el = page.driver.find_element_by_css_selector('.foo')
-        handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        handle = el.find_element_by_css_selector('.noUi-handle')
         select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=1)
-        assert float(get_title_value(page.driver, ".foo")) == 2
+        assert float(get_slider_title_value(page.driver, ".foo")) == 2
         select_element_and_press_key(page.driver, handle, Keys.ARROW_LEFT, press_number=3) # hit lower value and continue
-        assert float(get_title_value(page.driver, ".foo")) == 0
+        assert float(get_slider_title_value(page.driver, ".foo")) == 0
         select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=11) # hit higher value and continue
-        assert float(get_title_value(page.driver, ".foo")) == 10
+        assert float(get_slider_title_value(page.driver, ".foo")) == 10
         assert page.has_no_console_errors()
 
     def test_displays_bar_color(self, bokeh_model_page) -> None:
@@ -137,7 +119,7 @@ class Test_Slider(object):
         el = page.driver.find_element_by_css_selector('.foo')
         assert len(el.find_elements_by_css_selector('div.bk-input-group > div')) == 2
 
-        assert get_bar_color(page.driver, ".foo") == "rgba(255, 0, 0, 1)"
+        assert get_slider_bar_color(page.driver, ".foo") == "rgba(255, 0, 0, 1)"
 
         assert page.has_no_console_errors()
 
@@ -154,6 +136,7 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -195,7 +178,7 @@ class Test_Slider(object):
 
         # XXX (bev) skip keypress part of test until it can be fixed
         # el = page.driver.find_element_by_css_selector('.foo')
-        # handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        # handle = el.find_element_by_css_selector('.noUi-handle')
         # select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
 
         # page.click_custom_action()
@@ -206,6 +189,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_callback_value_vs_value_throttled(self, bokeh_server_page) -> None:
         junk = dict(v=0, vt=0)
 
@@ -240,6 +224,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -258,11 +243,12 @@ class Test_Slider(object):
 
         sleep(1) # noUiSlider does a transition that takes some time
 
-        assert get_bar_color(page.driver, ".foo") == "rgba(255, 255, 0, 1)"
+        assert get_slider_bar_color(page.driver, ".foo") == "rgba(255, 255, 0, 1)"
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_title_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -281,7 +267,7 @@ class Test_Slider(object):
 
         sleep(1) # noUiSlider does a transition that takes some time
 
-        assert get_title_text(page.driver, ".foo") == "baz: 6"
+        assert get_slider_title_text(page.driver, ".foo") == "baz: 6"
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()

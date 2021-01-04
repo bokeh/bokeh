@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
@@ -104,14 +104,14 @@ describe("range1d module", () => {
     })
   })
 
-  describe("should not be reversed", () => {
+  it("should not be reversed", () => {
     const r = new Range1d({start: 10, end: 20})
-    expect(r.is_reversed).to.be.equal(false)
+    expect(r.is_reversed).to.be.false
   })
 
-  describe("should be reversed", () => {
+  it("should be reversed", () => {
     const r = new Range1d({start: 20, end: 10})
-    expect(r.is_reversed).to.be.equal(true)
+    expect(r.is_reversed).to.be.true
   })
 
   describe("reset", () => {

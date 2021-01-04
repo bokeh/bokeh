@@ -94,8 +94,8 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
       try {
         const {css} = await lesscss.render(code, {filename: file, compress: true})
         return {code: css}
-      } catch (error) {
-        return {error: error.toString()}
+      } catch (error: unknown) {
+        return {error: `${error}`}
       }
     default:
       throw new Error(`unsupported input type: ${lang}`)

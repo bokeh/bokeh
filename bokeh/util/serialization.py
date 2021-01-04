@@ -47,7 +47,7 @@ from .string import format_docstring
 
 pd = import_optional('pandas')
 
-BINARY_ARRAY_TYPES = set([
+BINARY_ARRAY_TYPES = {
     np.dtype(np.float32),
     np.dtype(np.float64),
     np.dtype(np.uint8),
@@ -56,13 +56,13 @@ BINARY_ARRAY_TYPES = set([
     np.dtype(np.int16),
     np.dtype(np.uint32),
     np.dtype(np.int32),
-])
+}
 
-DATETIME_TYPES = set([
+DATETIME_TYPES = {
     dt.time,
     dt.datetime,
     np.datetime64,
-])
+}
 
 if pd:
     try:
@@ -521,7 +521,7 @@ def encode_binary_dict(array, buffers):
         '__buffer__'  : buffer_id,
         'shape'       : array.shape,
         'dtype'       : array.dtype.name,
-        'order'       : sys.byteorder
+        'order'       : sys.byteorder,
     }
 
 def encode_base64_dict(array):
@@ -546,9 +546,10 @@ def encode_base64_dict(array):
 
     '''
     return {
-        '__ndarray__'  : base64.b64encode(array.data).decode('utf-8'),
-        'shape'        : array.shape,
-        'dtype'        : array.dtype.name
+        '__ndarray__' : base64.b64encode(array.data).decode('utf-8'),
+        'shape'       : array.shape,
+        'dtype'       : array.dtype.name,
+        'order'       : sys.byteorder,
     }
 
 def decode_base64_dict(data):

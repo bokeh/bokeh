@@ -50,9 +50,9 @@ def modify_doc(doc):
     text_input.on_change('value', cb)
     doc.add_root(column(text_input, plot))
 
-@pytest.mark.selenium
-class Test_TextInput(object):
 
+@pytest.mark.selenium
+class Test_TextInput:
     def test_displays_text_input(self, bokeh_model_page) -> None:
         text_input = TextInput(css_classes=["foo"])
 
@@ -107,6 +107,7 @@ class Test_TextInput(object):
     #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         page = bokeh_server_page(modify_doc)
 

@@ -79,7 +79,7 @@ def _read_data(name):
     }
     with open_csv(filename) as f:
         next(f)
-        reader = csv.reader(f, delimiter=str(','))
+        reader = csv.reader(f, delimiter=",")
         for row in reader:
             date, open_price, high, low, close, volume, adj_close = row
             data['date'].append(date)

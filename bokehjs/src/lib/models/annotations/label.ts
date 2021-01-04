@@ -1,6 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {resolve_angle} from "core/util/math"
 import {SpatialUnits, AngleUnits} from "core/enums"
-import {undisplay} from "core/dom"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -9,52 +9,31 @@ export class LabelView extends TextAnnotationView {
   model: Label
   visuals: Label.Visuals
 
-  initialize(): void {
-    super.initialize()
-    this.visuals.warm_cache()
-  }
-
   protected _get_size(): Size {
-    const {ctx} = this.plot_view.canvas_view
+    const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
 
     const {width, ascent} = ctx.measureText(this.model.text)
     return {width, height: ascent}
   }
 
-  render(): void {
-    if (!this.model.visible && this.model.render_mode == 'css')
-      undisplay(this.el)
+  protected _render(): void {
+    const {angle, angle_units} = this.model
+    const rotation = resolve_angle(angle, angle_units)
 
-    if (!this.model.visible)
-      return
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    // Here because AngleSpec does units transform and label doesn't support specs
-    let angle: number
-    switch (this.model.angle_units) {
-      case "rad": {
-        angle = -this.model.angle
-        break
-      }
-      case "deg": {
-        angle = (-this.model.angle*Math.PI)/180.0
-        break
-      }
-    }
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
-
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
-
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
-    draw(this.plot_view.canvas_view.ctx, this.model.text, sx, sy, angle)
+    draw(this.layer.ctx, this.model.text, sx, sy, rotation)
   }
 }
 
@@ -69,13 +48,14 @@ export namespace Label {
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
-  } & mixins.TextScalar
-    & mixins.BorderLine
-    & mixins.BackgroundFill
+  } & Mixins
 
   export type Attrs = p.AttrsOf<Props>
+
+  export type Mixins =
+    mixins.Text/*Scalar*/ &
+    mixins.BorderLine     &
+    mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -84,6 +64,7 @@ export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
   properties: Label.Props
+  __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)
@@ -92,23 +73,25 @@ export class Label extends TextAnnotation {
   static init_Label(): void {
     this.prototype.default_view = LabelView
 
-    this.mixins(['text', 'line:border_', 'fill:background_'])
+    this.mixins<Label.Mixins>([
+      mixins.Text/*Scalar*/,
+      ["border_",     mixins.Line],
+      ["background_", mixins.Fill],
+    ])
 
-    this.define<Label.Props>({
-      x:            [ p.Number                       ],
-      x_units:      [ p.SpatialUnits, 'data'         ],
-      y:            [ p.Number                       ],
-      y_units:      [ p.SpatialUnits, 'data'         ],
-      text:         [ p.String                       ],
-      angle:        [ p.Angle,       0               ],
-      angle_units:  [ p.AngleUnits,  'rad'           ],
-      x_offset:     [ p.Number,      0               ],
-      y_offset:     [ p.Number,      0               ],
-      x_range_name: [ p.String,      'default'       ],
-      y_range_name: [ p.String,      'default'       ],
-    })
+    this.define<Label.Props>(({Number, String, Angle}) => ({
+      x:           [ Number ],
+      x_units:     [ SpatialUnits, "data" ],
+      y:           [ Number ],
+      y_units:     [ SpatialUnits, "data" ],
+      text:        [ String ],
+      angle:       [ Angle, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
+      x_offset:    [ Number, 0 ],
+      y_offset:    [ Number, 0 ],
+    }))
 
-    this.override({
+    this.override<Label.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

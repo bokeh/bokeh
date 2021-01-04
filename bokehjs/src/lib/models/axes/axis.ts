@@ -7,12 +7,13 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
+import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
-import {Size} from "core/layout"
-import {SidePanel, Orient} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
-import {isString, isArray, isNumber} from "core/util/types"
+import {isString, isNumber} from "core/util/types"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
@@ -34,16 +35,29 @@ export class AxisView extends GuideRendererView {
   model: Axis
   visuals: Axis.Visuals
 
-  layout: SidePanel
+  panel: Panel
+  layout: Layoutable
 
-  readonly rotate: boolean = true
-
-  get panel(): SidePanel {
-    return this.layout
+  update_layout(): void {
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
-  render(): void {
-    if (!this.model.visible)
+  get_size(): Size {
+    const {visible, fixed_location} = this.model
+    if (visible && fixed_location == null && this.is_renderable) {
+      const height = Math.round(this._tick_extent() + this._tick_label_extent() + this._axis_label_extent())
+      return {width: 0, height}
+    } else
+      return {width: 0, height: 0}
+  }
+
+  get is_renderable(): boolean {
+    const [range, cross_range] = this.ranges
+    return range.is_valid && cross_range.is_valid
+  }
+
+  protected _render(): void {
+    if (!this.is_renderable)
       return
 
     const extents = {
@@ -51,43 +65,24 @@ export class AxisView extends GuideRendererView {
       tick_label: this._tick_label_extents(),
       axis_label: this._axis_label_extent(),
     }
-    const tick_coords = this.tick_coords
+    const {tick_coords} = this
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     ctx.save()
-
     this._draw_rule(ctx, extents)
     this._draw_major_ticks(ctx, extents, tick_coords)
     this._draw_minor_ticks(ctx, extents, tick_coords)
     this._draw_major_labels(ctx, extents, tick_coords)
     this._draw_axis_label(ctx, extents, tick_coords)
-
-    if (this._render != null)
-      this._render(ctx, extents, tick_coords)
-
+    this._paint?.(ctx, extents, tick_coords)
     ctx.restore()
   }
 
-  protected _render?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
+  protected _paint?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint())
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
-
-  get_size(): Size {
-    if (this.model.visible && this.model.fixed_location == null) {
-      const size = this._get_size()
-      return {width: 0 /* max */, height: Math.round(size)}
-    } else
-      return {width: 0, height: 0}
-  }
-
-  protected _get_size(): number {
-    return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
+    this.connect(this.model.change, () => this.plot_view.request_layout())
   }
 
   get needs_clip(): boolean {
@@ -101,7 +96,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [xs, ys]     = this.rule_coords
-    const [sxs, sys]   = this.plot_view.map_to_screen(xs, ys, this.model.x_range_name, this.model.y_range_name)
+    const [sxs, sys]   = this.coordinates.map_to_screen(xs, ys)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -150,22 +145,23 @@ export class AxisView extends GuideRendererView {
     let sx: number
     let sy: number
 
+    const {bbox} = this.layout
     switch (this.panel.side) {
       case "above":
-        sx = this.panel._hcenter.value
-        sy = this.panel._bottom.value
+        sx = bbox.hcenter
+        sy = bbox.bottom
         break
       case "below":
-        sx = this.panel._hcenter.value
-        sy = this.panel._top.value
+        sx = bbox.hcenter
+        sy = bbox.top
         break
       case "left":
-        sx = this.panel._right.value
-        sy = this.panel._vcenter.value
+        sx = bbox.right
+        sy = bbox.vcenter
         break
       case "right":
-        sx = this.panel._left.value
-        sy = this.panel._vcenter.value
+        sx = bbox.left
+        sy = bbox.vcenter
         break
       default:
         throw new Error(`unknown side: ${this.panel.side}`)
@@ -183,7 +179,7 @@ export class AxisView extends GuideRendererView {
       return
 
     const [x, y]       = coords
-    const [sxs, sys]   = this.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
+    const [sxs, sys]   = this.coordinates.map_to_screen(x, y)
     const [nx, ny]     = this.normals
     const [xoff, yoff] = this.offsets
 
@@ -192,16 +188,16 @@ export class AxisView extends GuideRendererView {
 
     visuals.set_value(ctx)
 
+    ctx.beginPath()
     for (let i = 0; i < sxs.length; i++) {
       const sx0 = Math.round(sxs[i] + nxout)
       const sy0 = Math.round(sys[i] + nyout)
       const sx1 = Math.round(sxs[i] + nxin)
       const sy1 = Math.round(sys[i] + nyin)
-      ctx.beginPath()
       ctx.moveTo(sx0, sy0)
       ctx.lineTo(sx1, sy1)
-      ctx.stroke()
     }
+    ctx.stroke()
   }
 
   protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
@@ -218,7 +214,7 @@ export class AxisView extends GuideRendererView {
       ;[xoff, yoff] = [0, 0]
     } else {
       const [dxs, dys] = coords
-      ;[sxs, sys] = this.plot_view.map_to_screen(dxs, dys, this.model.x_range_name, this.model.y_range_name)
+      ;[sxs, sys] = this.coordinates.map_to_screen(dxs, dys)
       ;[xoff, yoff] = this.offsets
     }
 
@@ -282,17 +278,13 @@ export class AxisView extends GuideRendererView {
     if (labels.length == 0)
       return 0
 
-    const ctx = this.plot_view.canvas_view.ctx
+    const ctx = this.layer.ctx
     visuals.set_value(ctx)
 
-    let hscale: number
     let angle: number
-
     if (isString(orient)) {
-      hscale = 1
       angle = this.panel.get_label_angle_heuristic(orient)
     } else {
-      hscale = 2
       angle = -orient
     }
     angle = Math.abs(angle)
@@ -309,9 +301,9 @@ export class AxisView extends GuideRendererView {
       let val: number
 
       if (side == "above" || side == "below")
-        val = w*s + (h/hscale)*c
+        val = w*s + h*c
       else
-        val = w*c + (h/hscale)*s
+        val = w*c + h*s
 
       // update extent if current value is larger
       if (val > extent)
@@ -354,16 +346,16 @@ export class AxisView extends GuideRendererView {
 
     switch (this.panel.side) {
       case "below":
-        yoff = abs(this.panel._top.value - frame._bottom.value)
+        yoff = abs(this.layout.bbox.top - frame.bbox.bottom)
         break
       case "above":
-        yoff = abs(this.panel._bottom.value - frame._top.value)
+        yoff = abs(this.layout.bbox.bottom - frame.bbox.top)
         break
       case "right":
-        xoff = abs(this.panel._left.value - frame._right.value)
+        xoff = abs(this.layout.bbox.left - frame.bbox.right)
         break
       case "left":
-        xoff = abs(this.panel._right.value - frame._left.value)
+        xoff = abs(this.layout.bbox.right - frame.bbox.left)
         break
     }
 
@@ -373,23 +365,19 @@ export class AxisView extends GuideRendererView {
   get ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
-    const {frame} = this.plot_view
-    const ranges = [
-      frame.x_ranges[this.model.x_range_name],
-      frame.y_ranges[this.model.y_range_name],
-    ]
+    const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
 
   get computed_bounds(): [number, number] {
     const [range] = this.ranges
 
-    const user_bounds = this.model.bounds // XXX: ? 'auto'
-    const range_bounds: [number, number] = [range.min, range.max]
+    const user_bounds = this.model.bounds
+    const range_bounds = [range.min, range.max]
 
-    if (user_bounds == 'auto')
+    if (user_bounds == "auto")
       return [range.min, range.max]
-    else if (isArray(user_bounds)) {
+    else {
       let start: number
       let end: number
 
@@ -405,8 +393,7 @@ export class AxisView extends GuideRendererView {
       }
 
       return [start, end]
-    } else
-      throw new Error(`user bounds '${user_bounds}' not understood`)
+    }
   }
 
   get rule_coords(): Coords {
@@ -436,7 +423,7 @@ export class AxisView extends GuideRendererView {
     const [range] = this.ranges
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
     const majors = ticks.major
     const minors = ticks.minor
 
@@ -496,7 +483,7 @@ export class AxisView extends GuideRendererView {
   }
   // }}}
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
@@ -509,10 +496,8 @@ export namespace Axis {
 
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
-    ticker: p.Property<Ticker<any>> // TODO
+    ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     axis_label: p.Property<string | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
@@ -523,11 +508,14 @@ export namespace Axis {
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
     fixed_location: p.Property<number | Factor | null>
-  } & mixins.AxisLine
-    & mixins.MajorTickLine
-    & mixins.MinorTickLine
-    & mixins.MajorLabelText
-    & mixins.AxisLabelText
+  } & Mixins
+
+  export type Mixins =
+    mixins.AxisLine       &
+    mixins.MajorTickLine  &
+    mixins.MinorTickLine  &
+    mixins.MajorLabelText &
+    mixins.AxisLabelText
 
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: visuals.Line
@@ -538,12 +526,11 @@ export namespace Axis {
   }
 }
 
-export interface Axis extends Axis.Attrs {
-  panel: SidePanel
-}
+export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props
+  __view_type__: AxisView
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)
@@ -552,43 +539,41 @@ export class Axis extends GuideRenderer {
   static init_Axis(): void {
     this.prototype.default_view = AxisView
 
-    this.mixins([
-      'line:axis_',
-      'line:major_tick_',
-      'line:minor_tick_',
-      'text:major_label_',
-      'text:axis_label_',
+    this.mixins<Axis.Mixins>([
+      ["axis_",        mixins.Line],
+      ["major_tick_",  mixins.Line],
+      ["minor_tick_",  mixins.Line],
+      ["major_label_", mixins.Text],
+      ["axis_label_",  mixins.Text],
     ])
 
-    this.define<Axis.Props>({
-      bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
-      ticker:                  [ p.Instance               ],
-      formatter:               [ p.Instance               ],
-      x_range_name:            [ p.String,   'default'    ],
-      y_range_name:            [ p.String,   'default'    ],
-      axis_label:              [ p.String,   ''           ],
-      axis_label_standoff:     [ p.Int,      5            ],
-      major_label_standoff:    [ p.Int,      5            ],
-      major_label_orientation: [ p.Any,      "horizontal" ], // TODO: p.TickLabelOrientation | p.Number
-      major_label_overrides:   [ p.Any,      {}           ],
-      major_tick_in:           [ p.Number,   2            ],
-      major_tick_out:          [ p.Number,   6            ],
-      minor_tick_in:           [ p.Number,   0            ],
-      minor_tick_out:          [ p.Number,   4            ],
-      fixed_location:          [ p.Any,      null         ],
-    })
+    this.define<Axis.Props>(({Any, Int, Number, String, Ref, Dict, Tuple, Or, Nullable, Auto}) => ({
+      bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
+      ticker:                  [ Ref(Ticker) ],
+      formatter:               [ Ref(TickFormatter) ],
+      axis_label:              [ Nullable(String), "" ],
+      axis_label_standoff:     [ Int, 5 ],
+      major_label_standoff:    [ Int, 5 ],
+      major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
+      major_label_overrides:   [ Dict(String), {} ],
+      major_tick_in:           [ Number, 2 ],
+      major_tick_out:          [ Number, 6 ],
+      minor_tick_in:           [ Number, 0 ],
+      minor_tick_out:          [ Number, 4 ],
+      fixed_location:          [ Nullable(Or(Number, Any)), null ],
+    }))
 
-    this.override({
+    this.override<Axis.Props>({
       axis_line_color: 'black',
 
       major_tick_line_color: 'black',
       minor_tick_line_color: 'black',
 
-      major_label_text_font_size: "8pt",
+      major_label_text_font_size: "11px",
       major_label_text_align: "center",
       major_label_text_baseline: "alphabetic",
 
-      axis_label_text_font_size: "10pt",
+      axis_label_text_font_size: "13px",
       axis_label_text_font_style: "italic",
     })
   }

@@ -1,23 +1,24 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-''' Install some functions for the bokeh theme to make use of.
+# -----------------------------------------------------------------------------
+""" Install some functions for the bokeh theme to make use of.
 
 
-'''
+"""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
-import logging # isort:skip
+# -----------------------------------------------------------------------------
+import logging  # isort:skip
+
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # External imports
 import sphinx.builders.html
@@ -25,21 +26,19 @@ from docutils import nodes
 from sphinx.locale import admonitionlabels
 from sphinx.writers.html5 import HTML5Translator
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-__all__ = (
-    'setup',
-)
+__all__ = ("setup",)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Mapping of admonition classes to Bootstrap contextual classes
 alert_classes = {
@@ -56,6 +55,7 @@ alert_classes = {
     "todo": "info",
     "example": "info",
 }
+
 
 class BootstrapHTML5Translator(HTML5Translator):
     """Custom HTML Translator for a Bootstrap-ified Sphinx layout
@@ -78,18 +78,15 @@ class BootstrapHTML5Translator(HTML5Translator):
             node.insert(0, nodes.title(name, admonitionlabels[name]))
 
     def visit_table(self, node: nodes.Element) -> None:
-        # copy of sphinx source to *not* add 'docutils' and 'align-default' classes
-        # but add 'table' class
+        # copy of sphinx source to *not* add 'docutils' and 'align-default' classes but add 'table' class
         self.generate_targets_for_table(node)
 
         self._table_row_index = 0
 
         classes = [cls.strip(" \t\n") for cls in self.settings.table_style.split(",")]
-        # classes.insert(0, "docutils")  # compat
-        # if 'align' in node:
-        #     classes.append('align-%s' % node['align'])
         tag = self.starttag(node, "table", CLASS=" ".join(classes))
         self.body.append(tag)
+
 
 def convert_docutils_node(list_item, only_pages=False):
     if not list_item.children:
@@ -99,7 +96,7 @@ def convert_docutils_node(list_item, only_pages=False):
     url = reference.attributes["refuri"]
     active = "current" in list_item.attributes["classes"]
 
-    if only_pages and '#' in url:
+    if only_pages and "#" in url:
         return None
 
     nav = {}
@@ -116,13 +113,12 @@ def convert_docutils_node(list_item, only_pages=False):
 
     return nav
 
+
 def update_page_context(self, pagename, templatename, ctx, event_arg):
     from sphinx.environment.adapters.toctree import TocTree
 
     def get_nav_object(**kwds):
-        toctree = TocTree(self.env).get_toctree_for(
-            pagename, self, collapse=True, **kwds
-        )
+        toctree = TocTree(self.env).get_toctree_for(pagename, self, collapse=True, **kwds)
 
         nav = []
         for child in toctree.children[0].children:
@@ -144,15 +140,18 @@ def update_page_context(self, pagename, templatename, ctx, event_arg):
     ctx["get_page_toc_object"] = get_page_toc_object
     return None
 
+
 sphinx.builders.html.StandaloneHTMLBuilder.update_page_context = update_page_context
+
 
 def setup(app):
     app.set_translator("html", BootstrapHTML5Translator)
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Private API
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------

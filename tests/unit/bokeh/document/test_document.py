@@ -16,7 +16,6 @@ import pytest ; pytest
 
 # Standard library imports
 import logging
-from copy import copy
 
 # External imports
 from mock import patch
@@ -55,8 +54,8 @@ import bokeh.document.document as document # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-class TestDocumentHold(object):
 
+class TestDocumentHold:
     @pytest.mark.parametrize('policy', document.HoldPolicy)
     def test_hold(self, policy) -> None:
         d = document.Document()
@@ -115,12 +114,12 @@ class TestDocumentHold(object):
 
 extra = []
 
-class Test_Document_delete_modules(object):
 
+class Test_Document_delete_modules:
     def test_basic(self) -> None:
         d = document.Document()
         assert not d.roots
-        class FakeMod(object):
+        class FakeMod:
             __name__ = 'junkjunkjunk'
         mod = FakeMod()
         import sys
@@ -135,7 +134,7 @@ class Test_Document_delete_modules(object):
     def test_extra_referrer_error(self, caplog) -> None:
         d = document.Document()
         assert not d.roots
-        class FakeMod(object):
+        class FakeMod:
             __name__ = 'junkjunkjunk'
         mod = FakeMod()
         import sys
@@ -159,8 +158,8 @@ class Test_Document_delete_modules(object):
         assert 'junkjunkjunk' not in sys.modules
         assert d._modules is None
 
-class TestDocument(object):
 
+class TestDocument:
     def test_empty(self) -> None:
         d = document.Document()
         assert not d.roots
@@ -314,14 +313,14 @@ class TestDocument(object):
         d.add_root(root4)
 
         # select()
-        assert set([root1]) == set(d.select(dict(foo=42)))
-        assert set([root1]) == set(d.select(dict(name='a')))
-        assert set([root2, child3])  == set(d.select(dict(name='c')))
-        assert set()  == set(d.select(dict(name='nope')))
+        assert {root1} == set(d.select(dict(foo=42)))
+        assert {root1} == set(d.select(dict(name="a")))
+        assert {root2, child3} == set(d.select(dict(name="c")))
+        assert set() == set(d.select(dict(name="nope")))
 
         # select() on object
-        assert set() == set(root3.select(dict(name='a')))
-        assert set([child3]) == set(root3.select(dict(name='c')))
+        assert set() == set(root3.select(dict(name="a")))
+        assert {child3} == set(root3.select(dict(name="c")))
 
         # select_one()
         assert root3 == d.select_one(dict(name='d'))
@@ -339,30 +338,29 @@ class TestDocument(object):
         assert child3 == root3.select_one(dict(name='c'))
 
         # set_select()
-        d.set_select(dict(foo=44), dict(name='c'))
-        assert set([root2, child3, root3])  == set(d.select(dict(name='c')))
+        d.set_select(dict(foo=44), dict(name="c"))
+        assert {root2, child3, root3} == set(d.select(dict(name="c")))
 
         # set_select() on object
         root3.set_select(dict(name='c'), dict(foo=57))
-        assert set([child3, root3]) == set(d.select(dict(foo=57)))
-        assert set([child3, root3]) == set(root3.select(dict(foo=57)))
+        assert {child3, root3} == set(d.select(dict(foo=57)))
+        assert {child3, root3} == set(root3.select(dict(foo=57)))
 
         # set_select() on class
         d.set_select(SomeModelInTestDocument, dict(name='new_name'))
         assert len(d.select(dict(name='new_name'))) == 5
 
         # set_select() on different class
-        assert len(d.select(dict(name='A'))) == 1
-        d.set_select(AnotherModelInTestDocument, dict(name='B'))
-        assert set([root4]) == set(d.select(dict(name='B')))
+        assert len(d.select(dict(name="A"))) == 1
+        d.set_select(AnotherModelInTestDocument, dict(name="B"))
+        assert {root4} == set(d.select(dict(name="B")))
 
     def test_is_single_string_selector(self) -> None:
         d = document.Document()
         # this is an implementation detail but just ensuring it works
-        assert d._is_single_string_selector(dict(foo='c'), 'foo')
-        assert d._is_single_string_selector(dict(foo=u'c'), 'foo')
-        assert not d._is_single_string_selector(dict(foo='c', bar='d'), 'foo')
-        assert not d._is_single_string_selector(dict(foo=42), 'foo')
+        assert d._is_single_string_selector(dict(foo="c"), "foo")
+        assert not d._is_single_string_selector(dict(foo="c", bar="d"), "foo")
+        assert not d._is_single_string_selector(dict(foo=42), "foo")
 
     def test_all_models_with_multiple_references(self) -> None:
         d = document.Document()
@@ -813,48 +811,46 @@ class TestDocument(object):
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup('foo').property.to_serializable(root1,
-                                                                              'foo',
-                                                                              new_value)
+            serializable_new = root1.lookup('foo').property.to_serializable(root1, 'foo', new_value)
             event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
             patch1, buffers = process_document_events([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
-                expected = copy(new_value)
-                if 'units' not in expected:
-                    expected['units'] = root1.foo_units
-                assert expected == root1.lookup('foo').serializable_value(root1)
+                return root1.lookup('foo').serializable_value(root1)
             else:
-                assert new_value == root1.foo
-        patch_test(57)
+                return root1.foo
+        assert patch_test(57) == 57
         assert 'data' == root1.foo_units
-        patch_test(dict(value=58))
+        assert patch_test(dict(value=58)) == dict(value=58)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=58, units='screen'))
+
+        assert patch_test(dict(value=58, units='screen')) == dict(value=58, units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='screen'))
+        assert patch_test(dict(value=59, units='screen')) == dict(value=59, units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='data'))
+
+        assert patch_test(dict(value=59, units='data')) == dict(value=59)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
+        assert patch_test(dict(value=60, units='data')) == dict(value=60)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
+        assert patch_test(dict(value=60, units='data')) == dict(value=60)
         assert 'data' == root1.foo_units
-        patch_test(61)
+
+        assert patch_test(61) == 61
         assert 'data' == root1.foo_units
         root1.foo = "a_string" # so "woot" gets set as a string
-        patch_test("woot")
+        assert patch_test("woot") == "woot"
         assert 'data' == root1.foo_units
-        patch_test(dict(field="woot2"))
+        assert patch_test(dict(field="woot2")) == dict(field="woot2")
         assert 'data' == root1.foo_units
-        patch_test(dict(field="woot2", units='screen'))
+        assert patch_test(dict(field="woot2", units='screen')) == dict(field="woot2", units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(field="woot3"))
+        assert patch_test(dict(field="woot3")) == dict(field="woot3", units="screen")
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=70))
+        assert patch_test(dict(value=70)) == dict(value=70, units="screen")
         assert 'screen' == root1.foo_units
         root1.foo = 123 # so 71 gets set as a number
-        patch_test(71)
+        assert patch_test(71) == 71
         assert 'screen' == root1.foo_units
 
     def test_patch_reference_property(self) -> None:

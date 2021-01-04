@@ -1,10 +1,9 @@
-import {AxisView} from "./axis"
-import {ContinuousAxis} from "./continuous_axis"
+import {ContinuousAxis, ContinuousAxisView} from "./continuous_axis"
 import {LogTickFormatter} from "../formatters/log_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
 import * as p from "core/properties"
 
-export class LogAxisView extends AxisView {
+export class LogAxisView extends ContinuousAxisView {
   model: LogAxis
 }
 
@@ -21,6 +20,7 @@ export interface LogAxis extends LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
   properties: LogAxis.Props
+  __view_type__: LogAxisView
 
   ticker:    LogTicker
   formatter: LogTickFormatter
@@ -32,7 +32,7 @@ export class LogAxis extends ContinuousAxis {
   static init_LogAxis(): void {
     this.prototype.default_view = LogAxisView
 
-    this.override({
+    this.override<LogAxis.Props>({
       ticker:    () => new LogTicker(),
       formatter: () => new LogTickFormatter(),
     })

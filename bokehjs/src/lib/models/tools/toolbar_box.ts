@@ -1,6 +1,7 @@
 import * as p from "core/properties"
 import {Location} from "core/enums"
 import {includes, sort_by} from "core/util/array"
+import {keys, values, entries} from "core/util/object"
 
 import {Tool} from "./tool"
 import {ButtonTool} from "./button_tool"
@@ -8,6 +9,7 @@ import {ActionTool} from "./actions/action_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ToolbarBase, GestureType} from "./toolbar_base"
+import {Toolbar} from "./toolbar"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -16,7 +18,9 @@ import {ContentBox} from "core/layout"
 export namespace ProxyToolbar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ToolbarBase.Props
+  export type Props = ToolbarBase.Props & {
+    toolbars: p.Property<Toolbar[]>
+  }
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
@@ -26,6 +30,12 @@ export class ProxyToolbar extends ToolbarBase {
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
+  }
+
+  static init_ProxyToolbar(): void {
+    this.define<ProxyToolbar.Props>(({Array, Ref}) => ({
+      toolbars: [ Array(Ref(Toolbar)), [] ],
+    }))
   }
 
   _proxied_tools: (Tool | ToolProxy)[]
@@ -55,8 +65,7 @@ export class ProxyToolbar extends ToolbarBase {
     this._proxied_tools.push(...new_help_tools)
     this.help = new_help_tools
 
-    for (const event_type in this.gestures) {
-      const gesture = this.gestures[event_type as GestureType]
+    for (const [event_type, gesture] of entries(this.gestures)) {
       if (!(event_type in gestures)) {
         gestures[event_type] = {}
       }
@@ -89,11 +98,11 @@ export class ProxyToolbar extends ToolbarBase {
       return proxy
     }
 
-    for (const event_type in gestures) {
+    for (const event_type of keys(gestures)) {
       const gesture = this.gestures[event_type as GestureType]
       gesture.tools = []
 
-      for (const tool_type in gestures[event_type]) {
+      for (const tool_type of keys(gestures[event_type])) {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
@@ -101,21 +110,19 @@ export class ProxyToolbar extends ToolbarBase {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
-              this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+              this.connect(proxy.properties.active.change, () => this._active_change(proxy as any))
             }
           } else {
             const proxy = make_proxy(tools)
             gesture.tools.push(proxy as any)
-            this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+            this.connect(proxy.properties.active.change, () => this._active_change(proxy as any))
           }
         }
       }
     }
 
     this.actions = []
-    for (const tool_type in actions) {
-      const tools = actions[tool_type]
-
+    for (const [tool_type, tools] of entries(actions)) {
       if (tool_type == 'CustomAction') {
         for (const tool of tools)
           this.actions.push(make_proxy([tool]) as any)
@@ -125,15 +132,12 @@ export class ProxyToolbar extends ToolbarBase {
     }
 
     this.inspectors = []
-    for (const tool_type in inspectors) {
-      const tools = inspectors[tool_type]
-
+    for (const tools of values(inspectors)) {
       if (tools.length > 0)
         this.inspectors.push(make_proxy(tools, true) as any) // XXX
     }
 
-    for (const et in this.gestures) {
-      const gesture = this.gestures[et as GestureType]
+    for (const [et, gesture] of entries(this.gestures)) {
       if (gesture.tools.length == 0)
         continue
 
@@ -195,9 +199,9 @@ export class ToolbarBox extends LayoutDOM {
   static init_ToolbarBox(): void {
     this.prototype.default_view = ToolbarBoxView
 
-    this.define<ToolbarBox.Props>({
-      toolbar:          [ p.Instance          ],
-      toolbar_location: [ p.Location, "right" ],
-    })
+    this.define<ToolbarBox.Props>(({Ref}) => ({
+      toolbar:          [ Ref(ToolbarBase) ],
+      toolbar_location: [ Location, "right" ],
+    }))
   }
 }

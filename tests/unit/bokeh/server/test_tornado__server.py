@@ -18,6 +18,8 @@ import pytest ; pytest
 import json
 import logging
 import os
+import sys
+from subprocess import run
 
 # Bokeh imports
 from _util_server import http_get, url
@@ -38,6 +40,11 @@ logging.basicConfig(level=logging.DEBUG)
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@pytest.mark.skipif(sys.platform != "win32" or sys.version_info < (3, 8), reason="event loop test only for win, py>=3.8")
+def test_windows_event_loop_fixup():
+    proc = run([sys.executable, "-c", "import asyncio, sys; import bokeh.server.tornado; sys.exit(int(isinstance(asyncio.get_event_loop_policy(), asyncio.WindowsProactorEventLoopPolicy)))"'']) # noqa
+    assert proc.returncode == 0, "bokeh.server did not fixup windows event loop"
 
 def test_default_resources(ManagedServerLoop) -> None:
     application = Application()
@@ -122,7 +129,7 @@ def test_auth_provider() -> None:
     bt = tornado.BokehTornado(applications={})
     assert isinstance(bt.auth_provider, NullAuth)
 
-    class FakeAuth(object):
+    class FakeAuth:
         get_user = "get_user"
         endpoints = []
     bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)
@@ -136,19 +143,19 @@ def test_websocket_max_message_size_bytes() -> None:
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
-        assert server._tornado.websocket_origins == set(["localhost:%s" % unused_tcp_port])
+        assert server._tornado.websocket_origins == {"localhost:%s" % unused_tcp_port}
 
     # OK this is a bit of a confusing mess. The user-facing arg for server is
     # "allow_websocket_origin" which gets converted to "extra_websocket_origins"
     # for BokehTornado, which is exposed as a property "websocket_origins"...
     with ManagedServerLoop(application, allow_websocket_origin=["foo"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:80"])
+        assert server._tornado.websocket_origins == {"foo:80"}
 
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:8080"])
+        assert server._tornado.websocket_origins == {"foo:8080"}
 
     with ManagedServerLoop(application, allow_websocket_origin=["foo:8080", "bar"]) as server:
-        assert server._tornado.websocket_origins == set(["foo:8080", "bar:80"])
+        assert server._tornado.websocket_origins == {"foo:8080", "bar:80"}
 
 def test_default_app_paths() -> None:
     app = Application()
@@ -179,7 +186,6 @@ def test_log_stats(ManagedServerLoop) -> None:
         session2.close()
         server._tornado._log_stats()
 
-@pytest.mark.asyncio
 async def test_metadata(ManagedServerLoop) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:

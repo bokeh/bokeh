@@ -1,7 +1,6 @@
-import * as hittest from "core/hittest"
+import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
 import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
@@ -9,19 +8,19 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect} from "core/types"
-import {map} from "core/util/arrayable"
-import {extend} from "core/util/object"
-import {isArray, isTypedArray} from "core/util/types"
+import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {RaggedArray} from "core/util/ragged_array"
+import {map, max} from "core/util/arrayable"
+import {values} from "core/util/object"
+import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
-import {LineView} from "./line"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-//import /*type*/ {BaseGLGlyph} from "./webgl/base"
+import type {BaseGLGlyph} from "./webgl/base"
 
 export interface GlyphData {}
 
@@ -31,59 +30,52 @@ export abstract class GlyphView extends View {
   model: Glyph
   visuals: Glyph.Visuals
 
-  parent: GlyphRendererView
+  readonly parent: GlyphRendererView
 
   get renderer(): GlyphRendererView {
     return this.parent
   }
 
-  glglyph?: any // BaseGLGlyph
+  /** @internal */
+  glglyph?: BaseGLGlyph
 
-  index: SpatialIndex
+  get has_webgl(): boolean {
+    return this.glglyph != null
+  }
+
+  private _index: SpatialIndex | null = null
+
+  private _data_size: number | null = null
 
   protected _nohit_warned: Set<geometry.Geometry["type"]> = new Set()
 
+  get index(): SpatialIndex {
+    const {_index} = this
+    if (_index != null)
+      return _index
+    else
+      throw new Error(`${this}.index_data() wasn't called`)
+  }
+
+  get data_size(): number {
+    const {_data_size} = this
+    if (_data_size != null)
+      return _data_size
+    else
+      throw new Error(`${this}.set_data() wasn't called`)
+  }
+
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
-  }
-
-  async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null) {
-      let webgl_module: typeof import("./webgl/index") | null = null
-      try {
-        webgl_module = await import("./webgl/index")
-      } catch (e) {
-        // TODO: this exposes the underyling module system
-        if (e.code === 'MODULE_NOT_FOUND')
-          logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
-        else
-          throw e
-      }
-
-      if (webgl_module != null) {
-        const Cls = (webgl_module as any)[this.model.type + 'GLGlyph']
-        if (Cls != null)
-          this.glglyph = new Cls(webgl.gl, this)
-      }
-    }
-  }
-
-  set_visuals(source: ColumnarDataSource): void {
-    this.visuals.warm_cache(source)
-
-    if (this.glglyph != null)
-      this.glglyph.set_visuals_changed()
+    this.visuals = new visuals.Visuals(this)
   }
 
   render(ctx: Context2d, indices: number[], data: any): void {
     ctx.beginPath()
 
     if (this.glglyph != null) {
-      if (this.glglyph.render(ctx, indices, data))
+      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, data)
+      if (this.renderer.needs_webgl_blit)
         return
     }
 
@@ -109,42 +101,38 @@ export abstract class GlyphView extends View {
   }
 
   log_bounds(): Rect {
-    const bb = bbox.empty()
-
-    const positive_x_bbs = this.index.search(bbox.positive_x())
-    for (const x of positive_x_bbs) {
-      if (x.x0 < bb.x0)
-        bb.x0 = x.x0
-      if (x.x1 > bb.x1)
-        bb.x1 = x.x1
-    }
-
-    const positive_y_bbs = this.index.search(bbox.positive_y())
-    for (const y of positive_y_bbs) {
-      if (y.y0 < bb.y0)
-        bb.y0 = y.y0
-      if (y.y1 > bb.y1)
-        bb.y1 = y.y1
-    }
-
-    return this._bounds(bb)
+    const {x0, x1} = this.index.bounds(bbox.positive_x())
+    const {y0, y1} = this.index.bounds(bbox.positive_y())
+    return this._bounds({x0, y0, x1, y1})
   }
 
   get_anchor_point(anchor: Anchor, i: number, [sx, sy]: [number, number]): {x: number, y: number} | null {
     switch (anchor) {
-      case "center": return {x: this.scenterx(i, sx, sy), y: this.scentery(i, sx, sy)}
-      default:       return null
+      case "center":
+      case "center_center": {
+        const [x, y] = this.scenterxy(i, sx, sy)
+        return {x, y}
+      }
+      default:
+        return null
     }
   }
 
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
-  abstract scenterx(i: number, _sx: number, _sy: number): number
+  abstract scenterxy(i: number, sx: number, sy: number): [number, number]
 
-  abstract scentery(i: number, _sx: number, _sy: number): number
+  /** @deprecated */
+  scenterx(i: number, sx: number, sy: number): number {
+    return this.scenterxy(i, sx, sy)[0]
+  }
+  /** @deprecated */
+  scentery(i: number, sx: number, sy: number): number {
+    return this.scenterxy(i, sx, sy)[1]
+  }
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
-        pts_location: "center" | "edge" = "edge", dilate: boolean = false): Arrayable<number> {
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {
     let pt0: Arrayable<number>
     let pt1: Arrayable<number>
 
@@ -183,7 +171,7 @@ export abstract class GlyphView extends View {
   protected _hit_rect?(geometry: geometry.RectGeometry): Selection
   protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
 
-  hit_test(geometry: geometry.Geometry): hittest.HitTestResult {
+  hit_test(geometry: geometry.Geometry): HitTestResult {
     switch (geometry.type) {
       case "point":
         if (this._hit_point != null)
@@ -213,183 +201,175 @@ export abstract class GlyphView extends View {
 
   protected _hit_rect_against_index(geometry: geometry.RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices({x0, x1, y0, y1})
-    return result
+    const [x0, x1] = this.renderer.coordinates.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.coordinates.y_scale.r_invert(sy0, sy1)
+    const indices = [...this.index.indices({x0, x1, y0, y1})]
+    return new Selection({indices})
   }
 
-  set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
-    let data = this.model.materialize_dataspecs(source)
+  protected _project_data(): void {}
 
-    this.visuals.set_all_indices(indices)
-    if (indices && !(this instanceof LineView)) {
-      const data_subset: {[key: string]: any} = {}
-      for (const k in data) {
-        const v = data[k]
-        if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => (v as any)[i])
-        else
-          data_subset[k] = v
+  private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
+    for (const visual of values<visuals.ContextProperties>(this.visuals)) {
+      for (const prop of visual) {
+        if (prop instanceof p.VectorSpec)
+          yield prop
       }
-      data = data_subset
     }
+  }
 
+  protected base?: this
+  set_base<T extends this>(base: T): void {
+    if (base != this && base instanceof this.constructor)
+      this.base = base
+  }
+
+  set_visuals(source: ColumnarDataSource, indices: Indices): void {
     const self = this as any
-    extend(self, data)
 
-    // TODO (bev) Should really probably delegate computing projected
-    // coordinates to glyphs, instead of centralizing here in one place.
-    if (this.renderer.plot_view.model.use_map) {
-      if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
-
-      if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
-
-      if (self._x0 != null)
-        [self._x0, self._y0] = proj.project_xy(self._x0, self._y0)
-
-      if (self._x1 != null)
-        [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
-    }
-
-    // if we have any coordinates that are categorical, convert them to
-    // synthetic coords here
-    if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
-      const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name]
-      const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name]
-
-      for (let [xname, yname] of this.model._coords) {
-        xname = `_${xname}`
-        yname = `_${yname}`
-
-        // TODO (bev) more robust detection of multi-glyph case
-        // hand multi glyph case
-        if (self._xs != null) {
-          if (xr instanceof FactorRange) {
-            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
-          }
-          if (yr instanceof FactorRange) {
-            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
-          }
-        } else {
-          // hand standard glyph case
-          if (xr instanceof FactorRange) {
-            self[xname] = xr.v_synthetic(self[xname])
-          }
-          if (yr instanceof FactorRange) {
-            self[yname] = yr.v_synthetic(self[yname])
-          }
+    for (const prop of this._iter_visuals()) {
+      const {base} = this
+      if (base != null) {
+        const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
+        if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
+          self[`_${prop.attr}`] = (base as any)[`_${prop.attr}`]
+          self[`_${prop.attr}_view`] = (base as any)[`_${prop.attr}_view`]
+          continue
         }
       }
+
+      const base_array = prop.array(source)
+      const array = indices.select(base_array)
+      self[`_${prop.attr}`] = array
+
+      if (array instanceof Uint32Array)
+        self[`_${prop.attr}_view`] = new DataView(array.buffer)
     }
 
-    if (this.glglyph != null)
-      this.glglyph.set_data_changed(self._x.length)
+    this.glglyph?.set_visuals_changed()
+  }
 
-    this._set_data(indices_to_update)  //TODO doesn't take subset indices into account
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
+    const {x_range, y_range} = this.renderer.coordinates
+
+    this._data_size = indices.count
+
+    const visual_props = new Set(this._iter_visuals())
+    for (const prop of this.model) {
+      if (!(prop instanceof p.VectorSpec))
+        continue
+
+      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
+        continue
+
+      // this skips optional properties like radius for circles
+      if (prop.optional && prop.spec.value == null && !prop.dirty)
+        continue
+
+      const name = prop.attr
+
+      const base_array = prop.array(source)
+      let array = indices.select(base_array as Arrayable<unknown>)
+
+      if (prop instanceof p.BaseCoordinateSpec) {
+        const range = prop.dimension == "x" ? x_range : y_range
+        if (range instanceof FactorRange) {
+          if (prop instanceof p.CoordinateSpec) {
+            array = range.v_synthetic(array as any)
+          } else if (prop instanceof p.CoordinateSeqSpec) {
+            for (let i = 0; i < array.length; i++) {
+              array[i] = range.v_synthetic(array[i] as any)
+            }
+          }
+        }
+
+        if (prop instanceof p.CoordinateSeqSpec) {
+          array = RaggedArray.from(array as any) as any
+        }
+      } else if (prop instanceof p.DistanceSpec) {
+        (this as any)[`max_${name}`] = max(array as any)
+      }
+
+      (this as any)[`_${name}`] = array
+    }
+
+    if (this.renderer.plot_view.model.use_map) {
+      this._project_data()
+    }
+
+    this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
+
+    this.glglyph?.set_data_changed()
 
     this.index_data()
   }
 
   protected _set_data(_indices: number[] | null): void {}
 
-  protected abstract _index_data(): SpatialIndex
-
-  index_data(): void {
-    this.index = this._index_data()
+  private get _index_size(): number {
+    return this.data_size
   }
 
-  mask_data(indices: number[]): number[] {
-    // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null || this._mask_data == null)
-      return indices
+  protected abstract _index_data(index: SpatialIndex): void
+
+  index_data(): void {
+    const index = new SpatialIndex(this._index_size)
+    this._index_data(index)
+    index.finish()
+    this._index = index
+  }
+
+  mask_data(): Indices {
+    /** Returns subset indices in the viewport. */
+    if (this._mask_data == null)
+      return Indices.all_set(this.data_size)
     else
       return this._mask_data()
   }
 
-  protected _mask_data?(): number[]
+  protected _mask_data?(): Indices
 
   map_data(): void {
-    // TODO: if using gl, skip this (when is this called?)
-    // map all the coordinate fields
     const self = this as any
 
-    for (let [xname, yname] of this.model._coords) {
-      const sxname = `s${xname}`
-      const syname = `s${yname}`
-      xname = `_${xname}`
-      yname = `_${yname}`
-
-      if (self[xname] != null && (isArray(self[xname][0]) || isTypedArray(self[xname][0]))) {
-        const n = self[xname].length
-
-        self[sxname] = new Array(n)
-        self[syname] = new Array(n)
-
-        for (let i = 0; i < n; i++) {
-          const [sx, sy] = this.map_to_screen(self[xname][i], self[yname][i])
-          self[sxname][i] = sx
-          self[syname][i] = sy
+    const {x_scale, y_scale} = this.renderer.coordinates
+    for (const prop of this.model) {
+      if (prop instanceof p.BaseCoordinateSpec) {
+        const scale = prop.dimension == "x" ? x_scale : y_scale
+        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray
+        if (array instanceof RaggedArray) {
+          const screen = scale.v_compute(array.array)
+          array = new RaggedArray(array.offsets, screen)
+        } else {
+          array = scale.v_compute(array)
         }
-      } else
-        [self[sxname], self[syname]] = this.map_to_screen(self[xname], self[yname])
+        (this as any)[`s${prop.attr}`] = array
+      }
     }
 
     this._map_data()
+    this.glglyph?.set_data_changed()
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
   protected _map_data(): void {}
-
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
-    return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
-  }
 }
 
 export namespace Glyph {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
-  }
+  export type Props = Model.Props
 
-  export type Visuals = visuals.Visuals
+  export type Visuals = {}
 }
 
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
   properties: Glyph.Props
-
-  /* prototype */ _coords: [string, string][]
+  __view_type__: GlyphView
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
-  }
-
-  static init_Glyph(): void {
-    this.prototype._coords = []
-
-    this.internal({
-      x_range_name: [ p.String, 'default' ],
-      y_range_name: [ p.String, 'default' ],
-    })
-  }
-
-  static coords(coords: [string, string][]): void {
-    const _coords = this.prototype._coords.concat(coords)
-    this.prototype._coords = _coords
-
-    const result: any = {}
-    for (const [x, y] of coords) {
-      result[x] = [ p.CoordinateSpec ]
-      result[y] = [ p.CoordinateSpec ]
-    }
-
-    this.define<Glyph.Props>(result)
   }
 }

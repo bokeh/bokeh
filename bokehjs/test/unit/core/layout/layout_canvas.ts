@@ -1,4 +1,4 @@
-import {expect} from "chai"
+import {expect} from "assertions"
 
 import {Layoutable, Size, SizeHint} from "@bokehjs/core/layout"
 
@@ -12,11 +12,11 @@ describe("Layoutable", () => {
 
   it("should have layout variables zeroed after initialization", () => {
     const c = new SomeLayout()
-    expect(c._left.value).to.be.equal(0)
-    expect(c._right.value).to.be.equal(0)
-    expect(c._top.value).to.be.equal(0)
-    expect(c._bottom.value).to.be.equal(0)
-    expect(c._width.value).to.be.equal(0)
-    expect(c._height.value).to.be.equal(0)
+    expect(c.bbox.left).to.be.equal(0)
+    expect(c.bbox.right).to.be.equal(0)
+    expect(c.bbox.top).to.be.equal(0)
+    expect(c.bbox.bottom).to.be.equal(0)
+    expect(c.bbox.width).to.be.equal(0)
+    expect(c.bbox.height).to.be.equal(0)
   })
 })

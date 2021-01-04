@@ -23,20 +23,20 @@ export class SingleIntervalTicker extends ContinuousTicker {
   }
 
   static init_SingleIntervalTicker(): void {
-    this.define<SingleIntervalTicker.Props>({
-      interval: [ p.Number ],
-    })
+    this.define<SingleIntervalTicker.Props>(({Number}) => ({
+      interval: [ Number ],
+    }))
   }
 
   get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number): number {
     return this.interval
   }
 
-  get min_interval(): number {
+  get_min_interval(): number {
     return this.interval
   }
 
-  get max_interval(): number {
+  get_max_interval(): number {
     return this.interval
   }
 }

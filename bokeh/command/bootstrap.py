@@ -78,15 +78,12 @@ def main(argv: List[str]) -> None:
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:
 
-    * :ref:`html <bokeh.command.subcommands.html>`
     * :ref:`info <bokeh.command.subcommands.info>`
     * :ref:`json <bokeh.command.subcommands.json>`
-    * :ref:`png <bokeh.command.subcommands.png>`
     * :ref:`sampledata <bokeh.command.subcommands.sampledata>`
     * :ref:`secret <bokeh.command.subcommands.secret>`
     * :ref:`serve <bokeh.command.subcommands.serve>`
     * :ref:`static <bokeh.command.subcommands.static>`
-    * :ref:`svg <bokeh.command.subcommands.svg>`
 
     '''
     if len(argv) == 1:
@@ -96,9 +93,6 @@ def main(argv: List[str]) -> None:
         prog=argv[0],
         epilog="See '<command> --help' to read about a specific subcommand.")
 
-    # we don't use settings.version() because the point of this option
-    # is to report the actual version of Bokeh, while settings.version()
-    # lets people change the version used for CDN for example.
     parser.add_argument('-v', '--version', action='version', version=__version__)
 
     subs = parser.add_subparsers(help="Sub-commands")

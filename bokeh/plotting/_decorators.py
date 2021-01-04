@@ -39,6 +39,33 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+def marker_method():
+    from ..models.markers import Marker, Scatter
+    glyphclass = Marker
+    def decorator(func):
+        parameters = glyphclass.parameters()
+
+        sigparams = [Parameter("self", Parameter.POSITIONAL_OR_KEYWORD)] + [x[0] for x in parameters] + [Parameter("kwargs", Parameter.VAR_KEYWORD)]
+
+        marker_type = func.__name__
+
+        @wraps(func)
+        def wrapped(self, *args, **kwargs):
+            if len(args) > len(glyphclass._args):
+                raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
+            for arg, param in zip(args, sigparams[1:]):
+                kwargs[param.name] = arg
+            kwargs["marker"] = marker_type
+            return create_renderer(Scatter, self, **kwargs)
+
+        wrapped.__signature__ = Signature(parameters=sigparams)
+        wrapped.__name__ = func.__name__
+
+        wrapped.__doc__ = generate_docstring(glyphclass, parameters, func.__doc__)
+
+        return wrapped
+
+    return decorator
 def glyph_method(glyphclass):
     def decorator(func):
         parameters = glyphclass.parameters()

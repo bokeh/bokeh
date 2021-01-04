@@ -3,7 +3,18 @@
 2.0.0
 =====
 
-Bokeh Version ``2.0.0`` (XXXX 2019) is a major milestone of the Bokeh project.
+Bokeh Version ``2.0.0`` (March 2020) is a major milestone of the Bokeh project.
+This release cycle closed more than 180 issues. Highlights include:
+
+* New, modern  ``MultiChoice`` widget added :bokeh-issue:`9532`
+* BokehJS CDN resources are loaded with `SRI hashes`_ enabled :bokeh-issue:`8937`
+* New ``DatePicker`` implementation with more features :bokeh-issue:`9509`, :bokeh-issue:`9494`, :bokeh-issue:`6728`, :bokeh-issue:`8917`
+* Package relative imports work in directory-style Bokeh apps :bokeh-issue:`9545`
+* App sessions now use an expirable token that is not visible in query arguments :bokeh-issue:`3458`
+* Full HTTP header and cookies can be accessed by Bokeh app code :bokeh-issue:`9505`
+* Reference documentation show inherited properties on all Bokeh models :bokeh-issue:`4966`
+* IPyWidgets can be used in Bokeh applications, and Bokeh content can be put in IPyWidgets :bokeh-issue:`9590`
+* Added tile providers for ESRI and OSM :bokeh-issue:`9560`
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
@@ -22,11 +33,18 @@ This release raises the minimum version for some packages
 * Bokeh now requires Numpy 1.11.3 or higher.
 * The Bokeh server now requires Tornado 5.0 or higher.
 
+Server Lifecycle Hooks
+~~~~~~~~~~~~~~~~~~~~~~
+
+Server lifecycle hooks should now goin in a file named ``app_hooks.py``, which
+is also where new request hooks are to be defined. The previous module name
+``server_lifecycle.py`` will continue to function, but is deprecated.
+
 HoverTool Formatters Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Previously, the ``formatters`` property accepted a CDS column name. For example
-a formatter for a tooltip for ``"@foo`` could be specied with just ``"foo"``:
+a formatter for a tooltip for ``"@foo`` could be specified with just ``"foo"``:
 
 .. code-block:: python
 
@@ -45,9 +63,16 @@ as "special variables", e.g. ``"$x"``.
 Bokeh Sphinx Extension
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The obsolete Sphinx confiuguration parameters ``bokeh_plot_use_relative_paths``
+The obsolete Sphinx configuration parameters ``bokeh_plot_use_relative_paths``
 and ``bokeh_plot_pyfile_include_dirs`` have been removed. The unused
 ``PLOT_PAGE`` template has also been removed.
+
+PhantomJS usage retired
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The deprecated and unsupported PhantomJS dependency is no longer used for
+exporting Bokeh content. Bokeh will use Chromedriver by default, but can also
+be configured to use Geckodriver.
 
 "Use Strict" for CustomJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,13 +84,12 @@ with ``"use_strict"`` added.
 ``require()`` in CustomJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``require()`` isn't directly available from ``CustomJS`` anymore, as it exposed
-the underlying module system, which is prohibited since bokehjs's departure from
-CJS module system. Use APIs exposed on ``Bokeh`` object or ``Bokeh.require()``.
-Consider the later option as the last resort measure.
+The ``require()`` function s not available from ``CustomJS`` anymore. It exposed
+the underlying module system, which should not be used by general users. Use
+APIs exposed on ``Bokeh`` object or (as a last resort), use ``Bokeh.require()``.
 
-Bokeh Prototcol Versioning
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bokeh Protocol Versioning
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bokeh wire protocol messages no longer express any revision, and URLs for
 server sessions no longer specify ``"bokeh-protocol-version"``. It is assumed
@@ -81,7 +105,7 @@ been removed. Use ``selected.indices``, etc. only.
 Immutable Palettes
 ~~~~~~~~~~~~~~~~~~
 
-Previousuly, Bokeh used a complicated copy-on-access scheme to return palettes
+Previously, Bokeh used a complicated copy-on-access scheme to return palettes
 as lists. The necessary "module hack" could confuse IDEs, complicated the docs
 build process, and sometimes lead to unexpected behavior. All palettes are now
 tuples, which is a simpler solution to the problem of mutable module attributes.
@@ -127,48 +151,86 @@ Missing Renderers Warning
 The ``W-1000 (MISSING_RENDERERS)`` validation warning will no longer trigger
 for plots that have added annotations, even if no other glyphs are present.
 
+UnitsSpec hierarchy
+~~~~~~~~~~~~~~~~~~~
+
+The ``UnitsSpec`` class is now a base class and is not useful ln its own. If you
+were using ``UnitsSpec`` in an extension model, you should change to use the new
+``PropertyUnitsSpec`` class, which affords the capability for adding separate
+``*_units`` properties.
+
+Broken Bokeh Commands
+~~~~~~~~~~~~~~~~~~~~~
+
+The command line utilities ``bokeh html``, ``bokeh png``, and ``bokeh svg`` were
+early experimental tools that were never widely promoted. It was recently
+discovered that they have been broken since version 1.0, indicating that they
+are completely unused. To reduce codebase cruft, they have been removed.
+
+BOKEH_VERSION
+~~~~~~~~~~~~~
+
+The previous environment variable BOKEH_VERSION that could be use to specify
+which version of BokehJS should be loaded from CDN, has been renamed to
+BOKEH_CDN_VERSION.
+
 API Removals
 ~~~~~~~~~~~~
 
 The following modules and functions were previously deprecated or were internal
 and no longer needed:
 
-* ``bokeh.client``: method ``ClientSession.loop_until_closed`` removed
+``bokeh.client``
+    Method ``ClientSession.loop_until_closed`` removed
 
-* ``bokeh.models.callbacks``: methods ``CustomJS.from_py_func`` and
-  ``CustomJS.from_coffeescript`` removed
+``bokeh.io``
+    Function ``create_webdriver`` removed, use ``webdriver_control`` instead.
 
-* ``bokeh.models.filters``: methods ``CustomJSFilter.from_py_func`` and
-  ``CustomJSFilter.from_coffeescript`` removed
+``bokeh.models.callbacks``
+    Methods ``CustomJS.from_py_func`` and ``CustomJS.from_coffeescript`` removed
 
-* ``bokeh.models.formatters``: methods ``FuncTickFormatter.from_py_func`` and
-  ``FuncTickFormatter.from_coffeescript`` removed
+``bokeh.models.filters``
+    Methods ``CustomJSFilter.from_py_func`` and
+    ``CustomJSFilter.from_coffeescript`` removed
 
-* ``bokeh.models.plots``: proeprties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
-  removed
+``bokeh.models.formatters``
+    Methods ``FuncTickFormatter.from_py_func`` and
+    ``FuncTickFormatter.from_coffeescript`` removed
 
-* ``bokeh.models.tools``: methods ``CustomJSHover.from_py_func`` and
-  ``CustomJSHover.from_coffeescript`` removed
+``bokeh.models.plots``
+    Properties ``Plot.h_symmetry`` and ``Plot.v_symmetry`` removed
 
-* ``bokeh.models.transforms``: methods ``CustomJSTransform.from_py_func`` and
-  ``CustomJSTransform.from_coffeescript`` removed
+``bokeh.models.tools``
+    Methods ``CustomJSHover.from_py_func`` and
+    ``CustomJSHover.from_coffeescript`` removed
 
-* ``bokeh.models.widgets.buttons``: properties ``Dropdown.default_value`` and
-  ``Dropdown.value`` removed
+``bokeh.models.transforms``
+    Methods ``CustomJSTransform.from_py_func`` and
+    ``CustomJSTransform.from_coffeescript`` removed
 
-* ``bokeh.models.widgets.sliders``: ``callback``, ``callback_throttle`, and
-  ``callback_policy`` removed from all sliders. Use ``value`` for continous
-  updates and ``value_throttled`` for updates only on mouseup.
+``bokeh.models.widgets.buttons``
+    Properties ``Dropdown.default_value``, ``Dropdown.value`` and
+    ``AbstractButton.clicks`` removed.
 
-* ``bokeh.protocol`` entire ``versions`` module removed, ``messages.register``
-  function removed.
+``bokeh.models.widgets.sliders``
+    ``callback``, ``callback_throttle``, and ``callback_policy`` removed from
+    all sliders. Use ``value`` for continuous updates and ``value_throttled`` for
+    updates only on mouseup
 
-* ``bokeh.util.compiler``: class ``CoffeeScript`` and related code removed
+``bokeh.plotting.helpers``
+    Entire module removed
 
-* ``bokeh.util.future``: entire module removed
+``bokeh.protocol``
+    Entire ``versions`` module removed, ``messages.register`` function removed
 
-* ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and
-  ``escape`` removed
+``bokeh.util.compiler``
+    Class ``CoffeeScript`` and related code removed
+
+``bokeh.util.future``
+    Entire module removed
+
+``bokeh.util.string``
+    Functions ``encode_utf8``, ``decode_utf8``, and ``escape`` removed
 
 Additionally, the ``callback`` property is removed from all Bokeh models except
 ``CustomAction``, ``HoverTool`` ``TapTool``, and ``OpenURL``. Instead, the more
@@ -184,3 +246,5 @@ The following new deprecations are effective:
 
 * Importing ``from_networkx`` from ``bokeh.models.graphs`` is deprecated. Import
   from ``bokeh.plotting`` instead.
+
+.. _SRI hashes: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity

@@ -6,7 +6,7 @@ import {Scale} from '../../scales/scale'
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import {bk_tool_icon_range} from "styles/icons"
+import {tool_icon_range} from "styles/icons.css"
 
 export const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
@@ -128,9 +128,9 @@ export class RangeToolView extends GestureToolView {
     const xr = this.model.x_range
     const yr = this.model.y_range
 
-    const frame = this.plot_view.frame
-    const xscale = frame.xscales.default
-    const yscale = frame.yscales.default
+    const {frame} = this.plot_view
+    const xscale = frame.x_scale
+    const yscale = frame.y_scale
 
     const overlay = this.model.overlay
     const {left, right, top, bottom} = overlay
@@ -170,8 +170,8 @@ export class RangeToolView extends GestureToolView {
     const xr = this.model.x_range
     const yr = this.model.y_range
 
-    const xscale = frame.xscales.default
-    const yscale = frame.yscales.default
+    const xscale = frame.x_scale
+    const yscale = frame.y_scale
 
     if (xr != null) {
       if (this.side == Side.LeftRight || this.side == Side.LeftRightBottomTop)
@@ -199,24 +199,21 @@ export class RangeToolView extends GestureToolView {
 
     this.last_dx = ev.deltaX
     this.last_dy = ev.deltaY
-
   }
 
   _pan_end(_ev: PanEvent): void {
     this.side = Side.None
   }
-
 }
 
 const DEFAULT_RANGE_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "canvas",
     fill_color: "lightgrey",
-    fill_alpha: {value: 0.5},
-    line_color: {value: "black"},
-    line_alpha: {value: 1.0},
-    line_width: {value: 0.5},
+    fill_alpha: 0.5,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 0.5,
     line_dash: [2, 2],
   })
 }
@@ -237,6 +234,7 @@ export interface RangeTool extends RangeTool.Attrs {}
 
 export class RangeTool extends GestureTool {
   properties: RangeTool.Props
+  __view_type__: RangeToolView
 
   /*override*/ overlay: BoxAnnotation
 
@@ -247,14 +245,13 @@ export class RangeTool extends GestureTool {
   static init_RangeTool(): void {
     this.prototype.default_view = RangeToolView
 
-    this.define<RangeTool.Props>({
-      x_range:       [ p.Instance, null                  ],
-      x_interaction: [ p.Boolean,  true                  ],
-      y_range:       [ p.Instance, null                  ],
-      y_interaction: [ p.Boolean,  true                  ],
-      overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
-    })
-
+    this.define<RangeTool.Props>(({Boolean, Ref, Nullable}) => ({
+      x_range:       [ Nullable(Ref(Range1d)), null ],
+      x_interaction: [ Boolean, true ],
+      y_range:       [ Nullable(Ref(Range1d)), null ],
+      y_interaction: [ Boolean, true ],
+      overlay:       [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],
+    }))
   }
 
   initialize(): void {
@@ -291,7 +288,7 @@ export class RangeTool extends GestureTool {
   }
 
   tool_name = "Range Tool"
-  icon = bk_tool_icon_range
+  icon = tool_icon_range
   event_type = "pan" as "pan"
   default_order = 1
 }

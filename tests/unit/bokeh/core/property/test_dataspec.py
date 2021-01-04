@@ -34,6 +34,7 @@ import bokeh.core.property.dataspec as bcpd # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'AlphaSpec',
     'AngleSpec',
     'ColorSpec',
     'DataSpec',
@@ -72,8 +73,8 @@ def test_dataspec_dict_to_serializable() -> None:
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 
-class Test_AngleSpec(object):
 
+class Test_AngleSpec:
     def test_default_none(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec(None)
@@ -152,8 +153,8 @@ class Test_AngleSpec(object):
 
         assert new_value_copy == new_value
 
-class Test_ColorSpec(object):
 
+class Test_ColorSpec:
     def test_field(self) -> None:
         class Foo(HasProps):
             col = bcpd.ColorSpec("colorfield")
@@ -284,18 +285,18 @@ class Test_ColorSpec(object):
         assert f.col == "field2"
         assert desc.serializable_value(f) == {"field": "field2"}
 
-class Test_DataDistanceSpec(object):
+class Test_DataDistanceSpec:
     def test_basic(self) -> None:
         assert issubclass(bcpd.DataDistanceSpec, bcpd.UnitsSpec)
         class Foo(HasProps):
             x = bcpd.DataDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'data'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 
-class Test_DistanceSpec(object):
+class Test_DistanceSpec:
     def test_default_none(self) -> None:
         class Foo(HasProps):
             x = bcpd.DistanceSpec(None)
@@ -334,7 +335,7 @@ def test_field_function() -> None:
     assert bcpd.field("foo", "junk") == dict(field="foo", transform="junk")
     assert bcpd.field("foo", transform="junk") == dict(field="foo", transform="junk")
 
-class Test_FontSizeSpec(object):
+class Test_FontSizeSpec:
     def test_font_size_from_string(self) -> None:
         class Foo(HasProps):
             x = bcpd.FontSizeSpec(default=None)
@@ -420,8 +421,8 @@ class Test_FontSizeSpec(object):
         a.x = dict(field="foo")
         assert a.x == dict(field="foo")
 
-class Test_NumberSpec(object):
 
+class Test_NumberSpec:
     def test_field(self) -> None:
         class Foo(HasProps):
             x = bcpd.NumberSpec("xfield")
@@ -581,15 +582,15 @@ class Test_NumberSpec(object):
         a.x = dict(field="baz")
         assert a.x == dict(field="baz")
 
-class Test_UnitSpec(object):
 
+class Test_UnitSpec:
     def test_basic(self) -> None:
         assert issubclass(bcpd.ScreenDistanceSpec, bcpd.UnitsSpec)
         class Foo(HasProps):
             x = bcpd.ScreenDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'screen'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 

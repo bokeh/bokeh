@@ -18,6 +18,9 @@ import pytest ; pytest
 # Standard library imports
 from datetime import date
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.layouts import column
@@ -39,9 +42,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_DatePicker(object):
 
+@pytest.mark.selenium
+class Test_DatePicker:
     def test_basic(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
 
@@ -150,6 +153,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_js_on_change_executes(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
         dp.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
@@ -158,8 +162,10 @@ class Test_DatePicker(object):
 
         el = page.driver.find_element_by_css_selector('.foo input')
         el.click()
+        el.click()
 
         el = page.driver.find_element_by_css_selector('span[aria-label="September 16, 2019"]')
+        assert el.is_displayed()
         el.click()
 
         results = page.results
@@ -170,6 +176,7 @@ class Test_DatePicker(object):
 
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
@@ -186,8 +193,10 @@ class Test_DatePicker(object):
 
         el = page.driver.find_element_by_css_selector('.foo input')
         el.click()
+        el.click()
 
         el = page.driver.find_element_by_css_selector('span[aria-label="September 16, 2019"]')
+        assert el.is_displayed()
         el.click()
 
         page.click_custom_action()
@@ -195,6 +204,7 @@ class Test_DatePicker(object):
         results = page.results
         assert results['data']['val'] == ['2019-09-20', '2019-09-16']
 
+    @flaky(max_runs=10)
     def test_server_update_disabled(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
@@ -212,8 +222,10 @@ class Test_DatePicker(object):
 
         el = page.driver.find_element_by_css_selector('.foo input')
         el.click()
+        el.click()
 
         el = page.driver.find_element_by_css_selector('span[aria-label="September 16, 2019"]')
+        assert el.is_displayed()
         el.click()
 
         page.click_custom_action()

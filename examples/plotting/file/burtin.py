@@ -91,7 +91,7 @@ labels = np.power(10.0, np.arange(-3, 4))
 radii = a * np.sqrt(np.log(labels * 1E4)) + b
 p.circle(0, 0, radius=radii, fill_color=None, line_color="white")
 p.text(0, radii[:-1], [str(r) for r in labels[:-1]],
-       text_font_size="8pt", text_align="center", text_baseline="middle")
+       text_font_size="11px", text_align="center", text_baseline="middle")
 
 # radial axes
 p.annular_wedge(0, 0, inner_radius-10, outer_radius+10,
@@ -103,17 +103,17 @@ yr = radii[0]*np.sin(np.array(-big_angle/2 + angles))
 label_angle=np.array(-big_angle/2+angles)
 label_angle[label_angle < -np.pi/2] += np.pi # easier to read labels on the left side
 p.text(xr, yr, df.bacteria, angle=label_angle,
-       text_font_size="9pt", text_align="center", text_baseline="middle")
+       text_font_size="12px", text_align="center", text_baseline="middle")
 
 # OK, these hand drawn legends are pretty clunky, will be improved in future release
 p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
 p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
-       text_font_size="7pt", text_align="left", text_baseline="middle")
+       text_font_size="9px", text_align="left", text_baseline="middle")
 
 p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
        color=list(drug_color.values()))
 p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color),
-       text_font_size="9pt", text_align="left", text_baseline="middle")
+       text_font_size="12px", text_align="left", text_baseline="middle")
 
 output_file("burtin.html", title="burtin.py example")
 

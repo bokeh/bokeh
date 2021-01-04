@@ -16,6 +16,6 @@ for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "G
 p.legend.location = "top_left"
 p.legend.title = 'Stock'
 p.legend.title_text_font_style = "bold"
-p.legend.title_text_font_size = "15pt"
+p.legend.title_text_font_size = "20px"
 
 show(p)

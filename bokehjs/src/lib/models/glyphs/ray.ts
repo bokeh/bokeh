@@ -1,17 +1,16 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
-import {Arrayable, Rect} from "core/types"
-import {Class} from "core/class"
+import * as visuals from "core/visuals"
+import {Rect, NumberArray} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export interface RayData extends XYGlyphData {
-  _length: Arrayable<number>
-  _angle: Arrayable<number>
+  _length: NumberArray
+  _angle: NumberArray
 
-  slength: Arrayable<number>
+  slength: NumberArray
 }
 
 export interface RayView extends RayData {}
@@ -29,8 +28,8 @@ export class RayView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, slength, _angle}: RayData): void {
     if (this.visuals.line.doit) {
-      const width = this.renderer.plot_view.frame._width.value
-      const height = this.renderer.plot_view.frame._height.value
+      const width = this.renderer.plot_view.frame.bbox.width
+      const height = this.renderer.plot_view.frame.bbox.height
       const inf_len = 2 * (width + height)
 
       for (let i = 0, end = slength.length; i < end; i++) {
@@ -59,26 +58,28 @@ export class RayView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
 export namespace Ray {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = XYGlyph.Props & LineVector & {
+  export type Props = XYGlyph.Props & {
     length: p.DistanceSpec
     angle: p.AngleSpec
-  }
+  } & Mixins
 
-  export type Visuals = XYGlyph.Visuals & {line: Line}
+  export type Mixins = LineVector
+
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
   properties: Ray.Props
-  default_view: Class<RayView>
+  __view_type__: RayView
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)
@@ -87,10 +88,10 @@ export class Ray extends XYGlyph {
   static init_Ray(): void {
     this.prototype.default_view = RayView
 
-    this.mixins(['line'])
-    this.define<Ray.Props>({
+    this.mixins<Ray.Mixins>(LineVector)
+    this.define<Ray.Props>(({}) => ({
       length: [ p.DistanceSpec ],
-      angle:  [ p.AngleSpec    ],
-    })
+      angle:  [ p.AngleSpec ],
+    }))
   }
 }

@@ -16,7 +16,6 @@ export class ContentBox extends ContentLayoutable {
 }
 
 export class VariadicBox extends Layoutable {
-
   constructor(readonly el: HTMLElement) {
     super()
   }
@@ -28,5 +27,29 @@ export class VariadicBox extends Layoutable {
       const {border, padding} = extents(this.el)
       return content.grow_by(border).grow_by(padding).map(Math.ceil)
     })
+  }
+}
+
+export class CachedVariadicBox extends VariadicBox {
+  private readonly _cache: Map<string, SizeHint> = new Map()
+
+  constructor(el: HTMLElement) {
+    super(el)
+  }
+
+  protected _measure(viewport: Size): SizeHint {
+    const {width, height} = viewport
+    const key = `${width},${height}`
+
+    let size_hint = this._cache.get(key)
+    if (size_hint == null) {
+      size_hint = super._measure(viewport)
+      this._cache.set(key, size_hint)
+    }
+    return size_hint
+  }
+
+  invalidate_cache(): void {
+    this._cache.clear()
   }
 }

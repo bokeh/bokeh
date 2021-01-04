@@ -76,8 +76,7 @@ def _make_server_plot(expected, num_objects=0):
 
 
 @pytest.mark.selenium
-class Test_FreehandDrawTool(object):
-
+class Test_FreehandDrawTool:
     def test_selected_by_default(self, single_plot_page) -> None:
         plot = _make_plot()
 
@@ -161,8 +160,8 @@ class Test_FreehandDrawTool(object):
         # ensure clicking adds a point
         page.drag_canvas_at_position(200, 200, 50, 50)
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003') # Backspace
+        time.sleep(0.4)  # hammerJS click timeout
+        page.send_keys("\ue003")  # Backspace
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

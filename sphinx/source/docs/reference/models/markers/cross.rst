@@ -3,6 +3,4 @@
 bokeh.models.markers.Cross
 --------------------------
 
-.. autoclass:: bokeh.models.markers.Cross
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.Cross

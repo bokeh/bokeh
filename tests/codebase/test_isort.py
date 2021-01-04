@@ -17,7 +17,7 @@ import pytest ; pytest
 
 # Standard library imports
 from os import chdir
-from subprocess import PIPE, Popen
+from subprocess import run
 
 # Bokeh imports
 from . import TOP_PATH
@@ -26,15 +26,29 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-def test_isort() -> None:
-    ''' Assures that the Python codebase passes configured Flake8 checks
+def test_isort_bokeh() -> None:
+    isort("bokeh")
 
-    '''
-    chdir(TOP_PATH)
-    proc = Popen(["isort", "-df", "-rc", "-c", "."], stdout=PIPE, stderr=PIPE)
-    out, _ = proc.communicate()
-    assert proc.returncode == 0, "isort issues:\n%s" % out.decode("utf-8")
+def test_isort_examples() -> None:
+    isort("examples")
+
+def test_isort_release() -> None:
+    isort("release")
+
+def test_isort_sphinx() -> None:
+    isort("sphinx")
+
+def test_isort_tests() -> None:
+    isort("tests")
 
 #-----------------------------------------------------------------------------
 # Support
 #-----------------------------------------------------------------------------
+
+def isort(dir: str) -> None:
+    ''' Assures that the Python codebase imports are correctly sorted.
+
+    '''
+    chdir(TOP_PATH)
+    proc = run(["isort", "--diff", "-c", dir], capture_output=True)
+    assert proc.returncode == 0, f"isort issues:\n{proc.stdout.decode('utf-8')}"

@@ -27,7 +27,7 @@ import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
-class MockSessionContext(object):
+class MockSessionContext:
     def __init__(self, doc):
         self._document = doc
         self.status = None
@@ -45,8 +45,8 @@ class MockSessionContext(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test_DocumentLifecycleHandler(object):
 
+class Test_DocumentLifecycleHandler:
     # Public methods ----------------------------------------------------------
 
     def test_document_bad_on_session_destroyed_signature(self) -> None:
@@ -58,7 +58,6 @@ class Test_DocumentLifecycleHandler(object):
         with pytest.raises(ValueError):
             doc.on_session_destroyed(destroy)
 
-    @pytest.mark.asyncio
     async def test_document_on_session_destroyed(self) -> None:
         doc = Document()
         handler = bahd.DocumentLifecycleHandler()
@@ -74,7 +73,6 @@ class Test_DocumentLifecycleHandler(object):
         assert session_context.status == 'Destroyed'
         assert session_context._document.session_destroyed_callbacks == set()
 
-    @pytest.mark.asyncio
     async def test_document_on_session_destroyed_calls_multiple(self) -> None:
         doc = Document()
 
@@ -93,7 +91,6 @@ class Test_DocumentLifecycleHandler(object):
         await handler.on_session_destroyed(session_context)
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
 
-    @pytest.mark.asyncio
     async def test_document_on_session_destroyed_exceptions(self, caplog) -> None:
         doc = Document()
 

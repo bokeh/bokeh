@@ -33,9 +33,9 @@ pytest_plugins = (
 # check that .names is respected
 # check that .renderers is respected
 
-@pytest.mark.selenium
-class Test_TapTool(object):
 
+@pytest.mark.selenium
+class Test_TapTool:
     def test_tap_triggers_no_callback_without_hit(self, single_plot_page) -> None:
         plot = figure(height=800, width=1000, tools='')
         plot.rect(x=[1, 2], y=[1, 1], width=1, height=1)

@@ -49,7 +49,7 @@ __all__ = (
 # immutable object, because we share it among sessions and we
 # don't monitor it for changes. If you make this mutable by adding
 # any kind of setter, you could have to refactor some other code.
-class Theme(object):
+class Theme:
     ''' Provide new default values for Bokeh models.
 
     Bokeh Model properties all have some built-in default value. If a property
@@ -81,8 +81,13 @@ class Theme(object):
         has blocks for Model types to be themed. Each block has keys and
         values that specify the new property defaults for that type.
 
-        Here is an example theme in YAML format that sets various visual
-        properties for all figures, grids, and titles:
+        Take note of the fact that YAML interprets the value `None` as
+        a string, which is not usually what you want. To give `None` as a
+        value in YAML, use `!!null`. To give 'None' as a value in json,
+        use `null`.
+
+       Here is an example theme in YAML format that sets various visual
+       properties for all figures, grids, and titles:
 
         .. code-block:: yaml
 
@@ -91,6 +96,8 @@ class Theme(object):
                     background_fill_color: '#2F2F2F'
                     border_fill_color: '#2F2F2F'
                     outline_line_color: '#444444'
+                Axis:
+                    axis_line_color: !!null
                 Grid:
                     grid_line_dash: [6, 4]
                     grid_line_alpha: .3
@@ -107,6 +114,9 @@ class Theme(object):
                     'background_fill_color': '#2F2F2F',
                     'border_fill_color': '#2F2F2F',
                     'outline_line_color': '#444444',
+                },
+                'Axis': {
+                    'axis_line_color': null,
                 },
                 'Grid': {
                     'grid_line_dash': [6, 4]',

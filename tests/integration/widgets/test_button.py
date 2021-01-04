@@ -15,6 +15,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from flaky import flaky
+
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import ButtonType
@@ -37,9 +40,9 @@ pytest_plugins = (
     "bokeh._testing.plugins.project",
 )
 
-@pytest.mark.selenium
-class Test_Button(object):
 
+@pytest.mark.selenium
+class Test_Button:
     def test_displays_label(self, bokeh_model_page) -> None:
         button = Button(label="label", css_classes=["foo"])
 
@@ -57,6 +60,7 @@ class Test_Button(object):
         button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert typ in button.get_attribute('class')
 
+    @flaky(max_runs=10)
     def test_server_on_click_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
@@ -83,6 +87,7 @@ class Test_Button(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_server_on_event_round_trip(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):

@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import dirname, exists, join
+import json
+from os.path import abspath, basename, dirname, exists, join, normpath
+from typing import Dict, List, NamedTuple, Optional
 from warnings import warn
 
 # Bokeh imports
@@ -47,46 +49,47 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ScriptRef(object):
 
+class ScriptRef:
     def __init__(self, url, type="text/javascript"):
         self.url = url
         self.type = type
 
-class Script(object):
 
+class Script:
     def __init__(self, content, type="text/javascript"):
         self.content = content
         self.type = type
 
-class StyleRef(object):
 
+class StyleRef:
     def __init__(self, url):
         self.url = url
 
-class Style(object):
 
+class Style:
     def __init__(self, content):
         self.content = content
 
-class Bundle(object):
 
+class Bundle:
     @classmethod
-    def of(cls, js_files, js_raw, css_files, css_raw):
-        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw)
+    def of(cls, js_files, js_raw, css_files, css_raw, hashes):
+        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw, hashes=hashes)
 
     def __init__(self, **kwargs):
         self.js_files = kwargs.get("js_files", [])
         self.js_raw = kwargs.get("js_raw", [])
         self.css_files = kwargs.get("css_files", [])
         self.css_raw = kwargs.get("css_raw", [])
+        self.hashes = kwargs.get("hashes", {})
 
     def __iter__(self):
         yield self._render_js()
         yield self._render_css()
 
     def _render_js(self):
-        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw)
+        return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw, hashes=self.hashes)
 
     def _render_css(self):
         return CSS_RESOURCES.render(css_files=self.css_files, css_raw=self.css_raw)
@@ -151,7 +154,6 @@ def bundle_for_objs_and_resources(objs, resources):
     # XXX: force all components on server and in notebook, because we don't know in advance what will be used
     use_widgets = _use_widgets(objs) if objs else True
     use_tables  = _use_tables(objs)  if objs else True
-    use_gl      = _use_gl(objs)      if objs else True
 
     js_files = []
     js_raw = []
@@ -164,8 +166,6 @@ def bundle_for_objs_and_resources(objs, resources):
             js_resources.js_components.remove("bokeh-widgets")
         if not use_tables and "bokeh-tables" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-tables")
-        if not use_gl and "bokeh-gl" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-gl")
 
         js_files.extend(js_resources.js_files)
         js_raw.extend(js_resources.js_raw)
@@ -175,14 +175,28 @@ def bundle_for_objs_and_resources(objs, resources):
         css_files.extend(css_resources.css_files)
         css_raw.extend(css_resources.css_raw)
 
-    js_raw.extend(_bundle_extensions(objs, resources))
+    if js_resources:
+        extensions = _bundle_extensions(objs, js_resources)
+        mode = js_resources.mode if resources is not None else "inline"
+        if mode == "inline":
+            js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
+        elif mode == "server":
+            js_files.extend([ bundle.server_url for bundle in extensions ])
+        elif mode == "cdn":
+            for bundle in extensions:
+                if bundle.cdn_url is not None:
+                    js_files.append(bundle.cdn_url)
+                else:
+                    js_raw.append(Resources._inline(bundle.artifact_path))
+        else:
+            js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
     models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle.of(js_files, js_raw, css_files, css_raw)
+    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -208,9 +222,20 @@ def _query_extensions(objs, query):
 
     return False
 
-def _bundle_extensions(objs, resources):
+_default_cdn_host = "https://unpkg.com"
+
+class ExtensionEmbed(NamedTuple):
+    artifact_path: str
+    server_url: str
+    cdn_url: Optional[str] = None
+
+extension_dirs: Dict[str, str] = {} # name -> path
+
+def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
     names = set()
-    extensions = []
+    bundles = []
+
+    extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
     for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
         if hasattr(obj, "__implementation__"):
@@ -222,13 +247,58 @@ def _bundle_extensions(objs, resources):
             continue
         names.add(name)
         module = __import__(name)
-        ext = ".min.js" if resources is None or resources.minified else ".js"
-        artifact = join(dirname(module.__file__), "dist", name + ext)
-        if exists(artifact):
-            bundle = BaseResources._inline(artifact)
-            extensions.append(bundle)
+        this_file = abspath(module.__file__)
+        base_dir = dirname(this_file)
+        dist_dir = join(base_dir, "dist")
 
-    return extensions
+        ext_path = join(base_dir, "bokeh.ext.json")
+        if not exists(ext_path):
+            continue
+
+        server_prefix = f"{resources.root_url}static/extensions"
+        package_path = join(base_dir, "package.json")
+
+        pkg: Optional[str] = None
+
+        if exists(package_path):
+            with open(package_path) as io:
+                try:
+                    pkg = json.load(io)
+                except json.decoder.JSONDecodeError:
+                    pass
+
+        artifact_path: str
+        server_url: str
+        cdn_url: Optional[str] = None
+
+        if pkg is not None:
+            pkg_name = pkg["name"]
+            pkg_version = pkg.get("version", "latest")
+            pkg_main = pkg.get("module", pkg.get("main", None))
+            if pkg_main is not None:
+                cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
+            else:
+                pkg_main = join(dist_dir, f"{name}.js")
+            artifact_path = join(base_dir, normpath(pkg_main))
+            artifacts_dir = dirname(artifact_path)
+            artifact_name = basename(artifact_path)
+            server_path = f"{name}/{artifact_name}"
+        else:
+            for ext in extensions:
+                artifact_path = join(dist_dir, f"{name}{ext}")
+                artifacts_dir = dist_dir
+                server_path = f"{name}/{name}{ext}"
+                if exists(artifact_path):
+                    break
+            else:
+                raise ValueError(f"can't resolve artifact path for '{name}' extension")
+
+        extension_dirs[name] = artifacts_dir
+        server_url = f"{server_prefix}/{server_path}"
+        embed = ExtensionEmbed(artifact_path, server_url, cdn_url)
+        bundles.append(embed)
+
+    return bundles
 
 def _all_objs(objs):
     all_objs = set()
@@ -262,19 +332,6 @@ def _any(objs, query):
             if any(query(ref) for ref in obj.references()):
                 return True
     return False
-
-def _use_gl(objs):
-    ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
-
-    Args:
-        objs (seq[Model or Document]) :
-
-    Returns:
-        bool
-
-    '''
-    from ..models.plots import Plot
-    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
 def _use_tables(objs):
     ''' Whether a collection of Bokeh objects contains a TableWidget

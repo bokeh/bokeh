@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import typing as tp
 from inspect import isclass
 from json import loads
 from operator import itemgetter
@@ -26,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, Instance, List, String
+from .core.properties import AnyRef, Dict, Instance, List, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -39,6 +40,7 @@ from .util.serialization import make_id
 __all__ = (
     'collect_models',
     'get_class',
+    'DataModel',
     'Model',
 )
 
@@ -73,7 +75,7 @@ def collect_filtered_models(discard, *input_values):
 
     '''
 
-    ids = set([])
+    ids = set()
     collected = []
     queued = []
 
@@ -234,16 +236,16 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
 
     __repr__ = __str__
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
-    name = String(help="""
+    name: str = String(help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -262,7 +264,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags = List(Any, help="""
+    tags: tp.List[tp.Any] = List(AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -364,21 +366,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     # Public methods ----------------------------------------------------------
 
-    def js_on_event(self, event, *callbacks):
-
-        if not isinstance(event, str) and issubclass(event, Event):
+    def js_on_event(self, event: tp.Union[str, tp.Type[Event]], *callbacks) -> None:
+        if isinstance(event, str):
+            pass
+        elif isinstance(event, type) and issubclass(event, Event):
             event = event.event_name
+        else:
+            raise ValueError(f"expected string event name or event class, got {event}")
 
-        if event not in self.js_event_callbacks:
-            self.js_event_callbacks[event] = []
+        all_callbacks = list(self.js_event_callbacks.get(event, []))
 
         for callback in callbacks:
-            if callback in self.js_event_callbacks[event]:
-                continue
-            self.js_event_callbacks[event].append(callback)
+            if callback not in all_callbacks:
+                all_callbacks.append(callback)
 
+        self.js_event_callbacks[event] = all_callbacks
 
-    def js_link(self, attr, other, other_attr):
+    def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.
 
         This is a convenience method that simplifies adding a CustomJS callback
@@ -394,6 +398,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
             other_attr (str) :
                 The property on ``other`` to link together
+
+            attr_selector (Union[int, str]) :
+                The index to link an item in a subscriptable ``attr``
 
         Added in version 1.1
 
@@ -420,6 +427,23 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                     )
                 )
 
+            Additionally, to use attr_selector to attach the left side of a range slider to a plot's x_range:
+
+            .. code :: python
+
+                range_slider.js_link('value', plot.x_range, 'start', attr_selector=0)
+
+            which is equivalent to:
+
+            .. code :: python
+
+                from bokeh.models import CustomJS
+                range_slider.js_on_change('value',
+                    CustomJS(args=dict(other=plot.x_range),
+                             code="other.start = this.value[0]"
+                    )
+                )
+
         '''
         if attr not in self.properties():
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
@@ -431,7 +455,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
-        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
+        cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
 
         self.js_on_change(attr, cb)
 
@@ -656,6 +682,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         Model.model_class_reverse_map = {
             k: v for k, v in Model.model_class_reverse_map.items()
             if getattr(v, "__implementation__", None) is None
+                and getattr(v, "__javascript__", None) is None
+                and getattr(v, "__css__", None) is None
         }
 
     def _detach_document(self):
@@ -751,6 +779,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
+
+@abstract
+class DataModel(Model):
+    __data_model__ = True
 
 #-----------------------------------------------------------------------------
 # Private API

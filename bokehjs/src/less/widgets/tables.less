@@ -24,10 +24,11 @@
     .bk-cell-special-defaults;
   }
 
-  .bk-cell-index {
+  .slick-cell.bk-cell-index {
     .bk-cell-special-defaults;
     text-align: right;
-    color: gray;
+    background: #f0f0f0;
+    color: #909090;
   }
 
   .bk-header-index {
@@ -40,18 +41,36 @@
     background-color: transparent;
   }
 
+  .slick-row.odd {
+    background: #f0f0f0;
+  }
+
   .slick-cell {
     padding-left: 4px;
     padding-right: 4px;
+    border-right-color: transparent;
+    border: 0.25px solid transparent;
+
+    .bk {
+      line-height: inherit;
+    }
 
     &.active {
       border-style: dashed;
+    }
+
+    &.selected {
+      background-color: #F0F8FF;
     }
 
     &.editable {
       padding-left: 0;
       padding-right: 0;
     }
+  }
+
+  .bk-cell-editor {
+    display: contents;
   }
 
   .bk-cell-editor {

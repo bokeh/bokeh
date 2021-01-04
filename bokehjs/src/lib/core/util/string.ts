@@ -60,3 +60,7 @@ export function unescape(s: string): string {
 export function use_strict(code: string): string {
   return `'use strict';\n${code}`
 }
+
+export function to_fixed(val: number, precision?: number): string {
+  return val.toFixed(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+}
