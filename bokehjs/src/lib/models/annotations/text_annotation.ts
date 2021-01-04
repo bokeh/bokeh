@@ -4,7 +4,7 @@ import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
-import {measure_font} from "core/util/text"
+import {font_metrics} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
 
@@ -56,7 +56,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = measure_font(this.visuals.text.font_value())
+    const {height} = font_metrics(this.visuals.text.font_value())
     return [width, height]
   }
 
