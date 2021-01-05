@@ -44,6 +44,7 @@ github
 heatmap
 heatmaps
 HoloViews
+hostname
 http
 https
 initializer
@@ -64,6 +65,7 @@ Miniconda
 myapp
 myplot
 namespace
+nginx
 Nginx
 overplotting
 performant
