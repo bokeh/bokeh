@@ -1,5 +1,9 @@
 import {ByteOrder} from "../types"
 
+export const is_windows = (() => {
+  return navigator.appVersion.includes("Windows")
+})()
+
 export const is_ie = (() => {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : ""
   return ua.indexOf('MSIE') >= 0 || ua.indexOf('Trident') > 0 || ua.indexOf('Edge') > 0
