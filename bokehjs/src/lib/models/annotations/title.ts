@@ -2,6 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Panel} from "core/layout/side_panel"
+import {font_metrics} from "core/util/text"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -92,9 +93,15 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.layer.ctx)
-      const {width, ascent} = this.layer.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + this.model.standoff}
+      const {ctx} = this.layer
+      this.visuals.text.set_value(ctx)
+
+      const {width} = this.layer.ctx.measureText(text)
+      const {height} = font_metrics(ctx.font)
+
+      // XXX: The magic 2px is for backwards compatibility. This will be removed at
+      // some point, but currently there is no point breaking half of visual tests.
+      return {width, height: 2 + height*this.model.text_line_height + this.model.standoff}
     }
   }
 }

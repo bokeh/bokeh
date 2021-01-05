@@ -35,16 +35,13 @@ import {isString} from "../util/types"
 
 const pi2 = Math.PI/2
 const ALPHABETIC = 'alphabetic'
-const TOP = 'top'
-const BOTTOM = 'bottom'
-const MIDDLE = 'middle'
 const HANGING = 'hanging'
+const MIDDLE = 'middle'
 const LEFT = 'left'
 const RIGHT = 'right'
 const CENTER = 'center'
 
 export type Orient = "parallel" | "normal" | "horizontal" | "vertical"
-export type TextOrient = "justified" | Orient
 
 const _angle_lookup: {[key in Side]: {[key in Orient]: number}} = {
   above: {
@@ -73,30 +70,26 @@ const _angle_lookup: {[key in Side]: {[key in Orient]: number}} = {
   },
 }
 
-const _baseline_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextBaseline}} = {
+const _baseline_lookup: {[key in Side]: {[key in Orient]: CanvasTextBaseline}} = {
   above: {
-    justified: TOP,
     parallel: ALPHABETIC,
     normal: MIDDLE,
     horizontal: ALPHABETIC,
     vertical: MIDDLE,
   },
   below: {
-    justified: BOTTOM,
     parallel: HANGING,
     normal: MIDDLE,
     horizontal: HANGING,
     vertical: MIDDLE,
   },
   left: {
-    justified: TOP,
     parallel: ALPHABETIC,
     normal: MIDDLE,
     horizontal: MIDDLE,
     vertical: ALPHABETIC,
   },
   right: {
-    justified: TOP,
     parallel: ALPHABETIC,
     normal: MIDDLE,
     horizontal: MIDDLE,
@@ -104,30 +97,26 @@ const _baseline_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextBaseline
   },
 }
 
-const _align_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextAlign}} = {
+const _align_lookup: {[key in Side]: {[key in Orient]: CanvasTextAlign}} = {
   above: {
-    justified: CENTER,
     parallel: CENTER,
     normal: LEFT,
     horizontal: CENTER,
     vertical: LEFT,
   },
   below: {
-    justified: CENTER,
     parallel: CENTER,
     normal: LEFT,
     horizontal: CENTER,
     vertical: LEFT,
   },
   left: {
-    justified: CENTER,
     parallel: CENTER,
     normal: RIGHT,
     horizontal: RIGHT,
     vertical: CENTER,
   },
   right: {
-    justified: CENTER,
     parallel: CENTER,
     normal: LEFT,
     horizontal: LEFT,
@@ -177,31 +166,27 @@ export class Panel {
     return this.dimension == 1
   }
 
-  apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
+  get_label_text_heuristics(orient: Orient | number): {baseline: CanvasTextBaseline, align: CanvasTextAlign} {
     const {side} = this
 
-    let baseline: CanvasTextBaseline
-    let align: CanvasTextAlign
-
     if (isString(orient)) {
-      baseline = _baseline_lookup[side][orient]
-      align = _align_lookup[side][orient]
+      return {
+        baseline: _baseline_lookup[side][orient],
+        align: _align_lookup[side][orient],
+      }
     } else {
-      if (orient < 0) {
-        baseline = 'middle'
-        align = _align_lookup_negative[side]
-      } else {
-        baseline = 'middle'
-        align = _align_lookup_positive[side]
+      return {
+        baseline: "middle",
+        align: (orient < 0 ? _align_lookup_negative : _align_lookup_positive)[side],
       }
     }
-
-    ctx.textBaseline = baseline
-    ctx.textAlign = align
   }
 
-  get_label_angle_heuristic(orient: Orient): number {
-    return _angle_lookup[this.side][orient]
+  get_label_angle_heuristic(orient: Orient | number): number {
+    if (isString(orient))
+      return _angle_lookup[this.side][orient]
+    else
+      return -orient
   }
 }
 

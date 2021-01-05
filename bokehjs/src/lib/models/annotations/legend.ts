@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
-import {measure_font} from "core/util/text"
+import {font_metrics} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, every} from "core/util/array"
 import {isString, isArray} from "core/util/types"
@@ -52,7 +52,7 @@ export class LegendView extends AnnotationView {
     const {label_height, label_width} = this.model
 
     this.max_label_height = max(
-      [measure_font(this.visuals.label_text.font_value()).height, label_height, glyph_height],
+      [font_metrics(this.visuals.label_text.font_value()).height, label_height, glyph_height],
     )
 
     // this is to measure text properties
@@ -65,7 +65,7 @@ export class LegendView extends AnnotationView {
     }
 
     this.visuals.title_text.set_value(ctx)
-    this.title_height = this.model.title ? measure_font(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
+    this.title_height = this.model.title ? font_metrics(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
     this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
 
     ctx.restore()
