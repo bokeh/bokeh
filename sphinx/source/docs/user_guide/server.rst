@@ -34,9 +34,10 @@ browser would provide further powerful capabilities:
   plots in the browser
 * use periodic, timeout, and asynchronous callbacks to drive streaming updates
 
-**This is where the Bokeh server comes into play. Its primary purpose is to
-synchronize data between the underlying Python environment and the BokehJS
-library running in the browser.**
+This is where the Bokeh server comes into play:
+
+**The primary purpose of the Bokeh server is to synchronize data between the
+underlying Python environment and the BokehJS library running in the browser.**
 
 ----
 
@@ -688,27 +689,19 @@ include any or all of the following conventionally named functions:
 .. code-block:: python
 
     def on_server_loaded(server_context):
-        '''
-        If present, this function executes when the server starts.
-        '''
+        # If present, this function executes when the server starts.
         pass
 
     def on_server_unloaded(server_context):
-        '''
-        If present, this function executes when the server shuts down.
-        '''
+        # If present, this function executes when the server shuts down.
         pass
 
     def on_session_created(session_context):
-        '''
-        If present, this function executes when the server creates a session.
-        '''
+        # If present, this function executes when the server creates a session.
         pass
 
     def on_session_destroyed(session_context):
-        '''
-        If present, this function executes when the server closes a session.
-        '''
+        # If present, this function executes when the server closes a session.
         pass
 
 You can also define ``on_session_destroyed`` lifecycle hooks directly on the
@@ -722,7 +715,7 @@ function and register it with the ``Document.on_session_destroyed`` method:
     doc = Document()
 
     def cleanup_session(session_context):
-        ''' This function executes when the user closes the session. '''
+        # This function executes when the user closes the session.
         pass
 
     doc.on_session_destroyed(cleanup_session)
