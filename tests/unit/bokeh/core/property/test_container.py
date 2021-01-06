@@ -35,6 +35,7 @@ ALL = (
     'Dict',
     'List',
     'RelativeDelta',
+    'RestrictedDict',
     'Seq',
     'Tuple',
 )
@@ -285,6 +286,13 @@ class Test_Tuple:
     def test_str(self) -> None:
         prop = bcpc.Tuple(Int, Int)
         assert str(prop) == "Tuple(Int, Int)"
+
+class Test_RestrictedDict:
+    def test_invalid(self) -> None:
+        prop = bcpc.RestrictedDict(String, bcpc.List(Int), disallow=("disallowed_key_1", "disallowed_key_2"))
+
+        assert not prop.is_valid({"disallowed_key_1": [1,2,3]})
+        assert not prop.is_valid({"disallowed_key_2": [1,2,3]})
 
 #-----------------------------------------------------------------------------
 # Dev API
