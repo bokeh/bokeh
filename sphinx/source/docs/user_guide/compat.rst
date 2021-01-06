@@ -30,7 +30,7 @@ Panel
 
 The `Panel`_ library provides a high-level reactive interface that makes
 it easy to build data-intensive dashboards and web applications on top of
-Bokeh. Panel enabless full interoperability between `Jupyter Notebooks`_
+Bokeh. Panel enables full interoperability between `Jupyter Notebooks`_
 and `Bokeh server`_. This lets you develop or prototype applications in
 a notebook and deploy them on a server. Panel also interfaces with other
 plotting libraries and lets you incorporate multiple data-science
