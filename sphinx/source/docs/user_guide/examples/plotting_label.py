@@ -14,7 +14,7 @@ p.scatter(x='weight', y='height', size=8, source=source)
 p.xaxis[0].axis_label = 'Weight (lbs)'
 p.yaxis[0].axis_label = 'Height (in)'
 
-labels = LabelSet(x='weight', y='height', text='names', level='glyph',
+labels = LabelSet(x='weight', y='height', text='names',
               x_offset=5, y_offset=5, source=source, render_mode='canvas')
 
 citation = Label(x=70, y=70, x_units='screen', y_units='screen',
