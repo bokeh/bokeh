@@ -1,0 +1,20 @@
+extends: existence
+message: "Please use American spelling (instead of '%s')."
+link: 'https://en.wikipedia.org/wiki/American_and_British_English_spelling_differences'
+ignorecase: true
+level: error
+tokens:
+  - 'colour(s|)'
+  - 'programm(e|es)'
+  - '(?:\w+)isatio(n|ns)'
+  - '(?:\w+)(l|n)is(e|ed|ing|es|ation|ations)'
+  - '(?:\w+)ys(e|ed|ing|es)'
+  - '(?:\w+)ogue(s|)'
+  - aluminium
+  - orientated
+  - artefact
+  - 'gramme(s|)'
+  - 'metre(s|)'
+  - 'tonne(s|)'
+  - 'enquir(y|ies)'
+  - 'enquir(e|ed|ing|es)'

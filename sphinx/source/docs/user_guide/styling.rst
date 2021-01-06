@@ -155,7 +155,7 @@ of mappers to encode colors:
 * ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natural
   log scale to map the colors.
 
-These mapper functions return a ``DataSpec`` property.  Pass this property to
+These mapper functions return a ``DataSpec`` property. Pass this property to
 the color attribute of the glyph you want to use it with.
 
 The dataspec that the mapper function returns includes a ``bokeh.transform``.

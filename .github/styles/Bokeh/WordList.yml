@@ -1,0 +1,38 @@
+extends: substitution
+message: "Use '%s' instead of '%s' (if possible)."
+level: error
+ignorecase: false
+action:
+  name: replace
+swap:
+  '(?:API Console|dev|developer) key': API key
+  '(?:e-mail|Email|E-mail)': email
+  '(?:ok|Okay)': OK|okay
+  '(?:WiFi|wifi)': Wi-Fi
+  '3\-D': 3D
+  'file( |-)name': filename
+  'Javascript|Java Script': JavaScript
+  admin: administrator
+  Ajax: AJAX
+  approx\.: approximately
+  autoupdate: automatically update
+  check(-| )box: checkbox
+  data are: data is
+  fewer data: less data
+  HTTPs: HTTPS
+  ingest: import|load
+  Jupyter Notebook: Jupyter notebook
+  open-source: open source
+  Pandas: pandas (lowercase)
+  python: Python
+  regex: regular expression
+  repo: repository
+  repos: repositories
+  sign into: sign in to
+  stylesheet: style sheet
+  synch: sync
+  tablename: table name
+  url:  URL
+  vs\.: versus
+  websocket: WebSocket
+  World Wide Web: web
