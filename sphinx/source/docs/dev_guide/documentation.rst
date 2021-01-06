@@ -21,11 +21,11 @@ appreciated!* In addition to quick fixes, check the list of `Open Docs
 Issues`_ on GitHub. This list contains several projects as a starting
 point.
 
-This section describes Bokeh's documentation style guidelines for contributing
-to the documentation. This section also includes details on how to `build`_ and
+This section describes Bokeh's `style guidelines`_ for contributing to the
+documentation. This section also includes details on how to `build`_ and
 `edit`_ the documentation in your local development environment.
 
-.. _documentation_style_guidelines:
+.. _`style guidelines`:
 
 Documentation style guidelines
 ------------------------------
@@ -88,48 +88,6 @@ throughout the narrative documentation:
 
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
-
-.. _`documentation_vale_linting`:
-
-Text linting in Bokeh's CI
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To maintain consistency throughout the documentation, Bokeh's CI uses `Vale`_.
-Vale is a system that automatically checks documentation files. These checks are
-based on Bokeh's :ref:`documentation_style_guidelines`.
-
-Vale provides three levels of feedback:
-
-* ``error``: Issues that you need to resolve before a pull request can be
-  merged.
-* ``warning``: Issues that you should pay close attention to and fix if in any
-  way possible.
-* ``suggestion``: Those are general suggestions that you should keep in mind.
-    For example, Vale reminds you to generally use active voice instead of
-    active voice. However, this suggestion should not stop you from using
-    passive voice whenever appropriate or required.
-
-To exclude a paragraph of your text from being checked by Vale, enclose the
-paragraph in the comments ``.. vale off`` and ``.. vale on``. For example:
-
-.. code-block:: ReST
-
-  .. vale off
-
-    Some text that Bokeh's CI will not check.
-
-  .. vale on
-
-For information on how to edit and customize the rules, see the `documentation
-for Vale`_.
-
-Bokeh's CI uses several custom rules for Vale. In case you need to edit a rule
-or add exceptions, find the rules in :bokeh-tree:`.github/styles/Bokeh` and
-include these changes in your pull request.
-
-Vale also uses a very basic spell checker. If you feel like Vale incorrectly
-flags a word you are using, add it to the file ``vocab.txt`` in
-:bokeh-tree:`.github/styles` and include these updates in your pull request.
 
 .. _`build`:
 
@@ -344,15 +302,14 @@ For information on how to format text using reStructuredText, see the
 `reStructuredText primer on the Sphinx website`_ or the `official
 reStructuredText website`_.
 
-For information on writing style, see Bokeh's
-:ref:`documentation_style_guidelines` and the
+For information on writing style, see Bokeh's `style guidelines`_ and the
 `Google developer documentation style guide`_.
 
 `Release Notes`_ are generally handled by the Bokeh core team as part of
 Bokeh's `release management`_. Each release should add a new file under
 ``sphinx/source/docs/releases`` that briefly describes the changes in the
 release, including any migration notes. The filename should be
-``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``. The
+``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
 Sphinx build will automatically add this content to the list of all releases.
 
 
@@ -364,8 +321,6 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _inclusive: https://developers.google.com/style/inclusive-documentation
 .. _accessible: https://developers.google.com/style/accessibility
 .. _`word list of the Google developer documentation style guide`: https://developers.google.com/style/word-list
-.. _Vale: https://github.com/errata-ai/vale-action/
-.. _`documentation for Vale`: https://docs.errata.ai/vale/about
 .. _Sphinx: http://sphinx-doc.org
 .. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 .. _docs.bokeh.org: https://docs.bokeh.org/en/latest/

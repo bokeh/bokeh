@@ -1,7 +1,0 @@
-extends: occurrence
-message: "This sentence has more than 4 commas. Consider splitting the sentence or using a list."
-level: suggestion
-scope: sentence
-ignorecase: false
-max: 4
-token: '(\b.+?\b)(?:,)'
