@@ -35,7 +35,6 @@ ALL = (
     'Dict',
     'List',
     'RelativeDelta',
-    'RestrictedDict',
     'Seq',
     'Tuple',
 )
