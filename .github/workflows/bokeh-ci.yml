@@ -93,29 +93,6 @@ jobs:
           mypy bokeh
           mypy release
 
-      - name: Get Changed Files
-        id: get_changed_files
-        # include this action to filter for changed files only
-        # (instead of checking entire docs every time)
-        uses: lots0logs/gh-action-get-changed-files@2.1.4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Vale
-        uses: errata-ai/vale-action@v1.3.0
-        with:
-          # include remotely maintained "Google" style
-          styles: |
-            https://github.com/errata-ai/Google/releases/latest/download/Google.zip
-
-          # only check modified lines, instead of all docs every time (feature currently broken)
-          # onlyAnnotateModifiedLines: true
-          # path to run Vale on
-          files: '${{ steps.get_changed_files.outputs.all }}'
-        env:
-          # required
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   examples:
     needs: build
     runs-on: ubuntu-latest
