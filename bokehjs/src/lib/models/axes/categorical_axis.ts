@@ -8,7 +8,9 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {TickLabelOrientation} from "core/enums"
+import {GraphicsBox, TextBox} from "core/graphics"
 import {Context2d} from "core/util/canvas"
+import {isString} from "core/util/types"
 import {Orient} from "core/layout/side_panel"
 
 export type CategoricalTickCoords = TickCoords & {
@@ -75,14 +77,14 @@ export class CategoricalAxisView extends AxisView {
 
     const extents = []
     for (const [labels,, orient, visuals] of info) {
-      const extent = this._oriented_labels_extent(labels, orient, this.panel.side, this.model.major_label_standoff, visuals)
+      const extent = this._oriented_labels_extent(labels, orient, this.model.major_label_standoff, visuals)
       extents.push(extent)
     }
 
     return extents
   }
 
-  protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
+  protected _get_factor_info(): [GraphicsBox[], Coords, Orient | number, visuals.Text][] {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
@@ -90,24 +92,32 @@ export class CategoricalAxisView extends AxisView {
     const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
-    const info: [string[], Coords, Orient | number, visuals.Text][] = []
+    const info: [GraphicsBox[], Coords, Orient | number, visuals.Text][] = []
+
+    const map = (labels: (string | GraphicsBox)[]) => {
+      return labels.map((label) => isString(label) ? new TextBox({text: label}) : label)
+    }
+
+    const format = (ticks: L1Factor[]) => {
+      return map(this.model.formatter.doFormat(ticks, this))
+    }
 
     if (range.levels == 1) {
       const major = ticks.major as L1Factor[]
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
     } else if (range.levels == 2) {
       const major = (ticks.major as L2Factor[]).map((x) => x[1])
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     } else if (range.levels == 3) {
       const major = (ticks.major as L3Factor[]).map((x) => x[2])
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([mid_labels as string[], coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
-      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+      info.push([map(mid_labels as string[]), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
+      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     }
 
     return info

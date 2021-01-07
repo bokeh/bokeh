@@ -6,18 +6,17 @@ import {Range} from "../ranges/range"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
-import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
+import {Side, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
-import {font_metrics} from "core/util/text"
-import {sum} from "core/util/array"
-import {isNumber} from "core/util/types"
+import {sum, max} from "core/util/array"
+import {isNumber, isString} from "core/util/types"
+import {GraphicsBox, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
-const {abs, min, max} = Math
+const {abs} = Math
 
 export type Extents = {
   tick: number
@@ -136,40 +135,60 @@ export class AxisView extends GuideRendererView {
     this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
   }
 
+  protected _axis_label_extent(): number {
+    const text = this.model.axis_label
+    if (!text)
+      return 0
+
+    const axis_label = new TextBox({text})
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.visuals = this.visuals.axis_label_text
+
+    const size = axis_label.size()
+    const extent = this.dimension == 0 ? size.height : size.width
+
+    const standoff = this.model.axis_label_standoff
+    return extent > 0 ? extent + standoff : extent
+  }
+
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    if (this.model.axis_label == null || this.model.axis_label.length == 0 || this.model.fixed_location != null)
+    const text = this.model.axis_label
+    if (!text || this.model.fixed_location != null)
       return
 
-    let sx: number
-    let sy: number
+    const axis_label = new TextBox({text})
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.visuals = this.visuals.axis_label_text
 
-    const {bbox} = this.layout
-    switch (this.panel.side) {
-      case "above":
-        sx = bbox.hcenter
-        sy = bbox.bottom
-        break
-      case "below":
-        sx = bbox.hcenter
-        sy = bbox.top
-        break
-      case "left":
-        sx = bbox.right
-        sy = bbox.vcenter
-        break
-      case "right":
-        sx = bbox.left
-        sy = bbox.vcenter
-        break
-      default:
-        throw new Error(`unknown side: ${this.panel.side}`)
-    }
+    const [sx, sy] = (() => {
+      const {bbox} = this.layout
+      switch (this.panel.side) {
+        case "above":
+          return [bbox.hcenter, bbox.bottom]
+        case "below":
+          return [bbox.hcenter, bbox.top]
+        case "left":
+          return [bbox.right, bbox.vcenter]
+        case "right":
+          return [bbox.left, bbox.vcenter]
+      }
+    })()
 
-    const coords: Coords = [[sx], [sy]]
+    const [nx, ny] = this.normals
     const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
-    const visuals  = this.visuals.axis_label_text
 
-    this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
+    const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
+    axis_label.position.sx = Math.round(sx + nx*standoff)
+    axis_label.position.sy = Math.round(sy + ny*standoff)
+    axis_label.position.x_anchor = align
+    axis_label.position.y_anchor = vertical_align
+    axis_label.align = align
+
+    axis_label.paint(ctx)
+    ///
+    //axis_label.paint_rect(ctx)
+    //axis_label.paint_bbox(ctx)
+    ///
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
@@ -198,57 +217,48 @@ export class AxisView extends GuideRendererView {
     ctx.stroke()
   }
 
-  protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
+  protected _draw_oriented_labels(ctx: Context2d, labels: GraphicsBox[], coords: Coords,
                                   orient: Orient | number, _side: Side, standoff: number,
-                                  visuals: visuals.Text, units: SpatialUnits = "data"): void {
+                                  visuals: visuals.Text): void {
     if (!visuals.doit || labels.length == 0)
       return
 
-    let sxs, sys: Arrayable<number>
-    let xoff, yoff: number
-
-    if (units == "screen") {
-      [sxs, sys] = coords
-      ;[xoff, yoff] = [0, 0]
-    } else {
-      const [dxs, dys] = coords
-      ;[sxs, sys] = this.coordinates.map_to_screen(dxs, dys)
-      ;[xoff, yoff] = this.offsets
-    }
+    const [dxs, dys] = coords
+    const [sxs, sys] = this.coordinates.map_to_screen(dxs, dys)
+    const [xoff, yoff] = this.offsets
 
     const [nx, ny] = this.normals
 
-    const nxd = nx * (xoff + standoff)
-    const nyd = ny * (yoff + standoff)
+    const nxd = nx*(xoff + standoff)
+    const nyd = ny*(yoff + standoff)
 
-    const {baseline, align} = this.panel.get_label_text_heuristics(orient)
-    const angle = this.panel.get_label_angle_heuristic(orient)
+    for (let i = 0; i < labels.length; i++) {
+      const label = labels[i]
+      const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
+      const angle = this.panel.get_label_angle_heuristic(orient)
+      label.visuals = visuals
+      label.angle = angle
+      label.width = {value: 1.1, unit: "%"}
+      label.position.sx = Math.round(sxs[i] + nxd)
+      label.position.sy = Math.round(sys[i] + nyd)
+      label.position.x_anchor = align
+      label.position.y_anchor = vertical_align
+      ;(label as any).align = align
+    }
 
-    visuals.set_value(ctx)
-    ctx.textBaseline = baseline
-    ctx.textAlign = align
+    // TODO: compute indices
 
-    for (let i = 0; i < sxs.length; i++) {
-      const sx = Math.round(sxs[i] + nxd)
-      const sy = Math.round(sys[i] + nyd)
+    for (const label of labels) {
+      label.paint(ctx)
 
-      ctx.translate(sx, sy)
-      ctx.rotate(angle)
-      ctx.fillText(labels[i], 0, 0)
-      ctx.rotate(-angle)
-      ctx.translate(-sx, -sy)
+      ///
+      //label.paint_rect(ctx)
+      //label.paint_bbox(ctx)
+      ///
     }
   }
 
   // extents sub functions -----------------------------------------------------
-
-  /*protected*/ _axis_label_extent(): number {
-    if (this.model.axis_label == null || this.model.axis_label == "")
-      return 0
-    const standoff = this.model.axis_label_standoff
-    const visuals = this.visuals.axis_label_text
-    return this._oriented_labels_extent([this.model.axis_label], "parallel", this.panel.side, standoff, visuals)
-  }
 
   /*protected*/ _tick_extent(): number {
     return this.model.major_tick_out
@@ -262,7 +272,7 @@ export class AxisView extends GuideRendererView {
     const standoff = this.model.major_label_standoff
     const visuals = this.visuals.major_label_text
 
-    return [this._oriented_labels_extent(labels, orient, this.panel.side, standoff, visuals)]
+    return [this._oriented_labels_extent(labels, orient, standoff, visuals)]
   }
 
   get extents(): Extents {
@@ -275,43 +285,20 @@ export class AxisView extends GuideRendererView {
     }
   }
 
-  protected _oriented_labels_extent(labels: string[], orient: Orient | number,
-                                    side: Side, standoff: number, visuals: visuals.Text): number {
+  protected _oriented_labels_extent(labels: GraphicsBox[], orient: Orient | number, standoff: number, visuals: visuals.Text): number {
     if (labels.length == 0)
       return 0
 
-    const {ctx} = this.layer
-    visuals.set_value(ctx)
-    const metrics = font_metrics(ctx.font)
-
-    const angle = Math.abs(this.panel.get_label_angle_heuristic(orient))
-
-    const c = Math.cos(angle)
-    const s = Math.sin(angle)
-
-    let extent = 0
-
-    for (let i = 0; i < labels.length; i++) {
-      const w = ctx.measureText(labels[i]).width * 1.1
-      const h = metrics.height
-
-      let val: number
-
-      if (side == "above" || side == "below")
-        val = w*s + h*c
-      else
-        val = w*c + h*s
-
-      // update extent if current value is larger
-      if (val > extent)
-        extent = val
+    const angle = this.panel.get_label_angle_heuristic(orient)
+    for (const label of labels) {
+      label.visuals = visuals
+      label.angle = angle
+      label.width = {value: 1.1, unit: "%"}
     }
 
-    // only apply the standoff if we already have non-zero extent
-    if (extent > 0)
-      extent += standoff
-
-    return extent
+    const sizes = labels.map((label) => label.size())
+    const extent = max(this.dimension == 0 ? sizes.map(({height}) => height) : sizes.map(({width}) => width))
+    return extent > 0 ? extent + standoff : extent
   }
 
   // {{{ TODO: state
@@ -323,13 +310,14 @@ export class AxisView extends GuideRendererView {
     return this.panel.dimension
   }
 
-  compute_labels(ticks: number[]): string[] {
+  compute_labels(ticks: number[]): TextBox[] {
     const labels = this.model.formatter.doFormat(ticks, this)
     for (let i = 0; i < ticks.length; i++) {
       if (ticks[i] in this.model.major_label_overrides)
         labels[i] = this.model.major_label_overrides[ticks[i]]
     }
-    return labels
+
+    return labels.map((label) => isString(label) ? new TextBox({text: label}) : label)
   }
 
   get offsets(): [number, number] {
@@ -381,6 +369,7 @@ export class AxisView extends GuideRendererView {
       const [user_start, user_end] = user_bounds
       const [range_start, range_end] = range_bounds
 
+      const {min, max} = Math
       if (abs(user_start - user_end) > abs(range_start - range_end)) {
         start = max(min(user_start, user_end), range_start)
         end = min(max(user_start, user_end), range_end)
@@ -567,8 +556,8 @@ export class Axis extends GuideRenderer {
       minor_tick_line_color: 'black',
 
       major_label_text_font_size: "11px",
-      major_label_text_align: "center",
-      major_label_text_baseline: "alphabetic",
+      major_label_text_align: "center",        // XXX: remove
+      major_label_text_baseline: "alphabetic", // XXX: remove
 
       axis_label_text_font_size: "13px",
       axis_label_text_font_style: "italic",

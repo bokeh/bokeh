@@ -175,6 +175,8 @@ export class BBox implements Rect, Equatable {
   get hcenter(): number { return (this.left + this.right)/2 }
   get vcenter(): number { return (this.top + this.bottom)/2 }
 
+  get area(): number { return this.width*this.height }
+
   relative(): BBox {
     const {width, height} = this
     return new BBox({x: 0, y: 0, width, height})
@@ -227,6 +229,24 @@ export class BBox implements Rect, Equatable {
       x1: max(this.x1, that.x1),
       y1: max(this.y1, that.y1),
     })
+  }
+
+  intersection(that: Rect): BBox | null {
+    if (!this.intersects(that))
+      return null
+    else {
+      return new BBox({
+        x0: max(this.x0, that.x0),
+        y0: max(this.y0, that.y0),
+        x1: min(this.x1, that.x1),
+        y1: min(this.y1, that.y1),
+      })
+    }
+  }
+
+  intersects(that: Rect): boolean {
+    return !(that.x1 < this.x0 || that.x0 > this.x1 ||
+             that.y1 < this.y0 || that.y0 > this.y1)
   }
 
   get xview(): CoordinateMapper {
