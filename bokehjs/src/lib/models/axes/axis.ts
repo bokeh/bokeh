@@ -1,6 +1,7 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
+import {LabelingPolicy, AllLabels, DistanceMeasure} from "../policies/labeling"
 import {Range} from "../ranges/range"
 
 import * as visuals from "core/visuals"
@@ -9,6 +10,7 @@ import * as p from "core/properties"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation} from "core/enums"
 import {Size, Layoutable} from "core/layout"
+import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum, max} from "core/util/array"
@@ -246,11 +248,20 @@ export class AxisView extends GuideRendererView {
       ;(label as any).align = align
     }
 
-    // TODO: compute indices
+    const n = labels.length
+    const indices = Indices.all_set(n)
 
-    for (const label of labels) {
+    const bboxes = labels.map((l) => l.bbox())
+    const dist: DistanceMeasure =
+      this.dimension == 0 ? (i, j) => bboxes[j].left - bboxes[i].right
+                          : (i, j) => bboxes[i].top - bboxes[j].bottom
+
+    const {major_label_policy} = this.model
+    const selected = major_label_policy.filter(indices, bboxes, dist)
+
+    for (const i of selected) {
+      const label = labels[i]
       label.paint(ctx)
-
       ///
       //label.paint_rect(ctx)
       //label.paint_bbox(ctx)
@@ -489,6 +500,7 @@ export namespace Axis {
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
     major_label_overrides: p.Property<{[key: string]: string}>
+    major_label_policy: p.Property<LabelingPolicy>
     major_tick_in: p.Property<number>
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
@@ -542,6 +554,7 @@ export class Axis extends GuideRenderer {
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
       major_label_overrides:   [ Dict(String), {} ],
+      major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],
       minor_tick_in:           [ Number, 0 ],

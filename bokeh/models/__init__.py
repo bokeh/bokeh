@@ -40,6 +40,7 @@ from .formatters import *
 from .glyphs import *
 from .graphs import *
 from .grids import *
+from .labeling import *
 from .layouts import *
 from .map_plots import *
 from .mappers import *

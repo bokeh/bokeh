@@ -6,6 +6,7 @@ import {Ticker} from "../tickers/ticker"
 import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import {LabelingPolicy, NoOverlap} from "../policies/labeling"
 import {ColorMapper} from "../mappers/color_mapper"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
@@ -143,6 +144,7 @@ export class ColorBarView extends AnnotationView {
       minor_tick_out: this.model.minor_tick_out,
       major_label_standoff: this.model.label_standoff,
       major_label_overrides: this.model.major_label_overrides,
+      major_label_policy: this.model.major_label_policy,
       axis_line_color: null,
       ...major_label_text,
       ...major_tick_line,
@@ -532,6 +534,7 @@ export namespace ColorBar {
     ticker: p.Property<Ticker | "auto">
     formatter: p.Property<TickFormatter | "auto">
     major_label_overrides: p.Property<{[key: string]: string}>
+    major_label_policy: p.Property<LabelingPolicy>
     color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
     margin: p.Property<number>
@@ -596,6 +599,7 @@ export class ColorBar extends Annotation {
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
       major_label_overrides: [ Dict(String), {} ],
+      major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       color_mapper:          [ Ref(ColorMapper) ],
       label_standoff:        [ Number, 5 ],
       margin:                [ Number, 30 ],
