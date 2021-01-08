@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Rect, NumberArray} from "core/types"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -49,9 +49,7 @@ export class AnnulusView extends XYGlyphView {
       // it is unambiguous what part should be filled. The line is
       // better drawn in one go though, otherwise the part where the pieces
       // meet will not be fully closed due to aa.
-
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
+      function fill_path() {
         ctx.beginPath()
         if (is_ie) {
           // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
@@ -64,8 +62,19 @@ export class AnnulusView extends XYGlyphView {
           ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true)
           ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
         }
+      }
+
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i)
+        fill_path()
         ctx.fill()
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        fill_path()
+        ctx.fill()
+      }, () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -142,9 +151,9 @@ export namespace Annulus {
     outer_radius: p.DistanceSpec
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Annulus extends Annulus.Attrs {}
@@ -160,7 +169,7 @@ export class Annulus extends XYGlyph {
   static init_Annulus(): void {
     this.prototype.default_view = AnnulusView
 
-    this.mixins<Annulus.Mixins>([LineVector, FillVector])
+    this.mixins<Annulus.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<Annulus.Props>(({}) => ({
       inner_radius: [ p.DistanceSpec ],

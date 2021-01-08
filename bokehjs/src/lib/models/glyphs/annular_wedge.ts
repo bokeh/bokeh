@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Direction} from "core/enums"
@@ -74,6 +74,11 @@ export class AnnularWedgeView extends XYGlyphView {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -155,9 +160,9 @@ export namespace AnnularWedge {
     end_angle: p.AngleSpec
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}
@@ -173,7 +178,7 @@ export class AnnularWedge extends XYGlyph {
   static init_AnnularWedge(): void {
     this.prototype.default_view = AnnularWedgeView
 
-    this.mixins<AnnularWedge.Mixins>([LineVector, FillVector])
+    this.mixins<AnnularWedge.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<AnnularWedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],

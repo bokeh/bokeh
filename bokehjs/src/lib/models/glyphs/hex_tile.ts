@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Rect, NumberArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -151,6 +151,11 @@ export class HexTileView extends GlyphView {
         ctx.fill()
       }
 
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
+
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -219,9 +224,9 @@ export namespace HexTile {
     orientation: p.Property<HexTileOrientation>
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface HexTile extends HexTile.Attrs { }
@@ -237,7 +242,7 @@ export class HexTile extends Glyph {
   static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
-    this.mixins<HexTile.Mixins>([LineVector, FillVector])
+    this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])
     this.define<HexTile.Props>(({Number}) => ({
       r:            [ p.NumberSpec ],
       q:            [ p.NumberSpec ],
