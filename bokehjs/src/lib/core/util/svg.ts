@@ -266,7 +266,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
-  __currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
+  //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
   __fontUnderline?: string
   __fontHref?: string
 
@@ -402,7 +402,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
    * Apples the current styles to the current SVG element. On "ctx.fill" or "ctx.stroke"
    */
   __applyStyleToCurrentElement(type: string): void {
-    let currentElement = this.__currentElement
+    const currentElement = this.__currentElement
+    /*
     const currentStyleGroup = this.__currentElementsToStyle
     if (currentStyleGroup != null) {
       currentElement.setAttribute(type, "")
@@ -411,6 +412,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         node.setAttribute(type, "")
       }
     }
+    */
 
     const keys = Object.keys(STYLES) as StyleAttr[]
     for (let i = 0; i < keys.length; i++) {
@@ -782,6 +784,12 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   fill(): void {
     if (this.__currentElement.nodeName === "path") {
       this.__currentElement.setAttribute("paint-order", "stroke")
+    }
+    // XXX: hack (?) to allow fill and hatch visuals on same canvas path
+    if (this.__currentElement.getAttribute("fill") != "none") {
+      const path = this.__currentElement.cloneNode(true) as SVGElement
+      this.__root.appendChild(path)
+      this.__currentElement = path
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
