@@ -781,7 +781,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(): void {
+  fill(fill_rule?: CanvasFillRule): void {
     if (this.__currentElement.nodeName === "path") {
       this.__currentElement.setAttribute("paint-order", "stroke")
     }
@@ -793,6 +793,9 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
+    if (fill_rule != null) {
+      this.__currentElement.setAttribute("fill-rule", fill_rule)
+    }
     if (this._clip_path != null) {
       this.__currentElement.setAttribute("clip-path", this._clip_path)
     }
