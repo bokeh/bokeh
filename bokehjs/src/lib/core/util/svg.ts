@@ -418,7 +418,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply) {
+      if (style.apply?.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -432,7 +432,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         } else if (value instanceof CanvasGradient) {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
-        } else if (style.apply.indexOf(type) !== -1 && style.svg !== value) {
+        } else if (style.svg !== value) {
           if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
             // separate alpha value, since illustrator can't handle it
             const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
