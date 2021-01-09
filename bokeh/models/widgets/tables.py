@@ -636,7 +636,7 @@ class TableWidget(Widget):
             self.view = CDSView(source=self.source)
 
 class DataTable(TableWidget):
-    ''' Two dimensional grid for visualisation and editing large amounts
+    ''' Two-dimensional grid for visualization and editing large amounts
     of data.
 
     '''
@@ -645,7 +645,7 @@ class DataTable(TableWidget):
     Describes the column autosizing mode with one of the following options:
 
     ``"fit_columns"``
-        Compute columns widths based on cell contents but ensure the
+        Compute column widths based on cell contents but ensure the
         table fits into the available viewport. This results in no
         horizontal scrollbar showing up, but data can get unreadable
         if there is not enough space available.
@@ -674,9 +674,12 @@ class DataTable(TableWidget):
     """)
 
     fit_columns = Bool(help="""
-    Whether columns should be fit to the available width. This results in no
-    horizontal scrollbar showing up, but data can get unreadable if there is
-    not enough space available. If set to ``True``, columns' width is
+    **This is a legacy parameter.** For new development, use the
+    ``autosize_mode`` parameter.
+
+    Whether columns should be fit to the available width. This results in
+    no horizontal scrollbar showing up, but data can get unreadable if there
+    is not enough space available. If set to ``True``, each column's width is
     understood as maximum width.
     """)
 
