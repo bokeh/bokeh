@@ -674,11 +674,11 @@ class DataTable(TableWidget):
     """)
 
     fit_columns = Bool(help="""
-    **This is a legacy parameter.** For new development, use the 
-    ``autosize_mode`` parameter. 
-    
-    Whether columns should be fit to the available width. This results in 
-    no horizontal scrollbar showing up, but data can get unreadable if there 
+    **This is a legacy parameter.** For new development, use the
+    ``autosize_mode`` parameter.
+
+    Whether columns should be fit to the available width. This results in
+    no horizontal scrollbar showing up, but data can get unreadable if there
     is not enough space available. If set to ``True``, each column's width is
     understood as maximum width.
     """)
