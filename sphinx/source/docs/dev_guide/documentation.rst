@@ -86,6 +86,9 @@ throughout the narrative documentation:
    "pandas", "Don't capitalize `pandas`_"
    "Python", "Always capitalize Python (the language)"
 
+For definitions and concepts used throughout Bokeh's documentation, see the
+:ref:`userguide_glossary` in :ref:`userguide_concepts`.
+
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
 
