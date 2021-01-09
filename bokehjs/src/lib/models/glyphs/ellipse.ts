@@ -1,5 +1,4 @@
 import {EllipseOval, EllipseOvalView, EllipseOvalData} from "./ellipse_oval"
-import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
 
 export interface EllipseData extends EllipseOvalData {}
@@ -14,7 +13,7 @@ export class EllipseView extends EllipseOvalView {
 export namespace Ellipse {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = EllipseOval.Props & LineVector & FillVector
+  export type Props = EllipseOval.Props
 
   export type Visuals = EllipseOval.Visuals
 }

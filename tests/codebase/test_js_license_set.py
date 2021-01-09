@@ -43,7 +43,7 @@ def test_js_license_set() -> None:
     '''
     os.chdir('bokehjs')
     proc = Popen([
-        "npx", "license-checker", "--production", "--summary", "--onlyAllow", "'%s'" % ";".join(LICENSES)
+        "npx", "license-checker", "--production", "--summary", "--onlyAllow", "%s" % ";".join(LICENSES)
     ],stdout=PIPE)
     proc.communicate()
     proc.wait()

@@ -1,7 +1,7 @@
 import {RenderOne} from "./defs"
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {Arrayable, Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
@@ -38,7 +38,7 @@ export abstract class MarkerView extends XYGlyphView {
       if (_angle[i])
         ctx.rotate(_angle[i])
 
-      this._render_one(ctx, i, r, this.visuals.line, this.visuals.fill)
+      this._render_one(ctx, i, r, this.visuals)
 
       if (_angle[i])
         ctx.rotate(-_angle[i])
@@ -164,9 +164,9 @@ export namespace Marker {
     angle: p.AngleSpec
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Marker extends Marker.Attrs {}
@@ -180,7 +180,7 @@ export abstract class Marker extends XYGlyph {
   }
 
   static init_Marker(): void {
-    this.mixins<Marker.Mixins>([LineVector, FillVector])
+    this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Marker.Props>(({}) => ({
       size:  [ p.ScreenDistanceSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
