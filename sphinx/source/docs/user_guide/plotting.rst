@@ -268,7 +268,7 @@ Missing points
 ''''''''''''''
 
 Just as with the |line| and |multi_line| methods, you can pass ``NaN`` values
-to |patch| and |patches| glyphs.  This produces disjointed patches with gaps
+to |patch| and |patches| glyphs. This produces disjointed patches with gaps
 for ``NaN`` values.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_patch_missing_points.py

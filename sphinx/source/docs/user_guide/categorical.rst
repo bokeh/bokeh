@@ -5,8 +5,8 @@ Handling categorical data
 
 .. note::
     To help with presentation, several examples in this chapter
-    use `Pandas`_, a common tool for data manipulation. However,
-    you don't need ``Pandas`` to create anything shown here.
+    use `pandas`_, a common tool for data manipulation. However,
+    you don't need ``pandas`` to create anything shown here.
 
 .. _userguide_categorical_bars:
 
@@ -254,19 +254,19 @@ to ``Q4``.
 
 .. _userguide_categorical_bars_pandas:
 
-Pandas
-~~~~~~
+Using pandas
+~~~~~~~~~~~~
 
-`Pandas`_ is a powerful and popular tool for analyzing tabular and time
+`pandas`_ is a powerful and popular tool for analyzing tabular and time
 series data in Python. While you don't have to use it, it makes working
 with Bokeh easier.
 
-For example, you can use the ``GroupBy`` objects offered by Pandas to
+For example, you can use the ``GroupBy`` objects offered by pandas to
 initialize a ``ColumnDataSource`` and automatically create columns for
 many statistical parameters, such as group mean and count. You can also
 pass these ``GroupBy`` objects as a ``range`` argument to ``figure``.
 
-Here's how you can leverage `Pandas`_ to your advantage:
+Here's how you can leverage `pandas`_ to your advantage:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_pandas_groupby_colormapped.py
     :source-position: above
@@ -392,10 +392,10 @@ in this chapter:
 
 * Color mappers
 * Visual offsets
-* Pandas DataFrames
+* pandas DataFrames
 * Tooltips
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py
     :source-position: below
 
-.. _Pandas: http://pandas.pydata.org
+.. _pandas: http://pandas.pydata.org

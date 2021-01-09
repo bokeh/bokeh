@@ -1,6 +1,6 @@
 .. _userguide_extensions_examples_widget:
 
-Adding A Custom Widget
+Adding a custom widget
 ----------------------
 
 This example shows how to add a double-ended slider widget to the plot.
