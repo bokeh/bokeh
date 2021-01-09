@@ -265,7 +265,7 @@ You can find many more examples of notebook use in the `bokeh-notebook`_ reposit
 
 Alternatively, `Binder`_ hosts live notebooks that you can run online.
 
-The main `Bokeh`_ repo also includes some notebooks under `examples`_:
+The main `Bokeh`_ repository also includes some notebooks under `examples`_:
 
 - `categorical data`_
 - `hover callback`_
