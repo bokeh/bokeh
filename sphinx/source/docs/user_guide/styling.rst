@@ -155,7 +155,7 @@ of mappers to encode colors:
 * ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natural
   log scale to map the colors.
 
-These mapper functions return a ``DataSpec`` property.  Pass this property to
+These mapper functions return a ``DataSpec`` property. Pass this property to
 the color attribute of the glyph you want to use it with.
 
 The dataspec that the mapper function returns includes a ``bokeh.transform``.
@@ -239,12 +239,15 @@ Use one of these three options to define colors in Bokeh:
 .. warning::
     Supplying lists of RGB or RGBA color tuples as color arguments (either
     directly or as a DataSource column reference) doesn't work. See the
-    `discussion on Bokeh's GitHub repository <https://github.com/bokeh/bokeh/issues/2622>`_
+    `discussion on Bokeh's GitHub repository
+    <https://github.com/bokeh/bokeh/issues/2622>`_
     for more information. Suggested workarounds include using lists of:
 
     * RGB hexadecimal values
-    * ``bokeh.colors.RGB`` objects (i.e. ``[RGB(255, 0, 0), RGB(0, 255, 0)"]``)
-    * CSS-format RGB/RGBA strings (i.e. ``["rgb(255, 0, 0)", "rgb(0, 255, 0)"]``)
+    * ``bokeh.colors.RGB`` objects (for example:
+      ``[RGB(255, 0, 0), RGB(0, 255, 0)"]``)
+    * CSS-format RGB/RGBA strings (for example:
+      ``["rgb(255, 0, 0)", "rgb(0, 255, 0)"]``)
 
 To specify the alpha value of a color, you have two options:
 
@@ -817,8 +820,9 @@ for every element of the list:
 
 .. note::
     The ``xgrid`` property provides the grid objects that *intersect* the
-    x-axis (i.e., are vertical). Correspondingly, ``ygrid`` provides
-    the grid objects that intersect the y-axis (i.e., are horizontal).
+    x-axis (meaning vertically oriented objects). Correspondingly, ``ygrid``
+    provides the grid objects that intersect the y-axis (meaning horizontally
+    oriented objects).
 
 .. _userguide_styling_grid_lines:
 
@@ -841,8 +845,8 @@ To configure the visual appearance of minor grid lines, use a collection of
 `Line Properties`_, prefixed with ``minor_grid_``.
 
 For instance, to set the color of grid lines, use ``minor_grid_line_color``. By
-default, minor grid lines are hidden (i.e., their line color is set to
-``None``):
+default, minor grid lines are hidden (which means that their line color is set
+to ``None``):
 
 .. bokeh-plot:: docs/user_guide/examples/styling_minor_grid_lines.py
     :source-position: above
@@ -1075,7 +1079,7 @@ levels:
 :underlay:
     default render level for grids
 :glyph:
-    default render level for all glyphs (i.e. above grids)
+    default render level for all glyphs (which means they are drawn above grids)
 :annotation:
     default render level for annotation renderers
 :overlay:

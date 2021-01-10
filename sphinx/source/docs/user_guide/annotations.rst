@@ -261,7 +261,7 @@ to place the label above or underneath other renderers:
 
 .. code-block:: python
 
-    LabelSet(x='x', y='y', text='names', level='glyph',
+    LabelSet(x='x', y='y', text='names',
              x_offset=5, y_offset=5, source=source)
 
 The following example illustrates the use of both:

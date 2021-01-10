@@ -55,7 +55,7 @@ export class ScatterView extends MarkerView {
       if (_angle[i])
         ctx.rotate(_angle[i])
 
-      marker_funcs[_marker[i]](ctx, i, r, this.visuals.line, this.visuals.fill)
+      marker_funcs[_marker[i]](ctx, i, r, this.visuals)
 
       if (_angle[i])
         ctx.rotate(-_angle[i])

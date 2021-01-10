@@ -51,53 +51,37 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, _angle}: RectData): void {
-    if (this.visuals.fill.doit) {
-      for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
-          continue
+    for (const i of indices) {
+      if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
+        continue
 
-        //no need to test the return value, we call fillRect for every glyph anyway
-        this.visuals.fill.set_vectorize(ctx, i)
+      if (sw[i] == 0 || sh[i] == 0)
+        continue
 
-        if (_angle[i]) {
-          ctx.translate(sx[i], sy[i])
-          ctx.rotate(_angle[i])
-          ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-_angle[i])
-          ctx.translate(-sx[i], -sy[i])
-        } else
-          ctx.fillRect(sx0[i], sy1[i], sw[i], sh[i])
-      }
-    }
-
-    if (this.visuals.line.doit) {
       ctx.beginPath()
+      if (_angle[i]) {
+        ctx.translate(sx[i], sy[i])
+        ctx.rotate(_angle[i])
+        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+        ctx.rotate(-_angle[i])
+        ctx.translate(-sx[i], -sy[i])
+      } else
+        ctx.rect(sx0[i], sy1[i], sw[i], sh[i])
 
-      for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
-          continue
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
 
-        // fillRect does not fill zero-height or -width rects, but rect(...)
-        // does seem to stroke them (1px wide or tall). Explicitly ignore rects
-        // with zero width or height to be consistent
-        if (sw[i] == 0 || sh[i] == 0)
-          continue
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
 
-        if (_angle[i]) {
-          ctx.translate(sx[i], sy[i])
-          ctx.rotate(_angle[i])
-          ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-_angle[i])
-          ctx.translate(-sx[i], -sy[i])
-        } else
-          ctx.rect(sx0[i], sy1[i], sw[i], sh[i])
-
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
-        ctx.beginPath()
       }
-
-      ctx.stroke()
     }
   }
 

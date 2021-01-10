@@ -20,7 +20,7 @@ Making Interactions
 
 :ref:`userguide_interaction_widgets`
     Bokeh comes with a rich set of widgets that can be used with either
-    client-side JavaScript callbacks, or with real python code in a Bokeh
+    client-side JavaScript callbacks, or with real Python code in a Bokeh
     server application.
 
 :ref:`userguide_interaction_jscallbacks`

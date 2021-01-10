@@ -217,12 +217,12 @@ example:
 Supplying external resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You may require third-party Javascript libraries or CSS resources to implement
+You may require third-party JavaScript libraries or CSS resources to implement
 a custom model in Bokeh. You can supply external resources through the
 ``__javascript__`` and ``__css__`` Python class attributes of custom models.
 
 Including URL paths to external resources adds them to the HTML document head,
-making Javascript libraries available in the global namespace and applying
+making JavaScript libraries available in the global namespace and applying
 custom CSS styling.
 
 Here's an example that includes JS and CSS files for `KaTeX`_ (a JS library

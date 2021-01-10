@@ -10,22 +10,27 @@ describe("Glyph models", () => {
   const x = [1, 2, 3]
   const y = [1, 2, 3]
 
+  const fill_color = ["red", "orange", "green"]
+  const hatch_pattern = ["/", ">", "@"]
+
   it("should support AnnularWedge", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.annular_wedge({x, y, inner_radius: 0.1, outer_radius: 0.25, start_angle: 0.4, end_angle: 4.8, color: "green", alpha: 0.6})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.annular_wedge({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
+      p.annular_wedge({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]), [650, 350])
   })
 
   it("should support Annulus", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.annulus({x, y, inner_radius: 0.1, outer_radius: 0.25, color: "green", alpha: 0.6})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.annulus({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, fill_color, alpha: 0.6})
+      p.annulus({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]), [650, 350])
   })
 
   it("should support Arc", async () => {
@@ -54,11 +59,12 @@ describe("Glyph models", () => {
 
   it("should support Circle", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.circle({x, y, /*size,*/ radius: 0.25})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.circle({x: [1, 2, 3], y, radius: [0.5, 1, 1.5], fill_color, alpha: 0.6})
+      p.circle({x: [3, 4, 5], y, radius: [0.5, 1, 1.5], fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]), [650, 350])
   })
 
   it("should support Ellipse", async () => {

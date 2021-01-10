@@ -266,7 +266,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
-  __currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
+  //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
   __fontUnderline?: string
   __fontHref?: string
 
@@ -402,7 +402,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
    * Apples the current styles to the current SVG element. On "ctx.fill" or "ctx.stroke"
    */
   __applyStyleToCurrentElement(type: string): void {
-    let currentElement = this.__currentElement
+    const currentElement = this.__currentElement
+    /*
     const currentStyleGroup = this.__currentElementsToStyle
     if (currentStyleGroup != null) {
       currentElement.setAttribute(type, "")
@@ -411,12 +412,13 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         node.setAttribute(type, "")
       }
     }
+    */
 
     const keys = Object.keys(STYLES) as StyleAttr[]
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply) {
+      if (style.apply?.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -430,7 +432,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         } else if (value instanceof CanvasGradient) {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
-        } else if (style.apply.indexOf(type) !== -1 && style.svg !== value) {
+        } else if (style.svg !== value) {
           if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
             // separate alpha value, since illustrator can't handle it
             const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
@@ -779,12 +781,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(): void {
+  fill(fill_rule?: CanvasFillRule): void {
     if (this.__currentElement.nodeName === "path") {
       this.__currentElement.setAttribute("paint-order", "stroke")
     }
+    // XXX: hack (?) to allow fill and hatch visuals on same canvas path
+    if (this.__currentElement.getAttribute("fill") != "none") {
+      const path = this.__currentElement.cloneNode(true) as SVGElement
+      this.__root.appendChild(path)
+      this.__currentElement = path
+    }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
+    if (fill_rule != null) {
+      this.__currentElement.setAttribute("fill-rule", fill_rule)
+    }
     if (this._clip_path != null) {
       this.__currentElement.setAttribute("clip-path", this._clip_path)
     }

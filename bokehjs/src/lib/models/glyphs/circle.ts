@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {Rect, NumberArray, Indices} from "core/types"
 import {RadiusDimension} from "core/enums"
@@ -111,6 +111,11 @@ export class CircleView extends XYGlyphView {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -262,9 +267,9 @@ export namespace Circle {
     radius_dimension: p.Property<RadiusDimension>
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Circle extends Circle.Attrs {}
@@ -280,7 +285,7 @@ export class Circle extends XYGlyph {
   static init_Circle(): void {
     this.prototype.default_view = CircleView
 
-    this.mixins<Circle.Mixins>([LineVector, FillVector])
+    this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<Circle.Props>(({}) => ({
       angle:            [ p.AngleSpec, 0 ],
