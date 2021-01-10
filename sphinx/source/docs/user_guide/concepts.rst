@@ -127,46 +127,18 @@ This script generates an HTML file called ``output.html`` that contains a line
 plot. You can execute it with ``python foo.py``, where ``foo.py`` is the name
 of the script.
 
-These functions are often useful in interactive settings, or for creating
+These functions are often useful in interactive settings or for creating
 standalone Bokeh documents to serve from backend web applications.
 
-Another way to generate various kinds of output is using Bokeh's powerful
-:ref:`command line tool <userguide_cli>`. For example:
-
-``bokeh html``
-    Create standalone HTML documents from any kind of Bokeh application
-    source such as Python scripts, app directories, or JSON files.
-
-``bokeh json``
-    Generate a serialized JSON representation of a Bokeh document from any
-    kind of Bokeh application source.
-
-``bokeh serve``
-    Publish Bokeh documents as interactive web applications.
-
-An advantage of using the ``bokeh`` command is that the code you write does not
-have to specify any particular output method or format. You can write *just the
-visualization code* and decide how to output later. This simplifies the above
-example as follows:
-
-.. code-block:: python
-
-    from bokeh.plotting import figure, curdoc
-
-    p = figure()
-    p.line(x=[1, 2, 3], y=[4,6,2])
-    curdoc().add_root(p)
-
-You can now run ``bokeh html foo.py`` to generate a standalone HTML file
-or ``bokeh serve foo.py`` to start serving this document as a web application.
-For more information on the command line tool, see :ref:`userguide_cli`.
+Another way to generate various kinds of output is by using Bokeh's powerful
+:ref:`command line tool <userguide_cli>`.
 
 .. _userguide_interfaces:
 
 Interfaces
 ----------
 
-Bokeh provides a simple and intuitive interface for user like data scientists
+Bokeh provides a simple and intuitive interface for users like data scientists
 and domain experts who do not wish to be distracted by complex details of the
 software. At the same time, Bokeh also caters to people such as application
 developers and software engineers who may want more control or access to more
@@ -201,17 +173,17 @@ function creates a |Figure| model that includes methods for adding different
 kinds of glyphs to a plot. This function also takes care of composing the
 various elements of your visualization, such as axes, grids, and tools.
 
-Below is an example of typical |bokeh.plotting| use along with the resulting
+Below is an example of |bokeh.plotting|, along with the resulting
 plot:
 
 .. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
 Calling the |figure| function is all it takes to create a basic plot object. To
-add data renderers to you plot object, call a glyph method such as
+add data renderers to your plot object, call a glyph method such as
 |Figure.circle|. You don't have to worry about axes and grids (although you can
 configure them if you want to), and you only need to list the tools you want to
-add. To display your visualization in a browser, in most cases all you need to
+add. To display your visualization in a browser, in most cases, all you need to
 do is call the output function :func:`~bokeh.io.show`.
 
 With the *bokeh.plotting* interface, you have many more possibilities to
@@ -245,7 +217,7 @@ you will probably want to use the *bokeh.plotting* interface
 
 To be able to use the *bokeh.models* interface, you need to understand the
 basic principle by which Bokeh enables you to generate interactive,
-browser based visualizations. Behind the scenes, Bokeh consists of two
+browser-based visualizations. Behind the scenes, Bokeh consists of two
 libraries:
 
 * BokehJS, the JavaScript library
@@ -273,7 +245,7 @@ libraries:
     attributes and serialize themselves to JSON. Most of the models are very
     simple and usually consist of only a few property attributes and no methods.
     You can configure the attributes of those models either by setting them when
-    creating a model, or later by setting attribute values on the model object.
+    creating a model or later by setting attribute values on the model object.
 
 You can access all low-level ``model`` objects through Bokeh's |bokeh.models|
 interface.
