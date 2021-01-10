@@ -21,11 +21,12 @@ appreciated!* In addition to quick fixes, check the list of `Open Docs
 Issues`_ on GitHub. This list contains several projects as a starting
 point.
 
-This section describes Bokeh's `style guidelines`_ for contributing to the
-documentation. This section also includes details on how to `build`_ and
-`edit`_ the documentation in your local development environment.
+This section describes Bokeh's `devguide_documentation_style_guidelines`_ for
+contributing to the documentation. This section also includes details on how to
+`devguide_documentation_build`_ and `devguide_documentation_edit`_ the
+documentation in your local development environment.
 
-.. _`style guidelines`:
+.. _`devguide_documentation_style_guidelines`:
 
 Documentation style guidelines
 ------------------------------
@@ -47,8 +48,6 @@ Principles of good style
 
 Follow these basic guidelines in all your writing for Bokeh:
 
-.. vale off
-
 * Be aware of **sentence length**. Try to avoid sentences that require more
   than two commas. Consider breaking up longer sentences. You could also use
   bulleted or numbered lists instead.
@@ -64,8 +63,6 @@ Follow these basic guidelines in all your writing for Bokeh:
 * Use **serial commas**, also known as Oxford Commas.
 * Write in a way that is inclusive_ and accessible_.
 * Activate the **spell checker** in your development environment.
-
-.. vale on
 
 Refer to the `Google developer documentation style guide`_ for more detailed
 information.
@@ -92,7 +89,7 @@ For definitions and concepts used throughout Bokeh's documentation, see the
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
 
-.. _`build`:
+.. _`devguide_documentation_build`:
 
 Setting up and building Bokeh's documentation
 ---------------------------------------------
@@ -197,7 +194,7 @@ the environment variable ``BOKEH_DOCS_CDN`` to ``local`` before calling ``make``
 
     BOKEH_DOCS_CDN=local
 
-.. _`edit`:
+.. _`devguide_documentation_edit`:
 
 Writing Bokeh's documentation
 -----------------------------
@@ -305,7 +302,8 @@ For information on how to format text using reStructuredText, see the
 `reStructuredText primer on the Sphinx website`_ or the `official
 reStructuredText website`_.
 
-For information on writing style, see Bokeh's `style guidelines`_ and the
+For information on writing style, see Bokeh's
+`devguide_documentation_style_guidelines`_ and the
 `Google developer documentation style guide`_.
 
 `Release Notes`_ are generally handled by the Bokeh core team as part of
