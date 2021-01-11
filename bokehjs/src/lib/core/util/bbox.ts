@@ -174,7 +174,7 @@ export class BBox implements Rect {
   }
 
   contains(x: number, y: number): boolean {
-    return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
+    return this.x0 <= x && x <= this.x1 && this.y0 <= y && y <= this.y1
   }
 
   clip(x: number, y: number): [number, number] {
@@ -189,6 +189,24 @@ export class BBox implements Rect {
       y = this.y1
 
     return [x, y]
+  }
+
+  grow_by(size: number): BBox {
+    return new BBox({
+      left: this.left - size,
+      right: this.right + size,
+      top: this.top - size,
+      bottom: this.bottom + size,
+    })
+  }
+
+  shrink_by(size: number): BBox {
+    return new BBox({
+      left: this.left + size,
+      right: this.right - size,
+      top: this.top + size,
+      bottom: this.bottom - size,
+    })
   }
 
   union(that: Rect): BBox {
