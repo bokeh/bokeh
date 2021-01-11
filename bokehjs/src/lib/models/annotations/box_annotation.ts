@@ -1,6 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
-import {Signal0} from "core/signaling"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
@@ -17,8 +16,7 @@ export class BoxAnnotationView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint(this))
-    this.connect(this.model.data_update, () => this.plot_view.request_paint(this))
+    this.connect(this.model.change, () => this.request_render())
   }
 
   protected _render(): void {
@@ -179,15 +177,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  data_update: Signal0<this>
-
-  initialize(): void {
-    super.initialize()
-    this.data_update = new Signal0(this, "data_update")
-  }
-
   update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {
-    this.setv({left, right, top, bottom, screen: true}, {silent: true})
-    this.data_update.emit()
+    this.setv({left, right, top, bottom, screen: true})
   }
 }

@@ -2,7 +2,6 @@ import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {Signal0} from "core/signaling"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
@@ -11,10 +10,7 @@ export class PolyAnnotationView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    // need to respond to either normal BB change events or silent
-    // "data only updates" that tools might want to use
     this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.data_update, () => this.request_render())
   }
 
   protected _render(): void {
@@ -91,8 +87,6 @@ export class PolyAnnotation extends Annotation {
   properties: PolyAnnotation.Props
   __view_type__: PolyAnnotationView
 
-  data_update: Signal0<this>
-
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
   }
@@ -121,13 +115,7 @@ export class PolyAnnotation extends Annotation {
     })
   }
 
-  initialize(): void {
-    super.initialize()
-    this.data_update = new Signal0(this, "data_update")
-  }
-
   update({xs, ys}: {xs: number[], ys: number[]}): void {
-    this.setv({xs, ys, screen: true}, {silent: true})
-    this.data_update.emit()
+    this.setv({xs, ys, screen: true})
   }
 }
