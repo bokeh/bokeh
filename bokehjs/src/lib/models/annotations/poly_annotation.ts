@@ -25,6 +25,7 @@ export class PolyAnnotationView extends AnnotationView {
     const {frame} = this.plot_view
     const {ctx} = this.layer
 
+    ctx.beginPath()
     for (let i = 0, end = xs.length; i < end; i++) {
       let sx: number
       if (this.model.xs_units == 'screen')
@@ -38,14 +39,8 @@ export class PolyAnnotationView extends AnnotationView {
       else
         throw new Error("not implemented")
 
-      if (i == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx, sy)
-      } else {
-        ctx.lineTo(sx, sy)
-      }
+      ctx.lineTo(sx, sy)
     }
-
     ctx.closePath()
 
     if (this.visuals.fill.doit) {
