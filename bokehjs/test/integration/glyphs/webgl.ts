@@ -12,6 +12,6 @@ describe("webgl", () => {
     p0.line(x0, y)
     p1.line(x1, y)
 
-    await display(row([p0, p1]), [650, 350])
+    await display(row([p0, p1]))
   })
 })

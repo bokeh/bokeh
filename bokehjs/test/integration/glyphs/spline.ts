@@ -11,16 +11,16 @@ describe("Spline glyph", () => {
 
   it("should allow to paint an open spline", async () => {
     const p = spline([1, 3, 7, 8], [1, 8, 3, 5], false)
-    await display(p, [250, 250])
+    await display(p)
   })
 
   it("should allow to paint a closed spline", async () => {
     const p = spline([1, 3, 7, 8], [1, 8, 3, 5], true)
-    await display(p, [250, 250])
+    await display(p)
   })
 
   it("should allow to paint a spline where start == end", async () => {
     const p = spline([1, 3, 7, 8, 1], [1, 8, 3, 5, 1], false)
-    await display(p, [250, 250])
+    await display(p)
   })
 })
