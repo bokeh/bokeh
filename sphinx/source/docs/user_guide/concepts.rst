@@ -148,8 +148,8 @@ Because of this, Bokeh takes a layered approach and offers different programming
 interfaces appropriate to different users.
 
 This section provides an overview of the two interfaces that you can use: the
-mid-level :ref:`bokeh.plotting interface <userguide_interfaces_plotting>` and
-the low-level :ref:`bokeh.models interface <userguide_interfaces_models>`.
+primary interface :ref:`bokeh.plotting <userguide_interfaces_plotting>` and
+the low-level :ref:`bokeh.models<userguide_interfaces_models>` interface.
 
 If you'd prefer to jump right into basic plotting, go to
 :ref:`userguide_plotting`. For a simple step-by-step guide to creating
@@ -160,7 +160,7 @@ visualizations with Bokeh, see the :ref:`first steps guides <first_steps>`.
 The *bokeh.plotting* interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|bokeh.plotting| is Bokeh's **mid-level** interface. This general-purpose
+|bokeh.plotting| is Bokeh's **primary** interface. This general-purpose
 interface is similar to plotting interfaces of libraries such as Matplotlib_
 or Matlab_.
 
