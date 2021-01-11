@@ -1,4 +1,5 @@
 import {Arrayable, NumberArray, Rect, Box, Interval, Size} from "../types"
+import {equals, Equatable, Comparator} from "./eq"
 
 const {min, max} = Math
 
@@ -56,7 +57,7 @@ export type CoordinateMapper = {
   v_compute: (vv: Arrayable<number>) => NumberArray
 }
 
-export class BBox implements Rect {
+export class BBox implements Rect, Equatable {
   readonly x0: number
   readonly y0: number
   readonly x1: number
@@ -130,6 +131,16 @@ export class BBox implements Rect {
       this.x1 = right
       this.y1 = bottom
     }
+  }
+
+  equals(that: Rect): boolean {
+    return this.x0 == that.x0 && this.y0 == that.y0 &&
+           this.x1 == that.x1 && this.y1 == that.y1
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.x0, that.x0) && cmp.eq(this.y0, that.y0) &&
+           cmp.eq(this.x1, that.x1) && cmp.eq(this.y1, that.y1)
   }
 
   toString(): string {
@@ -216,10 +227,6 @@ export class BBox implements Rect {
       x1: max(this.x1, that.x1),
       y1: max(this.y1, that.y1),
     })
-  }
-
-  equals(that: Rect): boolean {
-    return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 
   get xview(): CoordinateMapper {
