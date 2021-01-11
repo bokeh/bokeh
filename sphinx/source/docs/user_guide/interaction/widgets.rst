@@ -323,7 +323,7 @@ A widget for collecting a line of text from a user:
 More information can be found in the Reference for |TextInput|.
 
 Toggle
-~~~~~~~~~~~~
+~~~~~~
 
 The toggle button holds an on/off state:
 
