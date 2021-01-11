@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
 import * as bbox from "@bokehjs/core/util/bbox"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("bbox module", () => {
   describe("empty", () => {
@@ -49,6 +50,18 @@ describe("bbox module", () => {
     it("should return the envelope of disjoint bboxes", () => {
       expect(bbox.union(overlaps, outside)).to.be.equal({x0: -5, x1: 10, y0: -5, y1: 10})
       expect(bbox.union(outside, overlaps)).to.be.equal({x0: -5, x1: 10, y0: -5, y1: 10})
+    })
+  })
+
+  describe("BBox class", () => {
+    it("should support grow_by() method", () => {
+      const bbox = new BBox({left: -1, right: 2, top: 0, bottom: 10})
+      expect(bbox.grow_by(2)).to.be.equal(new BBox({left: -3, right: 4, top: -2, bottom: 12}))
+    })
+
+    it("should support shrink_by() method", () => {
+      const bbox = new BBox({left: -3, right: 4, top: -2, bottom: 12})
+      expect(bbox.shrink_by(2)).to.be.equal(new BBox({left: -1, right: 2, top: 0, bottom: 10}))
     })
   })
 })

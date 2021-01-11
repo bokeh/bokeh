@@ -1,4 +1,5 @@
 import {Arrayable, NumberArray, Rect, Box, Interval, Size} from "../types"
+import {equals, Equatable, Comparator} from "./eq"
 
 const {min, max} = Math
 
@@ -56,7 +57,7 @@ export type CoordinateMapper = {
   v_compute: (vv: Arrayable<number>) => NumberArray
 }
 
-export class BBox implements Rect {
+export class BBox implements Rect, Equatable {
   readonly x0: number
   readonly y0: number
   readonly x1: number
@@ -132,6 +133,16 @@ export class BBox implements Rect {
     }
   }
 
+  equals(that: Rect): boolean {
+    return this.x0 == that.x0 && this.y0 == that.y0 &&
+           this.x1 == that.x1 && this.y1 == that.y1
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.x0, that.x0) && cmp.eq(this.y0, that.y0) &&
+           cmp.eq(this.x1, that.x1) && cmp.eq(this.y1, that.y1)
+  }
+
   toString(): string {
     return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
   }
@@ -174,7 +185,7 @@ export class BBox implements Rect {
   }
 
   contains(x: number, y: number): boolean {
-    return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
+    return this.x0 <= x && x <= this.x1 && this.y0 <= y && y <= this.y1
   }
 
   clip(x: number, y: number): [number, number] {
@@ -191,6 +202,24 @@ export class BBox implements Rect {
     return [x, y]
   }
 
+  grow_by(size: number): BBox {
+    return new BBox({
+      left: this.left - size,
+      right: this.right + size,
+      top: this.top - size,
+      bottom: this.bottom + size,
+    })
+  }
+
+  shrink_by(size: number): BBox {
+    return new BBox({
+      left: this.left + size,
+      right: this.right - size,
+      top: this.top + size,
+      bottom: this.bottom - size,
+    })
+  }
+
   union(that: Rect): BBox {
     return new BBox({
       x0: min(this.x0, that.x0),
@@ -198,10 +227,6 @@ export class BBox implements Rect {
       x1: max(this.x1, that.x1),
       y1: max(this.y1, that.y1),
     })
-  }
-
-  equals(that: Rect): boolean {
-    return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 
   get xview(): CoordinateMapper {

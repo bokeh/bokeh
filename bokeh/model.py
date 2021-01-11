@@ -27,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import AnyRef, Dict, Instance, List, String
+from .core.properties import AnyRef, Bool, Dict, Instance, List, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -318,6 +318,19 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
         callback = CustomJS(code="console.log('stuff')")
         plot.x_range.js_on_change('start', callback)
+
+    """)
+
+    syncable: bool = Bool(default=True, help="""
+    Indicates whether this model should be synchronized back to a Bokeh server when
+    updated in a web browser. Setting to ``False`` may be useful to reduce network
+    traffic when dealing with frequently updated objects whose updated values we
+    don't need.
+
+    .. note::
+        Setting this property to ``False`` will prevent any ``on_change()`` callbacks
+        on this object from triggering. However, any JS-side callbacks will still
+        work.
 
     """)
 

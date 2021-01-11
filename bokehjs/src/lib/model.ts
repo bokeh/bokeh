@@ -16,6 +16,7 @@ export namespace Model {
     js_property_callbacks: p.Property<{[key: string]: CallbackLike0<Model>[]}>
     js_event_callbacks: p.Property<{[key: string]: CallbackLike0<ModelEvent>[]}>
     subscribed_events: p.Property<string[]>
+    syncable: p.Property<boolean>
   }
 }
 
@@ -26,17 +27,22 @@ export class Model extends HasProps {
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 
+  get is_syncable(): boolean{
+    return this.syncable
+  }
+
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
   }
 
   static init_Model(): void {
-    this.define<Model.Props>(({Any, Unknown, String, Array, Dict, Nullable}) => ({
+    this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Dict, Nullable}) => ({
       tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],
       js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
       js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],
       subscribed_events:     [ Array(String), [] ],
+      syncable:              [ Boolean, true ],
     }))
   }
 
