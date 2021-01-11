@@ -11,7 +11,7 @@ describe("Bug", () => {
       const hover = new HoverTool({renderers: "auto"})
       const plot = fig([200, 200], {tools: [hover]})
       plot.circle([1, 2, 3], [4, 5, 6])
-      const {view} = await display(plot, [250, 250])
+      const {view} = await display(plot)
       const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
       expect(hover_view.computed_renderers.length).to.be.equal(1)
 

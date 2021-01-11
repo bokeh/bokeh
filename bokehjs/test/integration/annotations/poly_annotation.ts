@@ -33,6 +33,6 @@ describe("PolyAnnotation annotation", () => {
     const p0 = make_plot("canvas")
     const p1 = make_plot("svg")
 
-    await display(row([p0, p1]), [450, 250])
+    await display(row([p0, p1]))
   })
 })

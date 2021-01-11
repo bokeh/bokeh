@@ -32,7 +32,7 @@ describe("Marker glyph", () => {
           yield p
         }
       }
-      await display(row([...plots()]), [3*150 + 50, 150 + 50])
+      await display(row([...plots()]))
     })
   }
 
@@ -93,6 +93,6 @@ describe("Marker glyph", () => {
     const p1 = make_plot("svg")
     const p2 = make_plot("webgl")
 
-    await display(row([p0, p1, p2]), [950, 650])
+    await display(row([p0, p1, p2]))
   })
 })
