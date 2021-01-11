@@ -1,7 +1,10 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
+import {Arrayable} from "core/types"
+import {CoordinateMapper} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
@@ -19,27 +22,30 @@ export class PolyAnnotationView extends AnnotationView {
     if (xs.length != ys.length)
       return
 
-    if (xs.length < 3 || ys.length < 3)
+    const n = xs.length
+    if (n < 3)
       return
 
     const {frame} = this.plot_view
     const {ctx} = this.layer
 
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
+
+    const {screen} = this.model
+    function _calc_dim(values: Arrayable<number>, units: SpatialUnits, scale: Scale, view: CoordinateMapper): Arrayable<number> {
+      if (screen)
+        return values
+      else
+        return units == "data" ? scale.v_compute(values) : view.v_compute(values)
+    }
+
+    const sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.xview)
+    const sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.yview)
+
     ctx.beginPath()
-    for (let i = 0, end = xs.length; i < end; i++) {
-      let sx: number
-      if (this.model.xs_units == 'screen')
-        sx = this.model.screen ? xs[i] : frame.bbox.xview.compute(xs[i])
-      else
-        throw new Error("not implemented")
-
-      let sy: number
-      if (this.model.ys_units == 'screen')
-        sy = this.model.screen ? ys[i] : frame.bbox.yview.compute(ys[i])
-      else
-        throw new Error("not implemented")
-
-      ctx.lineTo(sx, sy)
+    for (let i = 0; i < n; i++) {
+      ctx.lineTo(sxs[i], sys[i])
     }
     ctx.closePath()
 
