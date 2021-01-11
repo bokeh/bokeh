@@ -39,6 +39,7 @@ __all__ = (
     'Dict',
     'List',
     'RelativeDelta',
+    'RestrictedDict',
     'Seq',
     'Tuple',
 )

@@ -92,6 +92,7 @@ ALL = (
     'RGB',
     'Regex',
     'RelativeDelta',
+    'RestrictedDict',
     'ScreenDistanceSpec',
     'Seq',
     'Size',
