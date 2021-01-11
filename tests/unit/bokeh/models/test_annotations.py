@@ -24,9 +24,11 @@ import mock
 from _util_models import (
     ANGLE,
     FILL,
+    HATCH,
     LINE,
     TEXT,
     check_fill_properties,
+    check_hatch_properties,
     check_line_properties,
     check_properties_existence,
     check_text_properties,
@@ -46,6 +48,7 @@ from bokeh.models import (
     LabelSet,
     Legend,
     LegendItem,
+    PolyAnnotation,
     Slope,
     Span,
     Title,
@@ -198,18 +201,19 @@ def test_Arrow() -> None:
 def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
     assert box.left is None
-    assert box.left_units == 'data'
+    assert box.left_units == "data"
     assert box.right is None
-    assert box.right_units == 'data'
+    assert box.right_units == "data"
     assert box.bottom is None
-    assert box.bottom_units == 'data'
+    assert box.bottom_units == "data"
     assert box.top is None
-    assert box.top_units == 'data'
-    assert box.x_range_name == 'default'
-    assert box.y_range_name == 'default'
-    assert box.level == 'annotation'
-    check_line_properties(box, "", '#cccccc', 1, 0.3)
+    assert box.top_units == "data"
+    assert box.x_range_name == "default"
+    assert box.y_range_name == "default"
+    assert box.level == "annotation"
+    check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
+    check_hatch_properties(box)
     check_properties_existence(box, [
         "render_mode",
         "visible",
@@ -224,7 +228,7 @@ def test_BoxAnnotation() -> None:
         "x_range_name",
         "y_range_name",
         "level",
-    ], LINE, FILL)
+    ], LINE, FILL, HATCH)
 
 
 def test_Band() -> None:
@@ -340,6 +344,29 @@ def test_LabelSet() -> None:
         ANGLE,
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+def test_PolyAnnotation() -> None:
+    poly = PolyAnnotation()
+    assert poly.xs == []
+    assert poly.xs_units == "data"
+    assert poly.ys == []
+    assert poly.ys_units == "data"
+    assert poly.x_range_name == "default"
+    assert poly.y_range_name == "default"
+    assert poly.level == "annotation"
+    check_line_properties(poly, "", "#cccccc", 1, 0.3)
+    check_fill_properties(poly, "", "#fff9ba", 0.4)
+    check_hatch_properties(poly)
+    check_properties_existence(poly, [
+        "visible",
+        "xs",
+        "xs_units",
+        "ys",
+        "ys_units",
+        "x_range_name",
+        "y_range_name",
+        "level",
+    ], LINE, FILL, HATCH)
 
 def test_Slope() -> None:
     slope = Slope()

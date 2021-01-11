@@ -65,6 +65,7 @@ from ..core.property_mixins import (
     FillProps,
     LineProps,
     ScalarFillProps,
+    ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
     TextProps,
@@ -589,13 +590,17 @@ class BoxAnnotation(Annotation):
     The %s values for the box.
     """)
 
-    line_alpha = Override(default=0.3)
-
-    line_color = Override(default="#cccccc")
-
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the box.
     """)
+
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the box.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
 
     fill_alpha = Override(default=0.4)
 
@@ -867,13 +872,17 @@ class PolyAnnotation(Annotation):
     The %s values for the polygon.
     """)
 
-    line_alpha = Override(default=0.3)
-
-    line_color = Override(default="#cccccc")
-
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the polygon.
     """)
+
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the polygon.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
 
     fill_alpha = Override(default=0.4)
 

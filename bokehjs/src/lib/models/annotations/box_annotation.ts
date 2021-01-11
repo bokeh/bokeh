@@ -69,6 +69,12 @@ export class BoxAnnotationView extends AnnotationView {
       this.visuals.fill.set_value(ctx)
       ctx.fill()
     }
+
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      ctx.fill()
+    }
+
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
       ctx.stroke()
@@ -125,9 +131,9 @@ export namespace BoxAnnotation {
     in_cursor: p.Property<string | null>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
@@ -143,7 +149,7 @@ export class BoxAnnotation extends Annotation {
   static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins<BoxAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
     this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
       render_mode:  [ RenderMode, "canvas" ],

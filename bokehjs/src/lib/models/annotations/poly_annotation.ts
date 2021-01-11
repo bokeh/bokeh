@@ -52,14 +52,19 @@ export class PolyAnnotationView extends AnnotationView {
 
     ctx.closePath()
 
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
-
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       ctx.fill()
+    }
+
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      ctx.fill()
+    }
+
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx)
+      ctx.stroke()
     }
   }
 }
@@ -75,9 +80,9 @@ export namespace PolyAnnotation {
     screen: p.Property<boolean>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
@@ -95,7 +100,7 @@ export class PolyAnnotation extends Annotation {
   static init_PolyAnnotation(): void {
     this.prototype.default_view = PolyAnnotationView
 
-    this.mixins<PolyAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
     this.define<PolyAnnotation.Props>(({Number, Array}) => ({
       xs:           [ Array(Number), [] ],
