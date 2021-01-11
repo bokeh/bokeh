@@ -97,21 +97,20 @@ throughout Bokeh's documentation:
 
 .. _userguide_output_methods:
 
-Output Methods
+Output methods
 --------------
 
-As we will see demonstrated frequently throughout the User Guide, there are
-various ways to generate output for Bokeh documents. The most common for
-interactive usage are:
+Bokeh offers a variety of ways to produce interactive output. The following
+two functions are the most common:
 
-``output_file``
-    For generating simple standalone HTML documents for Bokeh visualizations.
+:func:`~bokeh.io.output_file`
+    Generate simple standalone HTML documents for Bokeh visualizations.
 
-``output_notebook``
-    For displaying Bokeh visualizations inline in Jupyter/Zeppelin notebook cells.
+:func:`~bokeh.io.output_notebook`
+    Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
 
-These functions are most often used together with the ``show`` or ``save``
-functions. Scripts that output with these typically look something like:
+These output functions are usually used together with :func:`~bokeh.io.show`
+or :func:`~bokeh.io.save`. Here's an example:
 
 .. code-block:: python
 
@@ -124,145 +123,157 @@ functions. Scripts that output with these typically look something like:
 
     show(p)
 
-If this script is called ``foo.py`` then executing ``python foo.py`` will
-result in an HTML file ``output.html`` being generated with the line plot.
-These functions are often useful in interactive settings, or for creating
-standalone Bokeh documents to serve from (Flask, Django, etc.) web
-applications.
+This script generates an HTML file called ``output.html`` that contains a line
+plot. You can execute it with ``python foo.py``, where ``foo.py`` is the name
+of the script.
 
-However, Bokeh also comes with a powerful command line tool ``bokeh`` that
-can also be used to generate various kinds of output:
+These functions are often useful in interactive settings or for creating
+standalone Bokeh documents to serve from backend web applications.
 
-``bokeh html``
-    Create standalone HTML documents from any kind of Bokeh application
-    source: e.g., python scripts, app directories, JSON files, and others.
-
-``bokeh json``
-    Generate a serialized JSON representation of a Bokeh document from any
-    kind of Bokeh application source.
-
-``bokeh serve``
-    Publish Bokeh documents as interactive web applications.
-
-An advantage of using the ``bokeh`` command is that the code you write does not
-have to specify any particular output method or format. You can write *just the
-visualization code* once, and decide later to output in different ways. The
-above example would be simplified to:
-
-.. code-block:: python
-
-    from bokeh.plotting import figure, curdoc
-
-    p = figure()
-    p.line(x=[1, 2, 3], y=[4,6,2])
-    curdoc().add_root(p)
-
-Now, you can run ``bokeh html foo.py`` to generate a standalone HTML file,
-or ``bokeh serve foo.py`` to start serving this document as a web application.
-For more information on the command line tool see :ref:`userguide_cli`.
+Another way to generate various kinds of output is by using Bokeh's powerful
+:ref:`command line tool <userguide_cli>`.
 
 .. _userguide_interfaces:
 
 Interfaces
 ----------
 
-Bokeh is intended to provide a quick and simple interface to data scientists
-and domain experts who do not want to be distracted by the details of the
-software, and also provide a richly detailed interface to application
+Bokeh provides a simple and intuitive interface for users like data scientists
+and domain experts who do not wish to be distracted by complex details of the
+software. At the same time, Bokeh also caters to people such as application
 developers and software engineers who may want more control or access to more
-sophisticated features. Because of this, Bokeh takes a layered approach and
-offers different programming interfaces appropriate to different levels
-of use. This section provides an overview of the various interfaces
-that are available to Bokeh users, as well as more context about the most
-important concepts central to the library. If you'd like to jump right
-into basic plotting, go to :ref:`userguide_plotting`.
+sophisticated features.
 
-.. _userguide_interfaces_models:
+Because of this, Bokeh takes a layered approach and offers different programming
+interfaces appropriate to different users.
 
-*bokeh.models*
-~~~~~~~~~~~~~~
+This section provides an overview of the two interfaces that you can use: the
+primary interface :ref:`bokeh.plotting <userguide_interfaces_plotting>` and
+the low-level :ref:`bokeh.models<userguide_interfaces_models>` interface.
 
-Bokeh is actually composed of two library components.
-
-The first component is a JavaScript library, BokehJS, that runs in the
-browser. This library is responsible for all of the rendering and
-user interaction. Its input is a collection of declarative JSON objects that
-comprise a "scenegraph". The objects in this scenegraph describe everything
-that BokehJS should handle: what plots and widgets are present and in what
-arrangement, what tools and renderers and axes the plots will have, etc. These
-JSON objects are converted into BokehJS Models in the browser, and are
-rendered by corresponding BokehJS Views.
-
-The second component is a library in Python (or other languages) that can
-generate the JSON described above. In the Python Bokeh library, this is
-accomplished at the lowest level by exposing a set of "model" classes
-that exactly mirror the set of BokehJS Models that are created in the
-browser. These Python model classes know how to validate their content and
-attributes, and also how to serialize themselves to JSON. All of
-these low level models live in the **low-level** |bokeh.models| interface.
-Most of the models are very simple, usually consisting of a few property
-attributes and no methods. Model attributes can either be configured when
-the model is created, or later by setting attribute values on the model
-object. Here are some examples for a |Rect| glyph object:
-::
-
-    # properties can be configured when a model object is initialized
-    glyph = Rect(x="x", y="y2", w=10, h=20, line_color=None)
-
-    # or by assigning values to attributes on the model later
-    glyph.fill_alpha = 0.5
-    glyph.fill_color = "navy"
-
-These methods of configuration work in general for all Bokeh models. Because
-of that, and because all Bokeh interfaces ultimately produce collections
-of Bokeh models, styling and configuring plots and widgets is accomplished
-in basically the same way, regardless of which interface is used.
-
-Using the |bokeh.models| interface provides complete control over how Bokeh
-plots and Bokeh widgets are put together and configured. However, it provides
-no help with assembling the models in meaningful or correct ways. It is
-entirely up to developers to build the scenegraph "by hand". For this reason,
-most users will probably want to use the |bokeh.plotting| interface
-described below, unless they have specialized requirements that necessitate
-finer control. For more information about the details of all Bokeh models,
-consult the :ref:`refguide`.
+If you'd prefer to jump right into basic plotting, go to
+:ref:`userguide_plotting`. For a simple step-by-step guide to creating
+visualizations with Bokeh, see the :ref:`first steps guides <first_steps>`.
 
 .. _userguide_interfaces_plotting:
 
-*bokeh.plotting*
-~~~~~~~~~~~~~~~~
+The *bokeh.plotting* interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Bokeh provides a **mid-level** general purpose |bokeh.plotting| interface, which
-is similar in specificity to Matplotlib_ or Matlab_ style plotting interfaces.
-It is centered around having users relate the visual glyphs they would like
-to have displayed to their data, and otherwise taking care of putting together
-plots with sensible default axes, grids, and tools. All the hard work to
-assemble the appropriate Bokeh Models to form a scenegraph
-that BokehJS can render is handled automatically.
+|bokeh.plotting| is Bokeh's **primary** interface. This general-purpose
+interface is similar to plotting interfaces of libraries such as Matplotlib_
+or Matlab_.
 
-The main class in the |bokeh.plotting| interface is the |figure| function. This
-creates a |Figure| model that includes methods for adding different kinds of
-glyphs to a plot. Additionally, it composes default axes, grids, and tools in
-the proper way without any extra effort.
+The *bokeh.plotting* interface lets you focus on relating glyphs to data. It
+automatically assembles plots with default elements such as axes, grids, and
+tools for you.
 
-A prototypical example of the |bokeh.plotting| usage is show below, along
-with the resulting plot:
+The |figure| function is at the core of the |bokeh.plotting| interface. This
+function creates a |Figure| model that includes methods for adding different
+kinds of glyphs to a plot. This function also takes care of composing the
+various elements of your visualization, such as axes, grids, and tools.
+
+Below is an example of |bokeh.plotting|, along with the resulting
+plot:
 
 .. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
-The main observation is that the typical usage involves creating plot objects
-with the |figure| function, then using the glyph methods like |Figure.circle|
-to add renderers for our data. We do not have to worry about configuring any
-axes or grids (although we can configure them if we need to), and specifying
-tools is done simply with the names of tools to add. Finally, we use some output
-functions to display our plot.
+Calling the |figure| function is all it takes to create a basic plot object. To
+add data renderers to your plot object, call a glyph method such as
+|Figure.circle|. You don't have to worry about axes and grids (although you can
+configure them if you want to), and you only need to list the tools you want to
+add. To display your visualization in a browser, in most cases, all you need to
+do is call the output function :func:`~bokeh.io.show`.
 
-There are many other possibilities: saving our plot instead of showing it,
-styling or removing the axes or grids, adding additional renderers, and
-laying out multiple plots together. The :ref:`userguide_plotting` section of
-this :ref:`userguide` will walk through many more examples and common use
-cases of using the |bokeh.plotting| interface.
+With the *bokeh.plotting* interface, you have many more possibilities to
+create an customize your visualization. For example:
+
+* saving the plot to an HTML file instead of showing it
+* styling and removing axes, grids, annotations, and interactive elements
+* adding more data renderers
+* arranging multiple plots and widgets into layouts
+
+The :ref:`userguide_plotting` section of this :ref:`userguide` will walk you
+through many more examples and common use cases for the |bokeh.plotting|
+interface.
+
+For an easy to follow guide to building your first visualizations with Bokeh,
+see the :ref:`first steps guides <first_steps>`.
+
+.. _userguide_interfaces_models:
+
+The *bokeh.models* interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With Bokeh's **low-level** |bokeh.models| interface, you have complete control
+over how Bokeh creates all elements of your visualization. However, Bokeh's
+low-level interface doesn't help you assemble the various elements in meaningful
+or correct ways. It is entirely up to you to put them together.
+
+Therefore, unless you have special applications that require finer control,
+you will probably want to use the *bokeh.plotting* interface
+:ref:`described above <userguide_interfaces_plotting>`.
+
+To be able to use the *bokeh.models* interface, you need to understand the
+basic principle by which Bokeh enables you to generate interactive,
+browser-based visualizations. Behind the scenes, Bokeh consists of two
+libraries:
+
+* BokehJS, the JavaScript library
+    BokehJS runs in the browser. This library handles rendering and user
+    interactions. It takes a collection of declarative JSON objects as its input
+    and uses them as instructions on how to handle the various aspects of your
+    visualization in a browser. For example:
+
+    * plots and widgets
+    * layouts and arrangements
+    * tools and renderers
+    * plot axes
+
+    In the browser, BokehJS converts these JSON objects into BokehJS models and
+    renders them according to corresponding BokehJS views.
+
+* Bokeh, the Python library
+    The Python library generates the JSON objects that BokehJS uses to render
+    your visualization in a browser.
+
+    At its lowest level, the Python library uses a set of ``model`` classes that
+    exactly mirror the set of models that BokehJS creates in a browser.
+
+    These Python ``model`` classes are able to validate their content and
+    attributes and serialize themselves to JSON. Most of the models are very
+    simple and usually consist of only a few property attributes and no methods.
+    You can configure the attributes of those models either by setting them when
+    creating a model or later by setting attribute values on the model object.
+
+You can access all low-level ``model`` objects through Bokeh's |bokeh.models|
+interface.
+
+For example, to create and configure a |Rect| glyph object:
+
+.. code-block:: python
+
+    # configure attributes when initializing a model object
+    glyph = Rect(x="x", y="y2", w=10, h=20, line_color=None)
+
+    # assign values to attributes to an existing model object
+    glyph.fill_alpha = 0.5
+    glyph.fill_color = "navy"
+
+You can generally configure all Bokeh models this way. Since all Bokeh
+interfaces ultimately produce collections of Bokeh models, this lets you
+style and configure plots and widgets the same way regardless of the
+interface.
+
+For more information on Bokeh models, consult the :ref:`refguide`.
+
+.. note::
+
+   The Python library allows for binding with other languages that can produce
+   appropriate JSON output. For more details and available bindings, see
+   :ref:`devguide_bindings`.
+
 
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
