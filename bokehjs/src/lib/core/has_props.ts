@@ -46,6 +46,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
+  get is_syncable(): boolean{
+    return true
+  }
+
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
     console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
@@ -546,6 +550,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    if (!this.is_syncable)
+      return
+
     const {document} = this
     if (document == null)
       return
