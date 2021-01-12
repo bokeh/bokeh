@@ -276,18 +276,25 @@ from .property.container import RestrictedDict; RestrictedDict
 from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
+from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
 from .property.dataspec import DataDistanceSpec; DataDistanceSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
 from .property.dataspec import expr; expr
 from .property.dataspec import field; field
 from .property.dataspec import FontSizeSpec; FontSizeSpec
+from .property.dataspec import FontStyleSpec; FontStyleSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
+from .property.dataspec import IntSpec; IntSpec
+from .property.dataspec import LineCapSpec; LineCapSpec
+from .property.dataspec import LineJoinSpec; LineJoinSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
 from .property.dataspec import StringSpec; StringSpec
+from .property.dataspec import TextAlignSpec; TextAlignSpec
+from .property.dataspec import TextBaselineSpec; TextBaselineSpec
 from .property.dataspec import UnitsSpec; UnitsSpec
 from .property.dataspec import value; value
 

@@ -29,8 +29,8 @@ from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
 from .instance import Instance
-from .primitive import Float, String
-from .visual import FontSize, HatchPatternType, MarkerType
+from .primitive import Float, Int, String
+from .visual import DashPattern, FontSize, HatchPatternType, MarkerType
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,16 +41,23 @@ __all__ = (
     'AngleSpec',
     'ColorSpec',
     'DataSpec',
+    'DashPatternSpec',
     'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
     'FontSizeSpec',
+    'FontStyleSpec',
     'HatchPatternSpec',
+    'IntSpec',
+    'LineCapSpec',
+    'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
     'ScreenDistanceSpec',
     'StringSpec',
+    'TextAlignSpec',
+    'TextBaselineSpec',
     'UnitsSpec',
     'value',
 )
@@ -208,6 +215,9 @@ class DataSpec(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+class IntSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Int, default=default, help=help)
 
 class NumberSpec(DataSpec):
     """ A |DataSpec| property that accepts numeric and datetime fixed values.
@@ -304,6 +314,30 @@ class FontSizeSpec(DataSpec):
             if len(value) == 0 or value[0].isdigit() and not FontSize._font_size_re.match(value):
                 msg = "" if not detail else f"{value!r} is not a valid font size value"
                 raise ValueError(msg)
+
+class FontStyleSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Enum(enums.FontStyle), default=default, help=help)
+
+class TextAlignSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Enum(enums.TextAlign), default=default, help=help)
+
+class TextBaselineSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Enum(enums.TextBaseline), default=default, help=help)
+
+class LineJoinSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Enum(enums.LineJoin), default=default, help=help)
+
+class LineCapSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Enum(enums.LineCap), default=default, help=help)
+
+class DashPatternSpec(DataSpec):
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, DashPattern, default=default, help=help)
 
 class HatchPatternSpec(DataSpec):
     """ A |DataSpec| property that accepts hatch pattern types as fixed values.
