@@ -3,7 +3,7 @@ import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, RaggedArray, FloatArray} from "core/types"
+import {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax} from "core/util/arrayable"
@@ -17,8 +17,8 @@ export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
   _xs: RaggedArray<FloatArray>
   _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray<Float32Array>
-  sys: RaggedArray<Float32Array>
+  sxs: RaggedArray<ScreenArray>
+  sys: RaggedArray<ScreenArray>
 }
 
 export interface MultiLineView extends MultiLineData {}

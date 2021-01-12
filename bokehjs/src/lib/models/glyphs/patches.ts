@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, RaggedArray, FloatArray, Indices} from "core/types"
+import {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -17,8 +17,8 @@ export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
   _xs: RaggedArray<FloatArray>
   _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray<Float32Array>
-  sys: RaggedArray<Float32Array>
+  sxs: RaggedArray<ScreenArray>
+  sys: RaggedArray<ScreenArray>
 }
 
 export interface PatchesView extends PatchesData {}

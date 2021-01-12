@@ -9,7 +9,7 @@ import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
 import {is_Color, color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {isBoolean, isNumber, isString, isArray, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional, Transform, Expression} from "./vectorization"
@@ -207,7 +207,7 @@ export class Any extends Property<any> {}
 /** @deprecated */
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
-    return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
+    return isArray(value) || isTypedArray(value)
   }
 }
 
