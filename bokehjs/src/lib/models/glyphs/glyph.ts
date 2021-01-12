@@ -262,8 +262,7 @@ export abstract class GlyphView extends View {
       if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
 
-      // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !prop.dirty)
+      if (prop.can_skip)
         continue
 
       const name = prop.attr

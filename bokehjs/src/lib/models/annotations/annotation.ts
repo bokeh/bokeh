@@ -62,8 +62,7 @@ export abstract class AnnotationView extends RendererView {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
-      // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !prop.dirty)
+      if (prop.can_skip)
         continue
 
       if (visual_props.has(prop)) {

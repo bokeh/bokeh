@@ -86,7 +86,7 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: Spec<T> // XXX: too many failures for now
+  protected spec: Spec<T>
 
   get_value(): T {
     return this.spec.value!
@@ -373,6 +373,10 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   __value__: T
   __scalar__: S
 
+  get can_skip(): boolean {
+    return this.optional && this.spec.value == null && !this.dirty
+  }
+
   get_value(): S {
     // XXX: allow obj.x = null; obj.x == null
     return this.spec.value === null ? null : this.spec as any
@@ -433,6 +437,10 @@ export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
   __value__: T
   __vector__: V
+
+  get can_skip(): boolean {
+    return this.optional && this.spec.value == null && !this.dirty
+  }
 
   get_value(): V {
     // XXX: allow obj.x = null; obj.x == null

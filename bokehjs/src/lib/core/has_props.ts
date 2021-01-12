@@ -301,11 +301,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   finalize(): void {
     for (const prop of this) {
-      const {transform, expr} = prop.spec
-      if (transform != null)
-        this.connect(transform.change, () => this.transformchange.emit())
-      if (expr != null)
-        this.connect(expr.change, () => this.exprchange.emit())
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+        continue
+
+      const value = prop.get_value() as p.Spec<unknown> | null // XXX: T -> any under instanceof
+      if (value != null) {
+        const {transform, expr} = value
+        if (transform != null)
+          this.connect(transform.change, () => this.transformchange.emit())
+        if (expr != null)
+          this.connect(expr.change, () => this.exprchange.emit())
+      }
     }
 
     this.initialize()

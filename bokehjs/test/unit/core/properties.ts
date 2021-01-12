@@ -319,7 +319,7 @@ describe("properties module", () => {
         const obj = new Some({string_spec: {value: "foo"}})
         const prop = obj.properties.string_spec
         obj.string_spec = {value: "bar"}
-        expect(prop.spec).to.be.equal({value: "bar"})
+        expect(prop.get_value()).to.be.equal({value: "bar"})
       })
     })
   })
