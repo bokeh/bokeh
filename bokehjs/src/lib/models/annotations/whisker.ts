@@ -16,11 +16,10 @@ export class WhiskerView extends UpperLowerView {
     await super.lazy_initialize()
 
     const {lower_head, upper_head} = this.model
-    const {parent} = this
     if (lower_head != null)
-      this.lower_head = await build_view(lower_head, {parent})
+      this.lower_head = await build_view(lower_head, {parent: this})
     if (upper_head != null)
-      this.upper_head = await build_view(upper_head, {parent})
+      this.upper_head = await build_view(upper_head, {parent: this})
   }
 
   connect_signals(): void {

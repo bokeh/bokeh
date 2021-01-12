@@ -33,11 +33,10 @@ export class ArrowView extends AnnotationView {
     await super.lazy_initialize()
 
     const {start, end} = this.model
-    const {parent} = this
     if (start != null)
-      this.start = await build_view(start, {parent})
+      this.start = await build_view(start, {parent: this})
     if (end != null)
-      this.end = await build_view(end, {parent})
+      this.end = await build_view(end, {parent: this})
 
     this.set_data(this.model.source)
   }
