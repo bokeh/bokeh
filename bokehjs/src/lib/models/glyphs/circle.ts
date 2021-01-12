@@ -3,7 +3,7 @@ import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray, ScreenArray, Indices} from "core/types"
+import {Rect, Indices, FloatArray, ScreenArray, to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -14,9 +14,10 @@ import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
-  _angle: NumberArray
-  _size: NumberArray
-  _radius?: NumberArray
+  _angle: ScreenArray
+
+  _size: ScreenArray
+  _radius?: FloatArray
 
   sradius: ScreenArray
 
@@ -70,7 +71,7 @@ export class CircleView extends XYGlyphView {
           }
         }
       } else {
-        this.sradius = this._radius
+        this.sradius = to_screen(this._radius)
         this.max_size = 2*this.max_radius
       }
     } else

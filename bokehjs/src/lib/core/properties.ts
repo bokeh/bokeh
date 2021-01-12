@@ -588,6 +588,10 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
     mul(values, coeff, values)
     return super.normalize(values)
   }
+
+  array(source: ColumnarDataSource): Float32Array {
+    return new Float32Array(super.array(source))
+  }
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {

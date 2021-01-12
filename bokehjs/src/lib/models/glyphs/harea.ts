@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable, NumberArray, ScreenArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -8,9 +8,9 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
 export type HAreaData = AreaData & {
-  _x1: NumberArray
-  _x2: NumberArray
-  _y: NumberArray
+  _x1: FloatArray
+  _x2: FloatArray
+  _y: FloatArray
 
   sx1: ScreenArray
   sx2: ScreenArray

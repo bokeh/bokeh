@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray, to_screen} from "core/types"
 import * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -11,11 +11,12 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
-  _inner_radius: NumberArray
-  _outer_radius: NumberArray
-  _start_angle: NumberArray
-  _end_angle: NumberArray
-  _angle: NumberArray
+  _inner_radius: FloatArray
+  _outer_radius: FloatArray
+
+  _start_angle: ScreenArray
+  _end_angle: ScreenArray
+  _angle: ScreenArray
 
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
@@ -34,14 +35,14 @@ export class AnnularWedgeView extends XYGlyphView {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius)
     else
-      this.sinner_radius = this._inner_radius
+      this.sinner_radius = to_screen(this._inner_radius)
 
     if (this.model.properties.outer_radius.units == "data")
       this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius)
     else
-      this.souter_radius = this._outer_radius
+      this.souter_radius = to_screen(this._outer_radius)
 
-    this._angle = new NumberArray(this._start_angle.length)
+    this._angle = new ScreenArray(this._start_angle.length)
 
     for (let i = 0, end = this._start_angle.length; i < end; i++) {
       this._angle[i] = this._end_angle[i] - this._start_angle[i]

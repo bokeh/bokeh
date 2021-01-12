@@ -1,7 +1,7 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {Rect} from "core/types"
+import {Rect, to_screen} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
@@ -18,12 +18,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
     else
-      this.sw = this._width
+      this.sw = to_screen(this._width)
 
     if (this.model.properties.height.units == "data")
       this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center')
     else
-      this.sh = this._height
+      this.sh = to_screen(this._height)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {

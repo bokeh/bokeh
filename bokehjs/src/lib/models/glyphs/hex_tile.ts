@@ -4,7 +4,7 @@ import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray, infer_type} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import * as visuals from "core/visuals"
@@ -17,13 +17,13 @@ import {Selection} from "../selections/selection"
 export type Vertices = [number, number, number, number, number, number]
 
 export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
-  _q: NumberArray
-  _r: NumberArray
+  _q: FloatArray
+  _r: FloatArray
 
-  _x: NumberArray
-  _y: NumberArray
+  _x: FloatArray
+  _y: FloatArray
 
-  _scale: NumberArray
+  _scale: FloatArray
 
   sx: ScreenArray
   sy: ScreenArray
@@ -47,23 +47,26 @@ export class HexTileView extends GlyphView {
   }
 
   protected _set_data(): void {
-    const n = this._q.length
 
     const {orientation, size, aspect_scale} = this.model
+    const {_q, _r} = this
 
-    this._x = new NumberArray(n)
-    this._y = new NumberArray(n)
+    const ArrayType = infer_type(_q, _r)
+    const n = this._q.length
+    this._x = new ArrayType(n)
+    this._y = new ArrayType(n)
+    const {_x, _y} = this
 
     const sqrt3 = Math.sqrt(3)
     if (orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * sqrt3 * (this._q[i] + this._r[i]/2) / aspect_scale
-        this._y[i] = -size * 3/2 * this._r[i]
+        _x[i] = size*sqrt3*(_q[i] + _r[i]/2)/aspect_scale
+        _y[i] = -size*3/2*_r[i]
       }
     } else {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * 3/2 * this._q[i]
-        this._y[i] = -size * sqrt3 * (this._r[i] + this._q[i]/2) * aspect_scale
+        _x[i] = size*3/2*_q[i]
+        _y[i] = -size*sqrt3*(_r[i] + _q[i]/2)*aspect_scale
       }
     }
   }

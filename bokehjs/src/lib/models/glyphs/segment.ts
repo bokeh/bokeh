@@ -3,7 +3,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Arrayable, Rect, NumberArray, ScreenArray} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
@@ -12,10 +12,10 @@ import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export type SegmentData = GlyphData & p.UniformsOf<Segment.Mixins> & {
-  _x0: NumberArray
-  _y0: NumberArray
-  _x1: NumberArray
-  _y1: NumberArray
+  _x0: FloatArray
+  _y0: FloatArray
+  _x1: FloatArray
+  _y1: FloatArray
 
   sx0: ScreenArray
   sy0: ScreenArray

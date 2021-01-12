@@ -1,12 +1,12 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export type QuadData = BoxData & {
-  _right: NumberArray
-  _bottom: NumberArray
-  _left: NumberArray
-  _top: NumberArray
+  _right: FloatArray
+  _bottom: FloatArray
+  _left: FloatArray
+  _top: FloatArray
 
   sright: ScreenArray
   sbottom: ScreenArray

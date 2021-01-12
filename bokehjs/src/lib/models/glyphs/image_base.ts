@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, NumberArray, ScreenArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray, to_screen} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
@@ -13,8 +13,8 @@ export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
   _image: (NDArray | number[][])[]
-  _dw: NumberArray
-  _dh: NumberArray
+  _dw: FloatArray
+  _dh: FloatArray
 
   sw: ScreenArray
   sh: ScreenArray
@@ -26,8 +26,8 @@ export abstract class ImageBaseView extends XYGlyphView {
   model: ImageBase
   visuals: ImageBase.Visuals
 
-  protected _width: NumberArray
-  protected _height: NumberArray
+  protected _width: Uint32Array
+  protected _height: Uint32Array
 
   connect_signals(): void {
     super.connect_signals()
@@ -122,10 +122,10 @@ export abstract class ImageBaseView extends XYGlyphView {
       this.image_data = new Array(this._image.length)
 
     if (this._width == null || this._width.length != this._image.length)
-      this._width = new NumberArray(this._image.length)
+      this._width = new Uint32Array(this._image.length)
 
     if (this._height == null || this._height.length != this._image.length)
-      this._height = new NumberArray(this._image.length)
+      this._height = new Uint32Array(this._image.length)
   }
 
   protected _get_or_create_canvas(i: number): HTMLCanvasElement {
@@ -154,12 +154,12 @@ export abstract class ImageBaseView extends XYGlyphView {
     if (this.model.properties.dw.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
     else
-      this.sw = this._dw
+      this.sw = to_screen(this._dw)
 
     if (this.model.properties.dh.units == "data")
       this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
     else
-      this.sh = this._dh
+      this.sh = to_screen(this._dh)
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {

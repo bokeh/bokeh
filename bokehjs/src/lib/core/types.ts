@@ -20,6 +20,20 @@ import {TypedArray} from "./util/ndarray"
 export {TypedArray}
 
 export type FloatArray = Float32Array | Float64Array
+export type FloatArrayConstructor = Float32ArrayConstructor | Float64ArrayConstructor
+
+export function infer_type(a0: Float64Array, a1: FloatArray): Float64ArrayConstructor
+export function infer_type(a0: FloatArray, a1: Float64Array): Float64ArrayConstructor
+export function infer_type(a0: Float32Array, a1: Float32Array): Float32ArrayConstructor
+export function infer_type(a0: FloatArray, a1: FloatArray): FloatArrayConstructor
+
+export function infer_type(a0: FloatArray, a1: FloatArray): FloatArrayConstructor {
+  if (a0 instanceof Float64Array)
+    return Float64Array
+  if (a1 instanceof Float64Array)
+    return Float64Array
+  return Float32Array
+}
 
 // TODO: this is incorrect
 export type NumberArray = Float32Array
@@ -27,6 +41,13 @@ export const NumberArray = Float32Array
 
 export type ScreenArray = Float32Array
 export const ScreenArray = Float32Array
+
+export function to_screen(array: TypedArray): ScreenArray {
+  if (!(array instanceof Float32Array))
+    return new Float32Array(array)
+  else
+    return array
+}
 
 export type Arrayable<T = any> = {
   readonly length: number

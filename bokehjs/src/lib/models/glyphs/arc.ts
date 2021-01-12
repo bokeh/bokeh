@@ -2,19 +2,18 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray, to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
-  _radius: NumberArray
-  _start_angle: NumberArray
-  _end_angle: NumberArray
-
+  _radius: FloatArray
   sradius: ScreenArray
-
   max_radius: number
+
+  _start_angle: ScreenArray
+  _end_angle: ScreenArray
 }
 
 export interface ArcView extends ArcData {}
@@ -27,7 +26,7 @@ export class ArcView extends XYGlyphView {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
     else
-      this.sradius = this._radius
+      this.sradius = to_screen(this._radius)
   }
 
   protected _render(ctx: Context2d, indices: number[],

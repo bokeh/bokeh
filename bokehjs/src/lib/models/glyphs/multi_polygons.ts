@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray, ScreenArray, Indices} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,8 +14,8 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
 export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> & {
-  _xs: NumberArray[][][]
-  _ys: NumberArray[][][]
+  _xs: FloatArray[][][]
+  _ys: FloatArray[][][]
 
   sxs: ScreenArray[][][]
   sys: ScreenArray[][][]

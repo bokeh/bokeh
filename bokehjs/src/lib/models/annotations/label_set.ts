@@ -7,7 +7,7 @@ import {SpatialUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
-import {Arrayable} from "core/types"
+import {Arrayable, FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {font_metrics} from "core/util/text"
 
@@ -15,12 +15,12 @@ export class LabelSetView extends TextAnnotationView {
   model: LabelSet
   visuals: LabelSet.Visuals
 
-  protected _x: Arrayable<number>
-  protected _y: Arrayable<number>
-  protected _text: Arrayable<string>
-  protected _angle: Arrayable<number>
-  protected _x_offset: Arrayable<number>
-  protected _y_offset: Arrayable<number>
+  protected _x: FloatArray
+  protected _y: FloatArray
+  protected _text: string[]
+  protected _angle: ScreenArray
+  protected _x_offset: ScreenArray
+  protected _y_offset: ScreenArray
 
   initialize(): void {
     super.initialize()

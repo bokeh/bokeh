@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
@@ -29,12 +29,12 @@ function _qbb(u: number, v: number, w: number): [number, number] {
 }
 
 export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
-  _x0: NumberArray
-  _y0: NumberArray
-  _x1: NumberArray
-  _y1: NumberArray
-  _cx: NumberArray
-  _cy: NumberArray
+  _x0: FloatArray
+  _y0: FloatArray
+  _x1: FloatArray
+  _y1: FloatArray
+  _cx: FloatArray
+  _cy: FloatArray
 
   sx0: ScreenArray
   sy0: ScreenArray

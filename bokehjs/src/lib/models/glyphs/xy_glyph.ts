@@ -1,12 +1,12 @@
-import {NumberArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 export type XYGlyphData = GlyphData & {
-  _x: NumberArray
-  _y: NumberArray
+  _x: FloatArray
+  _y: FloatArray
 
   sx: ScreenArray
   sy: ScreenArray

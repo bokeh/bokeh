@@ -9,7 +9,7 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, ScreenArray, Indices} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
 import {values} from "core/util/object"
@@ -336,7 +336,7 @@ export abstract class GlyphView extends View {
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
         const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray<NumberArray>
+        let array = self[`_${prop.attr}`] as FloatArray | RaggedArray<FloatArray>
         if (array instanceof RaggedArray) {
           const screen = scale.v_compute(array.array)
           array = new RaggedArray(array.offsets, screen)

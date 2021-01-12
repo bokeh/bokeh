@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect, NumberArray, ScreenArray} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, to_screen} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
 import {map, minmax} from "core/util/arrayable"
@@ -11,9 +11,9 @@ export type CanvasImage = HTMLImageElement
 
 export type ImageURLData = XYGlyphData & {
   _url: string[]
-  _angle: NumberArray
-  _w: NumberArray
-  _h: NumberArray
+  _angle: ScreenArray
+  _w: FloatArray
+  _h: FloatArray
   _bounds_rect: Rect
 
   sw: ScreenArray
@@ -157,12 +157,12 @@ export class ImageURLView extends XYGlyphView {
     if (this.model.properties.w.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
     else
-      this.sw = ws
+      this.sw = to_screen(ws)
 
     if (this.model.properties.h.units == "data")
       this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
     else
-      this.sh = hs
+      this.sh = to_screen(hs)
   }
 
   protected _render(ctx: Context2d, indices: number[],

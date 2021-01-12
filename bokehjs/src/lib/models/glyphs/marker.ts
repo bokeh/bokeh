@@ -3,7 +3,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Arrayable, Rect, Indices} from "core/types"
+import {Rect, Indices, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -11,8 +11,8 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
-  _size: Arrayable<number>
-  _angle: Arrayable<number>
+  _size: ScreenArray
+  _angle: ScreenArray
 
   max_size: number
 }

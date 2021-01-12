@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {Anchor} from "core/enums"
 import * as visuals from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
@@ -11,10 +11,10 @@ import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
 export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
-  _right: NumberArray
-  _bottom: NumberArray
-  _left: NumberArray
-  _top: NumberArray
+  _right: FloatArray
+  _bottom: FloatArray
+  _left: FloatArray
+  _top: FloatArray
 
   sright: ScreenArray
   sbottom: ScreenArray

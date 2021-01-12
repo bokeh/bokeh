@@ -1,7 +1,7 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {Arrayable, NumberArray, ScreenArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray, to_screen, infer_type} from "core/types"
 import * as types from "core/types"
 import * as p from "core/properties"
 import {max} from "core/util/arrayable"
@@ -25,7 +25,7 @@ export class RectView extends CenterRotatableView {
     if (this.model.properties.width.units == "data")
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale)
     else {
-      this.sw = this._width
+      this.sw = to_screen(this._width)
 
       const n = this.sx.length
       this.sx0 = new ScreenArray(n)
@@ -36,7 +36,7 @@ export class RectView extends CenterRotatableView {
     if (this.model.properties.height.units == "data")
       [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale)
     else {
-      this.sh = this._height
+      this.sh = to_screen(this._height)
 
       const n = this.sy.length
       this.sy1 = new ScreenArray(n)
@@ -182,13 +182,14 @@ export class RectView extends CenterRotatableView {
     return [sside_length, spt_corner]
   }
 
-  protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): NumberArray {
-    const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
+  protected _ddist(dim: 0 | 1, spts: FloatArray, spans: FloatArray): FloatArray {
+    const ArrayType = infer_type(spts, spans)
 
+    const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
     const spt0 = spts
 
     const m = spt0.length
-    const spt1 = new NumberArray(m)
+    const spt1 = new ArrayType(m)
     for (let i = 0; i < m; i++)
       spt1[i] = spt0[i] + spans[i]
 
@@ -196,7 +197,7 @@ export class RectView extends CenterRotatableView {
     const pt1 = scale.v_invert(spt1)
 
     const n = pt0.length
-    const ddist = new NumberArray(n)
+    const ddist = new ArrayType(n)
     for (let i = 0; i < n; i++)
       ddist[i] = Math.abs(pt1[i] - pt0[i])
     return ddist

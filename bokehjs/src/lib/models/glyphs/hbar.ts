@@ -1,12 +1,12 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export type HBarData = BoxData & {
-  _left: NumberArray
-  _y: NumberArray
-  _height: NumberArray
-  _right: NumberArray
+  _left: FloatArray
+  _y: FloatArray
+  _height: FloatArray
+  _right: FloatArray
 
   sy: ScreenArray
   sh: ScreenArray

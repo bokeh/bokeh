@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {TextVector} from "core/property_mixins"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {NumberArray} from "core/types"
+import {ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {font_metrics} from "core/util/text"
@@ -12,9 +12,9 @@ import {Selection} from "../selections/selection"
 
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   _text: string[]
-  _angle: NumberArray
-  _x_offset: NumberArray
-  _y_offset: NumberArray
+  _angle: ScreenArray
+  _x_offset: ScreenArray
+  _y_offset: ScreenArray
 
   _sxs: number[][][]
   _sys: number[][][]

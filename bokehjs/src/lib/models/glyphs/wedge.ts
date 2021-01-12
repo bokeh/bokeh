@@ -3,7 +3,7 @@ import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray, to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
@@ -11,13 +11,12 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
-  _radius: NumberArray
-  _start_angle: NumberArray
-  _end_angle: NumberArray
-
+  _radius: FloatArray
   sradius: ScreenArray
-
   max_radius: number
+
+  _start_angle: ScreenArray
+  _end_angle: ScreenArray
 }
 
 export interface WedgeView extends WedgeData {}
@@ -30,7 +29,7 @@ export class WedgeView extends XYGlyphView {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
     else
-      this.sradius = this._radius
+      this.sradius = to_screen(this._radius)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {

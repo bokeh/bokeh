@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, NumberArray, ScreenArray} from "core/types"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -77,14 +77,14 @@ function _cbb(x0: number, y0: number,
 }
 
 export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
-  _x0: NumberArray
-  _y0: NumberArray
-  _x1: NumberArray
-  _y1: NumberArray
-  _cx0: NumberArray
-  _cy0: NumberArray
-  _cx1: NumberArray
-  _cy1: NumberArray
+  _x0: FloatArray
+  _y0: FloatArray
+  _x1: FloatArray
+  _y1: FloatArray
+  _cx0: FloatArray
+  _cy0: FloatArray
+  _cx1: FloatArray
+  _cy1: FloatArray
 
   sx0: ScreenArray
   sy0: ScreenArray
