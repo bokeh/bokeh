@@ -54,7 +54,7 @@ export namespace Label {
   export type Attrs = p.AttrsOf<Props>
 
   export type Mixins =
-    mixins.TextScalar &
+    mixins.Text &
     mixins.BorderLine     &
     mixins.BackgroundFill
 

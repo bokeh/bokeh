@@ -71,9 +71,9 @@ export namespace Band {
 
   export type Props = UpperLower.Props & Mixins
 
-  export type Mixins = mixins.LineScalar & mixins.FillScalar
+  export type Mixins = mixins.Line & mixins.Fill
 
-  export type Visuals = UpperLower.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar}
+  export type Visuals = UpperLower.Visuals & {line: visuals.Line, fill: visuals.Fill}
 }
 
 export interface Band extends Band.Attrs {}
@@ -89,7 +89,7 @@ export class Band extends UpperLower {
   static init_Band(): void {
     this.prototype.default_view = BandView
 
-    this.mixins<Band.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<Band.Mixins>([mixins.Line, mixins.Fill])
 
     this.override<Band.Props>({
       fill_color: "#fff9ba",
