@@ -506,7 +506,7 @@ class Plot(LayoutDOM):
 
     width = Override(default=600)
 
-    plot_width = Int(600, help="""
+    plot_width: int = Int(600, help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
 
     .. note::
@@ -516,7 +516,7 @@ class Plot(LayoutDOM):
 
     height = Override(default=600)
 
-    plot_height = Int(600, help="""
+    plot_height: int = Int(600, help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
 
     .. note::

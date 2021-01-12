@@ -69,6 +69,9 @@ def abstract(cls):
 
     return cls
 
+def is_DataModel(cls):
+    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False)
+
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -310,6 +313,52 @@ class HasProps(metaclass=MetaHasProps):
             return False
         else:
             return self.properties_with_values() == other.properties_with_values()
+
+    # TODO: this assumes that HasProps/Model are defined as in bokehjs, which
+    # isn't the case here. HasProps must be serializable through refs only.
+    @classmethod
+    def static_to_serializable(cls, serializer):
+        # TODO: resolving already visited objects should be serializer's duty
+        modelref = serializer.get_ref(cls)
+        if modelref is not None:
+            return modelref
+
+        bases = [ basecls for basecls in cls.__bases__ if is_DataModel(basecls) ]
+        if len(bases) == 0:
+            extends = None
+        elif len(bases) == 1:
+            extends = bases[0].static_to_serializable(serializer)
+        else:
+            raise RuntimeError("multiple bases are not supported")
+
+        name = cls.__view_model__
+        module = cls.__view_module__
+
+        # TODO: remove this
+        if module == "__main__" or module.split(".")[0] == "bokeh":
+            module = None
+
+        properties = []
+        overrides = []
+
+        # TODO: don't use unordered sets
+        for prop_name in list(cls.__properties__):
+            descriptor = cls.lookup(prop_name)
+            kind = None # TODO: serialize kinds
+            default = descriptor.property._default # TODO: private member
+            properties.append(dict(name=prop_name, kind=kind, default=default))
+
+        for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
+            overrides.append(dict(name=prop_name, default=default))
+
+        modeldef = dict(name=name, module=module, extends=extends, properties=properties, overrides=overrides)
+        modelref = dict(name=name, module=module)
+
+        serializer.add_ref(cls, modelref, modeldef)
+        return modelref
+
+    def to_serializable(self, serializer):
+        pass # TODO: new serializer, hopefully in near future
 
     def set_from_json(self, name, json, models=None, setter=None):
         ''' Set a property value on this object from JSON.

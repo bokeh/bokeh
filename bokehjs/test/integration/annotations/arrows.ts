@@ -65,7 +65,7 @@ describe("Arrow annotation", () => {
     const p0 = make_plot("canvas")
     const p1 = make_plot("svg")
 
-    await display(row([p0, p1]), [450, 650])
+    await display(row([p0, p1]))
   })
 
   it(`should support support vertical arrows with all arrow heads`, async () => {
@@ -95,6 +95,6 @@ describe("Arrow annotation", () => {
     const p0 = make_plot("canvas")
     const p1 = make_plot("svg")
 
-    await display(column([p0, p1]), [650, 450])
+    await display(column([p0, p1]))
   })
 })

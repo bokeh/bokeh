@@ -19,9 +19,7 @@ UIResultFuncType = Callable[[str, Optional[Sequence[str]]], str]
 
 
 class ActionReturn:
-    """
-
-    """
+    """"""
 
     kind: ActionResult
     ui: UIResultFuncType
@@ -38,27 +36,21 @@ class ActionReturn:
 
 
 class FAILED(ActionReturn):
-    """
-
-    """
+    """"""
 
     kind = ActionResult.FAIL
     ui = failed
 
 
 class PASSED(ActionReturn):
-    """
-
-    """
+    """"""
 
     kind = ActionResult.PASS
     ui = passed
 
 
 class SKIPPED(ActionReturn):
-    """
-
-    """
+    """"""
 
     kind = ActionResult.SKIP
     ui = skipped

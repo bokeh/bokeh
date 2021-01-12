@@ -1,6 +1,6 @@
 .. _userguide_extensions_examples_wrapping:
 
-Wrapping A JavaScript Library
+Wrapping a JavaScript library
 -----------------------------
 
 This example is a scaled-down standalone version of the demo at

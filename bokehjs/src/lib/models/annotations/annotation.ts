@@ -1,5 +1,5 @@
-import {SidePanel} from "core/layout/side_panel"
-import {Size} from "core/layout"
+import {Panel} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
 import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
 import * as p from "core/properties"
@@ -12,18 +12,11 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
-  layout: SidePanel
+  layout?: Layoutable
+  panel?: Panel
 
-  get panel(): SidePanel | undefined { // XXX
-    return this.layout
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
+  update_layout?(): void
+  after_layout?(): void
 
   get_size(): Size {
     if (this.model.visible) {
@@ -35,6 +28,18 @@ export abstract class AnnotationView extends RendererView {
 
   protected _get_size(): Size {
     throw new Error("not implemented")
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+
+    const p = this.model.properties
+    this.on_change(p.visible, () => {
+      if (this.layout != null) {
+        this.layout.visible = this.model.visible
+        this.plot_view.request_layout()
+      }
+    })
   }
 
   set_data(source: ColumnarDataSource): void {

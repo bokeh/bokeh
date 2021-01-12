@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..core.enums import (
@@ -53,6 +54,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alpha,
     Auto,
     Bool,
     Color,
@@ -282,24 +284,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Auto, Instance(Drag), help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
-    active_inspect = Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
+    active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
+        Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Auto, Instance(Scroll), help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Auto, Instance(Tap), help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi = Instance(GestureTool, help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Instance(GestureTool, help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -353,6 +356,7 @@ class PanTool(Drag):
     """)
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
+    syncable=False,
     level="overlay",
     fill_color="lightgrey",
     fill_alpha=0.5,
@@ -634,31 +638,18 @@ class CrosshairTool(InspectTool):
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
+    """)
 
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
+    line_alpha = Alpha(help="""
+    An alpha value to use to stroke paths with.
     """)
 
     line_width = Float(default=1, help="""
     Stroke width in units of pixels.
     """)
 
-    line_alpha = Float(default=1.0, help="""
-    An alpha value to use to stroke paths with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
-    """)
-
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
+    syncable=False,
     level="overlay",
     top_units="screen",
     left_units="screen",
@@ -800,6 +791,7 @@ class BoxSelectTool(Drag, SelectTool):
     """)
 
 DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
+    syncable=False,
     level="overlay",
     xs_units="screen",
     ys_units="screen",
@@ -982,6 +974,9 @@ class HoverTool(InspectTool):
             ("(x,y)", "($x, $y)"),
             ("radius", "@radius"),
             ("fill color", "$color[hex, swatch]:fill_color"),
+            ("fill color", "$color[hex]:fill_color"),
+            ("fill color", "$color:fill_color"),
+            ("fill color", "$swatch:fill_color"),
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
@@ -1066,8 +1061,9 @@ class HoverTool(InspectTool):
     :$sy: y-coordinate under the cursor in screen (canvas) space
     :$color: color data from data source, with the syntax:
         ``$color[options]:field_name``. The available options
-        are: 'hex' (to display the color as a hex value), and
-        'swatch' to also display a small color swatch.
+        are: ``hex`` (to display the color as a hex value), ``swatch``
+        (color data from data source displayed as a small color box)
+    :$swatch: color data from data source displayed as a small color box
 
     Field names that begin with ``@`` are associated with columns in a
     ``ColumnDataSource``. For instance the field name ``"@price"`` will

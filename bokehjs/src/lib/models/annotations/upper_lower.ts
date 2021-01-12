@@ -25,7 +25,7 @@ export abstract class UpperLowerView extends AnnotationView {
 
   set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.plot_view.request_render()
+    this.request_render()
   }
 
   protected _map_data(): void {
@@ -38,8 +38,8 @@ export abstract class UpperLowerView extends AnnotationView {
     const limit_scale = dim == "height" ? yscale : xscale
     const base_scale  = dim == "height" ? xscale : yscale
 
-    const limit_view = dim == "height" ? frame.yview : frame.xview
-    const base_view  = dim == "height" ? frame.xview : frame.yview
+    const limit_view = dim == "height" ? frame.bbox.yview : frame.bbox.xview
+    const base_view  = dim == "height" ? frame.bbox.xview : frame.bbox.yview
 
     let _lower_sx
     if (this.model.properties.lower.units == "data")

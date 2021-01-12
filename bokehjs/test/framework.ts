@@ -239,7 +239,10 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
 
   if (error == null && test.view != null) {
     try {
+      const {width, height} = test.view.layout.bbox
       const rect = test.el!.getBoundingClientRect()
+      if (width > rect.width || height > rect.height)
+        throw new Error(`viewport size exceeded [${width}, ${height}] > [${rect.width}, ${rect.height}]`)
       const left = rect.left + window.pageXOffset - document.documentElement!.clientLeft
       const top = rect.top + window.pageYOffset - document.documentElement!.clientTop
       const bbox = {x: left, y: top, width: rect.width, height: rect.height}
@@ -252,12 +255,81 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display<T extends LayoutDOM>(obj: T, viewport: [number, number] = [1000, 1000]): Promise<{view: ViewOf<T>, el: HTMLElement}> {
-  const [width, height] = viewport
+export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number]): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+  const margin = 50
+  const [width, height] = (() => {
+    if (viewport != null)
+      return viewport
+    else {
+      const {width, height} = _infer_viewport(obj)
+      if (width != Infinity && height != Infinity) {
+        return [width + margin, height + margin]
+      } else {
+        throw new Error("unable to infer viewport size")
+      }
+    }
+  })()
   const el = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}})
   document.body.appendChild(el)
   const view = await show(obj, el)
   current_test!.view = view
   current_test!.el = el
   return {view, el}
+}
+
+import {sum} from "@bokehjs/core/util/array"
+import {Size} from "@bokehjs/core/layout"
+import {Row, Column, GridBox} from "@bokehjs/models/layouts"
+
+function _infer_viewport(obj: LayoutDOM): Size {
+  const {sizing_mode, width_policy, height_policy} = obj
+
+  let width = 0
+  let height = 0
+  if (sizing_mode == "fixed" || (width_policy == "fixed" && height_policy == "fixed")) {
+    width = obj.width ?? Infinity
+    height = obj.height ?? Infinity
+  } else if (width_policy == "max" || height_policy == "max") {
+    width = Infinity
+    height = Infinity
+  } else {
+    if (obj instanceof Row) {
+      for (const child of obj.children) {
+        const size = _infer_viewport(child)
+        width += size.width
+        height = Math.max(height, size.height)
+      }
+
+      width += obj.spacing*(obj.children.length - 1)
+    } else if (obj instanceof Column) {
+      for (const child of obj.children) {
+        const size = _infer_viewport(child)
+        width = Math.max(width, size.width)
+        height += size.height
+      }
+
+      height += obj.spacing*(obj.children.length - 1)
+    } else if (obj instanceof GridBox) {
+      let nrow = 0
+      let ncol = 0
+      for (const [, row, col] of obj.children) {
+        nrow = Math.max(nrow, row)
+        ncol = Math.max(ncol, col)
+      }
+      const widths = new Array(ncol)
+      const heights = new Array(nrow)
+      for (const [child, row, col] of obj.children) {
+        const size = _infer_viewport(child)
+        widths[col] = Math.max(widths[col], size.width)
+        heights[col] = Math.max(heights[row], size.height)
+      }
+      width = sum(widths)
+      height = sum(heights)
+    } else {
+      width = obj.width ?? Infinity
+      height = obj.height ?? Infinity
+    }
+  }
+
+  return {width, height}
 }

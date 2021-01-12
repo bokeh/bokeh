@@ -1,11 +1,11 @@
 import {Document} from "../document"
 import * as embed from "../embed"
 import {HasProps} from "../core/has_props"
-import {Color, Data, Attrs} from "../core/types"
+import {Color, Data, Attrs, Arrayable} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
-import {VectorSpec, ScalarSpec, Property} from "../core/properties"
+import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
-import {Location, MarkerType} from "../core/enums"
+import {Location, MarkerType, RenderLevel} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {is_equal} from "../core/util/eq"
 import {some, includes} from "../core/util/array"
@@ -14,6 +14,7 @@ import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {dom_ready} from "core/dom"
 import {enumerate} from "core/util/iterator"
+import * as nd from "core/util/ndarray"
 
 import {
   Glyph, GlyphRenderer, Axis, Grid,
@@ -28,7 +29,7 @@ import {
   AnnularWedge, Annulus, Arc, Bezier, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
   MultiPolygons, Oval, Patch, Patches, Quad, Quadratic, Ray,
-  Rect, Scatter, Segment, Step, Text, VArea, VBar, Wedge,
+  Rect, Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -38,7 +39,7 @@ import {LegendItem} from "../models/annotations/legend_item"
 import {ToolAliases} from "../models/tools/tool"
 
 export {gridplot} from "./gridplot"
-export {rgb2hex as color} from "../core/util/color"
+export {color2css as color} from "../core/util/color"
 
 const {hasOwnProperty} = Object.prototype
 
@@ -50,9 +51,10 @@ const _default_tools: ToolName[] = ["pan", "wheel_zoom", "box_zoom", "save", "re
 
 // export type ExtMarkerType = MarkerType | "*" | "+" | "o" | "ox" | "o+"
 
-export type VectorArg<T> = T | T[] | Vector<T>
+export type ColorNDArray = nd.Uint32Array1d | nd.Uint8Array1d | nd.Uint8Array2d | nd.FloatArray2d
+export type VectorArg<T> = T | Arrayable<T> | Vector<T>
 
-export type ColorArg = VectorArg<Color | null>
+export type ColorArg = VectorArg<Color | null> | ColorNDArray
 export type AlphaArg = VectorArg<number>
 
 export type ColorAlpha = {
@@ -95,15 +97,18 @@ export type AuxText = {
 }
 
 export type AuxGlyph = {
-  source: ColumnarDataSource
+  source: ColumnarDataSource | ColumnarDataSource["data"]
   view: CDSView
   legend: string
+  level: RenderLevel
 }
 
 export type ArgsOf<P> = {
-  [K in keyof P]: (P[K] extends VectorSpec<infer T, infer V> ? T | T[] | V :
-                  (P[K] extends ScalarSpec<infer T, infer S> ? T |       S :
-                  (P[K] extends Property  <infer T>          ? T           : never)))
+  [K in keyof P]:
+    (P[K] extends ColorSpec                     ? ColorArg             :
+    (P[K] extends VectorSpec<infer T, infer V>  ? T | Arrayable<T> | V :
+    (P[K] extends ScalarSpec<infer T, infer S>  ? T |                S :
+    (P[K] extends Property  <infer T>           ? T                    : never))))
 }
 
 export type GlyphArgs<P> = ArgsOf<P> & AuxGlyph & ColorAlpha
@@ -133,6 +138,7 @@ export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
 export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
 export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
 export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
+export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
@@ -488,6 +494,15 @@ export class Figure extends Plot {
     return this._glyph(Segment, "x0,y0,x1,y1", args)
   }
 
+  spline(args: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
+  spline(
+    x: SplineArgs["x"],
+    y: SplineArgs["y"],
+    args?: Partial<SplineArgs>): TypedGlyphRenderer<Spline>
+  spline(...args: unknown[]): TypedGlyphRenderer<Spline> {
+    return this._glyph(Spline, "x,y", args)
+  }
+
   step(args: Partial<StepArgs>): TypedGlyphRenderer<Step>
   step(
     x: StepArgs["x"],
@@ -702,7 +717,7 @@ export class Figure extends Plot {
   }
 
   _pop_visuals(cls: Class<HasProps>, props: Attrs, prefix: string = "",
-                        defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
+      defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
     const _split_feature_trait = function(ft: string): string[] {
       const fta: string[] = ft.split('_', 2)
@@ -773,7 +788,7 @@ export class Figure extends Plot {
       if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
-            if (isArray(value)) {
+            if (isArray(value) || nd.is_NDArray(value)) {
               let field
               if (data[name] != null) {
                 if (data[name] !== value) {
@@ -820,7 +835,15 @@ export class Figure extends Plot {
       attrs = {...attrs, ...overrides}
     }
 
-    const source = attrs.source != null ? attrs.source : new ColumnDataSource()
+    const source = (() => {
+      const {source} = attrs
+      if (source == null)
+        return new ColumnDataSource()
+      else if (source instanceof ColumnarDataSource)
+        return source
+      else
+        return new ColumnDataSource({data: source})
+    })()
     const data = clone(source.data)
     delete attrs.source
 
@@ -829,6 +852,9 @@ export class Figure extends Plot {
 
     const legend = this._process_legend(attrs.legend, source)
     delete attrs.legend
+
+    const level = attrs.level
+    delete attrs.level
 
     const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
     const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
@@ -863,6 +889,7 @@ export class Figure extends Plot {
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
       hover_glyph:        hglyph,
+      level,
     })
 
     if (legend != null) {

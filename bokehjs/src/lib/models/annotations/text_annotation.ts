@@ -3,7 +3,8 @@ import * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {measure_font} from "core/util/text"
+import {SideLayout} from "core/layout/side_panel"
+import {font_metrics} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
 
@@ -11,7 +12,13 @@ export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
   visuals: TextAnnotation.Visuals
 
-  readonly rotate: boolean = true
+  update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size(), true)
+    else
+      this.layout = undefined
+  }
 
   protected el?: HTMLElement
 
@@ -36,7 +43,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       // dispatch CSS update immediately
       this.connect(this.model.change, () => this.render())
     } else {
-      this.connect(this.model.change, () => this.plot_view.request_render())
+      this.connect(this.model.change, () => this.request_render())
     }
   }
 
@@ -49,7 +56,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = measure_font(this.visuals.text.font_value())
+    const {height} = font_metrics(this.visuals.text.font_value())
     return [width, height]
   }
 

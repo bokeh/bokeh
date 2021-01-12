@@ -85,7 +85,7 @@ __all__ = (
 
 
 def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """ Generate an inline visual representations of a single color palette.
+    """Generate an inline visual representations of a single color palette.
 
     This function evaluates the expression ``f"palette = {text}"``, in the
     context of a ``globals`` namespace that has previously imported all of

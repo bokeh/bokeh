@@ -3,6 +3,7 @@ import {Color} from "./types"
 import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
 import {Texture} from "models/textures/texture"
+import {keys} from "./util/object"
 
 export type HatchPattern = HatchPatternType | string
 export type HatchExtra = {[key: string]: Texture}
@@ -154,7 +155,7 @@ export const TextScalar: p.DefineOf<TextScalar> = {
 // Vectorized
 
 export type LineVector = {
-  line_color: p.VectorSpec<Color | null>
+  line_color: p.ColorSpec
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
   line_join: p.Property<LineJoin>
@@ -164,12 +165,12 @@ export type LineVector = {
 }
 
 export type FillVector = {
-  fill_color: p.VectorSpec<Color | null>
+  fill_color: p.ColorSpec
   fill_alpha: p.VectorSpec<number>
 }
 
 export type HatchVector = {
-  hatch_color: p.VectorSpec<Color | null>
+  hatch_color: p.ColorSpec
   hatch_alpha: p.VectorSpec<number>
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
@@ -178,7 +179,7 @@ export type HatchVector = {
 }
 
 export type TextVector = {
-  text_color: p.VectorSpec<Color | null>
+  text_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
   text_font: p.Property<string>
   text_font_size: p.VectorSpec<string>
@@ -245,3 +246,16 @@ export type OutlineLine = Prefixed<"outline", Line>
 export type SeparatorLine = Prefixed<"separator", Line>
 export type SubGroupText = Prefixed<"subgroup", Text>
 export type TitleText = Prefixed<"title", Text>
+
+type Mixins = Text | Line | Fill | Hatch
+
+export function attrs_of<P extends string, T extends Mixins>(
+    model: any, prefix: P, mixin: p.DefineOf<T>, prefixed: boolean = false): {[key: string]: any} {
+  const attrs: {[key: string]: unknown} = {}
+  for (const attr of keys(mixin)) {
+    const prefixed_attr = `${prefix}${attr}` as const
+    const value = model[prefixed_attr]
+    attrs[prefixed ? prefixed_attr : attr] = value
+  }
+  return attrs
+}

@@ -39,6 +39,11 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
         ctx.fill()
       }
 
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
+
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()

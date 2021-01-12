@@ -142,7 +142,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class Marker(XYGlyph, LineGlyph, FillGlyph):
+class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Base class for glyphs that are simple markers with line and
     fill properties, located at an (x, y) location with a specified
     size.
@@ -188,7 +188,11 @@ class Marker(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the markers.
     """)
 
-class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annular wedges.
 
     '''
@@ -233,7 +237,11 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the annular wedges.
     """)
 
-class Annulus(XYGlyph, LineGlyph, FillGlyph):
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the annular wedges.
+    """)
+
+class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annuli.
 
     '''
@@ -263,6 +271,10 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the annuli.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the annuli.
     """)
 
@@ -389,7 +401,7 @@ class Circle(Marker):
     and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
-class Ellipse(XYGlyph, LineGlyph, FillGlyph):
+class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render ellipses.
 
     '''
@@ -419,14 +431,18 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    The %s values for the ellipses.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    The %s values for the ellipses.
     """)
 
-class HArea(FillGlyph, HatchGlyph, LineGlyph):
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the ellipses.
+    """)
+
+class HArea(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a horizontally directed area between two equal length sequences
     of x-coordinates with the same y-coordinates.
 
@@ -453,7 +469,7 @@ class HArea(FillGlyph, HatchGlyph, LineGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the horizontal directed area.
     """)
 
 class HBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -494,7 +510,7 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the horizontal bars.
     """)
 
-class HexTile(LineGlyph, FillGlyph):
+class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render horizontal tiles on a regular hexagonal grid.
 
     '''
@@ -535,15 +551,18 @@ class HexTile(LineGlyph, FillGlyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the hex tiles.
     """)
 
     line_color = Override(default=None)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the hex tiles.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the hex tiles.
+    """)
 
 class Image(XYGlyph):
     ''' Render images given as scalar data together with a color mapper.
@@ -845,10 +864,10 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the patches.
+    The %s values for the multipolygons.
     """)
 
-class Oval(XYGlyph, LineGlyph, FillGlyph):
+class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render ovals.
 
     This glyph renders ovals using Bezier curves, which are similar,
@@ -890,6 +909,10 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the ovals.
     """)
 
@@ -1014,7 +1037,7 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the quads.
     """)
 
 class Quadratic(LineGlyph):
@@ -1084,7 +1107,7 @@ class Ray(XYGlyph, LineGlyph):
     The %s values for the rays.
     """)
 
-class Rect(XYGlyph, LineGlyph, FillGlyph):
+class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render rectangles.
 
     '''
@@ -1127,6 +1150,10 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the rectangles.
     """)
 
@@ -1300,11 +1327,11 @@ class VArea(FillGlyph, HatchGlyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the vertical directed area
+    The %s values for the vertical directed area.
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the vertical directed area.
     """)
 
 class VBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -1344,7 +1371,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the vertical bars.
     """)
 
-class Wedge(XYGlyph, LineGlyph, FillGlyph):
+class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render wedges.
 
     '''
@@ -1382,6 +1409,10 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the wedges.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the wedges.
     """)
 

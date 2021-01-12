@@ -286,8 +286,21 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
         if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
             continue
 
-        if isinstance(val, np.ndarray) and val.ndim != 1:
-            raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+        if isinstance(val, np.ndarray):
+            if isinstance(dataspecs[var].property, ColorSpec):
+                if val.dtype == "uint32" and val.ndim == 1:   # 0xRRGGBBAA
+                    pass # TODO: handle byteorder
+                elif val.dtype == "uint8" and val.ndim == 1:  # greys
+                    pass
+                elif val.dtype.kind == "U" and val.ndim == 1: # CSS strings
+                    pass # TODO: currently this gets converted to List[str] in the serializer
+                elif (val.dtype == "uint8" or val.dtype.kind == "f") and val.ndim == 2 and val.shape[1] in (3, 4): # RGB/RGBA
+                    pass
+                else:
+                    raise RuntimeError("Color columns need to be of type uint32[N], uint8[N] or uint8/float[N, {3, 4}]"
+                                       f" ({var} is {val.dtype}[{', '.join(map(str, val.shape))}]")
+            elif val.ndim != 1:
+                raise RuntimeError(f"Columns need to be 1D ({var} is not)")
 
         if is_user_source:
             incompatible_literal_spec_values.append(var)

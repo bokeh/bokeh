@@ -608,9 +608,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         """
-        return super().set_from_json(obj,
-                                                        self.property.from_json(json, models),
-                                                        models, setter)
+        return super().set_from_json(obj, self.property.from_json(json, models), models, setter)
 
     def trigger_if_changed(self, obj, old):
         """ Send a change event notification if the property is set to a

@@ -1,7 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {Rect, NumberArray} from "core/types"
 import {Direction} from "core/enums"
@@ -49,6 +49,11 @@ export class WedgeView extends XYGlyphView {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }, () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -130,9 +135,9 @@ export namespace Wedge {
     end_angle: p.AngleSpec
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Wedge extends Wedge.Attrs {}
@@ -148,7 +153,7 @@ export class Wedge extends XYGlyph {
   static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
-    this.mixins<Wedge.Mixins>([LineVector, FillVector])
+    this.mixins<Wedge.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Wedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
       radius:       [ p.DistanceSpec ],

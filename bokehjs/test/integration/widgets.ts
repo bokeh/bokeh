@@ -188,7 +188,7 @@ describe("Rows of widgets", () => {
     const w0 = new TextInput({value: "Widget 1"})
     const w1 = new TextInput({value: "Widget 2", height: 50})
     const layout = row([w0, w1])
-    await display(layout, [500, 100])
+    await display(layout, [700, 100])
   })
 
   it("should allow DataTable to fill row", async () => {

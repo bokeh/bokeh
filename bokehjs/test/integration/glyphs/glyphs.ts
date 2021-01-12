@@ -10,22 +10,27 @@ describe("Glyph models", () => {
   const x = [1, 2, 3]
   const y = [1, 2, 3]
 
+  const fill_color = ["red", "orange", "green"]
+  const hatch_pattern = ["/", ">", "@"]
+
   it("should support AnnularWedge", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.annular_wedge({x, y, inner_radius: 0.1, outer_radius: 0.25, start_angle: 0.4, end_angle: 4.8, color: "green", alpha: 0.6})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.annular_wedge({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
+      p.annular_wedge({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Annulus", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.annulus({x, y, inner_radius: 0.1, outer_radius: 0.25, color: "green", alpha: 0.6})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.annulus({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, fill_color, alpha: 0.6})
+      p.annulus({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Arc", async () => {
@@ -34,7 +39,7 @@ describe("Glyph models", () => {
       p.arc({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8, color: "green", alpha: 0.6, line_width: 5})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Bezier", async () => {
@@ -49,16 +54,17 @@ describe("Glyph models", () => {
       })
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Circle", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.circle({x, y, /*size,*/ radius: 0.25})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.circle({x: [1, 2, 3], y, radius: [0.5, 1, 1.5], fill_color, alpha: 0.6})
+      p.circle({x: [3, 4, 5], y, radius: [0.5, 1, 1.5], fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Ellipse", async () => {
@@ -67,7 +73,7 @@ describe("Glyph models", () => {
       p.ellipse({x, y, width: 0.5, height: 1})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support HArea", async () => {
@@ -76,7 +82,7 @@ describe("Glyph models", () => {
       p.harea({x1: [1, 2, 3], x2: [2, 3, 4], y: [1, 2, 3]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support HBar", async () => {
@@ -85,7 +91,7 @@ describe("Glyph models", () => {
       p.hbar({y: 1, height: [1, 2, 3], left: [1, 2, 3], right: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   /*
@@ -95,7 +101,7 @@ describe("Glyph models", () => {
       //p.hex_tile({q, r})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Image", async () => {
@@ -104,7 +110,7 @@ describe("Glyph models", () => {
       //p.image({image, x, y, dw, dh})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support ImageRGBA", async () => {
@@ -113,7 +119,7 @@ describe("Glyph models", () => {
       //p.image_rgba({image, x, y, dw, dh})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support ImageURL", async () => {
@@ -122,7 +128,7 @@ describe("Glyph models", () => {
       //p.image_url({url, x, y, w, h})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
   */
 
@@ -132,7 +138,7 @@ describe("Glyph models", () => {
       p.line({x, y})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support MultiLine", async () => {
@@ -141,7 +147,7 @@ describe("Glyph models", () => {
       p.multi_line({xs: [x], ys: [y]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support MultiPolygon", async () => {
@@ -150,7 +156,7 @@ describe("Glyph models", () => {
       p.multi_polygons({xs: [[[x]]], ys: [[[y]]]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Patch", async () => {
@@ -159,7 +165,7 @@ describe("Glyph models", () => {
       p.patch({x, y})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Patches", async () => {
@@ -168,7 +174,7 @@ describe("Glyph models", () => {
       p.patches({xs: [x], ys: [y]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Quad", async () => {
@@ -177,7 +183,7 @@ describe("Glyph models", () => {
       p.quad({left: x, right: 1, bottom: y, top: 1})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Quadratic", async () => {
@@ -186,7 +192,7 @@ describe("Glyph models", () => {
       p.quadratic({x0: [1, 2, 3], y0: [1, 2, 3], x1: [4, 5, 6], y1: [4, 5, 6], cx: 1, cy: 1})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Ray", async () => {
@@ -195,7 +201,7 @@ describe("Glyph models", () => {
       p.ray({x, y})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Rect", async () => {
@@ -204,7 +210,7 @@ describe("Glyph models", () => {
       p.rect({x, y, width: 1, height: 2})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Segment", async () => {
@@ -213,7 +219,7 @@ describe("Glyph models", () => {
       p.segment({x0: [1, 2, 3], y0: [1, 2, 3], x1: [4, 5, 6], y1: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Step", async () => {
@@ -222,7 +228,7 @@ describe("Glyph models", () => {
       p.step({x, y, mode: "center"})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Text", async () => {
@@ -231,7 +237,7 @@ describe("Glyph models", () => {
       p.text({x, y, text: "Some"})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support VArea", async () => {
@@ -240,7 +246,7 @@ describe("Glyph models", () => {
       p.varea({x, y1: [1, 2, 3], y2: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support VBar", async () => {
@@ -249,7 +255,7 @@ describe("Glyph models", () => {
       p.vbar({x, width: [1, 2, 3], bottom: [1, 2, 3], top: [4, 5, 6]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support Wedge", async () => {
@@ -258,7 +264,7 @@ describe("Glyph models", () => {
       p.wedge({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8})
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [450, 350])
+    await display(row([p("canvas"), p("svg")]))
   })
 
 
@@ -273,7 +279,7 @@ describe("Glyph models", () => {
       }
       return p
     }
-    await display(row([p("canvas"), p("svg")]), [850, 850])
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support rotation with all angle units", async () => {
@@ -327,6 +333,6 @@ describe("Glyph models", () => {
     const r0 = row([p(+1, "canvas"), p(+1, "svg")])
     const r1 = row([p(-1, "canvas"), p(-1, "svg")])
 
-    await display(column([r0, r1]), [850, 350])
+    await display(column([r0, r1]))
   })
 })

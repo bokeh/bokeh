@@ -159,6 +159,7 @@ class TestModel:
             "js_property_callbacks",
             "js_event_callbacks",
             "subscribed_events",
+            "syncable",
             "some",
         }
         assert testObject.properties_with_values(include_defaults=True) == dict(
@@ -167,6 +168,7 @@ class TestModel:
             js_property_callbacks={},
             js_event_callbacks={},
             subscribed_events=[],
+            syncable=True,
             some=None,
         )
         assert testObject.properties_with_values(include_defaults=False) == {}
@@ -246,13 +248,22 @@ class TestModel:
             'js_property_callbacks': {},
             "js_event_callbacks": {},
             "subscribed_events": [],
+            "syncable": True,
             "foo": 42,
             "bar": "world",
         }
-        assert ('{"bar":"world",' +
-                '"child":{"id":"%s"},' +
-                '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
-                '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
+        assert (
+            '{"bar":"world",' +
+            '"child":{"id":"%s"},' +
+            '"foo":42,' +
+            '"id":"%s",' +
+            '"js_event_callbacks":{},' +
+            '"js_property_callbacks":{},' +
+            '"name":null,' +
+            '"subscribed_events":[],' +
+            '"syncable":true,' +
+            '"tags":[]}'
+        ) % (child_obj.id, obj.id) == json_string
 
     def test_no_units_in_json(self) -> None:
         from bokeh.models import AnnularWedge

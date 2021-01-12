@@ -9,18 +9,20 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {SerializableState} from "core/view"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
-import {Size} from "core/layout"
-import {SidePanel, Orient} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
+import {font_metrics} from "core/util/text"
 import {sum} from "core/util/array"
-import {isString, isNumber} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
 
-export interface Extents {
+export type Extents = {
   tick: number
-  tick_label: number[]
+  tick_labels: number[]
+  tick_label: number
   axis_label: number
 }
 
@@ -35,12 +37,21 @@ export class AxisView extends GuideRendererView {
   model: Axis
   visuals: Axis.Visuals
 
-  layout: SidePanel
+  panel: Panel
+  layout: Layoutable
 
-  readonly rotate: boolean = true
+  update_layout(): void {
+    this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+  }
 
-  get panel(): SidePanel {
-    return this.layout
+  get_size(): Size {
+    const {visible, fixed_location} = this.model
+    if (visible && fixed_location == null && this.is_renderable) {
+      const {extents} = this
+      const height = Math.round(extents.tick + extents.tick_label + extents.axis_label)
+      return {width: 0, height}
+    } else
+      return {width: 0, height: 0}
   }
 
   get is_renderable(): boolean {
@@ -52,12 +63,7 @@ export class AxisView extends GuideRendererView {
     if (!this.is_renderable)
       return
 
-    const extents = {
-      tick: this._tick_extent(),
-      tick_label: this._tick_label_extents(),
-      axis_label: this._axis_label_extent(),
-    }
-    const {tick_coords} = this
+    const {tick_coords, extents} = this
 
     const ctx = this.layer.ctx
     ctx.save()
@@ -75,18 +81,6 @@ export class AxisView extends GuideRendererView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_layout())
-  }
-
-  get_size(): Size {
-    if (this.model.visible && this.model.fixed_location == null && this.is_renderable) {
-      const size = this._get_size()
-      return {width: 0 /* max */, height: Math.round(size)}
-    } else
-      return {width: 0, height: 0}
-  }
-
-  protected _get_size(): number {
-    return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
   }
 
   get needs_clip(): boolean {
@@ -149,7 +143,7 @@ export class AxisView extends GuideRendererView {
     let sx: number
     let sy: number
 
-    const {bbox} = this.panel
+    const {bbox} = this.layout
     switch (this.panel.side) {
       case "above":
         sx = bbox.hcenter
@@ -172,7 +166,7 @@ export class AxisView extends GuideRendererView {
     }
 
     const coords: Coords = [[sx], [sy]]
-    const standoff = extents.tick + sum(extents.tick_label) + this.model.axis_label_standoff
+    const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
     const visuals  = this.visuals.axis_label_text
 
     this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
@@ -227,14 +221,12 @@ export class AxisView extends GuideRendererView {
     const nxd = nx * (xoff + standoff)
     const nyd = ny * (yoff + standoff)
 
-    visuals.set_value(ctx)
-    this.panel.apply_label_text_heuristics(ctx, orient)
+    const {baseline, align} = this.panel.get_label_text_heuristics(orient)
+    const angle = this.panel.get_label_angle_heuristic(orient)
 
-    let angle: number
-    if (isString(orient))
-      angle = this.panel.get_label_angle_heuristic(orient)
-    else
-      angle = -orient
+    visuals.set_value(ctx)
+    ctx.textBaseline = baseline
+    ctx.textAlign = align
 
     for (let i = 0; i < sxs.length; i++) {
       const sx = Math.round(sxs[i] + nxd)
@@ -262,10 +254,6 @@ export class AxisView extends GuideRendererView {
     return this.model.major_tick_out
   }
 
-  /*protected*/ _tick_label_extent(): number {
-    return sum(this._tick_label_extents())
-  }
-
   protected _tick_label_extents(): number[] {
     const coords = this.tick_coords.major
     const labels = this.compute_labels(coords[this.dimension])
@@ -277,21 +265,26 @@ export class AxisView extends GuideRendererView {
     return [this._oriented_labels_extent(labels, orient, this.panel.side, standoff, visuals)]
   }
 
+  get extents(): Extents {
+    const tick_labels = this._tick_label_extents()
+    return {
+      tick: this._tick_extent(),
+      tick_labels,
+      tick_label: sum(tick_labels),
+      axis_label: this._axis_label_extent(),
+    }
+  }
+
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
                                     side: Side, standoff: number, visuals: visuals.Text): number {
     if (labels.length == 0)
       return 0
 
-    const ctx = this.layer.ctx
+    const {ctx} = this.layer
     visuals.set_value(ctx)
+    const metrics = font_metrics(ctx.font)
 
-    let angle: number
-    if (isString(orient)) {
-      angle = this.panel.get_label_angle_heuristic(orient)
-    } else {
-      angle = -orient
-    }
-    angle = Math.abs(angle)
+    const angle = Math.abs(this.panel.get_label_angle_heuristic(orient))
 
     const c = Math.cos(angle)
     const s = Math.sin(angle)
@@ -300,7 +293,7 @@ export class AxisView extends GuideRendererView {
 
     for (let i = 0; i < labels.length; i++) {
       const w = ctx.measureText(labels[i]).width * 1.1
-      const h = ctx.measureText(labels[i]).ascent * 0.9
+      const h = metrics.height
 
       let val: number
 
@@ -350,16 +343,16 @@ export class AxisView extends GuideRendererView {
 
     switch (this.panel.side) {
       case "below":
-        yoff = abs(this.panel.bbox.top - frame.bbox.bottom)
+        yoff = abs(this.layout.bbox.top - frame.bbox.bottom)
         break
       case "above":
-        yoff = abs(this.panel.bbox.bottom - frame.bbox.top)
+        yoff = abs(this.layout.bbox.bottom - frame.bbox.top)
         break
       case "right":
-        xoff = abs(this.panel.bbox.left - frame.bbox.right)
+        xoff = abs(this.layout.bbox.left - frame.bbox.right)
         break
       case "left":
-        xoff = abs(this.panel.bbox.right - frame.bbox.left)
+        xoff = abs(this.layout.bbox.right - frame.bbox.left)
         break
     }
 
@@ -530,9 +523,7 @@ export namespace Axis {
   }
 }
 
-export interface Axis extends Axis.Attrs {
-  panel: SidePanel
-}
+export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
   properties: Axis.Props

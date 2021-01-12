@@ -71,7 +71,7 @@ function timeout(ms: number): Promise<void> {
 }
 
 function encode(s: string): string {
-  return s.replace(/[ \/]/g, "_")
+  return s.replace(/[ \/\[\]]/g, "_")
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
@@ -556,14 +556,14 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const min_version = 83
+const chrome_min_version = 87
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
   const major = parseInt(match?.groups?.major ?? "0")
-  const ok = min_version <= major
+  const ok = chrome_min_version <= major
   if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(min_version)}`)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chrome_min_version)}`)
   return ok
 }
 

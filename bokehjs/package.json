@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/bokehjs",
-  "version": "2.3.0-dev.8",
+  "version": "2.3.0-dev.10",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -18,7 +18,7 @@
   },
   "engines": {
     "node": ">=14",
-    "npm": ">=7"
+    "npm": ">=7.1"
   },
   "files": [
     "build/js/bokeh*.min.js",

@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # generate some data
 N = 1000
@@ -11,9 +11,6 @@ y = np.random.random(size=N) * 100
 radii = y / 100 * 2
 colors = ["#%02x%02x%02x" % (255, int(round(value * 255 / 100)), 255) for value in y]
 
-# set output to static HTML file
-output_file("first_steps.html")
-
 # create a new plot with a specific size
 p = figure(
     title="Vectorized colors and radii example",
@@ -23,7 +20,14 @@ p = figure(
 )
 
 # add circle renderer
-p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color="lightgrey")
+p.circle(
+    x,
+    y,
+    radius=radii,
+    fill_color=colors,
+    fill_alpha=0.6,
+    line_color="lightgrey",
+)
 
 # show the results
 show(p)

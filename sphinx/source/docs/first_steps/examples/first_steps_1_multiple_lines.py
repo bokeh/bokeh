@@ -1,13 +1,10 @@
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # prepare some data
 x = [1, 2, 3, 4, 5]
 y1 = [6, 7, 2, 4, 5]
 y2 = [2, 3, 4, 5, 6]
 y3 = [4, 5, 5, 7, 2]
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create a new plot with a title and axis labels
 p = figure(title="Multiple line example", x_axis_label="x", y_axis_label="y")

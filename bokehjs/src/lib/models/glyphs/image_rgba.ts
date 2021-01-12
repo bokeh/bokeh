@@ -11,14 +11,14 @@ export class ImageRGBAView extends ImageBaseView {
   model: ImageRGBA
   visuals: ImageRGBA.Visuals
 
-  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8Array {
+  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
     let array: TypedArray
     if (isArray(img)) {
       array = new Uint32Array(img)
     } else {
       array = img as TypedArray
     }
-    return new Uint8Array(array.buffer)
+    return new Uint8ClampedArray(array.buffer)
   }
 }
 

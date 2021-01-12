@@ -55,8 +55,8 @@ export class CategoricalAxisView extends AxisView {
       }
     }
 
-    const tex = this._tick_label_extent()
-    this._draw_ticks(ctx, coords, -3, (tex-6), this.visuals.separator_line)
+    const tex = this.extents.tick_label
+    this._draw_ticks(ctx, coords, -3, tex - 6, this.visuals.separator_line)
   }
 
   protected _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
@@ -66,7 +66,7 @@ export class CategoricalAxisView extends AxisView {
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
       this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
-      standoff += extents.tick_label[i]
+      standoff += extents.tick_labels[i]
     }
   }
 

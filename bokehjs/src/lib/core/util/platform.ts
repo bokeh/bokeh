@@ -1,5 +1,9 @@
 import {ByteOrder} from "../types"
 
+export const is_windows = (() => {
+  return navigator.appVersion.includes("Windows")
+})()
+
 export const is_ie = (() => {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : ""
   return ua.indexOf('MSIE') >= 0 || ua.indexOf('Trident') > 0 || ua.indexOf('Edge') > 0
@@ -23,3 +27,17 @@ export const is_little_endian = (() => {
 })()
 
 export const BYTE_ORDER: ByteOrder = is_little_endian ? "little" : "big"
+
+export function to_big_endian(values: Uint32Array): Uint32Array {
+  if (is_little_endian) {
+    const result = new Uint32Array(values.length)
+    const view = new DataView(result.buffer)
+    let j = 0
+    for (const color of values) {
+      view.setUint32(j, color)
+      j += 4
+    }
+    return result
+  } else
+    return values
+}

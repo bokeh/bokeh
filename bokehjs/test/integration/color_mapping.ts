@@ -107,7 +107,6 @@ describe("Color mapping", () => {
         ticker: "auto",
         formatter: "auto",
         orientation: "horizontal",
-        location: [0, 0],
         padding: 0,
       })
       p.add_layout(color_bar, "below")
@@ -117,31 +116,31 @@ describe("Color mapping", () => {
 
     it("should support pipeline data", async () =>{
       const p = eqhist_mapped_plot(pipeline)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support sparse squares data", async () =>{
       const squares = sparse_squares()
       const p = eqhist_mapped_plot(squares)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support uniformly distributed data", async () =>{
       const noise = simple_noise()
       const p = eqhist_mapped_plot(noise)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support gaussian distributed data", async () =>{
       const gaussian = simple_gaussian()
       const p = eqhist_mapped_plot(gaussian)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support sparse cells data", async () =>{
       const cells = sparse_cells()
       const p = eqhist_mapped_plot(cells)
-      await display(p, [350, 350])
+      await display(p)
     })
   })
 
@@ -221,12 +220,12 @@ describe("Color mapping", () => {
 
     it("should work", async () => {
       const grid = make_grid()
-      await display(grid, [550, 550])
+      await display(grid)
     })
 
     it("should work after panning", async () => {
       const grid = make_grid()
-      const {view} = await display(grid, [550, 550])
+      const {view} = await display(grid)
       const pv3 = view.child_views[3] as Plot["__view_type__"]
       const p3 = pv3.model
       // TODO: synchronized
@@ -239,7 +238,7 @@ describe("Color mapping", () => {
 
     it("should work after selection", async () => {
       const grid = make_grid()
-      const {view} = await display(grid, [550, 550])
+      const {view} = await display(grid)
       const pv3 = view.child_views[3] as Plot["__view_type__"]
       const g3 = pv3.model.renderers[0] as GlyphRenderer
       const gv3 = pv3.renderer_view(g3)!

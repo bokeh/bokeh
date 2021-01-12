@@ -34,7 +34,7 @@ export function isEmpty(obj: PlainObject): boolean {
   return size(obj) == 0
 }
 
-export function to_object<T>(map: Map<string | number, T>): PlainObject<T> {
+export function to_object<T>(map: Iterable<[string | number, T]>): PlainObject<T> {
   const obj: PlainObject<T> = {}
   for (const [key, val] of map) {
     obj[key] = val

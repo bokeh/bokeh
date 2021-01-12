@@ -55,18 +55,14 @@ __all__ = (
 
 
 def html_page_context(app, pagename, templatename, context, doctree):
-    """ Collect page names for the sitemap as HTML pages are built.
-
-    """
+    """Collect page names for the sitemap as HTML pages are built."""
     site = context["SITEMAP_BASE_URL"]
     version = context["version"]
     app.sitemap_links.add(f"{site}{version}/{pagename}.html")
 
 
 def build_finished(app, exception):
-    """ Generate a ``sitemap.txt`` from the collected HTML page links.
-
-    """
+    """Generate a ``sitemap.txt`` from the collected HTML page links."""
     filename = join(app.outdir, "sitemap.xml")
 
     links_iter = status_iterator(sorted(app.sitemap_links), "adding links to sitemap... ", "brown", len(app.sitemap_links), app.verbosity)

@@ -22,13 +22,14 @@ import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {SizingPolicy, Layoutable} from "core/layout"
-import {HStack, VStack} from "core/layout/alignments"
+import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
-import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
+import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
+import {settings} from "core/settings"
 
 export class PlotView extends LayoutDOMView {
   model: Plot
@@ -110,21 +111,30 @@ export class PlotView extends LayoutDOMView {
 
     this._is_paused -= 1
     if (this._is_paused == 0 && !no_render)
-      this.request_paint()
+      this.request_paint("everything")
   }
 
   // TODO: this needs to be removed
   request_render(): void {
-    this.request_paint()
+    this.request_paint("everything")
   }
 
-  request_paint(to_invalidate?: RendererView): void {
-    if (to_invalidate != null) {
-      this._invalidated_painters.add(to_invalidate)
-    } else {
-      this._invalidate_all = true
-    }
+  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    this.invalidate_painters(to_invalidate)
+    this.schedule_paint()
+  }
 
+  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    if (to_invalidate == "everything")
+      this._invalidate_all = true
+    else if (isArray(to_invalidate)) {
+      for (const renderer_view of to_invalidate)
+        this._invalidated_painters.add(renderer_view)
+    } else
+      this._invalidated_painters.add(to_invalidate)
+  }
+
+  schedule_paint(): void {
     if (!this.is_paused) {
       const promise = this.throttled_paint()
       this._ready = this._ready.then(() => promise)
@@ -133,7 +143,7 @@ export class PlotView extends LayoutDOMView {
 
   request_layout(): void {
     this._needs_layout = true
-    this.request_paint()
+    this.request_paint("everything")
   }
 
   reset(): void {
@@ -232,14 +242,6 @@ export class PlotView extends LayoutDOMView {
     this.layout = new BorderLayout()
     this.layout.set_sizing(this.box_sizing())
 
-    const {frame_width, frame_height} = this.model
-
-    this.layout.center_panel = this.frame
-    this.layout.center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
-      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
-    })
-
     type Panels = (Axis | Annotation | Annotation[])[]
 
     const above: Panels = copy(this.model.above)
@@ -284,9 +286,11 @@ export class PlotView extends LayoutDOMView {
         panels.push(this._toolbar)
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
       const view = this.renderer_view(model)!
-      return view.layout = new SidePanel(side, view)
+      view.panel = new Panel(side)
+      view.update_layout?.()
+      return view.layout!
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -322,18 +326,44 @@ export class PlotView extends LayoutDOMView {
       return layouts
     }
 
-    const min_border = this.model.min_border != null ? this.model.min_border : 0
+    const min_border = this.model.min_border ?? 0
     this.layout.min_border = {
-      left:   this.model.min_border_left   != null ? this.model.min_border_left   : min_border,
-      top:    this.model.min_border_top    != null ? this.model.min_border_top    : min_border,
-      right:  this.model.min_border_right  != null ? this.model.min_border_right  : min_border,
-      bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
+      left:   this.model.min_border_left   ?? min_border,
+      top:    this.model.min_border_top    ?? min_border,
+      right:  this.model.min_border_right  ?? min_border,
+      bottom: this.model.min_border_bottom ?? min_border,
     }
 
+    const center_panel = new NodeLayout()
     const top_panel    = new VStack()
     const bottom_panel = new VStack()
     const left_panel   = new HStack()
     const right_panel  = new HStack()
+
+    center_panel.absolute = true
+    top_panel.absolute = true
+    bottom_panel.absolute = true
+    left_panel.absolute = true
+    right_panel.absolute = true
+
+    center_panel.children =
+      this.model.center.filter((obj): obj is Annotation => {
+        return obj instanceof Annotation
+      }).map((model) => {
+        const view = this.renderer_view(model)!
+        view.update_layout?.()
+        return view.layout
+      }).filter((layout): layout is Layoutable => {
+        return layout != null
+      })
+
+    const {frame_width, frame_height} = this.model
+    center_panel.set_sizing({
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
+
+    })
+    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
 
     top_panel.children    = reversed(set_layouts("above", above))
     bottom_panel.children =          set_layouts("below", below)
@@ -345,6 +375,7 @@ export class PlotView extends LayoutDOMView {
     left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
     right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
 
+    this.layout.center_panel = center_panel
     this.layout.top_panel = top_panel
     this.layout.bottom_panel = bottom_panel
     this.layout.left_panel = left_panel
@@ -405,8 +436,10 @@ export class PlotView extends LayoutDOMView {
     const needs_layout = () => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
-        if (view.layout.has_size_changed())
+        if (view.layout?.has_size_changed()) {
+          this.invalidate_painters(view)
           return true
+        }
       }
       return false
     }
@@ -422,12 +455,12 @@ export class PlotView extends LayoutDOMView {
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center, renderers} = this.model
 
+    yield* renderers
     yield* above
     yield* below
     yield* left
     yield* right
     yield* center
-    yield* renderers
 
     if (this._title != null)
       yield this._title
@@ -460,10 +493,10 @@ export class PlotView extends LayoutDOMView {
     const {x_ranges, y_ranges} = this.frame
 
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint() })
+      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
 
     const {above, below, left, right, center, renderers} = this.model.properties
@@ -474,7 +507,7 @@ export class PlotView extends LayoutDOMView {
       await this.build_tool_views()
     })
 
-    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.change, () => this.request_paint("everything"))
     this.connect(this.model.reset, () => this.reset())
   }
 
@@ -494,6 +527,11 @@ export class PlotView extends LayoutDOMView {
 
   after_layout(): void {
     super.after_layout()
+
+    for (const [, child_view] of this.renderer_views) {
+      if (child_view instanceof AnnotationView)
+        child_view.after_layout?.()
+    }
 
     this._needs_layout = false
 
@@ -518,8 +556,9 @@ export class PlotView extends LayoutDOMView {
       this._needs_paint = true
     }
 
-    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
-      this._inner_bbox = this.layout.inner_bbox
+    const {inner_bbox} = this.layout
+    if (!this._inner_bbox.equals(inner_bbox)) {
+      this._inner_bbox = inner_bbox
       this._needs_paint = true
     }
 
@@ -551,7 +590,7 @@ export class PlotView extends LayoutDOMView {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint()
+          this.request_paint("everything") // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else
         document.interactive_stop()
@@ -559,6 +598,7 @@ export class PlotView extends LayoutDOMView {
 
     if (this._range_manager.invalidate_dataranges) {
       this._range_manager.update_dataranges()
+      this._invalidate_layout()
     }
 
     let do_primary = false
@@ -606,9 +646,11 @@ export class PlotView extends LayoutDOMView {
       primary.finish()
     }
 
-    if (do_overlays) {
+    if (do_overlays || settings.wireframe) {
       overlays.prepare()
       this._paint_levels(overlays.ctx, "overlay", frame_box, false)
+      if (settings.wireframe)
+        this._paint_layout(overlays.ctx, this.layout)
       overlays.finish()
     }
 
@@ -639,6 +681,19 @@ export class PlotView extends LayoutDOMView {
       if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
         this.canvas_view.blit_webgl(ctx)
       }
+    }
+  }
+
+  protected _paint_layout(ctx: Context2d, layout: Layoutable) {
+    const {x, y, width, height} = layout.bbox
+    ctx.strokeStyle = "blue"
+    ctx.strokeRect(x, y, width, height)
+    for (const child of layout) {
+      ctx.save()
+      if (!layout.absolute)
+        ctx.translate(x, y)
+      this._paint_layout(ctx, child)
+      ctx.restore()
     }
   }
 

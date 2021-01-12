@@ -41,19 +41,20 @@ export function generic_area_scalar_legend(visuals: {line?: Line, fill: Fill, ha
   const sy0 = y0 + dh
   const sy1 = y1 - dh
 
+  ctx.beginPath()
+  ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+
   if (visuals.fill.doit) {
     visuals.fill.set_value(ctx)
-    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+    ctx.fill()
   }
 
   if (visuals.hatch?.doit) {
     visuals.hatch.set_value(ctx)
-    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+    ctx.fill()
   }
 
   if (visuals.line?.doit) {
-    ctx.beginPath()
-    ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
     visuals.line.set_value(ctx)
     ctx.stroke()
   }
@@ -71,19 +72,20 @@ export function generic_area_vector_legend(visuals: {line?: LineVector, fill: Fi
   const sy0 = y0 + dh
   const sy1 = y1 - dh
 
+  ctx.beginPath()
+  ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+
   if (visuals.fill.doit) {
     visuals.fill.set_vectorize(ctx, index)
-    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+    ctx.fill()
   }
 
   if (visuals.hatch?.doit) {
     visuals.hatch.set_vectorize(ctx, index)
-    ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0)
+    ctx.fill()
   }
 
   if (visuals.line?.doit) {
-    ctx.beginPath()
-    ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
     visuals.line.set_vectorize(ctx, index)
     ctx.stroke()
   }

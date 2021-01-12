@@ -1,13 +1,10 @@
 from bokeh.layouts import layout
 from bokeh.models import Div, RangeSlider, Spinner
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # prepare some data
 x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
-
-# set output to static HTML file
-output_file("first_steps.html")
 
 # create plot with circle glyphs
 p = figure(x_range=(1, 9), plot_width=500, plot_height=250)

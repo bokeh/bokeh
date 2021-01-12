@@ -1,6 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {Size} from "core/layout"
+import {Size, Layoutable} from "core/layout"
+import {Panel} from "core/layout/side_panel"
+import {font_metrics} from "core/util/text"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -8,6 +10,8 @@ import * as p from "core/properties"
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
+  layout: Layoutable
+  panel: Panel
 
   initialize(): void {
     super.initialize()
@@ -15,14 +19,12 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.panel!
-
     const hmargin = this.model.offset
-    const vmargin = 5
+    const vmargin = this.model.standoff/2
 
     let sx: number, sy: number
-    const {bbox} = panel
-    switch (panel.side) {
+    const {bbox} = this.layout
+    switch (this.panel.side) {
       case 'above':
       case 'below': {
         switch (this.model.vertical_align) {
@@ -80,7 +82,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.layer.ctx, text, sx, sy, angle)
@@ -91,9 +93,15 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.layer.ctx)
-      const {width, ascent} = this.layer.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
+      const {ctx} = this.layer
+      this.visuals.text.set_value(ctx)
+
+      const {width} = this.layer.ctx.measureText(text)
+      const {height} = font_metrics(ctx.font)
+
+      // XXX: The magic 2px is for backwards compatibility. This will be removed at
+      // some point, but currently there is no point breaking half of visual tests.
+      return {width, height: 2 + height*this.model.text_line_height + this.model.standoff}
     }
   }
 }
@@ -112,6 +120,7 @@ export namespace Title {
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
+    standoff: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
   } & Mixins
@@ -152,6 +161,7 @@ export class Title extends TextAnnotation {
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
       offset:           [ Number, 0 ],
+      standoff:         [ Number, 10 ],
     }))
 
     this.internal<Title.Props>(() => ({

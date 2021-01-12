@@ -46,6 +46,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
+  get is_syncable(): boolean{
+    return true
+  }
+
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
     console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
@@ -193,6 +197,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly destroyed       = new Signal0<this>(this, "destroyed")
   readonly change          = new Signal0<this>(this, "change")
   readonly transformchange = new Signal0<this>(this, "transformchange")
+  readonly exprchange      = new Signal0<this>(this, "exprchange")
 
   readonly properties: {[key: string]: Property} = {}
 
@@ -296,8 +301,11 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   finalize(): void {
     for (const prop of this) {
-      if (prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
+      const {transform, expr} = prop.spec
+      if (transform != null)
+        this.connect(transform.change, () => this.transformchange.emit())
+      if (expr != null)
+        this.connect(expr.change, () => this.exprchange.emit())
     }
 
     this.initialize()
@@ -542,6 +550,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    if (!this.is_syncable)
+      return
+
     const {document} = this
     if (document == null)
       return

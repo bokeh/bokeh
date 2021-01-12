@@ -1,5 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {resolve_angle} from "core/util/math"
+import {font_metrics} from "core/util/text"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
@@ -12,22 +13,22 @@ export class LabelView extends TextAnnotationView {
   protected _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
-
-    const {width, ascent} = ctx.measureText(this.model.text)
-    return {width, height: ascent}
+    const {width} = ctx.measureText(this.model.text)
+    const {height} = font_metrics(ctx.font)
+    return {width, height}
   }
 
   protected _render(): void {
     const {angle, angle_units} = this.model
     const rotation = resolve_angle(angle, angle_units)
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
 
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset

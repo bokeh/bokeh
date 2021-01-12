@@ -169,6 +169,7 @@ describe("Defaults", () => {
   const internal_models = new Set([
     "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
     "ToolProxy", "CenterRotatable", "EllipseOval", "ButtonTool",
+    "Spline",
   ])
 
   it("have bokehjs and bokeh implement the same set of models", () => {

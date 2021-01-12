@@ -71,6 +71,7 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
+.. autoclass:: Alpha
 .. autoclass:: Angle
 .. autoclass:: Any
 .. autoclass:: AnyRef
@@ -117,6 +118,7 @@ Container Properties
 DataSpec Properties
 -------------------
 
+.. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
 .. autoclass:: ColorSpec
 .. autoclass:: DataDistanceSpec
@@ -179,6 +181,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alpha',
+    'AlphaSpec',
     'Angle',
     'AngleSpec',
     'Any',
@@ -253,6 +257,7 @@ from .property.any import AnyRef; AnyRef
 
 from .property.auto import Auto; Auto
 
+from .property.color import Alpha; Alpha
 from .property.color import Color; Color
 from .property.color import RGB; RGB
 from .property.color import ColorHex; ColorHex
@@ -265,6 +270,7 @@ from .property.container import Seq; Seq
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
 
+from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DataSpec; DataSpec

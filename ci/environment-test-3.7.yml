@@ -1,6 +1,5 @@
 name: bk-test
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - python=3.7
@@ -30,7 +29,7 @@ dependencies:
   - ipython
   - isort <5.0
   - mock
-  - mypy <=0.782
+  - mypy
   - nbconvert >=5.4
   - networkx
   - nodejs 14.*
@@ -39,8 +38,8 @@ dependencies:
   - psutil
   - pydot
   - pygments
-  - pytest 6.0*
-  - pytest-asyncio=0.12.0
+  - pytest
+  - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist

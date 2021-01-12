@@ -61,15 +61,15 @@ export function degrees(radians: number): number {
 
 export function resolve_angle(angle: number, units: AngleUnits): number {
   /** Convert CCW angle with units to CW radians (canvas). */
-  return angle_conversion_coeff(units)*angle
+  return -to_radians_coeff(units)*angle
 }
 
-export function angle_conversion_coeff(units: AngleUnits): number {
+export function to_radians_coeff(units: AngleUnits): number {
   switch (units) {
-    case "deg":  return -PI/180
-    case "rad":  return -1
-    case "grad": return -PI/200
-    case "turn": return -2*PI
+    case "deg":  return PI/180
+    case "rad":  return 1
+    case "grad": return PI/200
+    case "turn": return 2*PI
   }
 }
 

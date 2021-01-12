@@ -47,7 +47,7 @@ describe("Bug", () => {
       })
       const source = new ColumnDataSource({data: {x: [["a", "b"], ["b", "c"]], y: [1, 2]}})
       p.vbar({x: {field: "x"}, top: {field: "y"}, width: 0.1, source})
-      const {view} = await display(p, [250, 250])
+      const {view} = await display(p)
 
       source.data = {x: ["a"], y: [1]}
       ;(p.x_range as FactorRange).factors = ["a"]
@@ -68,7 +68,7 @@ describe("Bug", () => {
       p2.add_layout(horz())
       p2.add_layout(vert(new NormalHead({fill_color: "green"})))
 
-      await display(row([p1, p2]), [450, 250])
+      await display(row([p1, p2]))
     })
   })
 
@@ -86,7 +86,7 @@ describe("Bug", () => {
       let y = 0
       const w = 1, h = 1
 
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         p.image_url({url: [img], x: 0, y, w, h, anchor, angle: 0})
         p.image_url({url: [img], x: 1, y, w, h, anchor, angle: Math.PI/6})
         p.image_url({url: [img], x: 2, y, w, h, anchor, angle: Math.PI/4})
@@ -96,7 +96,7 @@ describe("Bug", () => {
         y += 1
       }
 
-      await display(p, [350, 350])
+      await display(p)
     })
   })
 
@@ -143,7 +143,7 @@ describe("Bug", () => {
         return p
       })()
 
-      await display(row([p0, p1, p2, p3]), [650, 200])
+      await display(row([p0, p1, p2, p3]))
     })
   })
 
@@ -164,13 +164,13 @@ describe("Bug", () => {
     it("disallows BoxAnnotation to respect fill_color == null", async () => {
       const p0 = plot("blue", "green")
       const p1 = plot(null, "green")
-      await display(row([p0, p1]), [450, 250])
+      await display(row([p0, p1]))
     })
 
     it("disallows BoxAnnotation to respect line_color == null", async () => {
       const p0 = plot("blue", "green")
       const p1 = plot("blue", null)
-      await display(row([p0, p1]), [450, 250])
+      await display(row([p0, p1]))
     })
   })
 
@@ -189,7 +189,7 @@ describe("Bug", () => {
     it("makes GlyphRenderer use incorrect subset indices", async () => {
       const p0 = plot("canvas")
       const p1 = plot("webgl")
-      await display(row([p0, p1]), [400, 200])
+      await display(row([p0, p1]))
     })
 
     it("makes GlyphRenderer use incorrect subset indices after selection", async () => {
@@ -200,7 +200,7 @@ describe("Bug", () => {
         const p1 = plot("webgl", selection)
         items.push(column([p0, p1]))
       }
-      await display(row(items), [200*items.length + 50, 450])
+      await display(row(items))
     })
   })
 
@@ -227,7 +227,7 @@ describe("Bug", () => {
           axis.subgroup_label_orientation = 0
       }
 
-      await display(p, [200, 300])
+      await display(p)
     })
   })
 
@@ -253,7 +253,7 @@ describe("Bug", () => {
       p.circle({source})
       p.add_layout(whisker)
 
-      await display(p, [450, 250])
+      await display(p)
     })
 
     it("disallows rendering Whisker annotation with a categorical y-range", async () => {
@@ -272,7 +272,7 @@ describe("Bug", () => {
       p.circle({source})
       p.add_layout(whisker)
 
-      await display(p, [250, 450])
+      await display(p)
     })
   })
 
@@ -288,7 +288,7 @@ describe("Bug", () => {
       p.rect({x: {field: "x"}, y: {field: "y"}, width: 0.9, height: 0.9, source})
       p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.2, color: "red", source})
 
-      await display(p, [350, 350])
+      await display(p)
     })
   })
 
@@ -314,7 +314,7 @@ describe("Bug", () => {
     it("makes a plot with visible == false throw an exception", async () => {
       const l0 = make_layout("canvas")
       const l1 = make_layout("webgl")
-      await display(column([l0, l1]), [650, 450])
+      await display(column([l0, l1]))
     })
   })
 
@@ -332,7 +332,7 @@ describe("Bug", () => {
       const p2 = make_plot("left")
       const p3 = make_plot("right")
 
-      await display(row([p0, p1, p2, p3]), [4*200+50, 250])
+      await display(row([p0, p1, p2, p3]))
     })
   })
 
@@ -348,7 +348,7 @@ describe("Bug", () => {
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
 
-      await display(row([p0, p1]), [2*300+50, 250])
+      await display(row([p0, p1]))
     })
   })
 
@@ -370,14 +370,14 @@ describe("Bug", () => {
         const color_mapper = new LinearColorMapper({palette: Spectral11})
 
         const p = fig([200, 200], {output_backend})
-        p.image({image, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+        p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
         return p
       }
 
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
 
-      await display(row([p0, p1]), [2*200+50, 250])
+      await display(row([p0, p1]))
     })
   })
 
@@ -385,7 +385,7 @@ describe("Bug", () => {
     it("disallows updating layout when changing axis label", async () => {
       const p = fig([200, 100])
       p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
-      const {view} = await display(p, [250, 150])
+      const {view} = await display(p)
       p.xaxis.map((axis) => axis.axis_label = "X-Axis Label")
       await view.ready
     })
@@ -401,7 +401,7 @@ describe("Bug", () => {
       const img = svg_image(svg)
 
       const plots = []
-      for (const anchor of Anchor) {
+      for (const anchor of [...Anchor].slice(0, 9)) {
         const x_range = new DataRange1d()
         const y_range = new DataRange1d()
         const p = fig([200, 200], {x_range, y_range, title: anchor, match_aspect: true})
@@ -409,7 +409,7 @@ describe("Bug", () => {
         plots.push(p)
       }
       const r = grid(Matrix.from(plots, 3))
-      await display(r, [650, 650])
+      await display(r)
     })
   })
 
@@ -425,7 +425,7 @@ describe("Bug", () => {
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
 
-      await display(row([p0, p1]), [450, 250])
+      await display(row([p0, p1]))
     })
   })
 
@@ -447,7 +447,7 @@ describe("Bug", () => {
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
 
-      await display(row([p0, p1]), [450, 250])
+      await display(row([p0, p1]))
     })
   })
 
@@ -459,7 +459,7 @@ describe("Bug", () => {
       const p = fig([300, 300])
       const r = p.line(x, y, {legend: "foo"}) // TODO: legend_item
 
-      const {view} = await display(p, [350, 350])
+      const {view} = await display(p)
 
       p.circle(x, y, {legend: "foo"}) // TODO: legend_item
       r.glyph.line_dash = [2, 4] // TODO: "dotted"
@@ -491,7 +491,7 @@ describe("Bug", () => {
       const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
       p.add_layout(labels2)
 
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("disallows using categorical coordinates with Arrow annotation", async () => {
@@ -527,7 +527,7 @@ describe("Bug", () => {
       })
       p.add_layout(labels2)
 
-      await display(p, [350, 350])
+      await display(p)
     })
   })
 
@@ -550,7 +550,7 @@ describe("Bug", () => {
       })
       p.add_layout(arrow)
 
-      await display(p, [350, 150])
+      await display(p)
     })
   })
 
@@ -574,7 +574,7 @@ describe("Bug", () => {
       const p4 = plot([100, 0], [100, 0])
 
       const layout = row([p1, p2, p3, p4])
-      await display(layout, [4*150 + 50, 150 + 50])
+      await display(layout)
     })
 
     it("prevents rendering marker glyphs with reversed ranges", async () => {
@@ -631,7 +631,7 @@ describe("Bug", () => {
       assert(fns.length == n_marker_types)
 
       const layout = column(fns.map((fn) => row(plots(fn))))
-      await display(layout, [450, fns.length*50 + 50])
+      await display(layout)
     })
   })
 
@@ -663,7 +663,7 @@ describe("Bug", () => {
       const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
       p.add_renderers(graph)
 
-      await display(p, [200+50, 200+50])
+      await display(p)
     })
   })
 
@@ -724,7 +724,7 @@ describe("Bug", () => {
       }})
       const p = fig([800, 300])
       p.rect({x: {field: "x"}, y: 0, width: 100000, height: 1, line_color: "red", fill_alpha: 0.5, line_alpha: 0.5, source})
-      await display(p, [800, 300])
+      await display(p)
     })
   })
 
@@ -755,7 +755,7 @@ describe("Bug", () => {
         p.add_layout(s)
       }
 
-      await display(p, [250, 250])
+      await display(p)
     })
   })
 
@@ -771,7 +771,17 @@ describe("Bug", () => {
       const p = fig([200, 200])
       p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
 
-      await display(p, [250, 250])
+      await display(p)
+    })
+  })
+
+  describe("in issue #10809", () => {
+    it("prevents repaint of resized layoutable renderers", async () => {
+      const p = fig([100, 100])
+      const {view} = await display(p)
+
+      p.circle(0, 0, {radius: 1})
+      await view.ready
     })
   })
 
@@ -828,7 +838,7 @@ describe("Bug", () => {
         renderers: [circle_renderer, quad_renderer],
       })
 
-      await display(p, [250, 250])
+      await display(p)
     })
   })
 })

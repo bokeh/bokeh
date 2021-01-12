@@ -111,7 +111,12 @@ class BokehEnumDirective(BokehDirective):
             fullrepr = None
 
         rst_text = ENUM_DETAIL.render(
-            name=enum_name, module=self.options["module"], noindex=self.options.get("noindex", False), content=self.content, shortrepr=shortrepr, fullrepr=fullrepr,
+            name=enum_name,
+            module=self.options["module"],
+            noindex=self.options.get("noindex", False),
+            content=self.content,
+            shortrepr=shortrepr,
+            fullrepr=fullrepr,
         )
 
         return self._parse(rst_text, "<bokeh-enum>")

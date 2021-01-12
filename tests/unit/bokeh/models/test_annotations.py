@@ -24,9 +24,11 @@ import mock
 from _util_models import (
     ANGLE,
     FILL,
+    HATCH,
     LINE,
     TEXT,
     check_fill_properties,
+    check_hatch_properties,
     check_line_properties,
     check_properties_existence,
     check_text_properties,
@@ -38,8 +40,6 @@ from bokeh.models import (
     Arrow,
     ArrowHead,
     Band,
-    BasicTicker,
-    BasicTickFormatter,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -48,6 +48,7 @@ from bokeh.models import (
     LabelSet,
     Legend,
     LegendItem,
+    PolyAnnotation,
     Slope,
     Span,
     Title,
@@ -110,14 +111,14 @@ def test_Legend() -> None:
 def test_ColorBar() -> None:
     color_bar = ColorBar()
     assert color_bar.location == 'top_right'
-    assert color_bar.orientation == 'vertical'
+    assert color_bar.orientation == 'auto'
     assert color_bar.height == 'auto'
     assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
-    assert isinstance(color_bar.ticker, BasicTicker)
-    assert isinstance(color_bar.formatter, BasicTickFormatter)
+    assert color_bar.ticker == "auto"
+    assert color_bar.formatter == "auto"
     assert color_bar.color_mapper is None
     assert color_bar.margin == 30
     assert color_bar.padding == 10
@@ -127,7 +128,7 @@ def test_ColorBar() -> None:
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
     check_text_properties(color_bar, "title_", "13px", "bottom", "italic", scalar=True)
-    check_text_properties(color_bar, "major_label_", "11px", "middle", "normal", "center", scalar=True)
+    check_text_properties(color_bar, "major_label_", "11px", "bottom", "normal", "left", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
     check_line_properties(color_bar, "minor_tick_", None)
     check_line_properties(color_bar, "bar_", None)
@@ -200,18 +201,19 @@ def test_Arrow() -> None:
 def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
     assert box.left is None
-    assert box.left_units == 'data'
+    assert box.left_units == "data"
     assert box.right is None
-    assert box.right_units == 'data'
+    assert box.right_units == "data"
     assert box.bottom is None
-    assert box.bottom_units == 'data'
+    assert box.bottom_units == "data"
     assert box.top is None
-    assert box.top_units == 'data'
-    assert box.x_range_name == 'default'
-    assert box.y_range_name == 'default'
-    assert box.level == 'annotation'
-    check_line_properties(box, "", '#cccccc', 1, 0.3)
+    assert box.top_units == "data"
+    assert box.x_range_name == "default"
+    assert box.y_range_name == "default"
+    assert box.level == "annotation"
+    check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
+    check_hatch_properties(box)
     check_properties_existence(box, [
         "render_mode",
         "visible",
@@ -226,7 +228,7 @@ def test_BoxAnnotation() -> None:
         "x_range_name",
         "y_range_name",
         "level",
-    ], LINE, FILL)
+    ], LINE, FILL, HATCH)
 
 
 def test_Band() -> None:
@@ -343,6 +345,29 @@ def test_LabelSet() -> None:
         prefix('border_', LINE),
         prefix('background_', FILL))
 
+def test_PolyAnnotation() -> None:
+    poly = PolyAnnotation()
+    assert poly.xs == []
+    assert poly.xs_units == "data"
+    assert poly.ys == []
+    assert poly.ys_units == "data"
+    assert poly.x_range_name == "default"
+    assert poly.y_range_name == "default"
+    assert poly.level == "annotation"
+    check_line_properties(poly, "", "#cccccc", 1, 0.3)
+    check_fill_properties(poly, "", "#fff9ba", 0.4)
+    check_hatch_properties(poly)
+    check_properties_existence(poly, [
+        "visible",
+        "xs",
+        "xs_units",
+        "ys",
+        "ys_units",
+        "x_range_name",
+        "y_range_name",
+        "level",
+    ], LINE, FILL, HATCH)
+
 def test_Slope() -> None:
     slope = Slope()
     assert slope.gradient is None
@@ -408,6 +433,7 @@ def test_Title() -> None:
         "vertical_align",
         "align",
         "offset",
+        "standoff",
         "text_font",
         "text_font_size",
         "text_font_style",

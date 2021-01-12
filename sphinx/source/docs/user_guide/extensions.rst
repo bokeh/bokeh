@@ -3,43 +3,41 @@
 Extending Bokeh
 ===============
 
-Bokeh comes with a rich variety of built-in types that can be used to make
+Bokeh comes with a rich variety of built-in features that let you produce
 sophisticated interactive visualizations and data applications in the browser.
-However, there are capabilities and features that users may desire, which may
-not make it into the core library, either because they are too specialized, or
-for lack of resources. Fortunately, it is possible to extend Bokeh by creating
-custom user extensions.
+However, some useful capabilities and features may not make it into the core
+library, either because they are too specialized or for lack of resources.
+Fortunately, you can expand the functionality of Bokeh with custom extensions
+that let you:
 
 * Modify the behavior of existing Bokeh models
 * Add new models to connect third-party JavaScript libraries to Python
-* Create highly specialized models for domain-specific use-cases.
+* Create highly specialized models for domain-specific use cases
 
-Custom extensions can be made and used with standard releases, and do not
-require setting up a development environment or building anything from source.
-They provide the easiest way to get involved in Bokeh development. By lowering
-the bar for extending Bokeh, users are afforded the ability to "try out" new
-features and improved functionality (which might someday be candidates for adding to
-the core library) without having to wait on the core team.
+You can make and use custom extensions with standard releases and don't need to
+set up a development environment or build anything from source. This is the
+easiest way to get involved in Bokeh development. You can try new features and
+improved functionality without having to wait for the core team to implement
+them.
 
 .. _userguide_extensions_structure:
 
-Structure of Bokeh Models
+Structure of Bokeh models
 -------------------------
 
 .. _userguide_extensions_structure_python:
 
-Python Models
+Python models
 ~~~~~~~~~~~~~
 
 For the most part, Python Bokeh models are completely declarative classes.
-Custom extensions are created by making a subclass :class:`~bokeh.model.Model`
-(or one of its subclasses), and including special class attributes to
-declare the properties that are mirrored on the JavaScript side. All of the
-available property types are documented in the :ref:`bokeh.core.properties`
-section of the Reference Guide.
+You can create custom extensions by making a subclass from
+:class:`~bokeh.model.Model` and including special class attributes to declare
+the properties to be mirrored on the JavaScript side. For all of the available
+property types, see the :ref:`bokeh.core.properties` section of the reference
+guide.
 
-A small example that creates a Custom readout for a slider is presented
-below:
+Here's a simple example that creates a custom readout for a slider:
 
 .. code-block:: python
 
@@ -52,27 +50,30 @@ below:
 
         slider = Instance(Slider)
 
-Since we would like to create a custom extension that can participate in the DOM
-layout, we subclass from :class:`~bokeh.models.layouts.HTMLBox`. We also
-added two properties: a :class:`~bokeh.core.properties.String` to configure
-a text message for the readout, and an :class:`~bokeh.core.properties.Instance`
-that can hold a :class:`~bokeh.models.widgets.inputs.Slider`. The JavaScript
-``Slider`` object that corresponds to the Python ``Slider`` will be made
-available to use.
+This example creates a subclass from :class:`~bokeh.models.layouts.HTMLBox` to
+allow the extension to integrate into the DOM layout. It also adds two
+properties:
+
+* a :class:`~bokeh.core.properties.String` to configure a text message for the
+  readout and
+* an :class:`~bokeh.core.properties.Instance` that can hold a
+  :class:`~bokeh.models.widgets.inputs.Slider`.
+
+This creates a JavaScript ``Slider`` object that corresponds to a ``Slider`` in
+Python.
 
 .. _userguide_extensions_structure_js:
 
-JavaScript Models and Views
+JavaScript models and views
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-While the Python side is mostly declarative, without much or any real code, the
-JavaScript side requires code to implement the model. When appropriate, code
-for a corresponding view must also be provided.
+While the Python side has little to no code, the JavaScript side requires code
+to implement the model. You also have to provide code for a corresponding view
+where necessary.
 
-Below is an annotated TypeScript implementation for ``Custom`` and its
-``CustomView``. For built-in models, this code is included directly in the
-final BokehJS scripts. We will see how to connect this code to custom
-extensions in the next section.
+Here's an annotated TypeScript implementation for ``Custom`` and its
+``CustomView``. For built-in models, this type of code is included directly in
+the final BokehJS scripts.
 
 .. code-block:: typescript
 
@@ -86,8 +87,8 @@ extensions in the next section.
       connect_signals(): void {
         super.connect_signals()
 
-        // Set BokehJS listener so that when the Bokeh slider has a change
-        // event, we can process the new data.
+        // Set BokehJS listener so that the program can process new data when
+        // the slider has a change event.
         this.connect(this.model.slider.change, () => {
           this.render()
           this.invalidate_layout()
@@ -95,10 +96,11 @@ extensions in the next section.
       }
 
       render(): void {
-        // BokehjS Views create <div> elements by default, accessible as
-        // ``this.el``. Many Bokeh views ignore this default <div>, and instead
-        // do things like draw to the HTML canvas. In this case though, we change
-        // the contents of the <div>, based on the current slider value.
+        // BokehJS views create <div> elements by default. These are accessible
+        // as ``this.el``. Many Bokeh views ignore the default <div> and
+        // instead do things like draw to the HTML canvas. In this case though,
+        // the program changes the contents of the <div> based on the current
+        // slider value.
         super.render()
 
         this.el.appendChild(div({
@@ -114,22 +116,23 @@ extensions in the next section.
     export class Custom extends HTMLBox {
       slider: {value: string}
 
-      // The ``__name__`` class attribute should generally match exactly the name
-      // of the corresponding Python class. Note that if using TypeScript, this
-      // will be automatically filled in during compilation, so except in some
-      // special cases, this shouldn't be generally included manually, to avoid
-      // typos, which would prohibit serialization/deserialization of this model.
+      // Generally, the ``__name__`` class attribute should match the name of
+      // the corresponding Python class exactly. TypeScript matches the name
+      // automatically during compilation, so, barring some special cases, you
+      // don't have to do this manually. This helps avoid typos, which stop
+      // serialization/deserialization of the model.
       static __name__ = "Surface3d"
 
       static init_Custom(): void {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 
-        // The this.define() block adds corresponding "properties" to the JS model.
-        // These should normally line up 1-1 with the Python model class. Most property
-        // types have counterparts, e.g. bokeh.core.properties.String will be
-        // ``String`` in the JS implementation. Any time the JS type system is not
-        // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
+        // The this.define() block adds corresponding "properties" to the JS
+        // model. These should normally line up 1-1 with the Python model
+        // class. Most property types have counterparts. For example,
+        // bokeh.core.properties.String will correspond to ``String`` in the
+        // JS implementation. Where JS lacks a given type, you can use
+        // ``p.Any`` as a "wildcard" property type.
         this.define<Custom.Props>(({String, Ref}) => ({
           text:   [ String ],
           slider: [ Ref(Slider) ],
@@ -139,18 +142,17 @@ extensions in the next section.
 
 .. _userguide_extensions_structure_putting_together:
 
-Putting it Together
+Putting it together
 ~~~~~~~~~~~~~~~~~~~
 
-For built-in Bokeh models, the implementation in BokehJS is automatically
-matched with the corresponding Python model by the build process. In order
-to connect JavaScript implementations to Python models, one additional step
-is needed. The Python class should have a class attribute called
-``__implementation__`` whose value is the TypeScript (or JavaScript) code
-that defines the client-side model as well as any optional views.
+For built-in Bokeh models, the building process automatically matches the
+implementation in BokehJS with the corresponding Python model. The Python class
+should also have a class attribute called ``__implementation__`` with the value
+of the JavaScript (or TypeScript) code that defines the client-side model as
+well as any optional views.
 
-Assuming the TypeScript code above was saved in a file ``custom.ts``,
-then the complete Python class might look like:
+Assuming you save the TypeScript code from the previous example in a file
+called ``custom.ts``, the complete Python class might look like this:
 
 .. code-block:: python
 
@@ -165,8 +167,8 @@ then the complete Python class might look like:
 
         slider = Instance(Slider)
 
-If this class is defined in a Python module ``custom.py``, the custom
-extension can now be used exactly like any built-in Bokeh model:
+Assuming that a Python module ``custom.py`` defines this class, you can now use
+the custom extension exactly you would any built-in Bokeh model.
 
 .. code-block:: python
 
@@ -182,26 +184,27 @@ extension can now be used exactly like any built-in Bokeh model:
 
     show(layout)
 
-Which results in the output below. The JavaScript code for the implementation
-is automatically included in the rendered document. Scrub the slider to see
-the special header update as the slider moves:
+This produces the following output:
 
 .. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
+The rendered document automatically includes the JavaScript code for the
+implementation. Move the slider to see the special header update as the
+slider moves.
+
 .. _userguide_extensions_specifying_implementation_languages:
 
-Specifying Implementation Languages
+Specifying implementation languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If the value of ``__implementation__`` is a single line that ends in one of
-the know extensions ``.js``, or ``.ts``, it is interpreted as a filename.
-The corresponding file is opened and its contents are compiled appropriately
-according to the file extension.
+If the value of ``__implementation__`` is a single line that ends in either
+``.js`` or ``.ts``, Bokeh interprets it as a filename, opens the file, and
+compiles its contents according to the file's extension.
 
-Otherwise, if the implementation is inline in the class, the language for the
-source code may be explicitly provided by using the classes ``JavaScript``, or
-``TypeScript``, e.g.
+In case of an incline implementation, specify the language for the source
+code by using the classes ``JavaScript`` or ``TypeScript``. Here's an
+example:
 
 .. code-block:: python
 
@@ -211,27 +214,25 @@ source code may be explicitly provided by using the classes ``JavaScript``, or
 
 .. _userguide_extensions_supplying_external_resources:
 
-Supplying External Resources
+Supplying external resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As part of implementing a custom model in Bokeh, there may be the need to
-include third-party Javascript libraries or CSS resources. Bokeh supports
-supplying external resources through the Python class attributes
-``__javascript__`` and ``__css__`` of custom models.
+You may require third-party JavaScript libraries or CSS resources to implement
+a custom model in Bokeh. You can supply external resources through the
+``__javascript__`` and ``__css__`` Python class attributes of custom models.
 
-Including the URL paths to external resources will cause Bokeh to add
-the resources to the HTML document head, causing the Javascript library to be
-available in the global namespace and the custom CSS styling to be applied.
+Including URL paths to external resources adds them to the HTML document head,
+making JavaScript libraries available in the global namespace and applying
+custom CSS styling.
 
-One example is including the JS and CSS files for `KaTeX`_ (a
-Javascript-based typesetting library that supports LaTeX) in order to create
-a ``LatexLabel`` custom model.
+Here's an example that includes JS and CSS files for `KaTeX`_ (a JS library
+with LaTeX support) in order to create a ``LatexLabel`` custom model.
 
 .. code-block:: python
 
     class LatexLabel(Label):
-        """A subclass of the Bokeh built-in `Label` that supports rendering
-        LaTeX using the KaTeX typesetting library.
+        """A subclass of the built-in Bokeh model `Label` that supports
+        rendering LaTeX with the KaTeX typesetting library.
         """
         __javascript__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"
         __css__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"
@@ -239,31 +240,29 @@ a ``LatexLabel`` custom model.
         # do something here
         """
 
-See the LaTeX example in the extensions gallery below to see the full
-implementation and resulting output.
+For a complete implementation and its output, see the LaTeX example in the
+extension gallery below.
 
 .. _userguide_extensions_structure_server_integration:
 
-Integration with Bokeh Server
+Integration with Bokeh server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-No special work or modification is needed to integrate custom user extensions
-with the Bokeh server. As for standalone documents, the JavaScript
-implementation is automatically included in the rendered application.
-Additionally, the standard synchronization of Bokeh model properties that
-happens for all built-in models happens transparently for custom user
-extensions as well.
+You don't have to do any extra work to integrate custom extensions with the
+Bokeh server. As for standalone documents, the rendered application
+automatically includes the JavaScript implementation. Additionally, the
+standard synchronization of Bokeh model properties is transparent for custom
+user extensions, same as for built-in models.
 
 .. _userguide_extensions_examples:
 
 Examples
 --------
 
-Here we present some complete examples to serve as a reference. It is hoped
-that the information in this section is a useful point of departure for anyone
-creating a custom extension. However, creating extensions is a somewhat
-advanced topic. In many cases, it will be required to study the source code
-of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
+This section aims to provide you with basic examples to help you start creating
+custom extensions. This is a somewhat advanced topic, however, and you will
+often have to study the source code of the base classes in
+:bokeh-tree:`bokehjs/src/lib/models` to make progress.
 
 .. toctree::
 
@@ -274,18 +273,18 @@ of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
     extensions_gallery/widget
 
 :ref:`userguide_extensions_examples_ticking`
-    Subclass built-in Bokeh models for axis ticking to customize their
+    Subclass a built-in Bokeh model for axis ticking to customize axis tick
     behavior.
 
 :ref:`userguide_extensions_examples_tool`
     Make a completely new tool that can draw on a plot canvas.
 
 :ref:`userguide_extensions_examples_wrapping`
-    Connect Python to a third-party JavaScript library by wrapping it with
+    Connect Python to a third-party JavaScript library by wrapping it in
     a Bokeh custom extension.
 
 :ref:`userguide_extensions_examples_latex`
-    Include a third-party JavaScript library in order to render LaTeX.
+    Include a third-party JavaScript library to render LaTeX.
 
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
@@ -295,24 +294,31 @@ of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
 
 .. _userguide_extensions_prebuilt:
 
-Pre-Built Extensions
+Pre-built extensions
 --------------------
 
-So far, we covered simple, typically inline extensions. Those are great for
-ad hoc additions to Bokeh, but serious development like this gets pretty
-tedious very quickly. For example, writing an extension's TypeScript or
-JavaScript files in an IDE doesn't allow us to take full advantage of such
-IDE's capabilities, due to the implicit nature of certain configuration files
-like ``package.json`` or ``tsconfig.json``. This can be fixed by using
-another approach to Bokeh extensions, which are pre-built extensions.
+So far, this chapter covered simple, typically inline extensions. These are
+great for ad hoc additions to Bokeh, but this approach is not particularly
+convenient when it comes to serious development.
 
-To create a pre-built extension, one can use the ``bokeh init`` command, which
-creates all the necessary files, including ``bokeh.ext.json``, ``package.json``
-and ``tsconfig.json``, and possibly others. Additionally, using ``bokeh init
---interactive`` allows us to create and customize an extension step by step.
-Later, such an extension can be built with ``bokeh build`` command. This runs
-``npm install`` if necessary, compiles TypeScript files, transpiles JavaScript
+For example, the implicit nature of certain configuration files such as
+``package.json`` or ``tsconfig.json`` doesn't allow you to take full advantage
+of your IDE's capabilities when writing TypeScript or JavaScript for an
+extension.
+
+Enter pre-built extensions.
+
+To create a pre-built extension, use the ``bokeh init`` command. This creates
+all the necessary files, including ``bokeh.ext.json``, ``package.json``,
+and ``tsconfig.json``.
+
+To create and customize an extension step by step, run
+``bokeh init --interactive``.
+
+To build your extension, use the ``bokeh build`` command. This runs
+``npm install``, if necessary, compiles TypeScript files, transpiles JavaScript
 files, resolves modules, and links them together in distributable bundles.
-Compilation products are cached for improved performance. If this causes
-issues, one can rebuild an extension from scratch by using the ``bokeh build
---rebuild`` command.
+
+Bokeh caches compilation products to improve performance. If this causes
+issues, rebuild your extension from scratch with the ``bokeh build --rebuild``
+command.

@@ -241,7 +241,12 @@ def html_visit_bokehjs_content(self, node):
         resources = get_sphinx_resources(include_bokehjs_api=True)
         self.body.append(BJS_CODEPEN_INIT.render(css_files=resources.css_files, js_files=resources.js_files))
 
-    self.body.append(BJS_PROLOGUE.render(id=node["target_id"], title=node["title"],))
+    self.body.append(
+        BJS_PROLOGUE.render(
+            id=node["target_id"],
+            title=node["title"],
+        )
+    )
 
 
 def html_depart_bokehjs_content(self, node):

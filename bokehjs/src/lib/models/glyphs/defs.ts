@@ -1,5 +1,5 @@
 import {MarkerType} from "core/enums"
-import {LineVector, FillVector} from "core/visuals"
+import {LineVector, FillVector, HatchVector} from "core/visuals"
 import {Context2d} from "core/util/canvas"
 
 const SQ3 = Math.sqrt(3)
@@ -70,113 +70,145 @@ function _one_tri(ctx: Context2d, r: number): void {
   ctx.closePath()
 }
 
-function asterisk(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+type VectorVisuals = {line: LineVector, fill: FillVector, hatch: HatchVector}
+
+function asterisk(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_cross(ctx, r)
   _one_x(ctx, r)
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function circle(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function circle(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function circle_cross(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function circle_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     _one_cross(ctx, r)
     ctx.stroke()
   }
 }
 
-function circle_dot(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
-  circle(ctx, i, r, line, fill)
-  dot(ctx, i, r, line, fill)
+function circle_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  circle(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
 }
 
-function circle_y(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function circle_y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     _one_y(ctx, r)
     ctx.stroke()
   }
 }
 
-function circle_x(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function circle_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   ctx.arc(0, 0, r, 0, 2*Math.PI, false)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     _one_x(ctx, r)
     ctx.stroke()
   }
 }
 
-function cross(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+function cross(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_cross(ctx, r)
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function diamond(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function diamond(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_diamond(ctx, r)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function diamond_cross(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function diamond_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_diamond(ctx, r)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.moveTo(0,  r)
     ctx.lineTo(0, -r)
     ctx.moveTo(-r/1.5,  0)
@@ -185,93 +217,114 @@ function diamond_cross(ctx: Context2d, i: number, r: number, line: LineVector, f
   }
 }
 
-function diamond_dot(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
-  diamond(ctx, i, r, line, fill)
-  dot(ctx, i, r, line, fill)
+function diamond_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  diamond(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
 }
 
-function dot(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+function dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_dot(ctx, r)
 
-  line.set_vectorize(ctx, i)
+  visuals.line.set_vectorize(ctx, i)
   ctx.fillStyle = ctx.strokeStyle // NOTE: dots use line color for fill to match
   ctx.fill()
 }
 
-function hex(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function hex(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_hex(ctx, r)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function hex_dot(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
-  hex(ctx, i, r, line, fill)
-  dot(ctx, i, r, line, fill)
+function hex_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  hex(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
 }
 
-function inverted_triangle(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function inverted_triangle(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   ctx.rotate(Math.PI)
   _one_tri(ctx, r)
   ctx.rotate(-Math.PI)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function plus(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function plus(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const a = 3*r/8
   const b = r
   const xs = [a, a, b,  b,  a,  a, -a, -a, -b, -b, -a, -a]
   const ys = [b, a, a, -a, -a, -b, -b, -a, -a,  a,  a,  b]
 
-  ctx.moveTo(xs[0], ys[0])
-  for (i=1; i<12; i++)
-    ctx.lineTo(xs[i], ys[i])
+  ctx.beginPath()
+  for (let j = 0; j < 12; j++) {
+    ctx.lineTo(xs[j], ys[j])
+  }
   ctx.closePath()
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function square(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function square(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const size = 2*r
 
   ctx.rect(-r, -r, size, size)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function square_pin(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function square_pin(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const a = 3*r/8
 
   ctx.moveTo(-r, -r)
@@ -284,51 +337,66 @@ function square_pin(ctx: Context2d, i: number, r: number, line: LineVector, fill
 
   ctx.closePath()
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function square_cross(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function square_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const size = 2*r
 
   ctx.rect(-r, -r, size, size)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     _one_cross(ctx, r)
     ctx.stroke()
   }
 }
 
-function square_dot(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
-  square(ctx, i, r, line, fill)
-  dot(ctx, i, r, line, fill)
+function square_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  square(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
 }
 
-function square_x(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function square_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const size = 2*r
 
   ctx.rect(-r, -r, size, size)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.moveTo(-r,  r)
     ctx.lineTo(r, -r)
     ctx.moveTo(-r, -r)
@@ -337,26 +405,31 @@ function square_x(ctx: Context2d, i: number, r: number, line: LineVector, fill: 
   }
 }
 
-function triangle(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function triangle(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_tri(ctx, r)
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function triangle_dot(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
-  triangle(ctx, i, r, line, fill)
-  dot(ctx, i, r, line, fill)
+function triangle_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  triangle(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
 }
 
-function triangle_pin(ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector): void {
+function triangle_pin(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   const h = r*SQ3
   const a = h/3
   const b = 3*a/8
@@ -367,45 +440,50 @@ function triangle_pin(ctx: Context2d, i: number, r: number, line: LineVector, fi
   ctx.quadraticCurveTo(-SQ3*b/2, b/2, -r, a)
   ctx.closePath()
 
-  if (fill.doit) {
-    fill.set_vectorize(ctx, i)
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
     ctx.fill()
   }
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function dash(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+function dash(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_line(ctx, r)
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function x(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+function x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_x(ctx, r)
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-function y(ctx: Context2d, i: number, r: number, line: LineVector, _fill: FillVector): void {
+function y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_y(ctx, r)
 
-  if (line.doit) {
-    line.set_vectorize(ctx, i)
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 }
 
-export type RenderOne = (ctx: Context2d, i: number, r: number, line: LineVector, fill: FillVector) => void
+export type RenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
 
 export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,

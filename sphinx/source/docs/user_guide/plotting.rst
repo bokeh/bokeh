@@ -1,35 +1,35 @@
 .. _userguide_plotting:
 
-Plotting with Basic Glyphs
+Plotting with basic glyphs
 ==========================
 
 .. _userguide_plotting_figures:
 
-Creating Figures
+Creating figures
 ----------------
 
-Note that Bokeh plots created using the |bokeh.plotting| interface come with
-a default set of tools and default visual styles. See :ref:`userguide_styling`
-for information about how to customize the visual style of plots, and
-:ref:`userguide_tools` for information about changing or specifying tools.
+Bokeh plots you create with the |bokeh.plotting| interface come with a default
+set of tools and visual styles. For information on how to customize the visual
+style of plots, see :ref:`userguide_styling`. For information about changing or
+specifying tools, see :ref:`userguide_tools`.
 
 .. _userguide_plotting_scatter_markers:
 
-Scatter Markers
+Scatter markers
 ~~~~~~~~~~~~~~~
 
-To scatter circle markers on a plot, use the |circle| method of |Figure|:
+To scatter circle markers on a plot, use the |circle| method of |Figure|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_scatter_circle.py
     :source-position: above
 
-Similarly, to scatter square markers, use the |square| method of |Figure|:
+Similarly, to scatter square markers, use the |square| method of |Figure|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_scatter_square.py
     :source-position: above
 
-There are lots of marker types available in Bokeh, you can see details and
-example plots for all of them by clicking on entries in the list below:
+There are many marker types available in Bokeh. To see details and example
+plots, click on the glyph methods in the following list:
 
 .. hlist::
     :columns: 3
@@ -63,289 +63,276 @@ example plots for all of them by clicking on entries in the list below:
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 :ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
-default). Additionally, |circle| has a ``radius`` property that can be used to
+default). Additionally, |circle| has a ``radius`` property that you can use to
 specify :ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
 
-Line Glyphs
+Line glyphs
 ~~~~~~~~~~~
 
-Single Lines
+Single lines
 ''''''''''''
 
-Below is an example that shows how to generate a single line glyph from
-one-dimensional sequences of *x* and *y* points using the |line| glyph
+The example below shows how to generate a single line glyph from
+one-dimensional sequences of ``x`` and ``y`` points using the |line| glyph
 method:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_single.py
     :source-position: above
 
-Step Lines
+Step lines
 ''''''''''
 
-For some kinds of data, it may be more appropriate to draw discrete steps
-between data points, instead of connecting points with linear segments. The
-|step| glyph method can be used to accomplish this:
+For some kinds of data, discrete steps between data points may work better than
+linear segments. To produce this type of data representation, use the |step|
+glyph method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_steps.py
     :source-position: above
 
-Step levels can be drawn before, after, or centered on the x-coordinates,
-as configured by the ``mode`` parameter.
+Adjust the ``mode`` parameter to draw step levels with the x-coordinates
+before, after, or in the middle of each step.
 
-Multiple Lines
+Multiple lines
 ''''''''''''''
 
-Sometimes it is useful to plot multiple lines all at once. This can be
-accomplished with the |multi_line| glyph method:
+If you want to draw multiple lines in one go, use the |multi_line| glyph
+method as follows:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_multiple.py
     :source-position: above
 
 .. note::
-    This glyph is unlike most other glyphs. Instead of accepting a
-    one-dimensional list or array of scalar values, it accepts a "list of lists"
-    for x and y positions of each line, parameters xs and ys. multi_line
-    also expects a scalar value or a list of scalers per each line for
-    parameters such as color, alpha, linewidth, etc. Similarly, a
-    ColumnDataSource may be used consisting of a "list of lists" and a
-    list of scalars where the length of the list of scalars and length of
-    lists must match.
+    Unlike many other glyph methods, |multi_line| accepts a list of lists of
+    ``x`` and ``y`` positions for each line. The |multi_line| method also
+    expects a scalar value or a list of scalars for each line for parameters
+    such as color, alpha, and line width. You can similarly use a
+    ``ColumnDataSource`` consisting of a list of lists of point coordinates
+    and a list of scalar values of matching length.
 
-Missing Points
+Missing points
 ''''''''''''''
 
-``NaN`` values can be passed to |line| and |multi_line| glyphs. In this case,
-you end up with single logical line objects, that have multiple disjoint
-components when rendered:
+You can pass ``NaN`` values to |line| and |multi_line| glyphs. This produces
+disjointed lines with gaps for ``NaN`` values.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_missing_points.py
     :source-position: above
 
-Stacked Lines
+Stacked lines
 '''''''''''''
 
-In some instances, it is desirable to stack lines that are aligned on a common
-index (e.g. time series of percentages). The |vline_stack| and |hline_stack|
-convenience methods can be used to accomplish this. Note that these methods
-stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
-:ref:`userguide_data` for more information.
+You may wish to stack lines with a common index when working with time series
+of percentages and other similar data. To do so, you can use the |vline_stack|
+and |hline_stack| convenience methods.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
     :source-position: above
 
 .. _userguide_plotting_bars_rects:
 
-Bars and Rectangles
+.. note::
+    These and other convenience methods in this chapter rely on
+    ``ColumnDataSource`` for data structuring. For information on how to work
+    with this data structure, see :ref:`userguide_data`.
+
+Bars and rectangles
 ~~~~~~~~~~~~~~~~~~~
 
 Bars
 ''''
 
-When drawing rectangular bars (often representing intervals), it is often
-more convenient to have coordinates that are a hybrid of the two systems
-above. Bokeh provides the |hbar| and |vbar| glyphs function for this
-purpose.
+To make drawing rectangular bars more convenient, Bokeh provides |hbar| and
+|vbar| glyph functions that combine the coordinate systems above.
 
-To draw vertical bars by specifying a (center) x-coordinate, width, and
-top and bottom endpoints, use the |vbar| glyph function:
+To draw vertical bars by specifying a center x-coordinate, width, and top and
+bottom endpoints, use the |vbar| glyph function:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_vbar.py
     :source-position: above
 
-To draw horizontal bars by specifying a (center) y-coordinate, height,
-and left and right endpoints, use the |hbar| glyph function:
+To draw horizontal bars by specifying a center y-coordinate, height, and left
+and right endpoints, use the |hbar| glyph function:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar.py
     :source-position: above
 
-Stacked Bars
+Stacked bars
 ''''''''''''
 
-It is often desirable to stack bars. This can be accomplished with the
-|vbar_stack| and |hbar_stack| convenience methods. Note that these methods
-stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
-:ref:`userguide_data` for more information).
+To stack the bars, you can use the |vbar_stack| and |hbar_stack| convenience
+methods.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar_stack.py
     :source-position: above
 
-More examples of stacked bars can be found in the section
-:ref:`userguide_categorical`.
+For more examples of stacked bars, see :ref:`userguide_categorical`.
 
 Rectangles
 ''''''''''
 
-To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
-``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
+To draw *axis aligned* rectangles by specifying the ``left``, ``right``,
+``top``, and ``bottom`` positions, use the |quad| glyph function:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
     :source-position: above
 
-To draw arbitrary rectangles by specifying a center point, width, height,
-and angle, use the |rect| glyph function:
+To draw arbitrary rectangles by specifying center coordinates, ``width``,
+``height``, and ``angle``, use the |rect| glyph function:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
     :source-position: above
 
 .. userguide_plotting_hex
 
-Hex Tiles
+Hex tiles
 ~~~~~~~~~
 
-Bokeh can plot hexagonal tiles, which are often used for showing binned
-aggregations. The :func:`~bokeh.plotting.Figure.hex_tile` method
-takes a `size` parameter to define the size of the hex grid, and
-`axial coordinates`_ to specify which tiles are present.
+Bokeh can plot hexagonal tiles, which you can use to show binned aggregations
+and more. The :func:`~bokeh.plotting.Figure.hex_tile` method takes a ``size``
+parameter to define the size of the hex grid and `axial coordinates`_ to
+specify the tiles.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_basic.py
     :source-position: above
 
-A more realistic example below computes counts per bin using the
-:func:`~bokeh.util.hex.hexbin` function and plots the colormapped counts:
+A more practical example below computes counts per bin using the
+:func:`~bokeh.util.hex.hexbin` function and plots the color mapped counts.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_binning.py
     :source-position: above
 
-The above code can be made even simpler by calling the :func:`~bokeh.plotting.Figure.hexbin`
-method of ``Figure``.
+You can simplify this code by calling the :func:`~bokeh.plotting.Figure.hexbin`
+method of |Figure|.
 
 .. _userguide_plotting_directed_areas:
 
-Directed Areas
+Directed areas
 ~~~~~~~~~~~~~~
 
 Directed areas are filled regions between two series that share a common index.
-For instance, a vertical directed area has one `x` coordinate array, and two y
-coordinate arrays, `y1` and `y2`, which will be filled between.
+For instance, a vertical directed area has one ``x`` coordinate array and two
+``y`` coordinate arrays, ``y1`` and ``y2``, defining the space for Bokeh to
+fill.
 
-Single Areas
+Single areas
 ''''''''''''
 
-A single directed area between two aligned series can be created in the
-vertical direction with |varea| or in the horizontal direction with
-|harea|.
+To fill an area in vertical direction, use the |varea| method. You can do the
+same in horizontal direction with |harea|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_varea.py
     :source-position: above
 
-Stacked Areas
+Stacked areas
 '''''''''''''
 
-It is often desirable to stack directed areas. This can be accomplished with
-the |varea_stack| and |harea_stack| convenience methods. Note that these methods
-stack columns from an explicitly supplied ``ColumnDataSource`` (see the section
-:ref:`userguide_data` for more information).
+To stack directed areas, use the |varea_stack| and |harea_stack| convenience
+methods.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_varea_stack.py
     :source-position: above
 
 .. _userguide_plotting_patch_polygon_glyphs:
 
-Patches and Polygons
+Patches and polygons
 ~~~~~~~~~~~~~~~~~~~~
 
-Single Patches
+Single patches
 ''''''''''''''
 
-Below is an example that shows how to generate a single polygonal patch
-glyph from one-dimensional sequences of *x* and *y* points using the
-|patch| glyph method:
+The following example generates a single polygonal patch from one-dimensional
+sequences of ``x`` and ``y`` points using the |patch| glyph method:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_patch_single.py
     :source-position: above
 
-Multiple Patches
+Multiple patches
 ''''''''''''''''
 
-Sometimes it is useful to plot multiple polygonal patches all at once.
-This can be accomplished with the |patches| glyph method:
+To plot several polygonal patches, use the |patches| glyph method:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_patch_multiple.py
     :source-position: above
 
 .. note::
-    This glyph is unlike most other glyphs. Instead of accepting a
-    one-dimensional list or array of scalar values, it accepts a "list
-    of lists" for x and y positions of each patch, parameters xs and ys.
-    patches also expects a scalar value or a list of scalers per each
-    patch for parameters such as color, alpha, linewidth, etc. Similarly,
-    a ColumnDataSource may be used consisting of a "list of lists" and a
-    list of scalars where the length of the list of scalars and length of
-    lists must match.
+    Unlike many other glyph methods, |patches| accepts a list of lists of ``x``
+    and ``y`` positions for each line. The |patches| method also expects a
+    scalar value or a list of scalars for each patch for parameters such as
+    color, alpha, and line width. You can similarly use a ``ColumnDataSource``
+    consisting of a list of lists of point coordinates and a list of scalar
+    values of matching length.
 
-Missing Points
+Missing points
 ''''''''''''''
 
-Just as with |line| and |multi_line|, ``NaN`` values can be passed to
-|patch| and |patches| glyphs. In this case, you end up with single logical
-patch objects, that have multiple disjoint components when rendered:
+Just as with the |line| and |multi_line| methods, you can pass ``NaN`` values
+to |patch| and |patches| glyphs. This produces disjointed patches with gaps
+for ``NaN`` values.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_patch_missing_points.py
     :source-position: above
 
 .. warning::
-    Hit testing on patch objects with ``NaN`` values is not currently
-    supported.
+    Bokeh doesn't currently support hit testing on patch objects with ``NaN``
+    values.
 
 .. _userguide_plotting_multipolygons:
 
-Polygons with Holes
-~~~~~~~~~~~~~~~~~~~
+Polygons
+~~~~~~~~
 
 The |multi_polygons| glyph uses nesting to accept a variety of information
-relevant to polygons. Anything that can be rendered as a |Patches| can also be
-rendered as |multi_polygons|, but additionally, |multi_polygons| can render
-holes inside each polygon.
+relevant to polygons. The method duplicates the functionality of |patches| but
+you can also use it to render holes inside polygons.
 
 .. note::
-    This glyph is unlike most other glyphs. Instead of accepting a one-dimensional
-    list or array of scalar values, it accepts a 3 times nested
-    list of x and y positions for the exterior and holes composing each
-    polygon. MultiPolygons also expects a scalar value or a list of scalers
-    per each item for parameters such as color, alpha, linewidth, etc.
-    Similarly, one can use a ColumnDataSource consisting of a 3 times nested
-    list and a list of scalars where the length of the list of scalars and
-    length of the top level list must match.
+    Unlike many other glyph methods, |multi_polygons| accepts a triple-nested
+    lists of ``x`` and ``y`` positions for the exterior and holes composing
+    each polygon. The |multi_polygons| method also expects a scalar value or a
+    list of scalars for each item for parameters such as color, alpha, and line
+    width. You can similarly use a ``ColumnDataSource`` consisting of a triple-
+    nested list of point coordinates and a list of scalars, with the top-level
+    list of point coordinates being of equal length with the list of scalars.
 
-Simple Polygon
+Simple polygon
 ''''''''''''''
 
-Below is an example that shows how to generate a single polygon
-glyph from 3 times nested one-dimensional sequences of *x* and *y* points
-using the |multi_polygons| glyph method:
+The following example generates a single polygon from a triple-nested list of
+one-dimensional sequences of ``x`` and ``y`` points using the |multi_polygons|
+glyph method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_simple.py
     :source-position: above
 
-Polygon with Holes
+Polygon with holes
 ''''''''''''''''''
 
-Below is an example that shows how to generate a single polygon with holes
-from three sequences of *x* and *y* points. The first sequence represents
-the exterior of the polygon and the following sequences represent the holes:
+The following example generates a single polygon with holes from three
+sequences of ``x`` and ``y`` points. The first sequence represents
+the exterior of the polygon and the following sequences represent the holes.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_holes.py
     :source-position: above
 
-MultiPolygon with Separate Parts
-''''''''''''''''''''''''''''''''
+Multi-polygon with separate parts
+'''''''''''''''''''''''''''''''''
 
-Sometimes one conceptual polygon is composed of multiple polygon geometries.
-Below is an example that shows how to generate a MultiPolygon
-glyph from several sequences of *x* and *y* points. Each item in the sequence
-represents a part of the MultiPolygon:
+A single polygon concept can comprise multiple polygon geometries. The
+following example generates a multi-polygon glyph from several sequences of
+``x`` and ``y`` points. Each item in the sequence represents a part of the
+glyph.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_separate_parts.py
     :source-position: above
 
-Multiple MultiPolygons
-''''''''''''''''''''''
+Multiple multi-polygons
+'''''''''''''''''''''''
 
-The top-level of nesting is used to separate each MultiPolygon from the
-others. Each MultiPolygon can be thought of as a row in the data source -
-potentially with a corresponding label or color.
+The top-level of nesting separates each multi-polygon from the rest. You can
+think of each multi-polygon as a row in the data source, potentially with a
+corresponding label or color.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_multipolygons.py
     :source-position: above
@@ -356,7 +343,7 @@ Ellipses
 ~~~~~~~~
 
 The |ellipse| glyph method accepts the same properties as |rect|, but renders
-ellipse shapes:
+ellipse shapes.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_ellipses.py
     :source-position: above
@@ -368,68 +355,69 @@ Images
 ~~~~~~
 
 You can display images on Bokeh plots using the |image|, |image_rgba|, and
-|image_url| glyph methods. It is possible to use a hover tool with image glyphs
-to allow for interactive inspection of the values of any pixel. For more
-information on how to enable hover with images, please consult the
-:ref:`Image Hover section <userguide_tools_image_hover>` of the User's Guide.
+|image_url| glyph methods. You can use hovering tooltips with image glyphs
+to let the user see the values of each pixel. For more information on how to
+enable hovering tooltips for images, see
+:ref:`Image hover <userguide_tools_image_hover>`.
 
 .. _userguide_plotting_images_rgba:
 
 Raw RGBA data
 '''''''''''''
 
-The first example here shows how to display images in Bokeh plots from
-raw RGBA data using |image_rgba|:
+The following example shows how to display images using raw RGBA data with the
+|image_rgba| method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_image_rgba.py
     :source-position: above
 
 .. _userguide_plotting_images_colormapped:
 
-Colormapped Images
-''''''''''''''''''
+Color mapped images
+'''''''''''''''''''
 
-It is also possible to provide an array of *scalar values*, and have Bokeh
-automatically colormap the data in the browser by using the |image| glyph
-method. The next example shows how to do this:
+The following example shows how to supply an array of *scalar values* and have
+Bokeh automatically color map the data in the browser with the |image| glyph
+method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_image.py
     :source-position: above
 
-Also note that in the above example we have set the render level to ``"image"``.
-Normally, all glyphs are drawn *above* grid lines, but setting the ``"image"``
-render level can be used to draw *underneath* the grid lines.
+Note that this example sets the render level to ``"image"``. Normally, Bokeh
+draws all glyphs *above* grid lines, but with this render level they appear
+*below* the grid lines.
 
 .. _userguide_plotting_segments_rays:
 
-Segments and Rays
+Segments and rays
 ~~~~~~~~~~~~~~~~~
 
-Sometimes it is useful to be able to draw many individual line segments at
-once. Bokeh provides the |segment| and |ray| glyph methods to render these.
+To draw multiple individual line segments use the |segment| and |ray| glyph
+methods.
 
-The |segment| function accepts start points ``x0``, ``y0`` and end points
-``x1`` and ``y1`` and renders segments between these:
+The |segment| method accepts start points ``x0`` and ``y0`` and end points
+``x1`` and ``y1`` and renders segments between them.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_segments.py
     :source-position: above
 
-The |ray| function accepts start points ``x``, ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The default
-``angle_units`` are ``"rad"`` but can also be changed to ``"deg"``. To have an
-"infinite" ray, that always extends to the edge of the plot, specify ``0`` for
-the length:
+The |ray| method accepts start points ``x`` and ``y`` with a ``length``
+(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The
+``angle_units`` parameter defaults to ``"rad"`` but can you can also set it to
+``"deg"`` to have the angle measured in degrees instead of radians. To have an
+"infinite" ray that always extends to the edge of the plot, set ``length`` to
+``0``.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_ray.py
     :source-position: above
 
 .. _userguide_plotting_wedges_arcs:
 
-Wedges and Arcs
+Wedges and arcs
 ~~~~~~~~~~~~~~~
 
-To draw a simple line arc, Bokeh provides the |arc| glyph method, which
-accepts ``radius``, ``start_angle``, and ``end_angle`` to determine position.
+To draw a simple line arc, use the |arc| glyph method, which accepts
+``radius``, ``start_angle``, and ``end_angle`` to determine position.
 Additionally, the ``direction`` property determines whether to render
 clockwise (``"clock"``) or anti-clockwise (``"anticlock"``) between the start
 and end angles.
@@ -437,72 +425,72 @@ and end angles.
 .. bokeh-plot:: docs/user_guide/examples/plotting_arcs.py
     :source-position: above
 
-The |wedge| glyph method accepts the same properties as |arc|, but renders a
+The |wedge| glyph method accepts the same properties as |arc| but renders a
 filled wedge instead:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_wedge.py
     :source-position: above
 
-The |annular_wedge| glyph method is similar to |arc|, but draws a filled area.
-It accepts an ``inner_radius`` and ``outer_radius`` instead of just ``radius``:
+The |annular_wedge| glyph method is similar to |wedge| but leaves an inner
+portion of the wedge hollow. It accepts an ``inner_radius`` and
+``outer_radius`` instead of just ``radius``.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_annular_wedge.py
     :source-position: above
 
-Finally, the |annulus| glyph methods, which accepts ``inner_radius`` and
-``outer_radius``, can be used to draw filled rings:
+Finally, the |annulus| glyph method also accepts ``inner_radius`` and
+``outer_radius`` to produce hollow circles.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_annulus.py
     :source-position: above
 
 .. _userguide_plotting_quadratic_cubic_curves:
 
-Specialized Curves
+Specialized curves
 ~~~~~~~~~~~~~~~~~~
 
-Bokeh also provides |quadratic| and |bezier| glyph methods for drawing
-parameterized quadratic and cubic curves. These are somewhat uncommon;
-please refer to the :ref:`reference documentation <bokeh.plotting>` for details.
+To draw parameterized quadratic and cubic curves, use the |quadratic| and
+|bezier| glyph methods. For more detail on these curves, see
+:ref:`reference documentation <bokeh.plotting>`.
 
 .. _userguide_plotting_multiple_glyphs:
 
-Combining Multiple Glyphs
+Combining multiple glyphs
 -------------------------
 
-Combining multiple glyphs on a single plot is a matter of calling more than
-one glyph method on a single |Figure|:
+You can combine multiple glyphs on a single plot by calling their methods on a
+single |Figure|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_multiple_glyphs.py
     :source-position: above
 
-This principle holds in general for all the glyph methods in
-|bokeh.plotting|. Any number of glyphs may be added to a Bokeh
-plot.
+This principle applies to all |bokeh.plotting| glyph methods. You can add as
+many glyphs to a Bokeh plot as you want.
 
 .. _userguide_plotting_setting_ranges:
 
-Setting Ranges
+Setting ranges
 --------------
 
-By default, Bokeh will attempt to automatically set the data bounds
-of plots to fit snugly around the data. Sometimes, you may need to
-set a plot's range explicitly. This can be accomplished by setting the
-``x_range`` or ``y_range`` properties using a ``Range1d`` object that
-gives the *start* and *end* points of the range you want:
+By default, Bokeh attempts to automatically set the data bounds of plots to fit
+snugly around the data. You may, however, need to set a plot's range
+explicitly. To do so, set the ``x_range`` and/or ``y_range`` properties using a
+``Range1d`` object that lets you set the *start* and *end* points of the range
+you want.
 
 .. code-block:: python
 
     p.x_range = Range1d(0, 100)
 
-As a convenience, the |figure| function can also accept tuples of
-*(start, end)* as values for the ``x_range`` or ``y_range`` parameters.
-Below is an example that shows both methods of setting the range:
+For convenience, the |figure| function can also accept *(start, end)* tuples as
+values for the ``x_range`` or ``y_range`` parameters. Here's how you can use
+both methods to set a range:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_figure_range.py
     :source-position: above
 
-Ranges also have a ``bounds`` property that allows you to specify limits of
-the plot that you do not want the user to be able to pan/zoom beyond.
+Ranges also have a ``bounds`` property that lets you specify the limits of the
+plot beyond which the user cannot pan or zoom.
 
 .. code-block:: python
 
@@ -511,85 +499,81 @@ the plot that you do not want the user to be able to pan/zoom beyond.
 
 .. _userguide_plotting_axis_types:
 
-Specifying Axis Types
+Specifying axis types
 ---------------------
 
-All the examples above use the default linear axis. This axis is suitable
-for many plots that need to show numerical data on a linear scale. In other
-cases you may have categorical data, or need to display numerical data on
-a datetime or log scale. This section shows how to specify the axis type
-when using |bokeh.plotting| interface.
+All the examples above use the default linear axis. This axis is suitable for
+plots that need to show numerical data on a linear scale. However, you may have
+categorical data or need to display numerical data on a datetime or log scale.
+This section shows you how to specify the axis type when using the
+|bokeh.plotting| interface.
 
 .. _userguide_plotting_categorical_axes:
 
-Categorical Axes
+Categorical axes
 ~~~~~~~~~~~~~~~~
 
-Categorical axes are created by specifying a
-:class:`~bokeh.models.ranges.FactorRange` for one of the plot ranges (or a
-list of factors to be converted to one). Below is a simple example, for
-complete details see :ref:`userguide_categorical`.
+To create a categorical axis, specify a
+:class:`~bokeh.models.ranges.FactorRange` for one of the plot's ranges or a
+list of factors to be converted to one. Here's an example:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_categorical_axis.py
     :source-position: above
 
 .. _userguide_plotting_datetime_axes:
 
-Datetime Axes
+For complete details, see :ref:`userguide_categorical`.
+
+Datetime axes
 ~~~~~~~~~~~~~
 
-When dealing with timeseries data, or any data that involves dates or
-times, it is desirable to have an axis that can display labels that
-are appropriate to different date and time scales.
-
 .. note::
-    This example requires a network connection and depends on the
-    open source Pandas library in order to more easily present realistic
-    timeseries data.
+    The example in this section requires a network connection and depends on
+    the open source Pandas library to present realistic time series data.
 
-We have seen how to use the |figure| function to create plots using the
-|bokeh.plotting| interface. This function accepts  ``x_axis_type`` and
-``y_axis_type`` as arguments. To specify a datetime axis, pass ``"datetime"``
-for the value of either of these parameters.
+For time series, or any data that involves dates or time, you may want to
+use axes with labels suitable for different date and time scales.
+
+The |figure| function accepts ``x_axis_type`` and ``y_axis_type`` as arguments.
+To specify a datetime axis, pass ``"datetime"`` for the value of either of
+these parameters.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_datetime_axis.py
     :source-position: above
 
 .. note::
     Future versions of Bokeh will attempt to auto-detect situations when
-    datetime axes are appropriate, and add them automatically by default.
+    datetime axes are appropriate and add them automatically.
 
 .. _userguide_plotting_log_axes:
 
-Log Scale Axes
+Log scale axes
 ~~~~~~~~~~~~~~
 
-When dealing with data that grows exponentially or is of many orders of magnitude,
-it is often necessary to have one axis on a log scale. Another scenario involves
-plotting data that has a power law relationship, when it is desirable to use log
-scales on both axes.
+Data that grows exponentially or covers many orders of magnitude often requires
+one axis to be on a log scale. For data that has a power law relationship, you
+may want to use log scales on both axes.
 
-As we saw above, the |figure| function accepts ``x_axis_type`` and
-``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
-the value of either of these parameters.
+You can use the same |figure| arguments, ``x_axis_type`` and ``y_axis_type``,
+to set one or both of the axes to ``"log"``.
 
-By default, log axis ranges are calculated to fit around positive valued data. To
-set your own ranges, see the section on :ref:`userguide_plotting_setting_ranges`.
+By default, Bokeh calculates log axis ranges to fit around positive value data.
+For information on how to set your own ranges, see
+:ref:`userguide_plotting_setting_ranges`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_log_scale_axis.py
     :source-position: above
 
 .. _userguide_plotting_twin_axes:
 
-Twin Axes
+Twin axes
 ~~~~~~~~~
 
-It is possible to add multiple axes representing different ranges to a single
-plot. To do this, configure the plot with "extra" named ranges in the
-``extra_x_range`` and ``extra_y_range`` properties. Then these named ranges
-can be referred to when adding new glyph methods, and also to add new axes
-objects using the ``add_layout`` method on |Plot|. An example is given
-below:
+You can add multiple axes representing different ranges to a single plot. To do
+this, configure the plot with "extra" named ranges in the ``extra_x_range`` and
+``extra_y_range`` properties. You can then refer to these named ranges when
+adding new glyph methods as well as when adding new axis objects with the
+``add_layout`` method of the |plot|. Here's an example:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_twin_axes.py
     :source-position: above

@@ -33,7 +33,6 @@ Follow these steps to create a ``ColumnDataSource`` directly:
   renderer.
 
 .. code-block:: python
-   :emphasize-lines: 2,5-6,9,13
 
     from bokeh.plotting import figure
     from bokeh.models import ColumnDataSource
