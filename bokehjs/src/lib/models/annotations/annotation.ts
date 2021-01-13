@@ -1,13 +1,9 @@
+import {Renderer, RendererView} from "../renderers/renderer"
+
 import {Panel} from "core/layout/side_panel"
 import {Size, Layoutable} from "core/layout"
 import {SerializableState} from "core/view"
-import {values} from "core/util/object"
-import {VisualUniforms} from "core/visuals/visual"
 import * as p from "core/properties"
-import * as proj from "core/util/projections"
-
-import {Renderer, RendererView} from "../renderers/renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
@@ -42,46 +38,6 @@ export abstract class AnnotationView extends RendererView {
     })
   }
 
-  update_data(source: ColumnarDataSource): void {
-    this.set_data(source)
-    this.request_render()
-  }
-
-  set_data(source: ColumnarDataSource): void {
-    const {visuals} = this
-    const visual_props = new Set((function* () {
-      for (const visual of values<VisualUniforms>(visuals)) {
-        for (const prop of visual) {
-          yield prop
-        }
-      }
-    })())
-
-    const self = this as any
-    for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
-        continue
-
-      if (prop.can_skip)
-        continue
-
-      if (visual_props.has(prop)) {
-        const uniform = prop.uniform(source) // .select(indices)
-        self[`${prop.attr}`] = uniform
-      } else {
-        const array = prop.array(source) // .select(indices)
-        self[`_${prop.attr}`] = array
-      }
-    }
-
-    if (this.plot_model.use_map) {
-      if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
-      if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
-    }
-  }
-
   get needs_clip(): boolean {
     return this.layout == null // TODO: change this, when center layout is fully implemented
   }
@@ -93,7 +49,7 @@ export abstract class AnnotationView extends RendererView {
 }
 
 export namespace Annotation {
-  export type Attrs = Renderer.Attrs
+  export type Attrs = p.AttrsOf<Props>
 
   export type Props = Renderer.Props
 

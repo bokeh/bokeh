@@ -1,4 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {DataAnnotationView} from "./data_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
@@ -22,9 +23,13 @@ export class LabelSetView extends TextAnnotationView {
   protected _x_offset: ScreenArray
   protected _y_offset: ScreenArray
 
+  // XXX: can't inherit DataAnnotation currently
+  set_data(source: ColumnarDataSource): void {
+    DataAnnotationView.prototype.set_data.call(this, source)
+  }
+
   initialize(): void {
     super.initialize()
-
     this.set_data(this.model.source)
 
     if (this.model.render_mode == 'css') {

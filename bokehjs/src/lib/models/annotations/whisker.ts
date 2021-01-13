@@ -1,5 +1,7 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Context2d} from "core/util/canvas"
 import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -22,18 +24,13 @@ export class WhiskerView extends UpperLowerView {
       this.upper_head = await build_view(upper_head, {parent: this})
   }
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
-    this.connect(this.model.source.patching, () => this.set_data(this.model.source))
-    this.connect(this.model.source.change, () => this.set_data(this.model.source))
+  set_data(source: ColumnarDataSource): void {
+    super.set_data(source)
+    this.lower_head?.set_data(source)
+    this.upper_head?.set_data(source)
   }
 
-  protected _render(): void {
-    this._map_data()
-
-    const {ctx} = this.layer
-
+  paint(ctx: Context2d): void {
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         this.visuals.line.set_vectorize(ctx, i)

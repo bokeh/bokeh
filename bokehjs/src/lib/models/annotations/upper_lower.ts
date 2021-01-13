@@ -1,11 +1,9 @@
-import {Annotation, AnnotationView} from "./annotation"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {ColumnDataSource} from "../sources/column_data_source"
+import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import {Arrayable} from "core/types"
 import {Dimension, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
-export abstract class UpperLowerView extends AnnotationView {
+export abstract class UpperLowerView extends DataAnnotationView {
   model: UpperLower
   visuals: UpperLower.Visuals
 
@@ -18,17 +16,7 @@ export abstract class UpperLowerView extends AnnotationView {
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
-  initialize(): void {
-    super.initialize()
-    this.set_data(this.model.source)
-  }
-
-  set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.request_render()
-  }
-
-  protected _map_data(): void {
+  map_data(): void {
     const {frame} = this.plot_view
     const dim = this.model.dimension
 
@@ -90,20 +78,19 @@ export class XOrYCoordinateSpec extends p.CoordinateSpec {
 export namespace UpperLower {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & {
+  export type Props = DataAnnotation.Props & {
     dimension: p.Property<Dimension>
     lower: XOrYCoordinateSpec
     upper: XOrYCoordinateSpec
     base: XOrYCoordinateSpec
-    source: p.Property<ColumnarDataSource>
   }
 
-  export type Visuals = Annotation.Visuals
+  export type Visuals = DataAnnotation.Visuals
 }
 
 export interface UpperLower extends UpperLower.Attrs {}
 
-export class UpperLower extends Annotation {
+export class UpperLower extends DataAnnotation {
   properties: UpperLower.Props
 
   constructor(attrs?: Partial<UpperLower.Attrs>) {
@@ -111,12 +98,11 @@ export class UpperLower extends Annotation {
   }
 
   static init_UpperLower(): void {
-    this.define<UpperLower.Props>(({Ref}) => ({
+    this.define<UpperLower.Props>(() => ({
       dimension: [ Dimension, "height" ],
       lower:     [ XOrYCoordinateSpec, {field: "lower"} ],
       upper:     [ XOrYCoordinateSpec, {field: "upper"} ],
       base:      [ XOrYCoordinateSpec, {field: "base"} ],
-      source:    [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
     }))
   }
 }

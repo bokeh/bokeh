@@ -93,6 +93,7 @@ __all__ = (
     'Band',
     'BoxAnnotation',
     'ColorBar',
+    'DataAnnotation',
     'Label',
     'LabelSet',
     'Legend',
@@ -132,6 +133,16 @@ class Annotation(Renderer):
     '''
 
     level = Override(default="annotation")
+
+@abstract
+class DataAnnotation(Annotation):
+    ''' Base class for annotations that utilize a data source.
+
+    '''
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
 
 @abstract
 class TextAnnotation(Annotation):
@@ -482,7 +493,7 @@ class ColorBar(Annotation):
 
     background_fill_alpha = Override(default=0.95)
 
-class Arrow(Annotation):
+class Arrow(DataAnnotation):
     ''' Render arrows as an annotation.
 
     See :ref:`userguide_plotting_arrows` for information on plotting arrows.
@@ -525,10 +536,6 @@ class Arrow(Annotation):
 
     body_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow body.
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
 class BoxAnnotation(Annotation):
@@ -619,7 +626,7 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class Band(Annotation):
+class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
     See :ref:`userguide_plotting_bands` for information on plotting bands.
@@ -640,10 +647,6 @@ class Band(Annotation):
     dimension = Enum(Dimension, default='height', help="""
     The direction of the band can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
@@ -754,7 +757,7 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-class LabelSet(TextAnnotation):
+class LabelSet(TextAnnotation): # TODO: DataAnnotation
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -1054,7 +1057,7 @@ class Tooltip(Annotation):
     Whether tooltip's arrow should be shown.
     """)
 
-class Whisker(Annotation):
+class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.
 
     See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
@@ -1084,10 +1087,6 @@ class Whisker(Annotation):
     dimension = Enum(Dimension, default='height', help="""
     The direction of the whisker can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""

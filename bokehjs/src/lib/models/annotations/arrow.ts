@@ -1,7 +1,7 @@
-import {Annotation, AnnotationView} from "./annotation"
+import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import {ArrowHead, ArrowHeadView, OpenHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {ColumnDataSource} from "../sources/column_data_source"
+import {Context2d} from "core/util/canvas"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
@@ -10,7 +10,7 @@ import {build_view} from "core/build_views"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
 
-export class ArrowView extends AnnotationView {
+export class ArrowView extends DataAnnotationView {
   model: Arrow
   visuals: Arrow.Visuals
 
@@ -37,22 +37,6 @@ export class ArrowView extends AnnotationView {
       this.start = await build_view(start, {parent: this})
     if (end != null)
       this.end = await build_view(end, {parent: this})
-
-    this.set_data(this.model.source)
-  }
-
-  remove(): void {
-    this.start?.remove()
-    this.end?.remove()
-    super.remove()
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.update_data(this.model.source))
-    this.connect(this.model.source.streaming, () => this.update_data(this.model.source))
-    this.connect(this.model.source.patching, () => this.update_data(this.model.source))
-    this.connect(this.model.source.change, () => this.update_data(this.model.source))
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -61,7 +45,13 @@ export class ArrowView extends AnnotationView {
     this.end?.set_data(source)
   }
 
-  protected _map_data(): void {
+  remove(): void {
+    this.start?.remove()
+    this.end?.remove()
+    super.remove()
+  }
+
+  map_data(): void {
     const {frame} = this.plot_view
 
     if (this.model.start_units == "data") {
@@ -91,10 +81,7 @@ export class ArrowView extends AnnotationView {
     }
   }
 
-  protected _render(): void {
-    this._map_data()
-
-    const {ctx} = this.layer
+  paint(ctx: Context2d): void {
     const {start, end} = this
 
     const {_sx_start, _sy_start, _sx_end, _sy_end, _angles} = this
@@ -159,7 +146,7 @@ export class ArrowView extends AnnotationView {
 export namespace Arrow {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & {
+  export type Props = DataAnnotation.Props & {
     x_start: p.XCoordinateSpec
     y_start: p.YCoordinateSpec
     start_units: p.Property<SpatialUnits>
@@ -168,17 +155,16 @@ export namespace Arrow {
     y_end: p.YCoordinateSpec
     end_units: p.Property<SpatialUnits>
     end: p.Property<ArrowHead | null>
-    source: p.Property<ColumnarDataSource>
   } & Mixins
 
   export type Mixins = LineVector
 
-  export type Visuals = Annotation.Visuals & {line: visuals.LineVector}
+  export type Visuals = DataAnnotation.Visuals & {line: visuals.LineVector}
 }
 
 export interface Arrow extends Arrow.Attrs {}
 
-export class Arrow extends Annotation {
+export class Arrow extends DataAnnotation {
   properties: Arrow.Props
   __view_type__: ArrowView
 
@@ -200,7 +186,6 @@ export class Arrow extends Annotation {
       y_end:       [ p.YCoordinateSpec ],
       end_units:   [ SpatialUnits, "data" ],
       end:         [ Nullable(Ref(ArrowHead)), () => new OpenHead() ],
-      source:      [ Ref(ColumnarDataSource), () => new ColumnDataSource() ],
     }))
   }
 }
