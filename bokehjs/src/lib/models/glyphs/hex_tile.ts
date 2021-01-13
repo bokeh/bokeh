@@ -227,9 +227,9 @@ export namespace HexTile {
   export type Props = Glyph.Props & {
     r: p.NumberSpec
     q: p.NumberSpec
+    scale: p.NumberSpec
     size: p.Property<number>
     aspect_scale: p.Property<number>
-    scale: p.NumberSpec
     orientation: p.Property<HexTileOrientation>
   } & Mixins
 
@@ -253,11 +253,11 @@ export class HexTile extends Glyph {
 
     this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])
     this.define<HexTile.Props>(({Number}) => ({
-      r:            [ p.NumberSpec ],
-      q:            [ p.NumberSpec ],
+      r:            [ p.NumberSpec, {field: "r"} ],
+      q:            [ p.NumberSpec, {field: "q"} ],
+      scale:        [ p.NumberSpec, 1.0 ],
       size:         [ Number, 1.0 ],
       aspect_scale: [ Number, 1.0 ],
-      scale:        [ p.NumberSpec, 1.0 ],
       orientation:  [ HexTileOrientation, "pointytop" ],
     }))
     this.override<HexTile.Props>({line_color: null})

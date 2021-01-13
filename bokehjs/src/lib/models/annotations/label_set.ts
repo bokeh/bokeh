@@ -210,8 +210,8 @@ export class LabelSet extends TextAnnotation {
     ])
 
     this.define<LabelSet.Props>(({Ref}) => ({
-      x:            [ p.XCoordinateSpec ],
-      y:            [ p.YCoordinateSpec ],
+      x:            [ p.XCoordinateSpec, {field: "x"} ],
+      y:            [ p.YCoordinateSpec, {field: "y"} ],
       x_units:      [ SpatialUnits, "data" ],
       y_units:      [ SpatialUnits, "data" ],
       text:         [ p.StringSpec, {field: "text"} ],
