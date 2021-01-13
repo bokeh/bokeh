@@ -44,9 +44,8 @@ class Regex(String):
     """ Accept strings that match a given regular expression.
 
     Args:
-        default (string or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (string, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -89,7 +88,7 @@ class Regex(String):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or self.regex.match(value):
+        if self.regex.match(value):
             return
 
         msg = "" if not detail else f"expected a string matching {self.regex.pattern!r} pattern, got {value!r}"

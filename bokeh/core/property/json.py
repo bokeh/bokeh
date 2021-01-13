@@ -41,9 +41,9 @@ class JSON(String):
     the value into a JavaScript hash.
 
     Args:
-        default (string or None, optional) :
+        default (string, optional) :
             A default value for attributes created from this property to
-            have (default: None)
+            have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -61,9 +61,6 @@ class JSON(String):
     """
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         try:
             import json

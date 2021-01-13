@@ -78,10 +78,7 @@ class Instance(Property):
         return self._instance_type
 
     def from_json(self, json, models=None):
-        if json is None:
-            return
-
-        elif isinstance(json, dict):
+        if isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
                 if models is None:
@@ -104,12 +101,12 @@ class Instance(Property):
                 # Serialization dict must carry type information to resolve this.
                 return self.instance_type(**attrs)
         else:
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+            raise DeserializationError(f"{self} expected a dict, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, self.instance_type):
+        if isinstance(value, self.instance_type):
             return
 
         instance_type = self.instance_type.__name__

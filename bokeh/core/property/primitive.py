@@ -62,9 +62,8 @@ class Bool(PrimitiveProperty):
     """ Accept boolean values.
 
     Args:
-        default (obj or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (obj, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -102,9 +101,8 @@ class Complex(PrimitiveProperty):
     """ Accept complex floating point values.
 
     Args:
-        default (complex or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (complex, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -126,9 +124,8 @@ class Int(PrimitiveProperty):
     """ Accept signed integer values.
 
     Args:
-        default (int or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (int, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -166,9 +163,8 @@ class Float(PrimitiveProperty):
     """ Accept floating point values.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -207,9 +203,8 @@ class String(PrimitiveProperty):
     """ Accept string values.
 
     Args:
-        default (string or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (string, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically

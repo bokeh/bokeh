@@ -67,7 +67,7 @@ class Enum(String):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or value in self._enum:
+        if value in self._enum:
             return
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"

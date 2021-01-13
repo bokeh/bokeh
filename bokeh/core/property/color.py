@@ -55,7 +55,7 @@ class RGB(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, colors.RGB):
+        if isinstance(value, colors.RGB):
             return
 
         msg = "" if not detail else f"expected RGB value, got {value!r}"

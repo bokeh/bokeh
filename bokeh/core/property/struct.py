@@ -56,9 +56,6 @@ class Struct(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None:
-            return
-
         if isinstance(value, dict) and len(value) <= len(self._fields):
             # note use of for-else loop here
             for name, type in self._fields.items():

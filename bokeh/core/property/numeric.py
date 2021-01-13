@@ -46,7 +46,7 @@ class NonNegativeInt(Int):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or value >= 0):
+        if value < 0:
             raise ValueError(f"expected non-negative integer, got {value!r}")
 
 class PositiveInt(Int):
@@ -55,7 +55,7 @@ class PositiveInt(Int):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or value > 0):
+        if value <= 0:
             raise ValueError(f"expected positive integer, got {value!r}")
 
 
@@ -117,7 +117,7 @@ class Interval(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
+        if not (self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
             msg = "" if not detail else f"expected a value of type {self.interval_type} in range [{self.start}, {self.end}], got {value!r}"
             raise ValueError(msg)
 
@@ -148,9 +148,8 @@ class Size(Float):
     """ Accept non-negative numeric values.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -187,7 +186,7 @@ class Size(Float):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or 0.0 <= value):
+        if value < 0:
             msg = "" if not detail else f"expected a non-negative number, got {value!r}"
             raise ValueError(msg)
 
@@ -198,9 +197,8 @@ class Percent(Float):
     things like alpha values and extents.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -239,7 +237,7 @@ class Percent(Float):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or 0.0 <= value <= 1.0:
+        if 0.0 <= value <= 1.0:
             return
 
         msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
@@ -252,9 +250,8 @@ class Angle(Float):
     provided for cases when it is more semantically meaningful.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically

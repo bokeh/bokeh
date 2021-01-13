@@ -108,7 +108,7 @@ class Either(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or any(param.is_valid(value) for param in self.type_params):
+        if any(param.is_valid(value) for param in self.type_params):
             return
 
         msg = "" if not detail else f"expected an element of either {nice_join(self.type_params)}, got {value!r}"

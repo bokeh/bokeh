@@ -65,18 +65,13 @@ class Seq(ContainerProperty):
         return [self.item_type]
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, list):
+        if isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
-            raise DeserializationError(f"{self} expected a list or None, got {json}")
+            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
-
-        if value is None:
-            return
 
         if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
             return
@@ -175,18 +170,13 @@ class Dict(ContainerProperty):
         return [self.keys_type, self.values_type]
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, dict):
+        if isinstance(json, dict):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+            raise DeserializationError(f"{self} expected a dict, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
@@ -244,10 +234,8 @@ class ColumnData(Dict):
     def from_json(self, json, models=None):
         """ Decodes column source data encoded as lists or base64 strings.
         """
-        if json is None:
-            return None
-        elif not isinstance(json, dict):
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+        if not isinstance(json, dict):
+            raise DeserializationError(f"{self} expected a dict, got {json}")
         new_data = {}
         for key, value in json.items():
             key = self.keys_type.from_json(key, models)
@@ -299,18 +287,13 @@ class Tuple(ContainerProperty):
         return self._type_params
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, list):
+        if isinstance(json, list):
             return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
-            raise DeserializationError(f"{self} expected a list or None, got {json}")
+            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
             if all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value)):
@@ -323,18 +306,12 @@ class Tuple(ContainerProperty):
         """ Change the value into a JSON serializable format.
 
         """
-        if value is None:
-            return None
-
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
     def serialize_value(self, value):
         """ Change the value into a JSON serializable format.
 
         """
-        if value is None:
-            return None
-
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
     def _sphinx_type(self):

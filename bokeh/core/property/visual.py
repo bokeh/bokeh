@@ -153,7 +153,7 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        if value is None or isinstance(value, (str, PIL.Image.Image)):
+        if isinstance(value, (str, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -164,9 +164,6 @@ class Image(Property):
         raise ValueError(msg)
 
     def transform(self, value):
-        if value is None:
-            return
-
         import numpy as np
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
@@ -212,9 +209,6 @@ class MinMaxBounds(Either):
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if value[0] is None or value[1] is None:
             return

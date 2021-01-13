@@ -64,9 +64,6 @@ class Date(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None:
-            return
-
         # datetime.datetime is datetime.date, exclude manually up front
         if isinstance(value, datetime.datetime):
             msg = "" if not detail else "Expected a date value, got a datetime.datetime"
@@ -103,9 +100,6 @@ class Datetime(Property):
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if is_datetime_type(value):
             return

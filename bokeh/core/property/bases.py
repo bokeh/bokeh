@@ -69,9 +69,8 @@ class Property(PropertyDescriptorFactory):
     Models.
 
     Args:
-        default (obj or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (obj, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -458,7 +457,7 @@ class PrimitiveProperty(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, self._underlying_type):
+        if isinstance(value, self._underlying_type):
             return
 
         if not detail:
@@ -469,7 +468,7 @@ class PrimitiveProperty(Property):
         raise ValueError(msg)
 
     def from_json(self, json, models=None):
-        if json is None or isinstance(json, self._underlying_type):
+        if isinstance(json, self._underlying_type):
             return json
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
