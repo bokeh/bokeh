@@ -3,8 +3,6 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 
 import {Context2d} from "core/util/canvas"
-import {values} from "core/util/object"
-import {VisualUniforms} from "core/visuals/visual"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
@@ -26,10 +24,8 @@ export abstract class DataAnnotationView extends AnnotationView {
   set_data(source: ColumnarDataSource): void {
     const {visuals} = this
     const visual_props = new Set((function* () {
-      for (const visual of values<VisualUniforms>(visuals)) {
-        for (const prop of visual) {
-          yield prop
-        }
+      for (const visual of visuals) {
+        yield* visual
       }
     })())
 
@@ -55,6 +51,10 @@ export abstract class DataAnnotationView extends AnnotationView {
         inplace.project_xy(self._x, self._y)
       if (self._xs != null)
         inplace.project_xsys(self._xs, self._ys)
+    }
+
+    for (const visual of this.visuals) {
+      visual.update()
     }
   }
 

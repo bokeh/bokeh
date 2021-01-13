@@ -11,10 +11,17 @@ export {Hatch, HatchScalar, HatchVector}
 import {View} from "../view"
 import * as mixins from "../property_mixins"
 
-export class Visuals {
+import {VisualProperties, VisualUniforms, Renderable} from "./visual"
+export {VisualProperties, VisualUniforms, Renderable}
 
-  constructor(view: View) {
-    const self = this as any
+export class Visuals {
+  *[Symbol.iterator](): Generator<VisualProperties | VisualUniforms, void, undefined> {
+    yield* this._visuals
+  }
+
+  protected _visuals: (VisualProperties | VisualUniforms)[] = []
+
+  constructor(view: View & Renderable) {
     for (const [prefix, mixin] of view.model._mixins) {
       const visual = (() => {
         switch (mixin) {
@@ -34,7 +41,14 @@ export class Visuals {
             throw new Error("unknown visual")
         }
       })()
-      self[prefix + visual.type] = visual
+
+      this._visuals.push(visual)
+
+      Object.defineProperty(this, prefix + visual.type, {
+        get() { return visual },
+        configurable: false,
+        enumerable: true,
+      })
     }
   }
 }

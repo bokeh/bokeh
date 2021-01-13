@@ -70,14 +70,13 @@ export class CanvasView extends DOMView {
   initialize(): void {
     super.initialize()
 
-    const {output_backend, hidpi} = this.model
-    if (output_backend == "webgl") {
+    if (this.model.output_backend == "webgl") {
       this.webgl = global_webgl
     }
 
     this.underlays_el = div({style})
-    this.primary = new CanvasLayer(output_backend, hidpi)
-    this.overlays = new CanvasLayer(output_backend, hidpi)
+    this.primary = this.create_layer()
+    this.overlays = this.create_layer()
     this.overlays_el = div({style})
     this.events_el = div({class: "bk-canvas-events", style})
 
@@ -180,13 +179,17 @@ export class CanvasView extends DOMView {
   }
 
   compose(): CanvasLayer {
-    const {output_backend, hidpi} = this.model
+    const composite = this.create_layer()
     const {width, height} = this.bbox
-    const composite = new CanvasLayer(output_backend, hidpi)
     composite.resize(width, height)
     composite.ctx.drawImage(this.primary.canvas, 0, 0)
     composite.ctx.drawImage(this.overlays.canvas, 0, 0)
     return composite
+  }
+
+  create_layer(): CanvasLayer {
+    const {output_backend, hidpi} = this.model
+    return new CanvasLayer(output_backend, hidpi)
   }
 
   to_blob(): Promise<Blob> {

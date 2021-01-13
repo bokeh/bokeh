@@ -4,11 +4,11 @@ import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
-
 import type {Plot, PlotView} from "../plots/plot"
+import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform} from "../canvas/coordinates"
 
-export abstract class RendererView extends View {
+export abstract class RendererView extends View implements visuals.Renderable {
   model: Renderer
   visuals: Renderer.Visuals
 
@@ -54,8 +54,12 @@ export abstract class RendererView extends View {
   }
 
   get layer(): CanvasLayer {
-    const {overlays, primary} = this.plot_view.canvas_view
+    const {overlays, primary} = this.canvas
     return this.model.level == "overlay" ? overlays : primary
+  }
+
+  get canvas(): CanvasView {
+    return this.plot_view.canvas_view
   }
 
   request_render(): void {
@@ -104,7 +108,7 @@ export namespace Renderer {
     y_range_name: p.Property<string>
   }
 
-  export type Visuals = {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface Renderer extends Renderer.Attrs {}

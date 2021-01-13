@@ -1,8 +1,9 @@
 import {Context2d, CanvasLayer} from "../util/canvas"
-import {SVGRenderingContext2D} from "../util/svg"
 import {color2css} from "../util/color"
 import {Color} from "../types"
 import {HatchPattern} from "../property_mixins"
+
+export type PatternSource = CanvasImageSource
 
 function _horz(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(0, h2+0.5)
@@ -45,16 +46,12 @@ export const hatch_aliases: {[key: string]: HatchPattern} = {
   "*": "criss_cross",
 }
 
-export function get_pattern(pattern: HatchPattern, color: Color, alpha: number, scale: number, weight: number) {
-  return (ctx: Context2d): CanvasPattern | null => {
-    // TODO: this needs a canvas provider instead of trying to guess what to use
-    const output_backend = ctx instanceof SVGRenderingContext2D ? "svg" : "canvas"
-    const region = new CanvasLayer(output_backend, true)
-    region.resize(scale, scale)
-    region.prepare()
-    create_hatch_canvas(region.ctx, pattern, color, alpha, scale, weight)
-    return ctx.createPattern(region.canvas, "repeat")
-  }
+export function get_pattern(layer: CanvasLayer,
+    pattern: HatchPattern, color: Color, alpha: number, scale: number, weight: number): PatternSource {
+  layer.resize(scale, scale)
+  layer.prepare()
+  create_hatch_canvas(layer.ctx, pattern, color, alpha, scale, weight)
+  return layer.canvas
 }
 
 function create_hatch_canvas(ctx: Context2d,

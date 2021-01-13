@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
-import {Context2d} from "@bokehjs/core/util/canvas"
+import {Context2d, CanvasLayer} from "@bokehjs/core/util/canvas"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
@@ -13,13 +13,23 @@ import * as visuals from "@bokehjs/core/visuals"
 import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
 
-class SomeModelView extends View {
+class SomeModelView extends View implements visuals.Renderable {
   model: SomeModel
   visuals: SomeModel.Visuals
 
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this) as any
+  }
+
+  request_render(): void {}
+
+  get canvas() {
+    return {
+      create_layer(): CanvasLayer {
+        return new CanvasLayer("canvas", true)
+      },
+    }
   }
 }
 

@@ -2,7 +2,6 @@ import {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as visuals from "core/visuals"
-import {VisualProperties} from "core/visuals/visual"
 import * as geometry from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
@@ -12,7 +11,6 @@ import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {map, max} from "core/util/arrayable"
-import {values} from "core/util/object"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
@@ -71,8 +69,12 @@ export abstract class GlyphView extends View {
     this.visuals = new visuals.Visuals(this)
   }
 
-  request_paint(): void {
-    this.parent.request_paint()
+  request_render(): void {
+    this.parent.request_render()
+  }
+
+  get canvas() {
+    return this.renderer.parent.canvas_view
   }
 
   render(ctx: Context2d, indices: number[], data: any): void {
@@ -215,7 +217,7 @@ export abstract class GlyphView extends View {
   protected _project_data(): void {}
 
   private *_iter_visuals(): Generator<p.VectorSpec<unknown> | p.ScalarSpec<unknown>> {
-    for (const visual of values<VisualProperties>(this.visuals)) {
+    for (const visual of this.visuals) {
       for (const prop of visual) {
         if (prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)
           yield prop
@@ -230,20 +232,30 @@ export abstract class GlyphView extends View {
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    const self = this as any
-
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null) {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          self[`${prop.attr}`] = (base as any)[`${prop.attr}`]
+          Object.defineProperty(this, `${prop.attr}`, {
+            get() { return (base as any)[`${prop.attr}`] },
+            configurable: true,
+            enumerable: true,
+          })
           continue
         }
       }
 
       const uniform = prop.uniform(source).select(indices)
-      self[`${prop.attr}`] = uniform
+      Object.defineProperty(this, `${prop.attr}`, {
+        get() { return uniform },
+        configurable: true,
+        enumerable: true,
+      })
+    }
+
+    for (const visual of this.visuals) {
+      visual.update()
     }
 
     this.glglyph?.set_visuals_changed()
@@ -369,7 +381,7 @@ export namespace Glyph {
 
   export type Props = Model.Props
 
-  export type Visuals = {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface Glyph extends Glyph.Attrs {}

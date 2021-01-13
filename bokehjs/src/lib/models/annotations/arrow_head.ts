@@ -7,7 +7,7 @@ import {Context2d} from "core/util/canvas"
 import {RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export abstract class ArrowHeadView extends View {
+export abstract class ArrowHeadView extends View implements visuals.Renderable {
   model: ArrowHead
   visuals: ArrowHead.Visuals
   parent: RendererView
@@ -17,6 +17,14 @@ export abstract class ArrowHeadView extends View {
   initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+  }
+
+  request_render(): void {
+    this.parent.request_render()
+  }
+
+  get canvas() {
+    return this.parent.canvas
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -42,7 +50,7 @@ export namespace ArrowHead {
     size: p.NumberSpec
   }
 
-  export type Visuals = {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}
