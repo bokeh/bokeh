@@ -32,8 +32,10 @@ def create_graph(layout_func, inspection_policy=None, selection_policy=None, **k
     graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=5)
     graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=5)
 
-    graph_renderer.inspection_policy = inspection_policy
-    graph_renderer.selection_policy = selection_policy
+    if inspection_policy is not None:
+        graph_renderer.inspection_policy = inspection_policy
+    if selection_policy is not None:
+        graph_renderer.selection_policy = selection_policy
 
     plot.renderers.append(graph_renderer)
 
