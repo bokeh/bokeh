@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.string import nice_join
 from .bases import DeserializationError, ParameterizedProperty
+from .primitive import Null
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -31,6 +32,7 @@ from .bases import DeserializationError, ParameterizedProperty
 
 __all__ = (
     'Either',
+    'Nullable',
 )
 
 #-----------------------------------------------------------------------------
@@ -120,6 +122,10 @@ class Either(ParameterizedProperty):
         prop_link = self._sphinx_prop_link()
         subtypes = ", ".join(x._sphinx_type() for x in self.type_params)
         return f"{prop_link}({subtypes})"
+
+class Nullable(Either):
+    def __init__(self, type_param, **kwargs):
+        super().__init__(Null, type_param, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

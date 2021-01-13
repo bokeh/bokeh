@@ -42,12 +42,21 @@ __all__ = (
     'Complex',
     'Int',
     'Float',
+    'Null',
     'String',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class Null(PrimitiveProperty):
+    """ Accept only ``None`` value.
+
+        Use this in conjunction with ``Either(Null, Type)`` or as ``Nullable(Type)``.
+    """
+
+    _underlying_type = (type(None),)
 
 class Bool(PrimitiveProperty):
     """ Accept boolean values.

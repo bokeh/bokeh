@@ -26,7 +26,7 @@ from .color import Color
 from .container import Dict, List
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
-from .either import Either
+from .either import Either, Nullable
 from .enum import Enum
 from .instance import Instance
 from .primitive import Float, Int, String
@@ -255,6 +255,10 @@ class AlphaSpec(NumberSpec):
     def __init__(self, default=1.0, help=None):
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransform, accept_datetime=False, accept_timedelta=False)
+
+class NullStringSpec(DataSpec):
+    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Nullable(List(String)), default=default, help=help)
 
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
