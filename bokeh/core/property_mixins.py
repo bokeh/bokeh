@@ -329,7 +329,7 @@ class TextProps(HasProps):
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
     text_alpha = AlphaSpec(help=_alpha_help % "fill text")
-    text_font = StringSpec(default="helvetica", help=_text_font_help)
+    text_font = StringSpec(default=value("helvetica"), help=_text_font_help)
     text_font_size = FontSizeSpec(default=value("16px"))
     text_font_style = FontStyleSpec(default="normal", help=_text_font_style_help)
     text_align = TextAlignSpec(default="left", help=_text_align_help)

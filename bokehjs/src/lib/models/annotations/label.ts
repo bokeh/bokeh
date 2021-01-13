@@ -75,7 +75,7 @@ export class Label extends TextAnnotation {
     this.prototype.default_view = LabelView
 
     this.mixins<Label.Mixins>([
-      mixins.TextScalar,
+      mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
     ])

@@ -428,7 +428,11 @@ export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
 export class LineDashScalar extends ScalarSpec<number[]> {}
-export class FontScalar extends ScalarSpec<string> {}
+export class FontScalar extends ScalarSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
 export class FontSizeScalar extends ScalarSpec<string> {}
 export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
 export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
@@ -705,7 +709,11 @@ export class MarkerSpec extends DataSpec<enums.MarkerType> {}
 export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
 export class LineCapSpec extends DataSpec<enums.LineCap> {}
 export class LineDashSpec extends DataSpec<number[]> {}
-export class FontSpec extends DataSpec<string> {}
+export class FontSpec extends DataSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
 export class FontSizeSpec extends DataSpec<string> {}
 export class FontStyleSpec extends DataSpec<enums.FontStyle> {}
 export class TextAlignSpec extends DataSpec<enums.TextAlign> {}
