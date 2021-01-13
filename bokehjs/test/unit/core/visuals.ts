@@ -1,19 +1,49 @@
 import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
-import {Fill, Line, Text} from "@bokehjs/core/visuals"
 import {Context2d} from "@bokehjs/core/util/canvas"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
-import * as text_glyph from "@bokehjs/models/glyphs/text"
 
 import {Model} from "@bokehjs/model"
 import {View} from "@bokehjs/core/view"
+import {build_view} from "@bokehjs/core/build_views"
+import * as visuals from "@bokehjs/core/visuals"
+import * as mixins from "@bokehjs/core/property_mixins"
+import * as p from "@bokehjs/core/properties"
 
-class SomeView extends View {
-  model: Model
-  request_paint(): void {}
+class SomeModelView extends View {
+  model: SomeModel
+  visuals: SomeModel.Visuals
+
+  initialize(): void {
+    super.initialize()
+    this.visuals = new visuals.Visuals(this) as any
+  }
+}
+
+export namespace SomeModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & Mixins
+  export type Mixins = mixins.Text & mixins.Line & mixins.Fill & mixins.Hatch
+  export type Visuals = {text: visuals.Text, line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
+}
+
+export interface SomeModel extends SomeModel.Attrs {}
+
+export class SomeModel extends Model {
+  properties: SomeModel.Props
+  __view_type__: SomeModelView
+
+  constructor(attrs?: Partial<SomeModel.Attrs>) {
+    super(attrs)
+  }
+
+  static init_SomeModel(): void {
+    this.prototype.default_view = SomeModelView
+    this.mixins<SomeModel.Mixins>([mixins.Text, mixins.Line, mixins.Fill, mixins.Hatch])
+  }
 }
 
 describe("core/visuals", () => {
@@ -21,44 +51,43 @@ describe("core/visuals", () => {
   describe("Fill", () => {
 
     describe("set_value", () => {
-      it("should set canvas context attributes", () => {
+      it("should set canvas context attributes", async () => {
         const attrs = {
           fill_color: "red",
           fill_alpha: 0.6,
         }
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const fill = new Fill(view)
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
 
         const ctx = {} as Context2d
-        fill.set_value(ctx)
+        view.visuals.fill.set_value(ctx)
 
         expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
       })
     })
 
     describe("doit", () => {
-      it("should be false if fill_color is null", () => {
-        const attrs = {fill_alpha: {value: 1}, fill_color: {value: null}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const fill = new Fill(view)
+      it("should be false if fill_color is null", async () => {
+        const attrs = {fill_alpha: 1, fill_color: null}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {fill} = view.visuals
         expect(fill.doit).to.be.false
       })
 
-      it("should be false if fill_alpha is 0", () => {
-        const attrs = {fill_alpha: {value: 0}, fill_color: {value: "red"}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const fill = new Fill(view)
+      it("should be false if fill_alpha is 0", async () => {
+        const attrs = {fill_alpha: 0, fill_color: "red"}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {fill} = view.visuals
         expect(fill.doit).to.be.false
       })
 
-      it("should be true otherwise", () => {
-        const attrs = {fill_alpha: {value: 1}, fill_color: {value: "red"}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const fill = new Fill(view)
+      it("should be true otherwise", async () => {
+        const attrs = {fill_alpha: 1, fill_color: "red"}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {fill} = view.visuals
         expect(fill.doit).to.be.true
       })
     })
@@ -67,7 +96,7 @@ describe("core/visuals", () => {
   describe("Line", () => {
 
     describe("set_value", () => {
-      it("should set canvas context attributes", () =>{
+      it("should set canvas context attributes", async () =>{
         const attrs = {
           line_color: "red",
           line_alpha: 0.6,
@@ -77,9 +106,9 @@ describe("core/visuals", () => {
           line_dash: [1, 2],
           line_dash_offset: 2,
         }
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const line = new Line(view)
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {line} = view.visuals
 
         const ctx = {} as Context2d
         line.set_value(ctx)
@@ -94,35 +123,35 @@ describe("core/visuals", () => {
     })
 
     describe("doit", () => {
-      it("should be false if line_color is null", () => {
-        const attrs = {line_alpha: {value: 1}, line_color: {value: null}, line_width: {value: 1}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const line = new Line(view)
+      it("should be false if line_color is null", async () => {
+        const attrs = {line_alpha: 1, line_color: null, line_width: 1}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {line} = view.visuals
         expect(line.doit).to.be.false
       })
 
-      it("should be false if line_width is 0", () => {
-        const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 0}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const line = new Line(view)
+      it("should be false if line_width is 0", async () => {
+        const attrs = {line_alpha: 1, line_color: "red", line_width: 0}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {line} = view.visuals
         expect(line.doit).to.be.false
       })
 
-      it("should be false if line_alpha is 0", () => {
-        const attrs = {line_alpha: {value: 0}, line_color: {value: "red"}, line_width: {value: 1}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const line = new Line(view)
+      it("should be false if line_alpha is 0", async () => {
+        const attrs = {line_alpha: 0, line_color: "red", line_width: 1}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {line} = view.visuals
         expect(line.doit).to.be.false
       })
 
-      it("should be true otherwise", () => {
-        const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 1}}
-        const model = new Circle(attrs)
-        const view = new SomeView({model, parent: null})
-        const line = new Line(view)
+      it("should be true otherwise", async () => {
+        const attrs = {line_alpha: 1, line_color: "red", line_width: 1}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {line} = view.visuals
         expect(line.doit).to.be.true
       })
     })
@@ -131,7 +160,7 @@ describe("core/visuals", () => {
   describe("Text", () => {
 
     describe("set_value", () => {
-      it("should set canvas context attributes", () => {
+      it("should set canvas context attributes", async () => {
         const attrs = {
           text_font: "times",
           text_font_size: "16px",
@@ -141,9 +170,9 @@ describe("core/visuals", () => {
           text_align: "center" as "center",
           text_baseline: "bottom" as "bottom",
         }
-        const model = new text_glyph.Text(attrs)
-        const view = new SomeView({model, parent: null})
-        const text = new Text(view)
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {text} = view.visuals
 
         const ctx = {} as Context2d
         text.set_value(ctx)
@@ -156,27 +185,27 @@ describe("core/visuals", () => {
     })
 
     describe("doit", () => {
-      it("should be false if text_color is null", () => {
-        const attrs = {text_alpha: {value: 1}, text_color: {value: null}}
-        const model = new text_glyph.Text(attrs)
-        const view = new SomeView({model, parent: null})
-        const text = new Text(view)
+      it("should be false if text_color is null", async () => {
+        const attrs = {text_alpha: 1, text_color: null}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {text} = view.visuals
         expect(text.doit).to.be.false
       })
 
-      it("should be false if text_alpha is 0", () => {
-        const attrs = {text_alpha: {value: 0}, text_color: {value: "red"}}
-        const model = new text_glyph.Text(attrs)
-        const view = new SomeView({model, parent: null})
-        const text = new Text(view)
+      it("should be false if text_alpha is 0", async () => {
+        const attrs = {text_alpha: 0, text_color: "red"}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {text} = view.visuals
         expect(text.doit).to.be.false
       })
 
-      it("should be true otherwise", () => {
-        const attrs = {text_alpha: {value: 1}, text_color: {value: "red"}}
-        const model = new text_glyph.Text(attrs)
-        const view = new SomeView({model, parent: null})
-        const text = new Text(view)
+      it("should be true otherwise", async () => {
+        const attrs = {text_alpha: 1, text_color: "red"}
+        const model = new SomeModel(attrs)
+        const view = await build_view(model)
+        const {text} = view.visuals
         expect(text.doit).to.be.true
       })
     })
