@@ -208,6 +208,7 @@ __all__ = (
     'DistanceSpec',
     'Either',
     'Enum',
+    'Factor',
     'Float',
     'FontSize',
     'FontSizeSpec',
@@ -354,6 +355,8 @@ from .property.visual import MarkerType; MarkerType
 
 from .property.validation import validate; validate
 from .property.validation import without_property_validation; without_property_validation
+
+Factor = Either(String, Tuple(String, String), Tuple(String, String, String))
 
 #-----------------------------------------------------------------------------
 # Dev API
