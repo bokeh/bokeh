@@ -118,7 +118,7 @@ describe("AnnotationView", () => {
       const obj = new SubclassWithNumberSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view._foo).to.be.equal(new Float32Array([1, 2, 3, 4]))
+      expect(view._foo).to.be.equal(new Float64Array([1, 2, 3, 4]))
     })
 
     it("should collect shapes when they are present", async () => {
@@ -135,7 +135,7 @@ describe("AnnotationView", () => {
       const obj = new SubclassWithOptionalSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view._baz).to.be.equal(new Float32Array([1, 2, 3, 4]))
+      expect(view._baz).to.be.equal(new Float64Array([1, 2, 3, 4]))
     })
   })
 })

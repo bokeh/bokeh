@@ -1,4 +1,4 @@
-import {Arrayable, NumberArray, Rect, Box, Interval, Size} from "../types"
+import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
 
 const {min, max} = Math
@@ -54,7 +54,7 @@ export type Position = HorizontalPosition & VerticalPosition
 
 export type CoordinateMapper = {
   compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => NumberArray
+  v_compute: (vv: Arrayable<number>) => ScreenArray
 }
 
 export class BBox implements Rect, Equatable {
@@ -234,8 +234,8 @@ export class BBox implements Rect, Equatable {
       compute: (x: number): number => {
         return this.left + x
       },
-      v_compute: (xx: Arrayable<number>): NumberArray => {
-        const _xx = new NumberArray(xx.length)
+      v_compute: (xx: Arrayable<number>): ScreenArray => {
+        const _xx = new ScreenArray(xx.length)
         const left = this.left
         for (let i = 0; i < xx.length; i++) {
           _xx[i] = left + xx[i]
@@ -250,8 +250,8 @@ export class BBox implements Rect, Equatable {
       compute: (y: number): number => {
         return this.bottom - y
       },
-      v_compute: (yy: Arrayable<number>): NumberArray => {
-        const _yy = new NumberArray(yy.length)
+      v_compute: (yy: Arrayable<number>): ScreenArray => {
+        const _yy = new ScreenArray(yy.length)
         const bottom = this.bottom
         for (let i = 0; i < yy.length; i++) {
           _yy[i] = bottom - yy[i]

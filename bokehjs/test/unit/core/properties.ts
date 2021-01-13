@@ -248,12 +248,12 @@ describe("properties module", () => {
         const obj1 = new Some({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.equal(new Float32Array([1, 1, 1, 1, 1]))
+        expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
 
         const obj2 = new Some({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.equal(new Float32Array([2, 2, 2, 2, 2]))
+        expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
       })
 
       it("should return an array if there is a valid expr spec", () => {
@@ -261,7 +261,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {expr: new TestExpression()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 4]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
       })
 
       it("should return an array if there is a valid field spec", () => {
@@ -269,7 +269,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
@@ -277,7 +277,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should throw an Error otherwise", () => {
@@ -285,7 +285,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([NaN, NaN, NaN]))
+        expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {
@@ -293,7 +293,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 2, 4, 6, 14]))
+        expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
       })
 
       it("should apply a spec transform to a value array", () => {
@@ -301,7 +301,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([2, 3, 4, 5, 6]))
+        expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
       })
 
       describe("changing the property attribute value", () => {

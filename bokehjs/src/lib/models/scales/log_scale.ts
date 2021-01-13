@@ -1,5 +1,5 @@
 import {ContinuousScale} from "./continuous_scale"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace LogScale {
@@ -34,10 +34,10 @@ export class LogScale extends ContinuousScale {
     return value
   }
 
-  v_compute(xs: Arrayable<number>): NumberArray {
+  v_compute(xs: Arrayable<number>): ScreenArray {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 
-    const result = new NumberArray(xs.length)
+    const result = new ScreenArray(xs.length)
 
     if (inter_factor == 0) {
       for (let i = 0; i < xs.length; i++)
@@ -63,9 +63,9 @@ export class LogScale extends ContinuousScale {
     return Math.exp(inter_factor*value + inter_offset)
   }
 
-  v_invert(xprimes: Arrayable<number>): NumberArray {
+  v_invert(xprimes: Arrayable<number>): FloatArray {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
-    const result = new NumberArray(xprimes.length)
+    const result = new Float64Array(xprimes.length)
     for (let i = 0; i < xprimes.length; i++) {
       const value = (xprimes[i] - offset) / factor
       result[i] = Math.exp(inter_factor*value + inter_offset)

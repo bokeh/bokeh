@@ -1,6 +1,6 @@
 import {LayoutProvider} from "./layout_provider"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
@@ -26,11 +26,11 @@ export class StaticLayoutProvider extends LayoutProvider {
     }))
   }
 
-  get_node_coordinates(node_source: ColumnarDataSource): [NumberArray, NumberArray] {
+  get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
     const index = node_source.data.index ?? []
     const n = index.length
-    const xs = new NumberArray(n)
-    const ys = new NumberArray(n)
+    const xs = new Float64Array(n)
+    const ys = new Float64Array(n)
     for (let i = 0; i < n; i++) {
       const point = this.graph_layout[index[i]]
       const [x, y] = point ?? [NaN, NaN]

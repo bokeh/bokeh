@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray, RGBAArray, ColorArray, uint32} from "./types"
+import {Arrayable, FloatArray, ScreenArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
@@ -517,7 +517,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = this.normalize(column)
       else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-        const missing = new NumberArray(length)
+        const missing = new Float64Array(length)
         missing.fill(NaN)
         array = missing
       }
@@ -526,7 +526,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else {
       const value = this.value(false) // don't apply any spec transform
       if (isNumber(value)) {
-        const values = new NumberArray(length)
+        const values = new Float64Array(length)
         values.fill(value)
         array = values
       } else
@@ -569,8 +569,8 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
@@ -602,7 +602,7 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   }
 
   array(source: ColumnarDataSource): Float32Array {
-    return new Float32Array(super.array(source))
+    return new ScreenArray(super.array(source))
   }
 }
 
@@ -622,8 +622,8 @@ export class BooleanSpec extends DataSpec<boolean> {
 }
 
 export class NumberSpec extends DataSpec<number> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 

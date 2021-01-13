@@ -2,7 +2,7 @@ import proj4 from "proj4/lib/core"
 import Projection from "proj4/lib/Proj"
 
 import {LatLon} from "../enums"
-import {Arrayable, NumberArray} from "../types"
+import {Arrayable, infer_type} from "../types"
 
 const mercator = new Projection('GOOGLE')
 const wgs84    = new Projection('WGS84')
@@ -70,18 +70,19 @@ export namespace inplace {
   }
 }
 
-export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [NumberArray, NumberArray] {
+export function project_xy(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
   const n = min(x.length, y.length)
-  const merc_x = new NumberArray(n)
-  const merc_y = new NumberArray(n)
+  const ArrayType = infer_type(x, y)
+  const merc_x = new ArrayType(n)
+  const merc_y = new ArrayType(n)
   inplace.project_xy(x, y, merc_x, merc_y)
   return [merc_x, merc_y]
 }
 
-export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[]): [NumberArray[], NumberArray[]] {
+export function project_xsys(xs: Arrayable<number>[], ys: Arrayable<number>[]): [Arrayable<number>[], Arrayable<number>[]] {
   const n = min(xs.length, ys.length)
-  const merc_xs: NumberArray[] = new Array(n)
-  const merc_ys: NumberArray[] = new Array(n)
+  const merc_xs: Arrayable<number>[] = new Array(n)
+  const merc_ys: Arrayable<number>[] = new Array(n)
   for (let i = 0; i < n; i++) {
     const [merc_x, merc_y] = project_xy(xs[i], ys[i])
     merc_xs[i] = merc_x

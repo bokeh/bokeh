@@ -5,7 +5,7 @@ import {Context2d} from "core/util/canvas"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {NumberArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {build_view} from "core/build_views"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
@@ -17,17 +17,17 @@ export class ArrowView extends DataAnnotationView {
   protected start: ArrowHeadView | null
   protected end: ArrowHeadView | null
 
-  protected _x_start: NumberArray
-  protected _y_start: NumberArray
-  protected _x_end: NumberArray
-  protected _y_end: NumberArray
+  protected _x_start: FloatArray
+  protected _y_start: FloatArray
+  protected _x_end: FloatArray
+  protected _y_end: FloatArray
 
   protected _sx_start: ScreenArray
   protected _sy_start: ScreenArray
   protected _sx_end: ScreenArray
   protected _sy_end: ScreenArray
 
-  protected _angles: NumberArray
+  protected _angles: ScreenArray
 
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -73,7 +73,7 @@ export class ArrowView extends DataAnnotationView {
     const {_sx_start, _sy_start, _sx_end, _sy_end} = this
 
     const n = _sx_start.length
-    const angles = this._angles = new NumberArray(n)
+    const angles = this._angles = new ScreenArray(n)
 
     for (let i = 0; i < n; i++) {
       // arrow head runs orthogonal to arrow body (???)

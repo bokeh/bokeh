@@ -5,7 +5,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {Context2d} from "core/util/canvas"
 import {values} from "core/util/object"
 import {VisualUniforms} from "core/visuals/visual"
-import * as proj from "core/util/projections"
+import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
 export abstract class DataAnnotationView extends AnnotationView {
@@ -52,9 +52,9 @@ export abstract class DataAnnotationView extends AnnotationView {
 
     if (this.plot_model.use_map) {
       if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
+        inplace.project_xy(self._x, self._y)
       if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
+        inplace.project_xsys(self._xs, self._ys)
     }
   }
 

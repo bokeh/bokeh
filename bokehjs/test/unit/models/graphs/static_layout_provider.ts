@@ -2,7 +2,6 @@ import {expect} from "assertions"
 
 import {StaticLayoutProvider} from "@bokehjs/models/graphs/static_layout_provider"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {NumberArray} from "@bokehjs/core/types"
 
 describe("StaticLayoutProvider", () => {
 
@@ -30,8 +29,8 @@ describe("StaticLayoutProvider", () => {
         node_source.data.index = [0, 1, 2, 3]
 
         const [xs, ys] = layout_provider.get_node_coordinates(node_source)
-        expect(xs).to.be.equal(new NumberArray([-1, 0, 1, 0]))
-        expect(ys).to.be.equal(new NumberArray([0, 1, 0, -1]))
+        expect(xs).to.be.equal(new Float64Array([-1, 0, 1, 0]))
+        expect(ys).to.be.equal(new Float64Array([0, 1, 0, -1]))
       })
 
       it("should return NaNs if coords don't exist", () => {
@@ -39,8 +38,8 @@ describe("StaticLayoutProvider", () => {
         node_source.data.index = [4, 5, 6]
 
         const [xs, ys] = layout_provider.get_node_coordinates(node_source)
-        expect(xs).to.be.equal(new NumberArray([NaN, NaN, NaN]))
-        expect(ys).to.be.equal(new NumberArray([NaN, NaN, NaN]))
+        expect(xs).to.be.equal(new Float64Array([NaN, NaN, NaN]))
+        expect(ys).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
     })
 
