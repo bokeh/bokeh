@@ -32,6 +32,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Nullable,
     String,
 )
 from ..core.validation import error
@@ -117,7 +118,7 @@ class MercatorTickFormatter(BasicTickFormatter):
 
     '''
 
-    dimension = Enum(LatLon, default=None, help="""
+    dimension = Nullable(Enum(LatLon), help="""
     Specify whether to format ticks for Latitude or Longitude.
 
     Projected coordinates are not separable, computing Latitude and Longitude
@@ -280,7 +281,7 @@ class LogTickFormatter(TickFormatter):
     Most often useful in conjunction with a ``LogTicker``.
 
     '''
-    ticker = Instance(Ticker, help="""
+    ticker = Nullable(Instance(Ticker), help="""
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
     """)

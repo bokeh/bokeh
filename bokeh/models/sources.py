@@ -30,6 +30,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Nullable,
     PandasDataFrame,
     PandasGroupBy,
     Seq,
@@ -719,7 +720,7 @@ class WebDataSource(ColumnDataSource):
 
     '''
 
-    adapter = Instance(CustomJS, help="""
+    adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
     format.
 
@@ -785,7 +786,7 @@ class AjaxDataSource(WebDataSource):
 
     '''
 
-    polling_interval = Int(help="""
+    polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.
     """)
 

@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, List, String
+from ...core.properties import Bool, Int, List, Nullable, String
 from .buttons import ButtonLike
 from .widget import Widget
 
@@ -124,7 +124,7 @@ class RadioButtonGroup(ButtonGroup):
 
     '''
 
-    active = Int(None, help="""
+    active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is
     selected.
     """)

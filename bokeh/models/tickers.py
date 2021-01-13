@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
-from ..core.properties import Auto, Either, Enum, Float, Instance, Int, Override, Seq
+from ..core.properties import Auto, Either, Enum, Float, Instance, Int, Nullable, Override, Seq
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
@@ -120,7 +120,7 @@ class AdaptiveTicker(ContinuousTicker):
     The smallest allowable interval between two adjacent ticks.
     """)
 
-    max_interval = Float(help="""
+    max_interval = Nullable(Float, help="""
     The largest allowable interval between two adjacent ticks.
 
     .. note::
@@ -198,7 +198,7 @@ class MercatorTicker(BasicTicker):
 
     '''
 
-    dimension = Enum(LatLon, default=None, help="""
+    dimension = Nullable(Enum(LatLon), help="""
     Specify whether to generate ticks for Latitude or Longitude.
 
     Projected coordinates are not separable, computing Latitude and Longitude

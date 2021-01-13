@@ -34,6 +34,7 @@ from ...core.properties import (
     Instance,
     Int,
     Override,
+    Nullable,
     String,
     Tuple,
 )
@@ -69,7 +70,7 @@ class AbstractSlider(Widget):
 
         super().__init__(**kwargs)
 
-    title = String(default="", help="""
+    title = Nullable(String, default="", help="""
     Slider's label.
     """)
 

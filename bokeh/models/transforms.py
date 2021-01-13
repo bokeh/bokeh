@@ -29,6 +29,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    Nullable,
     Seq,
     String,
 )
@@ -207,7 +208,7 @@ class Interpolator(Transform):
     Dependant coordinate denoting the value of a point at a location.
     """)
 
-    data = Instance(ColumnarDataSource, help="""
+    data = Nullable(Instance(ColumnarDataSource), help="""
     Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
     """)
 

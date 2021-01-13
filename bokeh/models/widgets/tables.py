@@ -37,6 +37,7 @@ from ...core.properties import (
     Instance,
     Int,
     List,
+    Nullable,
     Override,
     String,
 )
@@ -119,7 +120,7 @@ class StringFormatter(CellFormatter):
     An optional text align, i.e. left, center or right.
     """)
 
-    text_color = Color(default=None, help="""
+    text_color = Nullable(Color, help="""
     An optional text color.
     """)
 
@@ -128,7 +129,7 @@ class ScientificFormatter(StringFormatter):
     using scientific notation when appropriate by default.
     '''
 
-    nan_format = String(help="""
+    nan_format = Nullable(String, help="""
     Formatting to apply to NaN and None values (falls back to scientific formatting if not set).
     """)
 
@@ -231,7 +232,7 @@ class NumberFormatter(StringFormatter):
     The language to use for formatting language-specific features (e.g. thousands separator).
     """)
 
-    nan_format = String(help="""
+    nan_format = Nullable(String, help="""
     Formatting to apply to NaN and None values (falls back to Numbro formatting if not set).
     """)
 
@@ -458,7 +459,7 @@ class DateFormatter(StringFormatter):
 
     """)
 
-    nan_format = String(help="""
+    nan_format = Nullable(String, help="""
     Formatting to apply to NaN and None values (falls back to regular date formatting if not set).
     """)
 
@@ -585,7 +586,7 @@ class TableColumn(Model):
     The name of the field mapping to a column in the data source.
     """)
 
-    title = String(help="""
+    title = Nullable(String, help="""
     The title of this column. If not set, column's data field is
     used instead.
     """)
@@ -673,7 +674,7 @@ class DataTable(TableWidget):
     The list of child column widgets.
     """)
 
-    fit_columns = Bool(help="""
+    fit_columns = Nullable(Bool, help="""
     **This is a legacy parameter.** For new development, use the
     ``autosize_mode`` parameter.
 
@@ -683,12 +684,12 @@ class DataTable(TableWidget):
     understood as maximum width.
     """)
 
-    frozen_columns = Int(help="""
+    frozen_columns = Nullable(Int, help="""
     Integer indicating the number of columns to freeze. If set the first N
     columns will be frozen which prevents them from scrolling out of frame.
     """)
 
-    frozen_rows = Int(help="""
+    frozen_rows = Nullable(Int, help="""
     Integer indicating the number of rows to freeze. If set the first N
     rows will be frozen which prevents them from scrolling out of frame,
     if set to a negative value last N rows will be frozen.
@@ -720,7 +721,7 @@ class DataTable(TableWidget):
     enabled) or using Shift + click on rows.
     """)
 
-    index_position = Int(0, help="""
+    index_position = Nullable(Int, default=0, help="""
     Where among the list of columns to insert a column displaying the row
     index. Negative indices are supported, and specify an index position
     from the end of the list of columns (i.e. standard Python behaviour).

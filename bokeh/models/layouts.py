@@ -33,6 +33,8 @@ from ..core.properties import (
     Int,
     List,
     NonNegativeInt,
+    Null,
+    Nullable,
     Seq,
     String,
     Struct,
@@ -90,35 +92,35 @@ class LayoutDOM(Model):
     Whether the component will be visible and a part of a layout.
     """)
 
-    width = NonNegativeInt(default=None, help="""
+    width = Nullable(NonNegativeInt, help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height = NonNegativeInt(default=None, help="""
+    height = Nullable(NonNegativeInt, help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
     """)
 
-    min_width = NonNegativeInt(default=None, help="""
+    min_width = Nullable(NonNegativeInt, help="""
     Minimal width of the component (in pixels) if width is adjustable.
     """)
 
-    min_height = NonNegativeInt(default=None, help="""
+    min_height = Nullable(NonNegativeInt, help="""
     Minimal height of the component (in pixels) if height is adjustable.
     """)
 
-    max_width = NonNegativeInt(default=None, help="""
+    max_width = Nullable(NonNegativeInt, help="""
     Maximal width of the component (in pixels) if width is adjustable.
     """)
 
-    max_height = NonNegativeInt(default=None, help="""
+    max_height = Nullable(NonNegativeInt, help="""
     Maximal height of the component (in pixels) if height is adjustable.
     """)
 
-    margin = Tuple(Int, Int, Int, Int, default=(0, 0, 0, 0), help="""
+    margin = Nullable(Tuple(Int, Int, Int, Int), default=(0, 0, 0, 0), help="""
     Allows to create additional space around the component.
     The values in the tuple are ordered as follows - Margin-Top, Margin-Right, Margin-Bottom and Margin-Left,
     similar to CSS standards.
@@ -190,7 +192,7 @@ class LayoutDOM(Model):
 
     """)
 
-    aspect_ratio = Either(Enum("auto"), Float, default=None, help="""
+    aspect_ratio = Either(Null, Auto, Float, help="""
     Describes the proportional relationship between component's width and height.
 
     This works if any of component's dimensions are flexible in size. If set to
@@ -200,7 +202,7 @@ class LayoutDOM(Model):
 
     """)
 
-    sizing_mode = Enum(SizingMode, default=None, help="""
+    sizing_mode = Nullable(Enum(SizingMode), help="""
     How the component should size itself.
 
     This is a high-level setting for maintaining width and height of the component. To
@@ -250,7 +252,7 @@ class LayoutDOM(Model):
     grid track align).
     """)
 
-    background = Color(default=None, help="""
+    background = Nullable(Color, help="""
     Background color of the component.
     """)
 

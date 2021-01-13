@@ -31,6 +31,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    Nullable,
     Override,
     String,
 )
@@ -211,12 +212,12 @@ class GlyphRenderer(DataRenderer):
     be used for non-selected points.
     """)
 
-    hover_glyph = Instance(Glyph, help="""
+    hover_glyph = Nullable(Instance(Glyph), help="""
     An optional glyph used for inspected points, e.g., those that are
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Instance(Glyph, help="""
+    muted_glyph = Nullable(Instance(Glyph), help="""
     """)
 
     muted = Bool(False, help="""

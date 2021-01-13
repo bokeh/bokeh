@@ -28,10 +28,13 @@ from ..core.properties import (
     Dict,
     Either,
     Enum,
+    Factor,
     Float,
     Include,
     Instance,
     Int,
+    Null,
+    Nullable,
     Override,
     Seq,
     String,
@@ -117,7 +120,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = String(default='', help="""
+    axis_label = Nullable(String, default="", help="""
     A text label for the axis, displayed parallel to the axis rule.
 
     .. note::
@@ -196,7 +199,7 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    fixed_location = Either(Float, String, Tuple(String, String), Tuple(String, String, String), default=None, help="""
+    fixed_location = Either(Null, Float, Factor, help="""
     Set to specify a fixed coordinate location to draw the axis. The direction
     of ticks and major labels is determined by the side panel that the axis
     belongs to.
