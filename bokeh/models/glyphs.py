@@ -209,19 +209,19 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the center of the annular wedges.
     """)
 
-    inner_radius = DistanceSpec(help="""
+    inner_radius = DistanceSpec(default=field("inner_radius"), help="""
     The inner radii of the annular wedges.
     """)
 
-    outer_radius = DistanceSpec(help="""
+    outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the annular wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
@@ -258,11 +258,11 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the center of the annuli.
     """)
 
-    inner_radius = DistanceSpec(help="""
+    inner_radius = DistanceSpec(default=field("inner_radius"), help="""
     The inner radii of the annuli.
     """)
 
-    outer_radius = DistanceSpec(help="""
+    outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annuli.
     """)
 
@@ -295,15 +295,15 @@ class Arc(XYGlyph, LineGlyph):
     The y-coordinates of the center of the arcs.
     """)
 
-    radius = DistanceSpec(help="""
+    radius = DistanceSpec(default=field("radius"), help="""
     Radius of the arc.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the arcs, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the arcs, as measured from the horizontal.
     """)
 
@@ -418,11 +418,11 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the centers of the ellipses.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The widths of each ellipse.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The heights of each ellipse.
     """)
 
@@ -534,11 +534,11 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
 
     """)
 
-    r = NumberSpec(help="""
+    r = NumberSpec(default=field("r"), help="""
     The "row" axial coordinates of the tile centers.
     """)
 
-    q = NumberSpec(help="""
+    q = NumberSpec(default=field("q"), help="""
     The "column" axial coordinates of the tile centers.
     """)
 
@@ -600,7 +600,7 @@ class Image(XYGlyph):
         )
     }
 
-    image = NumberSpec(help="""
+    image = NumberSpec(default=field("image"), help="""
     The arrays of scalar data for the images to be colormapped.
     """)
 
@@ -612,7 +612,7 @@ class Image(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec(help="""
+    dw = DistanceSpec(default=field("dw"), help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -620,7 +620,7 @@ class Image(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec(help="""
+    dh = DistanceSpec(default=field("dh"), help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -659,7 +659,7 @@ class ImageRGBA(XYGlyph):
 
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
-    image = NumberSpec(help="""
+    image = NumberSpec(default=field("image"), help="""
     The arrays of RGBA data for the images.
     """)
 
@@ -671,7 +671,7 @@ class ImageRGBA(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec(help="""
+    dw = DistanceSpec(default=field("dw"), help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -679,7 +679,7 @@ class ImageRGBA(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec(help="""
+    dh = DistanceSpec(default=field("dh"), help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -892,11 +892,11 @@ class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The overall widths of each oval.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The overall height of each oval.
     """)
 
@@ -1094,11 +1094,11 @@ class Ray(XYGlyph, LineGlyph):
     The y-coordinates to start the rays.
     """)
 
-    angle = AngleSpec(help="""
+    angle = AngleSpec(default=field("angle"), help="""
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
-    length = DistanceSpec(help="""
+    length = DistanceSpec(default=field("length"), help="""
     The length to extend the ray. Note that this ``length`` defaults
     to data units (measured in the x-direction).
     """)
@@ -1124,11 +1124,11 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The overall widths of the rectangles.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The overall heights of the rectangles.
     """)
 
@@ -1388,15 +1388,15 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the points of the wedges.
     """)
 
-    radius = DistanceSpec(help="""
+    radius = DistanceSpec(default=field("radius"), help="""
     Radii of the wedges.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the wedges, as measured from the horizontal.
     """)
 
