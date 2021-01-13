@@ -16,7 +16,7 @@ import {values} from "core/util/object"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
-import {FactorRange} from "../ranges/factor_range"
+import {FactorRange, Factor} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -255,6 +255,8 @@ export abstract class GlyphView extends View {
     this._data_size = indices.count
 
     const visual_props = new Set(this._iter_visuals())
+    const self = this as any
+
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
@@ -267,29 +269,37 @@ export abstract class GlyphView extends View {
 
       const name = prop.attr
 
-      const base_array = prop.array(source)
-      let array = indices.select(base_array as Arrayable<unknown>)
+      if (prop instanceof p.ScalarSpec) {
+        const uniform = prop.uniform(source).select(indices)
+        self[`${prop.attr}`] = uniform
+      } else {
+        const base_array = prop.array(source)
+        let array = indices.select(base_array)
 
-      if (prop instanceof p.BaseCoordinateSpec) {
-        const range = prop.dimension == "x" ? x_range : y_range
-        if (range instanceof FactorRange) {
-          if (prop instanceof p.CoordinateSpec) {
-            array = range.v_synthetic(array as any)
-          } else if (prop instanceof p.CoordinateSeqSpec) {
-            for (let i = 0; i < array.length; i++) {
-              array[i] = range.v_synthetic(array[i] as any)
+        let final_array: Arrayable<unknown> | RaggedArray<FloatArray> = array
+        if (prop instanceof p.BaseCoordinateSpec) {
+          const range = prop.dimension == "x" ? x_range : y_range
+          if (range instanceof FactorRange) {
+            if (prop instanceof p.CoordinateSpec) {
+              array = range.v_synthetic(array as Arrayable<number | Factor>)
+            } else if (prop instanceof p.CoordinateSeqSpec) {
+              for (let i = 0; i < array.length; i++) {
+                array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
+              }
             }
           }
+
+          if (prop instanceof p.CoordinateSeqSpec) {
+            // TODO: infer precision
+            final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
+          } else
+            final_array = array
+        } else if (prop instanceof p.DistanceSpec) {
+          self[`max_${name}`] = max(array as Arrayable<number>)
         }
 
-        if (prop instanceof p.CoordinateSeqSpec) {
-          array = RaggedArray.from(array, Float32Array)
-        }
-      } else if (prop instanceof p.DistanceSpec) {
-        (this as any)[`max_${name}`] = max(array as any)
+        self[`_${name}`] = final_array
       }
-
-      (this as any)[`_${name}`] = array
     }
 
     if (this.renderer.plot_view.model.use_map) {

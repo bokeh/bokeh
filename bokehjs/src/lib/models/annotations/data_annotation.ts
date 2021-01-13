@@ -41,11 +41,11 @@ export abstract class DataAnnotationView extends AnnotationView {
       if (prop.can_skip)
         continue
 
-      if (visual_props.has(prop)) {
-        const uniform = prop.uniform(source) // .select(indices)
+      if (visual_props.has(prop) || prop instanceof p.ScalarSpec) {
+        const uniform = prop.uniform(source)
         self[`${prop.attr}`] = uniform
       } else {
-        const array = prop.array(source) // .select(indices)
+        const array = prop.array(source)
         self[`_${prop.attr}`] = array
       }
     }

@@ -404,11 +404,11 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     const {expr, value, transform} = this.spec
     const n = source.get_length() ?? 1
     if (expr != null) {
-      let array = expr.compute(source)
+      let result = expr.compute(source)
       if (transform != null)
-        array = transform.compute(array)
-      array = this.materialize(array)
-      return this.scalar(array, n)
+        result = transform.compute(result)
+      result = this.materialize(result)
+      return this.scalar(result, n)
     } else {
       let result = value
       if (transform != null)

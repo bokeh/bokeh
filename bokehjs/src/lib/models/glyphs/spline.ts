@@ -58,9 +58,9 @@ export namespace Spline {
     closed: p.Property<boolean>
   }
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.LineScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
 }
 
 export interface Spline extends Spline.Attrs {}
@@ -76,7 +76,7 @@ export class Spline extends XYGlyph {
   static init_Spline(): void {
     this.prototype.default_view = SplineView
 
-    this.mixins<Spline.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Spline.Mixins>(mixins.LineScalar)
 
     this.define<Spline.Props>(({Boolean, Number}) => ({
       tension: [ Number,  0.5   ],
