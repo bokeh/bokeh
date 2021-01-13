@@ -62,8 +62,8 @@ export class DatePickerView extends InputWidgetView {
     this.group_el.appendChild(this.input_el)
     this._picker = flatpickr(this.input_el, {
       defaultDate: this.model.value,
-      minDate: this.model.min_date,
-      maxDate: this.model.max_date,
+      minDate: this.model.min_date ?? undefined,
+      maxDate: this.model.max_date ?? undefined,
       inline: this.model.inline,
       position: this.model.position,
       disable: _convert_date_list(this.model.disabled_dates),
@@ -83,8 +83,8 @@ export namespace DatePicker {
 
   export type Props = InputWidget.Props & {
     value:          p.Property<string>
-    min_date:       p.Property<string>
-    max_date:       p.Property<string>
+    min_date:       p.Property<string | null>
+    max_date:       p.Property<string | null>
     disabled_dates: p.Property<DatesList>
     enabled_dates:  p.Property<DatesList>
     position:       p.Property<CalendarPosition>
@@ -105,13 +105,13 @@ export class DatePicker extends InputWidget {
   static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
-    this.define<DatePicker.Props>(({Boolean, String, Array, Tuple, Or}) => {
+    this.define<DatePicker.Props>(({Boolean, String, Array, Tuple, Or, Nullable}) => {
       const DateStr = String
       const DatesList = Array(Or(DateStr, Tuple(DateStr, DateStr)))
       return {
         value:          [ String ],
-        min_date:       [ String ],
-        max_date:       [ String ],
+        min_date:       [ Nullable(String), null ],
+        max_date:       [ Nullable(String), null ],
         disabled_dates: [ DatesList, [] ],
         enabled_dates:  [ DatesList, [] ],
         position:       [ CalendarPosition, "auto" ],

@@ -7,7 +7,7 @@ export namespace MercatorTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BasicTickFormatter.Props & {
-    dimension: p.Property<LatLon>
+    dimension: p.Property<LatLon | null>
   }
 }
 
@@ -21,8 +21,8 @@ export class MercatorTickFormatter extends BasicTickFormatter {
   }
 
   static init_MercatorTickFormatter(): void {
-    this.define<MercatorTickFormatter.Props>(() => ({
-      dimension: [ LatLon ],
+    this.define<MercatorTickFormatter.Props>(({Nullable}) => ({
+      dimension: [ Nullable(LatLon), null ],
     }))
   }
 
