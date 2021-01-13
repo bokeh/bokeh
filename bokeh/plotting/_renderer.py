@@ -114,12 +114,18 @@ def create_renderer(glyphclass, plot, **kwargs):
     else:
         muted_visuals = None
 
+    glyph = make_glyph(glyphclass, kwargs, glyph_visuals)
+    nonselection_glyph = make_glyph(glyphclass, kwargs, nonselection_visuals)
+    selection_glyph = make_glyph(glyphclass, kwargs, selection_visuals)
+    hover_glyph = make_glyph(glyphclass, kwargs, hover_visuals)
+    muted_glyph = make_glyph(glyphclass, kwargs, muted_visuals)
+
     glyph_renderer = GlyphRenderer(
-        glyph=make_glyph(glyphclass, kwargs, glyph_visuals),
-        nonselection_glyph=make_glyph(glyphclass, kwargs, nonselection_visuals),
-        selection_glyph=make_glyph(glyphclass, kwargs, selection_visuals),
-        hover_glyph=make_glyph(glyphclass, kwargs, hover_visuals),
-        muted_glyph=make_glyph(glyphclass, kwargs, muted_visuals),
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph or "auto",
+        selection_glyph=selection_glyph or "auto",
+        hover_glyph=hover_glyph,
+        muted_glyph=muted_glyph,
         **renderer_kws)
 
     plot.renderers.append(glyph_renderer)
