@@ -758,7 +758,10 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         """
         value = self.property.prepare_value(obj, self.name, value)
 
-        old = self.__get__(obj, obj.__class__)
+        try:
+            old = self.__get__(obj, obj.__class__)
+        except Exception:
+            old = None # XXX: initial set
         self._real_set(obj, old, value, hint=hint, setter=setter)
 
     def _real_set(self, obj, old, value, hint=None, setter=None):
