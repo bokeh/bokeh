@@ -49,7 +49,7 @@ export class HatchScalar extends VisualUniforms {
   readonly hatch_scale: p.UniformScalar<number>
   readonly hatch_pattern: p.UniformScalar<string>
   readonly hatch_weight: p.UniformScalar<number>
-  readonly hatch_extra: p.Property<mixins.HatchExtra>
+  readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
   get doit(): boolean {
     const color = this.hatch_color.value
@@ -70,10 +70,9 @@ export class HatchScalar extends VisualUniforms {
     const scale = this.hatch_scale.value
     const pattern = this.hatch_pattern.value
     const weight = this.hatch_weight.value
+    const textures = this.hatch_extra.value
 
-    const textures = this.hatch_extra.get_value()
     const texture = textures[pattern]
-
     if (texture != null)
       return texture.get_pattern(color, alpha, scale, weight)
     else
@@ -87,7 +86,7 @@ export class HatchVector extends VisualUniforms {
   readonly hatch_scale: p.Uniform<number>
   readonly hatch_pattern: p.Uniform<string>
   readonly hatch_weight: p.Uniform<number>
-  readonly hatch_extra: p.Property<mixins.HatchExtra>
+  readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
   get doit(): boolean {
     const {hatch_color} = this
@@ -116,10 +115,9 @@ export class HatchVector extends VisualUniforms {
     const scale = this.hatch_scale.get(i)
     const pattern = this.hatch_pattern.get(i)
     const weight = this.hatch_weight.get(i)
+    const textures = this.hatch_extra.get(i)
 
-    const textures = this.hatch_extra.get_value()
     const texture = textures[pattern]
-
     if (texture != null)
       return texture.get_pattern(color, alpha, scale, weight)
     else

@@ -175,7 +175,7 @@ export type HatchVector = {
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
   hatch_weight: p.VectorSpec<number>
-  hatch_extra: p.Property<HatchExtra>
+  hatch_extra: p.ScalarSpec<HatchExtra>
 }
 
 export type TextVector = {
@@ -210,7 +210,7 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
+  hatch_extra:      [ p.AnyScalar,      {}          ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
