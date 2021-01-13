@@ -70,6 +70,7 @@ from ..core.properties import (
     Instance,
     Int,
     MarkerSpec,
+    NullDistanceSpec,
     NumberSpec,
     Override,
     ScreenDistanceSpec,
@@ -371,7 +372,7 @@ class Circle(Marker):
 
     _args = ('x', 'y')
 
-    radius = DistanceSpec(None, help="""
+    radius = NullDistanceSpec(help="""
     The radius values for circle markers (in "data space" units, by default).
 
     .. note::
@@ -712,7 +713,7 @@ class ImageURL(XYGlyph):
 
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'dilate')
 
-    url = StringSpec(default=None, help="""
+    url = StringSpec(default=field("url"), help="""
     The URLs to retrieve images from.
 
     .. note::
@@ -728,14 +729,14 @@ class ImageURL(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    w = DistanceSpec(default=None, help="""
+    w = NullDistanceSpec(help="""
     The width of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
     at its actual image size (regardless of the units specified here).
     """)
 
-    h = DistanceSpec(default=None, help="""
+    h = NullDistanceSpec(help="""
     The height of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed

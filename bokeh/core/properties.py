@@ -296,6 +296,7 @@ from .property.dataspec import IntSpec; IntSpec
 from .property.dataspec import LineCapSpec; LineCapSpec
 from .property.dataspec import LineJoinSpec; LineJoinSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
+from .property.dataspec import NullDistanceSpec; NullDistanceSpec
 from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec

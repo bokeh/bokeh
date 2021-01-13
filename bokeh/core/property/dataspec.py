@@ -26,7 +26,7 @@ from .color import Color
 from .container import Dict, List
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
-from .either import Either, Nullable
+from .either import Either, Null, Nullable
 from .enum import Enum
 from .instance import Instance
 from .primitive import Float, Int, String
@@ -356,7 +356,7 @@ class HatchPatternSpec(DataSpec):
     """
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super().__init__(key_type, HatchPatternType, default=default, help=help)
+        super().__init__(key_type, Nullable(HatchPatternType), default=default, help=help)
 
 class MarkerSpec(DataSpec):
     """ A |DataSpec| property that accepts marker types as fixed values.
@@ -483,6 +483,21 @@ class DistanceSpec(PropertyUnitsSpec):
     def prepare_value(self, cls, name, value):
         try:
             if value < 0:
+                raise ValueError("Distances must be positive!")
+        except TypeError:
+            pass
+        return super().prepare_value(cls, name, value)
+
+class NullDistanceSpec(DistanceSpec):
+
+    def __init__(self, default=None, units_default="data", help=None):
+        super().__init__(default=default, units_default=units_default, help=help)
+        self._type = Nullable(self._type)
+        self._type_params = [Null()] + self._type_params
+
+    def prepare_value(self, cls, name, value):
+        try:
+            if value is not None and value < 0:
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
@@ -562,7 +577,7 @@ class ColorSpec(DataSpec):
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         help = f"{help or ''}\n{self._default_help}"
-        super().__init__(key_type, Color, default=default, help=help)
+        super().__init__(key_type, Nullable(Color), default=default, help=help)
 
     @classmethod
     def isconst(cls, val):
