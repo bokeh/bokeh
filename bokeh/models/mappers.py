@@ -78,7 +78,7 @@ class ColorMapper(Mapper):
 
     '''
 
-    palette = Seq(Color, help="""
+    palette = Seq(Color, default=[], help="""
     A sequence of colors to use as the target palette for mapping.
 
     This property can also be set as a ``String``, to the name of any of the
@@ -100,7 +100,7 @@ class CategoricalMapper(Mapper):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), help="""
+    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=[], help="""
     A sequence of factors / categories that map to the some target range. For
     example the following color mapper:
 

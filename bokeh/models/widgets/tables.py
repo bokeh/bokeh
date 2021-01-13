@@ -42,7 +42,7 @@ from ...core.properties import (
     String,
 )
 from ...model import Model
-from ..sources import CDSView, DataSource
+from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -621,7 +621,7 @@ class TableWidget(Widget):
 
     '''
 
-    source = Instance(DataSource, help="""
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
     The source of data for the widget.
     """)
 

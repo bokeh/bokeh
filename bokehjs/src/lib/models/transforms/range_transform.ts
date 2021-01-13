@@ -9,7 +9,7 @@ export namespace RangeTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Transform.Props & {
-    range: p.Property<Range>
+    range: p.Property<Range | null>
   }
 }
 
@@ -23,8 +23,8 @@ export abstract class RangeTransform extends Transform {
   }
 
   static init_RangeTransform(): void {
-    this.define<RangeTransform.Props>(({Ref}) => ({
-      range: [ Ref(Range) ],
+    this.define<RangeTransform.Props>(({Ref, Nullable}) => ({
+      range: [ Nullable(Ref(Range)), null ],
     }))
   }
 

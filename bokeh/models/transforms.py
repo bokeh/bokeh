@@ -164,7 +164,7 @@ class Jitter(Transform):
     The random distribution upon which to pull the random scatter
     """)
 
-    range = Instance("bokeh.models.ranges.Range", help="""
+    range = Nullable(Instance("bokeh.models.ranges.Range"), help="""
     When applying Jitter to Categorical data values, the corresponding
     ``FactorRange`` must be supplied as the ``range`` property.
     """)
