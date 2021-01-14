@@ -207,7 +207,8 @@ def test_all_builtin_models_default_constructible() -> None:
             cls()
         except Exception:
             bad.append(name)
-        assert bad == []
+    assert bad == ["GlyphRenderer"] # GlyphRenderer.data_source can't have
+                                    # a default value due to cyclic imports
 
 def test_select() -> None:
     # we aren't trying to replace test_query here, only test
