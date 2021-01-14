@@ -1284,7 +1284,7 @@ class EditTool(GestureTool):
 class PolyTool(EditTool):
     ''' A base class for polygon draw/edit tools. '''
 
-    vertex_renderer = Instance(GlyphRenderer, help="""
+    vertex_renderer = Nullable(Instance(GlyphRenderer), help="""
     The renderer used to render the vertices of a selected line or polygon.
     """)
 
