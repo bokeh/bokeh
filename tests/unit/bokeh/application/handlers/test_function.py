@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import Instance, Int
+from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document import Document
 from bokeh.model import Model
 
@@ -39,7 +39,7 @@ class AnotherModelInTestFunction(Model):
 
 class SomeModelInTestFunction(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 
 class Test_FunctionHandler:

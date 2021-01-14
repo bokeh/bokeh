@@ -22,7 +22,7 @@ import mock
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler
-from bokeh.core.properties import Instance, Int
+from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure
@@ -43,7 +43,7 @@ class AnotherModelInTestApplication(Model):
 
 class SomeModelInTestApplication(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 class RequestHandler(Handler):
     _failed = False

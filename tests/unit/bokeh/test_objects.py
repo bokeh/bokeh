@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import Any, Dict, Instance, Int, List, String
+from bokeh.core.properties import Any, Dict, Instance, Int, List, Nullable, String
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.model import Model
 
@@ -110,10 +110,10 @@ class TestModelCls:
             get_class('Imaginary_Class')
 
 class SomeModel(Model):
-    some = Int()
+    some = Int(default=0)
 
 class DeepModel(Model):
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 
 class TestCollectModels:
@@ -169,7 +169,7 @@ class TestModel:
             js_event_callbacks={},
             subscribed_events=[],
             syncable=True,
-            some=None,
+            some=0,
         )
         assert testObject.properties_with_values(include_defaults=False) == {}
 
