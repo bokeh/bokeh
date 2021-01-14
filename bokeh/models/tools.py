@@ -286,21 +286,21 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Null, Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Null, Auto, Instance(Drag), default="auto", help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
     active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
-        Either(Null, Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
+        Either(Null, Auto, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Null, Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Null, Auto, Instance(Scroll), default="auto", help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Null, Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Null, Auto, Instance(Tap), default="auto", help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 

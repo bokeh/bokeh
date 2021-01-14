@@ -190,12 +190,12 @@ class DataRange1d(DataRange):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Either(Float, Datetime, TimeDelta, help="""
+    start = Either(Null, Float, Datetime, TimeDelta, help="""
     An explicitly supplied range start. If provided, will override
     automatically computed start value.
     """)
 
-    end = Either(Float, Datetime, TimeDelta, help="""
+    end = Either(Null, Float, Datetime, TimeDelta, help="""
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
     """)

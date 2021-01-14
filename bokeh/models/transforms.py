@@ -140,7 +140,7 @@ class Dodge(Transform):
     The amount to dodge the input data.
     """)
 
-    range = Instance("bokeh.models.ranges.Range", help="""
+    range = Nullable(Instance("bokeh.models.ranges.Range"), help="""
     When applying ``Dodge`` to categorical data values, the corresponding
     ``FactorRange`` must be supplied as the ``range`` property.
     """)

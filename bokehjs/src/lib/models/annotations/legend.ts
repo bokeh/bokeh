@@ -227,9 +227,7 @@ export class LegendView extends AnnotationView {
     ctx.save()
     this._draw_legend_box(ctx, bbox)
     this._draw_legend_items(ctx, bbox)
-
-    if (this.model.title)
-      this._draw_title(ctx, bbox)
+    this._draw_title(ctx, bbox)
 
     ctx.restore()
   }
@@ -304,13 +302,14 @@ export class LegendView extends AnnotationView {
   }
 
   protected _draw_title(ctx: Context2d, bbox: BBox): void {
-    if (!this.visuals.title_text.doit)
+    const {title} = this.model
+    if (!title || !this.visuals.title_text.doit)
       return
 
     ctx.save()
     ctx.translate(bbox.x0, bbox.y0 + this.title_height)
     this.visuals.title_text.set_value(ctx)
-    ctx.fillText(this.model.title, this.legend_padding, this.legend_padding-this.model.title_standoff)
+    ctx.fillText(title, this.legend_padding, this.legend_padding-this.model.title_standoff)
     ctx.restore()
   }
 
@@ -329,7 +328,7 @@ export namespace Legend {
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
     location: p.Property<LegendLocation | [number, number]>
-    title: p.Property<string>
+    title: p.Property<string | null>
     title_standoff: p.Property<number>
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
@@ -387,10 +386,10 @@ export class Legend extends Annotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>(({Number, String, Array, Tuple, Or, Ref}) => ({
+    this.define<Legend.Props>(({Number, String, Array, Tuple, Or, Ref, Nullable}) => ({
       orientation:      [ Orientation, "vertical" ],
       location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
-      title:            [ String ],
+      title:            [ Nullable(String), null ],
       title_standoff:   [ Number, 5 ],
       label_standoff:   [ Number, 5 ],
       glyph_height:     [ Number, 20 ],

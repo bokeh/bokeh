@@ -530,7 +530,7 @@ class Plot(LayoutDOM):
     axes, titles, border padding, etc.
     """)
 
-    inner_width = Int(readonly=True, help="""
+    inner_width = Nullable(Int, readonly=True, help="""
     This is the exact width of the plotting canvas, i.e. the width of
     the actual plot, without toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -541,7 +541,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    inner_height = Int(readonly=True, help="""
+    inner_height = Nullable(Int, readonly=True, help="""
     This is the exact height of the plotting canvas, i.e. the height of
     the actual plot, without toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -552,7 +552,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    outer_width = Int(readonly=True, help="""
+    outer_width = Nullable(Int, readonly=True, help="""
     This is the exact width of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -563,7 +563,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    outer_height = Int(readonly=True, help="""
+    outer_height = Nullable(Int, readonly=True, help="""
     This is the exact height of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
