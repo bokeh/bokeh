@@ -1095,11 +1095,11 @@ class Ray(XYGlyph, LineGlyph):
     The y-coordinates to start the rays.
     """)
 
-    angle = AngleSpec(default=field("angle"), help="""
+    angle = AngleSpec(default=0, help="""
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
-    length = DistanceSpec(default=field("length"), help="""
+    length = DistanceSpec(default=0, help="""
     The length to extend the ray. Note that this ``length`` defaults
     to data units (measured in the x-direction).
     """)
