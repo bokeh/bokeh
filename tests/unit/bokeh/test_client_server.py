@@ -37,6 +37,7 @@ from bokeh.core.properties import (
     DistanceSpec,
     Instance,
     Int,
+    Nullable,
     String,
 )
 from bokeh.document import Document
@@ -61,7 +62,7 @@ class AnotherModelInTestClientServer(Model):
 
 class SomeModelInTestClientServer(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 
 class DictModel(Model):

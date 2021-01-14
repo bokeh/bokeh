@@ -22,7 +22,7 @@ from bokeh.application.application import Application
 from bokeh.io.doc import curdoc
 from bokeh.io.output import output_notebook
 from bokeh.io.state import State, curstate
-from bokeh.models import GlyphRenderer, Plot
+from bokeh.models import ColumnDataSource, GlyphRenderer, Plot
 
 # Module under test
 import bokeh.io.showing as bis # isort:skip
@@ -80,7 +80,7 @@ def test_show_doesn_not_adds_obj_to_curdoc(m) -> None:
     bis.show(p)
     assert curstate().document.roots == []
 
-@pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
+@pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer(data_source=ColumnDataSource())])
 def test_show_with_bad_object(obj) -> None:
     with pytest.raises(ValueError):
         bis.show(obj)
