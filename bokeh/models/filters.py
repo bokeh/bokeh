@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Dict, Int, Seq, String
+from ..core.properties import AnyRef, Bool, Int, Seq, String, RestrictedDict
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ class CustomJSFilter(Filter):
 
     '''
 
-    args = Dict(String, AnyRef, help="""
+    args = RestrictedDict(String, AnyRef, disallow=("source",), help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.
