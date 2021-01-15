@@ -77,6 +77,7 @@ describe("Marker glyph", () => {
       p.square_dot(X("square_dot"), Y(), attrs)
       p.square_pin(X("square_pin"), Y(), attrs)
       p.square_x(X("square_x"), Y(), attrs)
+      p.star(X("star"), Y(), attrs)
       p.triangle(X("triangle"), Y(), attrs)
       p.triangle_dot(X("triangle_dot"), Y(), attrs)
       p.triangle_pin(X("triangle_pin"), Y(), attrs)

@@ -63,6 +63,15 @@ float marker(vec2 P, float size)
 }
 #endif
 
+#ifdef USE_STAR
+// star
+float marker(vec2 P, float size)
+{
+    vec2 q = abs(P);
+    return max(q.y * 0.57735 + q.x - 1.0 * size/2.0, q.y - 0.866 * size/2.0);
+}
+#endif
+
 #ifdef USE_TRIANGLE
 // triangle
 float marker(vec2 P, float size)

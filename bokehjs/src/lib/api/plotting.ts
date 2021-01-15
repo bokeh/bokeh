@@ -686,6 +686,12 @@ export class Figure extends Plot {
     return this._scatter(args, "square_x")
   }
 
+  star(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  star(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  star(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+    return this._scatter(args, "star")
+  }
+
   triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
   triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
   triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {

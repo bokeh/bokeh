@@ -621,6 +621,7 @@ describe("Bug", () => {
         (p) => p.square_dot.bind(p),
         (p) => p.square_pin.bind(p),
         (p) => p.square_x.bind(p),
+        (p) => p.star.bind(p),
         (p) => p.triangle.bind(p),
         (p) => p.triangle_dot.bind(p),
         (p) => p.triangle_pin.bind(p),

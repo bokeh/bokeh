@@ -97,6 +97,7 @@ export class MarkerGL extends BaseGLGlyph {
       case "square":
       case "square_cross":
       case "square_x":
+      case "star":
       case "triangle":
       case "x":
         return true
