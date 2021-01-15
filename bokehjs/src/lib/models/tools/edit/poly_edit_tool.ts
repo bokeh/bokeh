@@ -254,6 +254,8 @@ export class PolyEditTool extends PolyTool {
   properties: PolyEditTool.Props
   __view_type__: PolyEditToolView
 
+  renderers: (GlyphRenderer & HasPolyGlyph)[]
+
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
   }

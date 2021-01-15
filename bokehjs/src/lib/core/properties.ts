@@ -406,14 +406,14 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     if (expr != null) {
       let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null)
-        result = transform.compute(result)
+        result = transform.compute(result) as any
       result = this.materialize(result)
       return this.scalar(result, n)
     } else {
       let result = value
       if (transform != null)
         result = transform.compute(result)
-      result = this.materialize(result)
+      result = this.materialize(result as any)
       return this.scalar(result, n)
     }
   }
@@ -494,14 +494,14 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else if (expr != null) {
       let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null)
-        array = transform.v_compute(array)
+        array = transform.v_compute(array) as any
       array = this.v_materialize(array)
       return this.vector(array)
     } else {
       let result = value
       if (transform != null)
         result = transform.compute(result)
-      result = this.materialize(result)
+      result = this.materialize(result as any)
       return this.scalar(result, n)
     }
   }

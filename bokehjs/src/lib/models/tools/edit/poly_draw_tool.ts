@@ -4,6 +4,7 @@ import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import {tool_icon_poly_draw} from "styles/icons.css"
 
@@ -251,6 +252,8 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 export class PolyDrawTool extends PolyTool {
   properties: PolyDrawTool.Props
   __view_type__: PolyDrawToolView
+
+  renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
