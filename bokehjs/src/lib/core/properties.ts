@@ -12,7 +12,7 @@ import {to_big_endian} from "./util/platform"
 import {isBoolean, isNumber, isString, isArray, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional, Transform, Expression} from "./vectorization"
+import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
@@ -404,7 +404,7 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     const {expr, value, transform} = this.spec
     const n = source.get_length() ?? 1
     if (expr != null) {
-      let result = expr.compute(source)
+      let result = (expr as ScalarExpression<T>).compute(source)
       if (transform != null)
         result = transform.compute(result)
       result = this.materialize(result)
@@ -492,7 +492,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         return this.scalar(null as any, n)
       }
     } else if (expr != null) {
-      let array = expr.v_compute(source)
+      let array = (expr as VectorExpression<T>).v_compute(source)
       if (transform != null)
         array = transform.v_compute(array)
       array = this.v_materialize(array)
@@ -522,7 +522,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = missing
       }
     } else if (this.spec.expr != null) {
-      array = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize((this.spec.expr as VectorExpression<T>).v_compute(source))
     } else {
       const value = this.value(false) // don't apply any spec transform
       if (isNumber(value)) {

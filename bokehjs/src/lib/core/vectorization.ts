@@ -10,10 +10,17 @@ export type Transform<In, Out> = {
   change: Signal0<HasProps>
 }
 
-export type Expression<Out> = {
+export type ScalarExpression<Out> = {
+  compute(source: ColumnarDataSource): Out
+  change: Signal0<HasProps>
+}
+
+export type VectorExpression<Out> = {
   v_compute(source: ColumnarDataSource): Arrayable<Out>
   change: Signal0<HasProps>
 }
+
+export type Expression<T> = ScalarExpression<T> | VectorExpression<T>
 
 export type Value<T> = {
   value: T
