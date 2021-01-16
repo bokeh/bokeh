@@ -107,6 +107,14 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: a
   return result
 }
 
+export function inplace_map<T>(array: Arrayable<T>, fn: (item: T, i: number) => T, output?: Arrayable<T>): void {
+  const n = array.length
+  const result = output ?? array
+  for (let i = 0; i < n; i++) {
+    result[i] = fn(array[i], i)
+  }
+}
+
 export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]
 export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T>
 

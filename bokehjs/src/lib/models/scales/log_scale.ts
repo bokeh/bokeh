@@ -17,6 +17,18 @@ export class LogScale extends ContinuousScale {
     super(attrs)
   }
 
+  get s_compute(): (x: number) => number {
+    const [factor, offset, inter_factor, inter_offset] = this._compute_state()
+    return (x) => {
+      if (inter_factor == 0)
+        return 0
+      else {
+        const _x = (Math.log(x) - inter_offset) / inter_factor
+        return isFinite(_x) ? _x*factor + offset : NaN
+      }
+    }
+  }
+
   compute(x: number): number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 

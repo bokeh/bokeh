@@ -20,6 +20,12 @@ export class CategoricalScale extends Scale {
 
   source_range: FactorRange
 
+  get s_compute(): (x: number) => number {
+    const [factor, offset] = this._linear_compute_state()
+    const range = this.source_range
+    return (x) => factor*range.synthetic(x) + offset
+  }
+
   compute(x: any): number {
     return super._linear_compute(this.source_range.synthetic(x))
   }

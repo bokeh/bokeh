@@ -10,7 +10,7 @@ import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
-import {map, max} from "core/util/arrayable"
+import {map, inplace_map, max} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
@@ -20,6 +20,8 @@ import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 import type {BaseGLGlyph} from "./webgl/base"
+
+const {abs, ceil} = Math
 
 export type GlyphData = {}
 
@@ -140,35 +142,29 @@ export abstract class GlyphView extends View {
 
   sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
         pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
-    let pt0: Arrayable<number>
-    let pt1: Arrayable<number>
-
     const n = pts.length
-    if (pts_location == 'center') {
+    const sdist = new ScreenArray(n)
+
+    const compute = scale.s_compute
+    if (pts_location == "center") {
       const halfspan = map(spans, (d) => d/2)
-      pt0 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
-        pt0[i] = pts[i] - halfspan[i]
-      }
-      pt1 = new Float64Array(n)
-      for (let i = 0; i < n; i++) {
-        pt1[i] = pts[i] + halfspan[i]
+        const spt0 = compute(pts[i] - halfspan[i])
+        const spt1 = compute(pts[i] + halfspan[i])
+        sdist[i] = abs(spt1 - spt0)
       }
     } else {
-      pt0 = pts
-      pt1 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
-        pt1[i] = pt0[i] + spans[i]
+        const spt0 = compute(pts[i])
+        const spt1 = compute(pts[i] + spans[i])
+        sdist[i] = abs(spt1 - spt0)
       }
     }
 
-    const spt0 = scale.v_compute(pt0)
-    const spt1 = scale.v_compute(pt1)
-
     if (dilate)
-      return map(spt0, (_, i) => Math.ceil(Math.abs(spt1[i] - spt0[i])))
-    else
-      return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
+      inplace_map(sdist, (sd) => ceil(sd))
+
+    return sdist
   }
 
   draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}

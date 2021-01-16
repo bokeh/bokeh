@@ -17,6 +17,11 @@ export class LinearScale extends ContinuousScale {
     super(attrs)
   }
 
+  get s_compute(): (x: number) => number {
+    const [factor, offset] = this._linear_compute_state()
+    return (x) => factor*x + offset
+  }
+
   compute(x: number): number {
     return this._linear_compute(x)
   }

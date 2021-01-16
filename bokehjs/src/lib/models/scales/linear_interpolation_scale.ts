@@ -26,6 +26,10 @@ export class LinearInterpolationScale extends Scale {
     }))
   }
 
+  get s_compute(): (x: number) => number {
+    throw new Error("not implemented")
+  }
+
   compute(x: number): number {
     return x
   }
