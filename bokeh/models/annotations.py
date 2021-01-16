@@ -35,18 +35,17 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
-    AlphaSpec,
+    Alpha,
     Angle,
     AngleSpec,
     Auto,
     Bool,
-    ColorSpec,
+    Color,
     Datetime,
     Dict,
     Either,
     Enum,
     Float,
-    FontSizeSpec,
     Include,
     Instance,
     Int,
@@ -996,7 +995,7 @@ class Title(TextAnnotation):
 
     """)
 
-    text_font_size = FontSizeSpec(default="13px")
+    text_font_size = String(default="13px")
 
     text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
@@ -1009,11 +1008,11 @@ class Title(TextAnnotation):
 
     """)
 
-    text_color = ColorSpec(default="#444444", help="""
+    text_color = Color(default="#444444", help="""
     A color to use to fill text with.
     """)
 
-    text_alpha = AlphaSpec(help="""
+    text_alpha = Alpha(help="""
     An alpha value to use to fill text with.
     """)
 
