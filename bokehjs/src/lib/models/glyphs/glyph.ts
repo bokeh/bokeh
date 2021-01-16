@@ -10,7 +10,7 @@ import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
-import {map, inplace_map, max} from "core/util/arrayable"
+import {inplace_map, max} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
@@ -140,23 +140,25 @@ export abstract class GlyphView extends View {
     return this.scenterxy(i, sx, sy)[1]
   }
 
-  sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
+  sdist(scale: Scale, pts: Arrayable<number>, spans: p.Uniform<number>,
         pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
     const n = pts.length
     const sdist = new ScreenArray(n)
 
     const compute = scale.s_compute
     if (pts_location == "center") {
-      const halfspan = map(spans, (d) => d/2)
       for (let i = 0; i < n; i++) {
-        const spt0 = compute(pts[i] - halfspan[i])
-        const spt1 = compute(pts[i] + halfspan[i])
+        const pts_i = pts[i]
+        const halfspan_i = spans.get(i)/2
+        const spt0 = compute(pts_i - halfspan_i)
+        const spt1 = compute(pts_i + halfspan_i)
         sdist[i] = abs(spt1 - spt0)
       }
     } else {
       for (let i = 0; i < n; i++) {
-        const spt0 = compute(pts[i])
-        const spt1 = compute(pts[i] + spans[i])
+        const pts_i = pts[i]
+        const spt0 = compute(pts_i)
+        const spt1 = compute(pts_i + spans.get(i))
         sdist[i] = abs(spt1 - spt0)
       }
     }

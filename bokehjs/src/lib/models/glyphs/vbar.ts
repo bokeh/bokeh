@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export type VBarData = BoxData & {
   _x: FloatArray
   _bottom: FloatArray
-  _width: FloatArray
+  width: p.Uniform<number>
   _top: FloatArray
 
   sx: ScreenArray
@@ -31,16 +31,22 @@ export class VBarView extends BoxView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const l = this._x[i] - (this._width[i]/2)
-    const r = this._x[i] + (this._width[i]/2)
-    const t = Math.max(this._top[i], this._bottom[i])
-    const b = Math.min(this._top[i], this._bottom[i])
+    const half_width_i = this.width.get(i)/2
+    const x_i = this._x[i]
+    const top_i = this._top[i]
+    const bottom_i = this._bottom[i]
+
+    const l = x_i - half_width_i
+    const r = x_i + half_width_i
+    const t = Math.max(top_i, bottom_i)
+    const b = Math.min(top_i, bottom_i)
+
     return [l, r, t, b]
   }
 
   protected _map_data(): void {
     this.sx = this.renderer.xscale.v_compute(this._x)
-    this.sw = this.sdist(this.renderer.xscale, this._x, this._width, "center")
+    this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
     this.stop = this.renderer.yscale.v_compute(this._top)
     this.sbottom = this.renderer.yscale.v_compute(this._bottom)
 

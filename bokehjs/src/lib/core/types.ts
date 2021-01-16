@@ -39,7 +39,7 @@ export function infer_type(a0: Arrayable<number>, a1?: Arrayable<number>): Float
 export type ScreenArray = Float32Array
 export const ScreenArray = Float32Array
 
-export function to_screen(array: TypedArray): ScreenArray {
+export function to_screen(array: Iterable<number>): ScreenArray {
   if (!(array instanceof Float32Array))
     return new Float32Array(array)
   else

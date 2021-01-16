@@ -1,14 +1,14 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {FloatArray, ScreenArray, Rect} from "core/types"
+import {ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
 export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mixins> & {
   angle: p.Uniform<number>
 
-  _width: FloatArray
-  _height: FloatArray
+  width: p.Uniform<number>
+  height: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray

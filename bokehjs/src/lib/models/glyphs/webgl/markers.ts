@@ -159,7 +159,7 @@ export class MarkerGL extends BaseGLGlyph {
     // Upload data if we must. Only happens for main glyph.
     if (mainGlGlyph.data_changed) {
       mainGlGlyph._set_data(nvertices)
-      if (this.glyph instanceof CircleView && this.glyph._radius != null) {
+      if (this.glyph instanceof CircleView && this.glyph.radius != null) {
         // Keep screen radius up-to-date for circle glyph. Only happens when a radius is given
         this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
       }
@@ -254,10 +254,10 @@ export class MarkerGL extends BaseGLGlyph {
     if (this.glyph.angle != null) {
       this.vbo_a.set_data(0, new Float32Array(this.glyph.angle)) // TODO: use attach_float()
     }
-    if (this.glyph instanceof CircleView && this.glyph._radius != null)
+    if (this.glyph instanceof CircleView && this.glyph.radius != null)
       this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))
     else
-      this.vbo_s.set_data(0, new Float32Array(this.glyph._size))
+      this.vbo_s.set_data(0, new Float32Array(this.glyph.size))
   }
 
   protected _set_visuals(nvertices: number): void {

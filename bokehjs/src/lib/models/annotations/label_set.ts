@@ -8,7 +8,7 @@ import {SpatialUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
-import {Arrayable, FloatArray, ScreenArray} from "core/types"
+import {Arrayable, FloatArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {font_metrics} from "core/util/text"
 
@@ -18,10 +18,10 @@ export class LabelSetView extends TextAnnotationView {
 
   protected _x: FloatArray
   protected _y: FloatArray
-  protected _text: string[]
+  protected text: p.Uniform<string>
   protected angle: p.Uniform<number>
-  protected _x_offset: ScreenArray
-  protected _y_offset: ScreenArray
+  protected x_offset: p.Uniform<number>
+  protected y_offset: p.Uniform<number>
 
   // XXX: can't inherit DataAnnotation currently
   set_data(source: ColumnarDataSource): void {
@@ -33,7 +33,7 @@ export class LabelSetView extends TextAnnotationView {
     this.set_data(this.model.source)
 
     if (this.model.render_mode == 'css') {
-      for (let i = 0, end = this._text.length; i < end; i++) {
+      for (let i = 0, end = this.text.length; i < end; i++) {
         const el = div({style: {display: "none"}})
         this.el!.appendChild(el)
       }
@@ -82,8 +82,8 @@ export class LabelSetView extends TextAnnotationView {
 
     const [sx, sy] = this._map_data()
 
-    for (let i = 0, end = this._text.length; i < end; i++) {
-      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this.angle.get(i))
+    for (let i = 0, end = this.text.length; i < end; i++) {
+      draw(ctx, i, this.text.get(i), sx[i] + this.x_offset.get(i), sy[i] - this.y_offset.get(i), this.angle.get(i))
     }
   }
 
@@ -91,7 +91,7 @@ export class LabelSetView extends TextAnnotationView {
     const {ctx} = this.layer
     this.visuals.text.set_vectorize(ctx, 0)
 
-    const {width} = ctx.measureText(this._text[0])
+    const {width} = ctx.measureText(this.text.get(0))
     const {height} = font_metrics(ctx.font)
 
     return {width, height}

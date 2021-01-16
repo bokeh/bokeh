@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export type HBarData = BoxData & {
   _left: FloatArray
   _y: FloatArray
-  _height: FloatArray
+  height: p.Uniform<number>
   _right: FloatArray
 
   sy: ScreenArray
@@ -31,16 +31,22 @@ export class HBarView extends BoxView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const l = Math.min(this._left[i], this._right[i])
-    const r = Math.max(this._left[i], this._right[i])
-    const t = this._y[i] + 0.5*this._height[i]
-    const b = this._y[i] - 0.5*this._height[i]
+    const left_i = this._left[i]
+    const right_i = this._right[i]
+    const y_i = this._y[i]
+    const half_height_i = this.height.get(i)/2
+
+    const l = Math.min(left_i, right_i)
+    const r = Math.max(left_i, right_i)
+    const t = y_i + half_height_i
+    const b = y_i - half_height_i
+
     return [l, r, t, b]
   }
 
   protected _map_data(): void {
     this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this._height, "center")
+    this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
     this.sleft = this.renderer.xscale.v_compute(this._left)
     this.sright = this.renderer.xscale.v_compute(this._right)
 

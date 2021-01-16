@@ -617,6 +617,12 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
+export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
+  materialize(value: number | null): number {
+    return value ?? NaN
+  }
+}
+
 export class ScreenDistanceSpec extends DistanceSpec {
   get default_units(): enums.SpatialUnits { return "screen" }
 }

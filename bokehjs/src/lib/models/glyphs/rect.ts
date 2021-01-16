@@ -23,9 +23,9 @@ export class RectView extends CenterRotatableView {
 
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale)
+      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
     else {
-      this.sw = to_screen(this._width)
+      this.sw = to_screen(this.width)
 
       const n = this.sx.length
       this.sx0 = new ScreenArray(n)
@@ -34,9 +34,9 @@ export class RectView extends CenterRotatableView {
     }
 
     if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale)
+      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
     else {
-      this.sh = to_screen(this._height)
+      this.sh = to_screen(this.height)
 
       const n = this.sy.length
       this.sy1 = new ScreenArray(n)
@@ -153,7 +153,7 @@ export class RectView extends CenterRotatableView {
     return new Selection({indices})
   }
 
-  protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: Arrayable<number>,
+  protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: p.Uniform<number>,
                                                   scale: Scale): [ScreenArray, ScreenArray] {
     const n = coord.length
 
@@ -161,8 +161,10 @@ export class RectView extends CenterRotatableView {
     const pt1 = new Float64Array(n)
 
     for (let i = 0; i < n; i++) {
-      pt0[i] = coord[i] - side_length[i]/2
-      pt1[i] = coord[i] + side_length[i]/2
+      const coord_i = coord[i]
+      const half_side_length_i = side_length.get(i)/2
+      pt0[i] = coord_i - half_side_length_i
+      pt1[i] = coord_i + half_side_length_i
     }
 
     const spt0 = scale.v_compute(pt0)

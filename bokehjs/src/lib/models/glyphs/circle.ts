@@ -3,7 +3,7 @@ import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, Indices, FloatArray, ScreenArray, to_screen} from "core/types"
+import {Rect, Indices, ScreenArray, to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -16,8 +16,8 @@ import {Range1d} from "../ranges/range1d"
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   angle: p.Uniform<number>
 
-  _size: ScreenArray
-  _radius?: FloatArray
+  size: p.Uniform<number>
+  radius?: p.Uniform<number>
 
   sradius: ScreenArray
 
@@ -46,36 +46,38 @@ export class CircleView extends XYGlyphView {
   protected _map_data(): void {
     // XXX: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it.
-    if (this._radius != null) {
+    if (this.radius != null) {
       if (this.model.properties.radius.units == "data") {
         switch (this.model.radius_dimension) {
           case "x": {
-            this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
+            this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
             break
           }
           case "y": {
-            this.sradius = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = this.sdist(this.renderer.yscale, this._y, this.radius)
             break
           }
           case "max": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
             this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
             break
           }
           case "min": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
             this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
             break
           }
         }
       } else {
-        this.sradius = to_screen(this._radius)
+        this.sradius = to_screen(this.radius)
         this.max_size = 2*this.max_radius
       }
-    } else
-      this.sradius = map(this._size, (s) => s/2)
+    } else {
+      const ssize = new ScreenArray(this.size)
+      this.sradius = map(ssize, (s) => s/2)
+    }
   }
 
   protected _mask_data(): Indices {
@@ -86,7 +88,7 @@ export class CircleView extends XYGlyphView {
 
     let hr: Range1d
     let vr: Range1d
-    if (this._radius != null && this.model.properties.radius.units == "data") {
+    if (this.radius != null && this.model.properties.radius.units == "data") {
       hr = shr.map((x) => this.renderer.xscale.invert(x)).widen(this.max_radius)
       vr = svr.map((y) => this.renderer.yscale.invert(y)).widen(this.max_radius)
     } else {
@@ -135,7 +137,7 @@ export class CircleView extends XYGlyphView {
     const y = this.renderer.yscale.invert(sy)
 
     let x0, x1, y0, y1
-    if (this._radius != null && this.model.properties.radius.units == "data") {
+    if (this.radius != null && this.model.properties.radius.units == "data") {
       x0 = x - this.max_radius
       x1 = x + this.max_radius
 
@@ -154,7 +156,7 @@ export class CircleView extends XYGlyphView {
     const candidates = this.index.indices({x0, x1, y0, y1})
 
     const indices: number[] = []
-    if (this._radius != null && this.model.properties.radius.units == "data") {
+    if (this.radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
         const r2 = this.sradius[i]**2
         const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
@@ -187,7 +189,7 @@ export class CircleView extends XYGlyphView {
       let sx0, sx1
       y0 = bounds.y0
       y1 = bounds.y1
-      if (this._radius != null && this.model.properties.radius.units == "data") {
+      if (this.radius != null && this.model.properties.radius.units == "data") {
         sx0 = sx - this.max_radius
         sx1 = sx + this.max_radius
         ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
@@ -202,7 +204,7 @@ export class CircleView extends XYGlyphView {
       let sy0, sy1
       x0 = bounds.x0
       x1 = bounds.x1
-      if (this._radius != null && this.model.properties.radius.units == "data") {
+      if (this.radius != null && this.model.properties.radius.units == "data") {
         sy0 = sy - this.max_radius
         sy1 = sy + this.max_radius
         ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)

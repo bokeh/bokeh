@@ -2,7 +2,6 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {TextVector} from "core/property_mixins"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {font_metrics} from "core/util/text"
@@ -11,10 +10,10 @@ import {assert} from "core/util/assert"
 import {Selection} from "../selections/selection"
 
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
-  _text: string[]
+  text: p.Uniform<string>
   angle: p.Uniform<number>
-  _x_offset: ScreenArray
-  _y_offset: ScreenArray
+  x_offset: p.Uniform<number>
+  y_offset: p.Uniform<number>
 
   _sxs: number[][][]
   _sys: number[][][]
@@ -38,7 +37,7 @@ export class TextView extends XYGlyphView {
     return [xvals, yvals]
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _x_offset, _y_offset, angle, _text}: TextData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, x_offset, y_offset, angle, text}: TextData): void {
     this._sys = []
     this._sxs = []
     for (const i of indices) {
@@ -47,10 +46,10 @@ export class TextView extends XYGlyphView {
 
       const sx_i = sx[i]
       const sy_i = sy[i]
-      const x_offset_i = _x_offset[i]
-      const y_offset_i = _y_offset[i]
+      const x_offset_i = x_offset.get(i)
+      const y_offset_i = y_offset.get(i)
       const angle_i = angle.get(i)
-      const text_i = _text[i]
+      const text_i = text.get(i)
 
       if (isNaN(sx_i + sy_i + x_offset_i + y_offset_i + angle_i) || text_i == null)
         continue

@@ -1,8 +1,8 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Rect, FloatArray, ScreenArray, to_screen} from "core/types"
+import {Arrayable, Rect, ScreenArray, to_screen} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
-import {map, minmax} from "core/util/arrayable"
+import {minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
@@ -10,10 +10,10 @@ import {ImageLoader} from "core/util/image"
 export type CanvasImage = HTMLImageElement
 
 export type ImageURLData = XYGlyphData & {
-  _url: string[]
+  url: p.Uniform<string>
   angle: p.Uniform<number>
-  _w: FloatArray
-  _h: FloatArray
+  w: p.Uniform<number>
+  h: p.Uniform<number>
   _bounds_rect: Rect
 
   sw: ScreenArray
@@ -22,7 +22,7 @@ export type ImageURLData = XYGlyphData & {
   max_w: number
   max_h: number
 
-  image: (CanvasImage | null)[]
+  image: (CanvasImage | undefined)[]
 }
 
 export interface ImageURLView extends ImageURLData {}
@@ -47,22 +47,29 @@ export class ImageURLView extends XYGlyphView {
     }
   }
 
+  private _set_data_iteration: number = 0
+
   protected _set_data(): void {
-    if (this.image == null || this.image.length != this._url.length)
-      this.image = map(this._url, () => null)
+    // TODO: cache by url, to reuse images between iterations
+    this._set_data_iteration++
+
+    const n_urls = this.url.length
+    this.image = new Array(n_urls)
 
     const {retry_attempts, retry_timeout} = this.model
+    const {_set_data_iteration} = this
 
-    for (let i = 0, end = this._url.length; i < end; i++) {
-      const url = this._url[i]
-
-      if (url == null || url == "")
+    for (let i = 0; i < n_urls; i++) {
+      const url = this.url.get(i)
+      if (!url)
         continue
 
       new ImageLoader(url, {
         loaded: (image) => {
-          this.image[i] = image
-          this.renderer.request_render()
+          if (this._set_data_iteration == _set_data_iteration) {
+            this.image[i] = image
+            this.renderer.request_render()
+          }
         },
         attempts: retry_attempts + 1,
         timeout: retry_timeout,
@@ -126,14 +133,14 @@ export class ImageURLView extends XYGlyphView {
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {
       for (let i = 0; i < n; i++) {
-        [xs[i], xs[n + i]] = x0x1(this._x[i], this._w[i])
+        [xs[i], xs[n + i]] = x0x1(this._x[i], this.w.get(i))
       }
     } else
       xs.set(this._x, 0)
 
     if (h_data) {
       for (let i = 0; i < n; i++) {
-        [ys[i], ys[n + i]] = y0y1(this._y[i], this._h[i])
+        [ys[i], ys[n + i]] = y0y1(this._y[i], this.h.get(i))
       }
     } else
       ys.set(this._y, 0)
@@ -149,20 +156,15 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _map_data(): void {
-    // Better to check this.model.w and this.model.h for null since the set_data
-    // machinery will have converted this._w and this._w to lists of null
-    const ws = this.model.w != null ? this._w : map(this._x, () => NaN)
-    const hs = this.model.h != null ? this._h : map(this._x, () => NaN)
-
     if (this.model.properties.w.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, ws, "edge", this.model.dilate)
+      this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
     else
-      this.sw = to_screen(ws)
+      this.sw = to_screen(this.w)
 
     if (this.model.properties.h.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, hs, "edge", this.model.dilate)
+      this.sh = this.sdist(this.renderer.yscale, this._y, this.h, "edge", this.model.dilate)
     else
-      this.sh = to_screen(hs)
+      this.sh = to_screen(this.h)
   }
 
   protected _render(ctx: Context2d, indices: number[],
@@ -271,8 +273,8 @@ export namespace ImageURL {
     anchor: p.Property<Anchor>
     global_alpha: p.Property<number>
     angle: p.AngleSpec
-    w: p.DistanceSpec
-    h: p.DistanceSpec
+    w: p.NullDistanceSpec
+    h: p.NullDistanceSpec
     dilate: p.Property<boolean>
     retry_attempts: p.Property<number>
     retry_timeout: p.Property<number>
@@ -299,8 +301,8 @@ export class ImageURL extends XYGlyph {
       anchor:         [ Anchor, "top_left" ],
       global_alpha:   [ Alpha, 1.0 ],
       angle:          [ p.AngleSpec, 0 ],
-      w:              [ p.DistanceSpec, null ], // TODO: nullable
-      h:              [ p.DistanceSpec, null ], // TODO: nullable
+      w:              [ p.NullDistanceSpec, null ],
+      h:              [ p.NullDistanceSpec, null ],
       dilate:         [ Boolean, false ],
       retry_attempts: [ Int, 0 ],
       retry_timeout:  [ Int, 0 ],

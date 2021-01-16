@@ -2,12 +2,12 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, FloatArray, ScreenArray, to_screen} from "core/types"
+import {Rect, ScreenArray, to_screen} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
-  _length: FloatArray
+  length: p.Uniform<number>
   angle: p.Uniform<number>
 
   slength: ScreenArray
@@ -21,9 +21,9 @@ export class RayView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this._x, this._length)
+      this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
     else
-      this.slength = to_screen(this._length)
+      this.slength = to_screen(this.length)
 
     const {width, height} = this.renderer.plot_view.frame.bbox
     const inf_len = 2*(width + height)
