@@ -251,8 +251,8 @@ export class MarkerGL extends BaseGLGlyph {
     this.vbo_s.set_size(n)
     this.vbo_sx.set_data(0, this.glyph.sx)
     this.vbo_sy.set_data(0, this.glyph.sy)
-    if (this.glyph._angle != null) {
-      this.vbo_a.set_data(0, new Float32Array(this.glyph._angle))
+    if (this.glyph.angle != null) {
+      this.vbo_a.set_data(0, new Float32Array(this.glyph.angle)) // TODO: use attach_float()
     }
     if (this.glyph instanceof CircleView && this.glyph._radius != null)
       this.vbo_s.set_data(0, map(this.glyph.sradius, (s) => s*2))

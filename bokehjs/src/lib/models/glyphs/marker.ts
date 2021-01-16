@@ -12,7 +12,7 @@ import {Selection} from "../selections/selection"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
   _size: ScreenArray
-  _angle: ScreenArray
+  angle: p.Uniform<number>
 
   max_size: number
 }
@@ -25,12 +25,12 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, angle}: MarkerData): void {
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const size_i = _size[i]
-      const angle_i = _angle[i]
+      const angle_i = angle.get(i)
 
       if (isNaN(sx_i + sy_i + size_i + angle_i))
         continue
@@ -138,7 +138,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): any {
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
     // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const len = index + 1
 
@@ -149,10 +149,10 @@ export abstract class MarkerView extends XYGlyphView {
 
     const size: number[] = new Array(len)
     size[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4
-    const angle: number[] = new Array(len)
-    angle[index] = 0 // don't attempt to match glyph angle
 
-    return {sx, sy, _size: size, _angle: angle}
+    const angle = new p.UniformScalar(0, len) // don't attempt to match glyph angle
+
+    return {sx, sy, _size: size, angle} as any
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {

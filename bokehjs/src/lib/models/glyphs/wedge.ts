@@ -15,8 +15,8 @@ export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
   sradius: ScreenArray
   max_radius: number
 
-  _start_angle: ScreenArray
-  _end_angle: ScreenArray
+  start_angle: p.Uniform<number>
+  end_angle: p.Uniform<number>
 }
 
 export interface WedgeView extends WedgeData {}
@@ -32,15 +32,15 @@ export class WedgeView extends XYGlyphView {
       this.sradius = to_screen(this._radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, start_angle, end_angle}: WedgeData): void {
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sradius_i = sradius[i]
-      const start_angle_i = _start_angle[i]
-      const end_angle_i = _end_angle[i]
+      const start_angle_i = start_angle.get(i)
+      const end_angle_i = end_angle.get(i)
 
       if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
         continue
@@ -109,7 +109,7 @@ export class WedgeView extends XYGlyphView {
     for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
+      if (angle_between(-angle, -this.start_angle.get(i), -this.end_angle.get(i), anticlock)) {
         indices.push(i)
       }
     }
@@ -123,7 +123,7 @@ export class WedgeView extends XYGlyphView {
 
   scenterxy(i: number): [number, number] {
     const r = this.sradius[i] / 2
-    const a = (this._start_angle[i] + this._end_angle[i]) / 2
+    const a = (this.start_angle.get(i) + this.end_angle.get(i)) / 2
     const scx = this.sx[i] + r*Math.cos(a)
     const scy = this.sy[i] + r*Math.sin(a)
     return [scx, scy]

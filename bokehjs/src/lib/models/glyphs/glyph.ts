@@ -281,7 +281,7 @@ export abstract class GlyphView extends View {
 
       const name = prop.attr
 
-      if (prop instanceof p.ScalarSpec) {
+      if (prop instanceof p.ScalarSpec || prop instanceof p.AngleSpec) {
         const uniform = prop.uniform(source).select(indices)
         self[`${prop.attr}`] = uniform
       } else {

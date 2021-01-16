@@ -135,7 +135,7 @@ export class RangeToolView extends GestureToolView {
     const overlay = this.model.overlay
     const {left, right, top, bottom} = overlay
 
-    const tolerance = this.model.overlay.properties.line_width.value() + EDGE_TOLERANCE
+    const tolerance = this.model.overlay.line_width + EDGE_TOLERANCE
 
     if (xr != null && this.model.x_interaction) {
       if (is_near(ev.sx, left, xscale, tolerance))

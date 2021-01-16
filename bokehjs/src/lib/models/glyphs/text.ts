@@ -12,7 +12,7 @@ import {Selection} from "../selections/selection"
 
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   _text: string[]
-  _angle: ScreenArray
+  angle: p.Uniform<number>
   _x_offset: ScreenArray
   _y_offset: ScreenArray
 
@@ -38,20 +38,29 @@ export class TextView extends XYGlyphView {
     return [xvals, yvals]
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _x_offset, _y_offset, _angle, _text}: TextData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, _x_offset, _y_offset, angle, _text}: TextData): void {
     this._sys = []
     this._sxs = []
     for (const i of indices) {
-      this._sxs[i] = []
-      this._sys[i] = []
-      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || _text[i] == null)
+      const sxs_i: number[][] = this._sxs[i] = []
+      const sys_i: number[][] = this._sys[i] = []
+
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const x_offset_i = _x_offset[i]
+      const y_offset_i = _y_offset[i]
+      const angle_i = angle.get(i)
+      const text_i = _text[i]
+
+      if (isNaN(sx_i + sy_i + x_offset_i + y_offset_i + angle_i) || text_i == null)
         continue
+
       if (this.visuals.text.doit) {
-        const text = `${_text[i]}`
+        const text = `${text_i}`
 
         ctx.save()
-        ctx.translate(sx[i] + _x_offset[i], sy[i] + _y_offset[i])
-        ctx.rotate(_angle[i])
+        ctx.translate(sx_i + x_offset_i, sy_i + y_offset_i)
+        ctx.rotate(angle_i)
         this.visuals.text.set_vectorize(ctx, i)
 
         const font = this.visuals.text.font_value(i)
@@ -59,12 +68,12 @@ export class TextView extends XYGlyphView {
         const line_height = this.text_line_height.get(i)*height
         if (text.indexOf("\n") == -1) {
           ctx.fillText(text, 0, 0)
-          const x0 = sx[i] + _x_offset[i]
-          const y0 = sy[i] + _y_offset[i]
+          const x0 = sx_i + x_offset_i
+          const y0 = sy_i + y_offset_i
           const width = ctx.measureText(text).width
           const [xvalues, yvalues] = this._text_bounds(x0, y0, width, line_height)
-          this._sxs[i].push(xvalues)
-          this._sys[i].push(yvalues)
+          sxs_i.push(xvalues)
+          sys_i.push(yvalues)
         } else {
           const lines = text.split("\n")
           const block_height = line_height*lines.length
@@ -93,12 +102,12 @@ export class TextView extends XYGlyphView {
           for (const line of lines) {
             ctx.fillText(line, 0, y)
 
-            const x0 = sx[i] + _x_offset[i]
-            const y0 = y + sy[i] + _y_offset[i]
+            const x0 = sx_i + x_offset_i
+            const y0 = y + sy_i + y_offset_i
             const width = ctx.measureText(line).width
             const [xvalues, yvalues] = this._text_bounds(x0, y0, width, line_height)
-            this._sxs[i].push(xvalues)
-            this._sys[i].push(yvalues)
+            sxs_i.push(xvalues)
+            sys_i.push(yvalues)
 
             y += line_height
           }
@@ -118,7 +127,7 @@ export class TextView extends XYGlyphView {
       const sys = this._sys[i]
       const n = sxs.length
       for (let j = 0, endj = n; j < endj; j++) {
-        const [sxr, syr] = this._rotate_point(sx, sy, sxs[n-1][0], sys[n-1][0], -this._angle[i])
+        const [sxr, syr] = this._rotate_point(sx, sy, sxs[n-1][0], sys[n-1][0], -this.angle.get(i))
         if (hittest.point_in_poly(sxr, syr, sxs[j], sys[j])) {
           indices.push(i)
         }
@@ -136,7 +145,7 @@ export class TextView extends XYGlyphView {
     const sy0 = sys[0][0]
     const sxc = (sxs[0][2] + sx0) / 2
     const syc = (sys[0][2] + sy0) / 2
-    const [sxcr, sycr] = this._rotate_point(sxc, syc, sx0, sy0, this._angle[i])
+    const [sxcr, sycr] = this._rotate_point(sxc, syc, sx0, sy0, this.angle.get(i))
     return [sxcr, sycr]
   }
 }

@@ -50,7 +50,7 @@ export class RectView extends CenterRotatableView {
       this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, _angle}: RectData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, angle}: RectData): void {
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
@@ -58,7 +58,7 @@ export class RectView extends CenterRotatableView {
       const sy1_i = sy1[i]
       const sw_i = sw[i]
       const sh_i = sh[i]
-      const angle_i = _angle[i]
+      const angle_i = angle.get(i)
 
       if (isNaN(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
         continue
@@ -128,9 +128,10 @@ export class RectView extends CenterRotatableView {
 
     const indices = []
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      if (this._angle[i]) {
-        const s = Math.sin(-this._angle[i])
-        const c = Math.cos(-this._angle[i])
+      const angle_i = this.angle.get(i)
+      if (angle_i) {
+        const s = Math.sin(-angle_i)
+        const c = Math.cos(-angle_i)
         const px = c*(sx - this.sx[i]) - s*(sy - this.sy[i]) + this.sx[i]
         const py = s*(sx - this.sx[i]) + c*(sy - this.sy[i]) + this.sy[i]
         sx = px

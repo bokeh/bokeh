@@ -37,7 +37,7 @@ export abstract class DataAnnotationView extends AnnotationView {
       if (prop.can_skip)
         continue
 
-      if (visual_props.has(prop) || prop instanceof p.ScalarSpec) {
+      if (visual_props.has(prop) || prop instanceof p.ScalarSpec || prop instanceof p.AngleSpec) {
         const uniform = prop.uniform(source)
         self[`${prop.attr}`] = uniform
       } else {

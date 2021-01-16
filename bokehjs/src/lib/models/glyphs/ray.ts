@@ -8,7 +8,7 @@ import {Context2d} from "core/util/canvas"
 
 export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
   _length: FloatArray
-  _angle: ScreenArray
+  angle: p.Uniform<number>
 
   slength: ScreenArray
 }
@@ -35,12 +35,12 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, slength, _angle}: RayData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, slength, angle}: RayData): void {
     if (this.visuals.line.doit) {
       for (const i of indices) {
         const sx_i = sx[i]
         const sy_i = sy[i]
-        const angle_i = _angle[i]
+        const angle_i = angle.get(i)
         const slength_i = slength[i]
 
         if (isNaN(sx_i + sy_i + angle_i + slength_i))

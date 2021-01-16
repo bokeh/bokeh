@@ -42,12 +42,12 @@ export class ScatterView extends MarkerView {
     this._init_webgl()
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle, _marker}: ScatterData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, angle, _marker}: ScatterData): void {
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const size_i = _size[i]
-      const angle_i = _angle[i]
+      const angle_i = angle.get(i)
       const marker_i = _marker[i]
 
       if (isNaN(sx_i + sy_i + size_i + angle_i) || marker_i == null)
@@ -71,14 +71,14 @@ export class ScatterView extends MarkerView {
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    const args = this._get_legend_args({x0, x1, y0, y1}, index)
+    const args = this._get_legend_args({x0, x1, y0, y1}, index) as ScatterData
 
     const len = index + 1
     const marker: string[] = new Array(len)
     marker[index] = this._marker[index]
-    args._marker = marker
+    args._marker = marker as any
 
-    this._render(ctx, [index], args) // XXX
+    this._render(ctx, [index], args)
   }
 }
 

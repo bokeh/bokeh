@@ -12,8 +12,8 @@ export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
   sradius: ScreenArray
   max_radius: number
 
-  _start_angle: ScreenArray
-  _end_angle: ScreenArray
+  start_angle: p.Uniform<number>
+  end_angle: p.Uniform<number>
 }
 
 export interface ArcView extends ArcData {}
@@ -30,7 +30,7 @@ export class ArcView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, sradius, _start_angle, _end_angle}: ArcData): void {
+                    {sx, sy, sradius, start_angle, end_angle}: ArcData): void {
     if (this.visuals.line.doit) {
       const anticlock = this.model.direction == "anticlock"
 
@@ -38,8 +38,8 @@ export class ArcView extends XYGlyphView {
         const sx_i = sx[i]
         const sy_i = sy[i]
         const sradius_i = sradius[i]
-        const start_angle_i = _start_angle[i]
-        const end_angle_i = _end_angle[i]
+        const start_angle_i = start_angle.get(i)
+        const end_angle_i = end_angle.get(i)
 
         if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
           continue

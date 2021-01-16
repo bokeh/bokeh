@@ -19,7 +19,7 @@ export class LabelSetView extends TextAnnotationView {
   protected _x: FloatArray
   protected _y: FloatArray
   protected _text: string[]
-  protected _angle: ScreenArray
+  protected angle: p.Uniform<number>
   protected _x_offset: ScreenArray
   protected _y_offset: ScreenArray
 
@@ -83,7 +83,7 @@ export class LabelSetView extends TextAnnotationView {
     const [sx, sy] = this._map_data()
 
     for (let i = 0, end = this._text.length; i < end; i++) {
-      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i])
+      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this.angle.get(i))
     }
   }
 

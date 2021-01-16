@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, FloatArray, ScreenArray, RGBAArray, ColorArray, uint32} from "./types"
+import {Arrayable, FloatArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
@@ -178,7 +178,7 @@ export abstract class Property<T = unknown> {
 
   // ----- property accessors
 
-  value(do_spec_transform: boolean = true): any {
+  _value(do_spec_transform: boolean = true): any {
     if (!this.is_value)
       throw new Error("attempted to retrieve property value for property without value specification")
     let ret = this.normalize([this.spec.value])[0]
@@ -524,7 +524,7 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
     } else if (this.spec.expr != null) {
       array = this.normalize((this.spec.expr as VectorExpression<T>).v_compute(source))
     } else {
-      const value = this.value(false) // don't apply any spec transform
+      const value = this._value(false) // don't apply any spec transform
       if (isNumber(value)) {
         const values = new Float64Array(length)
         values.fill(value)
@@ -595,14 +595,20 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" }
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
-  normalize(values: Arrayable): Arrayable {
+  materialize(value: number): number {
     const coeff = -to_radians_coeff(this.units)
-    mul(values, coeff, values)
-    return super.normalize(values)
+    return value*coeff
   }
 
-  array(source: ColumnarDataSource): Float32Array {
-    return new ScreenArray(super.array(source))
+  v_materialize(values: Arrayable<number>): Float32Array {
+    const coeff = -to_radians_coeff(this.units)
+    const result = new Float32Array(values.length)
+    mul(values, coeff, result) // TODO: in-place?
+    return result
+  }
+
+  array(_source: ColumnarDataSource): Float32Array {
+    throw new Error("not supported")
   }
 }
 
@@ -630,10 +636,6 @@ export class NumberSpec extends DataSpec<number> {
 export class ColorSpec extends DataSpec<types.Color | null> {
   materialize(color: types.Color | null): uint32 {
     return encode_rgba(color2rgba(color))
-  }
-
-  vector(values: ColorArray): ColorUniformVector {
-    return new ColorUniformVector(values)
   }
 
   v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
@@ -695,6 +697,10 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     }
 
     throw new Error("invalid color array")
+  }
+
+  vector(values: ColorArray): ColorUniformVector {
+    return new ColorUniformVector(values)
   }
 }
 

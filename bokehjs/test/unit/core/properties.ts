@@ -358,13 +358,20 @@ describe("properties module", () => {
       it("should multiply radians by -1", () => {
         const obj = new Some({angle_spec: {value: 10, units: "rad"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-10, 0, 10, 20])).to.be.equal([10, -0, -10, -20])
+        expect(prop.materialize(-10)).to.be.equal(10)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(10)).to.be.equal(-10)
+        expect(prop.materialize(20)).to.be.equal(-20)
+        expect(prop.v_materialize([-10, 0, 10, 20])).to.be.equal(new Float32Array([10, -0, -10, -20]))
       })
 
       it("should convert degrees to -1 * radians", () => {
         const obj = new Some({angle_spec: {value: 10, units: "deg"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-180, 0, 180])).to.be.equal([Math.PI, -0, -Math.PI])
+        expect(prop.materialize(-180)).to.be.equal(Math.PI)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(180)).to.be.equal(-Math.PI)
+        expect(prop.v_materialize([-180, 0, 180])).to.be.equal(new Float32Array([Math.PI, -0, -Math.PI]))
       })
     })
   })

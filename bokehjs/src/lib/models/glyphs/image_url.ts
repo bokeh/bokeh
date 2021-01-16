@@ -11,7 +11,7 @@ export type CanvasImage = HTMLImageElement
 
 export type ImageURLData = XYGlyphData & {
   _url: string[]
-  _angle: ScreenArray
+  angle: p.Uniform<number>
   _w: FloatArray
   _h: FloatArray
   _bounds_rect: Rect
@@ -166,7 +166,7 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[],
-                    {image, sx, sy, sw, sh, _angle}: ImageURLData): void {
+                    {image, sx, sy, sw, sh, angle}: ImageURLData): void {
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
@@ -179,7 +179,7 @@ export class ImageURLView extends XYGlyphView {
     let finished = true
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _angle[i]))
+      if (isNaN(sx[i] + sy[i] + angle.get(i)))
         continue
 
       const img = image[i]
@@ -189,7 +189,7 @@ export class ImageURLView extends XYGlyphView {
         continue
       }
 
-      this._render_image(ctx, i, img, sx, sy, sw, sh, _angle)
+      this._render_image(ctx, i, img, sx, sy, sw, sh, angle)
     }
 
     if (finished && !this._images_rendered) {
@@ -220,35 +220,40 @@ export class ImageURLView extends XYGlyphView {
   protected _render_image(ctx: Context2d, i: number, image: CanvasImage,
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
-                          angle: Arrayable<number>): void {
+                          angle: p.Uniform<number>): void {
     if (isNaN(sw[i])) sw[i] = image.width
     if (isNaN(sh[i])) sh[i] = image.height
 
+    const sw_i = sw[i]
+    const sh_i = sh[i]
+
     const {anchor} = this.model
-    const [sxi, syi] = this._final_sx_sy(anchor, sx[i], sy[i], sw[i], sh[i])
+    const [sx_i, sy_i] = this._final_sx_sy(anchor, sx[i], sy[i], sw_i, sh_i)
+
+    const angle_i = angle.get(i)
 
     ctx.save()
     ctx.globalAlpha = this.model.global_alpha
-    const sw2 = sw[i]/2
-    const sh2 = sh[i]/2
+    const sw2 = sw_i/2
+    const sh2 = sh_i/2
 
-    if (angle[i]) {
-      ctx.translate(sxi, syi)
+    if (angle_i) {
+      ctx.translate(sx_i, sy_i)
 
       //rotation about center of image
       ctx.translate(sw2, sh2)
-      ctx.rotate(angle[i])
+      ctx.rotate(angle_i)
       ctx.translate(-sw2, -sh2)
 
-      ctx.drawImage(image, 0, 0, sw[i], sh[i])
+      ctx.drawImage(image, 0, 0, sw_i, sh_i)
 
       ctx.translate(sw2, sh2)
-      ctx.rotate(-angle[i])
+      ctx.rotate(-angle_i)
       ctx.translate(-sw2, -sh2)
 
-      ctx.translate(-sxi, -syi)
+      ctx.translate(-sx_i, -sy_i)
     } else
-      ctx.drawImage(image, sxi, syi, sw[i], sh[i])
+      ctx.drawImage(image, sx_i, sy_i, sw_i, sh_i)
 
     ctx.restore()
   }

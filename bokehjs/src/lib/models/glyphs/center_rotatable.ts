@@ -5,7 +5,7 @@ import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
 export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mixins> & {
-  _angle: ScreenArray
+  angle: p.Uniform<number>
 
   _width: FloatArray
   _height: FloatArray

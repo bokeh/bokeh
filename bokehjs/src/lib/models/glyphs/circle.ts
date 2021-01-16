@@ -14,7 +14,7 @@ import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
-  _angle: ScreenArray
+  angle: p.Uniform<number>
 
   _size: ScreenArray
   _radius?: FloatArray

@@ -26,13 +26,13 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       this.sh = to_screen(this._height)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, angle}: EllipseOvalData): void {
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sw_i = sw[i]
       const sh_i = sh[i]
-      const angle_i = _angle[i]
+      const angle_i = angle.get(i)
 
       if (isNaN(sx_i + sy_i + sw_i + sh_i + angle_i))
         continue
@@ -86,7 +86,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     const indices: number[] = []
 
     for (const i of candidates) {
-      cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
+      cond = hittest.point_in_ellipse(sx, sy, this.angle.get(i), this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
         indices.push(i)
       }
