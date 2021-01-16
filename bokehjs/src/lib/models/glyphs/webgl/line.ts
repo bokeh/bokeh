@@ -4,6 +4,7 @@ import vertex_shader from "./line.vert"
 import fragment_shader from "./line.frag"
 import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
+import {resolve_line_dash} from "core/visuals/line"
 
 class DashAtlas {
   protected readonly _atlas: Map<string, [number, number]> = new Map()
@@ -254,7 +255,7 @@ export class LineGL extends BaseGLGlyph {
     this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-    const dash_pattern = line_dash.value
+    const dash_pattern = resolve_line_dash(line_dash.value)
     let dash_index = 0
     let dash_period = 1
     if (dash_pattern.length) {

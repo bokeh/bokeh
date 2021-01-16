@@ -1,6 +1,6 @@
 import * as p from "./properties"
 import {Color} from "./types"
-import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
 import {Texture} from "models/textures/texture"
 import {keys} from "./util/object"
@@ -16,7 +16,7 @@ export type Line = {
   line_width: p.Property<number>
   line_join: p.Property<LineJoin>
   line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
+  line_dash: p.Property<LineDash | number[]>
   line_dash_offset: p.Property<number>
 }
 
@@ -51,7 +51,7 @@ export const Line: p.DefineOf<Line> = {
   line_width:       [ k.Number, 1 ],
   line_join:        [ LineJoin, "bevel"],
   line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Array(k.Number), [] ],
+  line_dash:        [ k.Or(LineDash, k.Array(k.Number)), [] ],
   line_dash_offset: [ k.Number, 0 ],
 }
 
@@ -88,7 +88,7 @@ export type LineScalar = {
   line_width: p.ScalarSpec<number>
   line_join: p.ScalarSpec<LineJoin>
   line_cap: p.ScalarSpec<LineCap>
-  line_dash: p.ScalarSpec<number[]>
+  line_dash: p.ScalarSpec<LineDash | number[]>
   line_dash_offset: p.ScalarSpec<number>
 }
 
@@ -160,7 +160,7 @@ export type LineVector = {
   line_width: p.VectorSpec<number>
   line_join: p.VectorSpec<LineJoin>
   line_cap: p.VectorSpec<LineCap>
-  line_dash: p.VectorSpec<number[]>
+  line_dash: p.VectorSpec<LineDash | number[]>
   line_dash_offset: p.VectorSpec<number>
 }
 

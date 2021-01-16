@@ -462,7 +462,7 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       p.circle(x, y, {legend: "foo"}) // TODO: legend_item
-      r.glyph.line_dash = [2, 4] // TODO: "dotted"
+      r.glyph.line_dash = "dotted"
       r.glyph.line_color = "black"
       p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend: "bar"}) // TODO: legend_item
       p.legend.background_fill_color = "blue"
