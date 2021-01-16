@@ -68,7 +68,7 @@ export class TextView extends XYGlyphView {
         } else {
           const lines = text.split("\n")
           const block_height = line_height*lines.length
-          const baseline = this.model.text_baseline
+          const baseline = this.text_baseline.get(i)
 
           let y: number
           switch (baseline) {
