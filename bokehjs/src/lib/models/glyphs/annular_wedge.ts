@@ -16,7 +16,6 @@ export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> &
 
   _start_angle: ScreenArray
   _end_angle: ScreenArray
-  _angle: ScreenArray
 
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
@@ -41,16 +40,10 @@ export class AnnularWedgeView extends XYGlyphView {
       this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius)
     else
       this.souter_radius = to_screen(this._outer_radius)
-
-    this._angle = new ScreenArray(this._start_angle.length)
-
-    for (let i = 0, end = this._start_angle.length; i < end; i++) {
-      this._angle[i] = this._end_angle[i] - this._start_angle[i]
-    }
   }
 
   protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
+                    {sx, sy, _start_angle, _end_angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
@@ -59,10 +52,12 @@ export class AnnularWedgeView extends XYGlyphView {
       const sinner_radius_i = sinner_radius[i]
       const souter_radius_i = souter_radius[i]
       const start_angle_i = _start_angle[i]
-      const angle_i = _angle[i]
+      const end_angle_i = _end_angle[i]
 
-      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + angle_i))
+      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
         continue
+
+      const angle_i = end_angle_i - start_angle_i
 
       ctx.translate(sx_i, sy_i)
       ctx.rotate(start_angle_i)
