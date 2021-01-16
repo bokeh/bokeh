@@ -1,21 +1,13 @@
 import {VisualProperties, VisualUniforms} from "./visual"
-import {Color, uint32} from "../types"
+import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {FontStyle, TextAlign, TextBaseline} from "../enums"
 import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 
+export interface Text extends Readonly<mixins.Text> {}
 export class Text extends VisualProperties {
-  readonly text_font:        p.Property<string>
-  readonly text_font_size:   p.Property<string>
-  readonly text_font_style:  p.Property<FontStyle>
-  readonly text_color:       p.Property<Color | null>
-  readonly text_alpha:       p.Property<number>
-  readonly text_align:       p.Property<TextAlign>
-  readonly text_baseline:    p.Property<TextBaseline>
-  readonly text_line_height: p.Property<number>
-
   get doit(): boolean {
     const color = this.text_color.get_value()
     const alpha = this.text_alpha.get_value()

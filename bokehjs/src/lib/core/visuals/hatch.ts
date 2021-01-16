@@ -6,16 +6,9 @@ import * as mixins from "../property_mixins"
 import {HatchPattern} from "../property_mixins"
 import {Context2d, CanvasPatternRepetition} from "../util/canvas"
 
+export interface Hatch extends Readonly<mixins.Hatch> {}
 export class Hatch extends VisualProperties {
-  readonly hatch_color: p.Property<Color | null>
-  readonly hatch_alpha: p.Property<number>
-  readonly hatch_scale: p.Property<number>
-  readonly hatch_pattern: p.Property<string>
-  readonly hatch_weight: p.Property<number>
-  readonly hatch_extra: p.Property<mixins.HatchExtra>
-
   protected _hatch_image: CanvasImageSource | null
-
   protected _update_iteration: number = 0
 
   update(): void {
@@ -28,7 +21,7 @@ export class Hatch extends VisualProperties {
     const color = this.hatch_color.get_value()!
     const alpha = this.hatch_alpha.get_value()
     const scale = this.hatch_scale.get_value()
-    const pattern = this.hatch_pattern.get_value()
+    const pattern = this.hatch_pattern.get_value()!
     const weight = this.hatch_weight.get_value()
 
     const finalize = (image: CanvasImageSource) => {
@@ -79,7 +72,7 @@ export class Hatch extends VisualProperties {
   }
 
   repetition(): CanvasPatternRepetition {
-    const pattern = this.hatch_pattern.get_value()
+    const pattern = this.hatch_pattern.get_value()!
     const texture = this.hatch_extra.get_value()[pattern]
     if (texture == null)
       return "repeat"

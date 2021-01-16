@@ -1,14 +1,12 @@
 import {VisualProperties, VisualUniforms} from "./visual"
-import {Color, uint32} from "../types"
+import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {color2css} from "../util/color"
 import {Context2d} from "../util/canvas"
 
+export interface Fill extends Readonly<mixins.Fill> {}
 export class Fill extends VisualProperties {
-  readonly fill_color: p.Property<Color | null>
-  readonly fill_alpha: p.Property<number>
-
   get doit(): boolean {
     const color = this.fill_color.get_value()
     const alpha = this.fill_alpha.get_value()

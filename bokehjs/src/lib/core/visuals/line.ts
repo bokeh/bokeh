@@ -1,5 +1,5 @@
 import {VisualProperties, VisualUniforms} from "./visual"
-import {Color, uint32} from "../types"
+import {uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {LineJoin, LineCap, LineDash} from "../enums"
@@ -23,15 +23,8 @@ export function resolve_line_dash(line_dash: LineDash | string | number[]): numb
   }
 }
 
+export interface Line extends Readonly<mixins.Line> {}
 export class Line extends VisualProperties {
-  readonly line_color:       p.Property<Color | null>
-  readonly line_alpha:       p.Property<number>
-  readonly line_width:       p.Property<number>
-  readonly line_join:        p.Property<LineJoin>
-  readonly line_cap:         p.Property<LineCap>
-  readonly line_dash:        p.Property<LineDash | number[]>
-  readonly line_dash_offset: p.Property<number>
-
   get doit(): boolean {
     const color = this.line_color.get_value()
     const alpha = this.line_alpha.get_value()
