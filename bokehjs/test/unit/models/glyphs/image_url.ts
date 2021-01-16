@@ -2,7 +2,8 @@ import {expect} from "assertions"
 
 import {create_glyph_view} from "./_util"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
-import {ScreenArray} from '@bokehjs/core/types'
+import {ColumnDataSource} from "@bokehjs/models/sources"
+import {ScreenArray, Indices} from '@bokehjs/core/types'
 
 describe("ImageURL module", () => {
 
@@ -33,6 +34,10 @@ describe("ImageURL module", () => {
       image_url.url = "image.jpg"
 
       const image_url_view = await create_glyph_view(image_url)
+      const indices = Indices.all_set(1)
+      const source = new ColumnDataSource()
+      image_url_view.set_data(source, indices)
+      image_url_view.set_visuals(source, indices)
 
       // TODO await
       const image = image_url_view.image[0]
@@ -50,6 +55,10 @@ describe("ImageURL module", () => {
       image_url.h = 19
 
       const image_url_view = await create_glyph_view(image_url)
+      const indices = Indices.all_set(1)
+      const source = new ColumnDataSource()
+      image_url_view.set_data(source, indices)
+      image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([34]))
@@ -68,6 +77,10 @@ describe("ImageURL module", () => {
       image_url.properties.h.units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
+      const indices = Indices.all_set(1)
+      const source = new ColumnDataSource()
+      image_url_view.set_data(source, indices)
+      image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([1]))
@@ -84,10 +97,14 @@ describe("ImageURL module", () => {
       image_url.h = null as any // XXX
 
       const image_url_view = await create_glyph_view(image_url)
+      const indices = Indices.all_set(1)
+      const source = new ColumnDataSource()
+      image_url_view.set_data(source, indices)
+      image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
-      expect(image_url_view.sw).to.be.equal(ScreenArray.of(NaN))
-      expect(image_url_view.sh).to.be.equal(ScreenArray.of(NaN))
+      expect(image_url_view.sw).to.be.equal(new ScreenArray([NaN]))
+      expect(image_url_view.sh).to.be.equal(new ScreenArray([NaN]))
     })
 
     it("`_map_data` should map data to NaN if w and h are null, 'screen' units", async () => {
@@ -101,6 +118,10 @@ describe("ImageURL module", () => {
       image_url.properties.h.units = "screen"
 
       const image_url_view = await create_glyph_view(image_url)
+      const indices = Indices.all_set(1)
+      const source = new ColumnDataSource()
+      image_url_view.set_data(source, indices)
+      image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([NaN]))

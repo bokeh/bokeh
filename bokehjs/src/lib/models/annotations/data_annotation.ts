@@ -22,13 +22,6 @@ export abstract class DataAnnotationView extends AnnotationView {
   }
 
   set_data(source: ColumnarDataSource): void {
-    const {visuals} = this
-    const visual_props = new Set((function* () {
-      for (const visual of visuals) {
-        yield* visual
-      }
-    })())
-
     const self = this as any
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
@@ -37,12 +30,12 @@ export abstract class DataAnnotationView extends AnnotationView {
       if (prop.can_skip)
         continue
 
-      if (visual_props.has(prop) || prop instanceof p.ScalarSpec || prop instanceof p.AngleSpec) {
-        const uniform = prop.uniform(source)
-        self[`${prop.attr}`] = uniform
-      } else {
+      if (prop instanceof p.BaseCoordinateSpec) {
         const array = prop.array(source)
         self[`_${prop.attr}`] = array
+      } else {
+        const uniform = prop.uniform(source)
+        self[`${prop.attr}`] = uniform
       }
     }
 

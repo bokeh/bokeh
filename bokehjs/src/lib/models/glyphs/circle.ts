@@ -14,15 +14,15 @@ import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
-  angle: p.Uniform<number>
+  readonly angle: p.Uniform<number>
 
-  size: p.Uniform<number>
-  radius?: p.Uniform<number>
+  readonly size: p.Uniform<number>
+  readonly radius?: p.Uniform<number>
 
   sradius: ScreenArray
 
-  max_size: number
-  max_radius: number
+  readonly max_size: number
+  readonly max_radius: number
 }
 
 export interface CircleView extends CircleData {}
@@ -72,7 +72,7 @@ export class CircleView extends XYGlyphView {
         }
       } else {
         this.sradius = to_screen(this.radius)
-        this.max_size = 2*this.max_radius
+        this._configure("max_size", {value: 2*this.max_radius})
       }
     } else {
       const ssize = new ScreenArray(this.size)

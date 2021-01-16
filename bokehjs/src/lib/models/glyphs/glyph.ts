@@ -9,6 +9,7 @@ import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
+import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map, max} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
@@ -229,27 +230,29 @@ export abstract class GlyphView extends View {
       this.base = base
   }
 
+  protected _configure(prop: string | p.Property<unknown>, descriptor: PropertyDescriptor): void {
+    Object.defineProperty(this, isString(prop) ? prop : prop.attr, {
+      configurable: true,
+      enumerable: true,
+      ...descriptor,
+    })
+  }
+
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null) {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          Object.defineProperty(this, `${prop.attr}`, {
+          this._configure(prop, {
             get() { return (base as any)[`${prop.attr}`] },
-            configurable: true,
-            enumerable: true,
           })
           continue
         }
       }
 
       const uniform = prop.uniform(source).select(indices)
-      Object.defineProperty(this, `${prop.attr}`, {
-        get() { return uniform },
-        configurable: true,
-        enumerable: true,
-      })
+      this._configure(prop, {value: uniform})
     }
 
     for (const visual of this.visuals) {
@@ -261,54 +264,51 @@ export abstract class GlyphView extends View {
 
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
     const {x_range, y_range} = this.renderer.coordinates
+    const visual_props = new Set(this._iter_visuals())
 
     this._data_size = indices.count
-
-    const visual_props = new Set(this._iter_visuals())
-    const self = this as any
 
     for (const prop of this.model) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
-      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
-        continue
-
       if (prop.can_skip)
         continue
 
-      const name = prop.attr
+      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
+        continue
 
-      if (prop instanceof p.ScalarSpec || prop instanceof p.AngleSpec) {
-        const uniform = prop.uniform(source).select(indices)
-        self[`${prop.attr}`] = uniform
-      } else {
+      if (prop instanceof p.BaseCoordinateSpec) {
         const base_array = prop.array(source)
         let array = indices.select(base_array)
 
-        let final_array: Arrayable<unknown> | RaggedArray<FloatArray> = array
-        if (prop instanceof p.BaseCoordinateSpec) {
-          const range = prop.dimension == "x" ? x_range : y_range
-          if (range instanceof FactorRange) {
-            if (prop instanceof p.CoordinateSpec) {
-              array = range.v_synthetic(array as Arrayable<number | Factor>)
-            } else if (prop instanceof p.CoordinateSeqSpec) {
-              for (let i = 0; i < array.length; i++) {
-                array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
-              }
+        const range = prop.dimension == "x" ? x_range : y_range
+        if (range instanceof FactorRange) {
+          if (prop instanceof p.CoordinateSpec) {
+            array = range.v_synthetic(array as Arrayable<number | Factor>)
+          } else if (prop instanceof p.CoordinateSeqSpec) {
+            for (let i = 0; i < array.length; i++) {
+              array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
             }
           }
-
-          if (prop instanceof p.CoordinateSeqSpec) {
-            // TODO: infer precision
-            final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
-          } else
-            final_array = array
-        } else if (prop instanceof p.DistanceSpec) {
-          self[`max_${name}`] = max(array as Arrayable<number>)
         }
 
-        self[`_${name}`] = final_array
+        let final_array: Arrayable<unknown> | RaggedArray<FloatArray>
+        if (prop instanceof p.CoordinateSeqSpec) {
+          // TODO: infer precision
+          final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
+        } else
+          final_array = array
+
+        this._configure(`_${prop.attr}`, {value: final_array})
+      } else {
+        const uniform = prop.uniform(source).select(indices)
+        this._configure(prop, {value: uniform})
+
+        if (prop instanceof p.DistanceSpec) {
+          const max_value = uniform.is_Scalar() ? uniform.value : max((uniform as any).array)
+          this._configure(`max_${prop.attr}`, {value: max_value})
+        }
       }
     }
 

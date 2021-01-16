@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, FloatArray, RGBAArray, ColorArray, uint32} from "./types"
+import {Arrayable, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
@@ -628,12 +628,20 @@ export class ScreenDistanceSpec extends DistanceSpec {
 }
 
 export class BooleanSpec extends DataSpec<boolean> {
+  v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
+    return new Uint8Array(values as any) as any
+  }
+
   array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
 
 export class NumberSpec extends DataSpec<number> {
+  v_materialize(values: Arrayable<number>): TypedArray {
+    return isTypedArray(values) ? values : new Float64Array(values)
+  }
+
   array(source: ColumnarDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }

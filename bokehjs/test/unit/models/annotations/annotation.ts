@@ -3,7 +3,6 @@ import {expect} from "assertions"
 import {DataAnnotation, DataAnnotationView} from "@bokehjs/models/annotations/data_annotation"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Arrayable} from "@bokehjs/core/types"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {build_view} from "@bokehjs/core/build_views"
 import * as p from "@bokehjs/core/properties"
@@ -12,7 +11,7 @@ class SubclassWithNumberSpecView extends DataAnnotationView {
   model: SubclassWithNumberSpec
   map_data(): void {}
   paint(): void {}
-  _foo: Arrayable<number>
+  foo: p.Uniform<number>
 }
 namespace SubclassWithNumberSpec {
   export type Attrs = p.AttrsOf<Props>
@@ -44,7 +43,7 @@ class SubclassWithDistanceSpecView extends DataAnnotationView {
   model: SubclassWithDistanceSpec
   map_data(): void {}
   paint(): void {}
-  _foo: Arrayable<number>
+  foo: p.Uniform<number>
 }
 namespace SubclassWithDistanceSpec {
   export type Attrs = p.AttrsOf<Props>
@@ -76,8 +75,8 @@ class SubclassWithOptionalSpecView extends DataAnnotationView {
   model: SubclassWithOptionalSpec
   map_data(): void {}
   paint(): void {}
-  _foo: Arrayable<number>
-  _baz: Arrayable<number>
+  foo: p.Uniform<number>
+  baz: p.Uniform<number>
 }
 namespace SubclassWithOptionalSpec {
   export type Attrs = p.AttrsOf<Props>
@@ -118,7 +117,7 @@ describe("AnnotationView", () => {
       const obj = new SubclassWithNumberSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view._foo).to.be.equal(new Float64Array([1, 2, 3, 4]))
+      expect(view.foo).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
     })
 
     it("should collect shapes when they are present", async () => {
@@ -127,7 +126,7 @@ describe("AnnotationView", () => {
       const obj = new SubclassWithNumberSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view._foo).to.be.equal(ndarray([1, 2, 3, 4], {shape: [2, 2]}))
+      expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {shape: [2, 2]})))
     })
 
     it("should collect ignore optional specs with null values", async () => {
@@ -135,7 +134,7 @@ describe("AnnotationView", () => {
       const obj = new SubclassWithOptionalSpec()
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
-      expect(view._baz).to.be.equal(new Float64Array([1, 2, 3, 4]))
+      expect(view.baz).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
     })
   })
 })
