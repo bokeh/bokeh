@@ -1,7 +1,6 @@
 from bokeh.core.properties import AngleSpec, Include, NumberSpec
-from bokeh.core.property_mixins import FillProps, LineProps
+from bokeh.core.property_mixins import FillProps, LineProps, HatchProps
 from bokeh.models import Glyph
-
 
 class Gear(Glyph):
     """ Render gears.
@@ -13,7 +12,7 @@ class Gear(Glyph):
     .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
     """
 
-    __implementation__ = "gear.ts"
+    __view_module__ = "gears"
 
     x = NumberSpec(help="""
     The x-coordinates of the center of the gears.
@@ -61,5 +60,9 @@ class Gear(Glyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the gears.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the gears.
     """)
