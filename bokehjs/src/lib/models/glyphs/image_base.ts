@@ -12,9 +12,9 @@ import {assert} from "core/util/assert"
 export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
-  image: p.Uniform<NDArray | number[][]>
-  dw: p.Uniform<number>
-  dh: p.Uniform<number>
+  readonly image: p.Uniform<NDArray | number[][]>
+  readonly dw: p.Uniform<number>
+  readonly dh: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray

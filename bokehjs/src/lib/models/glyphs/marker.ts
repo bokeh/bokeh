@@ -11,10 +11,10 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
-  size: p.Uniform<number>
-  angle: p.Uniform<number>
+  readonly size: p.Uniform<number>
+  readonly angle: p.Uniform<number>
 
-  max_size: number
+  readonly max_size: number
 }
 
 export interface MarkerView extends MarkerData {}

@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export type VBarData = BoxData & {
   _x: FloatArray
   _bottom: FloatArray
-  width: p.Uniform<number>
+  readonly width: p.Uniform<number>
   _top: FloatArray
 
   sx: ScreenArray
@@ -15,7 +15,7 @@ export type VBarData = BoxData & {
   sleft: ScreenArray
   sright: ScreenArray
 
-  max_width: number
+  readonly max_width: number
 }
 
 export interface VBarView extends VBarData {}

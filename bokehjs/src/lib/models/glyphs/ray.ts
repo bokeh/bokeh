@@ -7,8 +7,8 @@ import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
-  length: p.Uniform<number>
-  angle: p.Uniform<number>
+  readonly length: p.Uniform<number>
+  readonly angle: p.Uniform<number>
 
   slength: ScreenArray
 }

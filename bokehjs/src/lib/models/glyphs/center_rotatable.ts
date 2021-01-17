@@ -5,16 +5,16 @@ import {ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
 export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mixins> & {
-  angle: p.Uniform<number>
+  readonly angle: p.Uniform<number>
 
-  width: p.Uniform<number>
-  height: p.Uniform<number>
+  readonly width: p.Uniform<number>
+  readonly height: p.Uniform<number>
 
   sw: ScreenArray
   sh: ScreenArray
 
-  max_width: number
-  max_height: number
+  readonly max_width: number
+  readonly max_height: number
 }
 
 export interface CenterRotatableView extends CenterRotatableData {}

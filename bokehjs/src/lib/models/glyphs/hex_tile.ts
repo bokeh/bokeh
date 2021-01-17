@@ -17,13 +17,13 @@ import {Selection} from "../selections/selection"
 export type Vertices = [number, number, number, number, number, number]
 
 export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
-  q: p.Uniform<number>
-  r: p.Uniform<number>
+  readonly q: p.Uniform<number>
+  readonly r: p.Uniform<number>
 
   _x: FloatArray
   _y: FloatArray
 
-  scale: p.Uniform<number>
+  readonly scale: p.Uniform<number>
 
   sx: ScreenArray
   sy: ScreenArray

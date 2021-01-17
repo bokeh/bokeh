@@ -10,17 +10,17 @@ import {ImageLoader} from "core/util/image"
 export type CanvasImage = HTMLImageElement
 
 export type ImageURLData = XYGlyphData & {
-  url: p.Uniform<string>
-  angle: p.Uniform<number>
-  w: p.Uniform<number>
-  h: p.Uniform<number>
+  readonly url: p.Uniform<string>
+  readonly angle: p.Uniform<number>
+  readonly w: p.Uniform<number>
+  readonly h: p.Uniform<number>
   _bounds_rect: Rect
 
   sw: ScreenArray
   sh: ScreenArray
 
-  max_w: number
-  max_h: number
+  readonly max_w: number
+  readonly max_h: number
 
   image: (CanvasImage | undefined)[]
 }

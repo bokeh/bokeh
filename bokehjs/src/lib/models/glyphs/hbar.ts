@@ -5,7 +5,7 @@ import * as p from "core/properties"
 export type HBarData = BoxData & {
   _left: FloatArray
   _y: FloatArray
-  height: p.Uniform<number>
+  readonly height: p.Uniform<number>
   _right: FloatArray
 
   sy: ScreenArray
@@ -15,7 +15,7 @@ export type HBarData = BoxData & {
   stop: ScreenArray
   sbottom: ScreenArray
 
-  max_height: number
+  readonly max_height: number
 }
 
 export interface HBarView extends HBarData {}

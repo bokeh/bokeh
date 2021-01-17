@@ -9,14 +9,14 @@ import {is_ie} from "core/util/platform"
 import {Selection} from "../selections/selection"
 
 export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
-  inner_radius: p.Uniform<number>
-  outer_radius: p.Uniform<number>
+  readonly inner_radius: p.Uniform<number>
+  readonly outer_radius: p.Uniform<number>
 
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
 
-  max_inner_radius: number
-  max_outer_radius: number
+  readonly max_inner_radius: number
+  readonly max_outer_radius: number
 }
 
 export interface AnnulusView extends AnnulusData {}

@@ -11,12 +11,12 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
-  radius: p.Uniform<number>
+  readonly radius: p.Uniform<number>
   sradius: ScreenArray
-  max_radius: number
+  readonly max_radius: number
 
-  start_angle: p.Uniform<number>
-  end_angle: p.Uniform<number>
+  readonly start_angle: p.Uniform<number>
+  readonly end_angle: p.Uniform<number>
 }
 
 export interface WedgeView extends WedgeData {}

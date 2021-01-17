@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export type ScatterData = MarkerData & {
-  marker: p.Uniform<MarkerType>
+  readonly marker: p.Uniform<MarkerType>
 }
 
 export interface ScatterView extends ScatterData {}
@@ -71,11 +71,13 @@ export class ScatterView extends MarkerView {
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    const args = this._get_legend_args({x0, x1, y0, y1}, index) as ScatterData
-
     const n = index + 1
     const marker = this.marker.get(index)
-    args.marker = new p.UniformScalar(marker, n)
+
+    const args = {
+      ...this._get_legend_args({x0, x1, y0, y1}, index),
+      marker: new p.UniformScalar(marker, n),
+    }
 
     this._render(ctx, [index], args)
   }

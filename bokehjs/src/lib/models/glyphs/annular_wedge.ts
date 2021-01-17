@@ -11,17 +11,17 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
 export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
-  inner_radius: p.Uniform<number>
-  outer_radius: p.Uniform<number>
+  readonly inner_radius: p.Uniform<number>
+  readonly outer_radius: p.Uniform<number>
 
-  start_angle: p.Uniform<number>
-  end_angle: p.Uniform<number>
+  readonly start_angle: p.Uniform<number>
+  readonly end_angle: p.Uniform<number>
 
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
 
-  max_inner_radius: number
-  max_outer_radius: number
+  readonly max_inner_radius: number
+  readonly max_outer_radius: number
 }
 
 export interface AnnularWedgeView extends AnnularWedgeData {}
