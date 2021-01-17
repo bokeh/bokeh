@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import types
 from copy import copy
+from typing import Any, Type, Union
 
 # External imports
 import numpy as np
@@ -321,7 +322,8 @@ class Property(PropertyDescriptorFactory):
         """
         return value
 
-    def prepare_value(self, obj_or_cls, name, value):
+    def prepare_value(self, owner: Union[HasProps, Type[HasProps]], name: str, value: Any):
+        error = None
         try:
             if validation_on():
                 self.validate(value)
@@ -331,12 +333,16 @@ class Property(PropertyDescriptorFactory):
                     value = converter(value)
                     break
             else:
-                raise e
-        else:
-            value = self.transform(value)
+                error = e
 
-        if isinstance(obj_or_cls, HasProps):
-            obj = obj_or_cls
+        if error is None:
+            value = self.transform(value)
+        else:
+            obj_repr = str(owner) if isinstance(owner, HasProps) else owner.__qualified_model__
+            raise ValueError(f"failed to validate {obj_repr}.{name}: {str(error)}")
+
+        if isinstance(owner, HasProps):
+            obj = owner
 
             for fn, msg_or_fn in self.assertions:
                 if isinstance(fn, bool):
