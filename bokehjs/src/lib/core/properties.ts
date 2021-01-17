@@ -371,8 +371,11 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   __scalar__: S
 
   get_value(): S {
+    // XXX: denormalize value for serialization, because bokeh doens't support scalar properties
+    const {value, expr, transform} = this.spec
+    return (expr != null || transform != null ? this.spec : value) as any
     // XXX: allow obj.x = null; obj.x == null
-    return this.spec.value === null ? null : this.spec as any
+    // return this.spec.value === null ? null : this.spec as any
   }
 
   protected _update(attr_value: S | T): void {
