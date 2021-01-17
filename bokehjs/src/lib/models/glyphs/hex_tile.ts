@@ -136,7 +136,9 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, scale}: HexTileData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HexTileData): void {
+    const {sx, sy, svx, svy, scale} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

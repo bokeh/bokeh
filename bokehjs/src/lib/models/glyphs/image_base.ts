@@ -34,7 +34,9 @@ export abstract class ImageBaseView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: ImageDataBase): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
+    const {image_data, sx, sy, sw, sh} = data ?? this
+
     const old_smoothing = ctx.getImageSmoothingEnabled()
     ctx.setImageSmoothingEnabled(false)
 

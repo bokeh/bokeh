@@ -42,7 +42,9 @@ export class ScatterView extends MarkerView {
     this._init_webgl()
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, size, angle, marker}: ScatterData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
+    const {sx, sy, size, angle, marker} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

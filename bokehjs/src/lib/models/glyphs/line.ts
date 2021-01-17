@@ -30,7 +30,9 @@ export class LineView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
+    const {sx, sy} = data ?? this
+
     let drawing = false
     let last_index: number | null = null
 

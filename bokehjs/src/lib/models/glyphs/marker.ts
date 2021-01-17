@@ -25,7 +25,9 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, size, angle}: MarkerData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MarkerData): void {
+    const {sx, sy, size, angle} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

@@ -31,8 +31,8 @@ export class GearView extends XYGlyphView {
     this.smodule = this.sdist(this.renderer.xscale, this._x, this.module, 'edge')
   }
 
-  _render(ctx: Context2d, indices: number[],
-          {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal}: GearData): void {
+  _render(ctx: Context2d, indices: number[], data?: GearData): void {
+    const {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal} = data ?? this
 
     for (const i of indices) {
       const sx_i = sx[i]

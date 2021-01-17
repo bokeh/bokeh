@@ -29,9 +29,9 @@ export class ArcView extends XYGlyphView {
       this.sradius = to_screen(this.radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, sradius, start_angle, end_angle}: ArcData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ArcData): void {
     if (this.visuals.line.doit) {
+      const {sx, sy, sradius, start_angle, end_angle} = data ?? this
       const anticlock = this.model.direction == "anticlock"
 
       for (const i of indices) {

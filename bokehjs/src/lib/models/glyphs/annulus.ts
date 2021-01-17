@@ -37,8 +37,9 @@ export class AnnulusView extends XYGlyphView {
       this.souter_radius = to_screen(this.outer_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, sinner_radius, souter_radius}: AnnulusData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: AnnulusData): void {
+    const {sx, sy, sinner_radius, souter_radius} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

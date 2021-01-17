@@ -106,7 +106,9 @@ export class CircleView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: CircleData): void {
+    const {sx, sy, sradius} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

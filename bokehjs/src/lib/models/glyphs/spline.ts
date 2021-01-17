@@ -30,7 +30,9 @@ export class SplineView extends XYGlyphView {
     this.syt = y_scale.v_compute(this._yt)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], {sxt: sx, syt: sy}: SplineData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
+    const {sxt: sx, syt: sy} = data ?? this
+
     this.visuals.line.set_value(ctx)
 
     const n = sx.length

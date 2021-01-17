@@ -37,9 +37,12 @@ export class TextView extends XYGlyphView {
     return [xvals, yvals]
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, x_offset, y_offset, angle, text}: TextData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
+    const {sx, sy, x_offset, y_offset, angle, text} = data ?? this
+
     this._sys = []
     this._sxs = []
+
     for (const i of indices) {
       const sxs_i: number[][] = this._sxs[i] = []
       const sys_i: number[][] = this._sys[i] = []

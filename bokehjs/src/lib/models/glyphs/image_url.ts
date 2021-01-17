@@ -167,8 +167,8 @@ export class ImageURLView extends XYGlyphView {
       this.sh = to_screen(this.h)
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {image, sx, sy, sw, sh, angle}: ImageURLData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
+    const {image, sx, sy, sw, sh, angle} = data ?? this
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view

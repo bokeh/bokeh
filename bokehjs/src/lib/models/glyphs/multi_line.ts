@@ -54,7 +54,9 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiLineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiLineData): void {
+    const {sxs, sys} = data ?? this
+
     for (const i of indices) {
       const sx = sxs.get(i)
       const sy = sys.get(i)

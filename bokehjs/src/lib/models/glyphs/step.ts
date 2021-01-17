@@ -15,7 +15,9 @@ export class StepView extends XYGlyphView {
   model: Step
   visuals: Step.Visuals
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy}: StepData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
+    const {sx, sy} = data ?? this
+
     let drawing = false
     let last_index: number | null = null
 

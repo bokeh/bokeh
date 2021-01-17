@@ -75,7 +75,9 @@ export class PatchesView extends GlyphView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
+    const {sxs, sys} = data ?? this
+
     for (const i of indices) {
       const sx_i = sxs.get(i)
       const sy_i = sys.get(i)

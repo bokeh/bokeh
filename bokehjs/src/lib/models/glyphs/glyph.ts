@@ -80,19 +80,18 @@ export abstract class GlyphView extends View {
     return this.renderer.parent.canvas_view
   }
 
-  render(ctx: Context2d, indices: number[], data: any): void {
-    ctx.beginPath()
-
+  render(ctx: Context2d, indices: number[], data?: GlyphData): void {
     if (this.glglyph != null) {
-      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, data)
+      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
       if (this.renderer.needs_webgl_blit)
         return
     }
 
-    this._render(ctx, indices, data)
+    ctx.beginPath()
+    this._render(ctx, indices, data ?? this.base)
   }
 
-  protected abstract _render(ctx: Context2d, indices: number[], data: any): void
+  protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
 
   has_finished(): boolean {
     return true

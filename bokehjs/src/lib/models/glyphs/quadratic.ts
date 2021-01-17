@@ -77,8 +77,10 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1, scx, scy}: QuadraticData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: QuadraticData): void {
     if (this.visuals.line.doit) {
+      const {sx0, sy0, sx1, sy1, scx, scy} = data ?? this
+
       for (const i of indices) {
         const sx0_i = sx0[i]
         const sy0_i = sy0[i]

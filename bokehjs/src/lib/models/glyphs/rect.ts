@@ -50,7 +50,9 @@ export class RectView extends CenterRotatableView {
       this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, angle}: RectData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
+    const {sx, sy, sx0, sy1, sw, sh, angle} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

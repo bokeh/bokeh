@@ -276,22 +276,22 @@ export class GlyphRendererView extends DataRendererView {
     if (!selected_full_indices.length) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
       } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model)
-              this.hover_glyph.render(ctx, all_indices, this.glyph)
+              this.hover_glyph.render(ctx, all_indices)
           }
         }
       } else {
-        glyph.render(ctx, indices, this.glyph)
+        glyph.render(ctx, indices)
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     // Render with selection
     } else {
@@ -322,13 +322,13 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
 
-      nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
-      selection_glyph.render(ctx, selected_subset_indices, this.glyph)
+      nonselection_glyph.render(ctx, nonselected_subset_indices)
+      selection_glyph.render(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     }
 

@@ -26,7 +26,9 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       this.sh = to_screen(this.height)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, angle}: EllipseOvalData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: EllipseOvalData): void {
+    const {sx, sy, sw, sh, angle} = data ?? this
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]

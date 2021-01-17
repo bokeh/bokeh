@@ -52,7 +52,9 @@ export class VAreaView extends AreaView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], {sx, sy1, sy2}: VAreaData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
+    const {sx, sy1, sy2} = data ?? this
+
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner(ctx, sx, sy1, sy2, ctx.fill)

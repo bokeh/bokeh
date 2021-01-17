@@ -67,8 +67,9 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sleft, sright, stop, sbottom}: BoxData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: BoxData): void {
+    const {sleft, sright, stop, sbottom} = data ?? this
+
     for (const i of indices) {
       const sleft_i = sleft[i]
       const stop_i = stop[i]
