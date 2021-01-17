@@ -51,6 +51,7 @@ dependencies:
   - pip:
     - isort <5.0
     - sphinxext-opengraph
+    - sphinx-reredirects
 
   # examples
   - flask >=1.0
