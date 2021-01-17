@@ -177,6 +177,10 @@ class GMap(GMapPlot):
 
     rect = Figure.rect
 
+    star = Figure.star
+
+    star_dot = Figure.star_dot
+
     step = Figure.step
 
     scatter = Figure.scatter

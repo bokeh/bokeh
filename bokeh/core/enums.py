@@ -353,8 +353,8 @@ MarkerType = enumeration(
     "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
     "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
     "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
-    "square_cross", "square_dot", "square_pin", "square_x", "triangle",
-    "triangle_dot", "triangle_pin", "x", "y"
+    "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
+    "triangle", "triangle_dot", "triangle_pin", "x", "y"
 )
 
 #: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
