@@ -66,7 +66,6 @@ export type DefaultsOf<P> = {
 
 export type PropertyOptions<T> = {
   internal?: boolean
-  optional?: boolean
   on_update?(value: T, obj: HasProps): void
 }
 
@@ -111,7 +110,6 @@ export abstract class Property<T = unknown> {
   readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
-  readonly optional: boolean
 
   on_update?(value: T, obj: HasProps): void
 
@@ -124,7 +122,6 @@ export abstract class Property<T = unknown> {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
-    this.optional = options.optional ?? false
     this.on_update = options.on_update
 
     let attr_value: T
@@ -373,10 +370,6 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   __value__: T
   __scalar__: S
 
-  get can_skip(): boolean {
-    return this.optional && this.spec.value == null && !this.dirty
-  }
-
   get_value(): S {
     // XXX: allow obj.x = null; obj.x == null
     return this.spec.value === null ? null : this.spec as any
@@ -441,10 +434,6 @@ export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
   __value__: T
   __vector__: V
-
-  get can_skip(): boolean {
-    return this.optional && this.spec.value == null && !this.dirty
-  }
 
   get_value(): V {
     // XXX: allow obj.x = null; obj.x == null

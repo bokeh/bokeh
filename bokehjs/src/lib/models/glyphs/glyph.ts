@@ -272,9 +272,6 @@ export abstract class GlyphView extends View {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
-      if (prop.can_skip)
-        continue
-
       if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
 

@@ -71,41 +71,6 @@ class SubclassWithDistanceSpec extends DataAnnotation {
   }
 }
 
-class SubclassWithOptionalSpecView extends DataAnnotationView {
-  model: SubclassWithOptionalSpec
-  map_data(): void {}
-  paint(): void {}
-  foo: p.Uniform<number>
-  baz: p.Uniform<number>
-}
-namespace SubclassWithOptionalSpec {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = DataAnnotation.Props & {
-    foo: p.NumberSpec
-    bar: p.Property<boolean>
-    baz: p.NumberSpec
-  }
-}
-interface SubclassWithOptionalSpec extends SubclassWithOptionalSpec.Attrs {}
-class SubclassWithOptionalSpec extends DataAnnotation {
-  properties: SubclassWithOptionalSpec.Props
-  __view_type__: SubclassWithOptionalSpecView
-
-  constructor(attrs?: Partial<SubclassWithOptionalSpec.Attrs>) {
-    super(attrs)
-  }
-
-  static init_SubclassWithOptionalSpec() {
-    this.prototype.default_view = SubclassWithOptionalSpecView
-
-    this.define<SubclassWithOptionalSpec.Props>(({Boolean}) => ({
-      foo: [ p.NumberSpec, undefined, {optional: true} ],
-      bar: [ Boolean, true ],
-      baz: [ p.NumberSpec, {field: "colname"} ],
-    }))
-  }
-}
-
 describe("AnnotationView", () => {
   async function plot(): Promise<PlotView> {
     return await build_view(new Plot())
@@ -127,14 +92,6 @@ describe("AnnotationView", () => {
       const view = await build_view(obj, {parent: await plot()})
       view.set_data(ds)
       expect(view.foo).to.be.equal(new p.UniformVector(ndarray([1, 2, 3, 4], {shape: [2, 2]})))
-    })
-
-    it("should collect ignore optional specs with null values", async () => {
-      const ds = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      const obj = new SubclassWithOptionalSpec()
-      const view = await build_view(obj, {parent: await plot()})
-      view.set_data(ds)
-      expect(view.baz).to.be.equal(new p.UniformVector(new Float64Array([1, 2, 3, 4])))
     })
   })
 })

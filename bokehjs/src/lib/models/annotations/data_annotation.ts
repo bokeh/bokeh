@@ -27,9 +27,6 @@ export abstract class DataAnnotationView extends AnnotationView {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
-      if (prop.can_skip)
-        continue
-
       if (prop instanceof p.BaseCoordinateSpec) {
         const array = prop.array(source)
         self[`_${prop.attr}`] = array
