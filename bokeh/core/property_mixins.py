@@ -47,6 +47,20 @@ different usage, for more information see the docs for |Include|.
 .. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
+.. |miter_join| image:: /_images/miter_join.png
+    :height: 15
+.. |round_join| image:: /_images/round_join.png
+    :height: 15
+.. |bevel_join| image:: /_images/bevel_join.png
+    :height: 15
+
+.. |butt_cap| image:: /_images/butt_cap.png
+    :height: 12
+.. |round_cap| image:: /_images/round_cap.png
+    :height: 12
+.. |square_cap| image:: /_images/square_cap.png
+    :height: 12
+
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -137,13 +151,6 @@ Acceptable values are:
 - ``'round'`` |round_join|
 - ``'bevel'`` |bevel_join|
 
-.. |miter_join| image:: /_images/miter_join.png
-    :height: 15
-.. |round_join| image:: /_images/round_join.png
-    :height: 15
-.. |bevel_join| image:: /_images/bevel_join.png
-    :height: 15
-
 """
 
 _line_cap_help = """
@@ -154,13 +161,6 @@ Acceptable values are:
 - ``'butt'`` |butt_cap|
 - ``'round'`` |round_cap|
 - ``'square'`` |square_cap|
-
-.. |butt_cap| image:: /_images/butt_cap.png
-    :height: 12
-.. |round_cap| image:: /_images/round_cap.png
-    :height: 12
-.. |square_cap| image:: /_images/square_cap.png
-    :height: 12
 
 """
 
