@@ -179,7 +179,7 @@ class GMap(GMapPlot):
 
     star = Figure.star
 
-    star = Figure.star_dot
+    star_dot = Figure.star_dot
 
     step = Figure.step
 
