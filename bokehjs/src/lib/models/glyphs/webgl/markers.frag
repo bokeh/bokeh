@@ -3,6 +3,13 @@ precision mediump float;
 const float SQRT_2 = 1.4142135623730951;
 const float PI = 3.14159265358979323846264;
 
+const float IN_ANGLE = 0.6283185307179586; // PI/5. = 36 degrees (star of 5 pikes)
+//const float OUT_ANGLE = PI/2. - IN_ANGLE; // External angle for regular stars
+const float COS_A = 0.8090169943749475; // cos(IN_ANGLE)
+const float SIN_A = 0.5877852522924731; // sin(IN_ANGLE)
+const float COS_B = 0.5877852522924731; // cos(OUT_ANGLE)
+const float SIN_B = 0.8090169943749475; // sin(OUT_ANGLE)
+
 //
 uniform float u_antialias;
 //
@@ -60,6 +67,20 @@ float marker(vec2 P, float size)
 {
     vec2 q = abs(P);
     return max(q.y * 0.57735 + q.x - 1.0 * size/2.0, q.y - 0.866 * size/2.0);
+}
+#endif
+
+#ifdef USE_STAR
+// star
+// https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
+float marker(vec2 P, float size)
+{
+    float bn = mod(atan(P.x, -P.y), 2.0*IN_ANGLE) - IN_ANGLE;
+    P = length(P)*vec2(cos(bn), abs(sin(bn)));
+    P -= size*vec2(COS_A, SIN_A)/2.;
+    P += vec2(COS_B, SIN_B)*clamp(-(P.x*COS_B + P.y*SIN_B), 0.0, size*SIN_A/SIN_B/2.);
+
+    return length(P)*sign(P.x);
 }
 #endif
 
