@@ -13,7 +13,7 @@ import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Formatters, FormatterType, Vars} from "core/util/templating"
 import {div, span, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
-import {NumberArray, Color} from "core/types"
+import {Arrayable, Color} from "core/types"
 import {color2hex, color2css} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
@@ -31,7 +31,7 @@ import * as styles from "styles/tooltips.css"
 export type TooltipVars = {index: number} & Vars
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
-    sx: number, sy: number, dx: NumberArray, dy: NumberArray): [[number, number], number] {
+    sx: number, sy: number, dx: Arrayable<number>, dy: Arrayable<number>): [[number, number], number] {
   const d1 = {x: dx[i], y: dy[i]}
   const d2 = {x: dx[i+1], y: dy[i+1]}
 
@@ -57,7 +57,7 @@ export function _nearest_line_hit(i: number, geometry: Geometry,
     return [[d2.x, d2.y], i+1]
 }
 
-export function _line_hit(xs: NumberArray, ys: NumberArray, ind: number): [[number, number], number] {
+export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: number): [[number, number], number] {
   return [[xs[ind], ys[ind]], ind]
 }
 

@@ -94,7 +94,7 @@ export namespace Plot {
     mixins.BackgroundFill &
     mixins.BorderFill
 
-  export type Visuals = {
+  export type Visuals = visuals.Visuals & {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     border_fill: visuals.Fill

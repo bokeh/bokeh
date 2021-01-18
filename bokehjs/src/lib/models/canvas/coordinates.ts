@@ -1,4 +1,4 @@
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {Scale} from "../scales/scale"
 import {Range} from "../ranges/range"
 
@@ -21,13 +21,13 @@ export class CoordinateTransform {
     this.scales = [this.x_scale, this.y_scale]
   }
 
-  map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [NumberArray, NumberArray] {
+  map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [ScreenArray, ScreenArray] {
     const sxs = this.x_scale.v_compute(xs)
     const sys = this.y_scale.v_compute(ys)
     return [sxs, sys]
   }
 
-  map_from_screen(sxs: Arrayable<number>, sys: Arrayable<number>): [NumberArray, NumberArray] {
+  map_from_screen(sxs: Arrayable<number>, sys: Arrayable<number>): [FloatArray, FloatArray] {
     const xs = this.x_scale.v_invert(sxs)
     const ys = this.y_scale.v_invert(sys)
     return [xs, ys]

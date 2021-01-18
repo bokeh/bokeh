@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Dict, Seq, String
+from ..core.properties import AnyRef, Bool, Dict, Float, Seq, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -155,6 +155,22 @@ class Stack(Expression):
     Will compute an array of values (in the browser) by adding the elements
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
     """)
+
+@abstract
+class ScalarExpression(Model):
+    """ Base class for for scalar expressions. """
+
+class Minimum(ScalarExpression):
+    """ Computes minimum value of a data source's column. """
+
+    field = String()
+    initial = Float(default=None) # TODO: float("+inf"))
+
+class Maximum(ScalarExpression):
+    """ Computes maximum value of a data source's column. """
+
+    field = String()
+    initial = Float(default=None) # TODO: float("-inf"))
 
 #-----------------------------------------------------------------------------
 # Dev API

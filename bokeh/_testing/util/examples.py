@@ -64,10 +64,11 @@ class Flags:
 
 
 class Example:
-    def __init__(self, path, flags, examples_dir):
+    def __init__(self, path, flags, examples_dir, extensions = []):
         self.path = normpath(path)
         self.flags = flags
         self.examples_dir = examples_dir
+        self.extensions = extensions
         self._diff_ref = None
         self.pixels = 0
         self._has_ref = None
@@ -149,10 +150,11 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
 
         return
 
-    example_path = join(examples_dir, path)
+    example_path = normpath(join(examples_dir, path))
 
     for name in sorted(os.listdir(example_path)):
         flags = 0
+        extensions = []
         orig_name = name
 
         if name.startswith(('_', '.')):
@@ -170,6 +172,15 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
                 flags |= example_type if example_type else Flags.server
             else:
                 continue
+
+            ext_file = "bokeh.ext.json"
+            if exists(join(example_path, orig_name, ext_file)):
+                extensions.append(join(example_path, orig_name))
+            else:
+                for dir_name in os.listdir(join(example_path, orig_name)):
+                    dir_path = join(example_path, orig_name, dir_name)
+                    if exists(join(dir_path, ext_file)):
+                        extensions.append(dir_path)
         else:
             continue
 
@@ -185,7 +196,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         if no_js is not None and (no_js == 'all' or orig_name in no_js):
             flags |= Flags.no_js
 
-        list_of_examples.append(Example(join(example_path, name), flags, examples_dir))
+        list_of_examples.append(Example(join(example_path, name), flags, examples_dir, extensions))
 
 
 def collect_examples(config_path):

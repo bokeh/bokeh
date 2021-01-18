@@ -64,9 +64,9 @@ export namespace Slope {
     y_intercept: p.Property<number | null>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.Line
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line/*Scalar*/}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line}
 }
 
 export interface Slope extends Slope.Attrs {}
@@ -82,7 +82,7 @@ export class Slope extends Annotation {
   static init_Slope(): void {
     this.prototype.default_view = SlopeView
 
-    this.mixins<Slope.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Slope.Mixins>(mixins.Line)
 
     this.define<Slope.Props>(({Number, Nullable}) => ({
       gradient:    [ Nullable(Number), null ],

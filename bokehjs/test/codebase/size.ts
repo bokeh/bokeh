@@ -6,22 +6,23 @@ const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> buil
 
 const LIMITS = new Map([
   // es2017
-  ["js/bokeh.min.js",                800],
-  ["js/bokeh-widgets.min.js",        300],
-  ["js/bokeh-tables.min.js",         350],
-  ["js/bokeh-api.min.js",             90],
+  ["js/bokeh.min.js",                 800],
+  ["js/bokeh-widgets.min.js",         300],
+  ["js/bokeh-tables.min.js",          350],
+  ["js/bokeh-api.min.js",              90],
   // legacy (es5)
-  ["js/bokeh.legacy.min.js",         990],
-  ["js/bokeh-widgets.legacy.min.js", 350],
-  ["js/bokeh-tables.legacy.min.js",  350],
-  ["js/bokeh-api.legacy.min.js",      90],
+  ["js/bokeh.legacy.min.js",         1010],
+  ["js/bokeh-widgets.legacy.min.js",  350],
+  ["js/bokeh-tables.legacy.min.js",   350],
+  ["js/bokeh-api.legacy.min.js",       90],
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))
 
 function pad(value: unknown): string {
-  const s = `${value}`
-  return s.length < 3 ? ` ${s}` : s
+  const str = `${value}`
+  const pre = " ".repeat(4 - str.length)
+  return `${pre}${str}`
 }
 
 let failures = 0

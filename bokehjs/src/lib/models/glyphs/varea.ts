@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -7,14 +7,14 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export interface VAreaData extends AreaData {
-  _x: NumberArray
-  _y1: NumberArray
-  _y2: NumberArray
+export type VAreaData = AreaData & {
+  _x: FloatArray
+  _y1: FloatArray
+  _y2: FloatArray
 
-  sx: NumberArray
-  sy1: NumberArray
-  sy2: NumberArray
+  sx: ScreenArray
+  sy1: ScreenArray
+  sy2: ScreenArray
 }
 
 export interface VAreaView extends VAreaData {}
@@ -52,13 +52,18 @@ export class VAreaView extends AreaView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], {sx, sy1, sy2}: VAreaData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
+    const {sx, sy1, sy2} = data ?? this
+
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner(ctx, sx, sy1, sy2, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, () => this._inner(ctx, sx, sy1, sy2, ctx.fill), () => this.renderer.request_render())
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      this._inner(ctx, sx, sy1, sy2, ctx.fill)
+    }
   }
 
   scenterxy(i: number): [number, number] {
@@ -69,8 +74,8 @@ export class VAreaView extends AreaView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const L = this.sx.length
-    const sx = new NumberArray(2*L)
-    const sy = new NumberArray(2*L)
+    const sx = new ScreenArray(2*L)
+    const sy = new ScreenArray(2*L)
 
     for (let i = 0, end = L; i < end; i++) {
       sx[i] = this.sx[i]

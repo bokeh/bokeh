@@ -1,6 +1,6 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Expression} from "./expression"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace Stack {
@@ -28,7 +28,7 @@ export class Stack extends Expression {
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
     const n = source.get_length() ?? 0
-    const result = new NumberArray(n)
+    const result = new Float64Array(n)
     for (const f of this.fields) {
       const column = source.data[f]
       if (column != null) {

@@ -1,7 +1,8 @@
 import {EllipseOval, EllipseOvalView, EllipseOvalData} from "./ellipse_oval"
+import {mul} from "core/util/arrayable"
 import * as p from "core/properties"
 
-export interface OvalData extends EllipseOvalData {}
+export type OvalData = EllipseOvalData
 
 export interface OvalView extends OvalData {}
 
@@ -11,13 +12,7 @@ export class OvalView extends EllipseOvalView {
 
   protected _map_data(): void {
     super._map_data()
-
-    // oval drawn from bezier curves = ellipse with width reduced by 3/4
-    const {sw} = this
-    const n = sw.length
-    for (let i = 0; i < n; i++) {
-      sw[i] *= 0.75
-    }
+    mul(this.sw, 0.75) // oval drawn from bezier curves = ellipse with width reduced by 3/4
   }
 }
 

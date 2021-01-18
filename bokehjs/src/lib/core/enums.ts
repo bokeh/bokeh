@@ -78,6 +78,9 @@ export const LineCap = Enum("butt", "round", "square")
 export type LineJoin = "miter" | "round" | "bevel"
 export const LineJoin = Enum("miter", "round", "bevel")
 
+export type LineDash = "solid" | "dashed" | "dotted" | "dotdash" | "dashdot"
+export const LineDash = Enum("solid", "dashed", "dotted", "dotdash", "dashdot")
+
 export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none"
 export const LinePolicy = Enum("prev", "next", "nearest", "interp", "none")
 

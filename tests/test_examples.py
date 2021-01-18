@@ -213,7 +213,7 @@ def _run_in_browser(example, url, report, verbose=False):
 
 def _run_example(example):
     code = """\
-__file__ = filename = '%s'
+__file__ = filename = %r
 
 import random
 random.seed(1)
@@ -224,9 +224,13 @@ np.random.seed(1)
 import warnings
 warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
+for ext_dir in %r:
+    from bokeh.ext import build
+    build(ext_dir)
+
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
-""" % example.path.replace("\\", "\\\\")
+""" % (example.path, example.extensions)
 
     cmd = ["python", "-c", code]
     cwd = dirname(example.path)

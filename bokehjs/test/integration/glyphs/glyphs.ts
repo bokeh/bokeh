@@ -3,7 +3,7 @@ import {display, fig, row, column} from "../_util"
 import {Range1d} from "@bokehjs/models"
 import {Direction, OutputBackend} from "@bokehjs/core/enums"
 import {Color} from "@bokehjs/core/types"
-import {hatch_aliases} from "@bokehjs/core/visuals"
+import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 
 describe("Glyph models", () => {
@@ -33,7 +33,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
-  it("should support Arc", async () => {
+  it.allowing(1)("should support Arc", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
       p.arc({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8, color: "green", alpha: 0.6, line_width: 5})
@@ -258,7 +258,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
-  it("should support Wedge", async () => {
+  it.allowing(2)("should support Wedge", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
       p.wedge({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8})

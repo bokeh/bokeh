@@ -13,7 +13,7 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
 import {build_view, build_views, remove_views} from "core/build_views"
-import {Visuals} from "core/visuals"
+import {Visuals, Renderable} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {SerializableState} from "core/view"
@@ -31,7 +31,7 @@ import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 
-export class PlotView extends LayoutDOMView {
+export class PlotView extends LayoutDOMView implements Renderable {
   model: Plot
   visuals: Plot.Visuals
 
@@ -39,8 +39,10 @@ export class PlotView extends LayoutDOMView {
 
   frame: CartesianFrame
 
-  canvas: Canvas
   canvas_view: CanvasView
+  get canvas(): CanvasView {
+    return this.canvas_view
+  }
 
   protected _title: Title
   protected _toolbar: ToolbarPanel
@@ -186,9 +188,6 @@ export class PlotView extends LayoutDOMView {
     this.renderer_views = new Map()
     this.tool_views = new Map()
 
-    const {hidpi, output_backend} = this.model
-    this.canvas = new Canvas({hidpi, output_backend})
-
     this.frame = new CartesianFrame(
       this.model.x_scale,
       this.model.y_scale,
@@ -218,7 +217,9 @@ export class PlotView extends LayoutDOMView {
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    this.canvas_view = await build_view(this.canvas, {parent: this})
+    const {hidpi, output_backend} = this.model
+    const canvas = new Canvas({hidpi, output_backend})
+    this.canvas_view = await build_view(canvas, {parent: this})
     this.canvas_view.plot_views = [this]
 
     await this.build_renderer_views()

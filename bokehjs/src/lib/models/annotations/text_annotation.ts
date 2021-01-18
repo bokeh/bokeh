@@ -127,21 +127,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     undisplay(el)
 
     this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const [x, y] = this._calculate_bounding_box_dimensions(ctx, text)
 
-    // attempt to support vector string-style ("8 4 8") line dashing for css mode
-    const ld = this.visuals.border_line.line_dash.value()
-    const line_dash = ld.length < 2 ? "solid" : "dashed"
-
-    this.visuals.border_line.set_value(ctx)
-    this.visuals.background_fill.set_value(ctx)
-
-    el.style.position = 'absolute'
-    el.style.left = `${sx + bbox_dims[0]}px`
-    el.style.top = `${sy + bbox_dims[1]}px`
-    el.style.color = `${this.visuals.text.text_color.value()}`
-    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.position = "absolute"
+    el.style.left = `${sx + x}px`
+    el.style.top = `${sy + y}px`
+    el.style.color = ctx.fillStyle as string
+    el.style.font = ctx.font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
@@ -149,13 +141,17 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
 
     if (this.visuals.background_fill.doit) {
-      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
+      this.visuals.background_fill.set_value(ctx)
+      el.style.backgroundColor = ctx.fillStyle as string
     }
 
     if (this.visuals.border_line.doit) {
-      el.style.borderStyle = `${line_dash}`
-      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
-      el.style.borderColor = `${this.visuals.border_line.color_value()}`
+      this.visuals.border_line.set_value(ctx)
+
+      // attempt to support vector-style ("8 4 8") line dashing for css mode
+      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
+      el.style.borderWidth = `${ctx.lineWidth}px`
+      el.style.borderColor = ctx.strokeStyle as string
     }
 
     el.textContent = text

@@ -247,7 +247,7 @@ export class TileRendererView extends RendererView {
   }
 
   protected _set_rect(): void {
-    const outline_width = this.plot_model.properties.outline_line_width.value()
+    const outline_width = this.plot_model.outline_line_width
     const l = this.map_frame.bbox.left + (outline_width/2)
     const t = this.map_frame.bbox.top + (outline_width/2)
     const w = this.map_frame.bbox.width - outline_width

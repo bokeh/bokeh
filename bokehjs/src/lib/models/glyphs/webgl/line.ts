@@ -4,6 +4,7 @@ import vertex_shader from "./line.vert"
 import fragment_shader from "./line.frag"
 import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
+import {resolve_line_dash} from "core/visuals/line"
 
 class DashAtlas {
   protected readonly _atlas: Map<string, [number, number]> = new Map()
@@ -240,10 +241,10 @@ export class LineGL extends BaseGLGlyph {
   protected _set_visuals(): void {
     const {line_color, line_alpha, line_width, line_cap, line_join, line_dash, line_dash_offset} = this.glyph.visuals.line
 
-    const [r, g, b, a] = color2rgba(line_color.value(), line_alpha.value())
-    const width = line_width.value()
-    const cap = caps[line_cap.value()]
-    const join = joins[line_join.value()]
+    const [r, g, b, a] = color2rgba(line_color.value, line_alpha.value)
+    const width = line_width.value
+    const cap = caps[line_cap.value]
+    const join = joins[line_join.value]
 
     this.prog.set_uniform('u_color', 'vec4', [r/255, g/255, b/255, a/255])
     this.prog.set_uniform('u_linewidth', 'float', [width])
@@ -254,14 +255,14 @@ export class LineGL extends BaseGLGlyph {
     this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-    const dash_pattern = line_dash.value()
+    const dash_pattern = resolve_line_dash(line_dash.value)
     let dash_index = 0
     let dash_period = 1
     if (dash_pattern.length) {
       [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern)
     }
     this.prog.set_uniform('u_dash_index', 'float', [dash_index])  // 0 means solid line
-    this.prog.set_uniform('u_dash_phase', 'float', [line_dash_offset.value()])
+    this.prog.set_uniform('u_dash_phase', 'float', [line_dash_offset.value])
     this.prog.set_uniform('u_dash_period', 'float', [dash_period])
     this.prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
     this.prog.set_uniform('u_closed', 'float', [0])  // We dont do closed lines

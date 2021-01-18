@@ -4,7 +4,7 @@ import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import * as visuals from "core/visuals"
@@ -16,22 +16,20 @@ import {Selection} from "../selections/selection"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export interface HexTileData extends GlyphData {
-  _q: NumberArray
-  _r: NumberArray
+export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
+  readonly q: p.Uniform<number>
+  readonly r: p.Uniform<number>
 
-  _x: NumberArray
-  _y: NumberArray
+  _x: FloatArray
+  _y: FloatArray
 
-  _scale: NumberArray
+  readonly scale: p.Uniform<number>
 
-  sx: NumberArray
-  sy: NumberArray
+  sx: ScreenArray
+  sy: ScreenArray
 
   svx: Vertices
   svy: Vertices
-
-  ssize: number
 }
 
 export interface HexTileView extends HexTileData {}
@@ -47,23 +45,28 @@ export class HexTileView extends GlyphView {
   }
 
   protected _set_data(): void {
-    const n = this._q.length
-
     const {orientation, size, aspect_scale} = this.model
+    const {q, r} = this
 
-    this._x = new NumberArray(n)
-    this._y = new NumberArray(n)
+    const n = this.q.length
+    this._x = new Float64Array(n)
+    this._y = new Float64Array(n)
+    const {_x, _y} = this
 
     const sqrt3 = Math.sqrt(3)
     if (orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * sqrt3 * (this._q[i] + this._r[i]/2) / aspect_scale
-        this._y[i] = -size * 3/2 * this._r[i]
+        const q_i = q.get(i)
+        const r2_i = r.get(i)/2
+        _x[i] = size*sqrt3*(q_i + r2_i)/aspect_scale
+        _y[i] = -3*size*r2_i
       }
     } else {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * 3/2 * this._q[i]
-        this._y[i] = -size * sqrt3 * (this._r[i] + this._q[i]/2) * aspect_scale
+        const q2_i = q.get(i)/2
+        const r_i = r.get(i)
+        _x[i] = 3*size*q2_i
+        _y[i] = -size*sqrt3*(r_i + q2_i)*aspect_scale
       }
     }
   }
@@ -133,28 +136,34 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HexTileData): void {
+    const {sx, sy, svx, svy, scale} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _scale[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const scale_i = scale.get(i)
+
+      if (isNaN(sx_i + sy_i + scale_i))
         continue
 
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
       ctx.beginPath()
       for (let j = 0; j < 6; j++) {
-        ctx.lineTo(svx[j]*_scale[i], svy[j]*_scale[i])
+        ctx.lineTo(svx[j]*scale_i, svy[j]*scale_i)
       }
       ctx.closePath()
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
+      if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)

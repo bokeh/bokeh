@@ -1,6 +1,6 @@
 import * as p from "./properties"
 import {Color} from "./types"
-import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
 import {Texture} from "models/textures/texture"
 import {keys} from "./util/object"
@@ -16,7 +16,7 @@ export type Line = {
   line_width: p.Property<number>
   line_join: p.Property<LineJoin>
   line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
+  line_dash: p.Property<LineDash | number[]>
   line_dash_offset: p.Property<number>
 }
 
@@ -51,7 +51,7 @@ export const Line: p.DefineOf<Line> = {
   line_width:       [ k.Number, 1 ],
   line_join:        [ LineJoin, "bevel"],
   line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Array(k.Number), [] ],
+  line_dash:        [ k.Or(LineDash, k.Array(k.Number)), [] ],
   line_dash_offset: [ k.Number, 0 ],
 }
 
@@ -88,7 +88,7 @@ export type LineScalar = {
   line_width: p.ScalarSpec<number>
   line_join: p.ScalarSpec<LineJoin>
   line_cap: p.ScalarSpec<LineCap>
-  line_dash: p.ScalarSpec<number[]>
+  line_dash: p.ScalarSpec<LineDash | number[]>
   line_dash_offset: p.ScalarSpec<number>
 }
 
@@ -109,7 +109,7 @@ export type HatchScalar = {
 export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
-  text_font: p.Property<string>
+  text_font: p.ScalarSpec<string>
   text_font_size: p.ScalarSpec<string>
   text_font_style: p.ScalarSpec<FontStyle>
   text_align: p.ScalarSpec<TextAlign>
@@ -123,7 +123,7 @@ export const LineScalar: p.DefineOf<LineScalar> = {
   line_width:       [ p.NumberScalar,       1           ],
   line_join:        [ p.LineJoinScalar,     "bevel"     ],
   line_cap:         [ p.LineCapScalar,      "butt"      ],
-  line_dash:        [ p.ArrayScalar,        []          ],
+  line_dash:        [ p.LineDashScalar,     []          ],
   line_dash_offset: [ p.NumberScalar,       0           ],
 }
 
@@ -144,7 +144,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
 export const TextScalar: p.DefineOf<TextScalar> = {
   text_color:       [ p.ColorScalar,        "#444444"   ],
   text_alpha:       [ p.NumberScalar,       1.0         ],
-  text_font:        [ p.Font,               "helvetica" ],
+  text_font:        [ p.FontScalar,         "helvetica" ],
   text_font_size:   [ p.FontSizeScalar,     "16px"      ],
   text_font_style:  [ p.FontStyleScalar,    "normal"    ],
   text_align:       [ p.TextAlignScalar,    "left"      ],
@@ -158,10 +158,10 @@ export type LineVector = {
   line_color: p.ColorSpec
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
-  line_join: p.Property<LineJoin>
-  line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
-  line_dash_offset: p.Property<number>
+  line_join: p.VectorSpec<LineJoin>
+  line_cap: p.VectorSpec<LineCap>
+  line_dash: p.VectorSpec<LineDash | number[]>
+  line_dash_offset: p.VectorSpec<number>
 }
 
 export type FillVector = {
@@ -175,28 +175,28 @@ export type HatchVector = {
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
   hatch_weight: p.VectorSpec<number>
-  hatch_extra: p.Property<HatchExtra>
+  hatch_extra: p.ScalarSpec<HatchExtra>
 }
 
 export type TextVector = {
   text_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
-  text_font: p.Property<string>
+  text_font: p.VectorSpec<string>
   text_font_size: p.VectorSpec<string>
-  text_font_style: p.Property<FontStyle>
-  text_align: p.Property<TextAlign>
-  text_baseline: p.Property<TextBaseline>
-  text_line_height: p.Property<number>
+  text_font_style: p.VectorSpec<FontStyle>
+  text_align: p.VectorSpec<TextAlign>
+  text_baseline: p.VectorSpec<TextBaseline>
+  text_line_height: p.VectorSpec<number>
 }
 
 export const LineVector: p.DefineOf<LineVector> = {
-  line_color:       [ p.ColorSpec,      "black"     ],
-  line_alpha:       [ p.NumberSpec,     1.0         ],
-  line_width:       [ p.NumberSpec,     1           ],
-  line_join:        [ LineJoin, "bevel" ],
-  line_cap:         [ LineCap, "butt" ],
-  line_dash:        [ k.Array(k.Number), [] ],
-  line_dash_offset: [ k.Number, 0 ],
+  line_color:       [ p.ColorSpec,    "black"     ],
+  line_alpha:       [ p.NumberSpec,   1.0         ],
+  line_width:       [ p.NumberSpec,   1           ],
+  line_join:        [ p.LineJoinSpec, "bevel" ],
+  line_cap:         [ p.LineCapSpec,  "butt" ],
+  line_dash:        [ p.LineDashSpec, [] ],
+  line_dash_offset: [ p.NumberSpec,   0 ],
 }
 
 export const FillVector: p.DefineOf<FillVector> = {
@@ -210,18 +210,18 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
+  hatch_extra:      [ p.AnyScalar,      {}          ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
-  text_color:       [ p.ColorSpec,      "#444444"   ],
-  text_alpha:       [ p.NumberSpec,     1.0         ],
-  text_font:        [ p.Font,           "helvetica" ],
-  text_font_size:   [ p.FontSizeSpec,   "16px"      ],
-  text_font_style:  [ FontStyle, "normal" ],
-  text_align:       [ TextAlign, "left" ],
-  text_baseline:    [ TextBaseline, "bottom" ],
-  text_line_height: [ k.Number, 1.2 ],
+  text_color:       [ p.ColorSpec, "#444444" ],
+  text_alpha:       [ p.NumberSpec, 1.0 ],
+  text_font:        [ p.FontSpec, "helvetica" ],
+  text_font_size:   [ p.FontSizeSpec, "16px"],
+  text_font_style:  [ p.FontStyleSpec, "normal" ],
+  text_align:       [ p.TextAlignSpec, "left" ],
+  text_baseline:    [ p.TextBaselineSpec, "bottom" ],
+  text_line_height: [ p.NumberSpec, 1.2 ],
 }
 
 export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
