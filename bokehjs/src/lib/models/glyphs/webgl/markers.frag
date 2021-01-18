@@ -72,6 +72,7 @@ float marker(vec2 P, float size)
 
 #ifdef USE_STAR
 // star
+// https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
 float marker(vec2 P, float size)
 {
     float bn = mod(atan(P.x, -P.y), 2.0*IN_ANGLE) - IN_ANGLE;
