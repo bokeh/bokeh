@@ -12,7 +12,9 @@ export class OvalView extends EllipseOvalView {
 
   protected _map_data(): void {
     super._map_data()
-    mul(this.sw, 0.75) // oval drawn from bezier curves = ellipse with width reduced by 3/4
+    if (!this.inherited_width) {
+      mul(this.sw, 0.75) // oval drawn from bezier curves = ellipse with width reduced by 3/4
+    }
   }
 }
 

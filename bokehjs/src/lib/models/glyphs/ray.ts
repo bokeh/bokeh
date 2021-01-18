@@ -10,6 +10,8 @@ export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
   readonly length: p.Uniform<number>
   readonly angle: p.Uniform<number>
 
+  readonly inherited_length?: boolean
+
   slength: ScreenArray
 }
 
@@ -20,18 +22,22 @@ export class RayView extends XYGlyphView {
   visuals: Ray.Visuals
 
   protected _map_data(): void {
-    if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
-    else
-      this.slength = to_screen(this.length)
+    if (!this.inherited_length) {
+      if (this.model.properties.length.units == "data")
+        this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
+      else
+        this.slength = to_screen(this.length)
 
-    const {width, height} = this.renderer.plot_view.frame.bbox
-    const inf_len = 2*(width + height)
+      const {width, height} = this.renderer.plot_view.frame.bbox
+      const inf_len = 2*(width + height)
 
-    const {slength} = this
-    for (let i = 0, end = slength.length; i < end; i++) {
-      if (slength[i] == 0)
-        slength[i] = inf_len
+      const {slength} = this
+      for (let i = 0, end = slength.length; i < end; i++) {
+        if (slength[i] == 0)
+          slength[i] = inf_len
+      }
+    } else {
+      this.slength = this.base!.slength
     }
   }
 

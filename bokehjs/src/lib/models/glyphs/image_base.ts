@@ -16,6 +16,9 @@ export type ImageDataBase = XYGlyphData & {
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
 
+  readonly inherited_dw?: boolean
+  readonly inherited_dh?: boolean
+
   sw: ScreenArray
   sh: ScreenArray
 }
@@ -156,15 +159,23 @@ export abstract class ImageBaseView extends XYGlyphView {
   }
 
   protected _map_data(): void {
-    if (this.model.properties.dw.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, 'edge', this.model.dilate)
-    else
-      this.sw = to_screen(this.dw)
+    if (!this.inherited_dw) {
+      if (this.model.properties.dw.units == "data")
+        this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, 'edge', this.model.dilate)
+      else
+        this.sw = to_screen(this.dw)
+    } else {
+      this.sw = this.base!.sw
+    }
 
-    if (this.model.properties.dh.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, 'edge', this.model.dilate)
-    else
-      this.sh = to_screen(this.dh)
+    if (!this.inherited_dh) {
+      if (this.model.properties.dh.units == "data")
+        this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, 'edge', this.model.dilate)
+      else
+        this.sh = to_screen(this.dh)
+    } else {
+      this.sh = this.base!.sh
+    }
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {

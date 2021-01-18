@@ -19,6 +19,9 @@ export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   readonly size: p.Uniform<number>
   readonly radius: p.UniformScalar<number>
 
+  readonly inherited_size?: boolean
+  readonly inherited_radius?: boolean
+
   sradius: ScreenArray
 
   readonly max_size: number
@@ -47,40 +50,48 @@ export class CircleView extends XYGlyphView {
     return !(this.radius.is_Scalar() && isNaN(this.radius.value))
   }
 
+  protected _sradius(): ScreenArray {
+    switch (this.model.radius_dimension) {
+      case "x": {
+        return this.sdist(this.renderer.xscale, this._x, this.radius)
+      }
+      case "y": {
+        return this.sdist(this.renderer.yscale, this._y, this.radius)
+      }
+      case "max": {
+        const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
+        const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
+        return map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
+      }
+      case "min": {
+        const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
+        const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
+        return map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
+      }
+    }
+  }
+
   protected _map_data(): void {
     // XXX: Order is important here: size is always present (at least
     // a default), but radius is only present if a user specifies it.
     if (this.use_radius) {
-      if (this.model.properties.radius.units == "data") {
-        switch (this.model.radius_dimension) {
-          case "x": {
-            this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
-            break
-          }
-          case "y": {
-            this.sradius = this.sdist(this.renderer.yscale, this._y, this.radius)
-            break
-          }
-          case "max": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
-            this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
-            break
-          }
-          case "min": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
-            this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
-            break
-          }
+      if (!this.inherited_radius) {
+        if (this.model.properties.radius.units == "data") {
+          this.sradius = this._sradius()
+        } else {
+          this.sradius = to_screen(this.radius)
+          this._configure("max_size", {value: 2*this.max_radius})
         }
       } else {
-        this.sradius = to_screen(this.radius)
-        this._configure("max_size", {value: 2*this.max_radius})
+        this.sradius = this.base!.sradius
       }
     } else {
-      const ssize = new ScreenArray(this.size)
-      this.sradius = map(ssize, (s) => s/2)
+      if (!this.inherited_size) {
+        const ssize = new ScreenArray(this.size)
+        this.sradius = map(ssize, (s) => s/2)
+      } else {
+        this.sradius = this.base!.sradius
+      }
     }
   }
 

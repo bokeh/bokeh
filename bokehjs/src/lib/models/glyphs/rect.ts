@@ -22,32 +22,46 @@ export class RectView extends CenterRotatableView {
   visuals: Rect.Visuals
 
   protected _map_data(): void {
-    if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
-    else {
-      this.sw = to_screen(this.width)
+    if (!this.inherited_width) {
+      if (this.model.properties.width.units == "data")
+        [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
+      else {
+        this.sw = to_screen(this.width)
 
-      const n = this.sx.length
-      this.sx0 = new ScreenArray(n)
-      for (let i = 0; i < n; i++)
-        this.sx0[i] = this.sx[i] - this.sw[i]/2
+        const n = this.sx.length
+        this.sx0 = new ScreenArray(n)
+        for (let i = 0; i < n; i++)
+          this.sx0[i] = this.sx[i] - this.sw[i]/2
+      }
+    } else {
+      this.sw = this.base!.sw
+      this.sx0 = this.base!.sx0
     }
 
-    if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
-    else {
-      this.sh = to_screen(this.height)
+    if (!this.inherited_height) {
+      if (this.model.properties.height.units == "data")
+        [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
+      else {
+        this.sh = to_screen(this.height)
 
-      const n = this.sy.length
-      this.sy1 = new ScreenArray(n)
-      for (let i = 0; i < n; i++)
-        this.sy1[i] = this.sy[i] - this.sh[i]/2
+        const n = this.sy.length
+        this.sy1 = new ScreenArray(n)
+        for (let i = 0; i < n; i++)
+          this.sy1[i] = this.sy[i] - this.sh[i]/2
+      }
+    } else {
+      this.sh = this.base!.sh
+      this.sy1 = this.base!.sy1
     }
 
-    const n = this.sw.length
-    this.ssemi_diag = new ScreenArray(n)
-    for (let i = 0; i < n; i++)
-      this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
+    if (!this.inherited_width || !this.inherited_height) {
+      const n = this.sw.length
+      this.ssemi_diag = new ScreenArray(n)
+      for (let i = 0; i < n; i++)
+        this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
+    } else {
+      this.ssemi_diag = this.base!.ssemi_diag
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: RectData): void {

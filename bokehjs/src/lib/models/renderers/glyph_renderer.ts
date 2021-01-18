@@ -178,6 +178,12 @@ export class GlyphRendererView extends DataRendererView {
     const {all_indices} = this
 
     this.glyph.set_data(source, all_indices, indices)
+    this.decimated_glyph.set_data(source, all_indices, indices)
+    this.selection_glyph?.set_data(source, all_indices, indices)
+    this.nonselection_glyph?.set_data(source, all_indices, indices)
+    this.hover_glyph?.set_data(source, all_indices, indices)
+    this.muted_glyph?.set_data(source, all_indices, indices)
+
     this.set_visuals()
 
     this._update_masked_indices()
@@ -204,6 +210,15 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_visuals(source, all_indices)
   }
 
+  map_data(): void {
+    this.glyph.map_data()
+    this.decimated_glyph.map_data()
+    this.selection_glyph?.map_data()
+    this.nonselection_glyph?.map_data()
+    this.hover_glyph?.map_data()
+    this.muted_glyph?.map_data()
+  }
+
   get has_webgl(): boolean {
     return this.glyph.has_webgl
   }
@@ -211,7 +226,7 @@ export class GlyphRendererView extends DataRendererView {
   protected _render(): void {
     const glsupport = this.has_webgl
 
-    this.glyph.map_data()
+    this.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
     const all_indices = [...this.all_indices]

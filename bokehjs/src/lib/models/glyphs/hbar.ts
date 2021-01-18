@@ -8,6 +8,8 @@ export type HBarData = BoxData & {
   readonly height: p.Uniform<number>
   _right: FloatArray
 
+  readonly inherited_height?: boolean
+
   sy: ScreenArray
   sh: ScreenArray
   sleft: ScreenArray
@@ -45,20 +47,29 @@ export class HBarView extends BoxView {
   }
 
   protected _map_data(): void {
-    this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
-    this.sleft = this.renderer.xscale.v_compute(this._left)
-    this.sright = this.renderer.xscale.v_compute(this._right)
-
-    const n = this.sy.length
-    this.stop = new ScreenArray(n)
-    this.sbottom = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.stop[i] = this.sy[i] - this.sh[i]/2
-      this.sbottom[i] = this.sy[i] + this.sh[i]/2
+    if (this.base == null) {
+      this.sy = this.renderer.yscale.v_compute(this._y)
+      this.sleft = this.renderer.xscale.v_compute(this._left)
+      this.sright = this.renderer.xscale.v_compute(this._right)
     }
 
-    this._clamp_viewport()
+    if (!this.inherited_height) {
+      this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
+
+      const n = this.sy.length
+      this.stop = new ScreenArray(n)
+      this.sbottom = new ScreenArray(n)
+      for (let i = 0; i < n; i++) {
+        this.stop[i] = this.sy[i] - this.sh[i]/2
+        this.sbottom[i] = this.sy[i] + this.sh[i]/2
+      }
+    } else {
+      this.sh = this.base!.sh
+      this.stop = this.base!.stop
+      this.sbottom = this.base!.sbottom
+    }
+
+    //this._clamp_viewport()
   }
 }
 

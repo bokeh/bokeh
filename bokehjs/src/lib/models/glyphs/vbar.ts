@@ -8,6 +8,8 @@ export type VBarData = BoxData & {
   readonly width: p.Uniform<number>
   _top: FloatArray
 
+  readonly inherited_width?: boolean
+
   sx: ScreenArray
   sw: ScreenArray
   stop: ScreenArray
@@ -45,20 +47,29 @@ export class VBarView extends BoxView {
   }
 
   protected _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this._x)
-    this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
-    this.stop = this.renderer.yscale.v_compute(this._top)
-    this.sbottom = this.renderer.yscale.v_compute(this._bottom)
-
-    const n = this.sx.length
-    this.sleft = new ScreenArray(n)
-    this.sright = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.sleft[i] = this.sx[i] - this.sw[i]/2
-      this.sright[i] = this.sx[i] + this.sw[i]/2
+    if (this.base == null) {
+      this.sx = this.renderer.xscale.v_compute(this._x)
+      this.stop = this.renderer.yscale.v_compute(this._top)
+      this.sbottom = this.renderer.yscale.v_compute(this._bottom)
     }
 
-    this._clamp_viewport()
+    if (!this.inherited_width) {
+      this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
+
+      const n = this.sx.length
+      this.sleft = new ScreenArray(n)
+      this.sright = new ScreenArray(n)
+      for (let i = 0; i < n; i++) {
+        this.sleft[i] = this.sx[i] - this.sw[i]/2
+        this.sright[i] = this.sx[i] + this.sw[i]/2
+      }
+    } else {
+      this.sw = this.base!.sw
+      this.sleft = this.base!.sleft
+      this.sright = this.base!.sright
+    }
+
+    //this._clamp_viewport()
   }
 }
 

@@ -12,6 +12,8 @@ export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
   sradius: ScreenArray
   readonly max_radius: number
 
+  readonly inherited_radius?: boolean
+
   readonly start_angle: p.Uniform<number>
   readonly end_angle: p.Uniform<number>
 }
@@ -23,10 +25,14 @@ export class ArcView extends XYGlyphView {
   visuals: Arc.Visuals
 
   protected _map_data(): void {
-    if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
-    else
-      this.sradius = to_screen(this.radius)
+    if (!this.inherited_radius) {
+      if (this.model.properties.radius.units == "data")
+        this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
+      else
+        this.sradius = to_screen(this.radius)
+    } else {
+      this.sradius = this.base!.sradius
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ArcData): void {

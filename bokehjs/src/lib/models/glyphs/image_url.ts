@@ -16,6 +16,9 @@ export type ImageURLData = XYGlyphData & {
   readonly h: p.Uniform<number>
   _bounds_rect: Rect
 
+  readonly inherited_w?: boolean
+  readonly inherited_h?: boolean
+
   sw: ScreenArray
   sh: ScreenArray
 
@@ -156,15 +159,23 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _map_data(): void {
-    if (this.model.properties.w.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
-    else
-      this.sw = to_screen(this.w)
+    if (!this.inherited_w) {
+      if (this.model.properties.w.units == "data")
+        this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
+      else
+        this.sw = to_screen(this.w)
+    } else {
+      this.sw = this.base!.sw
+    }
 
-    if (this.model.properties.h.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.h, "edge", this.model.dilate)
-    else
-      this.sh = to_screen(this.h)
+    if (!this.inherited_h) {
+      if (this.model.properties.h.units == "data")
+        this.sh = this.sdist(this.renderer.yscale, this._y, this.h, "edge", this.model.dilate)
+      else
+        this.sh = to_screen(this.h)
+    } else {
+      this.sh = this.base!.sh
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {

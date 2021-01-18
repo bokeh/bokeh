@@ -88,7 +88,7 @@ export abstract class GlyphView extends View {
     }
 
     ctx.beginPath()
-    this._render(ctx, indices, data ?? this.base)
+    this._render(ctx, indices, data)
   }
 
   protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
@@ -243,9 +243,9 @@ export abstract class GlyphView extends View {
       if (base != null) {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          this._configure(prop, {
-            get() { return (base as any)[`${prop.attr}`] },
-          })
+          const name = prop.attr
+          this._configure(name, {value: (base as any)[name]})
+          this._configure(`inherited_${prop.attr}`, {value: true})
           continue
         }
       }
@@ -273,6 +273,23 @@ export abstract class GlyphView extends View {
 
       if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
+
+      const {base} = this
+      if (base != null) {
+        const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
+        if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
+          const name = prop instanceof p.BaseCoordinateSpec ? `_${prop.attr}` : prop.attr
+          this._configure(name, {value: (base as any)[name]})
+
+          if (prop instanceof p.DistanceSpec) {
+            const max_name = `max_${prop.attr}`
+            this._configure(max_name, {value: (base as any)[max_name]})
+          }
+
+          this._configure(`inherited_${prop.attr}`, {value: true})
+          continue
+        }
+      }
 
       if (prop instanceof p.BaseCoordinateSpec) {
         const base_array = prop.array(source)
@@ -308,15 +325,19 @@ export abstract class GlyphView extends View {
       }
     }
 
-    if (this.renderer.plot_view.model.use_map) {
-      this._project_data()
+    if (this.base == null) {
+      if (this.renderer.plot_view.model.use_map)
+        this._project_data()
     }
 
     this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
 
-    this.glglyph?.set_data_changed()
-
-    this.index_data()
+    if (this.base == null) {
+      this.glglyph?.set_data_changed()
+      this.index_data()
+    } else  {
+      this._index = this.base._index
+    }
   }
 
   protected _set_data(_indices: number[] | null): void {}
@@ -348,17 +369,20 @@ export abstract class GlyphView extends View {
     const self = this as any
 
     const {x_scale, y_scale} = this.renderer.coordinates
+    const {base} = this
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
-        const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[`_${prop.attr}`] as FloatArray | RaggedArray<FloatArray>
-        if (array instanceof RaggedArray) {
-          const screen = scale.v_compute(array.array)
-          array = new RaggedArray(array.offsets, screen)
-        } else {
-          array = scale.v_compute(array)
-        }
-        (this as any)[`s${prop.attr}`] = array
+        if (base == null) {
+          const scale = prop.dimension == "x" ? x_scale : y_scale
+          let array = self[`_${prop.attr}`] as FloatArray | RaggedArray<FloatArray>
+          if (array instanceof RaggedArray) {
+            array = new RaggedArray(array.offsets, scale.v_compute(array.array))
+          } else {
+            array = scale.v_compute(array)
+          }
+          this._configure(`s${prop.attr}`, {value: array})
+        } else
+          this._configure(`s${prop.attr}`, {value: (base as any)[`s${prop.attr}`]})
       }
     }
 

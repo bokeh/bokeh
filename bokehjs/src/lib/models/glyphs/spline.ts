@@ -20,14 +20,17 @@ export class SplineView extends XYGlyphView {
   visuals: Spline.Visuals
 
   protected _set_data(): void {
+    // XXX
     const {tension, closed} = this.model
     ;[this._xt, this._yt] = catmullrom_spline(this._x, this._y, 20, tension, closed)
   }
 
   protected _map_data(): void {
-    const {x_scale, y_scale} = this.renderer.coordinates
-    this.sxt = x_scale.v_compute(this._xt)
-    this.syt = y_scale.v_compute(this._yt)
+    if (this.base == null) {
+      const {x_scale, y_scale} = this.renderer.coordinates
+      this.sxt = x_scale.v_compute(this._xt)
+      this.syt = y_scale.v_compute(this._yt)
+    }
   }
 
   protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {

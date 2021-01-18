@@ -10,6 +10,9 @@ export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mix
   readonly width: p.Uniform<number>
   readonly height: p.Uniform<number>
 
+  readonly inherited_width?: boolean
+  readonly inherited_height?: boolean
+
   sw: ScreenArray
   sh: ScreenArray
 

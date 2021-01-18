@@ -12,6 +12,9 @@ export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
   readonly inner_radius: p.Uniform<number>
   readonly outer_radius: p.Uniform<number>
 
+  readonly inherited_inner_radius?: boolean
+  readonly inherited_outer_radius?: boolean
+
   sinner_radius: ScreenArray
   souter_radius: ScreenArray
 
@@ -26,15 +29,23 @@ export class AnnulusView extends XYGlyphView {
   visuals: Annulus.Visuals
 
   protected _map_data(): void {
-    if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
-    else
-      this.sinner_radius = to_screen(this.inner_radius)
+    if (!this.inherited_inner_radius) {
+      if (this.model.properties.inner_radius.units == "data")
+        this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
+      else
+        this.sinner_radius = to_screen(this.inner_radius)
+    } else {
+      this.sinner_radius = this.base!.sinner_radius
+    }
 
-    if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
-    else
-      this.souter_radius = to_screen(this.outer_radius)
+    if (!this.inherited_outer_radius) {
+      if (this.model.properties.outer_radius.units == "data")
+        this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
+      else
+        this.souter_radius = to_screen(this.outer_radius)
+    } else {
+      this.souter_radius = this.base!.souter_radius
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: AnnulusData): void {

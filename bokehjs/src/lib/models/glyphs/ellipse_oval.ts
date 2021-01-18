@@ -15,15 +15,23 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   visuals: EllipseOval.Visuals
 
   protected _map_data(): void {
-    if (this.model.properties.width.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.width, 'center')
-    else
-      this.sw = to_screen(this.width)
+    if (!this.inherited_width) {
+      if (this.model.properties.width.units == "data")
+        this.sw = this.sdist(this.renderer.xscale, this._x, this.width, 'center')
+      else
+        this.sw = to_screen(this.width)
+    } else {
+      this.sw = this.base!.sw
+    }
 
-    if (this.model.properties.height.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.height, 'center')
-    else
-      this.sh = to_screen(this.height)
+    if (!this.inherited_height) {
+      if (this.model.properties.height.units == "data")
+        this.sh = this.sdist(this.renderer.yscale, this._y, this.height, 'center')
+      else
+        this.sh = to_screen(this.height)
+    } else {
+      this.sh = this.base!.sh
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: EllipseOvalData): void {
