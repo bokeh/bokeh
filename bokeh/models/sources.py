@@ -102,7 +102,7 @@ class ColumnDataSource(ColumnarDataSource):
 
       .. code-block:: python
 
-          data = {'x': [1,2,3,4], 'y': np.ndarray([10.0, 20.0, 30.0, 40.0])}
+          data = {'x': [1,2,3,4], 'y': np.array([10.0, 20.0, 30.0, 40.0])}
 
           source = ColumnDataSource(data)
 
