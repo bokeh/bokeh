@@ -3,7 +3,7 @@ import sinon from "sinon"
 import {expect} from "assertions"
 import {display, fig} from "./_util"
 
-import {HoverTool, BoxAnnotation} from "@bokehjs/models"
+import {HoverTool, BoxAnnotation, ColumnDataSource, CDSView, GlyphRenderer, Circle} from "@bokehjs/models"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -60,5 +60,23 @@ describe("Bug", () => {
       expect(rv1_spy.callCount).to.be.equal(3)
       expect(rv2_spy.callCount).to.be.equal(3)
     })
+  })
+
+  describe("in issue #10853", () => {
+    it("prevents initializing GlyphRenderer with an empty data source", async () => {
+      const plot = fig([200, 200])
+      const data_source = new ColumnDataSource({data: {}})
+      const cds_view = new CDSView({source: data_source})
+      const glyph = new Circle({x: {field: "x_field"}, y: {field: "y_field"}})
+      const renderer = new GlyphRenderer({data_source, glyph, view: cds_view})
+      plot.add_renderers(renderer)
+      const {view} = await display(plot)
+      // XXX: no data (!= empty arrays) implies 1 data point, required for
+      // scalar glyphs. This doesn't account for purely expression glyphs.
+      // This needs to be refined in future.
+      expect(view.renderer_view(renderer)!.glyph.data_size).to.be.equal(1)
+    })
+
+    // TODO: this should test WebDataSource
   })
 })
