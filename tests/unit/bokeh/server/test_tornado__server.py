@@ -145,7 +145,7 @@ def test_websocket_compression_level() -> None:
     app = Application()
     t = tornado.BokehTornado({"/": app}, websocket_compression_level=2,
                              websocket_compression_mem_level=3)
-    ws_rules = [rule for rule in t.wildcard_router.rules if isinstance(r.target, WSHandler)]
+    ws_rules = [rule for rule in t.wildcard_router.rules if isinstance(rule.target, WSHandler)]
     assert len(ws_rules) == 1
     ws_rule = ws_rules[0]
     assert ws_rule.target_kwargs.get('compression_level') == 2
