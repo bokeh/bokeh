@@ -2,20 +2,23 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray, RGBAArray, ColorArray} from "./types"
+import {Arrayable, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
 import {to_radians_coeff} from "./util/math"
-import {is_Color, color2rgba} from "./util/color"
+import {is_Color, color2rgba, encode_rgba} from "./util/color"
 import {to_big_endian} from "./util/platform"
-import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {isBoolean, isNumber, isString, isArray, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional} from "./vectorization"
+import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
 import {is_NDArray, NDArray} from "./util/ndarray"
+
+import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
+export {Uniform, UniformScalar, UniformVector}
 
 function valueToString(value: any): string {
   try {
@@ -32,16 +35,22 @@ export function isSpec(obj: any): boolean {
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
 }
 
-export type Spec = {
-  readonly value?: any
+export type Spec<T> = {
+  readonly value?: T
   readonly field?: string
-  readonly expr?: any
-  readonly transform?: any // Transform
+  readonly expr?: Expression<T>
+  readonly transform?: Transform<unknown, T>
 }
 
 //
 // Property base class
 //
+
+export type UniformsOf<M> = {
+  [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
+                  M[K] extends ScalarSpec<infer T, any> ? UniformScalar<T> :
+                  M[K] extends Property<infer T>        ? T                : never
+}
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
@@ -57,7 +66,6 @@ export type DefaultsOf<P> = {
 
 export type PropertyOptions<T> = {
   internal?: boolean
-  optional?: boolean
   on_update?(value: T, obj: HasProps): void
 }
 
@@ -77,10 +85,10 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: Spec // XXX: too many failures for now
+  protected spec: Spec<T>
 
   get_value(): T {
-    return this.spec.value
+    return this.spec.value!
   }
 
   set_value(val: T): void {
@@ -102,7 +110,6 @@ export abstract class Property<T = unknown> {
   readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
-  readonly optional: boolean
 
   on_update?(value: T, obj: HasProps): void
 
@@ -115,7 +122,6 @@ export abstract class Property<T = unknown> {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
-    this.optional = options.optional ?? false
     this.on_update = options.on_update
 
     let attr_value: T
@@ -131,7 +137,7 @@ export abstract class Property<T = unknown> {
       else {
         // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
         // console.warn(`${this.obj}.${this.attr} has no value nor default`)
-        this.spec = {value: null}
+        this.spec = {value: null as any}
         return
       }
     }
@@ -169,7 +175,7 @@ export abstract class Property<T = unknown> {
 
   // ----- property accessors
 
-  value(do_spec_transform: boolean = true): any {
+  _value(do_spec_transform: boolean = true): any {
     if (!this.is_value)
       throw new Error("attempted to retrieve property value for property without value specification")
     let ret = this.normalize([this.spec.value])[0]
@@ -198,7 +204,7 @@ export class Any extends Property<any> {}
 /** @deprecated */
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
-    return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
+    return isArray(value) || isTypedArray(value)
   }
 }
 
@@ -365,8 +371,11 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   __scalar__: S
 
   get_value(): S {
+    // XXX: denormalize value for serialization, because bokeh doens't support scalar properties
+    const {value, expr, transform} = this.spec
+    return (expr != null || transform != null ? this.spec : value) as any
     // XXX: allow obj.x = null; obj.x == null
-    return this.spec.value === null ? null : this.spec as any
+    // return this.spec.value === null ? null : this.spec as any
   }
 
   protected _update(attr_value: S | T): void {
@@ -378,6 +387,32 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     if (this.spec.value != null)
       this.validate(this.spec.value)
   }
+
+  materialize(value: T): T {
+    return value
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
+    const {expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
+    if (expr != null) {
+      let result = (expr as ScalarExpression<T>).compute(source)
+      if (transform != null)
+        result = transform.compute(result) as any
+      result = this.materialize(result)
+      return this.scalar(result, n)
+    } else {
+      let result = value
+      if (transform != null)
+        result = transform.compute(result)
+      result = this.materialize(result as any)
+      return this.scalar(result, n)
+    }
+  }
 }
 
 export class AnyScalar extends ScalarSpec<any> {}
@@ -388,6 +423,12 @@ export class NullStringScalar extends ScalarSpec<string | null> {}
 export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
+export class LineDashScalar extends ScalarSpec<enums.LineDash | number[]> {}
+export class FontScalar extends ScalarSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
 export class FontSizeScalar extends ScalarSpec<string> {}
 export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
 export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
@@ -412,6 +453,51 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this.validate(this.spec.value)
   }
 
+  materialize(value: T): T {
+    return value
+  }
+
+  v_materialize(values: Arrayable<T>): Arrayable<T> {
+    return values
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  vector(values: Arrayable<T>): UniformVector<T> {
+    return new UniformVector(values)
+  }
+
+  uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
+    const {field, expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
+    if (field != null) {
+      let array = source.get_column(field)
+      if (array != null) {
+        if (transform != null)
+          array = transform.v_compute(array)
+        array = this.v_materialize(array)
+        return this.vector(array)
+      } else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
+        return this.scalar(null as any, n)
+      }
+    } else if (expr != null) {
+      let array = (expr as VectorExpression<T>).v_compute(source)
+      if (transform != null)
+        array = transform.v_compute(array) as any
+      array = this.v_materialize(array)
+      return this.vector(array)
+    } else {
+      let result = value
+      if (transform != null)
+        result = transform.compute(result)
+      result = this.materialize(result as any)
+      return this.scalar(result, n)
+    }
+  }
+
   array(source: ColumnarDataSource): Arrayable<unknown> {
     let array: Arrayable
 
@@ -423,16 +509,16 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = this.normalize(column)
       else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-        const missing = new NumberArray(length)
+        const missing = new Float64Array(length)
         missing.fill(NaN)
         array = missing
       }
     } else if (this.spec.expr != null) {
-      array = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize((this.spec.expr as VectorExpression<T>).v_compute(source))
     } else {
-      const value = this.value(false) // don't apply any spec transform
+      const value = this._value(false) // don't apply any spec transform
       if (isNumber(value)) {
-        const values = new NumberArray(length)
+        const values = new Float64Array(length)
         values.fill(value)
         array = values
       } else
@@ -451,7 +537,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
-  spec: Spec & {units?: Units}
+  spec: Spec<T> & {units?: Units}
 
   _update(attr_value: any): void {
     super._update(attr_value)
@@ -475,8 +561,8 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
@@ -498,41 +584,67 @@ export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly
 export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
-  get default_units(): enums.AngleUnits { return "rad" as "rad" }
+  get default_units(): enums.AngleUnits { return "rad" }
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
-  normalize(values: Arrayable): Arrayable {
+  materialize(value: number): number {
     const coeff = -to_radians_coeff(this.units)
-    mul(values, coeff, values)
-    return super.normalize(values)
+    return value*coeff
+  }
+
+  v_materialize(values: Arrayable<number>): Float32Array {
+    const coeff = -to_radians_coeff(this.units)
+    const result = new Float32Array(values.length)
+    mul(values, coeff, result) // TODO: in-place?
+    return result
+  }
+
+  array(_source: ColumnarDataSource): Float32Array {
+    throw new Error("not supported")
   }
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
-  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get default_units(): enums.SpatialUnits { return "data" }
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
+export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
+  materialize(value: number | null): number {
+    return value ?? NaN
+  }
+}
+
 export class ScreenDistanceSpec extends DistanceSpec {
-  get default_units(): enums.SpatialUnits { return "screen" as "screen" }
+  get default_units(): enums.SpatialUnits { return "screen" }
 }
 
 export class BooleanSpec extends DataSpec<boolean> {
+  v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
+    return new Uint8Array(values as any) as any
+  }
+
   array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
 
 export class NumberSpec extends DataSpec<number> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  v_materialize(values: Arrayable<number>): TypedArray {
+    return isTypedArray(values) ? values : new Float64Array(values)
+  }
+
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
-  array(source: ColumnarDataSource): ColorArray {
-    const colors = super.array(source) as Arrayable<types.Color | null>
+  materialize(color: types.Color | null): uint32 {
+    return encode_rgba(color2rgba(color))
+  }
 
+  v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
         return to_big_endian(colors)
@@ -592,14 +704,29 @@ export class ColorSpec extends DataSpec<types.Color | null> {
 
     throw new Error("invalid color array")
   }
+
+  vector(values: ColorArray): ColorUniformVector {
+    return new ColorUniformVector(values)
+  }
 }
 
-export class FontSizeSpec extends DataSpec<string> {}
+export class NDArraySpec extends DataSpec<NDArray> {}
+
+export class AnySpec extends DataSpec<any> {}
+export class StringSpec extends DataSpec<string> {}
+export class NullStringSpec extends DataSpec<string | null> {}
+export class ArraySpec extends DataSpec<any[]> {}
 
 export class MarkerSpec extends DataSpec<enums.MarkerType> {}
-
-export class StringSpec extends DataSpec<string> {}
-
-export class NullStringSpec extends DataSpec<string | null> {}
-
-export class NDArraySpec extends DataSpec<NDArray> {}
+export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
+export class LineCapSpec extends DataSpec<enums.LineCap> {}
+export class LineDashSpec extends DataSpec<enums.LineDash | number[]> {}
+export class FontSpec extends DataSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
+export class FontSizeSpec extends DataSpec<string> {}
+export class FontStyleSpec extends DataSpec<enums.FontStyle> {}
+export class TextAlignSpec extends DataSpec<enums.TextAlign> {}
+export class TextBaselineSpec extends DataSpec<enums.TextBaseline> {}

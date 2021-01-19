@@ -53,6 +53,8 @@ glyph, and most markers:
 
 * :func:`~bokeh.plotting.Figure.square_x`
 
+* :func:`~bokeh.plotting.Figure.star`
+
 * :func:`~bokeh.plotting.Figure.triangle`
 
 * :func:`~bokeh.plotting.Figure.x`

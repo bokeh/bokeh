@@ -49,7 +49,7 @@ describe("Marker glyph", () => {
       const Y = () => [++y + 0, y + 1, y + 2, y + 3, y + 4]
 
       const attrs = {
-        angle: [0, 30, 45, 60, 90].map((a) => radians(a)),
+        angle: [0, 30, 45, 60, 90].map((a) => radians(a)), // TODO: angle_units
         size: 12,
         line_color: "navy",
         fill_color: "orange",
@@ -77,6 +77,8 @@ describe("Marker glyph", () => {
       p.square_dot(X("square_dot"), Y(), attrs)
       p.square_pin(X("square_pin"), Y(), attrs)
       p.square_x(X("square_x"), Y(), attrs)
+      p.star(X("star"), Y(), attrs)
+      p.star_dot(X("star_dot"), Y(), attrs)
       p.triangle(X("triangle"), Y(), attrs)
       p.triangle_dot(X("triangle_dot"), Y(), attrs)
       p.triangle_pin(X("triangle_pin"), Y(), attrs)

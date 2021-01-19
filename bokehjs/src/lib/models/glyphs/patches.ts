@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, RaggedArray, Indices} from "core/types"
+import {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -13,12 +13,12 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export interface PatchesData extends GlyphData {
-  _xs: RaggedArray
-  _ys: RaggedArray
+export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
+  _xs: RaggedArray<FloatArray>
+  _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray
-  sys: RaggedArray
+  sxs: RaggedArray<ScreenArray>
+  sys: RaggedArray<ScreenArray>
 }
 
 export interface PatchesView extends PatchesData {}
@@ -75,21 +75,26 @@ export class PatchesView extends GlyphView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
+    const {sxs, sys} = data ?? this
+
     for (const i of indices) {
-      const sx = sxs.get(i)
-      const sy = sys.get(i)
+      const sx_i = sxs.get(i)
+      const sy_i = sys.get(i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.fill)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => this._inner_loop(ctx, sx, sy, ctx.fill), () => this.renderer.request_render())
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.stroke)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.stroke)
       }
     }
   }

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -30,6 +30,8 @@ The full list of markers built into Bokeh is given below:
 * :func:`~bokeh.models.markers.SquareDot`
 * :func:`~bokeh.models.markers.SquarePin`
 * :func:`~bokeh.models.markers.SquareX`
+* :func:`~bokeh.models.markers.Star`
+* :func:`~bokeh.models.markers.StarDot`
 * :func:`~bokeh.models.markers.Triangle`
 * :func:`~bokeh.models.markers.TriangleDot`
 * :func:`~bokeh.models.markers.TrianglePin`
@@ -96,6 +98,8 @@ __all__ = (
     'SquareDot',
     'SquarePin',
     'SquareX',
+    'Star',
+    'StarDot',
     'Triangle',
     'TriangleDot',
     'TrianglePin',
@@ -207,6 +211,16 @@ def SquareX(*args, **kwargs):
     deprecated((2, 3, 0), "SquareX()", "Scatter(marker='square_x')")
     return Scatter(*args, **kwargs, marker="square_x")
 
+def Star(*args, **kwargs):
+    ''' Render star markers. '''
+    deprecated((2, 3, 0), "Star()", "Scatter(marker='star')")
+    return Scatter(*args, **kwargs, marker="star")
+
+def StarDot(*args, **kwargs):
+    ''' Render star markers with center dots. '''
+    deprecated((2, 3, 0), "StarDot()", "Scatter(marker='star_dot')")
+    return Scatter(*args, **kwargs, marker="star_dot")
+
 def Triangle(*args, **kwargs):
     ''' Render triangle markers. '''
     deprecated((2, 3, 0), "Triangle()", "Scatter(marker='triangle')")
@@ -266,6 +280,8 @@ marker_types = {
     "square_dot": SquareDot,
     "square_pin": SquarePin,
     "square_x": SquareX,
+    "star": Star,
+    "star_dot": StarDot,
     "triangle": Triangle,
     "triangle_dot": TriangleDot,
     "triangle_pin": TrianglePin,
@@ -293,6 +309,8 @@ glyphs.SquareCross = SquareCross
 glyphs.SquareDot = SquareDot
 glyphs.SquarePin = SquarePin
 glyphs.SquareX = SquareX
+glyphs.Star = Star
+glyphs.StarDot = StarDot
 glyphs.Triangle = Triangle
 glyphs.TriangleDot = TriangleDot
 glyphs.TrianglePin = TrianglePin

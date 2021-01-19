@@ -4,7 +4,7 @@ import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
-export interface ImageData extends ImageDataBase {}
+export type ImageData = ImageDataBase
 
 export interface ImageView extends ImageData {}
 

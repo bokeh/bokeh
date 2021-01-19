@@ -229,14 +229,14 @@ export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float32
 export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number]}): Float64NDArray & Array1d
 export function ndarray(array: ArrayBuffer | number[], options: {dtype: "float64", shape: [number, number]}): Float64NDArray & Array2d
 
-export function ndarray<K extends DataType = "float32">(array: ArrayBuffer | number[], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
+export function ndarray<K extends DataType = "float64">(array: ArrayBuffer | number[], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 export function ndarray<K extends DataType>(array: NDArrayTypes[K]["typed"], options?: {dtype?: K, shape?: number[]}): NDArrayTypes[K]["ndarray"]
 
 export function ndarray(array: ArrayBuffer | TypedArray | number[], options: {dtype?: DataType, shape?: number[]} = {}): NDArray {
   let {dtype} = options
   if (dtype == null) {
     if (array instanceof ArrayBuffer || isArray(array)) {
-      dtype = "float32"
+      dtype = "float64"
     } else {
       dtype = (() => {
         switch (true) {

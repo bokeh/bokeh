@@ -78,6 +78,9 @@ export const LineCap = Enum("butt", "round", "square")
 export type LineJoin = "miter" | "round" | "bevel"
 export const LineJoin = Enum("miter", "round", "bevel")
 
+export type LineDash = "solid" | "dashed" | "dotted" | "dotdash" | "dashdot"
+export const LineDash = Enum("solid", "dashed", "dotted", "dotdash", "dashdot")
+
 export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none"
 export const LinePolicy = Enum("prev", "next", "nearest", "interp", "none")
 
@@ -91,14 +94,14 @@ export type MarkerType =
   "asterisk" | "circle" | "circle_cross" | "circle_dot" | "circle_x" |
   "circle_y" | "cross" | "dash" | "diamond" | "diamond_cross" | "diamond_dot" |
   "dot" | "hex" | "hex_dot" | "inverted_triangle" | "plus" | "square" |
-  "square_cross" | "square_dot" | "square_pin" | "square_x" | "triangle" |
-  "triangle_dot" | "triangle_pin" | "x" | "y"
+  "square_cross" | "square_dot" | "square_pin" | "square_x" | "star" | "star_dot" |
+  "triangle" | "triangle_dot" | "triangle_pin" | "x" | "y"
 export const MarkerType = Enum(
   "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
   "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
   "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
-  "square_cross", "square_dot", "square_pin", "square_x", "triangle",
-  "triangle_dot", "triangle_pin", "x", "y",
+  "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
+  "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
 
 export type MutedPolicy = "show" | "ignore"

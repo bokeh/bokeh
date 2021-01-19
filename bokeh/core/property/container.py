@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -39,6 +39,7 @@ __all__ = (
     'Dict',
     'List',
     'RelativeDelta',
+    'RestrictedDict',
     'Seq',
     'Tuple',
 )
@@ -355,6 +356,24 @@ class RelativeDelta(Dict):
 
     def __str__(self):
         return self.__class__.__name__
+
+class RestrictedDict(Dict):
+    """ Check for disallowed key(s).
+
+    """
+
+    def __init__(self, keys_type, values_type, disallow, default={}, help=None):
+        self._disallow = set(disallow)
+        super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
+
+    def validate(self, value, detail=True):
+        super().validate(value, detail)
+
+        error_keys = self._disallow & value.keys()
+
+        if error_keys:
+            msg = "" if not detail else f"Disallowed keys: {error_keys!r}"
+            raise ValueError(msg)
 
 #-----------------------------------------------------------------------------
 # Dev API

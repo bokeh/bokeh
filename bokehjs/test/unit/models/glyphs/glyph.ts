@@ -22,7 +22,7 @@ describe("glyph module", () => {
           index.add_empty()
         }
 
-        protected _render(_ctx: Context2d, _indices: number[], {}: object): void {}
+        protected _render(_ctx: Context2d, _indices: number[], _data: object): void {}
 
         scenterxy(): [number, number] {
           return [0, 0]

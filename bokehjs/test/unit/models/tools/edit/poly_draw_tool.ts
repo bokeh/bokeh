@@ -3,7 +3,6 @@ import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
 import {build_view} from "@bokehjs/core/build_views"
-import {NumberArray} from '@bokehjs/core/types'
 
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -222,8 +221,8 @@ describe("PolyDrawTool", (): void => {
 
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
-      testcase.data_source.data.xs[2] = NumberArray.from(testcase.data_source.data.xs[2])
-      testcase.data_source.data.ys[2] = NumberArray.from(testcase.data_source.data.ys[2])
+      testcase.data_source.data.xs[2] = Float32Array.from(testcase.data_source.data.xs[2])
+      testcase.data_source.data.ys[2] = Float32Array.from(testcase.data_source.data.ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
 

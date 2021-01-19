@@ -8,21 +8,23 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
+import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
-import {map, max} from "core/util/arrayable"
-import {values} from "core/util/object"
+import {inplace_map, max} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {Scale} from "../scales/scale"
-import {FactorRange} from "../ranges/factor_range"
+import {FactorRange, Factor} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 import type {BaseGLGlyph} from "./webgl/base"
 
-export interface GlyphData {}
+const {abs, ceil} = Math
+
+export type GlyphData = {}
 
 export interface GlyphView extends GlyphData {}
 
@@ -70,19 +72,26 @@ export abstract class GlyphView extends View {
     this.visuals = new visuals.Visuals(this)
   }
 
-  render(ctx: Context2d, indices: number[], data: any): void {
-    ctx.beginPath()
+  request_render(): void {
+    this.parent.request_render()
+  }
 
+  get canvas() {
+    return this.renderer.parent.canvas_view
+  }
+
+  render(ctx: Context2d, indices: number[], data?: GlyphData): void {
     if (this.glglyph != null) {
-      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, data)
+      this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
       if (this.renderer.needs_webgl_blit)
         return
     }
 
-    this._render(ctx, indices, data)
+    ctx.beginPath()
+    this._render(ctx, indices, data ?? this.base)
   }
 
-  protected abstract _render(ctx: Context2d, indices: number[], data: any): void
+  protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
 
   has_finished(): boolean {
     return true
@@ -131,37 +140,33 @@ export abstract class GlyphView extends View {
     return this.scenterxy(i, sx, sy)[1]
   }
 
-  sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
-        pts_location: "center" | "edge" = "edge", dilate: boolean = false): NumberArray {
-    let pt0: Arrayable<number>
-    let pt1: Arrayable<number>
-
+  sdist(scale: Scale, pts: Arrayable<number>, spans: p.Uniform<number>,
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): ScreenArray {
     const n = pts.length
-    if (pts_location == 'center') {
-      const halfspan = map(spans, (d) => d/2)
-      pt0 = new Float64Array(n)
+    const sdist = new ScreenArray(n)
+
+    const compute = scale.s_compute
+    if (pts_location == "center") {
       for (let i = 0; i < n; i++) {
-        pt0[i] = pts[i] - halfspan[i]
-      }
-      pt1 = new Float64Array(n)
-      for (let i = 0; i < n; i++) {
-        pt1[i] = pts[i] + halfspan[i]
+        const pts_i = pts[i]
+        const halfspan_i = spans.get(i)/2
+        const spt0 = compute(pts_i - halfspan_i)
+        const spt1 = compute(pts_i + halfspan_i)
+        sdist[i] = abs(spt1 - spt0)
       }
     } else {
-      pt0 = pts
-      pt1 = new Float64Array(n)
       for (let i = 0; i < n; i++) {
-        pt1[i] = pt0[i] + spans[i]
+        const pts_i = pts[i]
+        const spt0 = compute(pts_i)
+        const spt1 = compute(pts_i + spans.get(i))
+        sdist[i] = abs(spt1 - spt0)
       }
     }
 
-    const spt0 = scale.v_compute(pt0)
-    const spt1 = scale.v_compute(pt1)
-
     if (dilate)
-      return map(spt0, (_, i) => Math.ceil(Math.abs(spt1[i] - spt0[i])))
-    else
-      return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
+      inplace_map(sdist, (sd) => ceil(sd))
+
+    return sdist
   }
 
   draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}
@@ -209,10 +214,10 @@ export abstract class GlyphView extends View {
 
   protected _project_data(): void {}
 
-  private *_iter_visuals(): Generator<p.VectorSpec<unknown>> {
-    for (const visual of values<visuals.ContextProperties>(this.visuals)) {
+  private *_iter_visuals(): Generator<p.VectorSpec<unknown> | p.ScalarSpec<unknown>> {
+    for (const visual of this.visuals) {
       for (const prop of visual) {
-        if (prop instanceof p.VectorSpec)
+        if (prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)
           yield prop
       }
     }
@@ -224,80 +229,90 @@ export abstract class GlyphView extends View {
       this.base = base
   }
 
-  set_visuals(source: ColumnarDataSource, indices: Indices): void {
-    const self = this as any
+  protected _configure(prop: string | p.Property<unknown>, descriptor: PropertyDescriptor): void {
+    Object.defineProperty(this, isString(prop) ? prop : prop.attr, {
+      configurable: true,
+      enumerable: true,
+      ...descriptor,
+    })
+  }
 
+  set_visuals(source: ColumnarDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
       if (base != null) {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          self[`_${prop.attr}`] = (base as any)[`_${prop.attr}`]
-          self[`_${prop.attr}_view`] = (base as any)[`_${prop.attr}_view`]
+          this._configure(prop, {
+            get() { return (base as any)[`${prop.attr}`] },
+          })
           continue
         }
       }
 
-      const base_array = prop.array(source)
-      const array = indices.select(base_array)
-      self[`_${prop.attr}`] = array
+      const uniform = prop.uniform(source).select(indices)
+      this._configure(prop, {value: uniform})
+    }
 
-      if (array instanceof Uint32Array)
-        self[`_${prop.attr}_view`] = new DataView(array.buffer)
+    for (const visual of this.visuals) {
+      visual.update()
     }
 
     this.glglyph?.set_visuals_changed()
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update: number[] | null): void {
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
     const {x_range, y_range} = this.renderer.coordinates
+    const visual_props = new Set(this._iter_visuals())
 
     this._data_size = indices.count
 
-    const visual_props = new Set(this._iter_visuals())
     for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
         continue
 
       if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
         continue
 
-      // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !prop.dirty)
-        continue
-
-      const name = prop.attr
-
-      const base_array = prop.array(source)
-      let array = indices.select(base_array as Arrayable<unknown>)
-
       if (prop instanceof p.BaseCoordinateSpec) {
+        const base_array = prop.array(source)
+        let array = indices.select(base_array)
+
         const range = prop.dimension == "x" ? x_range : y_range
         if (range instanceof FactorRange) {
           if (prop instanceof p.CoordinateSpec) {
-            array = range.v_synthetic(array as any)
+            array = range.v_synthetic(array as Arrayable<number | Factor>)
           } else if (prop instanceof p.CoordinateSeqSpec) {
             for (let i = 0; i < array.length; i++) {
-              array[i] = range.v_synthetic(array[i] as any)
+              array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
             }
           }
         }
 
+        let final_array: Arrayable<unknown> | RaggedArray<FloatArray>
         if (prop instanceof p.CoordinateSeqSpec) {
-          array = RaggedArray.from(array as any) as any
-        }
-      } else if (prop instanceof p.DistanceSpec) {
-        (this as any)[`max_${name}`] = max(array as any)
-      }
+          // TODO: infer precision
+          final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
+        } else
+          final_array = array
 
-      (this as any)[`_${name}`] = array
+        this._configure(`_${prop.attr}`, {value: final_array})
+      } else {
+        const uniform = prop.uniform(source).select(indices)
+        this._configure(prop, {value: uniform})
+
+        if (prop instanceof p.DistanceSpec) {
+          const max_value = uniform.is_Scalar() ? uniform.value : max((uniform as any).array)
+          this._configure(`max_${prop.attr}`, {value: max_value})
+        }
+      }
     }
 
     if (this.renderer.plot_view.model.use_map) {
       this._project_data()
     }
 
-    this._set_data(indices_to_update)  // TODO doesn't take subset indices into account
+    this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
 
     this.glglyph?.set_data_changed()
 
@@ -336,7 +351,7 @@ export abstract class GlyphView extends View {
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
         const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[`_${prop.attr}`] as NumberArray | RaggedArray
+        let array = self[`_${prop.attr}`] as FloatArray | RaggedArray<FloatArray>
         if (array instanceof RaggedArray) {
           const screen = scale.v_compute(array.array)
           array = new RaggedArray(array.offsets, screen)
@@ -360,7 +375,7 @@ export namespace Glyph {
 
   export type Props = Model.Props
 
-  export type Visuals = {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface Glyph extends Glyph.Attrs {}

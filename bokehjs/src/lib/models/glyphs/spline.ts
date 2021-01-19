@@ -2,15 +2,15 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {NumberArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 
 export type SplineData = XYGlyphData & {
-  _xt: NumberArray
-  _yt: NumberArray
-  sxt: NumberArray
-  syt: NumberArray
+  _xt: FloatArray
+  _yt: FloatArray
+  sxt: ScreenArray
+  syt: ScreenArray
 }
 
 export interface SplineView extends SplineData {}
@@ -30,7 +30,9 @@ export class SplineView extends XYGlyphView {
     this.syt = y_scale.v_compute(this._yt)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], {sxt: sx, syt: sy}: SplineData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
+    const {sxt: sx, syt: sy} = data ?? this
+
     this.visuals.line.set_value(ctx)
 
     const n = sx.length
@@ -58,9 +60,9 @@ export namespace Spline {
     closed: p.Property<boolean>
   }
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.LineScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
 }
 
 export interface Spline extends Spline.Attrs {}
@@ -76,7 +78,7 @@ export class Spline extends XYGlyph {
   static init_Spline(): void {
     this.prototype.default_view = SplineView
 
-    this.mixins<Spline.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Spline.Mixins>(mixins.LineScalar)
 
     this.define<Spline.Props>(({Boolean, Number}) => ({
       tension: [ Number,  0.5   ],

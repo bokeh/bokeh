@@ -1,13 +1,13 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_scalar_legend} from "./utils"
-import {Line} from "core/property_mixins"
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Rect} from "core/types"
 import {StepMode} from "core/enums"
 import {Context2d} from "core/util/canvas"
 
-export interface StepData extends XYGlyphData {}
+export type StepData = XYGlyphData
 
 export interface StepView extends StepData {}
 
@@ -15,7 +15,9 @@ export class StepView extends XYGlyphView {
   model: Step
   visuals: Step.Visuals
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy}: StepData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
+    const {sx, sy} = data ?? this
+
     let drawing = false
     let last_index: number | null = null
 
@@ -95,9 +97,9 @@ export namespace Step {
     mode: p.Property<StepMode>
   } & Mixins
 
-  export type Mixins = Line/*Scalar*/
+  export type Mixins = mixins.LineScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
 }
 
 export interface Step extends Step.Attrs {}
@@ -113,9 +115,9 @@ export class Step extends XYGlyph {
   static init_Step(): void {
     this.prototype.default_view = StepView
 
-    this.mixins<Step.Mixins>(Line/*Scalar*/)
+    this.mixins<Step.Mixins>(mixins.LineScalar)
     this.define<Step.Props>(() => ({
-      mode: [ StepMode, "before"],
+      mode: [ StepMode, "before" ],
     }))
   }
 }

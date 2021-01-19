@@ -248,12 +248,12 @@ describe("properties module", () => {
         const obj1 = new Some({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.equal(new Float32Array([1, 1, 1, 1, 1]))
+        expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
 
         const obj2 = new Some({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.equal(new Float32Array([2, 2, 2, 2, 2]))
+        expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
       })
 
       it("should return an array if there is a valid expr spec", () => {
@@ -261,7 +261,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {expr: new TestExpression()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 4]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
       })
 
       it("should return an array if there is a valid field spec", () => {
@@ -269,7 +269,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
@@ -277,7 +277,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should throw an Error otherwise", () => {
@@ -285,7 +285,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([NaN, NaN, NaN]))
+        expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {
@@ -293,7 +293,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 2, 4, 6, 14]))
+        expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
       })
 
       it("should apply a spec transform to a value array", () => {
@@ -301,7 +301,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([2, 3, 4, 5, 6]))
+        expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
       })
 
       describe("changing the property attribute value", () => {
@@ -319,7 +319,7 @@ describe("properties module", () => {
         const obj = new Some({string_spec: {value: "foo"}})
         const prop = obj.properties.string_spec
         obj.string_spec = {value: "bar"}
-        expect(prop.spec).to.be.equal({value: "bar"})
+        expect(prop.get_value()).to.be.equal({value: "bar"})
       })
     })
   })
@@ -358,13 +358,20 @@ describe("properties module", () => {
       it("should multiply radians by -1", () => {
         const obj = new Some({angle_spec: {value: 10, units: "rad"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-10, 0, 10, 20])).to.be.equal([10, -0, -10, -20])
+        expect(prop.materialize(-10)).to.be.equal(10)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(10)).to.be.equal(-10)
+        expect(prop.materialize(20)).to.be.equal(-20)
+        expect(prop.v_materialize([-10, 0, 10, 20])).to.be.equal(new Float32Array([10, -0, -10, -20]))
       })
 
       it("should convert degrees to -1 * radians", () => {
         const obj = new Some({angle_spec: {value: 10, units: "deg"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-180, 0, 180])).to.be.equal([Math.PI, -0, -Math.PI])
+        expect(prop.materialize(-180)).to.be.equal(Math.PI)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(180)).to.be.equal(-Math.PI)
+        expect(prop.v_materialize([-180, 0, 180])).to.be.equal(new Float32Array([Math.PI, -0, -Math.PI]))
       })
     })
   })

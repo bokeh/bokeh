@@ -1,12 +1,12 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {Rect} from "core/types"
+import {Rect, to_screen} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export interface EllipseOvalData extends CenterRotatableData {}
+export type EllipseOvalData = CenterRotatableData
 
 export interface EllipseOvalView extends EllipseOvalData {}
 
@@ -16,33 +16,41 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
 
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
+      this.sw = this.sdist(this.renderer.xscale, this._x, this.width, 'center')
     else
-      this.sw = this._width
+      this.sw = to_screen(this.width)
 
     if (this.model.properties.height.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center')
+      this.sh = this.sdist(this.renderer.yscale, this._y, this.height, 'center')
     else
-      this.sh = this._height
+      this.sh = to_screen(this.height)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: EllipseOvalData): void {
+    const {sx, sy, sw, sh, angle} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const angle_i = angle.get(i)
+
+      if (isNaN(sx_i + sy_i + sw_i + sh_i + angle_i))
         continue
 
       ctx.beginPath()
-      ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
+      ctx.ellipse(sx_i, sy_i, sw_i/2.0, sh_i/2.0, angle_i, 0, 2 * Math.PI)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
+      if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -80,7 +88,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     const indices: number[] = []
 
     for (const i of candidates) {
-      cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
+      cond = hittest.point_in_ellipse(sx, sy, this.angle.get(i), this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
         indices.push(i)
       }

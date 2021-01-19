@@ -3,18 +3,18 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Arrayable, Rect, Indices} from "core/types"
+import {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export interface MarkerData extends XYGlyphData {
-  _size: Arrayable<number>
-  _angle: Arrayable<number>
+export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
+  readonly size: p.Uniform<number>
+  readonly angle: p.Uniform<number>
 
-  max_size: number
+  readonly max_size: number
 }
 
 export interface MarkerView extends MarkerData {}
@@ -25,25 +25,32 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MarkerData): void {
+    const {sx, sy, size, angle} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const size_i = size.get(i)
+      const angle_i = angle.get(i)
+
+      if (isNaN(sx_i + sy_i + size_i + angle_i))
         continue
 
-      const r = _size[i]/2
+      const r = size_i/2
 
       ctx.beginPath()
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
 
-      if (_angle[i])
-        ctx.rotate(_angle[i])
+      if (angle_i)
+        ctx.rotate(angle_i)
 
       this._render_one(ctx, i, r, this.visuals)
 
-      if (_angle[i])
-        ctx.rotate(-_angle[i])
+      if (angle_i)
+        ctx.rotate(-angle_i)
 
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
     }
   }
 
@@ -62,21 +69,21 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const {hit_dilation} = this.model
+    const {hit_dilation, max_size} = this
 
-    const sx0 = sx - this.max_size*hit_dilation
-    const sx1 = sx + this.max_size*hit_dilation
+    const sx0 = sx - max_size*hit_dilation
+    const sx1 = sx + max_size*hit_dilation
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-    const sy0 = sy - this.max_size*hit_dilation
-    const sy1 = sy + this.max_size*hit_dilation
+    const sy0 = sy - max_size*hit_dilation
+    const sy1 = sy + max_size*hit_dilation
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices: number[] = []
 
     for (const i of candidates) {
-      const s2 = this._size[i]/2*hit_dilation
+      const s2 = this.size.get(i)/2*hit_dilation
       if (Math.abs(this.sx[i] - sx) <= s2 && Math.abs(this.sy[i] - sy) <= s2) {
         indices.push(i)
       }
@@ -134,21 +141,22 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): any {
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
     // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
-    const len = index + 1
+    const n = index + 1
 
-    const sx: number[] = new Array(len)
+    const sx: number[] = new Array(n)
+    const sy: number[] = new Array(n)
+
     sx[index] = (x0 + x1)/2
-    const sy: number[] = new Array(len)
     sy[index] = (y0 + y1)/2
 
-    const size: number[] = new Array(len)
-    size[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4
-    const angle: number[] = new Array(len)
-    angle[index] = 0 // don't attempt to match glyph angle
+    const vsize = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4
+    const size = new p.UniformScalar(vsize, n)
 
-    return {sx, sy, _size: size, _angle: angle}
+    const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
+
+    return {sx, sy, size, angle} as any
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {

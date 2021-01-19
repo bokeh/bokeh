@@ -30,8 +30,6 @@ export class GridView extends GuideRendererView {
     if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
       return
 
-    this.visuals.band_fill.set_value(ctx)
-
     const [xs, ys] = this.grid_coords('major', false)
     for (let i = 0; i < xs.length-1; i++) {
       if (i % 2 != 1)
@@ -40,12 +38,18 @@ export class GridView extends GuideRendererView {
       const [sx0, sy0] = this.coordinates.map_to_screen(xs[i],   ys[i])
       const [sx1, sy1] = this.coordinates.map_to_screen(xs[i+1], ys[i+1])
 
-      if (this.visuals.band_fill.doit)
-        ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
+      ctx.beginPath()
+      ctx.rect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
 
-      this.visuals.band_hatch.doit2(ctx, () => {
-        ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
-      }, () => this.request_render())
+      if (this.visuals.band_fill.doit) {
+        this.visuals.band_fill.set_value(ctx)
+        ctx.fill()
+      }
+
+      if (this.visuals.band_hatch.doit) {
+        this.visuals.band_hatch.set_value(ctx)
+        ctx.fill()
+      }
     }
   }
 

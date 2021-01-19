@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 import {unreachable} from "core/util/assert"
@@ -231,9 +231,9 @@ export class FactorRange extends Range {
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): NumberArray {
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): ScreenArray {
     const n = xs.length
-    const array = new NumberArray(n)
+    const array = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       array[i] = this.synthetic(xs[i])
     }

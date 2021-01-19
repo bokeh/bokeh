@@ -3,7 +3,7 @@ import {Arrayable, TypedArray} from "core/types"
 import {isArray} from "core/util/types"
 import * as p from "core/properties"
 
-export interface ImageRGBAData extends ImageDataBase {}
+export type ImageRGBAData = ImageDataBase
 
 export interface ImageRGBAView extends ImageRGBAData {}
 

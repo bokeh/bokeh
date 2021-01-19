@@ -96,8 +96,8 @@ export class GraphRendererView extends DataRendererView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.layout_provider.change, () => {
-      this.edge_view.set_data(false)
-      this.node_view.set_data(false)
+      this.edge_view.set_data()
+      this.node_view.set_data()
       this.request_render()
     })
   }

@@ -1,11 +1,11 @@
 import {expect} from "assertions"
 
 import {Interpolator} from "@bokehjs/models/transforms/interpolator"
-import {NumberArray} from "@bokehjs/core/types"
+import {Arrayable} from "@bokehjs/core/types"
 
 describe("Interpolator model", () => {
-  let x_sorted: NumberArray
-  let y_sorted: NumberArray
+  let x_sorted: Arrayable<number>
+  let y_sorted: Arrayable<number>
 
   class CustomInterpolator extends Interpolator {
     compute(_x: number): number {
@@ -25,8 +25,8 @@ describe("Interpolator model", () => {
       y: [-1, 18, -2, 8, -17, -16, 4, 5, 12, -3, 12],
     })
     interpolator.sort(false)
-    expect(x_sorted).to.be.equal(NumberArray.from([-15, -5, -4, -3, 0, 1, 15, 15, 17, 18, 100]))
-    expect(y_sorted).to.be.equal(NumberArray.from([12, 12, 4, 8, -2, 18, -1, -17, -16, 5, -3]))
+    expect(x_sorted).to.be.equal(new Float64Array([-15, -5, -4, -3, 0, 1, 15, 15, 17, 18, 100]))
+    expect(y_sorted).to.be.equal(new Float64Array([12, 12, 4, 8, -2, 18, -1, -17, -16, 5, -3]))
   })
 
   it("should correcty sort multiple arrays simultaneously (descending = true)", () => {
@@ -35,7 +35,7 @@ describe("Interpolator model", () => {
       y: [-1, 18, -2, 8, -17, -16, 4, 5, 12, -3, 12],
     })
     interpolator.sort(true)
-    expect(x_sorted).to.be.equal(NumberArray.from([100, 18, 17, 15, 15, 1, 0, -3, -4, -5, -15]))
-    expect(y_sorted).to.be.equal(NumberArray.from([-3, 5, -16, -1, -17, 18, -2, 8, 4, 12, 12]))
+    expect(x_sorted).to.be.equal(new Float64Array([100, 18, 17, 15, 15, 1, 0, -3, -4, -5, -15]))
+    expect(y_sorted).to.be.equal(new Float64Array([-3, 5, -16, -1, -17, 18, -2, 8, 4, 12, 12]))
   })
 })

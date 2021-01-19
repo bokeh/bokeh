@@ -3,14 +3,10 @@
 import numpy as np
 from scipy.special import jv
 
-from bokeh.ext import build
 from bokeh.io import show
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure
 from latex_label import LatexLabel
-
-if not build("latex_label"):
-    raise RuntimeError("unable to build latex_label extension")
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
            background_fill_color="#fafafa")

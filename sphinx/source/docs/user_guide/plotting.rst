@@ -55,6 +55,8 @@ plots, click on the glyph methods in the following list:
     * |square_dot|
     * |square_pin|
     * |square_x|
+    * |star|
+    * |star_dot|
     * |triangle|
     * |triangle_dot|
     * |triangle_pin|
@@ -630,6 +632,8 @@ adding new glyph methods as well as when adding new axis objects with the
 .. |square_dot|        replace:: :func:`~bokeh.plotting.Figure.square_dot`
 .. |square_pin|        replace:: :func:`~bokeh.plotting.Figure.square_pin`
 .. |square_x|          replace:: :func:`~bokeh.plotting.Figure.square_x`
+.. |star|              replace:: :func:`~bokeh.plotting.Figure.star`
+.. |star_dot|          replace:: :func:`~bokeh.plotting.Figure.star_dot`
 .. |triangle|          replace:: :func:`~bokeh.plotting.Figure.triangle`
 .. |triangle_dot|      replace:: :func:`~bokeh.plotting.Figure.triangle_dot`
 .. |triangle_pin|      replace:: :func:`~bokeh.plotting.Figure.triangle_pin`

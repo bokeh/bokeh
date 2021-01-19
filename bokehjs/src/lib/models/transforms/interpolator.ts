@@ -1,7 +1,7 @@
 import {Transform} from "./transform"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import * as p from "core/properties"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, infer_type} from "core/types"
 import {includes} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 
@@ -34,8 +34,8 @@ export abstract class Interpolator extends Transform {
     }))
   }
 
-  protected _x_sorted: NumberArray
-  protected _y_sorted: NumberArray
+  protected _x_sorted: Arrayable<number>
+  protected _y_sorted: Arrayable<number>
   protected _sorted_dirty = true
 
   connect_signals(): void {
@@ -44,7 +44,8 @@ export abstract class Interpolator extends Transform {
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    const result = new NumberArray(xs.length)
+    const ArrayType = infer_type(xs)
+    const result = new ArrayType(xs.length)
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i]
       result[i] = this.compute(x)
@@ -89,8 +90,8 @@ export abstract class Interpolator extends Transform {
     const sign = descending ? -1 : 1
     index.sort((i, j) => sign*(tsx[i] - tsx[j]))
 
-    this._x_sorted = new NumberArray(n)
-    this._y_sorted = new NumberArray(n)
+    this._x_sorted = new (infer_type(tsx))(n)
+    this._y_sorted = new (infer_type(tsy))(n)
 
     for (let i = 0; i < n; i++) {
       this._x_sorted[i] = tsx[index[i]]

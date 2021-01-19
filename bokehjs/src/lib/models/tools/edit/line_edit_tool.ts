@@ -141,6 +141,9 @@ export interface LineEditTool extends LineEditTool.Attrs { }
 export class LineEditTool extends LineTool {
   properties: LineEditTool.Props
   __view_type__: LineEditToolView
+
+  renderers: (GlyphRenderer & HasLineGlyph)[]
+
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
   }
