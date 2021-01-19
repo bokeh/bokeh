@@ -323,6 +323,14 @@ def test_args() -> None:
             type    = int,
         )),
 
+        ('--websocket-compression-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression_level",
+            default = None,
+            type    = int,
+        )),
+
         ('--websocket-compression-mem-level', dict(
             metavar = 'LEVEL',
             action  = 'store',
