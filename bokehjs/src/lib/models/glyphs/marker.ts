@@ -69,7 +69,8 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const {hit_dilation, max_size} = this
+    const {max_size} = this
+    const {hit_dilation} = this.model
 
     const sx0 = sx - max_size*hit_dilation
     const sx1 = sx + max_size*hit_dilation
