@@ -79,14 +79,14 @@ export class GlyphRendererView extends DataRendererView {
     let {selection_glyph} = this.model
     if (selection_glyph == null)
       selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (selection_glyph === "auto")
+    else if (selection_glyph == "auto")
       selection_glyph = mk_glyph(selection_defaults)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
     let {nonselection_glyph} = this.model
-    if ((nonselection_glyph == null))
+    if (nonselection_glyph == null)
       nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (nonselection_glyph === "auto")
+    else if (nonselection_glyph == "auto")
       nonselection_glyph = mk_glyph(nonselection_defaults)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
@@ -127,17 +127,29 @@ export class GlyphRendererView extends DataRendererView {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.glyph.change, () => this.update_data())
-    this.connect(this.model.data_source.change, () => this.update_data())
-    this.connect(this.model.data_source.streaming, () => this.update_data())
-    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
-    this.connect(this.model.data_source.selected.change, () => this.request_render())
-    this.connect(this.model.data_source._select, () => this.request_render())
+    const render = () => this.request_render()
+    const update = () => this.update_data()
+
+    this.connect(this.model.change, render)
+
+    this.connect(this.glyph.model.change, update)
+    this.connect(this.selection_glyph.model.change, update)
+    this.connect(this.nonselection_glyph.model.change, update)
     if (this.hover_glyph != null)
-      this.connect(this.model.data_source.inspect, () => this.request_render())
-    this.connect(this.model.properties.view.change, () => this.update_data())
-    this.connect(this.model.view.properties.indices.change, () => this.update_data())
+      this.connect(this.hover_glyph.model.change, update)
+    if (this.muted_glyph != null)
+      this.connect(this.muted_glyph.model.change, update)
+    this.connect(this.decimated_glyph.model.change, update)
+
+    this.connect(this.model.data_source.change, update)
+    this.connect(this.model.data_source.streaming, update)
+    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
+    this.connect(this.model.data_source.selected.change, render)
+    this.connect(this.model.data_source._select, render)
+    if (this.hover_glyph != null)
+      this.connect(this.model.data_source.inspect, render)
+    this.connect(this.model.properties.view.change, update)
+    this.connect(this.model.view.properties.indices.change, update)
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
@@ -145,17 +157,17 @@ export class GlyphRendererView extends DataRendererView {
 
     for (const [, range] of x_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.update_data())
+        this.connect(range.change, update)
     }
 
     for (const [, range] of y_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.update_data())
+        this.connect(range.change, update)
     }
 
     const {transformchange, exprchange} = this.model.glyph
-    this.connect(transformchange, () => this.update_data())
-    this.connect(exprchange, () => this.update_data())
+    this.connect(transformchange, update)
+    this.connect(exprchange, update)
   }
 
   _update_masked_indices(): Indices {
