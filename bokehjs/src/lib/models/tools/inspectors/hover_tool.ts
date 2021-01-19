@@ -321,7 +321,7 @@ export class HoverToolView extends InspectToolView {
               break
             }
             default:
-              throw new Error("should't have happened")
+              throw new Error("shouldn't have happened")
           }
 
           let index: number

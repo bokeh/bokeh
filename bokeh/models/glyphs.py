@@ -73,6 +73,7 @@ from ..core.properties import (
     NumberSpec,
     Override,
     ScreenDistanceSpec,
+    Size,
     String,
     StringSpec,
 )
@@ -162,6 +163,13 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     y = NumberSpec(default=field("y"), help="""
     The y-axis coordinates for the center of the markers.
+    """)
+
+    hit_dilation = Size(default=1.0, help="""
+    The factor by which to dilate the hit radius
+    which is responsible for defining the range in which a
+    marker responds to interactions with the Hover and Tap
+    tools.
     """)
 
     size = ScreenDistanceSpec(default=4, help="""

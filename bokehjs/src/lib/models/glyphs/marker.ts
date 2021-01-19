@@ -70,20 +70,21 @@ export abstract class MarkerView extends XYGlyphView {
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const {max_size} = this
+    const {hit_dilation} = this.model
 
-    const sx0 = sx - max_size
-    const sx1 = sx + max_size
+    const sx0 = sx - max_size*hit_dilation
+    const sx1 = sx + max_size*hit_dilation
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-    const sy0 = sy - max_size
-    const sy1 = sy + max_size
+    const sy0 = sy - max_size*hit_dilation
+    const sy1 = sy + max_size*hit_dilation
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
     const candidates = this.index.indices({x0, x1, y0, y1})
     const indices: number[] = []
 
     for (const i of candidates) {
-      const s2 = this.size.get(i)/2
+      const s2 = this.size.get(i)/2*hit_dilation
       if (Math.abs(this.sx[i] - sx) <= s2 && Math.abs(this.sy[i] - sy) <= s2) {
         indices.push(i)
       }
@@ -171,6 +172,7 @@ export namespace Marker {
   export type Props = XYGlyph.Props & {
     size: p.DistanceSpec
     angle: p.AngleSpec
+    hit_dilation: p.Property<number>
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -190,9 +192,10 @@ export abstract class Marker extends XYGlyph {
 
   static init_Marker(): void {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
-    this.define<Marker.Props>(({}) => ({
+    this.define<Marker.Props>(({Number}) => ({
       size:  [ p.ScreenDistanceSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
+      hit_dilation: [ Number, 1.0 ],
     }))
   }
 }
