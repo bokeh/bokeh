@@ -279,7 +279,7 @@ export namespace Circle {
     size: p.DistanceSpec
     radius: p.NullDistanceSpec
     radius_dimension: p.Property<RadiusDimension>
-    hit_dilation:  p.Property<number>
+    hit_dilation: p.Property<number>
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -307,7 +307,7 @@ export class Circle extends XYGlyph {
       size:             [ p.ScreenDistanceSpec, {value: 4} ],
       radius:           [ p.NullDistanceSpec, null ],
       radius_dimension: [ RadiusDimension, "x" ],
-      hit_dilation: [ Number, 1.0 ],
+      hit_dilation:     [ Number, 1.0 ],
     }))
   }
 }
