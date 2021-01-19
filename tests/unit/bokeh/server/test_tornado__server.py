@@ -27,6 +27,7 @@ from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
+from bokeh.server.views.ws import WSHandler
 
 # Module under test
 import bokeh.server.tornado as tornado # isort:skip
@@ -139,6 +140,16 @@ def test_websocket_max_message_size_bytes() -> None:
     app = Application()
     t = tornado.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
+
+def test_websocket_compression_level() -> None:
+    app = Application()
+    t = tornado.BokehTornado({"/": app}, websocket_compression_level=2,
+                             websocket_compression_mem_level=3)
+    ws_rules = [rule for rule in t.wildcard_router.rules if issubclass(rule.target, WSHandler)]
+    assert len(ws_rules) == 1
+    ws_rule = ws_rules[0]
+    assert ws_rule.target_kwargs.get('compression_level') == 2
+    assert ws_rule.target_kwargs.get('mem_level') == 3
 
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()

@@ -72,6 +72,9 @@ class WSHandler(AuthMixin, WebSocketHandler):
 
         self._token = None
 
+        self._compression_level = kw.pop('compression_level', None)
+        self._mem_level = kw.pop('mem_level', None)
+
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
 
@@ -157,6 +160,14 @@ class WSHandler(AuthMixin, WebSocketHandler):
             return None
         self._token = subprotocols[1]
         return subprotocols[0]
+
+    def get_compression_options(self):
+        if self._compression_level is None:
+            return None
+        options = {'compression_level': self._compression_level}
+        if self._mem_level is not None:
+            options['mem_level'] = self._mem_level
+        return options
 
     async def _async_open(self, token):
         ''' Perform the specific steps needed to open a connection to a Bokeh session

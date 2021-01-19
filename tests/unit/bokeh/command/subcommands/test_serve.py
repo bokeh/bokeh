@@ -323,6 +323,22 @@ def test_args() -> None:
             type    = int,
         )),
 
+        ('--websocket-compression-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression_level",
+            default = None,
+            type    = int,
+        )),
+
+        ('--websocket-compression-mem-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression mem_level",
+            default = None,
+            type    = int,
+        )),
+
         ('--glob', dict(
             action='store_true',
             help='Process all filename arguments as globs',
