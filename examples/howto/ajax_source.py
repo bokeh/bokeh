@@ -8,10 +8,10 @@ from bokeh.plotting import figure, show
 
 adapter = CustomJS(code="""
     const result = {x: [], y: []}
-    const pts = cb_data.response.points
-    for (let i=0; i<pts.length; i++) {
-        result.x.push(pts[i][0])
-        result.y.push(pts[i][1])
+    const {points} = cb_data.response
+    for (const [x, y] of points) {
+        result.x.push(x)
+        result.y.push(y)
     }
     return result
 """)
