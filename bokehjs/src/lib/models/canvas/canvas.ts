@@ -32,7 +32,7 @@ const global_webgl: WebGLState | undefined = (() => {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const canvas = document.createElement("canvas")
-  const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
+  const gl = canvas.getContext("webgl", {premultipliedAlpha: false})
 
   // If WebGL is available, we store a reference to the gl canvas on
   // the ctx object, because that's what gets passed everywhere.

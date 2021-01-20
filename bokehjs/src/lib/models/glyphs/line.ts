@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
-import {LineGL} from "./webgl/line"
+import {LineGL} from "./webgl/line_gl"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
