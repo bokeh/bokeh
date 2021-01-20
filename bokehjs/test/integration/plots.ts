@@ -11,39 +11,39 @@ describe("Plot", () => {
   }
 
   it("should allow no toolbar and no title", async () => {
-    await display(f(null), [300, 300])
+    await display(f(null))
   })
 
   it("should allow toolbar placement above without title", async () => {
-    await display(f("above"), [300, 300])
+    await display(f("above"))
   })
 
   it("should allow toolbar placement below without title", async () => {
-    await display(f("below"), [300, 300])
+    await display(f("below"))
   })
 
   it("should allow toolbar placement left without title", async () => {
-    await display(f("left"), [300, 300])
+    await display(f("left"))
   })
 
   it("should allow toolbar placement right without title", async () => {
-    await display(f("right"), [300, 300])
+    await display(f("right"))
   })
 
   it("should allow toolbar placement above with title", async () => {
-    await display(f("above", "Plot Title"), [300, 300])
+    await display(f("above", "Plot Title"))
   })
 
   it("should allow toolbar placement below with title", async () => {
-    await display(f("below", "Plot Title"), [300, 300])
+    await display(f("below", "Plot Title"))
   })
 
   it("should allow toolbar placement left with title", async () => {
-    await display(f("left", "Plot Title"), [300, 300])
+    await display(f("left", "Plot Title"))
   })
 
   it("should allow toolbar placement right with title", async () => {
-    await display(f("right", "Plot Title"), [300, 300])
+    await display(f("right", "Plot Title"))
   })
 
   it("should allow fixed x fixed plot", async () => {
@@ -157,20 +157,20 @@ describe("Plot", () => {
       const p = webgl_figure()
       p.line([1, 2, 3], [1, 4, 9], {line_width: 3})
       p.line([], [], {line_width: 3})
-      await display(p, [300, 300])
+      await display(p)
     })
 
     it("should allow empty circle glyphs", async () => {
       const p = webgl_figure()
       p.circle([1, 2, 3], [1, 4, 9], {size: 10})
       p.circle([], [], {size: 10})
-      await display(p, [300, 300])
+      await display(p)
     })
 
     it("should allow display on log axis", async () => {
       const p = figure({width: 200, height: 200, toolbar_location: null, title: null, y_axis_type: "log", output_backend: "webgl"})
       p.circle([1, 2, 3], [1, 40, 900], {size: 10})
-      await display(p, [300, 300])
+      await display(p)
     })
   })
 

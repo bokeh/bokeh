@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, ScreenArray, to_screen} from "core/types"
 import * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -10,18 +10,18 @@ import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export interface AnnularWedgeData extends XYGlyphData {
-  _inner_radius: NumberArray
-  _outer_radius: NumberArray
-  _start_angle: NumberArray
-  _end_angle: NumberArray
-  _angle: NumberArray
+export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
+  readonly inner_radius: p.Uniform<number>
+  readonly outer_radius: p.Uniform<number>
 
-  sinner_radius: NumberArray
-  souter_radius: NumberArray
+  readonly start_angle: p.Uniform<number>
+  readonly end_angle: p.Uniform<number>
 
-  max_inner_radius: number
-  max_outer_radius: number
+  sinner_radius: ScreenArray
+  souter_radius: ScreenArray
+
+  readonly max_inner_radius: number
+  readonly max_outer_radius: number
 }
 
 export interface AnnularWedgeView extends AnnularWedgeData {}
@@ -32,53 +32,56 @@ export class AnnularWedgeView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius)
+      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
     else
-      this.sinner_radius = this._inner_radius
+      this.sinner_radius = to_screen(this.inner_radius)
 
     if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius)
+      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
     else
-      this.souter_radius = this._outer_radius
-
-    this._angle = new NumberArray(this._start_angle.length)
-
-    for (let i = 0, end = this._start_angle.length; i < end; i++) {
-      this._angle[i] = this._end_angle[i] - this._start_angle[i]
-    }
+      this.souter_radius = to_screen(this.outer_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: AnnularWedgeData): void {
+    const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = data ?? this
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sinner_radius_i = sinner_radius[i]
+      const souter_radius_i = souter_radius[i]
+      const start_angle_i = start_angle.get(i)
+      const end_angle_i = end_angle.get(i)
+
+      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
         continue
 
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(_start_angle[i])
+      const angle_i = end_angle_i - start_angle_i
+
+      ctx.translate(sx_i, sy_i)
+      ctx.rotate(start_angle_i)
 
       ctx.beginPath()
-      ctx.moveTo(souter_radius[i], 0)
-      ctx.arc(0, 0, souter_radius[i], 0, _angle[i], anticlock)
-      ctx.rotate(_angle[i])
-      ctx.lineTo(sinner_radius[i], 0)
-      ctx.arc(0, 0, sinner_radius[i], 0, -_angle[i], !anticlock)
+      ctx.moveTo(souter_radius_i, 0)
+      ctx.arc(0, 0, souter_radius_i, 0, angle_i, anticlock)
+      ctx.rotate(angle_i)
+      ctx.lineTo(sinner_radius_i, 0)
+      ctx.arc(0, 0, sinner_radius_i, 0, -angle_i, !anticlock)
       ctx.closePath()
 
-      ctx.rotate(-_angle[i]-_start_angle[i])
-      ctx.translate(-sx[i], -sy[i])
+      ctx.rotate(-angle_i - start_angle_i)
+      ctx.translate(-sx_i, -sy_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
+      if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -128,7 +131,7 @@ export class AnnularWedgeView extends XYGlyphView {
     for (const i of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy - this.sy[i], sx - this.sx[i])
-      if (angle_between(-angle, -this._start_angle[i], -this._end_angle[i], anticlock)) {
+      if (angle_between(-angle, -this.start_angle.get(i), -this.end_angle.get(i), anticlock)) {
         indices.push(i)
       }
     }
@@ -142,7 +145,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
   scenterxy(i: number): [number, number] {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2
-    const a = (this._start_angle[i]  + this._end_angle[i])   /2
+    const a = (this.start_angle.get(i)  + this.end_angle.get(i))   /2
     const scx = this.sx[i] + r*Math.cos(a)
     const scy = this.sy[i] + r*Math.sin(a)
     return [scx, scy]

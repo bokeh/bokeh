@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Rect, NumberArray} from "core/types"
+import {Rect, ScreenArray, to_screen} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -8,15 +8,15 @@ import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/platform"
 import {Selection} from "../selections/selection"
 
-export interface AnnulusData extends XYGlyphData {
-  _inner_radius: NumberArray
-  _outer_radius: NumberArray
+export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
+  readonly inner_radius: p.Uniform<number>
+  readonly outer_radius: p.Uniform<number>
 
-  sinner_radius: NumberArray
-  souter_radius: NumberArray
+  sinner_radius: ScreenArray
+  souter_radius: ScreenArray
 
-  max_inner_radius: number
-  max_outer_radius: number
+  readonly max_inner_radius: number
+  readonly max_outer_radius: number
 }
 
 export interface AnnulusView extends AnnulusData {}
@@ -27,20 +27,26 @@ export class AnnulusView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius)
+      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
     else
-      this.sinner_radius = this._inner_radius
+      this.sinner_radius = to_screen(this.inner_radius)
 
     if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius)
+      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
     else
-      this.souter_radius = this._outer_radius
+      this.souter_radius = to_screen(this.outer_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sx, sy, sinner_radius, souter_radius}: AnnulusData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: AnnulusData): void {
+    const {sx, sy, sinner_radius, souter_radius} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sinner_radius_i = sinner_radius[i]
+      const souter_radius_i = souter_radius[i]
+
+      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i))
         continue
 
       // Because this visual has a whole in it, it proved "challenging"
@@ -54,13 +60,13 @@ export class AnnulusView extends XYGlyphView {
         if (is_ie) {
           // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
           for (const clockwise of [false, true]) {
-            ctx.arc(sx[i], sy[i], sinner_radius[i], 0, Math.PI, clockwise)
-            ctx.arc(sx[i], sy[i], souter_radius[i], Math.PI, 0, !clockwise)
+            ctx.arc(sx_i, sy_i, sinner_radius_i, 0, Math.PI, clockwise)
+            ctx.arc(sx_i, sy_i, souter_radius_i, Math.PI, 0, !clockwise)
           }
         } else {
           // Draw donut in one go. Does not work on iE.
-          ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2 * Math.PI, true)
-          ctx.arc(sx[i], sy[i], souter_radius[i], 2 * Math.PI, 0, false)
+          ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2 * Math.PI, true)
+          ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
         }
       }
 
@@ -70,18 +76,18 @@ export class AnnulusView extends XYGlyphView {
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
+      if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
         fill_path()
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], sinner_radius[i], 0, 2*Math.PI)
-        ctx.moveTo(sx[i] + souter_radius[i], sy[i])
-        ctx.arc(sx[i], sy[i], souter_radius[i], 0, 2*Math.PI)
+        ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI)
+        ctx.moveTo(sx_i + souter_radius_i, sy_i)
+        ctx.arc(sx_i, sy_i, souter_radius_i, 0, 2*Math.PI)
         ctx.stroke()
       }
     }

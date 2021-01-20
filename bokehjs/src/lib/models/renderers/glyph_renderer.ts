@@ -79,14 +79,14 @@ export class GlyphRendererView extends DataRendererView {
     let {selection_glyph} = this.model
     if (selection_glyph == null)
       selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (selection_glyph === "auto")
+    else if (selection_glyph == "auto")
       selection_glyph = mk_glyph(selection_defaults)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
     let {nonselection_glyph} = this.model
-    if ((nonselection_glyph == null))
+    if (nonselection_glyph == null)
       nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (nonselection_glyph === "auto")
+    else if (nonselection_glyph == "auto")
       nonselection_glyph = mk_glyph(nonselection_defaults)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
@@ -107,7 +107,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
-    this.set_data(false)
+    this.set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -127,17 +127,29 @@ export class GlyphRendererView extends DataRendererView {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.glyph.change, () => this.set_data())
-    this.connect(this.model.data_source.change, () => this.set_data())
-    this.connect(this.model.data_source.streaming, () => this.set_data())
-    this.connect(this.model.data_source.patching, (indices: number[] /* XXX: WHY? */) => this.set_data(true, indices))
-    this.connect(this.model.data_source.selected.change, () => this.request_render())
-    this.connect(this.model.data_source._select, () => this.request_render())
+    const render = () => this.request_render()
+    const update = () => this.update_data()
+
+    this.connect(this.model.change, render)
+
+    this.connect(this.glyph.model.change, update)
+    this.connect(this.selection_glyph.model.change, update)
+    this.connect(this.nonselection_glyph.model.change, update)
     if (this.hover_glyph != null)
-      this.connect(this.model.data_source.inspect, () => this.request_render())
-    this.connect(this.model.properties.view.change, () => this.set_data())
-    this.connect(this.model.view.properties.indices.change, () => this.set_data())
+      this.connect(this.hover_glyph.model.change, update)
+    if (this.muted_glyph != null)
+      this.connect(this.muted_glyph.model.change, update)
+    this.connect(this.decimated_glyph.model.change, update)
+
+    this.connect(this.model.data_source.change, update)
+    this.connect(this.model.data_source.streaming, update)
+    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
+    this.connect(this.model.data_source.selected.change, render)
+    this.connect(this.model.data_source._select, render)
+    if (this.hover_glyph != null)
+      this.connect(this.model.data_source.inspect, render)
+    this.connect(this.model.properties.view.change, update)
+    this.connect(this.model.view.properties.indices.change, update)
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
@@ -145,17 +157,17 @@ export class GlyphRendererView extends DataRendererView {
 
     for (const [, range] of x_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, update)
     }
 
     for (const [, range] of y_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, update)
     }
 
     const {transformchange, exprchange} = this.model.glyph
-    this.connect(transformchange, () => this.set_data())
-    this.connect(exprchange, () => this.set_data())
+    this.connect(transformchange, update)
+    this.connect(exprchange, update)
   }
 
   _update_masked_indices(): Indices {
@@ -164,9 +176,14 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
+  update_data(indices?: number[]): void {
+    this.set_data(indices)
+    this.request_render()
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render: boolean = true, indices: number[] | null = null): void {
+  set_data(indices?: number[]): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
@@ -185,10 +202,6 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     this.plot_view.invalidate_dataranges = true
-
-    if (request_render) {
-      this.request_render()
-    }
   }
 
   set_visuals(): void {
@@ -275,22 +288,22 @@ export class GlyphRendererView extends DataRendererView {
     if (!selected_full_indices.length) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
       } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model)
-              this.hover_glyph.render(ctx, all_indices, this.glyph)
+              this.hover_glyph.render(ctx, all_indices)
           }
         }
       } else {
-        glyph.render(ctx, indices, this.glyph)
+        glyph.render(ctx, indices)
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     // Render with selection
     } else {
@@ -321,13 +334,13 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
 
-      nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
-      selection_glyph.render(ctx, selected_subset_indices, this.glyph)
+      nonselection_glyph.render(ctx, nonselected_subset_indices)
+      selection_glyph.render(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     }
 

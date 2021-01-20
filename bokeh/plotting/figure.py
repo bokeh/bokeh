@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -109,6 +109,8 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.Figure.square_dot`
         * :func:`~bokeh.plotting.Figure.square_pin`
         * :func:`~bokeh.plotting.Figure.square_x`
+        * :func:`~bokeh.plotting.Figure.star`
+        * :func:`~bokeh.plotting.Figure.star_dot`
         * :func:`~bokeh.plotting.Figure.step`
         * :func:`~bokeh.plotting.Figure.text`
         * :func:`~bokeh.plotting.Figure.triangle`
@@ -882,6 +884,42 @@ Examples:
         plot = figure(plot_width=300, plot_height=300)
         plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
                       color="#FDAE6B",fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def star(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.star(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                  color="#1C9099", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def star_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.star_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
 

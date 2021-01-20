@@ -1,16 +1,18 @@
-import {NumberArray} from "../types"
+import {FloatArray, infer_type} from "../types"
 import {assert} from "./assert"
 
-export function catmullrom_spline(x: NumberArray, y: NumberArray,
-    T: number = 10, tension: number = 0.5, closed: boolean = false): [NumberArray, NumberArray] {
+export function catmullrom_spline(x: FloatArray, y: FloatArray,
+    T: number = 10, tension: number = 0.5, closed: boolean = false): [FloatArray, FloatArray] {
   /** Centripetal Catmull-Rom spline. */
   assert(x.length == y.length)
 
   const n = x.length
   const N = closed ? n + 1 : n
 
-  const xx = new NumberArray(N + 2)
-  const yy = new NumberArray(N + 2)
+  const ArrayType = infer_type(x, y)
+
+  const xx = new ArrayType(N + 2)
+  const yy = new ArrayType(N + 2)
   xx.set(x, 1)
   yy.set(y, 1)
 
@@ -28,7 +30,7 @@ export function catmullrom_spline(x: NumberArray, y: NumberArray,
     yy[N+1] = y[n-1]
   }
 
-  const basis = new NumberArray(4*(T + 1))
+  const basis = new ArrayType(4*(T + 1))
   for (let j = 0, k = 0; j <= T; j++) {
     const t = j/T
     const t_2 = t**2
@@ -39,8 +41,8 @@ export function catmullrom_spline(x: NumberArray, y: NumberArray,
     basis[k++] =    t_3 -   t_2     // h11
   }
 
-  const xt = new NumberArray((N - 1)*(T + 1))
-  const yt = new NumberArray((N - 1)*(T + 1))
+  const xt = new ArrayType((N - 1)*(T + 1))
+  const yt = new ArrayType((N - 1)*(T + 1))
 
   for (let i = 1, k = 0; i < N; i++) {
     const t0x = (xx[i+1] - xx[i-1])*tension

@@ -1,5 +1,5 @@
 import {Scale} from "./scale"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map, left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
 
@@ -26,11 +26,15 @@ export class LinearInterpolationScale extends Scale {
     }))
   }
 
+  get s_compute(): (x: number) => number {
+    throw new Error("not implemented")
+  }
+
   compute(x: number): number {
     return x
   }
 
-  v_compute(vs: Arrayable<number>): NumberArray {
+  v_compute(vs: Arrayable<number>): ScreenArray {
     const {binning} = this
 
     const {start, end} = this.source_range
@@ -39,7 +43,7 @@ export class LinearInterpolationScale extends Scale {
 
     const n = binning.length
     const step = (end - start)/(n - 1)
-    const mapping = new Array<number>(n)
+    const mapping = new Float64Array(n)
     for (let i = 0; i < n; i++) {
       mapping[i] = start + i*step
     }
@@ -65,7 +69,7 @@ export class LinearInterpolationScale extends Scale {
     return xprime
   }
 
-  v_invert(xprimes: Arrayable<number>): NumberArray {
-    return new NumberArray(xprimes)
+  v_invert(xprimes: Arrayable<number>): FloatArray {
+    return new Float64Array(xprimes)
   }
 }

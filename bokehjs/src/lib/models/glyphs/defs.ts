@@ -3,6 +3,11 @@ import {LineVector, FillVector, HatchVector} from "core/visuals"
 import {Context2d} from "core/util/canvas"
 
 const SQ3 = Math.sqrt(3)
+const SQ5 = Math.sqrt(5)
+const c36 = (SQ5+1)/4
+const s36 = Math.sqrt((5-SQ5)/8)
+const c72 = (SQ5-1)/4
+const s72 = Math.sqrt((5+SQ5)/8)
 
 function _one_line(ctx: Context2d, r: number): void {
   ctx.moveTo(-r,  0)
@@ -57,6 +62,22 @@ function _one_hex(ctx: Context2d, r: number): void {
   ctx.lineTo(-r,   0)
   ctx.lineTo(-r2,  h)
   ctx.lineTo(r2,  h)
+  ctx.closePath()
+}
+
+function _one_star(ctx: Context2d, r: number): void {
+  const a = Math.sqrt(5-2*SQ5)*r
+
+  ctx.moveTo(0, -r)
+  ctx.lineTo(a*c72, -r+a*s72)
+  ctx.lineTo(a*(1+c72), -r+a*s72)
+  ctx.lineTo(a*(1+c72-c36), -r+a*(s72+s36))
+  ctx.lineTo(a*(1+2*c72-c36), -r+a*(2*s72+s36))
+  ctx.lineTo(0, -r+a*2*s72)
+  ctx.lineTo(-a*(1+2*c72-c36), -r+a*(2*s72+s36))
+  ctx.lineTo(-a*(1+c72-c36), -r+a*(s72+s36))
+  ctx.lineTo(-a*(1+c72), -r+a*s72)
+  ctx.lineTo(-a*c72, -r+a*s72)
   ctx.closePath()
 }
 
@@ -405,6 +426,30 @@ function square_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals):
   }
 }
 
+function star(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  _one_star(ctx, r)
+
+  if (visuals.fill.doit) {
+    visuals.fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.hatch.doit) {
+    visuals.hatch.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (visuals.line.doit) {
+    visuals.line.set_vectorize(ctx, i)
+    ctx.stroke()
+  }
+}
+
+function star_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
+  star(ctx, i, r, visuals)
+  dot(ctx, i, r, visuals)
+}
+
 function triangle(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_tri(ctx, r)
 
@@ -506,6 +551,8 @@ export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   square_dot,
   square_pin,
   square_x,
+  star,
+  star_dot,
   triangle,
   triangle_dot,
   triangle_pin,

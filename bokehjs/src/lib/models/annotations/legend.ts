@@ -36,7 +36,7 @@ export class LegendView extends AnnotationView {
   }
 
   get legend_padding(): number {
-    return this.visuals.border_line.line_color.value() != null ? this.model.padding : 0
+    return this.model.border_line_color != null ? this.model.padding : 0
   }
 
   connect_signals(): void {

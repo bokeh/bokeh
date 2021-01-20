@@ -3,7 +3,7 @@ import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, RaggedArray} from "core/types"
+import {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax} from "core/util/arrayable"
@@ -13,12 +13,12 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 
-export interface MultiLineData extends GlyphData {
-  _xs: RaggedArray
-  _ys: RaggedArray
+export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
+  _xs: RaggedArray<FloatArray>
+  _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray
-  sys: RaggedArray
+  sxs: RaggedArray<ScreenArray>
+  sys: RaggedArray<ScreenArray>
 }
 
 export interface MultiLineView extends MultiLineData {}
@@ -54,23 +54,28 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiLineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiLineData): void {
+    const {sxs, sys} = data ?? this
+
     for (const i of indices) {
       const sx = sxs.get(i)
       const sy = sys.get(i)
 
       this.visuals.line.set_vectorize(ctx, i)
       for (let j = 0, end = sx.length; j < end; j++) {
+        const sx_j = sx[j]
+        const sy_j = sy[j]
+
         if (j == 0) {
           ctx.beginPath()
-          ctx.moveTo(sx[j], sy[j])
+          ctx.moveTo(sx_j, sy_j)
           continue
-        } else if (isNaN(sx[j]) || isNaN(sy[j])) {
+        } else if (isNaN(sx_j + sy_j)) {
           ctx.stroke()
           ctx.beginPath()
           continue
         } else
-          ctx.lineTo(sx[j], sy[j])
+          ctx.lineTo(sx_j, sy_j)
       }
       ctx.stroke()
     }
@@ -79,11 +84,10 @@ export class MultiLineView extends GlyphView {
   protected _hit_point(geometry: PointGeometry): Selection {
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
-    const {line_width} = this.model.properties
 
     const hits: Map<number, number[]> = new Map()
     for (let i = 0, end = this.sxs.length; i < end; i++) {
-      const threshold = Math.max(2, this.visuals.line.cache_select(line_width, i) / 2)
+      const threshold = Math.max(2, this.line_width.get(i)/2)
 
       const sxsi = this.sxs.get(i)
       const sysi = this.sys.get(i)
@@ -113,7 +117,7 @@ export class MultiLineView extends GlyphView {
     const {sx, sy} = geometry
 
     let val: number
-    let vs: RaggedArray
+    let vs: RaggedArray<FloatArray>
     if (geometry.direction == 'v') {
       val = this.renderer.yscale.invert(sy)
       vs = this._ys

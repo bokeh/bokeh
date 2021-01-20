@@ -19,7 +19,7 @@ import {Toolbar} from "../tools/toolbar"
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
 import {Glyph} from "../glyphs/glyph"
-import {DataSource} from "../sources/data_source"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
@@ -94,7 +94,7 @@ export namespace Plot {
     mixins.BackgroundFill &
     mixins.BorderFill
 
-  export type Visuals = {
+  export type Visuals = visuals.Visuals & {
     outline_line: visuals.Line
     background_fill: visuals.Fill
     border_fill: visuals.Fill
@@ -244,9 +244,9 @@ export class Plot extends LayoutDOM {
     this.renderers = this.renderers.concat(renderers)
   }
 
-  add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
-    const attrs = {...extra_attrs, data_source: source, glyph}
-    const renderer = new GlyphRenderer(attrs)
+  add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
+      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
+    const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer
   }

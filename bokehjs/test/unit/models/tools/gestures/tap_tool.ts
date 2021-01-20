@@ -26,7 +26,7 @@ describe("TapTool", () => {
     const renderer = new GlyphRenderer({glyph, data_source})
     plot.add_renderers(renderer)
     plot.add_tools(tool)
-    const {view} = await display(plot, [200, 200])
+    const {view} = await display(plot)
     return view
   }
 

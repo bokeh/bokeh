@@ -9,7 +9,7 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export interface PatchData extends XYGlyphData {}
+export type PatchData = XYGlyphData & p.UniformsOf<Patch.Mixins>
 
 export interface PatchView extends PatchData {}
 
@@ -19,28 +19,37 @@ export class PatchView extends XYGlyphView {
 
   protected _inner_loop(ctx: Context2d, indices: number[], sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
     for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+
       if (i == 0) {
         ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
+        ctx.moveTo(sx_i, sy_i)
         continue
-      } else if (isNaN(sx[i] + sy[i])) {
+      } else if (isNaN(sx_i + sy_i)) {
         ctx.closePath()
         func.apply(ctx)
         ctx.beginPath()
         continue
       } else
-        ctx.lineTo(sx[i], sy[i])
+        ctx.lineTo(sx_i, sy_i)
     }
     ctx.closePath()
     func.call(ctx)
   }
-  protected _render(ctx: Context2d, indices: number[], {sx, sy}: PatchData): void {
+
+  protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
+    const {sx, sy} = data ?? this
+
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner_loop(ctx, indices, sx, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, () => this._inner_loop(ctx, indices, sx, sy, ctx.fill), () => this.renderer.request_render())
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      this._inner_loop(ctx, indices, sx, sy, ctx.fill)
+    }
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
@@ -69,9 +78,9 @@ export namespace Patch {
 
   export type Props = XYGlyph.Props & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/ & mixins.Hatch/*Scalar*/
+  export type Mixins = mixins.LineScalar & mixins.FillScalar & mixins.HatchScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line/*Scalar*/, fill: visuals.Fill/*Scalar*/, hatch: visuals.Hatch/*Scalar*/}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar, hatch: visuals.HatchScalar}
 }
 
 export interface Patch extends Patch.Attrs {}
@@ -87,6 +96,6 @@ export class Patch extends XYGlyph {
   static init_Patch(): void {
     this.prototype.default_view = PatchView
 
-    this.mixins<Patch.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/, mixins.Hatch/*Scalar*/])
+    this.mixins<Patch.Mixins>([mixins.LineScalar, mixins.FillScalar, mixins.HatchScalar])
   }
 }

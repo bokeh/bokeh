@@ -1,8 +1,8 @@
 import {Model} from "../../model"
+import {PatternSource} from "core/visuals/patterns"
 import {Color} from "core/types"
 import {TextureRepetition} from "core/enums"
 import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
 
 export namespace Texture {
   export type Attrs = p.AttrsOf<Props>
@@ -27,9 +27,5 @@ export abstract class Texture extends Model {
     }))
   }
 
-  abstract get_pattern(color: Color, alpha: number, scale: number, weight: number): (ctx: Context2d) => CanvasPattern | null
-
-  onload(defer_func: () => void): void {
-    defer_func()
-  }
+  abstract get_pattern(color: Color, alpha: number, scale: number, weight: number): PatternSource | Promise<PatternSource>
 }

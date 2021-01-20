@@ -53,7 +53,9 @@ task("scripts:styles", ["styles:compile"], async () => {
 
     const js: string[] = []
     const dts: string[] = []
-    dts.push(`declare module "styles/${sub_path.replace(/\\/g, "/")}" {`)
+    const dts_internal: string[] = []
+
+    dts_internal.push(`declare module "styles/${sub_path.replace(/\\/g, "/")}" {`)
 
     const classes = new Set(collect_classes(ast))
     for (const cls of classes) {
@@ -61,21 +63,23 @@ task("scripts:styles", ["styles:compile"], async () => {
         continue
       const ident = cls.replace(/^bk-/, "").replace(/-/g, "_")
       js.push(`export const ${ident} = "${cls}"`)
-      dts.push(`  export const ${ident}: string`)
+      dts.push(`export const ${ident}: string`)
+      dts_internal.push(`  export const ${ident}: string`)
     }
 
     const css_out = CSS.stringify(ast, {compress: true})
     js.push(`export default \`${css_out}\``)
-    dts.push("  export default \`\`")
-    dts.push("}")
+    dts.push("export default \`\`")
+    dts_internal.push("  export default \`\`")
+    dts_internal.push("}")
 
     const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"
     const dts_file = join(paths.build_dir.types, "styles", sub_path) + ".d.ts"
-    const dts2_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
+    const dts_internal_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
 
     write(js_file, js.join("\n") + "\n")
     write(dts_file, dts.join("\n") + "\n")
-    write(dts2_file, dts.join("\n") + "\n")
+    write(dts_internal_file, dts_internal.join("\n") + "\n")
   }
 })
 

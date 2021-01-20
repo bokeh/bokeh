@@ -46,6 +46,6 @@ describe("Legend annotation", () => {
     p.add_layout(legend({location: "center", orientation: "vertical"}), "left")
     p.add_layout(legend({location: "center", orientation: "vertical"}), "right")
 
-    await display(p, [650, 650])
+    await display(p)
   })
 })

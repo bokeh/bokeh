@@ -1,11 +1,12 @@
-import {Line, LineVector, Fill, FillVector, Hatch, HatchVector} from "core/visuals"
+import * as v from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/types"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 
-export function generic_line_scalar_legend(visuals: {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+export function generic_line_scalar_legend(visuals: {line: v.LineScalar},
+    ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -17,7 +18,8 @@ export function generic_line_scalar_legend(visuals: {line: Line}, ctx: Context2d
   ctx.restore()
 }
 
-export function generic_line_vector_legend(visuals: {line: LineVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_line_vector_legend(visuals: {line: v.LineVector},
+    ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -29,7 +31,8 @@ export function generic_line_vector_legend(visuals: {line: LineVector}, ctx: Con
   ctx.restore()
 }
 
-export function generic_area_scalar_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
+export function generic_area_scalar_legend(visuals: {line?: v.LineScalar, fill: v.FillScalar, hatch?: v.HatchScalar},
+    ctx: Context2d, {x0, x1, y0, y1}: Rect): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)
@@ -60,7 +63,8 @@ export function generic_area_scalar_legend(visuals: {line?: Line, fill: Fill, ha
   }
 }
 
-export function generic_area_vector_legend(visuals: {line?: LineVector, fill: FillVector, hatch?: HatchVector}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+export function generic_area_vector_legend(visuals: {line?: v.LineVector, fill: v.FillVector, hatch?: v.HatchVector},
+    ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)

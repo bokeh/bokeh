@@ -2,12 +2,12 @@ import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
 import {MarkerGL} from "./webgl/markers"
 import {MarkerType} from "core/enums"
-import {Arrayable, Rect} from "core/types"
+import {Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
-export interface ScatterData extends MarkerData {
-  _marker: Arrayable<MarkerType> /* | MarkerType */
+export type ScatterData = MarkerData & {
+  readonly marker: p.Uniform<MarkerType>
 }
 
 export interface ScatterView extends ScatterData {}
@@ -21,7 +21,7 @@ export class ScatterView extends MarkerView {
   protected _init_webgl(): void {
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      const marker_types = new Set(this._marker)
+      const marker_types = new Set(this.marker)
       if (marker_types.size == 1) {
         const [marker_type] = [...marker_types]
 
@@ -42,37 +42,46 @@ export class ScatterView extends MarkerView {
     this._init_webgl()
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle, _marker}: ScatterData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
+    const {sx, sy, size, angle, marker} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]) || _marker[i] == null)
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const size_i = size.get(i)
+      const angle_i = angle.get(i)
+      const marker_i = marker.get(i)
+
+      if (isNaN(sx_i + sy_i + size_i + angle_i) || marker_i == null)
         continue
 
-      const r = _size[i]/2
+      const r = size_i/2
 
       ctx.beginPath()
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
 
-      if (_angle[i])
-        ctx.rotate(_angle[i])
+      if (angle_i)
+        ctx.rotate(angle_i)
 
-      marker_funcs[_marker[i]](ctx, i, r, this.visuals)
+      marker_funcs[marker_i](ctx, i, r, this.visuals)
 
-      if (_angle[i])
-        ctx.rotate(-_angle[i])
+      if (angle_i)
+        ctx.rotate(-angle_i)
 
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
     }
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
-    const args = this._get_legend_args({x0, x1, y0, y1}, index)
+    const n = index + 1
+    const marker = this.marker.get(index)
 
-    const len = index + 1
-    const marker: string[] = new Array(len)
-    marker[index] = this._marker[index]
-    args._marker = marker
+    const args = {
+      ...this._get_legend_args({x0, x1, y0, y1}, index),
+      marker: new p.UniformScalar(marker, n),
+    }
 
-    this._render(ctx, [index], args) // XXX
+    this._render(ctx, [index], args)
   }
 }
 

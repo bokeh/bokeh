@@ -3,7 +3,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -13,12 +13,12 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export interface MultiPolygonsData extends GlyphData {
-  _xs: NumberArray[][][]
-  _ys: NumberArray[][][]
+export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> & {
+  _xs: FloatArray[][][]
+  _ys: FloatArray[][][]
 
-  sxs: NumberArray[][][]
-  sys: NumberArray[][][]
+  sxs: ScreenArray[][][]
+  sys: ScreenArray[][][]
 }
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
@@ -128,7 +128,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
+  protected _inner_loop(ctx: Context2d, sx: ScreenArray[][], sy: ScreenArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {
@@ -147,25 +147,29 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
+      const {sxs, sys} = data ?? this
+
       for (const i of indices) {
-        const [sx, sy] = [sxs[i], sys[i]]
+        const sx_i = sxs[i]
+        const sy_i = sys[i]
 
         if (this.visuals.fill.doit) {
           this.visuals.fill.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
-        this.visuals.hatch.doit2(ctx, i, () => {
-          this._inner_loop(ctx, sx, sy)
+        if (this.visuals.hatch.doit) {
+          this.visuals.hatch.set_vectorize(ctx, i)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
-        }, () => this.renderer.request_render())
+        }
 
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.stroke()
         }
       }

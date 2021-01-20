@@ -32,7 +32,7 @@ describe("Marker glyph", () => {
           yield p
         }
       }
-      await display(row([...plots()]), [3*150 + 50, 150 + 50])
+      await display(row([...plots()]))
     })
   }
 
@@ -49,7 +49,7 @@ describe("Marker glyph", () => {
       const Y = () => [++y + 0, y + 1, y + 2, y + 3, y + 4]
 
       const attrs = {
-        angle: [0, 30, 45, 60, 90].map((a) => radians(a)),
+        angle: [0, 30, 45, 60, 90].map((a) => radians(a)), // TODO: angle_units
         size: 12,
         line_color: "navy",
         fill_color: "orange",
@@ -77,6 +77,8 @@ describe("Marker glyph", () => {
       p.square_dot(X("square_dot"), Y(), attrs)
       p.square_pin(X("square_pin"), Y(), attrs)
       p.square_x(X("square_x"), Y(), attrs)
+      p.star(X("star"), Y(), attrs)
+      p.star_dot(X("star_dot"), Y(), attrs)
       p.triangle(X("triangle"), Y(), attrs)
       p.triangle_dot(X("triangle_dot"), Y(), attrs)
       p.triangle_pin(X("triangle_pin"), Y(), attrs)
@@ -93,6 +95,6 @@ describe("Marker glyph", () => {
     const p1 = make_plot("svg")
     const p2 = make_plot("webgl")
 
-    await display(row([p0, p1, p2]), [950, 650])
+    await display(row([p0, p1, p2]))
   })
 })

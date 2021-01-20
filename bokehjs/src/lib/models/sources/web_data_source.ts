@@ -30,6 +30,10 @@ export abstract class WebDataSource extends ColumnDataSource {
     return column != null ? column : []
   }
 
+  get_length(): number {
+    return super.get_length() ?? 0
+  }
+
   // override this method to setup the connection to the web source
   abstract setup(): void
 

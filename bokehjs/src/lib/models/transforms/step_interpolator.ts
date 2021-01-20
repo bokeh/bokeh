@@ -1,7 +1,7 @@
 import {Interpolator} from "./interpolator"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
-import {min, find_index, find_last_index} from "core/util/array"
+import {map, min, find_index, find_last_index} from "core/util/array"
 
 export namespace StepInterpolator {
   export type Attrs = p.AttrsOf<Props>
@@ -50,7 +50,7 @@ export class StepInterpolator extends Interpolator {
         break
       }
       case "center": {
-        const diffs = this._x_sorted.map((tx) => Math.abs(tx - x))
+        const diffs = map(this._x_sorted, (tx) => Math.abs(tx - x))
         const mdiff = min(diffs)
         ind = find_index(diffs, num => mdiff === num)
         break

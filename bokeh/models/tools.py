@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -356,6 +356,7 @@ class PanTool(Drag):
     """)
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
+    syncable=False,
     level="overlay",
     fill_color="lightgrey",
     fill_alpha=0.5,
@@ -648,6 +649,7 @@ class CrosshairTool(InspectTool):
     """)
 
 DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
+    syncable=False,
     level="overlay",
     top_units="screen",
     left_units="screen",
@@ -789,6 +791,7 @@ class BoxSelectTool(Drag, SelectTool):
     """)
 
 DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
+    syncable=False,
     level="overlay",
     xs_units="screen",
     ys_units="screen",

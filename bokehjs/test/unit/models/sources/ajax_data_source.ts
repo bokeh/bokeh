@@ -139,12 +139,14 @@ describe("ajax_data_source module", () => {
       })
     })
 
-    describe("get_column method", () => {
+    describe("get_column() method", () => {
 
       it("should return empty lists for not-yet-existant columns", () => {
         const s = new AjaxDataSource({data_url: "http://foo.com"})
         const c = s.get_column("foo")
         expect(c).to.be.equal([])
+        const n = s.get_length()
+        expect(n).to.be.equal(0)
       })
     })
 

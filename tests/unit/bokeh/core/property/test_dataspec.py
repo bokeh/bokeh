@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -37,17 +37,24 @@ ALL = (
     'AlphaSpec',
     'AngleSpec',
     'ColorSpec',
+    'DashPatternSpec',
     'DataSpec',
     'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
     'FontSizeSpec',
+    'FontStyleSpec',
     'HatchPatternSpec',
+    'IntSpec',
+    'LineCapSpec',
+    'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
     'ScreenDistanceSpec',
     'StringSpec',
+    'TextAlignSpec',
+    'TextBaselineSpec',
     'UnitsSpec',
     'value',
 )

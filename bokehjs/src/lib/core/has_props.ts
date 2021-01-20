@@ -46,6 +46,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   readonly id: string
 
+  get is_syncable(): boolean{
+    return true
+  }
+
   // XXX: setter is only required for backwards compatibility
   set type(name: string) {
     console.warn("prototype.type = 'ModelName' is deprecated, use static __name__ instead")
@@ -120,7 +124,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         enumerable: true,
       })
 
-      const [type, default_value, options] = prop as any
+      const [type, default_value, options = {}] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
@@ -297,11 +301,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   finalize(): void {
     for (const prop of this) {
-      const {transform, expr} = prop.spec
-      if (transform != null)
-        this.connect(transform.change, () => this.transformchange.emit())
-      if (expr != null)
-        this.connect(expr.change, () => this.exprchange.emit())
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+        continue
+
+      const value = prop.get_value() as p.Spec<unknown> | null // XXX: T -> any under instanceof
+      if (value != null) {
+        const {transform, expr} = value
+        if (transform != null)
+          this.connect(transform.change, () => this.transformchange.emit())
+        if (expr != null)
+          this.connect(expr.change, () => this.exprchange.emit())
+      }
     }
 
     this.initialize()
@@ -546,6 +556,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   protected _push_changes(changes: [Property, unknown, unknown][], options: {setter_id?: string} = {}): void {
+    if (!this.is_syncable)
+      return
+
     const {document} = this
     if (document == null)
       return

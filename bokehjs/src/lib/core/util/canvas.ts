@@ -3,7 +3,10 @@ import {BBox} from "./bbox"
 import {div, canvas} from "../dom"
 import {OutputBackend} from "../enums"
 
+export type CanvasPatternRepetition = "repeat" | "repeat-x" | "repeat-y" | "no-repeat"
+
 export type Context2d = {
+  createPattern(image: CanvasImageSource, repetition: CanvasPatternRepetition | null): CanvasPattern | null
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
   lineDash: number[]

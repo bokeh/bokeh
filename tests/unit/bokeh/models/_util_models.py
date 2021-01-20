@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -20,7 +20,7 @@ from itertools import chain
 # Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin
 from bokeh.core.enums import NamedColor as Color
-from bokeh.core.property.dataspec import field
+from bokeh.core.property.dataspec import field, value
 
 # Module under test
  # isort:skip
@@ -36,10 +36,10 @@ TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_a
 
 ANGLE = ["angle", "angle_units"]
 
-PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events"]
+PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]
 GLYPH = []
 
-MARKER = ["x", "y", "size", "angle", "angle_units"]
+MARKER = ["x", "y", "size", "angle", "angle_units", "hit_dilation"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -78,16 +78,30 @@ def check_line_properties(model, prefix="", line_color=Color.black, line_width=1
     assert getattr(model, prefix + "line_dash_offset") == 0
 
 def check_text_properties(model, prefix="", font_size='16px', baseline='bottom', font_style='normal', align="left", scalar=False):
-    assert getattr(model, prefix + "text_font") == "helvetica"
+    text_font = getattr(model, prefix + "text_font")
+    text_font_size = getattr(model, prefix + "text_font_size")
+    text_font_style = getattr(model, prefix + "text_font_style")
+    text_color = getattr(model, prefix + "text_color")
+    text_alpha = getattr(model, prefix + "text_alpha")
+    text_align = getattr(model, prefix + "text_align")
+    text_baseline = getattr(model, prefix + "text_baseline")
+
     if scalar:
-        assert getattr(model, prefix + "text_font_size") == font_size
+        assert text_font == "helvetica"
+        assert text_font_size == font_size
+        assert text_font_style == font_style
+        assert text_color == "#444444"
+        assert text_alpha == 1.0
+        assert text_align == align
+        assert text_baseline == baseline
     else:
-        assert getattr(model, prefix + "text_font_size") == {"value": font_size}
-    assert getattr(model, prefix + "text_font_style") == font_style
-    assert getattr(model, prefix + "text_color") == "#444444"
-    assert getattr(model, prefix + "text_alpha") == 1.0
-    assert getattr(model, prefix + "text_align") == align
-    assert getattr(model, prefix + "text_baseline") == baseline
+        assert text_font == value("helvetica")
+        assert text_font_size == value(font_size)
+        assert text_font_style == font_style
+        assert text_color == "#444444"
+        assert text_alpha == 1.0
+        assert text_align == align
+        assert text_baseline == baseline
 
 def check_marker_properties(marker):
     assert marker.x == field("x")
