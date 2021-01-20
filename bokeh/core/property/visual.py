@@ -34,7 +34,7 @@ from .auto import Auto
 from .bases import Property
 from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
-from .either import Either
+from .either import Either, Nullable
 from .enum import Enum
 from .numeric import Float, Int
 from .primitive import String
@@ -192,18 +192,22 @@ class MinMaxBounds(Either):
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
     def __init__(self, accept_datetime=False, default='auto', help=None):
+        types = (
+            Auto,
+
+            Tuple(Float, Float),
+            Tuple(Nullable(Float), Float),
+            Tuple(Float, Nullable(Float)),
+
+            Tuple(TimeDelta, TimeDelta),
+            Tuple(Nullable(TimeDelta), TimeDelta),
+            Tuple(TimeDelta, Nullable(TimeDelta)),
+        )
         if accept_datetime:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
+            types = types + (
                 Tuple(Datetime, Datetime),
-            )
-        else:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
+                Tuple(Nullable(Datetime), Datetime),
+                Tuple(Datetime, Nullable(Datetime)),
             )
         super().__init__(*types, default=default, help=help)
 

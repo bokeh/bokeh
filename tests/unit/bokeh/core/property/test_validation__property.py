@@ -232,7 +232,7 @@ class TestValidateDetailDefault:
         p = MinMaxBounds()
         with pytest.raises(ValueError) as e:
             p.validate(10)
-        assert matches(str(e.value), r"expected an element of either Auto, Tuple\(Float, Float\) or Tuple\(TimeDelta, TimeDelta\), got 10")
+        assert matches(str(e.value), r"expected an element of either .*, got 10")
     def test_Regex(self) -> None:
         p = Regex("green")
         with pytest.raises(ValueError) as e:
