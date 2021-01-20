@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...util.string import nice_join
-from .bases import DeserializationError, ParameterizedProperty
+from .bases import DeserializationError, ParameterizedProperty, Undefined
 from .primitive import Null
 
 #-----------------------------------------------------------------------------
@@ -64,16 +64,14 @@ class Either(ParameterizedProperty):
 
     """
 
-    def __init__(self, tp1, tp2, *type_params, **kwargs):
+    def __init__(self, tp1, tp2, *type_params, default=Undefined, help=None, serialized=None, readonly=False):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        help = kwargs.get("help")
-        def choose_default():
-            return self._type_params[0]._raw_default()
-        default = kwargs.get("default", choose_default)
-        super().__init__(default=default, help=help)
-        self.alternatives = []
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
+
+    def _intrinsic_default(self):
+        return self._type_params[0]._raw_default()
 
     # TODO (bev) get rid of this?
     def __or__(self, other):

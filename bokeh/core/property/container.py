@@ -276,7 +276,7 @@ class Tuple(ContainerProperty):
     """
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
+        super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
     def __str__(self):
         item_types = ", ".join(str(x) for x in self.type_params)

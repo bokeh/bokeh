@@ -58,6 +58,9 @@ class Null(PrimitiveProperty):
 
     _underlying_type = (type(None),)
 
+    def _intrinsic_default(self):
+        return None
+
 class Bool(PrimitiveProperty):
     """ Accept boolean values.
 
@@ -95,6 +98,7 @@ class Bool(PrimitiveProperty):
             >>> m.prop = 10  # ValueError !!
 
     """
+
     _underlying_type = bokeh_bool_types
 
 class Complex(PrimitiveProperty):

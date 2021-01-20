@@ -82,12 +82,18 @@ class Any(Property):
 
     """
 
+    def _intrinsic_default(self):
+        return None
+
 class AnyRef(Property):
     """ Accept all values and force reference discovery. """
 
     @property
     def has_ref(self):
         return True
+
+    def _intrinsic_default(self):
+        return None
 
 #-----------------------------------------------------------------------------
 # Dev API
