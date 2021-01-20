@@ -24,12 +24,13 @@ import re
 # Bokeh imports
 from ... import colors
 from .. import enums
-from .bases import Property, Undefined
+from .bases import Property
 from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
 from .string import Regex
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

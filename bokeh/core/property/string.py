@@ -25,8 +25,8 @@ import base64
 import re
 
 # Bokeh imports
-from .bases import Undefined
 from .primitive import String
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

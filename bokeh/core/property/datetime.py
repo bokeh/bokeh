@@ -30,8 +30,9 @@ from ...util.serialization import (
     is_datetime_type,
     is_timedelta_type,
 )
-from .bases import Property, Undefined
+from .bases import Property
 from .primitive import bokeh_integer_types
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

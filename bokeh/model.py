@@ -237,7 +237,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         default_theme.apply_to_model(self)
 
     def __str__(self) -> str:
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
+        name = self.__class__.__name__
+        return f"{name}(id={self.id!r}, ...)"
 
     __repr__ = __str__
 

@@ -303,8 +303,9 @@ class HasProps(metaclass=MetaHasProps):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def __str__(self):
-        return "%s(...)" % self.__class__.__name__
+    def __str__(self) -> str:
+        name = self.__class__.__name__
+        return f"{name}(...)"
 
     __repr__ = __str__
 

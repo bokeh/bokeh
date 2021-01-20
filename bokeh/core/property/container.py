@@ -23,10 +23,11 @@ from collections.abc import Container, Iterable, Mapping, Sequence, Sized
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
-from .bases import ContainerProperty, DeserializationError, Undefined
+from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
+from .undefined import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 #-----------------------------------------------------------------------------

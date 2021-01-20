@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 from ... import colors
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
-from .bases import Undefined
 from .color import Color
 from .container import Dict, List
 from .datetime import Datetime, TimeDelta
@@ -31,6 +30,7 @@ from .either import Either, Null, Nullable
 from .enum import Enum
 from .instance import Instance
 from .primitive import Float, Int, String
+from .undefined import Undefined
 from .visual import DashPattern, FontSize, HatchPatternType, MarkerType
 
 #-----------------------------------------------------------------------------

@@ -25,7 +25,8 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # Bokeh imports
-from .bases import DeserializationError, Property, Undefined
+from .bases import DeserializationError, Property
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

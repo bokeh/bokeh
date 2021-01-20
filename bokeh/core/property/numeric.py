@@ -19,8 +19,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .bases import ParameterizedProperty, Undefined
+from .bases import ParameterizedProperty
 from .primitive import Float, Int
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

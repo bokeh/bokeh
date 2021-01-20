@@ -38,6 +38,7 @@ from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
+from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,36 +55,12 @@ __all__ = (
     'DeserializationError',
     'PrimitiveProperty',
     'Property',
-    'Undefined',
     'validation_on',
 )
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class UndefinedType(object):
-    """ Indicates no value set, which is not the same as setting ``None``. """
-
-    def __eq__(self, other) -> bool:
-        return isinstance(other, UndefinedType)
-
-    def __ne__(self, other) -> bool:
-        return not isinstance(other, UndefinedType)
-
-    def __hash__(self) -> int:
-        return hash(None) + 1
-
-    def __copy__(self) -> "UndefinedType":
-        return self
-
-    def __str__(self) -> str:
-        return "Undefined"
-
-    def __repr__(self) -> str:
-        return "Undefined"
-
-Undefined = UndefinedType()
 
 class DeserializationError(Exception):
     pass
@@ -367,8 +344,8 @@ class Property(PropertyDescriptorFactory):
         if error is None:
             value = self.transform(value)
         else:
-            obj_repr = str(owner) if isinstance(owner, HasProps) else owner.__qualified_model__
-            raise ValueError(f"failed to validate {obj_repr}.{name}: {str(error)}")
+            obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
+            raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
 
         if isinstance(owner, HasProps):
             obj = owner

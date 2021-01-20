@@ -131,9 +131,6 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    def __str__(self):
-        return f"GlyphRenderer(id={self.id}, glyph={str(self.glyph)}, ...)"
-
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and len(self.view.filters) > 0:

@@ -35,6 +35,7 @@ ALL = (
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
     'UnitsSpecPropertyDescriptor',
+    'UnsetValueError',
 )
 
 #-----------------------------------------------------------------------------

@@ -88,8 +88,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from copy import copy
+from typing import Any
 
 # Bokeh imports
+from .undefined import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 #-----------------------------------------------------------------------------
@@ -102,6 +104,7 @@ __all__ = (
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
     'UnitsSpecPropertyDescriptor',
+    'UnsetValueError',
 )
 
 #-----------------------------------------------------------------------------
@@ -111,6 +114,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class UnsetValueError(ValueError):
+    """ Represents state in which descriptor without value was accessed. """
 
 class PropertyDescriptor:
     """ Base class for a python descriptor that delegates access for a named
@@ -490,7 +496,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         """
         if obj is not None:
-            return self._get(obj)
+            value = self._get(obj)
+
+            if value is not Undefined:
+                return value
+            else:
+                raise UnsetValueError(f"{obj}.{self.name} doesn't have a value set")
         elif owner is not None:
             return self
         else:
@@ -719,6 +730,19 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         return default
 
+    def _set_value(self, obj, value: Any) -> None:
+        """ Actual descriptor value assignment. """
+        if isinstance(value, PropertyValueContainer):
+            value._register_owner(obj, self)
+
+        if self.name in obj._unstable_themed_values:
+            del obj._unstable_themed_values[self.name]
+
+        if self.name in obj._unstable_default_values:
+            del obj._unstable_default_values[self.name]
+
+        obj._property_values[self.name] = value
+
     def _internal_set(self, obj, value, hint=None, setter=None):
         """ Internal implementation to set property values, that is used
         by __set__, set_from_json, etc.
@@ -757,8 +781,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         """
         value = self.property.prepare_value(obj, self.name, value)
-        old = self.__get__(obj, obj.__class__)
-        self._real_set(obj, old, value, hint=hint, setter=setter)
+        old = self._get(obj)
+
+        if old is Undefined:
+            self._set_value(obj, value)
+        else:
+            self._real_set(obj, old, value, hint=hint, setter=setter)
 
     def _real_set(self, obj, old, value, hint=None, setter=None):
         """ Internal implementation helper to set property values.
@@ -796,6 +824,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         """
+        if value is Undefined:
+            raise RuntimeError("internal error attempting to set Undefined value")
+
         # Normally we want a "no-op" if the new value and old value are identical
         # but some hinted events are in-place. This check will allow those cases
         # to continue on to the notification machinery
@@ -815,16 +846,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         if old_attr_value is not value:
             if isinstance(old_attr_value, PropertyValueContainer):
                 old_attr_value._unregister_owner(obj, self)
-            if isinstance(value, PropertyValueContainer):
-                value._register_owner(obj, self)
-
-            if self.name in obj._unstable_themed_values:
-                del obj._unstable_themed_values[self.name]
-
-            if self.name in obj._unstable_default_values:
-                del obj._unstable_default_values[self.name]
-
-            obj._property_values[self.name] = value
+            self._set_value(obj, value)
 
         # for notification purposes, "old" should be the logical old
         self._trigger(obj, old, value, hint=hint, setter=setter)
