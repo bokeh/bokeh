@@ -23,7 +23,7 @@ from collections.abc import Container, Iterable, Mapping, Sequence, Sized
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
-from .bases import ContainerProperty, DeserializationError
+from .bases import ContainerProperty, DeserializationError, Undefined
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
@@ -53,7 +53,7 @@ class Seq(ContainerProperty):
 
     """
 
-    def __init__(self, item_type, default=None, help=None):
+    def __init__(self, item_type, default=Undefined, help=None):
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 

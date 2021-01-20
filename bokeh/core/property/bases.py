@@ -54,12 +54,36 @@ __all__ = (
     'DeserializationError',
     'PrimitiveProperty',
     'Property',
+    'Undefined',
     'validation_on',
 )
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class UndefinedType(object):
+    """ Indicates no value set, which is not the same as setting ``None``. """
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, UndefinedType)
+
+    def __ne__(self, other) -> bool:
+        return not isinstance(other, UndefinedType)
+
+    def __hash__(self) -> int:
+        return hash(None) + 1
+
+    def __copy__(self) -> "UndefinedType":
+        return self
+
+    def __str__(self) -> str:
+        return "Undefined"
+
+    def __repr__(self) -> str:
+        return "Undefined"
+
+Undefined = UndefinedType()
 
 class DeserializationError(Exception):
     pass
@@ -90,7 +114,7 @@ class Property(PropertyDescriptorFactory):
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+    def __init__(self, default=Undefined, help=None, serialized=None, readonly=False):
         # This is how the descriptor is created in the class declaration.
         if serialized is None:
             self._serialized = False if readonly else True
@@ -322,6 +346,9 @@ class Property(PropertyDescriptorFactory):
         return value
 
     def prepare_value(self, owner: Union[HasProps, Type[HasProps]], name: str, value: Any):
+        if value is Undefined:
+            return value
+
         error = None
         try:
             if validation_on():

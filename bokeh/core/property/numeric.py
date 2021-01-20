@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .bases import ParameterizedProperty
+from .bases import ParameterizedProperty, Undefined
 from .primitive import Float, Int
 
 #-----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ class Interval(ParameterizedProperty):
             >>> m.prop = "foo" # ValueError !!
 
     """
-    def __init__(self, interval_type, start, end, default=None, help=None):
+    def __init__(self, interval_type, start, end, default=Undefined, help=None):
         self.interval_type = self._validate_type_param(interval_type)
         # Make up a property name for validation purposes
         self.interval_type.validate(start)

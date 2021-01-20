@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from ... import colors
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from .. import enums
+from .bases import Undefined
 from .color import Color
 from .container import Dict, List
 from .datetime import Datetime, TimeDelta
@@ -234,7 +235,7 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     """
-    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
+    def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
         super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
@@ -467,7 +468,7 @@ class AngleSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
 
     """
-    def __init__(self, default=None, units_default="rad", help=None):
+    def __init__(self, default=Undefined, units_default="rad", help=None):
         super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
@@ -477,7 +478,7 @@ class DistanceSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
     """
-    def __init__(self, default=None, units_default="data", help=None):
+    def __init__(self, default=Undefined, units_default="data", help=None):
         super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -505,7 +506,7 @@ class NullDistanceSpec(DistanceSpec):
 
 class _FixedUnitsDistanceSpec(UnitsSpec):
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         super().__init__(default=default, units_type=Enum(enums.enumeration(self._units)), units_default=self._units, help=help)
 
     def get_units(self, _obj, _name):

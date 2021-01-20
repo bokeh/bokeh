@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # Bokeh imports
-from .bases import DeserializationError, Property
+from .bases import DeserializationError, Property, Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,7 +48,7 @@ class Instance(Property):
             (default: False)
 
     """
-    def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
+    def __init__(self, instance_type, default=Undefined, help=None, readonly=False, serialized=True):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")
 

@@ -24,7 +24,7 @@ import re
 # Bokeh imports
 from ... import colors
 from .. import enums
-from .bases import Property
+from .bases import Property, Undefined
 from .container import Tuple
 from .either import Either
 from .enum import Enum
@@ -112,7 +112,7 @@ class Color(Either):
 
     """
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),

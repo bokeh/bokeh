@@ -16,6 +16,7 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
+from copy import copy
 from mock import patch
 
 # Bokeh imports
@@ -41,6 +42,13 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
+def test_Undefined() -> None:
+    assert (bcpb.Undefined == bcpb.Undefined) == True
+    assert (bcpb.Undefined != bcpb.Undefined) == False
+    assert (bcpb.Undefined is bcpb.Undefined) == True
+    assert (bcpb.Undefined is not bcpb.Undefined) == False
+    assert (copy(bcpb.Undefined) is bcpb.Undefined) == True
+    assert (copy(bcpb.Undefined) is not bcpb.Undefined) == False
 
 class TestProperty:
     @patch('bokeh.core.property.bases.Property.validate')

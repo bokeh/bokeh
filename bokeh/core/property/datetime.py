@@ -30,7 +30,7 @@ from ...util.serialization import (
     is_datetime_type,
     is_timedelta_type,
 )
-from .bases import Property
+from .bases import Property, Undefined
 from .primitive import bokeh_integer_types
 
 #-----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class Datetime(Property):
 
     """
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         super().__init__(default=default, help=help)
 
     def transform(self, value):
