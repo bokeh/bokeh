@@ -204,6 +204,33 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #10856", () => {
+    it("makes GlyphRenderer ignore changes to secondary glyphs", async () => {
+      const p = fig([200, 200])
+
+      const x = [0, 1, 2, 3, 4]
+      const y = [0, 1, 2, 3, 4]
+      const c = ["red", "orange", "green", "blue", "purple"]
+
+      const selected = new Selection({indices: [1, 3, 4]})
+      const source = new ColumnDataSource({data: {x, y, c}, selected})
+      const r = p.circle({field: "x"}, {field: "y"}, {
+        source,
+        color: {field: "c"},
+        selection_line_color: "white",
+        size: 20,
+      })
+
+      const {view} = await display(p)
+
+      const glyph = r.selection_glyph as Circle
+      glyph.line_color = "black"
+      glyph.hatch_pattern = "/"
+
+      await view.ready
+    })
+  })
+
   describe("in issue #10042", () => {
     it("disallows to set subgroup_label_orientation = 0", async () => {
       const random = new Random(1)
