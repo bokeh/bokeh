@@ -107,8 +107,6 @@ class TestDashPattern:
     def test_valid(self) -> None:
         prop = bcpv.DashPattern()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid("")
         assert prop.is_valid(())
         assert prop.is_valid([])
@@ -126,6 +124,7 @@ class TestDashPattern:
     def test_invalid(self) -> None:
         prop = bcpv.DashPattern()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -158,8 +157,6 @@ class Test_FontSize:
     def test_valid(self) -> None:
         prop = bcpv.FontSize()
 
-        assert prop.is_valid(None)
-
         for unit in css_units.split("|"):
             v = '10%s' % unit
             assert prop.is_valid(v)
@@ -191,6 +188,7 @@ class Test_FontSize:
             v = '_10.2%s' % unit
             assert not prop.is_valid(v)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -220,7 +218,7 @@ class Test_Image:
 
     def test_validate_None(self) -> None:
         prop = bcpv.Image()
-        assert prop.is_valid(None)
+        assert not prop.is_valid(None)
 
     def test_validate_string(self) -> None:
         prop = bcpv.Image()
@@ -260,10 +258,6 @@ class Test_Image:
 
         data = np.zeros((50, 50), dtype=np.uint8)
         assert not prop.is_valid(data)
-
-    def test_transform_None(self) -> None:
-        prop = bcpv.Image()
-        assert prop.transform(None) is None
 
     def test_transform_numpy(self) -> None:
         data = np.zeros((50, 50, 3), dtype=np.uint8)
@@ -306,7 +300,6 @@ class Test_MinMaxBounds:
         prop = bcpv.MinMaxBounds(accept_datetime=False)
 
         assert prop.is_valid('auto')
-        assert prop.is_valid(None)
         assert prop.is_valid((12, 13))
         assert prop.is_valid((-32, -13))
         assert prop.is_valid((12.1, 13.1))
@@ -316,6 +309,7 @@ class Test_MinMaxBounds:
     def test_invalid_no_datetime(self) -> None:
         prop = bcpv.MinMaxBounds(accept_datetime=False)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid('string')
         assert not prop.is_valid(12)
         assert not prop.is_valid(('a', 'b'))
@@ -343,14 +337,13 @@ class Test_MarkerType:
     def test_valid(self) -> None:
         prop = bcpv.MarkerType()
 
-        assert prop.is_valid(None)
-
         for typ in MarkerType:
             assert prop.is_valid(typ)
 
     def test_invalid(self) -> None:
         prop = bcpv.MarkerType()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

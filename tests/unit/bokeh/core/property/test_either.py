@@ -43,8 +43,6 @@ class Test_Either:
     def test_valid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
 
@@ -60,6 +58,8 @@ class Test_Either:
 
     def test_invalid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))
+
+        assert not prop.is_valid(None)
 
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)

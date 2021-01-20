@@ -51,12 +51,11 @@ class Test_Instance:
 
     def test_valid(self) -> None:
         prop = bcpi.Instance(_TestModel)
-
-        assert prop.is_valid(None)
         assert prop.is_valid(_TestModel())
 
     def test_invalid(self) -> None:
         prop = bcpi.Instance(_TestModel)
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

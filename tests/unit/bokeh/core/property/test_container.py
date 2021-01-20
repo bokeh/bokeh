@@ -56,12 +56,12 @@ class Test_Array:
     def test_valid(self) -> None:
         prop = bcpc.Array(Float)
 
-        assert prop.is_valid(None)
         assert prop.is_valid(np.array([1,2,3]))
 
     def test_invalid(self) -> None:
         prop = bcpc.Array(Float)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -95,13 +95,13 @@ class Test_Dict:
     def test_valid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
-        assert prop.is_valid(None)
         assert prop.is_valid({})
         assert prop.is_valid({"foo": [1,2,3]})
 
     def test_invalid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -140,13 +140,13 @@ class Test_List:
     def test_valid(self) -> None:
         prop = bcpc.List(Int)
 
-        assert prop.is_valid(None)
         assert prop.is_valid([])
         assert prop.is_valid([1,2,3])
 
     def test_invalid(self) -> None:
         prop = bcpc.List(Int)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -185,8 +185,6 @@ class Test_Seq:
     def test_valid(self) -> None:
         prop = bcpc.Seq(Int)
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(())
         assert prop.is_valid([])
         assert prop.is_valid(np.array([1,2,3]))
@@ -198,6 +196,7 @@ class Test_Seq:
     def test_invalid(self) -> None:
         prop = bcpc.Seq(Int)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -246,13 +245,12 @@ class Test_Tuple:
     def test_valid(self) -> None:
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid((1, "", [1, 2, 3]))
 
     def test_invalid(self) -> None:
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
