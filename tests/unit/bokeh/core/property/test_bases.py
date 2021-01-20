@@ -35,6 +35,7 @@ ALL = (
     'DeserializationError',
     'PrimitiveProperty',
     'Property',
+    'Undefined',
     'validation_on',
 )
 

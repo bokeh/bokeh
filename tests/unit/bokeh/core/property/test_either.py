@@ -28,6 +28,7 @@ import bokeh.core.property.either as bcpe # isort:skip
 
 ALL = (
     'Either',
+    'Nullable',
 )
 
 #-----------------------------------------------------------------------------

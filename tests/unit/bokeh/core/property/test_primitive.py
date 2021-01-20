@@ -33,6 +33,7 @@ ALL = (
     'Complex',
     'Int',
     'Float',
+    'Null',
     'String',
 )
 
