@@ -19,6 +19,7 @@ import pytest ; pytest
 import time
 
 # External imports
+from flaky import flaky
 
 # Bokeh imports
 from bokeh._testing.util.compare import cds_data_almost_equal
@@ -210,6 +211,7 @@ class Test_PolyEditTool:
         assert cds_data_almost_equal(page.results, expected)
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_poly_edit_syncs_to_server(self, bokeh_server_page):
         expected = {'xs': [[1, 2], [1.6, 2.45, 2.027027027027027]],
                     'ys': [[1, 1], [1.5, 0.75, 1.8749999999999998]]}
@@ -227,6 +229,7 @@ class Test_PolyEditTool:
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_poly_drag_syncs_to_server(self, bokeh_server_page):
         expected = {"xs": [[1, 2], [1.6, 2.45, 2.5945945945945947]],
                     "ys": [[1, 1], [1.5, 0.75, 1.5]]}
@@ -276,6 +279,7 @@ class Test_PolyEditTool:
         assert page.results == {"matches": "True"}
         assert page.has_no_console_errors()
 
+    @flaky(max_runs=10)
     def test_poly_delete_syncs_to_server(self, bokeh_server_page) -> None:
         expected = {"xs": [[1, 2], [1.6, 2.027027027027027]],
                     "ys": [[1, 1], [1.5, 1.8749999999999998]]}
