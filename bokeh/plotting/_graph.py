@@ -135,12 +135,14 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     hnode_glyph = make_glyph(marker_type, node_kwargs, hnode_visuals)
     mnode_glyph = make_glyph(marker_type, node_kwargs, mnode_visuals)
 
-    node_renderer = GlyphRenderer(glyph=node_glyph,
-                                  nonselection_glyph=nsnode_glyph,
-                                  selection_glyph=snode_glyph,
-                                  hover_glyph=hnode_glyph,
-                                  muted_glyph=mnode_glyph,
-                                  data_source=node_source)
+    node_renderer = GlyphRenderer(
+        data_source=node_source,
+        glyph=node_glyph,
+        selection_glyph=snode_glyph or "auto",
+        nonselection_glyph=nsnode_glyph or "auto",
+        hover_glyph=hnode_glyph,
+        muted_glyph=mnode_glyph,
+    )
 
     ## edge stuff
     edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
@@ -151,12 +153,14 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     hedge_glyph = make_glyph(MultiLine, edge_kwargs, hedge_visuals)
     medge_glyph = make_glyph(MultiLine, edge_kwargs, medge_visuals)
 
-    edge_renderer = GlyphRenderer(glyph=edge_glyph,
-                                  nonselection_glyph=nsedge_glyph,
-                                  selection_glyph=sedge_glyph,
-                                  hover_glyph=hedge_glyph,
-                                  muted_glyph=medge_glyph,
-                                  data_source=edge_source)
+    edge_renderer = GlyphRenderer(
+        data_source=edge_source,
+        glyph=edge_glyph,
+        selection_glyph=sedge_glyph or "auto",
+        nonselection_glyph=nsedge_glyph or "auto",
+        hover_glyph=hedge_glyph,
+        muted_glyph=medge_glyph,
+    )
 
     renderer_kwargs = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
 
