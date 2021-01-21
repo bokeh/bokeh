@@ -126,6 +126,11 @@ class Nullable(Either):
     def __init__(self, type_param, **kwargs):
         super().__init__(Null, type_param, **kwargs)
 
+    def __str__(self):
+        name = self.__class__.__name__
+        type_param = self.type_params[1]
+        return f"{name}({type_param})"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
