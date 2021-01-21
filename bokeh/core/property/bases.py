@@ -98,16 +98,13 @@ class Property(PropertyDescriptorFactory):
         else:
             self._serialized = serialized
         self._readonly = readonly
-        self._default = default if default is not Undefined else self._intrinsic_default() # lgtm [py/init-calls-subclass]
+        self._default = default
         self.__doc__ = help
         self.alternatives = []
         self.assertions = []
 
     def __str__(self):
         return self.__class__.__name__
-
-    def _intrinsic_default(self):
-        return Undefined
 
     @classmethod
     def _sphinx_prop_link(cls):

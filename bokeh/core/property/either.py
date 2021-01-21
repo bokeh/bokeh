@@ -66,13 +66,12 @@ class Either(ParameterizedProperty):
     """
 
     def __init__(self, tp1, tp2, *type_params, default=Undefined, help=None, serialized=None, readonly=False):
-        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
+        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
+        default = default if default is not Undefined else type_params[0]._raw_default()
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+        self._type_params = type_params
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
-
-    def _intrinsic_default(self):
-        return self._type_params[0]._raw_default()
 
     # TODO (bev) get rid of this?
     def __or__(self, other):

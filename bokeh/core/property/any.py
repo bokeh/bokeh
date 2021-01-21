@@ -82,18 +82,15 @@ class Any(Property):
 
     """
 
-    def _intrinsic_default(self):
-        return None
+    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class AnyRef(Property):
+class AnyRef(Any):
     """ Accept all values and force reference discovery. """
 
     @property
     def has_ref(self):
         return True
-
-    def _intrinsic_default(self):
-        return None
 
 #-----------------------------------------------------------------------------
 # Dev API
