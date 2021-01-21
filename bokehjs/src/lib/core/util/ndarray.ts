@@ -206,7 +206,7 @@ export type NDArray =
   Float32NDArray | Float64NDArray
 
 export function is_NDArray(v: unknown): v is NDArray {
-  return isObject(v) && __ndarray__ in v
+  return isObject(v) && (v as any)[__ndarray__] !== undefined
 }
 
 export type NDArrayTypes = {

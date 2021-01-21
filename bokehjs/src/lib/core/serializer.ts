@@ -1,7 +1,7 @@
 import {assert} from "./util/assert"
 import {entries} from "./util/object"
 import {Ref, Struct} from "./util/refs"
-import {isPlainObject, isArray, isTypedArray, isBoolean, isNumber, isString} from "./util/types"
+import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString} from "./util/types"
 
 export type SerializableType =
   | null
@@ -23,7 +23,7 @@ export interface Serializable {
 }
 
 function is_Serializable<T>(obj: T): obj is T & Serializable {
-  return serialize in Object(obj)
+  return isObject(obj) && (obj as any)[serialize] !== undefined
 }
 
 export type SerializableOf<T extends SerializableType> =

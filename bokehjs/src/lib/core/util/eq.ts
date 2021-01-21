@@ -1,6 +1,7 @@
 // Based on Underscore.js 1.8.3 (http://underscorejs.org)
 
 import {PlainObject} from "../types"
+import {isObject} from "./types"
 
 const {hasOwnProperty} = Object.prototype
 
@@ -11,7 +12,7 @@ export interface Equatable {
 }
 
 function is_Equatable<T>(obj: T): obj is T & Equatable {
-  return equals in Object(obj)
+  return isObject(obj) && (obj as any)[equals] !== undefined
 }
 
 export const wildcard: any = Symbol("wildcard")
