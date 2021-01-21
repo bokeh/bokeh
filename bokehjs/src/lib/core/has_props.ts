@@ -277,17 +277,19 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
       let property: p.Property<unknown>
 
       if (type instanceof p.PropertyAlias) {
-        property = new Proxy(this.properties[type.attr], {
-          get(target, member) {
-            return member == "attr" ? name : target[member as keyof typeof target]
-          },
+        Object.defineProperty(this.properties, name, {
+          get: () => this.properties[type.attr],
+          configurable: false,
+          enumerable: false,
         })
-      } else if (type instanceof k.Kind)
-        property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
-      else
-        property = new type(this, name, k.Any, default_value, get(name), options)
+      } else {
+        if (type instanceof k.Kind)
+          property = new p.PrimitiveProperty(this, name, type, default_value, get(name), options)
+        else
+          property = new type(this, name, k.Any, default_value, get(name), options)
 
-      this.properties[name] = property
+        this.properties[name] = property
+      }
     }
 
     // allowing us to defer initialization when loading many models
