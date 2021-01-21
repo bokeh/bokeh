@@ -36,13 +36,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 codes = {
-    1000: ("MISSING_RENDERERS",   "Plot has no renderers"),
-    1002: ("EMPTY_LAYOUT",        "Layout has no children"),
-    1004: ("BOTH_CHILD_AND_ROOT", "Models should not be a document root if they are in a layout box"),
-    1005: ("FIXED_SIZING_MODE",   "'fixed' sizing mode requires width and height to be set"),
-    1006: ("FIXED_WIDTH_POLICY",  "'fixed' width policy requires width to be set"),
-    1007: ("FIXED_HEIGHT_POLICY", "'fixed' height policy requires height to be set"),
-    9999: ("EXT",                 "Custom extension reports warning"),
+    1000: ("MISSING_RENDERERS",               "Plot has no renderers"),
+    1002: ("EMPTY_LAYOUT",                    "Layout has no children"),
+    1004: ("BOTH_CHILD_AND_ROOT",             "Models should not be a document root if they are in a layout box"),
+    1005: ("FIXED_SIZING_MODE",               "'fixed' sizing mode requires width and height to be set"),
+    1006: ("FIXED_WIDTH_POLICY",              "'fixed' width policy requires width to be set"),
+    1007: ("FIXED_HEIGHT_POLICY",             "'fixed' height policy requires height to be set"),
+    1008: ("PALETTE_LENGTH_FACTORS_MISMATCH", "Palette length does not match number of factors"),
+    9999: ("EXT",                             "Custom extension reports warning"),
 }
 
 __all__ = ()

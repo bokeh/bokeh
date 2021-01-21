@@ -14,8 +14,12 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from mock import patch
+
 # Bokeh imports
 from _util_models import check_properties_existence
+from bokeh.core.validation import check_integrity
 from bokeh.palettes import Spectral6
 
 # Module under test
@@ -39,16 +43,24 @@ class Test_CategoricalColorMapper:
             "palette",
             "start",
             "end",
-            "nan_color"],
-        )
+            "nan_color",
+        ])
 
-    def test_warning_with_short_palette(self, recwarn) -> None:
-        bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
-        assert len(recwarn) == 1
+    @patch("bokeh.core.validation.check.log.error")
+    @patch("bokeh.core.validation.check.log.warning")
+    def test_warning_with_short_palette(self, mock_warn, mock_error) -> None:
+        m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
+        check_integrity([m])
+        assert not mock_error.called
+        assert mock_warn.called
 
-    def test_no_warning_with_long_palette(self, recwarn) -> None:
-        bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
-        assert len(recwarn) == 0
+    @patch("bokeh.core.validation.check.log.error")
+    @patch("bokeh.core.validation.check.log.warning")
+    def test_no_warning_with_long_palette(self, mock_warn, mock_error) -> None:
+        m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
+        check_integrity([m])
+        assert not mock_error.called
+        assert not mock_warn.called
 
     def test_with_pandas_index(self, pd) -> None:
         fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']

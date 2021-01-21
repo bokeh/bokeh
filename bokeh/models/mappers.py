@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import warnings
-
 # Bokeh imports
 from .. import palettes
 from ..core.enums import Palette
@@ -42,6 +39,8 @@ from ..core.properties import (
     String,
     Tuple,
 )
+from ..core.validation import warning
+from ..core.validation.warnings import PALETTE_LENGTH_FACTORS_MISMATCH
 from .transforms import Transform
 
 #-----------------------------------------------------------------------------
@@ -141,14 +140,13 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
 
     '''
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    @warning(PALETTE_LENGTH_FACTORS_MISMATCH)
+    def _check_palette_length(self):
         palette = self.palette
         factors = self.factors
-        if palette is not None and factors is not None:
-            if len(palette) < len(factors):
-                extra_factors = factors[len(palette):]
-                warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
+        if len(palette) < len(factors):
+            extra_factors = factors[len(palette):]
+            return f"{extra_factors} will be assigned to `nan_color` {self.nan_color}"
 
 class CategoricalMarkerMapper(CategoricalMapper):
     ''' Map categorical factors to marker types.
