@@ -35,14 +35,15 @@ if (typeof Object.values === "undefined") {
 }
 
 if (typeof Uint8Array.prototype.fill === "undefined") {
-  (Uint8Array.prototype as any).fill = Array.prototype.fill;
-  (Int8Array.prototype as any).fill = Array.prototype.fill;
-  (Uint16Array.prototype as any).fill = Array.prototype.fill;
-  (Int16Array.prototype as any).fill = Array.prototype.fill;
-  (Uint32Array.prototype as any).fill = Array.prototype.fill;
-  (Int32Array.prototype as any).fill = Array.prototype.fill;
-  (Float32Array.prototype as any).fill = Array.prototype.fill;
-  (Float64Array.prototype as any).fill = Array.prototype.fill // lgtm [js/automatic-semicolon-insertion]
+  const fill = Array.prototype.fill as any
+  Uint8Array.prototype.fill = fill
+  Int8Array.prototype.fill = fill
+  Uint16Array.prototype.fill = fill
+  Int16Array.prototype.fill = fill
+  Uint32Array.prototype.fill = fill
+  Int32Array.prototype.fill = fill
+  Float32Array.prototype.fill = fill
+  Float64Array.prototype.fill = fill
 }
 
 if (typeof Array.prototype[Symbol.iterator] === "undefined") {
@@ -58,16 +59,16 @@ if (typeof Array.prototype[Symbol.iterator] === "undefined") {
     }
   }
   (function() {
-    arguments.constructor.prototype[Symbol.iterator] = iterator;
-    (Array.prototype as any)[Symbol.iterator] = iterator;
-    (Uint8Array.prototype as any)[Symbol.iterator] = iterator;
-    (Int8Array.prototype as any)[Symbol.iterator] = iterator;
-    (Uint16Array.prototype as any)[Symbol.iterator] = iterator;
-    (Int16Array.prototype as any)[Symbol.iterator] = iterator;
-    (Uint32Array.prototype as any)[Symbol.iterator] = iterator;
-    (Int32Array.prototype as any)[Symbol.iterator] = iterator;
-    (Float32Array.prototype as any)[Symbol.iterator] = iterator;
-    (Float64Array.prototype as any)[Symbol.iterator] = iterator // lgtm [js/automatic-semicolon-insertion]
+    arguments.constructor.prototype[Symbol.iterator] = iterator
+    Array.prototype[Symbol.iterator] = iterator as any
+    Uint8Array.prototype[Symbol.iterator] = iterator as any
+    Int8Array.prototype[Symbol.iterator] = iterator as any
+    Uint16Array.prototype[Symbol.iterator] = iterator as any
+    Int16Array.prototype[Symbol.iterator] = iterator as any
+    Uint32Array.prototype[Symbol.iterator] = iterator as any
+    Int32Array.prototype[Symbol.iterator] = iterator as any
+    Float32Array.prototype[Symbol.iterator] = iterator as any
+    Float64Array.prototype[Symbol.iterator] = iterator as any
   })()
 }
 
