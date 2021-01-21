@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Dict, Float, Seq, String
+from ..core.properties import AnyRef, Bool, Dict, Float, Nullable, Seq, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -164,13 +164,13 @@ class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
 
     field = String()
-    initial = Float(default=None) # TODO: float("+inf"))
+    initial = Nullable(Float, default=None) # TODO: float("+inf"))
 
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
     field = String()
-    initial = Float(default=None) # TODO: float("-inf"))
+    initial = Nullable(Float, default=None) # TODO: float("-inf"))
 
 #-----------------------------------------------------------------------------
 # Dev API

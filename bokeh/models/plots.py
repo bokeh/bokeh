@@ -626,7 +626,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border = Nullable(Int(5), help="""
+    min_border = Nullable(Int, default=5, help="""
     A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
