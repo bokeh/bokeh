@@ -116,7 +116,7 @@ This module contains the following sets of palettes:
 * All `ColorBrewer`_ palettes
 * Categorical `D3`_ palettes
 * The `Matplotlib`_ palettes Magma, Inferno, Plasma, and Viridis
-* A 'Bokeh'_ palette comprised of the Bokeh shutter logo colors
+* A Bokeh palette comprised of the Bokeh shutter logo colors
 * Palettes designed for color-deficient usability
 
 Additionally, you can also use any of the 256-color perceptually uniform
@@ -1099,6 +1099,7 @@ Colorblind4 = Colorblind8[:4]
 Colorblind3 = Colorblind8[:3]
 
 # Bokeh palette created from colors of shutter logo
+Bokeh8 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#4998D3', '#892889')
 Bokeh7 = ('#EC1557', '#F05223', '#F6A91B', '#A5CD39', '#20B254', '#00AAAE', '#892889')
 Bokeh6 = Bokeh7[:6]
 Bokeh5 = Bokeh7[:5]
@@ -1162,7 +1163,7 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 13: Category20c_13, 14: Category20c_14, 15: Category20c_15, 16: Category20c_16, 17: Category20c_17,
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
-Bokeh = { 3: Bokeh3, 4: Bokeh4, 5: Bokeh5, 6: Bokeh6, 7: Bokeh7 }
+Bokeh = { 3: Bokeh3, 4: Bokeh4, 5: Bokeh5, 6: Bokeh6, 7: Bokeh7, 8: Bokeh8 }
 
 brewer = {
     "YlGn"     : YlGn,
