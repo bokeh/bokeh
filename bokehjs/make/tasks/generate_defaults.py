@@ -6,6 +6,7 @@ from json import loads
 
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
+from bokeh.core.property.undefined import Undefined
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -19,7 +20,8 @@ for name, model in Model.model_class_reverse_map.items():
         warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
         obj = model()
 
-    props_with_values = obj.query_properties_with_values(lambda prop: prop.readonly or prop.serialized)
+    q = lambda prop: prop.readonly or prop.serialized
+    props_with_values = obj.query_properties_with_values(q, include_undefined=True)
     defaults = {}
 
     for attr, default in props_with_values.items():
@@ -30,8 +32,10 @@ for name, model in Model.model_class_reverse_map.items():
             struct["attributes"] = attrs
             del struct["id"] # there's no way the ID will match bokehjs
             default = struct
-        elif isinstance(default, float) and default == float("inf"):
-            default = None
+        elif default is Undefined:
+            default = None # TODO: add support for unset values in bokehjs
+        elif default == float("inf") or default == float("-inf"):
+            default = None # TODO: add serialization support for +/-oo
         defaults[attr] = default
 
     all_json[name] = defaults

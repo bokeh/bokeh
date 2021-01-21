@@ -34,8 +34,9 @@ from warnings import warn
 from ..util.string import nice_join
 from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
-from .property.descriptors import PropertyDescriptor
+from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
+from .property.undefined import Undefined
 from .property.wrappers import PropertyValueContainer
 
 #-----------------------------------------------------------------------------
@@ -564,7 +565,7 @@ class HasProps(metaclass=MetaHasProps):
         '''
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
-    def properties_with_values(self, include_defaults: bool = True) -> Dict[str, Any]:
+    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
@@ -585,7 +586,8 @@ class HasProps(metaclass=MetaHasProps):
            dict : mapping from property names to their values
 
         '''
-        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
+        return self.query_properties_with_values(lambda prop: prop.serialized,
+            include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
     def _overridden_defaults(cls):
@@ -606,7 +608,7 @@ class HasProps(metaclass=MetaHasProps):
         '''
         return accumulate_dict_from_superclasses(cls, "__property_aliases__")
 
-    def query_properties_with_values(self, query, include_defaults=True):
+    def query_properties_with_values(self, query, *, include_defaults: bool = True, include_undefined: bool = False):
         ''' Query the properties values of |HasProps| instances with a
         predicate.
 
@@ -642,10 +644,18 @@ class HasProps(metaclass=MetaHasProps):
             if not query(descriptor):
                 continue
 
-            value = descriptor.serializable_value(self)
-            if not include_defaults and key not in themed_keys:
-                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
+            try:
+                value = descriptor.serializable_value(self)
+            except UnsetValueError:
+                if include_undefined:
+                    value = Undefined
+                else:
                     continue
+            else:
+                if not include_defaults and key not in themed_keys:
+                    if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
+                        continue
+
             result[key] = value
 
         return result

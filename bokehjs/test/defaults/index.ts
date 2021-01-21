@@ -64,6 +64,9 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
     if (name == "DateRangeSlider" && (k == "start" || k == "end"))
       continue
 
+    if (name == "GlyphRenderer" && k == "view")
+      continue
+
     // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
     if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || js_v?.value == "Bokeh"))
       continue
