@@ -34,6 +34,12 @@ if (typeof Object.values === "undefined") {
   }
 }
 
+if (typeof String.prototype.includes === "undefined") {
+  String.prototype.includes = function(search: string, start: number = 0): boolean {
+    return this.indexOf(search, start) != -1
+  }
+}
+
 if (typeof Uint8Array.prototype.fill === "undefined") {
   const fill = Array.prototype.fill as any
   Uint8Array.prototype.fill = fill

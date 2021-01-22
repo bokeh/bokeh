@@ -5,8 +5,8 @@ export const is_windows = (() => {
 })()
 
 export const is_ie = (() => {
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent : ""
-  return ua.indexOf('MSIE') >= 0 || ua.indexOf('Trident') > 0 || ua.indexOf('Edge') > 0
+  const ua = navigator.userAgent
+  return ua.includes("MSIE") || ua.includes("Trident") || ua.includes("Edge")
 })()
 
 export const is_mobile = (() => {
