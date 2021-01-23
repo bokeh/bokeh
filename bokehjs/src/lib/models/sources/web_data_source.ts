@@ -9,7 +9,7 @@ export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnDataSource.Props & {
-    max_size: p.Property<number>
+    max_size: p.Property<number | null>
     mode: p.Property<UpdateMode>
     adapter: p.Property<CallbackLike1<WebDataSource, {response: Data}, Data> | null>
     data_url: p.Property<string>
@@ -42,7 +42,7 @@ export abstract class WebDataSource extends ColumnDataSource {
     this.setup()
   }
 
-  load_data(raw_data: any, mode: UpdateMode, max_size: number): void {
+  load_data(raw_data: any, mode: UpdateMode, max_size?: number): void {
     const {adapter} = this
     let data: Data
     if (adapter != null)
@@ -61,7 +61,8 @@ export abstract class WebDataSource extends ColumnDataSource {
           // XXX: support typed arrays
           const old_col = Array.from(original_data[column])
           const new_col = Array.from(data[column])
-          data[column] = old_col.concat(new_col).slice(-max_size)
+          const array = old_col.concat(new_col)
+          data[column] = max_size != null ? array.slice(-max_size) : array
         }
         this.data = data
         break
@@ -71,7 +72,7 @@ export abstract class WebDataSource extends ColumnDataSource {
 
   static init_WebDataSource(): void {
     this.define<WebDataSource.Props>(({Any, Int, String, Nullable}) => ({
-      max_size: [ Int ],
+      max_size: [ Nullable(Int), null ],
       mode:     [ UpdateMode, "replace" ],
       adapter:  [ Nullable(Any /*TODO*/), null ],
       data_url: [ String ],

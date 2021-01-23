@@ -55,11 +55,11 @@ export class AjaxDataSource extends WebDataSource {
     }
   }
 
-  get_data(mode: UpdateMode, max_size: number = 0, _if_modified: boolean = false): void {
+  get_data(mode: UpdateMode, max_size: number | null = null, _if_modified: boolean = false): void {
     const xhr = this.prepare_request()
 
     // TODO: if_modified
-    xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size))
+    xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size ?? undefined))
     xhr.addEventListener("error", () => this.do_error(xhr))
 
     xhr.send()
@@ -79,7 +79,7 @@ export class AjaxDataSource extends WebDataSource {
     return xhr
   }
 
-  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
+  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): void {
     if (xhr.status === 200) {
       const raw_data = JSON.parse(xhr.responseText)
       this.load_data(raw_data, mode, max_size)

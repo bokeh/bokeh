@@ -733,7 +733,7 @@ class WebDataSource(ColumnDataSource):
     (i.e.  a mapping of string column names to arrays of data).
     """)
 
-    max_size = Int(help="""
+    max_size = Nullable(Int, help="""
     Maximum size of the data columns. If a new fetch would result in columns
     larger than ``max_size``, then earlier data is dropped to make room.
     """)
