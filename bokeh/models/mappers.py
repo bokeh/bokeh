@@ -28,6 +28,7 @@ from ..core.properties import (
     Color,
     Either,
     Enum,
+    FactorSeq,
     Float,
     HatchPatternType,
     Instance,
@@ -99,7 +100,7 @@ class CategoricalMapper(Mapper):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), help="""
+    factors = FactorSeq(help="""
     A sequence of factors / categories that map to the some target range. For
     example the following color mapper:
 

@@ -1,5 +1,5 @@
 import {CategoricalMapper, cat_v_compute} from "./categorical_mapper"
-import {Factor} from "../ranges/factor_range"
+import {Factor, FactorSeq} from "../ranges/factor_range"
 import {Mapper} from "./mapper"
 
 import * as p from "core/properties"
@@ -25,8 +25,8 @@ export class CategoricalMarkerMapper extends Mapper<string> {
   }
 
   static init_CategoricalMarkerMapper(): void {
-    this.define<CategoricalMarkerMapper.Props>(({Any, Number, Array, Nullable}) => ({
-      factors:       [ Array(Any /*TODO*/) ],
+    this.define<CategoricalMarkerMapper.Props>(({Number, Array, Nullable}) => ({
+      factors:       [ FactorSeq ],
       markers:       [ Array(MarkerType) ],
       start:         [ Number, 0 ],
       end:           [ Nullable(Number), null],

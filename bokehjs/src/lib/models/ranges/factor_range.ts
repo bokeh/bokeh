@@ -1,6 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
+import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
 import {Arrayable, ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
@@ -11,6 +12,10 @@ export type L2Factor = [string, string]
 export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
+export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
+
+export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
+export const FactorSeq = Or(Arr(Str), Arr(Tuple(Str, Str)), Arr(Tuple(Str, Str, Str)))
 
 export type BoxedFactor = [string] | L2Factor | L3Factor
 
@@ -126,8 +131,8 @@ export class FactorRange extends Range {
   }
 
   static init_FactorRange(): void {
-    this.define<FactorRange.Props>(({Any, Number, Array}) => ({
-      factors:             [ Array(Any /*TODO*/), [] ],
+    this.define<FactorRange.Props>(({Number}) => ({
+      factors:             [ FactorSeq, [] ],
       factor_padding:      [ Number, 0 ],
       subgroup_padding:    [ Number, 0.8 ],
       group_padding:       [ Number, 1.4 ],

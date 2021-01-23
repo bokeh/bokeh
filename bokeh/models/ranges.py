@@ -32,16 +32,15 @@ from ..core.properties import (
     Datetime,
     Either,
     Enum,
+    FactorSeq,
     Float,
     Instance,
     List,
     MinMaxBounds,
     Null,
     Nullable,
-    Seq,
     String,
     TimeDelta,
-    Tuple,
 )
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
@@ -316,7 +315,7 @@ class FactorRange(Range):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=[], help="""
+    factors = FactorSeq(default=[], help="""
     A sequence of factors to define this categorical range.
 
     Factors may have 1, 2, or 3 levels. For 1-level factors, each factor is

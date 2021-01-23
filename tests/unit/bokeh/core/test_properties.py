@@ -68,6 +68,7 @@ ALL = (
     'Either',
     'Enum',
     'Factor',
+    'FactorSeq',
     'Float',
     'FontSize',
     'FontSizeSpec',
