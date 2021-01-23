@@ -58,7 +58,7 @@ class Null(PrimitiveProperty):
 
     _underlying_type = (type(None),)
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+    def __init__(self, default=None, *, help=None, serialized=None, readonly=False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Bool(PrimitiveProperty):
@@ -101,6 +101,9 @@ class Bool(PrimitiveProperty):
 
     _underlying_type = bokeh_bool_types
 
+    def __init__(self, default=False, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class Complex(PrimitiveProperty):
     """ Accept complex floating point values.
 
@@ -122,7 +125,11 @@ class Complex(PrimitiveProperty):
             (default: False)
 
     """
+
     _underlying_type = (numbers.Complex,)
+
+    def __init__(self, default=0j, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Int(PrimitiveProperty):
     """ Accept signed integer values.
@@ -161,7 +168,11 @@ class Int(PrimitiveProperty):
             >>> m.prop = 10.3  # ValueError !!
 
     """
+
     _underlying_type = bokeh_integer_types
+
+    def __init__(self, default=0, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class Float(PrimitiveProperty):
     """ Accept floating point values.
@@ -201,7 +212,11 @@ class Float(PrimitiveProperty):
 
 
     """
+
     _underlying_type = (numbers.Real,)
+
+    def __init__(self, default=0.0, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class String(PrimitiveProperty):
     """ Accept string values.
@@ -240,7 +255,11 @@ class String(PrimitiveProperty):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
+
     _underlying_type = (str,)
+
+    def __init__(self, default="", *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
 # Dev API
