@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "Intrinsic",
     "Undefined",
 )
 
@@ -45,6 +46,20 @@ class UndefinedType(object):
         return "Undefined"
 
 Undefined = UndefinedType()
+
+class IntrinsicType(object):
+    """ Indicates usage of the intrinsic default value of a property. """
+
+    def __copy__(self) -> "IntrinsicType":
+        return self
+
+    def __str__(self) -> str:
+        return "Intrinsic"
+
+    def __repr__(self) -> str:
+        return "Intrinsic"
+
+Intrinsic = IntrinsicType()
 
 #-----------------------------------------------------------------------------
 # Private API

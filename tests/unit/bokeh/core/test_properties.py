@@ -84,6 +84,7 @@ ALL = (
     'MarkerType',
     'MinMaxBounds',
     'NonNegativeInt',
+    'NonNullable',
     'Null',
     'NullStringSpec',
     'Nullable',

@@ -225,6 +225,7 @@ __all__ = (
     'MarkerType',
     'MinMaxBounds',
     'NonNegativeInt',
+    'NonNullable',
     'Null',
     'NullStringSpec',
     'Nullable',
@@ -312,7 +313,6 @@ from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
 
 from .property.either import Either; Either
-from .property.either import Nullable; Nullable
 
 from .property.enum import Enum; Enum
 
@@ -321,6 +321,9 @@ from .property.include import Include ; Include
 from .property.instance import Instance; Instance
 
 from .property.json import JSON; JSON
+
+from .property.nullable import NonNullable; NonNullable
+from .property.nullable import Nullable; Nullable
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte

@@ -38,7 +38,7 @@ from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
-from .undefined import Undefined
+from .undefined import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -98,7 +98,7 @@ class Property(PropertyDescriptorFactory):
         else:
             self._serialized = serialized
         self._readonly = readonly
-        self._default = default
+        self._default = default if default is not Intrinsic else Undefined
         self.__doc__ = help
         self.alternatives = []
         self.assertions = []
@@ -315,8 +315,7 @@ class Property(PropertyDescriptorFactory):
         else:
             return True
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -438,6 +437,36 @@ class ParameterizedProperty(Property):
     @property
     def has_ref(self):
         return any(type_param.has_ref for type_param in self.type_params)
+
+class SingleParameterizedProperty(ParameterizedProperty):
+    """ A parameterized property with a single type parameter. """
+
+    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None, readonly=False):
+        self.type_param = self._validate_type_param(type_param)
+        default = default if default is not Intrinsic else self.type_param._raw_default()
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+    @property
+    def type_params(self):
+        return [self.type_param]
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.type_param})"
+
+    def _sphinx_type(self):
+        return f"{self._sphinx_prop_link()}({self.type_param._sphinx_type()})"
+
+    def from_json(self, json, models=None):
+        return self.type_param.from_json(json, models=models)
+
+    def transform(self, value):
+        return self.type_param.transform(value)
+
+    def _may_have_unstable_default(self):
+        return self.type_param._may_have_unstable_default()
+
+    def wrap(self, value):
+        return self.type_param.wrap(value)
 
 class PrimitiveProperty(Property):
     """ A base class for simple property types.

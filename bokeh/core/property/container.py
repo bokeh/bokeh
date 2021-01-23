@@ -118,8 +118,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -187,8 +186,7 @@ class Dict(ContainerProperty):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -258,8 +256,7 @@ class ColumnData(Dict):
     def serialize_value(self, value):
         return transform_column_source_data(value)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """

@@ -26,10 +26,11 @@ from .color import Color
 from .container import Dict, List
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
-from .either import Either, Null, Nullable
+from .either import Either
 from .enum import Enum
 from .instance import Instance
-from .primitive import Float, Int, String
+from .nullable import Nullable
+from .primitive import Float, Int, Null, String
 from .undefined import Undefined
 from .visual import DashPattern, FontSize, HatchPatternType, MarkerType
 

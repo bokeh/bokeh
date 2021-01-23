@@ -24,8 +24,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.string import nice_join
 from .bases import DeserializationError, ParameterizedProperty
-from .primitive import Null
-from .undefined import Undefined
+from .undefined import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -33,7 +32,6 @@ from .undefined import Undefined
 
 __all__ = (
     'Either',
-    'Nullable',
 )
 
 #-----------------------------------------------------------------------------
@@ -65,9 +63,9 @@ class Either(ParameterizedProperty):
 
     """
 
-    def __init__(self, tp1, tp2, *type_params, default=Undefined, help=None, serialized=None, readonly=False):
+    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help=None, serialized=None, readonly=False):
         type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        default = default if default is not Undefined else type_params[0]._raw_default()
+        default = default if default is not Intrinsic else type_params[0]._raw_default()
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
         self._type_params = type_params
         for tp in self._type_params:
@@ -120,15 +118,6 @@ class Either(ParameterizedProperty):
         prop_link = self._sphinx_prop_link()
         subtypes = ", ".join(x._sphinx_type() for x in self.type_params)
         return f"{prop_link}({subtypes})"
-
-class Nullable(Either):
-    def __init__(self, type_param, **kwargs):
-        super().__init__(Null, type_param, **kwargs)
-
-    def __str__(self):
-        name = self.__class__.__name__
-        type_param = self.type_params[1]
-        return f"{name}({type_param})"
 
 #-----------------------------------------------------------------------------
 # Dev API

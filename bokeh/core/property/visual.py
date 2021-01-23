@@ -34,8 +34,9 @@ from .auto import Auto
 from .bases import Property
 from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
-from .either import Either, Nullable
+from .either import Either
 from .enum import Enum
+from .nullable import Nullable
 from .numeric import Float, Int
 from .primitive import String
 from .string import Regex

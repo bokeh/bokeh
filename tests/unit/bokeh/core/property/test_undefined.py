@@ -25,6 +25,7 @@ import bokeh.core.property.undefined as bcpu # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    "Intrinsic",
     "Undefined",
 )
 
@@ -39,3 +40,11 @@ def test_Undefined() -> None:
     assert (bcpu.Undefined is not bcpu.Undefined) == False
     assert (copy(bcpu.Undefined) is bcpu.Undefined) == True
     assert (copy(bcpu.Undefined) is not bcpu.Undefined) == False
+
+def test_Intrinsic() -> None:
+    assert (bcpu.Intrinsic == bcpu.Intrinsic) == True
+    assert (bcpu.Intrinsic != bcpu.Intrinsic) == False
+    assert (bcpu.Intrinsic is bcpu.Intrinsic) == True
+    assert (bcpu.Intrinsic is not bcpu.Intrinsic) == False
+    assert (copy(bcpu.Intrinsic) is bcpu.Intrinsic) == True
+    assert (copy(bcpu.Intrinsic) is not bcpu.Intrinsic) == False
