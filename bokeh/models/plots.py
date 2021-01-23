@@ -506,23 +506,35 @@ class Plot(LayoutDOM):
 
     width = Override(default=600)
 
-    plot_width: int = Int(600, help="""
-    The outer width of a plot, including any axes, titles, border padding, etc.
-
-    .. note::
-        This corresponds directly to the width of the HTML canvas.
-
-    """)
-
     height = Override(default=600)
 
-    plot_height: int = Int(600, help="""
-    The outer height of a plot, including any axes, titles, border padding, etc.
+    @classmethod
+    def lookup(cls, name):
+        if name == "plot_width":
+            name = "width"
+        elif name == "plot_height":
+            name = "height"
+        return super().lookup(name)
 
-    .. note::
-        This corresponds directly to the height of the HTML canvas.
+    @property
+    def plot_width(self) -> int:
+        """ The outer width of a plot, including any axes, titles, border padding, etc. """
+        return self.width
 
-    """)
+    @plot_width.setter
+    def plot_width(self, width: int) -> None:
+        """ The outer width of a plot, including any axes, titles, border padding, etc. """
+        self.width = width
+
+    @property
+    def plot_height(self) -> int:
+        """ The outer height of a plot, including any axes, titles, border padding, etc. """
+        return self.height
+
+    @plot_height.setter
+    def plot_height(self, height: int) -> None:
+        """ The outer height of a plot, including any axes, titles, border padding, etc. """
+        self.height = height
 
     frame_width = Int(default=None, help="""
     The width of a plot frame or the inner width of a plot, excluding any
@@ -533,7 +545,6 @@ class Plot(LayoutDOM):
     The height of a plot frame or the inner height of a plot, excluding any
     axes, titles, border padding, etc.
     """)
-
 
     inner_width = Int(readonly=True, help="""
     This is the exact width of the plotting canvas, i.e. the width of

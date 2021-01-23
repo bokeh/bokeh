@@ -27,12 +27,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from warnings import warn
 
 # Bokeh imports
 from ..util.string import nice_join
 from .property.descriptor_factory import PropertyDescriptorFactory
+from .property.descriptors import PropertyDescriptor
 from .property.override import Override
 from .property.wrappers import PropertyValueContainer
 
@@ -452,7 +453,7 @@ class HasProps(metaclass=MetaHasProps):
             self.set_from_json(k, v, models, setter)
 
     @classmethod
-    def lookup(cls, name):
+    def lookup(cls, name: str) -> PropertyDescriptor:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
@@ -463,7 +464,16 @@ class HasProps(metaclass=MetaHasProps):
             PropertyDescriptor : descriptor for property named ``name``
 
         '''
-        return getattr(cls, name)
+        attr = cls.lookup_descriptor(name)
+        if attr is not None:
+            return attr
+        else:
+            raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
+
+    @classmethod
+    def lookup_descriptor(cls, name: str) -> Optional[PropertyDescriptor]:
+        attr = getattr(cls, name, None)
+        return attr if isinstance(attr, PropertyDescriptor) else None
 
     @classmethod
     def properties_with_refs(cls):
