@@ -134,7 +134,9 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
     for filename in filenames:
         content = json.load(open(filename))
         try:
+            assert content["lockfileVersion"] == 2
             content["version"] = config.js_version
+            content["packages"][""]["version"] = config.js_version
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
