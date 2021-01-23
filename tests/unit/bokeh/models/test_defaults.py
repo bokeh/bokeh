@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.property.undefined import Undefined
+from bokeh.core.property.singletons import Undefined
 from bokeh.model import Model
 
 # Module under test

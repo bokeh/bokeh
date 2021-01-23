@@ -21,7 +21,7 @@ from .container import Seq, Tuple
 from .either import Either
 from .nullable import NonNullable
 from .primitive import String
-from .undefined import Intrinsic
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants

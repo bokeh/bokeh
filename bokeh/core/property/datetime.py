@@ -32,7 +32,7 @@ from ...util.serialization import (
 )
 from .bases import Property
 from .primitive import bokeh_integer_types
-from .undefined import Undefined
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

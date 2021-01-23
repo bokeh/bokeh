@@ -26,7 +26,7 @@ from importlib import import_module
 
 # Bokeh imports
 from .bases import DeserializationError, Property
-from .undefined import Undefined
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

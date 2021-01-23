@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 from ...util.string import nice_join
 from .. import enums
 from .primitive import String
-from .undefined import Intrinsic
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants

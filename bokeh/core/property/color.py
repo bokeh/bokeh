@@ -29,8 +29,8 @@ from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
+from .singletons import Undefined
 from .string import Regex
-from .undefined import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

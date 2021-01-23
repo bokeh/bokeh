@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .bases import ParameterizedProperty
 from .primitive import Float, Int
-from .undefined import Undefined
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

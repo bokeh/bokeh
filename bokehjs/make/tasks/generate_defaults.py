@@ -6,7 +6,7 @@ from json import loads
 
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
-from bokeh.core.property.undefined import Undefined
+from bokeh.core.property.singletons import Undefined
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 

@@ -36,7 +36,7 @@ from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
-from .property.undefined import Undefined
+from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 
 #-----------------------------------------------------------------------------

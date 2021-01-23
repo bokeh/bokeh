@@ -18,7 +18,7 @@ import pytest ; pytest
 from copy import copy
 
 # Module under test
-import bokeh.core.property.undefined as bcpu # isort:skip
+import bokeh.core.property.singletons as bcpu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

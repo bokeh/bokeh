@@ -21,7 +21,7 @@ from typing import Any
 
 # Bokeh imports
 from .bases import SingleParameterizedProperty
-from .undefined import Undefined
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

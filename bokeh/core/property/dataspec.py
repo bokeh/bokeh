@@ -31,7 +31,7 @@ from .enum import Enum
 from .instance import Instance
 from .nullable import Nullable
 from .primitive import Float, Int, Null, String
-from .undefined import Undefined
+from .singletons import Undefined
 from .visual import DashPattern, FontSize, HatchPatternType, MarkerType
 
 #-----------------------------------------------------------------------------

@@ -27,7 +27,7 @@ from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
-from .undefined import Undefined
+from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 #-----------------------------------------------------------------------------

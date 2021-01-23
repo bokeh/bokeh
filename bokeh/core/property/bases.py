@@ -38,7 +38,7 @@ from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
-from .undefined import Intrinsic, Undefined
+from .singletons import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants

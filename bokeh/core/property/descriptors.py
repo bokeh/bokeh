@@ -91,7 +91,7 @@ from copy import copy
 from typing import Any
 
 # Bokeh imports
-from .undefined import Undefined
+from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 #-----------------------------------------------------------------------------

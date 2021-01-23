@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.string import nice_join
 from .bases import DeserializationError, ParameterizedProperty
-from .undefined import Intrinsic
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants

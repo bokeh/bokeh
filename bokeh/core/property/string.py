@@ -26,7 +26,7 @@ import re
 
 # Bokeh imports
 from .primitive import String
-from .undefined import Undefined
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
