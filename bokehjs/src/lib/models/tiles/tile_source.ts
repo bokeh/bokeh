@@ -19,7 +19,7 @@ export namespace TileSource {
     attribution: p.Property<string>
     x_origin_offset: p.Property<number>
     y_origin_offset: p.Property<number>
-    initial_resolution: p.Property<number>
+    initial_resolution: p.Property<number | null>
   }
 }
 
@@ -33,7 +33,7 @@ export abstract class TileSource extends Model {
   }
 
   static init_TileSource(): void {
-    this.define<TileSource.Props>(({Number, String, Dict}) => ({
+    this.define<TileSource.Props>(({Number, String, Dict, Nullable}) => ({
       url:                [ String, "" ],
       tile_size:          [ Number, 256 ],
       max_zoom:           [ Number, 30 ],
@@ -42,7 +42,7 @@ export abstract class TileSource extends Model {
       attribution:        [ String, "" ],
       x_origin_offset:    [ Number ],
       y_origin_offset:    [ Number ],
-      initial_resolution: [ Number ],
+      initial_resolution: [ Nullable(Number), null ],
     }))
   }
 
