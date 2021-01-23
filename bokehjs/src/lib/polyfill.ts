@@ -13,12 +13,6 @@ import "es6-symbol/implement"
 
 import "es6-promise/auto"
 
-import ProxyPolyfill from "proxy-polyfill/src/proxy"
-
-if (typeof Proxy === "undefined") {
-  self.Proxy = ProxyPolyfill
-}
-
 if (typeof Object.is === "undefined") {
   Object.is = function(a: any, b: any): boolean {
     if (a === b)
