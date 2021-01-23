@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import Any, Bool, Dict, Float, Int, Override, String
+from ..core.properties import Any, Bool, Dict, Float, Int, NonNullable, Override, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -75,15 +75,15 @@ class TileSource(Model):
     Data provider attribution content. This can include HTML content.
     """)
 
-    x_origin_offset = Float(help="""
+    x_origin_offset = NonNullable(Float, help="""
     An x-offset in plot coordinates
     """)
 
-    y_origin_offset = Float(help="""
+    y_origin_offset = NonNullable(Float, help="""
     A y-offset in plot coordinates
     """)
 
-    initial_resolution = Float(help="""
+    initial_resolution = Nullable(Float, help="""
     Resolution (plot_units / pixels) of minimum zoom level of tileset
     projection. None to auto-compute.
     """)

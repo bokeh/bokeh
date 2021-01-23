@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Dict, Float, Nullable, Seq, String
+from ..core.properties import AnyRef, Bool, Dict, Float, NonNullable, Nullable, Seq, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ class CumSum(Expression):
 
     '''
 
-    field = String(help="""
+    field = NonNullable(String, help="""
     The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
     """)
 
@@ -163,13 +163,13 @@ class ScalarExpression(Model):
 class Minimum(ScalarExpression):
     """ Computes minimum value of a data source's column. """
 
-    field = String()
+    field = NonNullable(String)
     initial = Nullable(Float, default=None) # TODO: float("+inf"))
 
 class Maximum(ScalarExpression):
     """ Computes maximum value of a data source's column. """
 
-    field = String()
+    field = NonNullable(String)
     initial = Nullable(Float, default=None) # TODO: float("-inf"))
 
 #-----------------------------------------------------------------------------

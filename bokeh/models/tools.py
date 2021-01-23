@@ -68,6 +68,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
     Null,
     Nullable,
     Override,
@@ -1260,7 +1261,7 @@ class EditTool(GestureTool):
         deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
         self.description = description
 
-    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, help="""
+    empty_value = NonNullable(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new

@@ -30,6 +30,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
     Nullable,
     PandasDataFrame,
     PandasGroupBy,
@@ -704,7 +705,7 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     '''
 
-    geojson = JSON(help="""
+    geojson = NonNullable(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
@@ -742,7 +743,7 @@ class WebDataSource(ColumnDataSource):
     replace existing data entirely.
     """)
 
-    data_url = String(help="""
+    data_url = NonNullable(String, help="""
     A URL to to fetch data from.
     """)
 

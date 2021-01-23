@@ -29,6 +29,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    NonNullable,
     Nullable,
     Seq,
     String,
@@ -200,11 +201,11 @@ class Interpolator(Transform):
     interpolation.
 
     '''
-    x = Either(String, Seq(Float), help="""
+    x = NonNullable(Either(String, Seq(Float)), help="""
     Independent coordinate denoting the location of a point.
     """)
 
-    y = Either(String, Seq(Float), help="""
+    y = NonNullable(Either(String, Seq(Float)), help="""
     Dependant coordinate denoting the value of a point at a location.
     """)
 

@@ -50,6 +50,7 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
     Null,
     Nullable,
     NullStringSpec,
@@ -373,11 +374,11 @@ class ColorBar(Annotation):
     Whether the color bar should be oriented vertically or horizontally.
     """)
 
-    height = Either(Auto, Int(), help="""
+    height = Either(Auto, Int, help="""
     The height (in pixels) that the color scale should occupy.
     """)
 
-    width = Either(Auto, Int(), help="""
+    width = Either(Auto, Int, help="""
     The width (in pixels) that the color scale should occupy.
     """)
 
@@ -687,7 +688,7 @@ class Label(TextAnnotation):
 
     '''
 
-    x = Float(help="""
+    x = NonNullable(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -699,7 +700,7 @@ class Label(TextAnnotation):
     by default.
     """)
 
-    y = Float(help="""
+    y = NonNullable(Float, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately

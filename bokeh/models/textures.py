@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import TextureRepetition
 from ..core.has_props import abstract
-from ..core.properties import Enum, String
+from ..core.properties import Enum, NonNullable, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -43,6 +43,7 @@ class Texture(Model):
     ''' Base class for ``Texture`` models that represent fill patterns.
 
     '''
+
     repetition = Enum(TextureRepetition, default="repeat", help="""
 
     """)
@@ -51,7 +52,8 @@ class CanvasTexture(Texture):
     '''
 
     '''
-    code = String(help="""
+
+    code = NonNullable(String, help="""
     A snippet of JavaScript code to execute in the browser.
 
     """)
@@ -60,7 +62,9 @@ class ImageURLTexture(Texture):
     '''
 
     '''
-    url = String(help="""
+
+    url = NonNullable(String, help="""
+    A URL to a drawable resource like image, video, etc.
 
     """)
 

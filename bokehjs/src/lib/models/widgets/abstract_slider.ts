@@ -236,7 +236,7 @@ export abstract class AbstractSlider extends Control {
         start:           [ Any ],
         end:             [ Any ],
         value:           [ Any ],
-        value_throttled: [ Any ],
+        value_throttled: [ Any, null ],
         step:            [ Number, 1 ],
         format:          [ Or(String, Ref(TickFormatter)) ],
         direction:       [ Enum("ltr", "rtl"), "ltr" ],

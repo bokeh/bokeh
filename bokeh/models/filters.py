@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Int, Nullable, Seq, String, RestrictedDict
+from ..core.properties import AnyRef, Bool, Int, NonNullable, Nullable, Seq, String, RestrictedDict
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -76,11 +76,11 @@ class GroupFilter(Filter):
     column column_name match the group variable.
     '''
 
-    column_name = String(help="""
+    column_name = NonNullable(String, help="""
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = String(help="""
+    group = NonNullable(String, help="""
     The value of the column indicating the rows of data to keep.
     """)
 

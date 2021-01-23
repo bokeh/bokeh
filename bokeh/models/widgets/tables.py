@@ -37,6 +37,7 @@ from ...core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
     Nullable,
     Override,
     String,
@@ -582,7 +583,7 @@ class TableColumn(Model):
 
     '''
 
-    field = String(help="""
+    field = NonNullable(String, help="""
     The name of the field mapping to a column in the data source.
     """)
 

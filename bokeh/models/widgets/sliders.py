@@ -34,6 +34,7 @@ from ...core.properties import (
     Instance,
     Int,
     Override,
+    NonNullable,
     Nullable,
     String,
     Tuple,
@@ -103,19 +104,19 @@ class AbstractSlider(Widget):
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
 
-    start = Float(help="""
+    start = NonNullable(Float, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = NonNullable(Float, help="""
     The maximum allowable value.
     """)
 
-    value = Float(help="""
+    value = NonNullable(Float, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Float(help="""
+    value_throttled = Nullable(Float, help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -128,19 +129,19 @@ class Slider(AbstractSlider):
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
 
-    value = Tuple(Float, Float, help="""
+    value = NonNullable(Tuple(Float, Float), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Tuple(Float, Float, help="""
+    value_throttled = Nullable(Tuple(Float, Float), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
-    start = Float(help="""
+    start = NonNullable(Float, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = NonNullable(Float, help="""
     The maximum allowable value.
     """)
 
