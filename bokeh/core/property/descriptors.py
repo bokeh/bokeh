@@ -782,11 +782,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         """
         value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)
-
-        if old is Undefined:
-            self._set_value(obj, value)
-        else:
-            self._real_set(obj, old, value, hint=hint, setter=setter)
+        self._real_set(obj, old, value, hint=hint, setter=setter)
 
     def _real_set(self, obj, old, value, hint=None, setter=None):
         """ Internal implementation helper to set property values.
