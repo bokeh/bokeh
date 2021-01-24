@@ -458,14 +458,14 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 )
 
         '''
-        descriptor = self.lookup_descriptor(attr)
+        descriptor = self.lookup(attr, raises=False)
         if descriptor is None:
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
 
         if not isinstance(other, Model):
             raise ValueError("'other' is not a Bokeh model: %r" % other)
 
-        other_descriptor = other.lookup_descriptor(other_attr)
+        other_descriptor = other.lookup(other_attr, raises=False)
         if other_descriptor is None:
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
@@ -508,7 +508,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 
-        descriptor = self.lookup_descriptor(event)
+        descriptor = self.lookup(event, raises=False)
         if descriptor is not None:
             event = f"change:{descriptor.name}"
 
