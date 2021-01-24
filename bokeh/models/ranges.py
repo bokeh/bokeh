@@ -39,6 +39,7 @@ from ..core.properties import (
     MinMaxBounds,
     Null,
     Nullable,
+    Readonly,
     String,
     TimeDelta,
 )
@@ -397,7 +398,7 @@ class FactorRange(Range):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Float(readonly=True, help="""
+    start = Readonly(Float, help="""
     The start of the range, in synthetic coordinates.
 
         Synthetic coordinates are only computed in the browser, based on the
@@ -406,7 +407,7 @@ class FactorRange(Range):
         available (e.g. server, notebook).
     """)
 
-    end = Float(readonly=True, help="""
+    end = Readonly(Float, help="""
     The end of the range, in synthetic coordinates.
 
     .. note::

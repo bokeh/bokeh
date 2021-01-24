@@ -49,7 +49,7 @@ class Instance(Property):
             (default: False)
 
     """
-    def __init__(self, instance_type, default=Undefined, help=None, readonly=False, serialized=True):
+    def __init__(self, instance_type, default=Undefined, help=None, readonly=False, serialized=None):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")
 
@@ -59,7 +59,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super().__init__(default=default, help=help, readonly=readonly, serialized=True)
+        super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
 
     def __str__(self):
         class_name = self.__class__.__name__

@@ -91,15 +91,18 @@ class Property(PropertyDescriptorFactory):
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
 
-    def __init__(self, default=Undefined, help=None, serialized=None, readonly=False):
-        # This is how the descriptor is created in the class declaration.
+    def __init__(self, default=Intrinsic, help=None, serialized=None, readonly=False):
+        default = default if default is not Intrinsic else Undefined
+
         if serialized is None:
-            self._serialized = False if readonly else True
+            self._serialized = False if readonly and default is Undefined else True
         else:
             self._serialized = serialized
+
         self._readonly = readonly
-        self._default = default if default is not Intrinsic else Undefined
+        self._default = default
         self.__doc__ = help
+
         self.alternatives = []
         self.assertions = []
 
@@ -456,17 +459,21 @@ class SingleParameterizedProperty(ParameterizedProperty):
     def _sphinx_type(self):
         return f"{self._sphinx_prop_link()}({self.type_param._sphinx_type()})"
 
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail=detail)
+        self.type_param.validate(value, detail=detail)
+
     def from_json(self, json, models=None):
         return self.type_param.from_json(json, models=models)
 
     def transform(self, value):
         return self.type_param.transform(value)
 
-    def _may_have_unstable_default(self):
-        return self.type_param._may_have_unstable_default()
-
     def wrap(self, value):
         return self.type_param.wrap(value)
+
+    def _may_have_unstable_default(self):
+        return self.type_param._may_have_unstable_default()
 
 class PrimitiveProperty(Property):
     """ A base class for simple property types.

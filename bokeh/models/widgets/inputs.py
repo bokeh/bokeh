@@ -37,6 +37,7 @@ from ...core.properties import (
     Nullable,
     Override,
     PositiveInt,
+    Readonly,
     String,
     Tuple,
 )
@@ -99,7 +100,7 @@ class FileInput(Widget):
     selected files.
     '''
 
-    value = Either(String, List(String), default='', readonly=True, help='''
+    value = Readonly(Either(String, List(String)), default="", help='''
     The base64-enconded contents of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the contents
@@ -111,7 +112,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filenames (see below)
     ''')
 
-    mime_type = Either(String, List(String), default='', readonly=True, help='''
+    mime_type = Readonly(Either(String, List(String)), default="", help='''
     The mime-type of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -123,7 +124,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filename (see below)
     ''')
 
-    filename = Either(String, List(String), default='', readonly=True, help='''
+    filename = Readonly(Either(String, List(String)), default="", help='''
     The name(s) of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -207,7 +208,7 @@ class Spinner(NumericInput):
 
     '''
 
-    value_throttled = Either(Null, Float, Int, help="""
+    value_throttled = Readonly(Either(Null, Float, Int), help="""
     value reported at the end of interactions
     """)
 

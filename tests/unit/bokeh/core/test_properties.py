@@ -97,6 +97,7 @@ ALL = (
     'PositiveInt',
     'PropertyUnitsSpec',
     'RGB',
+    'Readonly',
     'Regex',
     'RelativeDelta',
     'RestrictedDict',

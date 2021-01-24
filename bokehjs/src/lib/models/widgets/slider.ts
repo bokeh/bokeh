@@ -30,6 +30,7 @@ export class Slider extends AbstractSlider {
 
     this.override<Slider.Props>({
       format: "0[.]00",
+      value_throttled: 0,
     })
   }
 

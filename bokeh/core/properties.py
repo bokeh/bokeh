@@ -238,6 +238,7 @@ __all__ = (
     'PositiveInt',
     'PropertyUnitsSpec',
     'RGB',
+    'Readonly',
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
@@ -348,6 +349,8 @@ from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import Null; Null
 from .property.primitive import String; String
+
+from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
 from .property.string import Regex; Regex

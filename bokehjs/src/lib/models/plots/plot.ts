@@ -168,10 +168,10 @@ export class Plot extends LayoutDOM {
       min_border_bottom: [ Nullable(Number), null ],
       min_border_right:  [ Nullable(Number), null ],
 
-      inner_width:       [ Number ],
-      inner_height:      [ Number ],
-      outer_width:       [ Number ],
-      outer_height:      [ Number ],
+      inner_width:       [ Number, 0 ],
+      inner_height:      [ Number, 0 ],
+      outer_width:       [ Number, 0 ],
+      outer_height:      [ Number, 0 ],
 
       match_aspect:      [ Boolean, false ],
       aspect_scale:      [ Number, 1 ],

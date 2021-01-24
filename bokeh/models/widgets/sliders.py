@@ -36,6 +36,7 @@ from ...core.properties import (
     Override,
     NonNullable,
     Nullable,
+    Readonly,
     String,
     Tuple,
 )
@@ -116,7 +117,7 @@ class Slider(AbstractSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Nullable(Float, help="""
+    value_throttled = Readonly(Float, help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -133,7 +134,7 @@ class RangeSlider(AbstractSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Nullable(Tuple(Float, Float), help="""
+    value_throttled = Readonly(Tuple(Float, Float), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -187,7 +188,7 @@ class DateSlider(AbstractSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Datetime(help="""
+    value_throttled = Readonly(Datetime, help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
@@ -254,7 +255,7 @@ class DateRangeSlider(AbstractSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Tuple(Datetime, Datetime, help="""
+    value_throttled = Readonly(Tuple(Datetime, Datetime), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
