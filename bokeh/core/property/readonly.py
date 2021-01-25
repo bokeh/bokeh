@@ -4,61 +4,39 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+""" Provide readonly properties. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-import bokeh.document as document
-from bokeh.core.properties import Instance, Int, Nullable
-from bokeh.model import Model
-
-# Module under test
-from bokeh.protocol import Protocol # isort:skip
+from .bases import SingleParameterizedProperty
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-proto = Protocol()
+__all__ = (
+    "Readonly",
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class AnotherModelInTestPushDoc(Model):
-    bar = Int(1)
+class Readonly(SingleParameterizedProperty):
+    """ A property that can't be manually modified by the user. """
 
-class SomeModelInTestPushDoc(Model):
-    foo = Int(2)
-    child = Nullable(Instance(Model))
-
-
-class TestPushDocument:
-    def _sample_doc(self):
-        doc = document.Document()
-        another = AnotherModelInTestPushDoc()
-        doc.add_root(SomeModelInTestPushDoc(child=another))
-        doc.add_root(SomeModelInTestPushDoc())
-        return doc
-
-    def test_create(self) -> None:
-        sample = self._sample_doc()
-        proto.create("PUSH-DOC", sample)
-
-    def test_create_then_parse(self) -> None:
-        sample = self._sample_doc()
-        msg = proto.create("PUSH-DOC", sample)
-        copy = document.Document()
-        msg.push_to_document(copy)
-        assert len(sample.roots) == 2
-        assert len(copy.roots) == 2
+    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None):
+        super().__init__(type_param, default=default, help=help, readonly=True, serialized=serialized)
 
 #-----------------------------------------------------------------------------
 # Dev API

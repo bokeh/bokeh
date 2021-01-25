@@ -41,7 +41,6 @@ ALL = (
 class Test_Color:
     def test_valid(self) -> None:
         prop = bcpc.Color()
-        assert prop.is_valid(None)
 
         assert prop.is_valid((0, 127, 255))
         assert prop.is_valid((0, 127, 255, 1.0))
@@ -61,6 +60,7 @@ class Test_Color:
 
     def test_invalid(self) -> None:
         prop = bcpc.Color()
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -121,11 +121,11 @@ class Test_Color:
 class Test_RGB:
     def test_valid(self) -> None:
         prop = bcpc.RGB()
-        assert prop.is_valid(None)
         assert prop.is_valid(RGB(10, 20, 30))
 
     def test_invalid(self) -> None:
         prop = bcpc.RGB()
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

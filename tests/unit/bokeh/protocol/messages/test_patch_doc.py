@@ -22,7 +22,7 @@ import numpy as np
 
 # Bokeh imports
 import bokeh.document as document
-from bokeh.core.properties import Instance, Int
+from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document.events import (
     ColumnDataChangedEvent,
     ColumnsPatchedEvent,
@@ -53,7 +53,7 @@ class AnotherModelInTestPatchDoc(Model):
 
 class SomeModelInTestPatchDoc(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 
 class TestPatchDocument:

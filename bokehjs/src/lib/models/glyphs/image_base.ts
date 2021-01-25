@@ -226,9 +226,9 @@ export abstract class ImageBase extends XYGlyph {
 
   static init_ImageBase(): void {
     this.define<ImageBase.Props>(({Boolean, Alpha}) => ({
-      image:        [ p.NDArraySpec ],
-      dw:           [ p.DistanceSpec ],
-      dh:           [ p.DistanceSpec ],
+      image:        [ p.NDArraySpec, {field: "image"} ],
+      dw:           [ p.DistanceSpec, {field: "dw"} ],
+      dh:           [ p.DistanceSpec, {field: "dh"} ],
       dilate:       [ Boolean, false ],
       global_alpha: [ Alpha, 1.0 ],
     }))

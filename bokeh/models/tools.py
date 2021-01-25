@@ -68,6 +68,9 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
+    Null,
+    Nullable,
     Override,
     Percent,
     Seq,
@@ -153,7 +156,7 @@ class Tool(Model):
 
     '''
 
-    description = String(default=None, help="""
+    description = Nullable(String, help="""
     A string describing the purpose of this tool. If not defined, an auto-generated
     description will be used. This description will be typically presented in the
     user interface as a tooltip.
@@ -284,25 +287,25 @@ class Toolbar(ToolbarBase):
 
     '''
 
-    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Auto, Instance(Drag), help="""
+    active_drag: tp.Union[Literal["auto"], Drag, None] = Either(Null, Auto, Instance(Drag), default="auto", help="""
     Specify a drag tool to be active when the plot is displayed.
     """)
 
     active_inspect: tp.Union[Literal["auto"], InspectTool, tp.Sequence[InspectTool], None] = \
-        Either(Auto, Instance(InspectTool), Seq(Instance(InspectTool)), help="""
+        Either(Null, Auto, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Specify an inspection tool or sequence of inspection tools to be active when
     the plot is displayed.
     """)
 
-    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Auto, Instance(Scroll), help="""
+    active_scroll: tp.Union[Literal["auto"], Scroll, None] = Either(Null, Auto, Instance(Scroll), default="auto", help="""
     Specify a scroll/pinch tool to be active when the plot is displayed.
     """)
 
-    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Auto, Instance(Tap), help="""
+    active_tap: tp.Union[Literal["auto"], Tap, None] = Either(Null, Auto, Instance(Tap), default="auto", help="""
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Instance(GestureTool, help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Nullable(Instance(GestureTool), help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -383,7 +386,7 @@ class RangeTool(Drag):
 
     '''
 
-    x_range = Instance(Range1d, help="""
+    x_range = Nullable(Instance(Range1d), help="""
     A range synchronized to the x-dimension of the overlay. If None, the overlay
     will span the entire x-dimension.
     """)
@@ -398,7 +401,7 @@ class RangeTool(Drag):
     update if the ``x_range`` is updated programmatically.)
     """)
 
-    y_range = Instance(Range1d, help="""
+    y_range = Nullable(Instance(Range1d), help="""
     A range synchronized to the y-dimension of the overlay. If None, the overlay
     will span the entire y-dimension.
     """)
@@ -510,7 +513,7 @@ class CustomAction(ActionTool):
 
     description = Override(default="Perform a Custom Action")
 
-    callback = Instance(Callback, help="""
+    callback = Nullable(Instance(Callback), help="""
     A Bokeh callback to execute when the custom action icon is activated.
     """)
 
@@ -583,7 +586,7 @@ class TapTool(Tap, SelectTool):
     either a single or double tap.
     """)
 
-    callback = Instance(Callback, help="""
+    callback = Nullable(Instance(Callback), help="""
     A callback to execute *whenever a glyph is "hit"* by a mouse click
     or tap.
 
@@ -1029,7 +1032,7 @@ class HoverTool(InspectTool):
     all renderers on a plot.
     """)
 
-    callback = Instance(Callback, help="""
+    callback = Nullable(Instance(Callback), help="""
     A callback to run in the browser whenever the input's value changes. The
     ``cb_data`` parameter that is available to the Callback code will contain two
     ``HoverTool`` specific fields:
@@ -1038,7 +1041,7 @@ class HoverTool(InspectTool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)),
+    tooltips = Either(Null, String, List(Tuple(String, String)),
             default=[
                 ("index","$index"),
                 ("data (x, y)","($x, $y)"),
@@ -1258,7 +1261,7 @@ class EditTool(GestureTool):
         deprecated((2, 3, 0), "EditTool.custom_tooltip", "EditTool.description")
         self.description = description
 
-    empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, help="""
+    empty_value = NonNullable(Either(Bool, Int, Float, Date, Datetime, Color, String), help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
@@ -1282,7 +1285,7 @@ class EditTool(GestureTool):
 class PolyTool(EditTool):
     ''' A base class for polygon draw/edit tools. '''
 
-    vertex_renderer = Instance(GlyphRenderer, help="""
+    vertex_renderer = Nullable(Instance(GlyphRenderer), help="""
     The renderer used to render the vertices of a selected line or polygon.
     """)
 

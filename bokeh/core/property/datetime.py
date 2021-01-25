@@ -32,6 +32,7 @@ from ...util.serialization import (
 )
 from .bases import Property
 from .primitive import bokeh_integer_types
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,9 +65,6 @@ class Date(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None:
-            return
-
         # datetime.datetime is datetime.date, exclude manually up front
         if isinstance(value, datetime.datetime):
             msg = "" if not detail else "Expected a date value, got a datetime.datetime"
@@ -86,7 +84,7 @@ class Datetime(Property):
 
     """
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         super().__init__(default=default, help=help)
 
     def transform(self, value):
@@ -103,9 +101,6 @@ class Datetime(Property):
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if is_datetime_type(value):
             return

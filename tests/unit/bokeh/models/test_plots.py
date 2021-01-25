@@ -141,31 +141,21 @@ class TestPlotValidation:
 
     def test_missing_scale(self) -> None:
         p = figure()
-        p.x_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale")
 
-        p.y_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale")
+        with pytest.raises(ValueError):
+            p.x_scale = None
+
+        with pytest.raises(ValueError):
+            p.y_scale = None
 
     def test_missing_range(self) -> None:
         p = figure()
-        p.x_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range")
 
-        p.y_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range")
+        with pytest.raises(ValueError):
+            p.x_range = None
+
+        with pytest.raises(ValueError):
+            p.y_range = None
 
     def test_bad_extra_range_name(self) -> None:
         p = figure()
@@ -281,16 +271,14 @@ def test__check_required_scale_has_scales() -> None:
 
 
 def test__check_required_scale_missing_scales() -> None:
-    plot = Plot(x_scale=None, y_scale=None)
-    check = plot._check_required_scale()
-    assert check != []
+    with pytest.raises(ValueError):
+        Plot(x_scale=None, y_scale=None)
 
 
 def test__check_compatible_scale_and_ranges_compat_numeric() -> None:
     plot = Plot(x_scale=LinearScale(), x_range=Range1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
-
 
     plot = Plot(y_scale=LogScale(), y_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()

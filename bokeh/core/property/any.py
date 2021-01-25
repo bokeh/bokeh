@@ -82,7 +82,10 @@ class Any(Property):
 
     """
 
-class AnyRef(Property):
+    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+class AnyRef(Any):
     """ Accept all values and force reference discovery. """
 
     @property

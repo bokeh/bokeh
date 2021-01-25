@@ -27,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import AnyRef, Bool, Dict, Instance, List, String
+from .core.properties import AnyRef, Bool, Dict, Instance, List, Nullable, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -237,7 +237,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         default_theme.apply_to_model(self)
 
     def __str__(self) -> str:
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
+        name = self.__class__.__name__
+        return f"{name}(id={self.id!r}, ...)"
 
     __repr__ = __str__
 
@@ -245,7 +246,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     def id(self) -> str:
         return self._id
 
-    name: str = String(help="""
+    name: tp.Union[None, str] = Nullable(String, help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific

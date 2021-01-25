@@ -40,7 +40,7 @@ export namespace StringFormatter {
   export type Props = CellFormatter.Props & {
     font_style: p.Property<FontStyle>
     text_align: p.Property<TextAlign>
-    text_color: p.Property<Color>
+    text_color: p.Property<Color | null>
   }
 }
 
@@ -54,10 +54,10 @@ export class StringFormatter extends CellFormatter {
   }
 
   static init_StringFormatter(): void {
-    this.define<StringFormatter.Props>(({Color}) => ({
+    this.define<StringFormatter.Props>(({Color, Nullable}) => ({
       font_style: [ FontStyle, "normal" ],
       text_align: [ TextAlign, "left"   ],
-      text_color: [ Color               ],
+      text_color: [ Nullable(Color), null ],
     }))
   }
 

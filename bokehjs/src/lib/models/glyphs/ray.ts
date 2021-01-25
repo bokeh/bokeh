@@ -97,8 +97,8 @@ export class Ray extends XYGlyph {
 
     this.mixins<Ray.Mixins>(LineVector)
     this.define<Ray.Props>(({}) => ({
-      length: [ p.DistanceSpec ],
-      angle:  [ p.AngleSpec ],
+      length: [ p.DistanceSpec, 0 ],
+      angle:  [ p.AngleSpec, 0 ],
     }))
   }
 }

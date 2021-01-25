@@ -32,14 +32,16 @@ from ..core.properties import (
     Datetime,
     Either,
     Enum,
+    FactorSeq,
     Float,
     Instance,
     List,
     MinMaxBounds,
-    Seq,
+    Null,
+    Nullable,
+    Readonly,
     String,
     TimeDelta,
-    Tuple,
 )
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
@@ -88,17 +90,17 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    reset_start = Either(Float, Datetime, TimeDelta, default=None, help="""
+    reset_start = Either(Null, Float, Datetime, TimeDelta, help="""
     The start of the range to apply after reset. If set to ``None`` defaults
     to the ``start`` value during initialization.
     """)
 
-    reset_end = Either(Float, Datetime, TimeDelta, default=None, help="""
+    reset_end = Either(Null, Float, Datetime, TimeDelta, help="""
     The end of the range to apply when resetting. If set to ``None`` defaults
     to the ``end`` value during initialization.
     """)
 
-    bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
+    bounds = Nullable(MinMaxBounds(accept_datetime=True), help="""
     The bounds that the range is allowed to go to. Typically used to prevent
     the user from panning/zooming/etc away from the data.
 
@@ -120,12 +122,12 @@ class Range1d(Range):
 
     """)
 
-    min_interval = Either(Float, TimeDelta, default=None, help="""
+    min_interval = Either(Null, Float, TimeDelta, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval. If set to ``None`` (default), the minimum
     interval is not bound. Can be a ``TimeDelta``. """)
 
-    max_interval = Either(Float, TimeDelta, default=None, help="""
+    max_interval = Either(Null, Float, TimeDelta, help="""
     The level that the range is allowed to zoom out, expressed as the
     maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
@@ -188,17 +190,17 @@ class DataRange1d(DataRange):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Either(Float, Datetime, TimeDelta, help="""
+    start = Either(Null, Float, Datetime, TimeDelta, help="""
     An explicitly supplied range start. If provided, will override
     automatically computed start value.
     """)
 
-    end = Either(Float, Datetime, TimeDelta, help="""
+    end = Either(Null, Float, Datetime, TimeDelta, help="""
     An explicitly supplied range end. If provided, will override
     automatically computed end value.
     """)
 
-    bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
+    bounds = Nullable(MinMaxBounds(accept_datetime=True), help="""
     The bounds that the range is allowed to go to. Typically used to prevent
     the user from panning/zooming/etc away from the data.
 
@@ -215,12 +217,12 @@ class DataRange1d(DataRange):
     ``max`` to ``None`` e.g. ``DataRange1d(bounds=(None, 12))``
     """)
 
-    min_interval = Either(Float, TimeDelta, default=None, help="""
+    min_interval = Either(Null, Float, TimeDelta, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval. If set to ``None`` (default), the minimum
     interval is not bound.""")
 
-    max_interval = Either(Float, TimeDelta, default=None, help="""
+    max_interval = Either(Null, Float, TimeDelta, help="""
     The level that the range is allowed to zoom out, expressed as the
     maximum visible interval. Note that ``bounds`` can impose an
     implicit constraint on the maximum interval as well.""")
@@ -230,7 +232,7 @@ class DataRange1d(DataRange):
     auto-ranging.
     """)
 
-    follow = Enum(StartEnd, default=None, help="""
+    follow = Nullable(Enum(StartEnd), help="""
     Configure the data to follow one or the other data extreme, with a
     maximum range size of ``follow_interval``.
 
@@ -249,7 +251,7 @@ class DataRange1d(DataRange):
     ``None``.
     """)
 
-    follow_interval = Either(Float, TimeDelta, default=None, help="""
+    follow_interval = Nullable(Either(Float, TimeDelta), help="""
     If ``follow`` is set to ``"start"`` or ``"end"`` then the range will
     always be constrained to that::
 
@@ -314,7 +316,7 @@ class FactorRange(Range):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=[], help="""
+    factors = FactorSeq(default=[], help="""
     A sequence of factors to define this categorical range.
 
     Factors may have 1, 2, or 3 levels. For 1-level factors, each factor is
@@ -396,7 +398,7 @@ class FactorRange(Range):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Float(readonly=True, help="""
+    start = Readonly(Float, help="""
     The start of the range, in synthetic coordinates.
 
         Synthetic coordinates are only computed in the browser, based on the
@@ -405,7 +407,7 @@ class FactorRange(Range):
         available (e.g. server, notebook).
     """)
 
-    end = Float(readonly=True, help="""
+    end = Readonly(Float, help="""
     The end of the range, in synthetic coordinates.
 
     .. note::
@@ -415,7 +417,7 @@ class FactorRange(Range):
         available (e.g. server, notebook).
     """)
 
-    bounds = MinMaxBounds(accept_datetime=False, default=None, help="""
+    bounds = Nullable(MinMaxBounds(accept_datetime=False), help="""
     The bounds (in synthetic coordinates) that the range is allowed to go to.
     Typically used to prevent the user from panning/zooming/etc away from the
     data.
@@ -430,7 +432,7 @@ class FactorRange(Range):
     the start and end of the ``FactorRange``.
     """)
 
-    min_interval = Float(default=None, help="""
+    min_interval = Nullable(Float, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval in synthetic coordinates. If set to ``None``
     (default), the minimum interval is not bounded.
@@ -440,7 +442,7 @@ class FactorRange(Range):
     padding properties and whether or not factors are grouped.
     """)
 
-    max_interval = Float(default=None, help="""
+    max_interval = Nullable(Float, help="""
     The level that the range is allowed to zoom out, expressed as the
     maximum visible interval in synthetic coordinates.. Note that ``bounds``
     can impose an implicit constraint on the maximum interval as well.

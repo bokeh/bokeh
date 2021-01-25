@@ -106,7 +106,7 @@ class Test_Range1d:
     def test_bounds_with_text_rejected_as_the_correct_value_error(self) -> None:
         with pytest.raises(ValueError) as e:
             Range1d(1, 2, bounds="21")  # The string is indexable, so this may not fail properly
-        assert "expected an element of either" in e.value.args[0]
+        assert "expected either None or" in e.value.args[0]
 
 
     def test_bounds_with_three_item_tuple_raises_valueerror(self) -> None:

@@ -26,6 +26,7 @@ from importlib import import_module
 
 # Bokeh imports
 from .bases import DeserializationError, Property
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,7 +49,7 @@ class Instance(Property):
             (default: False)
 
     """
-    def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
+    def __init__(self, instance_type, default=Undefined, help=None, readonly=False, serialized=None):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")
 
@@ -58,7 +59,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super().__init__(default=default, help=help, readonly=readonly, serialized=True)
+        super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
 
     def __str__(self):
         class_name = self.__class__.__name__
@@ -78,10 +79,7 @@ class Instance(Property):
         return self._instance_type
 
     def from_json(self, json, models=None):
-        if json is None:
-            return
-
-        elif isinstance(json, dict):
+        if isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
                 if models is None:
@@ -104,12 +102,12 @@ class Instance(Property):
                 # Serialization dict must carry type information to resolve this.
                 return self.instance_type(**attrs)
         else:
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+            raise DeserializationError(f"{self} expected a dict, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, self.instance_type):
+        if isinstance(value, self.instance_type):
             return
 
         instance_type = self.instance_type.__name__

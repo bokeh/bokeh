@@ -14,41 +14,37 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from bokeh.core.properties import DistanceSpec, Instance, Int, Nullable, String
-from bokeh.model import Model
+# External imports
+from copy import copy
 
 # Module under test
+import bokeh.core.property.singletons as bcpu # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
+ALL = (
+    "Intrinsic",
+    "Undefined",
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class AnotherModelInTestDocument(Model):
-    bar = Int(1)
+def test_Undefined() -> None:
+    assert (bcpu.Undefined == bcpu.Undefined) == True
+    assert (bcpu.Undefined != bcpu.Undefined) == False
+    assert (bcpu.Undefined is bcpu.Undefined) == True
+    assert (bcpu.Undefined is not bcpu.Undefined) == False
+    assert (copy(bcpu.Undefined) is bcpu.Undefined) == True
+    assert (copy(bcpu.Undefined) is not bcpu.Undefined) == False
 
-class SomeModelInTestDocument(Model):
-    foo = Int(2)
-    child = Nullable(Instance(Model))
-
-class ModelThatOverridesName(Model):
-    name = String(default="")
-
-class ModelWithSpecInTestDocument(Model):
-    foo = DistanceSpec(2)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+def test_Intrinsic() -> None:
+    assert (bcpu.Intrinsic == bcpu.Intrinsic) == True
+    assert (bcpu.Intrinsic != bcpu.Intrinsic) == False
+    assert (bcpu.Intrinsic is bcpu.Intrinsic) == True
+    assert (bcpu.Intrinsic is not bcpu.Intrinsic) == False
+    assert (copy(bcpu.Intrinsic) is bcpu.Intrinsic) == True
+    assert (copy(bcpu.Intrinsic) is not bcpu.Intrinsic) == False

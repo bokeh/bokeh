@@ -3,7 +3,7 @@
 2.3.0
 =====
 
-Bokeh Version ``2.3.0`` (TODO Nov/Dev 2020) is a minor-release.
+Bokeh Version ``2.3.0`` (**TODO** January 2021) is a minor-release.
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
@@ -12,6 +12,33 @@ And several other bug fixes and docs additions. For full details see the
 
 `Migration Guide <releases.html#release-2-3-0-migration>`__
 -----------------------------------------------------------
+
+Properties are non-nullable by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously all properties accepted ``None`` (``null`` in bokehjs) as a value.
+In this release this was changed and ``None`` is accepted only by properties
+marked as nullable, e.g. ``Nullable(Int)`` accepts integers and ``None``. All
+exsisting models and their properties were updated, so there will be no
+difference from users' perspetive. However, extensions' creators are affected,
+who will have to update their models.
+
+Primitive and derived properties have default values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously some of primitive and their derived properties didn't have
+sensible intrinsic default values (e.g. ``Int`` defaulted to ``None``). Now
+all such properties have default values, e.g. ``0`` for ``Int``, ``""`` for
+``String``, etc. A default value can be removed by marking a property as
+non-nullable, e.g. ``NonNullable(Int)``, making a property required to be
+set by a user. Such property's value is unset and an attempt to retrieve
+its value results in ``UnsetValueException``.
+
+Use ``Readonly()`` to indicate readonly properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The old syntax, e.g. ``Int(readonly=True)``, is still accepted, but will be
+removed in the future. Use ``Readonly(Int)`` instead.
 
 ``ArrowHead`` is not an annotation anymore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

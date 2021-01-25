@@ -15,78 +15,95 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel, _TestModel2
+from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.has_props import HasProps
-from bokeh.core.properties import Float, Int
+from bokeh.core.properties import Instance, Int, List
 
 # Module under test
-import bokeh.core.property.instance as bcpi # isort:skip
+import bokeh.core.property.nullable as bcpn # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'Instance',
+    "NonNullable",
+    "Nullable",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-
-class Test_Instance:
+class Test_Nullable:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
-            bcpi.Instance()
-
-    def test_serialized(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert prop.serialized == True
-
-    def test_readonly(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert prop.readonly == False
+            bcpn.Nullable()
 
     def test_valid(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert prop.is_valid(_TestModel())
+        prop = bcpn.Nullable(List(Int))
+
+        assert prop.is_valid(None)
+
+        assert prop.is_valid([])
+        assert prop.is_valid([1, 2, 3])
 
     def test_invalid(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert not prop.is_valid(None)
-        assert not prop.is_valid(False)
-        assert not prop.is_valid(True)
-        assert not prop.is_valid(0)
-        assert not prop.is_valid(1)
-        assert not prop.is_valid(0.0)
-        assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
-        assert not prop.is_valid("")
+        prop = bcpn.Nullable(List(Int))
+
+        assert not prop.is_valid(-100)
+        assert not prop.is_valid("yyy")
+        assert not prop.is_valid([1, 2, ""])
+
         assert not prop.is_valid(())
-        assert not prop.is_valid([])
         assert not prop.is_valid({})
-        assert not prop.is_valid(_TestModel2())
         assert not prop.is_valid(_TestHasProps())
-
-    def test_from_json(self) -> None:
-        class MapOptions(HasProps):
-            lat = Float
-            lng = Float
-            zoom = Int(12)
-
-        v1 = bcpi.Instance(MapOptions).from_json(dict(lat=1, lng=2))
-        v2 = MapOptions(lat=1, lng=2)
-        assert v1.equals(v2)
+        assert not prop.is_valid(_TestModel())
 
     def test_has_ref(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert prop.has_ref
+        prop0 = bcpn.Nullable(Int)
+        assert not prop0.has_ref
+        prop1 = bcpn.Nullable(Instance(_TestModel))
+        assert prop1.has_ref
 
     def test_str(self) -> None:
-        prop = bcpi.Instance(_TestModel)
-        assert str(prop) == "Instance(_TestModel)"
+        prop = bcpn.Nullable(List(Int))
+        assert str(prop) == "Nullable(List(Int))"
+
+class Test_NonNullable:
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpn.NonNullable()
+
+    def test_valid(self) -> None:
+        prop = bcpn.NonNullable(List(Int))
+
+        assert prop.is_valid([])
+        assert prop.is_valid([1, 2, 3])
+
+    def test_invalid(self) -> None:
+        prop = bcpn.NonNullable(List(Int))
+
+        assert not prop.is_valid(None)
+
+        assert not prop.is_valid(-100)
+        assert not prop.is_valid("yyy")
+        assert not prop.is_valid([1, 2, ""])
+
+        assert not prop.is_valid(())
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+    def test_has_ref(self) -> None:
+        prop0 = bcpn.NonNullable(Int)
+        assert not prop0.has_ref
+        prop1 = bcpn.NonNullable(Instance(_TestModel))
+        assert prop1.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpn.NonNullable(List(Int))
+        assert str(prop) == "NonNullable(List(Int))"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -100,4 +117,4 @@ class Test_Instance:
 # Code
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bcpi, ALL)
+Test___all__ = verify_all(bcpn, ALL)

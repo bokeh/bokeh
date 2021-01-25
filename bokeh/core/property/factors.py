@@ -4,61 +4,55 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+""" Provide ``Factor`` and ``FactorSeq`` properties. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-import bokeh.document as document
-from bokeh.core.properties import Instance, Int, Nullable
-from bokeh.model import Model
-
-# Module under test
-from bokeh.protocol import Protocol # isort:skip
+from .container import Seq, Tuple
+from .either import Either
+from .nullable import NonNullable
+from .primitive import String
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-proto = Protocol()
+__all__ = (
+    "Factor",
+    "FactorSeq",
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class AnotherModelInTestPushDoc(Model):
-    bar = Int(1)
+L1Factor = String
+L2Factor = Tuple(String, String)
+L3Factor = Tuple(String, String, String)
 
-class SomeModelInTestPushDoc(Model):
-    foo = Int(2)
-    child = Nullable(Instance(Model))
+class Factor(NonNullable):
+    """ Represents a single categorical factor. """
 
+    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False):
+        type_param = Either(L1Factor, L2Factor, L3Factor)
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
-class TestPushDocument:
-    def _sample_doc(self):
-        doc = document.Document()
-        another = AnotherModelInTestPushDoc()
-        doc.add_root(SomeModelInTestPushDoc(child=another))
-        doc.add_root(SomeModelInTestPushDoc())
-        return doc
+class FactorSeq(NonNullable):
+    """ Represents a collection of categorical factors. """
 
-    def test_create(self) -> None:
-        sample = self._sample_doc()
-        proto.create("PUSH-DOC", sample)
-
-    def test_create_then_parse(self) -> None:
-        sample = self._sample_doc()
-        msg = proto.create("PUSH-DOC", sample)
-        copy = document.Document()
-        msg.push_to_document(copy)
-        assert len(sample.roots) == 2
-        assert len(copy.roots) == 2
+    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False):
+        type_param = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
 # Dev API

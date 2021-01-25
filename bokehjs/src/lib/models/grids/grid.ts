@@ -185,8 +185,8 @@ export namespace Grid {
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
-    axis: p.Property<Axis>
-    ticker: p.Property<Ticker>
+    axis: p.Property<Axis | null>
+    ticker: p.Property<Ticker | null>
   } & Mixins
 
   export type Mixins =
@@ -223,11 +223,11 @@ export class Grid extends GuideRenderer {
       ["band_",       mixins.Hatch],
     ])
 
-    this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or}) => ({
+    this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or, Nullable}) => ({
       bounds:    [ Or(Tuple(Number, Number), Auto), "auto" ],
       dimension: [ Enum(0, 1), 0 ],
-      axis:      [ Ref(Axis) ],
-      ticker:    [ Ref(Ticker) ],
+      axis:      [ Nullable(Ref(Axis)), null ],
+      ticker:    [ Nullable(Ref(Ticker)), null ],
     }))
 
     this.override<Grid.Props>({

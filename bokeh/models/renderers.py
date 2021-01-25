@@ -31,6 +31,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    Nullable,
     Override,
     String,
 )
@@ -130,9 +131,6 @@ class GlyphRenderer(DataRenderer):
 
     '''
 
-    def __str__(self):
-        return f"GlyphRenderer(id={self.id}, glyph={str(self.glyph)}, ...)"
-
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
         if isinstance(self.glyph, ConnectedXYGlyph) and len(self.view.filters) > 0:
@@ -170,9 +168,9 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        if "view" not in kw:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if "view" not in kwargs and "data_source" in kwargs:
             self.view = CDSView(source=self.data_source)
 
     data_source = Instance(DataSource, help="""
@@ -211,12 +209,12 @@ class GlyphRenderer(DataRenderer):
     be used for non-selected points.
     """)
 
-    hover_glyph = Instance(Glyph, help="""
+    hover_glyph = Nullable(Instance(Glyph), help="""
     An optional glyph used for inspected points, e.g., those that are
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Instance(Glyph, help="""
+    muted_glyph = Nullable(Instance(Glyph), help="""
     """)
 
     muted = Bool(False, help="""

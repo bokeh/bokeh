@@ -36,6 +36,7 @@ from .container import Seq, Tuple
 from .datetime import Datetime, TimeDelta
 from .either import Either
 from .enum import Enum
+from .nullable import Nullable
 from .numeric import Float, Int
 from .primitive import String
 from .string import Regex
@@ -153,7 +154,7 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        if value is None or isinstance(value, (str, PIL.Image.Image)):
+        if isinstance(value, (str, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -164,9 +165,6 @@ class Image(Property):
         raise ValueError(msg)
 
     def transform(self, value):
-        if value is None:
-            return
-
         import numpy as np
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
@@ -195,26 +193,27 @@ class MinMaxBounds(Either):
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
     def __init__(self, accept_datetime=False, default='auto', help=None):
+        types = (
+            Auto,
+
+            Tuple(Float, Float),
+            Tuple(Nullable(Float), Float),
+            Tuple(Float, Nullable(Float)),
+
+            Tuple(TimeDelta, TimeDelta),
+            Tuple(Nullable(TimeDelta), TimeDelta),
+            Tuple(TimeDelta, Nullable(TimeDelta)),
+        )
         if accept_datetime:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
+            types = types + (
                 Tuple(Datetime, Datetime),
-            )
-        else:
-            types = (
-                Auto,
-                Tuple(Float, Float),
-                Tuple(TimeDelta, TimeDelta),
+                Tuple(Nullable(Datetime), Datetime),
+                Tuple(Datetime, Nullable(Datetime)),
             )
         super().__init__(*types, default=default, help=help)
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if value[0] is None or value[1] is None:
             return

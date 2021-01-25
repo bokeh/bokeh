@@ -139,7 +139,7 @@ export class Title extends TextAnnotation {
     ])
 
     this.define<Title.Props>(({Number, String}) => ({
-      text:             [ String ],
+      text:             [ String, "" ],
       vertical_align:   [ VerticalAlign, "bottom" ],
       align:            [ TextAlign, "left" ],
       offset:           [ Number, 0 ],

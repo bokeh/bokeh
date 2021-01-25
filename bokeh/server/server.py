@@ -43,7 +43,7 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core.properties import Bool, Int, List, String
+from ..core.properties import Bool, Int, List, Nullable, String
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
@@ -462,7 +462,7 @@ class _ServerOpts(Options):
     multiple Bokeh server instances behind a load balancer.
     """)
 
-    address = String(default=None, help="""
+    address = Nullable(String, help="""
     The address the server should listen on for HTTP requests.
     """)
 
@@ -474,11 +474,11 @@ class _ServerOpts(Options):
     A URL prefix to use for all Bokeh server paths.
     """)
 
-    index = String(default=None, help="""
+    index = Nullable(String, help="""
     A path to a Jinja2 template to use for the index "/"
     """)
 
-    allow_websocket_origin = List(String, default=None, help="""
+    allow_websocket_origin = Nullable(List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external
@@ -493,15 +493,15 @@ class _ServerOpts(Options):
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
     """)
 
-    ssl_certfile = String(default=None, help="""
+    ssl_certfile = Nullable(String, help="""
     The path to a certificate file for SSL termination.
     """)
 
-    ssl_keyfile = String(default=None, help="""
+    ssl_keyfile = Nullable(String, help="""
     The path to a private key file for SSL termination.
     """)
 
-    ssl_password = String(default=None, help="""
+    ssl_password = Nullable(String, help="""
     A password to decrypt the SSL keyfile, if necessary.
     """)
 

@@ -208,6 +208,8 @@ __all__ = (
     'DistanceSpec',
     'Either',
     'Enum',
+    'Factor',
+    'FactorSeq',
     'Float',
     'FontSize',
     'FontSizeSpec',
@@ -224,6 +226,10 @@ __all__ = (
     'MarkerType',
     'MinMaxBounds',
     'NonNegativeInt',
+    'NonNullable',
+    'Null',
+    'NullStringSpec',
+    'Nullable',
     'NumberSpec',
     'Override',
     'PandasDataFrame',
@@ -232,6 +238,7 @@ __all__ = (
     'PositiveInt',
     'PropertyUnitsSpec',
     'RGB',
+    'Readonly',
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
@@ -292,6 +299,8 @@ from .property.dataspec import IntSpec; IntSpec
 from .property.dataspec import LineCapSpec; LineCapSpec
 from .property.dataspec import LineJoinSpec; LineJoinSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
+from .property.dataspec import NullDistanceSpec; NullDistanceSpec
+from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
@@ -309,11 +318,17 @@ from .property.either import Either; Either
 
 from .property.enum import Enum; Enum
 
+from .property.factors import Factor; Factor
+from .property.factors import FactorSeq; FactorSeq
+
 from .property.include import Include ; Include
 
 from .property.instance import Instance; Instance
 
 from .property.json import JSON; JSON
+
+from .property.nullable import NonNullable; NonNullable
+from .property.nullable import Nullable; Nullable
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
@@ -332,7 +347,10 @@ from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
+from .property.primitive import Null; Null
 from .property.primitive import String; String
+
+from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
 from .property.string import Regex; Regex

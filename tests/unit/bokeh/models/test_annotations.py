@@ -48,6 +48,7 @@ from bokeh.models import (
     LabelSet,
     Legend,
     LegendItem,
+    LinearColorMapper,
     PolyAnnotation,
     Slope,
     Span,
@@ -109,7 +110,8 @@ def test_Legend() -> None:
 
 
 def test_ColorBar() -> None:
-    color_bar = ColorBar()
+    color_mapper = LinearColorMapper()
+    color_bar = ColorBar(color_mapper=color_mapper)
     assert color_bar.location == 'top_right'
     assert color_bar.orientation == 'auto'
     assert color_bar.height == 'auto'
@@ -119,7 +121,7 @@ def test_ColorBar() -> None:
     assert color_bar.title_standoff == 2
     assert color_bar.ticker == "auto"
     assert color_bar.formatter == "auto"
-    assert color_bar.color_mapper is None
+    assert color_bar.color_mapper == color_mapper
     assert color_bar.margin == 30
     assert color_bar.padding == 10
     assert color_bar.label_standoff == 5
@@ -169,12 +171,12 @@ def test_ColorBar() -> None:
 
 def test_Arrow() -> None:
     arrow = Arrow()
-    assert arrow.x_start is None
-    assert arrow.y_start is None
+    assert arrow.x_start == field("x_start")
+    assert arrow.y_start == field("y_start")
     assert arrow.start_units == 'data'
     assert arrow.start is None
-    assert arrow.x_end is None
-    assert arrow.y_end is None
+    assert arrow.x_end == field("x_end")
+    assert arrow.y_end == field("y_end")
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
     assert isinstance(arrow.source, ColumnDataSource)
@@ -262,13 +264,13 @@ def test_Band() -> None:
 
 
 def test_Label() -> None:
-    label = Label()
+    label = Label(x=11, y=12)
     assert label.level == 'annotation'
-    assert label.x is None
-    assert label.y is None
+    assert label.x == 11
+    assert label.y == 12
     assert label.x_units == 'data'
     assert label.y_units == 'data'
-    assert label.text is None
+    assert label.text == ""
     assert label.angle == 0
     assert label.angle_units == 'rad'
     assert label.x_offset == 0
@@ -307,11 +309,11 @@ def test_Label_accepts_datetime_xy() -> None:
 def test_LabelSet() -> None:
     label_set = LabelSet()
     assert label_set.level == 'annotation'
-    assert label_set.x is None
-    assert label_set.y is None
+    assert label_set.x == field("x")
+    assert label_set.y == field("y")
     assert label_set.x_units == 'data'
     assert label_set.y_units == 'data'
-    assert label_set.text == 'text'
+    assert label_set.text == field("text")
     assert label_set.angle == 0
     assert label_set.angle_units == 'rad'
     assert label_set.x_offset == 0
@@ -414,7 +416,7 @@ def test_Span_accepts_datetime_location() -> None:
 def test_Title() -> None:
     title = Title()
     assert title.level == 'annotation'
-    assert title.text is None
+    assert title.text == ""
     assert title.vertical_align == 'bottom'
     assert title.align == 'left'
     assert title.offset == 0
@@ -493,8 +495,8 @@ def test_Whisker_and_Band_accept_negative_values() -> None:
 
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()
-    gr_1 = GlyphRenderer()
-    gr_2 = GlyphRenderer()
+    gr_1 = GlyphRenderer(data_source=ColumnDataSource())
+    gr_2 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])

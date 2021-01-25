@@ -27,6 +27,7 @@ from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
+from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 #-----------------------------------------------------------------------------
@@ -53,7 +54,7 @@ class Seq(ContainerProperty):
 
     """
 
-    def __init__(self, item_type, default=None, help=None):
+    def __init__(self, item_type, default=Undefined, help=None):
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 
@@ -65,18 +66,13 @@ class Seq(ContainerProperty):
         return [self.item_type]
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, list):
+        if isinstance(json, list):
             return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
         else:
-            raise DeserializationError(f"{self} expected a list or None, got {json}")
+            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, True)
-
-        if value is None:
-            return
 
         if self._is_seq(value) and all(self.item_type.is_valid(item) for item in value):
             return
@@ -122,8 +118,7 @@ class List(Seq):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -175,18 +170,13 @@ class Dict(ContainerProperty):
         return [self.keys_type, self.values_type]
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, dict):
+        if isinstance(json, dict):
             return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+            raise DeserializationError(f"{self} expected a dict, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
@@ -196,8 +186,7 @@ class Dict(ContainerProperty):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -244,10 +233,8 @@ class ColumnData(Dict):
     def from_json(self, json, models=None):
         """ Decodes column source data encoded as lists or base64 strings.
         """
-        if json is None:
-            return None
-        elif not isinstance(json, dict):
-            raise DeserializationError(f"{self} expected a dict or None, got {json}")
+        if not isinstance(json, dict):
+            raise DeserializationError(f"{self} expected a dict, got {json}")
         new_data = {}
         for key, value in json.items():
             key = self.keys_type.from_json(key, models)
@@ -269,8 +256,7 @@ class ColumnData(Dict):
     def serialize_value(self, value):
         return transform_column_source_data(value)
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -288,7 +274,7 @@ class Tuple(ContainerProperty):
     """
     def __init__(self, tp1, tp2, *type_params, **kwargs):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super().__init__(default=kwargs.get("default"), help=kwargs.get("help"))
+        super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
     def __str__(self):
         item_types = ", ".join(str(x) for x in self.type_params)
@@ -299,18 +285,13 @@ class Tuple(ContainerProperty):
         return self._type_params
 
     def from_json(self, json, models=None):
-        if json is None:
-            return None
-        elif isinstance(json, list):
+        if isinstance(json, list):
             return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
         else:
-            raise DeserializationError(f"{self} expected a list or None, got {json}")
+            raise DeserializationError(f"{self} expected a list, got {json}")
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
-
-        if value is None:
-            return
 
         if isinstance(value, (tuple, list)) and len(self.type_params) == len(value):
             if all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value)):
@@ -323,18 +304,12 @@ class Tuple(ContainerProperty):
         """ Change the value into a JSON serializable format.
 
         """
-        if value is None:
-            return None
-
         return tuple(typ.transform(x) for (typ, x) in zip(self.type_params, value))
 
     def serialize_value(self, value):
         """ Change the value into a JSON serializable format.
 
         """
-        if value is None:
-            return None
-
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
     def _sphinx_type(self):

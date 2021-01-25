@@ -29,7 +29,9 @@ from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
 from .enum import Enum
 from .instance import Instance
-from .primitive import Float, Int, String
+from .nullable import Nullable
+from .primitive import Float, Int, Null, String
+from .singletons import Undefined
 from .visual import DashPattern, FontSize, HatchPatternType, MarkerType
 
 #-----------------------------------------------------------------------------
@@ -193,11 +195,6 @@ class DataSpec(Either):
         return [ DataSpecPropertyDescriptor(base_name, self) ]
 
     def to_serializable(self, obj, name, val):
-        # Check for None value; this means "the whole thing is
-        # unset," not "the value is None."
-        if val is None:
-            return
-
         # Check for spec type value
         try:
             self._type.validate(val, False)
@@ -239,7 +236,7 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     """
-    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
+    def __init__(self, default=Undefined, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
         super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
@@ -255,6 +252,10 @@ class AlphaSpec(NumberSpec):
     def __init__(self, default=1.0, help=None):
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransform, accept_datetime=False, accept_timedelta=False)
+
+class NullStringSpec(DataSpec):
+    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform):
+        super().__init__(key_type, Nullable(List(String)), default=default, help=help)
 
 class StringSpec(DataSpec):
     """ A |DataSpec| property that accepts string fixed values.
@@ -357,7 +358,7 @@ class HatchPatternSpec(DataSpec):
     """
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super().__init__(key_type, HatchPatternType, default=default, help=help)
+        super().__init__(key_type, Nullable(HatchPatternType), default=default, help=help)
 
 class MarkerSpec(DataSpec):
     """ A |DataSpec| property that accepts marker types as fixed values.
@@ -468,7 +469,7 @@ class AngleSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
 
     """
-    def __init__(self, default=None, units_default="rad", help=None):
+    def __init__(self, default=Undefined, units_default="rad", help=None):
         super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
@@ -478,8 +479,23 @@ class DistanceSpec(PropertyUnitsSpec):
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
     """
-    def __init__(self, default=None, units_default="data", help=None):
+    def __init__(self, default=Undefined, units_default="data", help=None):
         super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
+
+    def prepare_value(self, cls, name, value):
+        try:
+            if value < 0:
+                raise ValueError("Distances must be positive!")
+        except TypeError:
+            pass
+        return super().prepare_value(cls, name, value)
+
+class NullDistanceSpec(DistanceSpec):
+
+    def __init__(self, default=None, units_default="data", help=None):
+        super().__init__(default=default, units_default=units_default, help=help)
+        self._type = Nullable(self._type)
+        self._type_params = [Null()] + self._type_params
 
     def prepare_value(self, cls, name, value):
         try:
@@ -491,7 +507,7 @@ class DistanceSpec(PropertyUnitsSpec):
 
 class _FixedUnitsDistanceSpec(UnitsSpec):
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         super().__init__(default=default, units_type=Enum(enums.enumeration(self._units)), units_default=self._units, help=help)
 
     def get_units(self, _obj, _name):
@@ -563,7 +579,7 @@ class ColorSpec(DataSpec):
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         help = f"{help or ''}\n{self._default_help}"
-        super().__init__(key_type, Color, default=default, help=help)
+        super().__init__(key_type, Nullable(Color), default=default, help=help)
 
     @classmethod
     def isconst(cls, val):

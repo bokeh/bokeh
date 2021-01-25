@@ -30,8 +30,11 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
+    Nullable,
     PandasDataFrame,
     PandasGroupBy,
+    Readonly,
     Seq,
     String,
 )
@@ -71,7 +74,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
+    selected = Readonly(Instance(Selection), default=lambda: Selection(), help="""
     An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
@@ -703,7 +706,7 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     '''
 
-    geojson = JSON(help="""
+    geojson = NonNullable(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
@@ -719,7 +722,7 @@ class WebDataSource(ColumnDataSource):
 
     '''
 
-    adapter = Instance(CustomJS, help="""
+    adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
     format.
 
@@ -731,7 +734,7 @@ class WebDataSource(ColumnDataSource):
     (i.e.  a mapping of string column names to arrays of data).
     """)
 
-    max_size = Int(help="""
+    max_size = Nullable(Int, help="""
     Maximum size of the data columns. If a new fetch would result in columns
     larger than ``max_size``, then earlier data is dropped to make room.
     """)
@@ -741,7 +744,7 @@ class WebDataSource(ColumnDataSource):
     replace existing data entirely.
     """)
 
-    data_url = String(help="""
+    data_url = NonNullable(String, help="""
     A URL to to fetch data from.
     """)
 
@@ -785,7 +788,7 @@ class AjaxDataSource(WebDataSource):
 
     '''
 
-    polling_interval = Int(help="""
+    polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.
     """)
 

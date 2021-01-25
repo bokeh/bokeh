@@ -85,7 +85,7 @@ export class Label extends TextAnnotation {
       x_units:     [ SpatialUnits, "data" ],
       y:           [ Number ],
       y_units:     [ SpatialUnits, "data" ],
-      text:        [ String ],
+      text:        [ String, "" ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],

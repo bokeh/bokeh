@@ -25,6 +25,8 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Null,
+    Nullable,
     Seq,
     String,
     Tuple,
@@ -1623,11 +1625,11 @@ class FigureOptions(Options):
     Number of minor ticks between adjacent y-axis major ticks.
     """)
 
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    x_axis_location = Nullable(Enum(VerticalLocation), default="below", help="""
     Where the x-axis should be located.
     """)
 
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    y_axis_location = Nullable(Enum(HorizontalLocation), default="left", help="""
     Where the y-axis should be located.
     """)
 
@@ -1655,15 +1657,15 @@ class FigureOptions(Options):
     Which tap tool should initially be active.
     """)
 
-    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the y-axis.
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(Null, String, List(Tuple(String, String)), help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
     tool is specified in the ``tools`` argument, this value will override that

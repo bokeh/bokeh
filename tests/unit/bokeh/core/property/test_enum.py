@@ -49,8 +49,6 @@ class Test_Enum:
     def test_from_values_valid(self) -> None:
         prop = bcpe.Enum("red", "green", "blue")
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid("red")
         assert prop.is_valid("green")
         assert prop.is_valid("blue")
@@ -58,6 +56,7 @@ class Test_Enum:
     def test_from_values_invalid(self) -> None:
         prop = bcpe.Enum("red", "green", "blue")
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -83,8 +82,6 @@ class Test_Enum:
     def test_from_enum_valid(self) -> None:
         prop = bcpe.Enum(LineJoin)
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid("miter")
         assert prop.is_valid("round")
         assert prop.is_valid("bevel")
@@ -92,6 +89,7 @@ class Test_Enum:
     def test_from_enum_invalid(self) -> None:
         prop = bcpe.Enum(LineJoin)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

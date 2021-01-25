@@ -50,6 +50,10 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
+    Null,
+    Nullable,
+    NullStringSpec,
     NumberSpec,
     Override,
     PropertyUnitsSpec,
@@ -176,7 +180,7 @@ class LegendItem(Model):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 
-    label = StringSpec(default=None, help="""
+    label = NullStringSpec(help="""
     A label for this legend. Can be a string, or a column of a
     ColumnDataSource. If ``label`` is a field, then it must
     be in the renderers' data_source.
@@ -187,7 +191,7 @@ class LegendItem(Model):
     then all data_sources of renderers must be the same.
     """)
 
-    index = Int(default=None, help="""
+    index = Nullable(Int, help="""
     The column data index to use for drawing the representative items.
 
     If None (the default), then Bokeh will automatically choose an index to
@@ -233,7 +237,7 @@ class Legend(Annotation):
     when they are drawn.
     """)
 
-    title = String(help="""
+    title = Nullable(String, help="""
     The title text to render.
     """)
 
@@ -370,11 +374,11 @@ class ColorBar(Annotation):
     Whether the color bar should be oriented vertically or horizontally.
     """)
 
-    height = Either(Auto, Int(), help="""
+    height = Either(Auto, Int, help="""
     The height (in pixels) that the color scale should occupy.
     """)
 
-    width = Either(Auto, Int(), help="""
+    width = Either(Auto, Int, help="""
     The width (in pixels) that the color scale should occupy.
     """)
 
@@ -382,7 +386,7 @@ class ColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = String(default=None, help="""
+    title = Nullable(String, help="""
     The title text to render.
     """)
 
@@ -499,11 +503,11 @@ class Arrow(DataAnnotation):
 
     '''
 
-    x_start = NumberSpec(help="""
+    x_start = NumberSpec(default=field("x_start"), help="""
     The x-coordinates to locate the start of the arrows.
     """)
 
-    y_start = NumberSpec(help="""
+    y_start = NumberSpec(default=field("y_start"), help="""
     The y-coordinates to locate the start of the arrows.
     """)
 
@@ -512,15 +516,15 @@ class Arrow(DataAnnotation):
     space" units by default.
     """)
 
-    start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
+    start = Nullable(Instance('.models.arrow_heads.ArrowHead'), help="""
     Instance of ``ArrowHead``.
     """)
 
-    x_end = NumberSpec(help="""
+    x_end = NumberSpec(default=field("x_end"), help="""
     The x-coordinates to locate the end of the arrows.
     """)
 
-    y_end = NumberSpec(help="""
+    y_end = NumberSpec(default=field("y_end"), help="""
     The y-coordinates to locate the end of the arrows.
     """)
 
@@ -529,7 +533,7 @@ class Arrow(DataAnnotation):
     space" units by default.
     """)
 
-    end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
+    end = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_ARROW, help="""
     Instance of ``ArrowHead``.
     """)
 
@@ -544,7 +548,7 @@ class BoxAnnotation(Annotation):
 
     '''
 
-    left = Either(Auto, NumberSpec(), default=None, help="""
+    left = Either(Null, Auto, NumberSpec(), help="""
     The x-coordinates of the left edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -556,7 +560,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec(), default=None, help="""
+    right = Either(Null, Auto, NumberSpec(), help="""
     The x-coordinates of the right edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -568,7 +572,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec(), default=None, help="""
+    bottom = Either(Null, Auto, NumberSpec(), help="""
     The y-coordinates of the bottom edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -580,7 +584,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec(), default=None, help="""
+    top = Either(Null, Auto, NumberSpec(), help="""
     The y-coordinates of the top edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -684,7 +688,7 @@ class Label(TextAnnotation):
 
     '''
 
-    x = Float(help="""
+    x = NonNullable(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -696,7 +700,7 @@ class Label(TextAnnotation):
     by default.
     """)
 
-    y = Float(help="""
+    y = NonNullable(Float, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -708,7 +712,7 @@ class Label(TextAnnotation):
     by default.
     """)
 
-    text = String(help="""
+    text = String(default="", help="""
     The text value to render.
     """)
 
@@ -781,7 +785,7 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 
     '''
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
 
@@ -790,7 +794,7 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     by default.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the text anchors.
     """)
 
@@ -799,7 +803,7 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     by default.
     """)
 
-    text = StringSpec("text", help="""
+    text = StringSpec(default=field("text"), help="""
     The text values to render.
     """)
 
@@ -897,11 +901,11 @@ class Slope(Annotation):
 
     """
 
-    gradient = Float(help="""
+    gradient = Nullable(Float, help="""
     The gradient of the line, in data units
     """)
 
-    y_intercept = Float(help="""
+    y_intercept = Nullable(Float, help="""
     The y intercept of the line, in data units
     """)
 
@@ -916,7 +920,7 @@ class Span(Annotation):
 
     """
 
-    location = Float(help="""
+    location = Nullable(Float, help="""
     The location of the span, along ``dimension``.
 
     Datetime values are also accepted, but note that they are immediately
@@ -957,7 +961,7 @@ class Title(TextAnnotation):
 
     '''
 
-    text = String(help="""
+    text = String(default="", help="""
     The text value to render.
     """)
 
@@ -1067,7 +1071,7 @@ class Whisker(DataAnnotation):
     The coordinates of the lower end of the whiskers.
     """)
 
-    lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    lower_head = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_TEE, help="""
     Instance of ``ArrowHead``.
     """)
 
@@ -1075,7 +1079,7 @@ class Whisker(DataAnnotation):
     The coordinates of the upper end of the whiskers.
     """)
 
-    upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    upper_head = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_TEE, help="""
     Instance of ``ArrowHead``.
     """)
 

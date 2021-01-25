@@ -297,7 +297,7 @@ export class ImageURL extends XYGlyph {
     this.prototype.default_view = ImageURLView
 
     this.define<ImageURL.Props>(({Boolean, Int, Alpha}) => ({
-      url:            [ p.StringSpec ],
+      url:            [ p.StringSpec, {field: "url"} ],
       anchor:         [ Anchor, "top_left" ],
       global_alpha:   [ Alpha, 1.0 ],
       angle:          [ p.AngleSpec, 0 ],

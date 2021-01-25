@@ -207,7 +207,7 @@ def test_all_builtin_models_default_constructible() -> None:
             cls()
         except Exception:
             bad.append(name)
-        assert bad == []
+    assert bad == []
 
 def test_select() -> None:
     # we aren't trying to replace test_query here, only test

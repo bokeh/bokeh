@@ -29,6 +29,7 @@ from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
+from .singletons import Undefined
 from .string import Regex
 
 #-----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class RGB(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, colors.RGB):
+        if isinstance(value, colors.RGB):
             return
 
         msg = "" if not detail else f"expected RGB value, got {value!r}"
@@ -112,7 +113,7 @@ class Color(Either):
 
     """
 
-    def __init__(self, default=None, help=None):
+    def __init__(self, default=Undefined, help=None):
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),

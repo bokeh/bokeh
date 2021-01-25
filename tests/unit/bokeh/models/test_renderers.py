@@ -15,7 +15,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import Circle, ColumnDataSource, IndexFilter, Line, MultiLine, Patch
+from bokeh.models import (
+    Circle,
+    ColumnDataSource,
+    IndexFilter,
+    Line,
+    MultiLine,
+    Patch,
+    StaticLayoutProvider,
+)
 
 # Module under test
 import bokeh.models.renderers as bmr # isort:skip
@@ -32,7 +40,7 @@ import bokeh.models.renderers as bmr # isort:skip
 class TestGlyphRenderer:
     @pytest.mark.parametrize('glyph', [Line, Patch])
     def test_check_cdsview_filters_with_connected_error(self, glyph) -> None:
-        renderer = bmr.GlyphRenderer()
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = glyph()
 
         check = renderer._check_cdsview_filters_with_connected()
@@ -45,12 +53,13 @@ class TestGlyphRenderer:
 
 class TestGraphRenderer:
     def test_init_props(self) -> None:
-        renderer = bmr.GraphRenderer()
+        layout_provider = StaticLayoutProvider()
+        renderer = bmr.GraphRenderer(layout_provider=layout_provider)
         assert renderer.x_range_name == "default"
         assert renderer.y_range_name == "default"
         assert renderer.node_renderer.data_source.data == dict(index=[])
         assert renderer.edge_renderer.data_source.data == dict(start=[], end=[])
-        assert renderer.layout_provider is None
+        assert renderer.layout_provider == layout_provider
 
     def test_check_malformed_graph_source_no_errors(self) -> None:
         renderer = bmr.GraphRenderer()

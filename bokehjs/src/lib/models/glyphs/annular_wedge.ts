@@ -185,10 +185,10 @@ export class AnnularWedge extends XYGlyph {
 
     this.define<AnnularWedge.Props>(({}) => ({
       direction:    [ Direction, "anticlock" ],
-      inner_radius: [ p.DistanceSpec ],
-      outer_radius: [ p.DistanceSpec ],
-      start_angle:  [ p.AngleSpec ],
-      end_angle:    [ p.AngleSpec ],
+      inner_radius: [ p.DistanceSpec, {field: "inner_radius"} ],
+      outer_radius: [ p.DistanceSpec, {field: "outer_radius"} ],
+      start_angle:  [ p.AngleSpec, {field: "start_angle"} ],
+      end_angle:    [ p.AngleSpec, {field: "end_angle"} ],
     }))
   }
 }

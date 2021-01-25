@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import Int, String
+from bokeh.core.properties import Int, Nullable, String
 
 # Module under test
 from bokeh.util.options import Options # isort:skip
@@ -26,7 +26,7 @@ from bokeh.util.options import Options # isort:skip
 
 class DummyOpts(Options):
     foo = String(default="thing")
-    bar = Int()
+    bar = Nullable(Int())
 
 #-----------------------------------------------------------------------------
 # General API

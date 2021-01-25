@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import warnings
-
 # Bokeh imports
 from .. import palettes
 from ..core.enums import Palette
@@ -31,16 +28,20 @@ from ..core.properties import (
     Color,
     Either,
     Enum,
+    FactorSeq,
     Float,
     HatchPatternType,
     Instance,
     Int,
     List,
     MarkerType,
+    Nullable,
     Seq,
     String,
     Tuple,
 )
+from ..core.validation import warning
+from ..core.validation.warnings import PALETTE_LENGTH_FACTORS_MISMATCH
 from .transforms import Transform
 
 #-----------------------------------------------------------------------------
@@ -99,7 +100,7 @@ class CategoricalMapper(Mapper):
 
     '''
 
-    factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=None, help="""
+    factors = FactorSeq(help="""
     A sequence of factors / categories that map to the some target range. For
     example the following color mapper:
 
@@ -119,7 +120,7 @@ class CategoricalMapper(Mapper):
     (i.e. in this case based on the department ``"sales"`` or ``"marketing"``)
     """)
 
-    end = Int(help="""
+    end = Nullable(Int, help="""
     A start index to "slice" data factors with before mapping.
 
     For example, if the data to color map consists of 2-level factors such
@@ -140,14 +141,13 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
 
     '''
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    @warning(PALETTE_LENGTH_FACTORS_MISMATCH)
+    def _check_palette_length(self):
         palette = self.palette
         factors = self.factors
-        if palette is not None and factors is not None:
-            if len(palette) < len(factors):
-                extra_factors = factors[len(palette):]
-                warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
+        if len(palette) < len(factors):
+            extra_factors = factors[len(palette):]
+            return f"{extra_factors} will be assigned to `nan_color` {self.nan_color}"
 
 class CategoricalMarkerMapper(CategoricalMapper):
     ''' Map categorical factors to marker types.
@@ -200,22 +200,22 @@ class ContinuousColorMapper(ColorMapper):
     If empty, mapped data will be used instead.
     """)
 
-    low = Float(default=None, help="""
+    low = Nullable(Float, help="""
     The minimum value of the range to map into the palette. Values below
     this are clamped to ``low``. If ``None``, the value is inferred from data.
     """)
 
-    high = Float(default=None, help="""
+    high = Nullable(Float, help="""
     The maximum value of the range to map into the palette. Values above
     this are clamped to ``high``. If ``None``, the value is inferred from data.
     """)
 
-    low_color = Color(default=None, help="""
+    low_color = Nullable(Color, help="""
     Color to be used if data is lower than ``low`` value. If None,
     values lower than ``low`` are mapped to the first color in the palette.
     """)
 
-    high_color = Color(default=None, help="""
+    high_color = Nullable(Color, help="""
     Color to be used if data is higher than ``high`` value. If None,
     values higher than ``high`` are mapped to the last color in the palette.
     """)

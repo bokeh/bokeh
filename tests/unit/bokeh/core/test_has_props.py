@@ -18,7 +18,8 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.properties import Alias, Either, Int, List, NumberSpec, Override, String
+from bokeh.core.properties import Alias, Either, Int, List, Nullable, NumberSpec, Override, String
+from bokeh.core.property.dataspec import field, value
 from bokeh.core.property.descriptors import (
     BasicPropertyDescriptor,
     DataSpecPropertyDescriptor,
@@ -41,13 +42,13 @@ import bokeh.core.has_props as hp # isort:skip
 
 class Parent(hp.HasProps):
     int1 = Int(default=10)
-    ds1 = NumberSpec()
+    ds1 = NumberSpec(default=field("x"))
     lst1 = List(String)
 
 class Child(Parent):
-    int2 = Int()
+    int2 = Nullable(Int())
     str2 = String(default="foo")
-    ds2 = NumberSpec()
+    ds2 = NumberSpec(default=field("y"))
     lst2 = List(Int, default=[1,2,3])
 
     @property
@@ -67,27 +68,27 @@ class AliasedChild(Child):
 def test_HasProps_default_init() -> None:
     p = Parent()
     assert p.int1 == 10
-    assert p.ds1 == None
+    assert p.ds1 == field("x")
     assert p.lst1 == []
 
     c = Child()
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "foo"
-    assert c.ds2 == None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
 def test_HasProps_kw_init() -> None:
-    p = Parent(int1=30, ds1="foo")
+    p = Parent(int1=30, ds1=field("foo"))
     assert p.int1 == 30
-    assert p.ds1 == "foo"
+    assert p.ds1 == field("foo")
     assert p.lst1 == []
 
     c = Child(str2="bar", lst2=[2,3,4], ds2=10)
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "bar"
@@ -97,7 +98,7 @@ def test_HasProps_kw_init() -> None:
 def test_HasProps_override() -> None:
     ov = OverrideChild()
     assert ov.int1 == 20
-    assert ov.ds1 == None
+    assert ov.ds1 == field("x")
     assert ov.lst1 == []
 
 def test_HasProps_alias() -> None:
@@ -174,24 +175,24 @@ def test_HasProps_equals() -> None:
 
 def test_HasProps_update() -> None:
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=value("foo")))
     assert c.int1 == 25
-    assert c.ds1 == dict(field="foo")
+    assert c.ds1 == value("foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
 def test_HasProps_set_from_json() -> None:
     c = Child()
     c.set_from_json('lst2', [1,2])
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
     c.set_from_json('ds1', "foo")
@@ -200,7 +201,7 @@ def test_HasProps_set_from_json() -> None:
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
     c.set_from_json('int2', 100)
@@ -209,19 +210,19 @@ def test_HasProps_set_from_json() -> None:
     assert c.lst1 == []
     assert c.int2 == 100
     assert c.str2 == "foo"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
 
 def test_HasProps_update_from_json() -> None:
     c = Child()
-    c.update_from_json(dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update_from_json(dict(lst2=[1,2], str2="baz", int1=25, ds1=field("foo")))
     assert c.int1 == 25
-    assert c.ds1 == dict(field="foo")
+    assert c.ds1 == field("foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
 @patch('bokeh.core.has_props.HasProps.set_from_json')
@@ -234,13 +235,13 @@ def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
 
 def test_HasProps_set() -> None:
     c = Child()
-    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=dict(field="foo")))
+    c.update(**dict(lst2=[1,2], str2="baz", int1=25, ds1=field("foo")))
     assert c.int1 == 25
-    assert c.ds1 == dict(field="foo")
+    assert c.ds1 == field("foo")
     assert c.lst1 == []
     assert c.int2 == None
     assert c.str2 == "baz"
-    assert c.ds2 ==  None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2]
 
     c.str2_proxy = "some"
@@ -281,9 +282,9 @@ def test_HasProps_apply_theme() -> None:
     assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.str2 == "foo"
-    assert c.ds2 == None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
     c.int2 = 25
@@ -291,9 +292,9 @@ def test_HasProps_apply_theme() -> None:
     assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.str2 == "foo"
-    assert c.ds2 == None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
     c.ds2 = "foo"
@@ -301,7 +302,7 @@ def test_HasProps_apply_theme() -> None:
     assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.str2 == "foo"
     assert c.ds2 == "foo"
     assert c.lst2 == [1,2,3]
@@ -314,9 +315,9 @@ def test_HasProps_unapply_theme() -> None:
     assert c.lst1 == ["foo", "bar"]
 
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.str2 == "foo"
-    assert c.ds2 == None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
     c.unapply_theme()
@@ -324,9 +325,9 @@ def test_HasProps_unapply_theme() -> None:
     assert c.lst1 == []
 
     assert c.int1 == 10
-    assert c.ds1 == None
+    assert c.ds1 == field("x")
     assert c.str2 == "foo"
-    assert c.ds2 == None
+    assert c.ds2 == field("y")
     assert c.lst2 == [1,2,3]
 
     assert c.themed_values() == None

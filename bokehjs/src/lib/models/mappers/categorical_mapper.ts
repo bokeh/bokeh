@@ -1,5 +1,5 @@
 import {Mapper} from "./mapper"
-import {Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
+import {FactorSeq, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
 import {Arrayable, ArrayableOf} from "core/types"
 import {index_of, find_index} from "core/util/arrayable"
 import {isString} from "core/util/types"
@@ -56,7 +56,7 @@ export namespace CategoricalMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Mapper.Props & {
-    factors: p.Property<Factor[]>
+    factors: p.Property<FactorSeq>
     start: p.Property<number>
     end: p.Property<number | null>
   }

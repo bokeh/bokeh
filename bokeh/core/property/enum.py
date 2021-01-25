@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from ...util.string import nice_join
 from .. import enums
 from .primitive import String
+from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,16 +45,14 @@ class Enum(String):
     See :ref:`bokeh.core.enums` for more information.
 
     """
-    def __init__(self, enum, *values, **kwargs):
+
+    def __init__(self, enum, *values, default=Intrinsic, help=None, serialized=None, readonly=False):
         if not (not values and isinstance(enum, enums.Enumeration)):
             enum = enums.enumeration(enum, *values)
-
         self._enum = enum
 
-        default = kwargs.get("default", enum._default)
-        help = kwargs.get("help")
-
-        super().__init__(default=default, help=help)
+        default = default if default is not Intrinsic else enum._default
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
     def __str__(self):
         class_name = self.__class__.__name__
@@ -67,7 +66,7 @@ class Enum(String):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or value in self._enum:
+        if value in self._enum:
             return
 
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"

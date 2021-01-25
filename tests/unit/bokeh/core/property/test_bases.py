@@ -41,7 +41,6 @@ ALL = (
 # General API
 #-----------------------------------------------------------------------------
 
-
 class TestProperty:
     @patch('bokeh.core.property.bases.Property.validate')
     def test_is_valid_supresses_validation_detail(self, mock_validate) -> None:

@@ -162,8 +162,8 @@ abstract class AbstractBaseSliderView extends ControlView {
   }
 
   protected _change(values: number[]): void {
-    this.model.value = this._calc_from(values)
-    this.model.value_throttled = this.model.value
+    const value = this._calc_from(values)
+    this.model.setv({value, value_throttled: value})
   }
 }
 

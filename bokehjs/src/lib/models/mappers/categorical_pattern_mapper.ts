@@ -1,5 +1,5 @@
 import {CategoricalMapper, cat_v_compute} from "./categorical_mapper"
-import {Factor} from "../ranges/factor_range"
+import {Factor, FactorSeq} from "../ranges/factor_range"
 import {Mapper} from "./mapper"
 
 import * as p from "core/properties"
@@ -25,8 +25,8 @@ export class CategoricalPatternMapper extends Mapper<string> {
   }
 
   static init_CategoricalPatternMapper(): void {
-    this.define<CategoricalPatternMapper.Props>(({Any, Number, Array, Nullable}) => ({
-      factors:       [ Array(Any /*TODO*/) ],
+    this.define<CategoricalPatternMapper.Props>(({Number, Array, Nullable}) => ({
+      factors:       [ FactorSeq ],
       patterns:      [ Array(HatchPatternType) ],
       start:         [ Number, 0 ],
       end:           [ Nullable(Number), null ],

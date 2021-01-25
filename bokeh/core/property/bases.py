@@ -38,6 +38,7 @@ from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
+from .singletons import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -69,9 +70,8 @@ class Property(PropertyDescriptorFactory):
     Models.
 
     Args:
-        default (obj or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (obj, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -91,15 +91,18 @@ class Property(PropertyDescriptorFactory):
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False):
-        # This is how the descriptor is created in the class declaration.
+    def __init__(self, default=Intrinsic, help=None, serialized=None, readonly=False):
+        default = default if default is not Intrinsic else Undefined
+
         if serialized is None:
-            self._serialized = False if readonly else True
+            self._serialized = False if readonly and default is Undefined else True
         else:
             self._serialized = serialized
+
         self._readonly = readonly
         self._default = default
         self.__doc__ = help
+
         self.alternatives = []
         self.assertions = []
 
@@ -315,14 +318,16 @@ class Property(PropertyDescriptorFactory):
         else:
             return True
 
-    @classmethod
-    def wrap(cls, value):
+    def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
 
         """
         return value
 
     def prepare_value(self, owner: Union[HasProps, Type[HasProps]], name: str, value: Any):
+        if value is Undefined:
+            return value
+
         error = None
         try:
             if validation_on():
@@ -338,8 +343,8 @@ class Property(PropertyDescriptorFactory):
         if error is None:
             value = self.transform(value)
         else:
-            obj_repr = str(owner) if isinstance(owner, HasProps) else owner.__qualified_model__
-            raise ValueError(f"failed to validate {obj_repr}.{name}: {str(error)}")
+            obj_repr = owner if isinstance(owner, HasProps) else owner.__name__
+            raise ValueError(f"failed to validate {obj_repr}.{name}: {error}")
 
         if isinstance(owner, HasProps):
             obj = owner
@@ -436,6 +441,40 @@ class ParameterizedProperty(Property):
     def has_ref(self):
         return any(type_param.has_ref for type_param in self.type_params)
 
+class SingleParameterizedProperty(ParameterizedProperty):
+    """ A parameterized property with a single type parameter. """
+
+    def __init__(self, type_param, *, default=Intrinsic, help=None, serialized=None, readonly=False):
+        self.type_param = self._validate_type_param(type_param)
+        default = default if default is not Intrinsic else self.type_param._raw_default()
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+    @property
+    def type_params(self):
+        return [self.type_param]
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.type_param})"
+
+    def _sphinx_type(self):
+        return f"{self._sphinx_prop_link()}({self.type_param._sphinx_type()})"
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail=detail)
+        self.type_param.validate(value, detail=detail)
+
+    def from_json(self, json, models=None):
+        return self.type_param.from_json(json, models=models)
+
+    def transform(self, value):
+        return self.type_param.transform(value)
+
+    def wrap(self, value):
+        return self.type_param.wrap(value)
+
+    def _may_have_unstable_default(self):
+        return self.type_param._may_have_unstable_default()
+
 class PrimitiveProperty(Property):
     """ A base class for simple property types.
 
@@ -458,7 +497,7 @@ class PrimitiveProperty(Property):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if value is None or isinstance(value, self._underlying_type):
+        if isinstance(value, self._underlying_type):
             return
 
         if not detail:
@@ -469,7 +508,7 @@ class PrimitiveProperty(Property):
         raise ValueError(msg)
 
     def from_json(self, json, models=None):
-        if json is None or isinstance(json, self._underlying_type):
+        if isinstance(json, self._underlying_type):
             return json
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"

@@ -27,6 +27,8 @@ from ...core.properties import (
     Enum,
     Instance,
     List,
+    Null,
+    Nullable,
     Override,
     String,
     Tuple,
@@ -72,7 +74,7 @@ class AbstractButton(Widget, ButtonLike):
     The text label for the button to display.
     """)
 
-    icon = Instance(AbstractIcon, help="""
+    icon = Nullable(Instance(AbstractIcon), help="""
     An optional image appearing to the left of button's text.
     """)
 
@@ -141,7 +143,7 @@ class Dropdown(AbstractButton):
     split = Bool(default=False, help="""
     """)
 
-    menu = List(Either(String, Tuple(String, Either(String, Instance(Callback)))), help="""
+    menu = List(Either(Null, String, Tuple(String, Either(String, Instance(Callback)))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)

@@ -33,8 +33,11 @@ from ...core.properties import (
     Int,
     Interval,
     List,
+    Null,
+    Nullable,
     Override,
     PositiveInt,
+    Readonly,
     String,
     Tuple,
 )
@@ -97,7 +100,7 @@ class FileInput(Widget):
     selected files.
     '''
 
-    value = Either(String, List(String), default='', readonly=True, help='''
+    value = Readonly(Either(String, List(String)), default="", help='''
     The base64-enconded contents of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the contents
@@ -109,7 +112,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filenames (see below)
     ''')
 
-    mime_type = Either(String, List(String), default='', readonly=True, help='''
+    mime_type = Readonly(Either(String, List(String)), default="", help='''
     The mime-type of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -121,7 +124,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filename (see below)
     ''')
 
-    filename = Either(String, List(String), default='', readonly=True, help='''
+    filename = Readonly(Either(String, List(String)), default="", help='''
     The name(s) of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -170,17 +173,17 @@ class NumericInput(InputWidget):
 
     '''
 
-    value = Either(Float, Int, help="""
+    value = Either(Null, Float, Int, help="""
     Initial or entered value.
 
     Change events are triggered whenever <enter> is pressed.
     """)
 
-    low = Either(Float, Int, help="""
+    low = Either(Null, Float, Int, help="""
     Optional lowest allowable value.
     """)
 
-    high = Either(Float, Int, help="""
+    high = Either(Null, Float, Int, help="""
     Optional highest allowable value.
     """)
 
@@ -196,7 +199,7 @@ class NumericInput(InputWidget):
     mode float: 1, -1.2, 1.1e-25
     """)
 
-    format = Either(String, Instance(TickFormatter), help="""
+    format = Either(Null, String, Instance(TickFormatter), help="""
     """)
 
 
@@ -205,7 +208,7 @@ class Spinner(NumericInput):
 
     '''
 
-    value_throttled = Either(Float, Int, help="""
+    value_throttled = Readonly(Either(Null, Float, Int), help="""
     value reported at the end of interactions
     """)
 
@@ -247,7 +250,7 @@ class TextLikeInput(InputWidget):
     Placeholder for empty input field.
     """)
 
-    max_length = Int(default=None, help="""
+    max_length = Nullable(Int, help="""
     Max count of characters in field
     """)
 
@@ -367,15 +370,15 @@ class MultiChoice(InputWidget):
     Whether to add a button to remove a selected option.
     """)
 
-    max_items = Int(default=None, help="""
+    max_items = Nullable(Int, help="""
     The maximum number of items that can be selected.
     """)
 
-    option_limit = Int(default=None, help="""
+    option_limit = Nullable(Int, help="""
     The number of choices that will be rendered in the dropdown.
     """)
 
-    placeholder = String(default=None, help="""
+    placeholder = Nullable(String, help="""
     A string that is displayed if not item is added.
     """)
 
@@ -392,11 +395,11 @@ class DatePicker(InputWidget):
     The initial or picked date.
     """)
 
-    min_date = Date(default=None, help="""
+    min_date = Nullable(Date, help="""
     Optional earliest allowable date.
     """)
 
-    max_date = Date(default=None, help="""
+    max_date = Nullable(Date, help="""
     Optional latest allowable date.
     """)
 

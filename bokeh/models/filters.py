@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Int, Seq, String, RestrictedDict
+from ..core.properties import AnyRef, Bool, Int, NonNullable, Nullable, Seq, String, RestrictedDict
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
     '''
 
-    indices = Seq(Int, help="""
+    indices = Nullable(Seq(Int), help="""
     A list of integer indices representing the subset of data to select.
     """)
 
@@ -61,7 +61,7 @@ class BooleanFilter(Filter):
     where the values of the booleans array is True.
     '''
 
-    booleans = Seq(Bool, help="""
+    booleans = Nullable(Seq(Bool), help="""
     A list of booleans indicating which rows of data to select.
     """)
 
@@ -76,11 +76,11 @@ class GroupFilter(Filter):
     column column_name match the group variable.
     '''
 
-    column_name = String(help="""
+    column_name = NonNullable(String, help="""
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = String(help="""
+    group = NonNullable(String, help="""
     The value of the column indicating the rows of data to keep.
     """)
 

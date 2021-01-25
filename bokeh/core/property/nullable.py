@@ -4,9 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
+""" Provide ``Nullable`` and ``NonNullable`` properties. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -18,55 +16,60 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ..core.enums import TextureRepetition
-from ..core.has_props import abstract
-from ..core.properties import Enum, NonNullable, String
-from ..model import Model
+from .bases import SingleParameterizedProperty
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'CanvasTexture',
-    'ImageURLTexture',
-    'Texture',
+    "NonNullable",
+    "Nullable",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-@abstract
-class Texture(Model):
-    ''' Base class for ``Texture`` models that represent fill patterns.
+class Nullable(SingleParameterizedProperty):
+    """ A property accepting ``None`` or a value of some other type. """
 
-    '''
+    def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False):
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
-    repetition = Enum(TextureRepetition, default="repeat", help="""
+    def from_json(self, json, models=None):
+        return None if json is None else super().from_json(json, models=models)
 
-    """)
+    def transform(self, value):
+        return None if value is None else super().transform(value)
 
-class CanvasTexture(Texture):
-    '''
+    def wrap(self, value):
+        return None if value is None else super().wrap(value)
 
-    '''
+    def validate(self, value: Any, detail: bool = True) -> None:
+        if value is None:
+            return
 
-    code = NonNullable(String, help="""
-    A snippet of JavaScript code to execute in the browser.
+        try:
+            super().validate(value, detail=False)
+        except ValueError:
+            pass
+        else:
+            return
 
-    """)
+        msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
+        raise ValueError(msg)
 
-class ImageURLTexture(Texture):
-    '''
+class NonNullable(SingleParameterizedProperty):
+    """ A property accepting a value of some other type while having undefined default. """
 
-    '''
-
-    url = NonNullable(String, help="""
-    A URL to a drawable resource like image, video, etc.
-
-    """)
+    def __init__(self, type_param, *, default=Undefined, help=None, serialized=None, readonly=False):
+        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -43,8 +43,6 @@ class Test_Regex:
     def test_valid(self) -> None:
         prop = bcpr.Regex("^x*$")
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid("")
         assert prop.is_valid("x")
 
@@ -53,6 +51,7 @@ class Test_Regex:
 
         assert not prop.is_valid("xy")
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

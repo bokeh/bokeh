@@ -102,6 +102,7 @@ from .properties import (
     LineJoinSpec,
     Instance,
     Int,
+    Nullable,
     NumberSpec,
     Size,
     String,
@@ -253,7 +254,7 @@ class ScalarFillProps(HasProps):
 
     '''
 
-    fill_color = Color(default="gray", help=_color_help  % "fill paths")
+    fill_color = Nullable(Color, default="gray", help=_color_help  % "fill paths")
     fill_alpha = Alpha(help=_alpha_help)
 
 class HatchProps(HasProps):
@@ -277,10 +278,10 @@ class ScalarHatchProps(HasProps):
 
     '''
 
-    hatch_color = Color(default="black", help=_color_help % "hatching")
+    hatch_color = Nullable(Color, default="black", help=_color_help % "hatching")
     hatch_alpha = Alpha(help=_alpha_help % "hatching")
     hatch_scale = Size(default=12.0, help=_hatch_scale_help)
-    hatch_pattern = String(default=None, help=_hatch_pattern_help)  # String to accommodate user custom values
+    hatch_pattern = Nullable(String, help=_hatch_pattern_help)  # String to accommodate user custom values
     hatch_weight = Size(default=1.0, help=_hatch_weight_help)
     hatch_extra = Dict(String, Instance("bokeh.models.textures.Texture"))
 
@@ -307,7 +308,7 @@ class ScalarLineProps(HasProps):
 
     '''
 
-    line_color = Color(default="black", help=_color_help % "stroke paths")
+    line_color = Nullable(Color, default="black", help=_color_help % "stroke paths")
     line_alpha = Alpha(help=_alpha_help % "stroke paths")
     line_width = Float(default=1, help=_line_width_help)
     line_join = Enum(LineJoin, default="bevel", help=_line_join_help)
@@ -347,7 +348,7 @@ class ScalarTextProps(HasProps):
 
     '''
 
-    text_color = Color(default="#444444", help=_color_help % "fill text")
+    text_color = Nullable(Color, default="#444444", help=_color_help % "fill text")
     text_alpha = Alpha(help=_alpha_help % "fill text")
     text_font = String(default="helvetica", help=_text_font_help)
     text_font_size = FontSize("16px") # XXX not great XXX why?

@@ -103,10 +103,10 @@ def test_AnnularWedge() -> None:
     glyph = AnnularWedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius is None
-    assert glyph.outer_radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.inner_radius == field("inner_radius")
+    assert glyph.outer_radius == field("outer_radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -130,8 +130,8 @@ def test_Annulus() -> None:
     glyph = Annulus()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius is None
-    assert glyph.outer_radius is None
+    assert glyph.inner_radius == field("inner_radius")
+    assert glyph.outer_radius == field("outer_radius")
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -149,9 +149,9 @@ def test_Arc() -> None:
     glyph = Arc()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.radius == field("radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
@@ -223,11 +223,11 @@ def test_HBar() -> None:
 
 def test_Image() -> None:
     glyph = Image()
-    assert glyph.image is None
+    assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw is None
-    assert glyph.dh is None
+    assert glyph.dw == field("dw")
+    assert glyph.dh == field("dh")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
@@ -245,11 +245,11 @@ def test_Image() -> None:
 
 def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
-    assert glyph.image is None
+    assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw is None
-    assert glyph.dh is None
+    assert glyph.dw == field("dw")
+    assert glyph.dh == field("dh")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
@@ -266,7 +266,7 @@ def test_ImageRGBA() -> None:
 
 def test_ImageURL() -> None:
     glyph = ImageURL()
-    assert glyph.url is None
+    assert glyph.url == field("url")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.w is None
@@ -334,8 +334,8 @@ def test_Oval() -> None:
     glyph = Oval()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width is None
-    assert glyph.height is None
+    assert glyph.width == field("width")
+    assert glyph.height == field("height")
     assert glyph.angle == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -418,8 +418,8 @@ def test_Ray() -> None:
     glyph = Ray()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.angle is None
-    assert glyph.length is None
+    assert glyph.angle == 0
+    assert glyph.length == 0
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -435,8 +435,8 @@ def test_Rect() -> None:
     glyph = Rect()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width is None
-    assert glyph.height is None
+    assert glyph.width == field("width")
+    assert glyph.height == field("height")
     assert glyph.angle == 0
     assert glyph.dilate is False
     check_line_properties(glyph)
@@ -536,9 +536,9 @@ def test_Wedge() -> None:
     glyph = Wedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.radius == field("radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_fill_properties(glyph)

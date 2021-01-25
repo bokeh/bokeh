@@ -71,8 +71,8 @@ export abstract class CenterRotatable extends XYGlyph {
 
     this.define<CenterRotatable.Props>(({}) => ({
       angle:  [ p.AngleSpec, 0 ],
-      width:  [ p.DistanceSpec ],
-      height: [ p.DistanceSpec ],
+      width:  [ p.DistanceSpec, {field: "width"} ],
+      height: [ p.DistanceSpec, {field: "height"} ],
     }))
   }
 }

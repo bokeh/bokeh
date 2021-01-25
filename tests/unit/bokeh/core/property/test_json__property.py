@@ -38,14 +38,13 @@ class Test_JSON:
     def test_valid(self) -> None:
         prop = bcpj.JSON()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid('[]')
         assert prop.is_valid('[{"foo": 10}]')
 
     def test_invalid(self) -> None:
         prop = bcpj.JSON()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid("")
         assert not prop.is_valid("foo")
         assert not prop.is_valid("[]]")
