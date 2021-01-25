@@ -24,6 +24,7 @@ import warnings
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import (
+    Alias,
     Bool,
     Dict,
     Enum,
@@ -508,33 +509,13 @@ class Plot(LayoutDOM):
 
     height = Override(default=600)
 
-    @classmethod
-    def lookup(cls, name):
-        if name == "plot_width":
-            name = "width"
-        elif name == "plot_height":
-            name = "height"
-        return super().lookup(name)
+    plot_width: int = Alias("width", help="""
+    The outer width of a plot, including any axes, titles, border padding, etc.
+    """)
 
-    @property
-    def plot_width(self) -> int:
-        """ The outer width of a plot, including any axes, titles, border padding, etc. """
-        return self.width
-
-    @plot_width.setter
-    def plot_width(self, width: int) -> None:
-        """ The outer width of a plot, including any axes, titles, border padding, etc. """
-        self.width = width
-
-    @property
-    def plot_height(self) -> int:
-        """ The outer height of a plot, including any axes, titles, border padding, etc. """
-        return self.height
-
-    @plot_height.setter
-    def plot_height(self, height: int) -> None:
-        """ The outer height of a plot, including any axes, titles, border padding, etc. """
-        self.height = height
+    plot_height: int = Alias("height", help="""
+    The outer height of a plot, including any axes, titles, border padding, etc.
+    """)
 
     frame_width = Int(default=None, help="""
     The width of a plot frame or the inner width of a plot, excluding any

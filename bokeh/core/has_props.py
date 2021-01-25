@@ -32,6 +32,7 @@ from warnings import warn
 
 # Bokeh imports
 from ..util.string import nice_join
+from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor
 from .property.override import Override
@@ -92,14 +93,26 @@ class MetaHasProps(type):
 
         # Now handle all the Override
         overridden_defaults = {}
+        aliased_properties = {}
         for name, prop in class_dict.items():
-            if not isinstance(prop, Override):
-                continue
-            if prop.default_overridden:
-                overridden_defaults[name] = prop.default
+            if isinstance(prop, Alias):
+                aliased_properties[name] = prop
+            elif isinstance(prop, Override):
+                if prop.default_overridden:
+                    overridden_defaults[name] = prop.default
 
         for name, default in overridden_defaults.items():
             del class_dict[name]
+
+        def make_property(target_name, help):
+            fget = lambda self: getattr(self, target_name)
+            fset = lambda self, value: setattr(self, target_name, value)
+            return property(fget, fset, None, help)
+
+        property_aliases = {}
+        for name, alias in aliased_properties.items():
+            property_aliases[name] = alias.name
+            class_dict[name] = make_property(alias.name, alias.help)
 
         generators = dict()
         for name, generator in class_dict.items():
@@ -141,6 +154,7 @@ class MetaHasProps(type):
         class_dict["__properties__"] = set(new_class_attrs)
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
+        class_dict["__property_aliases__"] = property_aliases
         if len(overridden_defaults) > 0:
             class_dict["__overridden_defaults__"] = overridden_defaults
         if dataspecs:
@@ -453,7 +467,7 @@ class HasProps(metaclass=MetaHasProps):
             self.set_from_json(k, v, models, setter)
 
     @classmethod
-    def lookup(cls, name: str, raises: bool = True) -> Optional[PropertyDescriptor]:
+    def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor]:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
@@ -465,7 +479,8 @@ class HasProps(metaclass=MetaHasProps):
             PropertyDescriptor : descriptor for property named ``name``
 
         '''
-        attr = getattr(cls, name, None)
+        resolved_name = cls._property_aliases().get(name, name)
+        attr = getattr(cls, resolved_name, None)
         if attr is not None:
             return attr
         elif not raises:
@@ -575,10 +590,20 @@ class HasProps(metaclass=MetaHasProps):
     def _overridden_defaults(cls):
         ''' Returns a dictionary of defaults that have been overridden.
 
-        This is an implementation detail of Property.
+        .. note::
+            This is an implementation detail of ``Property``.
 
         '''
         return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
+
+    @classmethod
+    def _property_aliases(cls) -> Dict[str, str]:
+        ''' Returns a dictionary of aliased properties.
+
+        .. note::
+            This is an implementation detail of ``Property``.
+        '''
+        return accumulate_dict_from_superclasses(cls, "__property_aliases__")
 
     def query_properties_with_values(self, query, include_defaults=True):
         ''' Query the properties values of |HasProps| instances with a
