@@ -18,7 +18,7 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.properties import Either, Int, List, NumberSpec, Override, String
+from bokeh.core.properties import Alias, Either, Int, List, NumberSpec, Override, String
 from bokeh.core.property.descriptors import (
     BasicPropertyDescriptor,
     DataSpecPropertyDescriptor,
@@ -60,6 +60,10 @@ class Child(Parent):
 class OverrideChild(Parent):
     int1 = Override(default=20)
 
+class AliasedChild(Child):
+    aliased_int1 = Alias("int1")
+    aliased_int2 = Alias("int2")
+
 def test_HasProps_default_init() -> None:
     p = Parent()
     assert p.int1 == 10
@@ -95,6 +99,69 @@ def test_HasProps_override() -> None:
     assert ov.int1 == 20
     assert ov.ds1 == None
     assert ov.lst1 == []
+
+def test_HasProps_alias() -> None:
+    obj0 = AliasedChild()
+    assert obj0.int1 == 10
+    assert obj0.int2 is None
+    assert obj0.aliased_int1 == 10
+    assert obj0.aliased_int2 is None
+    obj0.int1 = 20
+    assert obj0.int1 == 20
+    assert obj0.int2 is None
+    assert obj0.aliased_int1 == 20
+    assert obj0.aliased_int2 is None
+    obj0.int2 = 1
+    assert obj0.int1 == 20
+    assert obj0.int2 == 1
+    assert obj0.aliased_int1 == 20
+    assert obj0.aliased_int2 == 1
+    obj0.aliased_int1 = 30
+    assert obj0.int1 == 30
+    assert obj0.int2 == 1
+    assert obj0.aliased_int1 == 30
+    assert obj0.aliased_int2 == 1
+    obj0.aliased_int2 = 2
+    assert obj0.int1 == 30
+    assert obj0.int2 == 2
+    assert obj0.aliased_int1 == 30
+    assert obj0.aliased_int2 == 2
+
+    obj1 = AliasedChild(int1=20)
+    assert obj1.int1 == 20
+    assert obj1.int2 is None
+    assert obj1.aliased_int1 == 20
+    assert obj1.aliased_int2 is None
+
+    obj2 = AliasedChild(int2=1)
+    assert obj2.int1 == 10
+    assert obj2.int2 == 1
+    assert obj2.aliased_int1 == 10
+    assert obj2.aliased_int2 == 1
+
+    obj3 = AliasedChild(int1=20, int2=1)
+    assert obj3.int1 == 20
+    assert obj3.int2 == 1
+    assert obj3.aliased_int1 == 20
+    assert obj3.aliased_int2 == 1
+
+    obj4 = AliasedChild(aliased_int1=20)
+    assert obj4.int1 == 20
+    assert obj4.int2 is None
+    assert obj4.aliased_int1 == 20
+    assert obj4.aliased_int2 is None
+
+    obj5 = AliasedChild(aliased_int2=1)
+    assert obj5.int1 == 10
+    assert obj5.int2 == 1
+    assert obj5.aliased_int1 == 10
+    assert obj5.aliased_int2 == 1
+
+    obj6 = AliasedChild(aliased_int1=20, aliased_int2=1)
+    assert obj6.int1 == 20
+    assert obj6.int2 == 1
+    assert obj6.aliased_int1 == 20
+    assert obj6.aliased_int2 == 1
 
 def test_HasProps_equals() -> None:
     p1 = Parent()

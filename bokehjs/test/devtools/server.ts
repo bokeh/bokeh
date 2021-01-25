@@ -18,25 +18,32 @@ nunjucks.configure(".", {
 app.use("/static", express.static("build/"))
 app.use("/fonts", express.static("test/fonts/"))
 
-app.get("/unit", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Unit Tests", main: "unit.js"})
-})
-app.get("/defaults", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Defaults Tests", main: "defaults.js"})
-})
-app.get("/integration", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Integration Tests", main: "integration.js"})
-})
+const js_path = (name: string, legacy: boolean = false): string => {
+  const legacy_suffix = legacy ? ".legacy" : ""
+  return `/static/js/${name}${legacy_suffix}.js`
+}
 
-app.get("/unit/run", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Unit Tests", main: "unit.js", run: true})
-})
-app.get("/defaults/run", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Defaults Tests", main: "defaults.js", run: true})
-})
-app.get("/integration/run", (_req, res) => {
-  res.render("test/devtools/test.html", {title: "Integration Tests", main: "integration.js", run: true})
-})
+const test = (main: string, title: string) => {
+  return (run: boolean = false) => {
+    return (req: express.Request, res: express.Response) => {
+      const legacy = "legacy" in req.query
+      const js = (name: string) => js_path(name, legacy)
+      res.render("test/devtools/test.html", {main, title, run, js})
+    }
+  }
+}
+
+const unit = test("unit.js", "Unit Tests")
+const defaults = test("defaults.js", "Defaults Tests")
+const integration = test("integration.js", "Integration Tests")
+
+app.get("/unit", unit())
+app.get("/defaults", defaults())
+app.get("/integration", integration())
+
+app.get("/unit/run", unit(true))
+app.get("/defaults/run", defaults(true))
+app.get("/integration/run", integration(true))
 
 app.get("/integration/report", async (req, res) => {
   const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform

@@ -1,5 +1,5 @@
 import {entries} from "./object"
-import {isPlainObject, isArray, isBoolean, isNumber, isString} from "./types"
+import {isPlainObject, isObject, isArray, isBoolean, isNumber, isString} from "./types"
 
 export type CloneableType =
   | null
@@ -19,7 +19,7 @@ export interface Cloneable {
 }
 
 export function is_Cloneable<T>(obj: T): obj is T & Cloneable {
-  return clone in Object(obj)
+  return isObject(obj) && (obj as any)[clone] !== undefined
 }
 
 export class CloningError extends Error {}

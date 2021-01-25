@@ -135,9 +135,6 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
   }
 
   for (const [k, v] of entries(python_defaults)) {
-    // TODO: property alias has the same prop.attr as the base property
-    if ((name == "Plot" || name == "GMapPlot") && (k == "plot_width" || k == "plot_height"))
-      continue
     if (!(k in bokehjs_defaults)) {
       bokehjs_missing.push(`${name}.${k}: python defaults to ${to_string(v)} but bokehjs has no such property`)
     }

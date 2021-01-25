@@ -1,4 +1,4 @@
-import {isBoolean, isNumber, isString, isArray, isIterable, isPlainObject} from "./types"
+import {isBoolean, isNumber, isString, isArray, isIterable, isObject, isPlainObject} from "./types"
 import {PlainObject} from "../types"
 import {entries} from "./object"
 
@@ -9,7 +9,7 @@ export interface Printable {
 }
 
 function is_Printable<T>(obj: T): obj is T & Printable {
-  return pretty in Object(obj)
+  return isObject(obj) && (obj as any)[pretty] !== undefined
 }
 
 export type PrinterOptions = {

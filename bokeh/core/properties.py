@@ -182,6 +182,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alias',
     'Alpha',
     'AlphaSpec',
     'Angle',
@@ -253,6 +254,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .property.alias import Alias; Alias
 
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef

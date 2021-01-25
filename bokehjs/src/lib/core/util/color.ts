@@ -90,8 +90,8 @@ export function _color2rgba(color: string | null, alpha: number = 1.0): RGBA {
 }
 */
 
-const rgb_modern = /^rgba?\(\s*(?<r>[^\s,]+?)\s+(?<g>[^\s,]+?)\s+(?<b>[^\s,]+?)(?:\s*\/\s*(?<a>[^\s,]+?))?\s*\)$/
-const rgb_legacy = /^rgba?\(\s*(?<r>[^\s,]+?)\s*,\s*(?<g>[^\s,]+?)\s*,\s*(?<b>[^\s,]+?)(?:\s*,\s*(?<a>[^\s,]+?))?\s*\)$/
+const rgb_modern = /^rgba?\(\s*([^\s,]+?)\s+([^\s,]+?)\s+([^\s,]+?)(?:\s*\/\s*([^\s,]+?))?\s*\)$/
+const rgb_legacy = /^rgba?\(\s*([^\s,]+?)\s*,\s*([^\s,]+?)\s*,\s*([^\s,]+?)(?:\s*,\s*([^\s,]+?))?\s*\)$/
 
 const css4_normalize = (() => {
   const canvas = document.createElement("canvas")

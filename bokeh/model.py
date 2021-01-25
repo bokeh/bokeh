@@ -458,19 +458,21 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 )
 
         '''
-        if attr not in self.properties():
+        descriptor = self.lookup(attr, raises=False)
+        if descriptor is None:
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
 
         if not isinstance(other, Model):
             raise ValueError("'other' is not a Bokeh model: %r" % other)
 
-        if other_attr not in other.properties():
+        other_descriptor = other.lookup(other_attr, raises=False)
+        if other_descriptor is None:
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
 
         selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
-        cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
+        cb = CustomJS(args=dict(other=other), code=f"other.{other_descriptor.name} = this.{descriptor.name}{selector}")
 
         self.js_on_change(attr, cb)
 
@@ -506,8 +508,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 
-        if event in self.properties():
-            event = "change:%s" % event
+        descriptor = self.lookup(event, raises=False)
+        if descriptor is not None:
+            event = f"change:{descriptor.name}"
 
         old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:
@@ -544,9 +547,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             widget.on_change('value', callback1, callback2, ..., callback_n)
 
         '''
-        if attr not in self.properties():
-            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super().on_change(attr, *callbacks)
+        descriptor = self.lookup(attr)
+        super().on_change(descriptor.name, *callbacks)
 
     def references(self):
         ''' Returns all ``Models`` that this object has references to.
@@ -675,7 +677,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super().trigger(attr, old, new, hint=hint, setter=setter)
+        descriptor = self.lookup(attr)
+        super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.
