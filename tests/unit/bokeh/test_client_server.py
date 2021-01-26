@@ -293,10 +293,10 @@ class TestClientServer:
         application = Application()
         def add_roots(doc):
             import numpy as np
-            import pandas as pd
             rows, cols = (40000, 100)
-            data = pd.DataFrame(data=np.random.randn(rows, cols), columns=['x'+str(i) for i in range(cols)])
-            source = ColumnDataSource(data)
+            columns=['x'+str(i) for i in range(cols)]
+            a = np.random.randn(cols, rows)
+            source = ColumnDataSource(data=dict(zip(columns, a)))
             doc.add_root(source)
         handler = FunctionHandler(add_roots)
         application.add(handler)
@@ -315,7 +315,7 @@ class TestClientServer:
             for r in server_session.document.roots:
                 if hasattr(r, 'data'):
                     results['data'] = r.data
-            assert len(list(results['data'].keys())) == 101 # 100 plus index col
+            assert len(list(results['data'].keys())) == 100
             assert all(len(x) == 40000 for x in results['data'].values())
 
             client_session.close()
