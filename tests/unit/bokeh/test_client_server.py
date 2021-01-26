@@ -43,7 +43,7 @@ from bokeh.core.properties import (
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
-from bokeh.models import Plot
+from bokeh.models import ColumnDataSource, Plot
 from bokeh.util.token import generate_jwt_token
 from server._util_server import http_get, url, websocket_open, ws_url
 
@@ -284,6 +284,39 @@ class TestClientServer:
                     results['bar'] = r.bar
             assert results['foo'] == 42
             assert results['bar'] == 43
+
+            client_session.close()
+            client_session._loop_until_closed()
+            assert not client_session.connected
+
+    def test_pull_large_document(self, ManagedServerLoop) -> None:
+        application = Application()
+        def add_roots(doc):
+            import numpy as np
+            import pandas as pd
+            rows, cols = (40000, 100)
+            data = pd.DataFrame(data=np.random.randn(rows, cols), columns=['x'+str(i) for i in range(cols)])
+            source = ColumnDataSource(data)
+            doc.add_root(source)
+        handler = FunctionHandler(add_roots)
+        application.add(handler)
+
+        with ManagedServerLoop(application) as server:
+            client_session = pull_session(session_id='test_pull_document',
+                                          url=url(server),
+                                          io_loop=server.io_loop,
+                                          max_message_size=50000000)
+            assert len(client_session.document.roots) == 1
+
+            server_session = server.get_session('/', client_session.id)
+            assert len(server_session.document.roots) == 1
+
+            results = {}
+            for r in server_session.document.roots:
+                if hasattr(r, 'data'):
+                    results['data'] = r.data
+            assert len(list(results['data'].keys())) == 101 # 100 plus index col
+            assert all(len(x) == 40000 for x in results['data'].values())
 
             client_session.close()
             client_session._loop_until_closed()

@@ -61,7 +61,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
+def pull_session(session_id=None, url='default', io_loop=None, arguments=None, max_message_size=20*1024*1024):
     ''' Create a session by loading the current server-side document.
 
     ``session.document`` will be a fresh document loaded from
@@ -109,6 +109,10 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
             If ``session_id`` is not None, or a session with ``session_id``
             already exists, these arguments will have no effect.
 
+        max_message_size (int, optional) :
+            Configure the Tornado max websocket message size.
+            (default: 20 MB)
+
     Returns:
         ClientSession :
             A new ``ClientSession`` connected to the server
@@ -116,11 +120,12 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
     '''
 
     coords = _SessionCoordinates(session_id=session_id, url=url)
-    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop, arguments=arguments)
+    session = ClientSession(
+        session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop, arguments=arguments, max_message_size=max_message_size)
     session.pull()
     return session
 
-def push_session(document, session_id=None, url='default', io_loop=None):
+def push_session(document, session_id=None, url='default', io_loop=None, max_message_size=20*1024*1024):
     ''' Create a session by pushing the given document to the server,
     overwriting any existing server-side document.
 
@@ -154,13 +159,17 @@ def push_session(document, session_id=None, url='default', io_loop=None):
         io_loop : (tornado.ioloop.IOLoop, optional)
             The IOLoop to use for the websocket
 
+        max_message_size (int, optional) :
+            Configure the Tornado max websocket message size.
+            (default: 20 MB)
+
     Returns:
         ClientSession
             A new ClientSession connected to the server
 
     '''
     coords = _SessionCoordinates(session_id=session_id, url=url)
-    session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
+    session = ClientSession(session_id=coords.session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop, max_message_size=max_message_size)
     session.push(document)
     return session
 
@@ -232,7 +241,7 @@ class ClientSession:
 
     '''
 
-    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None, max_message_size=20*1024*1024):
         ''' A connection which attaches to a particular named session on the
         server.
 
@@ -262,12 +271,16 @@ class ClientSession:
                 If ``session_id`` is not None, or a session with ``session_id``
                 already exists, these arguments will have no effect.
 
+            max_message_size (int, optional) :
+                Configure the Tornado max websocket message size.
+                (default: 20 MB)
+
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
         from .connection import ClientConnection
-        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments)
+        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments, max_message_size=max_message_size)
 
         from ..server.callbacks import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
@@ -365,7 +378,7 @@ class ClientSession:
             if self.error_reason is ErrorReason.HTTP_ERROR:
                 if self.error_code == 404:
                     raise OSError(f"Check your application path! The given Path is not valid: {self.url}")
-                raise OSError(f"We received an HTTP-Error. Disconnected with error code: {self.error_id}, given message: {self.error_message}")
+                raise OSError(f"We received an HTTP-Error. Disconnected with error code: {self.error_code}, given message: {self.error_detail}")
             raise OSError("We failed to connect to the server (to start the server, try the 'bokeh serve' command)")
 
     def pull(self):

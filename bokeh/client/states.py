@@ -136,7 +136,7 @@ class WAITING_FOR_REPLY:
     async def run(self, connection):
         message = await connection._pop_message()
         if message is None:
-            return await connection._transition_to_disconnected()
+            return await connection._transition_to_disconnected(DISCONNECTED(ErrorReason.NETWORK_ERROR))
         elif 'reqid' in message.header and message.header['reqid'] == self.reqid:
             self._reply = message
             return await connection._transition(CONNECTED_AFTER_ACK())
