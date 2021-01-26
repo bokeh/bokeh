@@ -9,7 +9,7 @@
 """
 # Standard library imports
 import json
-from typing import List
+from typing import Any, Callable, Dict
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
@@ -124,19 +124,26 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
-    filenames: List[str] = [
-        "package.json",
-        "package-lock.json",
-    ]
+    def update_package_json(content: Dict[str, Any]) -> None:
+        content["version"] = config.js_version
+
+    def update_package_lock_json(content: Dict[str, Any]) -> None:
+        assert content["lockfileVersion"] == 2, "Expected lock file v2"
+        content["version"] = config.js_version
+        content["packages"][""]["version"] = config.js_version
+
+    files: Dict[str, Callable[[Dict[str, Any]], None]] = {
+        "package.json": update_package_json,
+        "package-lock.json": update_package_lock_json,
+    }
 
     system.pushd("bokehjs")
 
-    for filename in filenames:
+    for filename, action in files.items():
         content = json.load(open(filename))
         try:
-            assert content["lockfileVersion"] == 2
-            content["version"] = config.js_version
-            content["packages"][""]["version"] = config.js_version
+            action(content)
+
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
@@ -145,7 +152,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
 
     system.popd()
 
-    return PASSED(f"Updated version to {config.js_version!r} in files: {filenames!r}")
+    return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
 
 
 @skip_for_prerelease
