@@ -85,7 +85,7 @@ bokeh_plot_pyfile_include_dirs = ['docs']
 intersphinx_mapping = {
     'python' : ('https://docs.python.org/3/', None),
     'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy'  : ('https://docs.scipy.org/doc/numpy/', None)
+    'numpy'  : ('https://numpy.org/doc/stable/', None)
 }
 
 napoleon_include_init_with_doc = True
