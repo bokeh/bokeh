@@ -147,12 +147,11 @@ class MetaHasProps(type):
 
     def __init__(cls, _, bases, __):
         # Check for improperly redeclaring a Property attribute.
-        cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
         for base in bases:
             if not issubclass(base, HasProps):
                 continue
             base_properties = base.properties()
-            for attr in cls_attrs:
+            for attr in cls.__dict__: # we do NOT want inherited attrs here
                 if attr in base_properties:
                     warn("Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
                          "{attr!r} in class {class_name}; it never makes sense to do this. "
@@ -166,7 +165,7 @@ class MetaHasProps(type):
             our_props = cls.properties()
             for key in overridden_defaults:
                 if key not in our_props:
-                    warn(("Override() of {key} in class {class_name} does not override anything."), RuntimeWarning, stacklevel=2)
+                    warn((f"Override() of {key} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
 
 def accumulate_from_superclasses(cls, propname):
     ''' Traverse the class hierarchy and accumulate the special sets of names
