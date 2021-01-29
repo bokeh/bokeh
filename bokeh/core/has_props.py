@@ -126,19 +126,7 @@ class MetaHasProps(type):
         for name, generator in generators.items():
             prop_descriptors = generator.make_descriptors(name)
             for prop_descriptor in prop_descriptors:
-                if prop_descriptor.name in generators:
-                    if generators[prop_descriptor.name] is generator:
-                        # a generator can replace itself, this is the
-                        # standard case like `foo = Int()`
-                        prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
-                    else:
-                        # if a generator tries to overwrite another
-                        # generator that's been explicitly provided,
-                        # use the prop that was manually provided
-                        # and ignore this one.
-                        pass
-                else:
-                    prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
+                prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
 
         class_dict.update(new_class_attrs)
 
