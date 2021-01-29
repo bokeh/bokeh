@@ -25,7 +25,6 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
-from bokeh.core.property.descriptors import UnsetValueError
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip
@@ -83,19 +82,6 @@ def test_dataspec_dict_to_serializable() -> None:
 
 
 class Test_AngleSpec:
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        assert a.x_units == 'rad'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
     def test_default_value(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec(default=14)
@@ -294,19 +280,6 @@ class Test_DataDistanceSpec:
         assert props['x'] is not foo.x
 
 class Test_DistanceSpec:
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.DistanceSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        assert a.x_units == 'data'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'data'
-
     def test_default_value(self) -> None:
         class Foo(HasProps):
             x = bcpd.DistanceSpec(default=14)
@@ -527,17 +500,6 @@ class Test_NumberSpec:
         b.x = {"field": "x3"}
         assert Foo.__dict__["x"].serializable_value(a) == {"value": 13}
         assert Foo.__dict__["x"].serializable_value(b) == {"field": "x3"}
-
-    def test_autocreate_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.NumberSpec
-
-        a = Foo()
-
-        with pytest.raises(UnsetValueError):
-            a.x
-        a.x = 14
-        assert a.x == 14
 
     def test_set_from_json_keeps_mode(self) -> None:
         class Foo(HasProps):

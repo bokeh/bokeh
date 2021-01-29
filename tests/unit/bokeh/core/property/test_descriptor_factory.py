@@ -36,14 +36,6 @@ ALL = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Child(bcpdf.PropertyDescriptorFactory):
-    pass
-
-def test_autocreate() -> None:
-    obj = Child()
-    value = obj.autocreate()
-    assert isinstance(value, Child)
-
 def test_make_descriptors_not_implemented() -> None:
     obj = bcpdf.PropertyDescriptorFactory()
     with pytest.raises(NotImplementedError):

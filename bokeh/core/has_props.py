@@ -119,11 +119,6 @@ class MetaHasProps(type):
         for name, generator in class_dict.items():
             if isinstance(generator, PropertyDescriptorFactory):
                 generators[name] = generator
-            elif isinstance(generator, type) and issubclass(generator, PropertyDescriptorFactory):
-                # Support the user adding a property without using parens,
-                # i.e. using just the Property subclass instead of an
-                # instance of the subclass
-                generators[name] = generator.autocreate()
 
         dataspecs = {}
         new_class_attrs = {}
