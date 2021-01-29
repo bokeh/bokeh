@@ -134,10 +134,8 @@ class MetaHasProps(type):
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
         class_dict["__property_aliases__"] = property_aliases
-        if len(overridden_defaults) > 0:
-            class_dict["__overridden_defaults__"] = overridden_defaults
-        if dataspecs:
-            class_dict["__dataspecs__"] = dataspecs
+        class_dict["__overridden_defaults__"] = overridden_defaults
+        class_dict["__dataspecs__"] = dataspecs
 
         if "__example__" in class_dict:
             path = class_dict["__example__"]
@@ -172,7 +170,7 @@ class MetaHasProps(type):
                           base.__name__, attr),
                          RuntimeWarning, stacklevel=2)
 
-        if "__overridden_defaults__" in cls.__dict__:
+        if cls.__dict__["__overridden_defaults__"]:
             our_props = cls.properties()
             for key in cls.__dict__["__overridden_defaults__"].keys():
                 if key not in our_props:
