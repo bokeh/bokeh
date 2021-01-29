@@ -9,6 +9,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
+import {TextBox} from "@bokehjs/core/graphics"
 
 describe("Axis", () => {
 
@@ -29,7 +30,7 @@ describe("Axis", () => {
     const axis_view = plot_view.renderer_view(axis)!
 
     const labels = axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])
-    expect(labels.map((l) => l.text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
+    expect(labels.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {

@@ -34,18 +34,68 @@ type Extents = {left: Val, right: Val, top: Val, bottom: Val}
 type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
 
 export abstract class GraphicsBox {
-  position: Position = {sx: 0, sy: 0}
+  _position: Position = {sx: 0, sy: 0}
   angle?: number
   width?: {value: number, unit: "%"}
   height?: {value: number, unit: "%"}
   padding?: Padding
+  font_size_scale: number = 1.0
+
+  set position(p: Position) {
+    this._position = p
+  }
+
+  get position(): Position {
+    return this._position
+  }
 
   abstract set visuals(v: visuals.Text | visuals.Line | visuals.Fill)
 
-  abstract rect(): Rect
-  abstract size(): Size
-  abstract bbox(): BBox
+  abstract _rect(): Rect
+  abstract _size(): Size
   abstract paint(ctx: Context2d): void
+
+  bbox(): BBox {
+    const {p0, p1, p2, p3} = this.rect()
+
+    const left = Math.min(p0.x, p1.x, p2.x, p3.x)
+    const top = Math.min(p0.y, p1.y, p2.y, p3.y)
+    const right = Math.max(p0.x, p1.x, p2.x, p3.x)
+    const bottom = Math.max(p0.y, p1.y, p2.y, p3.y)
+
+    return new BBox({left, right, top, bottom})
+  }
+
+  size(): Size {
+    const {width, height} = this._size()
+    const {angle} = this
+    if (!angle)
+      return {width, height}
+    else {
+      const c = Math.cos(Math.abs(angle))
+      const s = Math.sin(Math.abs(angle))
+
+      return {
+        width: width*c + height*s,
+        height: width*s + height*c,
+      }
+    }
+  }
+
+  rect(): Rect {
+    const rect = this._rect()
+    const {angle} = this
+    if (!angle)
+      return rect
+    else {
+      const {sx, sy} = this.position
+      const tr = new AffineTransform()
+      tr.translate(sx, sy)
+      tr.rotate(angle)
+      tr.translate(-sx, -sy)
+      return tr.apply_rect(rect)
+    }
+  }
 
   paint_rect(ctx: Context2d): void {
     const {p0, p1, p2, p3} = this.rect()
@@ -78,12 +128,6 @@ export abstract class GraphicsBox {
   }
 }
 
-//export class Box extends GraphicsBox {
-//}
-// new Box([new TextBox()], {angle: {value: 10, unit: "deg"}})
-// width = "content"
-// height = "content"
-
 export class TextBox extends GraphicsBox {
   text: string
   color: string
@@ -95,8 +139,24 @@ export class TextBox extends GraphicsBox {
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
     const alpha = v.text_alpha.get_value()
+    const style = v.text_font_style.get_value()
+    let size = v.text_font_size.get_value()
+    const face = v.text_font.get_value()
 
-    this.font = v.font_value()
+    const {font_size_scale} = this
+    if (font_size_scale != 1.0) {
+      const match = size.match(/^\s*(\d+(\.\d+)?)px\s*$/)
+      if (match != null) {
+        const [, px] = match
+        const npx = Number(px)
+        if (!isNaN(npx))
+          size = `${npx*font_size_scale}px`
+      }
+    }
+
+    const font = `${style} ${size} ${face}`
+
+    this.font = font
     this.color = color2css(color, alpha)
     this.line_height = v.text_line_height.get_value()
   }
@@ -106,16 +166,13 @@ export class TextBox extends GraphicsBox {
     this.text = text
   }
 
-  metrics() {
-
-  }
-
   _size(): Size & {metrics: FontMetrics} {
     const {font} = this
 
     const metrics = font_metrics(font)
     const line_spacing = (this.line_height - 1)*metrics.height
 
+    const empty = this.text == ""
     const lines = this.text.split("\n")
     const widths = lines.map((line) => text_width(line, font))
 
@@ -125,25 +182,9 @@ export class TextBox extends GraphicsBox {
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
     const width = max(widths)*w_scale
-    const height = (metrics.height*nlines + line_spacing*(nlines - 1))*h_scale
+    const height = empty ? 0 : (metrics.height*nlines + line_spacing*(nlines - 1))*h_scale
 
     return {width, height, metrics}
-  }
-
-  size(): Size {
-    const {width, height} = this._size()
-    const {angle} = this
-    if (!angle)
-      return {width, height}
-    else {
-      const c = Math.cos(Math.abs(angle))
-      const s = Math.sin(Math.abs(angle))
-
-      return {
-        width: width*c + height*s,
-        height: width*s + height*c,
-      }
-    }
   }
 
   _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
@@ -178,45 +219,13 @@ export class TextBox extends GraphicsBox {
     return {x, y}
   }
 
-  rect(): Rect {
+  _rect(): Rect {
     const {width, height, metrics} = this._size()
     const nlines = this.text.split("\n").length
     const {x, y} = this._computed_position({width, height}, metrics, nlines)
 
-    const x0 = x
-    const y0 = y
-    const x1 = x + width
-    const y1 = y + height
-
-    const rect = {
-      p0: {x: x0, y: y0},
-      p1: {x: x0, y: y1},
-      p2: {x: x1, y: y1},
-      p3: {x: x1, y: y0},
-    }
-
-    const {angle} = this
-    if (!angle)
-      return rect
-    else {
-      const {sx, sy} = this.position
-      const tr = new AffineTransform()
-      tr.translate(sx, sy)
-      tr.rotate(angle)
-      tr.translate(-sx, -sy)
-      return tr.apply_rect(rect)
-    }
-  }
-
-  bbox(): BBox {
-    const {p0, p1, p2, p3} = this.rect()
-
-    const left = Math.min(p0.x, p1.x, p2.x, p3.x)
-    const top = Math.min(p0.y, p1.y, p2.y, p3.y)
-    const right = Math.max(p0.x, p1.x, p2.x, p3.x)
-    const bottom = Math.max(p0.y, p1.y, p2.y, p3.y)
-
-    return new BBox({left, right, top, bottom})
+    const bbox = new BBox({x, y, width, height})
+    return bbox.rect
   }
 
   paint(ctx: Context2d): void {
@@ -278,26 +287,6 @@ export class TextBox extends GraphicsBox {
           }
         })()
 
-        /* TODO: background, decorations
-        ctx.fillStyle = "yellow"
-        ctx.fillRect(xi, y, widths[i], metrics.height)
-
-        ctx.strokeStyle = "red"
-        //ctx.moveTo(xi, Math.round(y + metrics.ascent))
-        //ctx.lineTo(xi + widths[i], Math.round(y + metrics.ascent))
-        //ctx.stroke()
-
-        const r = 2
-        const xa = Math.round(xi)
-        const ya = Math.round(y + metrics.ascent) + 1
-        ctx.moveTo(xa, ya)
-        for (let k = 0, s = 1; k < widths[i]; k += 2*r, s *= -1) {
-          ctx.arcTo(xa+k, ya+s*r, xa+k+r, ya+s*r, r)
-          ctx.arcTo(xa+k+r, ya+s*r, xa+k+2*r, ya, r)
-        }
-        ctx.stroke()
-        */
-
         ctx.fillStyle = this.color
         ctx.fillText(lines[i], xi, y)
         y += metrics.height + line_spacing
@@ -313,61 +302,107 @@ export class BaseExpo extends GraphicsBox {
     super()
   }
 
-  set visuals(_v: visuals.Text | visuals.Line | visuals.Fill) {}
+  get children(): GraphicsBox[] {
+    return [this.base, this.expo]
+  }
 
-  rect(): Rect {
-    return {
-      p0: {x: 0, y: 0},
-      p1: {x: 0, y: 0},
-      p2: {x: 0, y: 0},
-      p3: {x: 0, y: 0},
+  set position(p: Position) {
+    this._position = p
+
+    const bs = this.base.size()
+    const es = this.expo.size()
+
+    this.base.position = {
+      sx: 0, x_anchor: "left",
+      sy: es.height*0.5, y_anchor: "top",
+    }
+
+
+    this.expo.position = {
+      sx: bs.width, x_anchor: "left",
+      sy: 0, y_anchor: "top",
     }
   }
 
-  size(): Size {
-    return {width: 0, height: 0}
+  get position(): Position {
+    return this._position
   }
 
-  bbox(): BBox {
-    return new BBox()
+  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+    this.expo.font_size_scale = 0.8
+    this.base.visuals = v
+    this.expo.visuals = v
   }
 
-  paint(_ctx: Context2d): void {}
-}
+  _rect(): Rect {
+    const bb = this.base.bbox()
+    const eb = this.expo.bbox()
 
-/*
-export class SuperScript {
-}
+    const bbox = bb.union(eb)
+    const {x, y} = this._computed_position()
+    return bbox.translate(x, y).rect
+  }
 
-// sine
-ctx.beginPath()
-ctx.moveTo(300, 300)
-for (let i = 0; i < 10; i++ {
-  ctx.lineTo(300 + 5*Math.sin(30*i*Math.PI/180), 300)
-}
-ctx.stroke()
+  _size(): Size {
+    const bs = this.base.size()
+    const es = this.expo.size()
 
-// arcs
-x = 200;
-y = 200;
-r = 1;
-ctx.moveTo(x, y);
-for (let i = 0, s = 1; i < 300; i += 2*r, s *= -1) {
-  ctx.arcTo(x+i, y+s*r, x+i+r, y+s*r, r)
-  ctx.arcTo(x+i+r, y+s*r, x+i+2*r, y, r)
-}
-ctx.stroke()
+    return {
+      width: bs.width + es.width,
+      height: bs.height + es.height*0.5,
+    }
+  }
 
-// triangles
-x = 200
-y = 200
-r = 1
-ctx.moveTo(x, y)
-  for (let i = 0, s = 1; i < 300; i += 2*r, s *= -1) {
-    ctx.lineTo(x+i+r, y+s*r)
-    ctx.lineTo(x+i+r, y+s*r, x+i+2*r, y, r)
-}
-ctx.stroke()
+  paint(ctx: Context2d): void {
+    const {x, y} = this._computed_position()
+    ctx.save()
+    ctx.translate(x, y)
+    this.base.paint(ctx)
+    this.expo.paint(ctx)
+    ctx.restore()
+  }
 
-// sawtooth
-*/
+  // paint_rect ...
+
+  paint_bbox(ctx: Context2d): void {
+    super.paint_bbox(ctx)
+    // translate?
+    /*
+    for (const child of this.children) {
+      child.paint_bbox(ctx)
+    }
+    */
+  }
+
+  _computed_position(): {x: number, y: number} {
+    const {width, height} = this._size()
+    const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
+
+    const x = sx - (() => {
+      if (isNumber(x_anchor))
+        return x_anchor*width
+      else {
+        switch (x_anchor) {
+          case "left": return 0
+          case "center": return 0.5*width
+          case "right": return width
+        }
+      }
+    })()
+
+    const y = sy - (() => {
+      if (isNumber(y_anchor))
+        return y_anchor*height
+      else {
+        switch (y_anchor) {
+          case "top": return 0
+          case "center": return 0.5*height
+          case "bottom": return height
+          case "baseline": return 0.5*height /* TODO */
+        }
+      }
+    })()
+
+    return {x, y}
+  }
+}

@@ -1,5 +1,6 @@
 import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
+import {Rect as GraphicsRect} from "./affine"
 
 const {min, max} = Math
 
@@ -162,8 +163,20 @@ export class BBox implements Rect, Equatable {
 
   get size(): Size { return {width: this.width, height: this.height} }
 
-  get rect(): Rect { return {x0: this.x0, y0: this.y0, x1: this.x1, y1: this.y1} }
-  get box(): Box { return {x: this.x, y: this.y, width: this.width, height: this.height} }
+  get rect(): GraphicsRect {
+    const {x0, y0, x1, y1} = this
+    return {
+      p0: {x: x0, y: y0},
+      p1: {x: x1, y: y0},
+      p2: {x: x1, y: y1},
+      p3: {x: x0, y: y1},
+    }
+  }
+
+  get box(): Box {
+    const {x, y, width, height} = this
+    return {x, y, width, height}
+  }
 
   get h_range(): Interval { return {start: this.x0, end: this.x1} }
   get v_range(): Interval { return {start: this.y0, end: this.y1} }
@@ -180,6 +193,11 @@ export class BBox implements Rect, Equatable {
   relative(): BBox {
     const {width, height} = this
     return new BBox({x: 0, y: 0, width, height})
+  }
+
+  translate(tx: number, ty: number): BBox {
+    const {x, y, width, height} = this
+    return new BBox({x: tx + x, y: ty + y, width, height})
   }
 
   relativize(x: number, y: number): [number, number] {

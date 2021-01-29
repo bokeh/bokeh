@@ -14,7 +14,7 @@ import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum, max} from "core/util/array"
-import {isNumber, isString} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {GraphicsBox, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
@@ -180,10 +180,12 @@ export class AxisView extends GuideRendererView {
     const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
 
     const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
-    axis_label.position.sx = Math.round(sx + nx*standoff)
-    axis_label.position.sy = Math.round(sy + ny*standoff)
-    axis_label.position.x_anchor = align
-    axis_label.position.y_anchor = vertical_align
+    axis_label.position = {
+      sx: Math.round(sx + nx*standoff),
+      sy: Math.round(sy + ny*standoff),
+      x_anchor: align,
+      y_anchor: vertical_align,
+    }
     axis_label.align = align
 
     axis_label.paint(ctx)
@@ -241,11 +243,14 @@ export class AxisView extends GuideRendererView {
       label.visuals = visuals
       label.angle = angle
       label.width = {value: 1.1, unit: "%"}
-      label.position.sx = Math.round(sxs[i] + nxd)
-      label.position.sy = Math.round(sys[i] + nyd)
-      label.position.x_anchor = align
-      label.position.y_anchor = vertical_align
-      ;(label as any).align = align
+      label.position = {
+        sx: Math.round(sxs[i] + nxd),
+        sy: Math.round(sys[i] + nyd),
+        x_anchor: align,
+        y_anchor: vertical_align,
+      }
+      if (label instanceof TextBox)
+        label.align = align
     }
 
     const n = labels.length
@@ -321,14 +326,15 @@ export class AxisView extends GuideRendererView {
     return this.panel.dimension
   }
 
-  compute_labels(ticks: number[]): TextBox[] {
-    const labels = this.model.formatter.doFormat(ticks, this)
+  compute_labels(ticks: number[]): GraphicsBox[] {
+    const labels = this.model.formatter.format_graphics(ticks, this)
+    const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
-      if (ticks[i] in this.model.major_label_overrides)
-        labels[i] = this.model.major_label_overrides[ticks[i]]
+      const override = major_label_overrides[ticks[i]]
+      if (override != null)
+        labels[i] = new TextBox({text: override})
     }
-
-    return labels.map((label) => isString(label) ? new TextBox({text: label}) : label)
+    return labels
   }
 
   get offsets(): [number, number] {
