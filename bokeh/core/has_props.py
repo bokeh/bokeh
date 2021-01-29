@@ -153,32 +153,27 @@ class MetaHasProps(type):
         return super().__new__(meta_cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, nmspc):
-        if class_name == 'HasProps':
-            return
-        # Check for improperly overriding a Property attribute.
-        # Overriding makes no sense except through the Override
-        # class which can be used to tweak the default.
-        # Historically code also tried changing the Property's
-        # type or changing from Property to non-Property: these
-        # overrides are bad conceptually because the type of a
-        # read-write property is invariant.
+        # Check for improperly redeclaring a Property attribute.
         cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
-        for attr in cls_attrs:
-            for base in bases:
-                if issubclass(base, HasProps) and attr in base.properties():
-                    warn("Property {attr!r} in class {base.__name__} was overridden by a class attribute "
+        for base in bases:
+            if not issubclass(base, HasProps):
+                continue
+            base_properties = base.properties()
+            for attr in cls_attrs:
+                if attr in base_properties:
+                    warn("Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
                          "{attr!r} in class {class_name}; it never makes sense to do this. "
                           "Either {base.__name__}.{attr} or {class_name}.{attr} should be removed,"
-                          "{base.__name__}.{attr} should not be a Property, "
-                          "or Override() should be used to change a default value.",
+                          "or Override() should be used to change a default value of a base class property.",
                          RuntimeWarning, stacklevel=2)
 
-        if cls.__dict__["__overridden_defaults__"]:
+        # Check for no-op Overrides
+        overridden_defaults = cls.__dict__["__overridden_defaults__"]
+        if overridden_defaults:
             our_props = cls.properties()
-            for key in cls.__dict__["__overridden_defaults__"].keys():
+            for key in overridden_defaults:
                 if key not in our_props:
-                    warn(("Override() of {key} in class {class_name} does not override anything."),
-                         RuntimeWarning, stacklevel=2)
+                    warn(("Override() of {key} in class {class_name} does not override anything."), RuntimeWarning, stacklevel=2)
 
 def accumulate_from_superclasses(cls, propname):
     ''' Traverse the class hierarchy and accumulate the special sets of names
