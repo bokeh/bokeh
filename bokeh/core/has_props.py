@@ -92,18 +92,17 @@ class MetaHasProps(type):
         names_with_refs = set()
         container_names = set()
 
-        # Now handle all the Override
-        overridden_defaults = {}
         aliased_properties = {}
         for name, prop in class_dict.items():
             if isinstance(prop, Alias):
                 aliased_properties[name] = prop
-            elif isinstance(prop, Override):
+
+        overridden_defaults = {}
+        for name, prop in tuple(class_dict.items()):
+            if isinstance(prop, Override):
+                del class_dict[name]
                 if prop.default_overridden:
                     overridden_defaults[name] = prop.default
-
-        for name, default in overridden_defaults.items():
-            del class_dict[name]
 
         def make_property(target_name, help):
             fget = lambda self: getattr(self, target_name)
@@ -116,8 +115,9 @@ class MetaHasProps(type):
             class_dict[name] = make_property(alias.name, alias.help)
 
         generators = dict()
-        for name, generator in class_dict.items():
+        for name, generator in tuple(class_dict.items()):
             if isinstance(generator, PropertyDescriptorFactory):
+                del class_dict[name]
                 generators[name] = generator
 
         dataspecs = {}
@@ -125,13 +125,11 @@ class MetaHasProps(type):
 
         for name, generator in generators.items():
             prop_descriptors = generator.make_descriptors(name)
-            replaced_self = False
             for prop_descriptor in prop_descriptors:
                 if prop_descriptor.name in generators:
                     if generators[prop_descriptor.name] is generator:
                         # a generator can replace itself, this is the
                         # standard case like `foo = Int()`
-                        replaced_self = True
                         prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
                     else:
                         # if a generator tries to overwrite another
@@ -141,9 +139,6 @@ class MetaHasProps(type):
                         pass
                 else:
                     prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
-            # if we won't overwrite ourselves anyway, delete the generator
-            if not replaced_self:
-                del class_dict[name]
 
         class_dict.update(new_class_attrs)
 
