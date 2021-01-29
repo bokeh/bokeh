@@ -170,6 +170,31 @@ _HTML_REPR = """
 </script>
 """
 
+
+def _process_example(cls):
+    ''' A decorator to mark abstract base classes derived from |HasProps|.
+
+    '''
+    if "__example__" in cls.__dict__:
+        path = cls.__dict__["__example__"]
+
+        # running python with -OO will discard docstrings -> __doc__ is None
+        if cls.__doc__ is not None:
+            cls.__doc__ += _EXAMPLE_TEMPLATE % dict(path=path)
+
+    return cls
+
+def _qualified_model(cls):
+    module = cls.__view_module__
+    model = cls.__dict__.get("__subtype__", cls.__view_model__)
+    impl = cls.__dict__.get("__implementation__", None)
+
+    head = module.split(".")[0]
+    if head == "bokeh" or head == "__main__" or impl is not None:
+        return model
+    return f"{module}.{model}"
+
+
 @abstract
 class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
@@ -188,24 +213,17 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         if "__view_module__" not in cls.__dict__:
             cls.__view_module__ = cls.__module__
 
-        module = cls.__view_module__
-        model = cls.__dict__.get("__subtype__", cls.__view_model__)
-        impl = cls.__dict__.get("__implementation__", None)
-
-        head = module.split(".")[0]
-        if head == "bokeh" or head == "__main__" or impl is not None:
-            qualified = model
-        else:
-            qualified = module + "." + model
+        qualified = _qualified_model(cls)
 
         cls.__qualified_model__ = qualified
 
         # update the mapping of view model names to classes, checking for any duplicates
-        # and handling any subtype relationships or custom implementations
         previous = cls.model_class_reverse_map.get(qualified, None)
         if previous is not None and not hasattr(cls, "__implementation__"):
             raise Warning(f"Duplicate qualified model declaration of '{qualified}'. Previous definition: {previous}")
         cls.model_class_reverse_map[qualified] = cls
+
+        _process_example(cls)
 
     def __new__(cls, *args, **kwargs):
         obj =  super().__new__(cls)
@@ -846,6 +864,16 @@ def _visit_value_and_its_immediate_references(obj, visitor):
             # this isn't a Model, so recurse into it
             _visit_immediate_value_references(obj, visitor)
 
+# The "../../" is needed for bokeh-plot to construct the correct path to examples
+_EXAMPLE_TEMPLATE = '''
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../../%(path)s
+        :source-position: below
+
+'''
 
 #-----------------------------------------------------------------------------
 # Code

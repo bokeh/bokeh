@@ -143,16 +143,9 @@ class MetaHasProps(type):
         class_dict["__overridden_defaults__"] = overridden_defaults
         class_dict["__dataspecs__"] = dataspecs
 
-        if "__example__" in class_dict:
-            path = class_dict["__example__"]
-
-            # running python with -OO will discard docstrings -> __doc__ is None
-            if "__doc__" in class_dict and class_dict["__doc__"] is not None:
-                class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
-
         return super().__new__(meta_cls, class_name, bases, class_dict)
 
-    def __init__(cls, class_name, bases, nmspc):
+    def __init__(cls, _, bases, __):
         # Check for improperly redeclaring a Property attribute.
         cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
         for base in bases:
@@ -717,17 +710,6 @@ _ABSTRACT_ADMONITION = '''
     .. note::
         This is an abstract base class used to help organize the hierarchy of Bokeh
         model types. **It is not useful to instantiate on its own.**
-
-'''
-
-# The "../../" is needed for bokeh-plot to construct the correct path to examples
-_EXAMPLE_TEMPLATE = '''
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../../%(path)s
-        :source-position: below
 
 '''
 
