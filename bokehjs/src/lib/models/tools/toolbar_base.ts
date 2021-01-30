@@ -189,7 +189,7 @@ export namespace ToolbarBase {
 
   export type Props = Model.Props & {
     tools: p.Property<Tool[]>
-    logo: p.Property<Logo>
+    logo: p.Property<Logo | null>
     gestures: p.Property<GesturesMap>
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
@@ -226,9 +226,9 @@ export class ToolbarBase extends Model {
   static init_ToolbarBase(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<ToolbarBase.Props>(({Boolean, Array, Ref}) => ({
+    this.define<ToolbarBase.Props>(({Boolean, Array, Ref, Nullable}) => ({
       tools:    [ Array(Ref(Tool)), [] ],
-      logo:     [ Logo, "normal" ],
+      logo:     [ Nullable(Logo), "normal" ],
       autohide: [ Boolean, false ],
     }))
 
