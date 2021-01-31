@@ -1,7 +1,8 @@
 import createRegl from "regl"
+import {Regl, Texture2D} from "regl"
 import {DashCache} from "./dash_cache"
-import line_vertex_shader from "./line.vert"
-import line_fragment_shader from "./line.frag"
+import line_vertex_shader from "./regl_line.vert"
+import line_fragment_shader from "./regl_line.frag"
 
 
 // All access to regl is performed via the get_regl() function that returns a
@@ -18,13 +19,13 @@ export function get_regl(gl: WebGLRenderingContext) : ReglWrapper {
 
 
 export class ReglWrapper {
-  private _regl: any
+  private _regl: Regl
   private _dash_cache: DashCache
 
   // Drawing functions.
-  private _solid_line: any
-  private _dashed_line: any
-  private _line_mesh: any
+  private _solid_line: ({}) => void
+  private _dashed_line: ({}) => void
+  private _line_mesh: ({}) => void
 
   constructor(gl: WebGLRenderingContext) {
     this._regl = createRegl({
@@ -41,23 +42,23 @@ export class ReglWrapper {
     this._dash_cache = new DashCache(this._regl)
   }
 
-  public dashed_line() {
+  public dashed_line(): ({}) => void {
    if (this._dashed_line === undefined)
       this._dashed_line = regl_dashed_line(this._regl)
     return this._dashed_line
   }
 
-  public get_dash(line_dash: number[]): [[number,number,number],any] {
+  public get_dash(line_dash: number[]): [[number,number,number], Texture2D] {
     return this._dash_cache.get(line_dash)
   }
 
-  public line_mesh() {
+  public line_mesh(): ({}) => void {
     if (this._line_mesh === undefined)
       this._line_mesh = regl_line_mesh(this._regl)
     return this._line_mesh
   }
 
-  public solid_line() {
+  public solid_line(): ({}) => void {
     if (this._solid_line === undefined)
       this._solid_line = regl_solid_line(this._regl)
     return this._solid_line
@@ -98,7 +99,7 @@ const line_mesh_indices = [
 ]
 
 
-function regl_solid_line(regl: any) {
+function regl_solid_line(regl: any): ({}) => void {
   return regl({
     vert: line_vertex_shader,
     frag: line_fragment_shader,
@@ -160,7 +161,7 @@ function regl_solid_line(regl: any) {
 }
 
 
-function regl_dashed_line(regl: any) {
+function regl_dashed_line(regl: any): ({}) => void {
   return regl({
     vert: '#define DASHED\n\n' + line_vertex_shader,
     frag: '#define DASHED\n\n' + line_fragment_shader,
@@ -228,7 +229,7 @@ function regl_dashed_line(regl: any) {
 }
 
 
-function regl_line_mesh(regl: any) {
+function regl_line_mesh(regl: any): ({}) => void {
   return regl({
     vert: line_vertex_shader,
     frag: `

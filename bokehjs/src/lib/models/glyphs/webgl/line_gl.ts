@@ -4,6 +4,7 @@ import {get_regl, ReglWrapper} from "./regl_wrap"
 import {ortho} from "./utils/ortho"
 import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
+import {Texture2D} from "regl"
 
 
 const cap_lookup: {[key: string]: number} = {butt: 0, round: 1, square: 2}
@@ -35,7 +36,7 @@ export class LineGL extends BaseGLGlyph {
 
   // Only needed if line has dashes.
   protected _length_so_far: Float32Array | undefined
-  protected _dash_tex: any | undefined
+  protected _dash_tex: Texture2D | undefined
   protected _dash_tex_info: number[] | undefined
 
   protected _debug_show_mesh: boolean

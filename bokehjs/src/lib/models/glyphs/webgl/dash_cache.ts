@@ -1,21 +1,22 @@
 import {gcd, is_pow_2} from "./utils/math"
+import {Regl, Texture2D} from "regl"
 
 
 /*
- * DashCache creates and stores webgl resources for dashes that cam be reused
+ * DashCache creates and stores webgl resources for dashes that can be reused
  * for different webgl lines.  Dash represented by pattern which is a list of
  * an even number of integers.
  */
 export class DashCache {
-  private _regl: any  // Needed to create textures.
-  private _map: Map<string, [[number, number, number], any]>
+  private _regl: Regl  // Needed to create textures.
+  private _map: Map<string, [[number, number, number], Texture2D]>
 
-  constructor(regl: any) {
+  constructor(regl: Regl) {
     this._regl = regl
-    this._map = new Map()
+    this._map = new Map<string, [[number, number, number], Texture2D]>()
   }
 
-  protected _create_texture(pattern: number[]): [number, number, any] {
+  protected _create_texture(pattern: number[]): [number, number, Texture2D] {
     const n = pattern.length
     let len = 0  // Length of pattern.
     let twice_jumps: number[] = []  // Twice the jumps between dash middles.
@@ -62,7 +63,7 @@ export class DashCache {
     }
 
     // Create the 1D texture.
-    const tex = this._regl.texture({
+    const tex: Texture2D = this._regl.texture({
       shape: [ntex, 1, 1],
       data: y,
       wrapS: 'repeat',
@@ -79,7 +80,7 @@ export class DashCache {
     return pattern.join(",")
   }
 
-  public _get_or_create(pattern: number[]): [[number,number,number], any] {
+  public _get_or_create(pattern: number[]): [[number,number,number], Texture2D] {
     const key = this._get_key(pattern)
     let cached = this._map.get(key)
     if (cached === undefined) {
@@ -111,7 +112,7 @@ export class DashCache {
     return cached
   }
 
-  public get(pattern: number[]): [[number,number,number], any] {
+  public get(pattern: number[]): [[number,number,number], Texture2D] {
     // Limit pattern to even number of items.
     if (pattern.length % 2 == 1)
       pattern = pattern.slice(0, -1)
