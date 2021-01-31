@@ -31,6 +31,7 @@ from ..core.properties import (
     Int,
     NonNullable,
     Override,
+    String,
 )
 from ..core.validation import error, warning
 from ..core.validation.errors import (
@@ -179,6 +180,15 @@ class GMapPlot(MapPlot):
     api_key = NonNullable(Base64String, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
+    """)
+
+    api_version = String(default="3.43", help="""
+    The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
+    for more information.
+
+    .. note::
+        Changing this value may result in broken map rendering.
+
     """)
 
     x_range = Override(default=lambda: Range1d())

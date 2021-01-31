@@ -70,6 +70,7 @@ export namespace GMapPlot {
   export type Props = Plot.Props & {
     map_options: p.Property<GMapOptions>
     api_key: p.Property<string>
+    api_version: p.Property<string>
   }
 }
 
@@ -93,6 +94,7 @@ export class GMapPlot extends Plot {
     this.define<GMapPlot.Props>(({String, Ref}) => ({
       map_options: [ Ref(GMapOptions) ],
       api_key:     [ String ],
+      api_version: [ String, "3.43" ],
     }))
 
     this.override<GMapPlot.Props>({
