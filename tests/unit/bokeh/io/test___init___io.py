@@ -28,6 +28,7 @@ import bokeh.io as bi # isort:skip
 ALL = (
     'curdoc',
     'export_png',
+    'export_svg',
     'export_svgs',
     'install_notebook_hook',
     'push_notebook',

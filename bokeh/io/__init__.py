@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from .doc import curdoc
-from .export import export_png, export_svgs
+from .export import export_png, export_svg, export_svgs
 from .notebook import install_jupyter_hooks, install_notebook_hook, push_notebook
 from .output import output_file, output_notebook, reset_output
 from .saving import save
@@ -33,6 +33,7 @@ from .showing import show
 __all__ = (
     'curdoc',
     'export_png',
+    'export_svg',
     'export_svgs',
     'install_notebook_hook',
     'push_notebook',
@@ -45,12 +46,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-
-
-
-
 
 #-----------------------------------------------------------------------------
 # Dev API
