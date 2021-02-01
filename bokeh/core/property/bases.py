@@ -101,6 +101,7 @@ class Property(PropertyDescriptorFactory):
 
         self._readonly = readonly
         self._default = default
+        self._help = help
         self.__doc__ = help
 
         self.alternatives = []
@@ -416,8 +417,7 @@ class Property(PropertyDescriptorFactory):
         return self
 
 class ParameterizedProperty(Property):
-    """ A base class for Properties that have type parameters, e.g.
-    ``List(String)``.
+    """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
 
@@ -429,6 +429,9 @@ class ParameterizedProperty(Property):
             else:
                 type_param = type_param.__name__
         elif isinstance(type_param, Property):
+            if type_param._help is not None:
+                raise ValueError("setting 'help' on type parameters doesn't make sense")
+
             return type_param
 
         raise ValueError(f"expected a Property as type parameter, got {type_param}")
