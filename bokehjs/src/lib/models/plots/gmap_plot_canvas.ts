@@ -23,12 +23,13 @@ declare global {
 
 const gmaps_ready = new Signal0({}, "gmaps_ready")
 
-const load_google_api = function(api_key: string): void {
+const load_google_api = function(api_key: string, api_version: string): void {
   window._bokeh_gmaps_callback = () => gmaps_ready.emit()
 
+  const enc = encodeURIComponent
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = `https://maps.googleapis.com/maps/api/js?v=3.36&key=${api_key}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
 
@@ -67,8 +68,8 @@ export class GMapPlotView extends PlotView {
 
     if (typeof google === "undefined" || google.maps == null) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
-        const decoded_api_key = atob(this.model.api_key)
-        load_google_api(decoded_api_key)
+        const {api_key, api_version} = this.model
+        load_google_api(api_key, api_version)
       }
       gmaps_ready.connect(() => this.request_paint("everything"))
     }
