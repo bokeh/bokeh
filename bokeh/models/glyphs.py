@@ -1161,39 +1161,39 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 class Scatter(Marker):
     ''' Render scatter markers selected from a predefined list of designs.
 
-The Scatter marker can draw any of Bokeh's built-in marker types: ``asterisk``,
-``circle``, ``circle_cross``, ``circle_dot``, ``circle_x``, ``circle_y``,
-``cross``, ``dash``, ``diamond``, ``diamond_cross``, ``diamond_dot``, ``dot``,
-``hex``, ``hex_dot``, ``inverted_triangle``, ``plus``, ``square``,
-``square_cross``, ``square_dot``, ``square_pin``, ``square_x``, ``star``,
-``star_dot``, ``triangle``, ``triangle_dot``, ``triangle_pin``, ``x``, or ``y``.
+    The Scatter marker can draw any of Bokeh's built-in marker types: ``asterisk``,
+    ``circle``, ``circle_cross``, ``circle_dot``, ``circle_x``, ``circle_y``,
+    ``cross``, ``dash``, ``diamond``, ``diamond_cross``, ``diamond_dot``, ``dot``,
+    ``hex``, ``hex_dot``, ``inverted_triangle``, ``plus``, ``square``,
+    ``square_cross``, ``square_dot``, ``square_pin``, ``square_x``, ``star``,
+    ``star_dot``, ``triangle``, ``triangle_dot``, ``triangle_pin``, ``x``, or ``y``.
 
-You can select marker types in two ways :
+    You can select marker types in two ways :
 
-* To draw the **same marker for all values**, use the ``marker`` attribute to specify
-  the name of a specific marker. For example:
+    * To draw the **same marker for all values**, use the ``marker`` attribute
+      to specify the name of a specific marker. For example:
 
-  .. code-block:: python
+      .. code-block:: python
 
-      glyph = Scatter(x="x", y="y", size="sizes", marker="square")
-      plot.add_glyph(source, glyph)
+          glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+          plot.add_glyph(source, glyph)
 
-  This will render only Square markers for all points.
+    This will render only Square markers for all points.
 
-* Alternatively, the Scatter marker can be configured to use **marker types
-  specified in a data source column**:
+    * Alternatively, the Scatter marker can be configured to use **marker types
+      specified in a data source column**:
 
-  .. code-block:: python
+      .. code-block:: python
 
-      # source.data['markers'] = ["circle", "square", "circle", ... ]
+          # source.data['markers'] = ["circle", "square", "circle", ... ]
 
-      glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
-      plot.add_glyph(source, glyph)
+          glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+          plot.add_glyph(source, glyph)
 
-Note that circles drawn with ``Scatter`` conform to the standard Marker
-interface, and can only vary by size (in screen units) and *not* by radius
-(in data units). If you need to control circles by radius in data units,
-you should use the :class:`~bokeh.models.glyphs.Circle` glyph directly.
+    Note that circles drawn with ``Scatter`` conform to the standard Marker
+    interface, and can only vary by size (in screen units) and *not* by radius
+    (in data units). If you need to control circles by radius in data units,
+    you should use the :class:`~bokeh.models.glyphs.Circle` glyph directly.
 
     '''
 
