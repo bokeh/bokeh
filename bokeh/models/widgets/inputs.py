@@ -208,6 +208,12 @@ class Spinner(NumericInput):
 
     '''
 
+    def __init__(self, **kwargs):
+        if "value" in kwargs and "value_throttled" not in kwargs:
+            kwargs["value_throttled"] = kwargs["value"]
+
+        super().__init__(**kwargs)
+
     value_throttled = Readonly(Either(Null, Float, Int), help="""
     value reported at the end of interactions
     """)
