@@ -1159,32 +1159,41 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     """)
 
 class Scatter(Marker):
-    ''' Render arbitrary markers according a specification.
+    ''' Render scatter markers selected from a predefined list of designs.
 
-    The Scatter can draw any built-in marker type. It can be configured
-    to draw the same marker for all values by specifying the name of a
-    marker, e.g.
+The Scatter marker can draw any of Bokeh's built-in marker types: ``asterisk``,
+``circle``, ``circle_cross``, ``circle_dot``, ``circle_x``, ``circle_y``,
+``cross``, ``dash``, ``diamond``, ``diamond_cross``, ``diamond_dot``, ``dot``,
+``hex``, ``hex_dot``, ``inverted_triangle``, ``plus``, ``square``,
+``square_cross``, ``square_dot``, ``square_pin``, ``square_x``, ``star``,
+``star_dot``, ``triangle``, ``triangle_dot``, ``triangle_pin``, ``x``, or ``y``.
 
-    .. code-block:: python
+You can select marker types in two ways :
 
-        glyph = Scatter(x="x", y="y", size="sizes", marker="square")
-        plot.add_glyph(source, glyph)
+* To draw the **same marker for all values**, use the ``marker`` attribute to specify
+  the name of a specific marker. For example:
 
-    will render only Square markers for all points. Alternatively, the
-    Scatter marker can be configured to use marker types specified in a
-    data source column:
+  .. code-block:: python
 
-    .. code-block:: python
+      glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+      plot.add_glyph(source, glyph)
 
-        # source.data['markers'] = ["circle", "square", "circle", ... ]
+  This will render only Square markers for all points.
 
-        glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
-        plot.add_glyph(source, glyph)
+* Alternatively, the Scatter marker can be configured to use **marker types
+  specified in a data source column**:
 
-    Note that circles drawn with `Scatter` conform to the standard Marker
-    interface, and can only vary by size (in screen units) and *not* by radius
-    (in data units). If you need to control circles by radius in data units,
-    you should use the Circle glyph directly.
+  .. code-block:: python
+
+      # source.data['markers'] = ["circle", "square", "circle", ... ]
+
+      glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+      plot.add_glyph(source, glyph)
+
+Note that circles drawn with ``Scatter`` conform to the standard Marker
+interface, and can only vary by size (in screen units) and *not* by radius
+(in data units). If you need to control circles by radius in data units,
+you should use the :class:`~bokeh.models.glyphs.Circle` glyph directly.
 
     '''
 
