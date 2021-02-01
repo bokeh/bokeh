@@ -70,6 +70,9 @@ class AbstractSlider(Widget):
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
 
+        if "value" in kwargs and "value_throttled" not in kwargs:
+            kwargs["value_throttled"] = kwargs["value"]
+
         super().__init__(**kwargs)
 
     title = Nullable(String, default="", help="""
@@ -117,7 +120,7 @@ class Slider(AbstractSlider):
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Float, help="""
+    value_throttled = Readonly(NonNullable(Float), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -134,7 +137,7 @@ class RangeSlider(AbstractSlider):
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(Tuple(Float, Float), help="""
+    value_throttled = Readonly(NonNullable(Tuple(Float, Float)), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -184,19 +187,19 @@ class DateSlider(AbstractSlider):
 
         return self.value
 
-    value = Datetime(help="""
+    value = NonNullable(Datetime, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(Datetime, help="""
+    value_throttled = Readonly(NonNullable(Datetime), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Datetime(help="""
+    start = NonNullable(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = Datetime(help="""
+    end = NonNullable(Datetime, help="""
     The maximum allowable value.
     """)
 
@@ -251,19 +254,19 @@ class DateRangeSlider(AbstractSlider):
             d2 = v2
         return d1, d2
 
-    value = Tuple(Datetime, Datetime, help="""
+    value = NonNullable(Tuple(Datetime, Datetime), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(Tuple(Datetime, Datetime), help="""
+    value_throttled = Readonly(NonNullable(Tuple(Datetime, Datetime)), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Datetime(help="""
+    start = NonNullable(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = Datetime(help="""
+    end = NonNullable(Datetime, help="""
     The maximum allowable value.
     """)
 

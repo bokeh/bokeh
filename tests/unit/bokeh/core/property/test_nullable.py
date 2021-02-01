@@ -39,6 +39,11 @@ class Test_Nullable:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
             bcpn.Nullable()
+        with pytest.raises(ValueError):
+            bcpn.Nullable(Int(help="inner help"))
+
+        prop0 = bcpn.Nullable(Int(), help="help")
+        assert prop0._help == prop0.__doc__ == "help"
 
     def test_valid(self) -> None:
         prop = bcpn.Nullable(List(Int))

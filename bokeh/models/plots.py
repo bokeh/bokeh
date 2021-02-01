@@ -637,7 +637,7 @@ class Plot(LayoutDOM):
     Decimation factor to use when applying level-of-detail decimation.
     """)
 
-    lod_threshold = Int(2000, help="""
+    lod_threshold = Nullable(Int, default=2000, help="""
     A number of data points, above which level-of-detail downsampling may
     be performed by glyph renderers. Set to ``None`` to disable any
     level-of-detail downsampling.

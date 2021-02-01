@@ -268,7 +268,7 @@ class ToolbarBase(Model):
 
     '''
 
-    logo = Enum("normal", "grey", help="""
+    logo = Nullable(Enum("normal", "grey"), default="normal", help="""
     What version of the Bokeh logo to display on the toolbar. If
     set to None, no logo will be displayed.
     """)

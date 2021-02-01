@@ -66,7 +66,7 @@ export namespace Plot {
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
-    lod_threshold: p.Property<number>
+    lod_threshold: p.Property<number | null>
     lod_timeout: p.Property<number>
 
     hidpi: p.Property<boolean>
@@ -156,7 +156,7 @@ export class Plot extends LayoutDOM {
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],
-      lod_threshold:     [ Number, 2000 ],
+      lod_threshold:     [ Nullable(Number), 2000 ],
       lod_timeout:       [ Number, 500 ],
 
       hidpi:             [ Boolean, true ],

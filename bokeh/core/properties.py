@@ -314,6 +314,8 @@ from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
 
+from .property.descriptors import UnsetValueError; UnsetValueError
+
 from .property.either import Either; Either
 
 from .property.enum import Enum; Enum

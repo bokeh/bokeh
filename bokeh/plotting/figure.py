@@ -155,10 +155,6 @@ class Figure(Plot):
             raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
         if 'plot_height' in kw and 'height' in kw:
             raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
-        if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
 
         opts = FigureOptions(kw)
 
@@ -1633,11 +1629,11 @@ class FigureOptions(Options):
     Where the y-axis should be located.
     """)
 
-    x_axis_label = String(default="", help="""
+    x_axis_label = Nullable(String, default="", help="""
     A label for the x-axis.
     """)
 
-    y_axis_label = String(default="", help="""
+    y_axis_label = Nullable(String, default="", help="""
     A label for the y-axis.
     """)
 
