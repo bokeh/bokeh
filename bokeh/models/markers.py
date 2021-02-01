@@ -5,9 +5,20 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 ''' Display a variety of simple scatter marker shapes whose attributes
-can be associated with data columns from ``ColumnDataSources``.
+can be associated with data columns from
+:class:`~bokeh.models.sources.ColumnDataSource` objects.
 
-The full list of markers built into Bokeh is given below:
+.. note::
+    This module is **deprecated since Bokeh 2.3.0**. Please use the
+    :ref:`bokeh.models.glyphs` module instead. Replace all occurrences of
+    ``Marker`` models with :class:`~bokeh.models.glyphs.Scatter` glyphs. For
+    example: instead of ``Asterisk()``, use ``Scatter(marker="asterisk")``.
+
+    For backwards compatibility, all markers in this module currently link to
+    their respective replacements using the
+    :class:`~bokeh.models.glyphs.Scatter` glyph.
+
+The full list of markers accessible through this module:
 
 * :func:`~bokeh.models.markers.Asterisk`
 * :class:`~bokeh.models.markers.Circle`
@@ -40,18 +51,16 @@ The full list of markers built into Bokeh is given below:
 
 Markers are all subclasses of ``Glyph``. Additionally, they all share the
 same common interface providing fill and line properties provided by their
-base class ``Marker``. Note that a few glyphs, ``Cross`` and ``X``, only
-draw lines. For these the fill property values are ignored. Also note that
-the ``Circle`` glyph has some additional properties such as ``radius`` that
-other markers do not.
+base class ``Marker``.
+
+Note that a few glyphs, ``Cross`` and ``X``, only draw lines. For these, the
+fill property values are ignored.
+
+Also note that the ``Circle`` glyph has some additional properties such as
+``radius`` that other markers do not.
 
 .. autoclass:: Marker
     :members:
-
-.. note::
-    This module is deprecated since bokeh 2.3.0. Prefer to use ``bokeh.glyphs``
-    module instead. Replace all usage of marker models with ``Scatter`` glyph,
-    e.g. ``Asterisk()`` becomes ``Scatter(marker="asterisk")``.
 
 '''
 
@@ -112,72 +121,72 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def Asterisk(*args, **kwargs):
-    ''' Render asterisk '*' markers. '''
+    ''' Render asterisk '*' markers. (deprecated) '''
     deprecated((2, 3, 0), "Asterisk()", "Scatter(marker='asterisk')")
     return Scatter(*args, **kwargs, marker="asterisk")
 
 def CircleCross(*args, **kwargs):
-    ''' Render circle markers with a '+' cross through the center. '''
+    ''' Render circle markers with a '+' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "CircleCross()", "Scatter(marker='circle_cross')")
     return Scatter(*args, **kwargs, marker="circle_cross")
 
 def CircleDot(*args, **kwargs):
-    ''' Render circle markers with center dots. '''
+    ''' Render circle markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "CircleDot()", "Scatter(marker='circle_dot')")
     return Scatter(*args, **kwargs, marker="circle_dot")
 
 def CircleX(*args, **kwargs):
-    ''' Render circle markers with an 'X' cross through the center. '''
+    ''' Render circle markers with an 'X' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "CircleX()", "Scatter(marker='circle_x')")
     return Scatter(*args, **kwargs, marker="circle_x")
 
 def CircleY(*args, **kwargs):
-    ''' Render circle markers with an 'Y' cross through the center. '''
+    ''' Render circle markers with an 'Y' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "CircleY()", "Scatter(marker='circle_y')")
     return Scatter(*args, **kwargs, marker="circle_y")
 
 def Cross(*args, **kwargs):
-    ''' Render '+' cross markers. '''
+    ''' Render '+' cross markers. (deprecated) '''
     deprecated((2, 3, 0), "Cross()", "Scatter(marker='cross')")
     return Scatter(*args, **kwargs, marker="cross")
 
 def Dash(*args, **kwargs):
-    ''' Render dash markers. '''
+    ''' Render dash markers. (deprecated) '''
     deprecated((2, 3, 0), "Dash()", "Scatter(marker='dash')")
     return Scatter(*args, **kwargs, marker="dash")
 
 def Diamond(*args, **kwargs):
-    ''' Render diamond markers. '''
+    ''' Render diamond markers. (deprecated) '''
     deprecated((2, 3, 0), "Diamond()", "Scatter(marker='diamond')")
     return Scatter(*args, **kwargs, marker="diamond")
 
 def DiamondCross(*args, **kwargs):
-    ''' Render diamond markers with a '+' cross through the center. '''
+    ''' Render diamond markers with a '+' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "DiamondCross()", "Scatter(marker='diamond_cross')")
     return Scatter(*args, **kwargs, marker="diamond_cross")
 
 def DiamondDot(*args, **kwargs):
-    ''' Render diamond markers with center dots. '''
+    ''' Render diamond markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "DiamondDot()", "Scatter(marker='diamond_dot')")
     return Scatter(*args, **kwargs, marker="diamond_dot")
 
 def Dot(*args, **kwargs):
-    ''' Render dots (one-quarter radius circles). '''
+    ''' Render dots (one-quarter radius circles). (deprecated) '''
     deprecated((2, 3, 0), "Dot()", "Scatter(marker='dot')")
     return Scatter(*args, **kwargs, marker="dot")
 
 def Hex(*args, **kwargs):
-    ''' Render hexagon markers. '''
+    ''' Render hexagon markers. (deprecated) '''
     deprecated((2, 3, 0), "Hex()", "Scatter(marker='hex')")
     return Scatter(*args, **kwargs, marker="hex")
 
 def HexDot(*args, **kwargs):
-    ''' Render hexagon markers with center dots. '''
+    ''' Render hexagon markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "HexDot()", "Scatter(marker='hex_dot')")
     return Scatter(*args, **kwargs, marker="hex_dot")
 
 def InvertedTriangle(*args, **kwargs):
-    ''' Render upside-down triangle markers. '''
+    ''' Render upside-down triangle markers. (deprecated) '''
     deprecated((2, 3, 0), "InvertedTriangle()", "Scatter(marker='inverted_triangle')")
     return Scatter(*args, **kwargs, marker="inverted_triangle")
 
@@ -187,62 +196,62 @@ def Plus(*args, **kwargs):
     return Scatter(*args, **kwargs, marker="plus")
 
 def Square(*args, **kwargs):
-    ''' Render square markers. '''
+    ''' Render square markers. (deprecated) '''
     deprecated((2, 3, 0), "Square()", "Scatter(marker='square')")
     return Scatter(*args, **kwargs, marker="square")
 
 def SquareDot(*args, **kwargs):
-    ''' Render square markers with center dots. '''
+    ''' Render square markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "SquareDot()", "Scatter(marker='square_dot')")
     return Scatter(*args, **kwargs, marker="square_dot")
 
 def SquarePin(*args, **kwargs):
-    ''' Render pin-cushion square markers. '''
+    ''' Render pin-cushion square markers. (deprecated) '''
     deprecated((2, 3, 0), "SquarePin()", "Scatter(marker='square_pin')")
     return Scatter(*args, **kwargs, marker="square_pin")
 
 def SquareCross(*args, **kwargs):
-    ''' Render square markers with a '+' cross through the center. '''
+    ''' Render square markers with a '+' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "SquareCross()", "Scatter(marker='square_cross')")
     return Scatter(*args, **kwargs, marker="square_cross")
 
 def SquareX(*args, **kwargs):
-    ''' Render square markers with an 'X' cross through the center. '''
+    ''' Render square markers with an 'X' cross through the center. (deprecated) '''
     deprecated((2, 3, 0), "SquareX()", "Scatter(marker='square_x')")
     return Scatter(*args, **kwargs, marker="square_x")
 
 def Star(*args, **kwargs):
-    ''' Render star markers. '''
+    ''' Render star markers. (deprecated) '''
     deprecated((2, 3, 0), "Star()", "Scatter(marker='star')")
     return Scatter(*args, **kwargs, marker="star")
 
 def StarDot(*args, **kwargs):
-    ''' Render star markers with center dots. '''
+    ''' Render star markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "StarDot()", "Scatter(marker='star_dot')")
     return Scatter(*args, **kwargs, marker="star_dot")
 
 def Triangle(*args, **kwargs):
-    ''' Render triangle markers. '''
+    ''' Render triangle markers. (deprecated) '''
     deprecated((2, 3, 0), "Triangle()", "Scatter(marker='triangle')")
     return Scatter(*args, **kwargs, marker="triangle")
 
 def TriangleDot(*args, **kwargs):
-    ''' Render triangle markers with center dots. '''
+    ''' Render triangle markers with center dots. (deprecated) '''
     deprecated((2, 3, 0), "TriangleDot()", "Scatter(marker='triangle_dot')")
     return Scatter(*args, **kwargs, marker="triangle_dot")
 
 def TrianglePin(*args, **kwargs):
-    ''' Render pin-cushion triangle markers. '''
+    ''' Render pin-cushion triangle markers. (deprecated) '''
     deprecated((2, 3, 0), "TrianglePin()", "Scatter(marker='triangle_pin')")
     return Scatter(*args, **kwargs, marker="triangle_pin")
 
 def X(*args, **kwargs):
-    ''' Render 'X' markers. '''
+    ''' Render 'X' markers. (deprecated) '''
     deprecated((2, 3, 0), "X()", "Scatter(marker='x')")
     return Scatter(*args, **kwargs, marker="x")
 
 def Y(*args, **kwargs):
-    ''' Render 'Y' markers. '''
+    ''' Render 'Y' markers. (deprecated) '''
     deprecated((2, 3, 0), "Y()", "Scatter(marker='y')")
     return Scatter(*args, **kwargs, marker="y")
 
