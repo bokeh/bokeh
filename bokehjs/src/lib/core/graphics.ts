@@ -155,7 +155,6 @@ export class TextBox extends GraphicsBox {
     }
 
     const font = `${style} ${size} ${face}`
-
     this.font = font
     this.color = color2css(color, alpha)
     this.line_height = v.text_line_height.get_value()
@@ -249,7 +248,7 @@ export class TextBox extends GraphicsBox {
     ctx.fillStyle = this.color
     ctx.font = this.font
     ctx.textAlign = "left"
-    ctx.textBaseline = "top"
+    ctx.textBaseline = "alphabetic"
 
     const {sx, sy} = this.position
     const {align} = this
@@ -288,7 +287,7 @@ export class TextBox extends GraphicsBox {
         })()
 
         ctx.fillStyle = this.color
-        ctx.fillText(lines[i], xi, y)
+        ctx.fillText(lines[i], xi, y + metrics.ascent)
         y += metrics.height + line_spacing
       }
     }

@@ -236,10 +236,11 @@ export class AxisView extends GuideRendererView {
     const nxd = nx*(xoff + standoff)
     const nyd = ny*(yoff + standoff)
 
+    const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
+    const angle = this.panel.get_label_angle_heuristic(orient)
+
     for (let i = 0; i < labels.length; i++) {
       const label = labels[i]
-      const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
-      const angle = this.panel.get_label_angle_heuristic(orient)
       label.visuals = visuals
       label.angle = angle
       label.width = {value: 1.1, unit: "%"}
