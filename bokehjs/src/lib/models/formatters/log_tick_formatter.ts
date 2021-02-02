@@ -4,7 +4,7 @@ import {LogTicker} from "../tickers/log_ticker"
 import {GraphicsBox, BaseExpo, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
-const {log, round} = Math
+const {abs, log, round} = Math
 
 export namespace LogTickFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -52,8 +52,10 @@ export class LogTickFormatter extends TickFormatter {
   protected _exponents(ticks: number[], base: number): string[] | null {
     let last_expo = null
     const exponents = []
+    const minus = "\u2212"
     for (const tick of ticks) {
-      const expo = `${round(log(tick)/log(base))}`
+      const exponent = round(log(tick)/log(base))
+      const expo = exponent >= 0 ? `${exponent}` : `${minus}${abs(exponent)}`
       if (last_expo != expo) {
         last_expo = expo
         exponents.push(expo)
