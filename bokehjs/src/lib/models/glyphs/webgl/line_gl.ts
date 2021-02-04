@@ -32,6 +32,7 @@ export class LineGL extends BaseGLGlyph {
   protected _join_type: number
   protected _miter_limit: number
   protected _line_dash: number[]
+  protected _dash_offset: number
   protected _is_closed: boolean
 
   // Only needed if line has dashes.
@@ -88,6 +89,7 @@ export class LineGL extends BaseGLGlyph {
         length_so_far: this._length_so_far,
         dash_tex: this._dash_tex,
         dash_tex_info: this._dash_tex_info,
+        dash_offset: this._dash_offset,
       })
     else
       this._regl.solid_line()({
@@ -188,6 +190,7 @@ export class LineGL extends BaseGLGlyph {
     this._join_type = join_lookup[line_visuals.line_join.value]
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
+    this._dash_offset = line_visuals.line_dash_offset.value
 
     if (this._is_dashed()) {
       [this._dash_tex_info, this._dash_tex] = this._regl.get_dash(this._line_dash)

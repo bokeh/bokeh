@@ -208,6 +208,7 @@ function regl_dashed_line(regl: any): ({}) => void {
       u_cap_type: regl.prop('cap_type'),
       u_dash_tex: regl.prop('dash_tex'),
       u_dash_tex_info: regl.prop('dash_tex_info'),
+      u_dash_offset: regl.prop('dash_offset'),
     },
 
     elements: line_triangle_indices,

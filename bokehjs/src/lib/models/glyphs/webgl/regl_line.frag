@@ -16,6 +16,7 @@ uniform vec4 u_color;
 #ifdef DASHED
 uniform sampler2D u_dash_tex;
 uniform vec3 u_dash_tex_info;
+uniform float u_dash_offset;
 #endif
 
 varying float v_segment_length;
@@ -144,7 +145,8 @@ void main ()
         float tex_offset = u_dash_tex_info.y;
         float tex_scale = u_dash_tex_info.z;
 
-        float distance_along = v_length_so_far + v_coords.x - tex_scale*tex_offset;
+        float distance_along = v_length_so_far + v_coords.x -
+                                    tex_scale*tex_offset + u_dash_offset;
         float scaled_length = tex_length*tex_scale;
 
         float dash_dist =
