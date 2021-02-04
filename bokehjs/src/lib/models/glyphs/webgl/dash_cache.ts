@@ -17,8 +17,23 @@ export class DashCache {
   }
 
   protected _create_texture(pattern: number[]): [number, number, Texture2D] {
-    const n = pattern.length
-    let len = 0  // Length of pattern.
+    /*
+     * Texture used to represent dash pattern is a distance function.  Each tex
+     * value is the distance to the nearest edge between a dash and a gap; -ve
+     * if in a dash and +ve if in a gap.  If this was an analytical function
+     * then it would be piecewise linear with turning points (local extremes)
+     * in the middle of each dash and each gap.  Try to use the minimum texture
+     * length that includes all these middle points.  For a single dash (hence
+     * single gap) this is 2 values, one each in the middle of the dash and the
+     * gap.
+     * For rendering the texture is repeated.  WebGL only supports this for
+     * texture lengths that are a power of 2, so if the ideal texture length is
+     * not a power of 2 then increase it to be a large power of 2 and do not
+     * bother to ensure that turning points in the distance function correspond
+     * to texture value locations.
+     */
+    const n = pattern.length        // Number of items in pattern.
+    let len = 0                     // Length of pattern.
     let twice_jumps: number[] = []  // Twice the jumps between dash middles.
     for (let i = 0; i < n; i++) {
       len += pattern[i]
@@ -34,22 +49,37 @@ export class DashCache {
 
     // Length of texture, webgl requires a power of 2.
     const ideal_ntex = 2*len / twice_jumps_gcd
-    const ntex = is_pow_2(ideal_ntex) ? ideal_ntex : 128
+    const length_pow_2 = is_pow_2(ideal_ntex);
+    const ntex = length_pow_2 ? ideal_ntex : 128
 
     // Distance between texture values.
     const dtex = 0.5*twice_jumps_gcd * ideal_ntex/ntex
 
-    let offset = 0.5*pattern[0]
-    if (dtex < offset) {
-      const n_dtex = Math.floor(offset / dtex)
-      offset -= n_dtex*dtex
+    // xstart is the position along the texture of the first value, and offset
+    // is the distance to the upstroke of the first dash.
+    // When interpolating the texture each texel fills 1/ntex of the length of
+    // the texture.  For a single dash the centre of the dash is 0.25 along
+    // the texture, so the upstroke offset has to be determined from this.
+    let xstart;
+    if (length_pow_2) {
+      xstart = 0.5*pattern[0]
+
+      if (dtex < xstart) {
+        const n_dtex = Math.floor(xstart / dtex)
+        xstart -= n_dtex*dtex
+      }
     }
+    else {
+      // Have lots of values so don't need to match middles of dashes/gaps.
+      xstart = 0.0;
+    }
+    let offset = xstart - 0.5*dtex
 
     // Calculate values for texture.
     let y = new Float32Array(ntex)
     let dash_index = 0
     for (let i = 0; i < ntex; i++) {
-      const x = offset + i*dtex  // Distance along texture.
+      const x = xstart + i*dtex  // Distance along texture.
 
       // Which dash are we in?
       if (x > starts_and_ends[dash_index + 1])

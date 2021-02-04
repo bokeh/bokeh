@@ -141,14 +141,15 @@ void main ()
     if (u_dash_tex_info.x >= 0.0)  // If have dash.
     {
         float tex_length = u_dash_tex_info.x;
-        float tex_offset = u_dash_tex_info.y;  // Not used yet!
+        float tex_offset = u_dash_tex_info.y;
         float tex_scale = u_dash_tex_info.z;
 
-        float distance_along_line = v_length_so_far + v_coords.x;
-        float texture_length = tex_length*tex_scale;
+        float distance_along = v_length_so_far + v_coords.x - tex_scale*tex_offset;
+        float scaled_length = tex_length*tex_scale;
 
-        float dash_dist = tex_scale*texture2D(
-            u_dash_tex, vec2(distance_along_line / texture_length, 0.0)).a;
+        float dash_dist =
+            tex_scale*texture2D(u_dash_tex,
+                                vec2(distance_along / scaled_length, 0.0)).a;
 
         if (cap_type == butt_cap)
             dash_dist += 0.5*u_linewidth;
