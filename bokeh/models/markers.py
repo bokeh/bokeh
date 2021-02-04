@@ -9,10 +9,10 @@ can be associated with data columns from
 :class:`~bokeh.models.sources.ColumnDataSource` objects.
 
 .. note::
-    This module is **deprecated since Bokeh 2.3.0**. Please use the
-    :ref:`bokeh.models.glyphs` module instead. Replace all occurrences of
-    ``Marker`` models with :class:`~bokeh.models.glyphs.Scatter` glyphs. For
-    example: instead of ``Asterisk()``, use ``Scatter(marker="asterisk")``.
+    The individual marker classes in this module are **deprecated since Bokeh
+    2.3.0.** Please replace all occurrences of ``Marker`` models with
+    :class:`~bokeh.models.glyphs.Scatter` glyphs. For example: instead of
+    ``Asterisk()``, use ``Scatter(marker="asterisk")``.
 
     For backwards compatibility, all markers in this module currently link to
     their respective replacements using the
@@ -49,15 +49,24 @@ The full list of markers accessible through this module:
 * :func:`~bokeh.models.markers.X`
 * :func:`~bokeh.models.markers.Y`
 
-Markers are all subclasses of ``Glyph``. Additionally, they all share the
-same common interface providing fill and line properties provided by their
-base class ``Marker``.
+By definition, all markers accept the following set of properties:
 
-Note that a few glyphs, ``Cross`` and ``X``, only draw lines. For these, the
-fill property values are ignored.
+* ``x``, ``y`` position
+* ``size`` in pixels
+* ``line``, ``fill``, and ``hatch`` properties
+* ``angle``
 
-Also note that the ``Circle`` glyph has some additional properties such as
-``radius`` that other markers do not.
+The ``asterisk``, ``cross``, ``dash`, ``dot``, ``x``, and ``y`` are rendered as
+lines. Therefore, those markers ignore any values that are passed to the
+``fill`` and ``hatch`` properties.
+
+.. note::
+    When you draw ``circle`` markers with ``Scatter``, you can only assign a
+    size in :ref:`screen units <userguide_styling_units>` (by passing a
+    number of pixels to the ``size`` argument). In case you want to define
+    the radius of circles in :ref:`data units <userguide_styling_units>`,
+    use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
+    ``Scatter`` glyph with a ``circle`` marker.
 
 .. autoclass:: Marker
     :members:
