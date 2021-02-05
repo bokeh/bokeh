@@ -18,18 +18,28 @@ specifying tools, see :ref:`userguide_tools`.
 Scatter markers
 ~~~~~~~~~~~~~~~
 
-To scatter circle markers on a plot, use the |circle| method of |Figure|.
+Bokeh includes a large variety of markers for creating scatter plots. For
+example, to render circle scatter markers on a plot, use the |circle| method of
+|Figure|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_scatter_circle.py
     :source-position: above
 
-Similarly, to scatter square markers, use the |square| method of |Figure|.
+Similarly, use the |square| method of |Figure| to scatter square markers
+on a plot:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_scatter_square.py
     :source-position: above
 
-There are many marker types available in Bokeh. To see details and example
-plots, click on the glyph methods in the following list:
+Bokeh's built-in scatter markers consist of a set of base markers, most of which
+can be combined with different kinds of additional visual features. This is an
+overview of all available scatter markers:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_markertypes.py
+    :source-position: none
+
+To see details and example plots for any of the available scatter markers, click
+on the corresponding glyph method in the following list:
 
 .. hlist::
     :columns: 3
@@ -64,9 +74,10 @@ plots, click on the glyph methods in the following list:
     * |y|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (radians by
-default). Additionally, |circle| has a ``radius`` property that you can use to
-specify :ref:`data-space units <userguide_styling_units>`.
+:ref:`screen units <userguide_styling_units>`), and ``angle`` (in radians by
+default). The |circle| marker is an exception: this method accepts an additional
+``radius`` property that you can use with
+:ref:`data-space units <userguide_styling_units>`.
 
 .. _userguide_plotting_line_glyphs:
 
