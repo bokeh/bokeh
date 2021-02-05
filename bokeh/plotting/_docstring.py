@@ -94,7 +94,6 @@ def _docstring_extra(extra_docs):
 
 def _docstring_header(glyphclass):
     glyph_class = "Scatter" if issubclass(glyphclass, Marker) else glyphclass.__name__
-    # glyph_class = "Scatter" if issubclass(glyphclass, Marker) else str(glyphclass.__name__)
     return f"Configure and add :class:`~bokeh.models.glyphs.{glyph_class}` glyphs to this Figure."
 
 def _docstring_kwargs(parameters):
