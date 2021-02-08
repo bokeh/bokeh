@@ -13,7 +13,8 @@ to JSON. This JSON representation is consumed by the BokehJS client library,
 which uses it to render the plot.
 
 Where space permits, the attributes of the model are shown inline. Not all
-objects are shown below; see the :ref:`refguide` for full details.
+objects are shown below, and some information might be outdated; see the
+:ref:`refguide` for full details.
 
 .. image:: /_images/objects.png
     :align: center
@@ -88,7 +89,6 @@ to finally some specialized types like:
 * :class:`~bokeh.core.properties.Instance` --- to hold a reference to another model: ``Instance(Plot)``
 * :class:`~bokeh.core.properties.Enum` --- to represent enumerated values: ``Enum("foo", "bar", "baz")``
 * :class:`~bokeh.core.properties.Either` --- to create a union type: ``Either(Int, String)``
-* :class:`~bokeh.core.properties.Range` --- to restrict values to a given range: ``Instance(Plot)``
 
 The primary benefit of these property types is that validation can be performed,
 and meaningful error reporting can occur when an attempt is made to assign an
