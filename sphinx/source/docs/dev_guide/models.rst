@@ -18,6 +18,17 @@ objects are shown below; see the :ref:`refguide` for full details.
 .. image:: /_images/objects.png
     :align: center
 
+.. note::
+    The individual marker classes in the module
+    :class:`~bokeh.models.markers` are **deprecated
+    as of Bokeh 2.3.0.** Please replace all occurrences of ``Marker`` models
+    with :class:`~bokeh.models.glyphs.Scatter` glyphs. For example: instead of
+    ``Asterisk()``, use ``Scatter(marker="asterisk")``.
+
+    For backwards compatibility, all markers in this module currently link to
+    their respective replacements using the
+    :class:`~bokeh.models.glyphs.Scatter` glyph.
+
 Models and Properties
 ---------------------
 
