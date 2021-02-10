@@ -5,70 +5,76 @@ export type FontMetrics = {
   height: number
   ascent: number
   descent: number
+  cap_height: number
 }
 
-const metrics_text = "ÅŚg|"
-
-export function native_font_metrics(font: string): FontMetrics {
+const _font_metrics = (() => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
+  let cwidth = -1
+  let cheight = -1
 
-  ctx.font = font
-  const metrics = ctx.measureText(metrics_text)
+  return (font: string): FontMetrics => {
+    ctx.font = font
+    const {width: em} = ctx.measureText("M")
 
-  const ascent = metrics.actualBoundingBoxAscent
-  const descent = metrics.actualBoundingBoxDescent
+    const width = Math.ceil(em)
+    const height = Math.ceil(2.0*em)
+    const baseline = Math.ceil(1.5*em)
 
-  return {height: ascent + descent, ascent, descent}
-}
+    if (cwidth < width) {
+      cwidth = width
+      canvas.width = width
+    }
+    if (cheight < height) {
+      cheight = height
+      canvas.height = height
+    }
 
-function _font_metrics(font: string): FontMetrics {
-  const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")!
+    ctx.fillStyle = "#f00"
+    ctx.fillRect(0, 0, width, height)
 
-  ctx.font = font
-  const {width: base} = ctx.measureText(metrics_text[0])
+    const measure_ascent = (data: Uint8ClampedArray) => {
+      let k = 0
+      for (let i = 0; i <= baseline; i++) {
+        for (let j = 0; j < width; j++, k += 4)
+          if (data[k] != 255)
+            return baseline - i
+      }
+      return 0
+    }
 
-  const width = Math.ceil(base)
-  const height = Math.ceil(2.0*base)
-  const baseline = Math.ceil(1.5*base)
+    const measure_descent = (data: Uint8ClampedArray) => {
+      let k = data.length - 4
+      for (let i = height; i >= baseline; i--) {
+        for (let j = 0; j < width; j++, k -= 4)
+          if (data[k] != 255)
+            return i - baseline
+      }
+      return 0
+    }
 
-  canvas.width = width
-  canvas.height = height
+    ctx.font = font
+    ctx.fillStyle = "#000"
 
-  ctx.fillStyle = "#f00"
-  ctx.fillRect(0, 0, width, height)
+    for (const c of "ASQ") {
+      ctx.fillText(c, 0, baseline)
+    }
 
-  ctx.font = font
-  ctx.fillStyle = "#000"
-  for (const c of metrics_text) {
-    ctx.fillText(c, 0, baseline)
+    const {data: data0} = ctx.getImageData(0, 0, width, height)
+    const cap_height = measure_ascent(data0)
+
+    for (const c of "ÅŚgy") {
+      ctx.fillText(c, 0, baseline)
+    }
+
+    const {data: data1} = ctx.getImageData(0, 0, width, height)
+    const ascent = measure_ascent(data1)
+    const descent = measure_descent(data1)
+
+    return {height: ascent + descent, ascent, cap_height, descent}
   }
-
-  const {data} = ctx.getImageData(0, 0, width, height)
-
-  const ascent = (() => {
-    let k = 0
-    for (let i = 0; i <= baseline; i++) {
-      for (let j = 0; j < width; j++, k += 4)
-        if (data[k] != 255)
-          return baseline - i
-    }
-    return 0
-  })()
-
-  const descent = (() => {
-    let k = data.length - 4
-    for (let i = height; i >= baseline; i--) {
-      for (let j = 0; j < width; j++, k -= 4)
-        if (data[k] != 255)
-          return i - baseline
-    }
-    return 0
-  })()
-
-  return {height: ascent + descent, ascent, descent}
-}
+})()
 
 function _adjust_metrics(font: string, metrics: FontMetrics): void {
   // Override normal 11px Bokeh (Roboto) font in tests, so that baselines
