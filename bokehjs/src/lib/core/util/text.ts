@@ -8,15 +8,19 @@ export type FontMetrics = {
   cap_height: number
 }
 
-const _font_metrics = (() => {
+/** @internal */
+export const _font_metrics = (() => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
+  ctx.translate(0.5, 0.5)
+
   let cwidth = -1
   let cheight = -1
 
-  return (font: string): FontMetrics => {
+  return (font: string, scale: number = 1): FontMetrics => {
     ctx.font = font
-    const {width: em} = ctx.measureText("M")
+    const {width: _em} = ctx.measureText("M")
+    const em = _em*scale
 
     const width = Math.ceil(em)
     const height = Math.ceil(2.0*em)
@@ -30,6 +34,9 @@ const _font_metrics = (() => {
       cheight = height
       canvas.height = height
     }
+
+    ctx.save()
+    ctx.scale(scale, scale)
 
     ctx.fillStyle = "#f00"
     ctx.fillRect(0, 0, width, height)
@@ -58,19 +65,21 @@ const _font_metrics = (() => {
     ctx.fillStyle = "#000"
 
     for (const c of "ASQ") {
-      ctx.fillText(c, 0, baseline)
+      ctx.fillText(c, 0, baseline/scale)
     }
 
     const {data: data0} = ctx.getImageData(0, 0, width, height)
-    const cap_height = measure_ascent(data0)
+    const cap_height = measure_ascent(data0)/scale
 
     for (const c of "ÅŚgy") {
-      ctx.fillText(c, 0, baseline)
+      ctx.fillText(c, 0, baseline/scale)
     }
 
     const {data: data1} = ctx.getImageData(0, 0, width, height)
-    const ascent = measure_ascent(data1)
-    const descent = measure_descent(data1)
+    const ascent = measure_ascent(data1)/scale
+    const descent = measure_descent(data1)/scale
+
+    ctx.restore()
 
     return {height: ascent + descent, ascent, cap_height, descent}
   }
@@ -90,10 +99,10 @@ function _adjust_metrics(font: string, metrics: FontMetrics): void {
 
 const _metrics_cache: Map<string, FontMetrics> = new Map()
 
-export function font_metrics(font: string): FontMetrics {
+export function font_metrics(font: string, scale?: number): FontMetrics {
   let metrics = _metrics_cache.get(font)
   if (metrics == null) {
-    metrics = _font_metrics(font)
+    metrics = _font_metrics(font, scale)
     _adjust_metrics(font, metrics)
     _metrics_cache.set(font, metrics)
   }
