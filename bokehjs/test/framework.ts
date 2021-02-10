@@ -255,7 +255,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number]): Promise<{view: ViewOf<T>, el: HTMLElement}> {
+export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, number], el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}> {
   const margin = 50
   const [width, height] = (() => {
     if (viewport != null)
@@ -269,12 +269,12 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
       }
     }
   })()
-  const el = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}})
-  document.body.appendChild(el)
-  const view = await show(obj, el)
+  const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
+  document.body.appendChild(vp)
+  const view = await show(obj, el ?? vp)
   current_test!.view = view
-  current_test!.el = el
-  return {view, el}
+  current_test!.el = vp
+  return {view, el: vp}
 }
 
 import {sum} from "@bokehjs/core/util/array"
