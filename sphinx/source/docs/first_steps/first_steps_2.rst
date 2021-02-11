@@ -88,7 +88,7 @@ define aspects like the color or diameter of the circles:
 In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
 ways:
 
-* Use one of the 147 named SVG colors (for example, ``"firebrick"``)
+* Use one of the named SVG colors (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
 * Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
 * Use a 4-tuple for RGBa colors (for example ``(100, 100, 255, 0.5)``)
