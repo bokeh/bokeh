@@ -1,12 +1,14 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
-import {font_metrics, FontMetrics} from "./util/text"
+import {font_metrics, glyph_metrics, FontMetrics} from "./util/text"
 import {max, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
+
+const metrics_scale = 1
 
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
@@ -103,10 +105,11 @@ export abstract class GraphicsBox {
     ctx.strokeStyle = "red"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(p0.x, p0.y)
-    ctx.lineTo(p1.x, p1.y)
-    ctx.lineTo(p2.x, p2.y)
-    ctx.lineTo(p3.x, p3.y)
+    const {round} = Math
+    ctx.moveTo(round(p0.x), round(p0.y))
+    ctx.lineTo(round(p1.x), round(p1.y))
+    ctx.lineTo(round(p2.x), round(p2.y))
+    ctx.lineTo(round(p3.x), round(p3.y))
     ctx.closePath()
     ctx.stroke()
     ctx.restore()
@@ -118,10 +121,11 @@ export abstract class GraphicsBox {
     ctx.strokeStyle = "blue"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(x, y)
-    ctx.lineTo(x, y + height)
-    ctx.lineTo(x + width, y + height)
-    ctx.lineTo(x + width, y)
+    const {round} = Math
+    ctx.moveTo(round(x), round(y))
+    ctx.lineTo(round(x), round(y + height))
+    ctx.lineTo(round(x + width), round(y + height))
+    ctx.lineTo(round(x + width), round(y))
     ctx.closePath()
     ctx.stroke()
     ctx.restore()
@@ -168,20 +172,25 @@ export class TextBox extends GraphicsBox {
   _size(): Size & {metrics: FontMetrics} {
     const {font} = this
 
-    const metrics = font_metrics(font)
-    const line_spacing = (this.line_height - 1)*metrics.height
+    const metrics = font_metrics(font, metrics_scale)
+    const line_spacing = (this.line_height - 1)*metrics.height // TODO: max(trailing(L[n-1]), leading(L[n]))
 
     const empty = this.text == ""
     const lines = this.text.split("\n")
-    const widths = lines.map((line) => text_width(line, font))
-
     const nlines = lines.length
+
+    const widths = lines.map((line) => text_width(line, font))
+    const heights: number[] = []
+
+    for (const line of lines) {
+      heights.push(max([...line].map((c) => glyph_metrics(c, font, metrics_scale).height)))
+    }
 
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
     const width = max(widths)*w_scale
-    const height = empty ? 0 : (metrics.height*nlines + line_spacing*(nlines - 1))*h_scale
+    const height = empty ? 0 : (sum(heights) + line_spacing*(nlines - 1))*h_scale
 
     return {width, height, metrics}
   }
@@ -230,19 +239,27 @@ export class TextBox extends GraphicsBox {
   paint(ctx: Context2d): void {
     const {font} = this
 
-    const metrics = font_metrics(font)
-    const line_spacing = (this.line_height - 1)*metrics.height
+    const metrics = font_metrics(font, metrics_scale)
+    const line_spacing = (this.line_height - 1)*metrics.height // TODO: see above
 
     const lines = this.text.split("\n")
-    const widths = lines.map((line) => text_width(line, font))
-
     const nlines = lines.length
+
+    const widths = lines.map((line) => text_width(line, font))
+    const heights: number[] = []
+    const ascents: number[] = []
+
+    for (const line of lines) {
+      const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
+      heights.push(max(metrics.map((m) => m.height)))
+      ascents.push(max(metrics.map((m) => m.ascent)))
+    }
 
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
     const width = max(widths)*w_scale
-    const height = (metrics.height*nlines + line_spacing*(nlines - 1))*h_scale
+    const height = (sum(heights) + line_spacing*(nlines - 1))*h_scale
 
     ctx.save()
     ctx.fillStyle = this.color
@@ -274,7 +291,7 @@ export class TextBox extends GraphicsBox {
           ctx.fillText(words[j], xij, y)
           xij += word_widths[j] + word_spacing
         }
-        y += metrics.height + line_spacing
+        y += heights[i] + line_spacing
       }
     } else {
       for (let i = 0; i < nlines; i++) {
@@ -287,8 +304,8 @@ export class TextBox extends GraphicsBox {
         })()
 
         ctx.fillStyle = this.color
-        ctx.fillText(lines[i], xi, y + metrics.ascent)
-        y += metrics.height + line_spacing
+        ctx.fillText(lines[i], xi, y + ascents[i])
+        y += heights[i] + line_spacing
       }
     }
 
@@ -328,7 +345,7 @@ export class BaseExpo extends GraphicsBox {
   }
 
   set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
-    this.expo.font_size_scale = 0.8
+    this.expo.font_size_scale = 0.7
     this.base.visuals = v
     this.expo.visuals = v
   }
@@ -365,12 +382,13 @@ export class BaseExpo extends GraphicsBox {
 
   paint_bbox(ctx: Context2d): void {
     super.paint_bbox(ctx)
-    // translate?
-    /*
+    const {x, y} = this._computed_position()
+    ctx.save()
+    ctx.translate(x, y)
     for (const child of this.children) {
       child.paint_bbox(ctx)
     }
-    */
+    ctx.restore()
   }
 
   _computed_position(): {x: number, y: number} {

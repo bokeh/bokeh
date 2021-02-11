@@ -150,7 +150,8 @@ export class AxisView extends GuideRendererView {
     const extent = this.dimension == 0 ? size.height : size.width
 
     const standoff = this.model.axis_label_standoff
-    return extent > 0 ? extent + standoff : extent
+    const padding = this.panel.is_horizontal ? 5 : extent*0.1
+    return extent > 0 ? standoff + extent + padding : 0
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
@@ -243,7 +244,6 @@ export class AxisView extends GuideRendererView {
       const label = labels[i]
       label.visuals = visuals
       label.angle = angle
-      label.width = {value: 1.1, unit: "%"}
       label.position = {
         sx: Math.round(sxs[i] + nxd),
         sy: Math.round(sys[i] + nyd),
@@ -310,12 +310,12 @@ export class AxisView extends GuideRendererView {
     for (const label of labels) {
       label.visuals = visuals
       label.angle = angle
-      label.width = {value: 1.1, unit: "%"}
     }
 
     const sizes = labels.map((label) => label.size())
     const extent = max(this.dimension == 0 ? sizes.map(({height}) => height) : sizes.map(({width}) => width))
-    return extent > 0 ? extent + standoff : extent
+    const padding = this.panel.is_horizontal ? 5 : extent*0.1
+    return extent > 0 ? standoff + extent + padding : 0
   }
 
   // {{{ TODO: state
