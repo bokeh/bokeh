@@ -87,7 +87,7 @@ export class DashCache {
 
       const xsize = pattern[dash_index]
       const xmid = starts_and_ends[dash_index] + 0.5*xsize
-      y[i] = -0.5*xsize + Math.abs(x - xmid)
+      y[i] = 0.5*xsize - Math.abs(x - xmid)
       if (dash_index % 2 == 1)
         y[i] = -y[i]  // Change sign for gaps between dashes.
     }

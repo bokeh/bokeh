@@ -58,9 +58,8 @@ vec2 line_intersection(in vec2 point0, in vec2 dir0,
 void main ()
 {
     if (a_point_start.x < missing_point_threshold ||
-        a_point_end.x < missing_point_threshold)
-    {
-        // Line segment had non-finite value at one or both ends, do not render.
+        a_point_end.x < missing_point_threshold) {
+        // Line segment has non-finite value at one or both ends, do not render.
         gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
         return;
     }
@@ -88,8 +87,7 @@ void main ()
     float turn_right_start;
     if (has_start_cap)
         point_normal_start = segment_right;
-    else
-    {
+    else {
         vec2 prev_right = right_vector(normalize(a_point_start - a_point_prev));
         point_normal_start = normalize(segment_right + prev_right);
         cos_theta_start = dot(segment_right, point_normal_start);  // Always +ve
@@ -101,8 +99,7 @@ void main ()
     float turn_right_end;
     if (has_end_cap)
         point_normal_end = segment_right;
-    else
-    {
+    else {
         vec2 next_right = right_vector(normalize(a_point_next - a_point_end));
         point_normal_end = normalize(segment_right + next_right);
         cos_theta_end = dot(segment_right, point_normal_end);  // Always +ve
@@ -111,8 +108,7 @@ void main ()
 
     float miter_factor_start = 1.0 / dot(segment_right, point_normal_start);
     float miter_factor_end = 1.0 / dot(segment_right, point_normal_end);
-    if (join_type == miter_join)
-    {
+    if (join_type == miter_join) {
         // If miter too large, use bevel join instead.
         miter_too_large_start = (miter_factor_start > u_miter_limit);
         miter_too_large_end = (miter_factor_end > u_miter_limit);
@@ -125,8 +121,7 @@ void main ()
                             : (has_end_cap ? a_point_end : a_point_next);
 
     if ( (has_start_cap && sign_at_start > 0.0) ||
-         (has_end_cap && sign_at_start < 0.0) )
-    {
+         (has_end_cap && sign_at_start < 0.0) ) {
         // Cap.
         xy = point - segment_right*(halfwidth*a_position.y);
         if (cap_type == butt_cap)
@@ -134,8 +129,7 @@ void main ()
         else
             xy -= sign_at_start*halfwidth*segment_along;
     }
-    else  // Join.
-    {
+    else { // Join.
         // +ve if turning to right, -ve if to left.
         float turn_sign = sign_at_start > 0.0 ? turn_right_start : turn_right_end;
 
@@ -144,8 +138,7 @@ void main ()
         float miter_factor = sign_at_start > 0.0 ? miter_factor_start : miter_factor_end;
         bool miter_too_large = sign_at_start > 0.0 ? miter_too_large_start : miter_too_large_end;
 
-        if (abs(a_position.x) > 1.5)
-        {
+        if (abs(a_position.x) > 1.5) {
             // Outer point, meets prev segment.
             float factor;  // multiplied by halfwidth...
 
@@ -160,18 +153,15 @@ void main ()
             xy = point - point_right*(halfwidth*turn_sign*factor);
             v_coords.y = turn_sign*halfwidth*factor / miter_factor;
         }
-        else if (turn_sign*a_position.y < 0.0)
-        {
+        else if (turn_sign*a_position.y < 0.0) {
             // Inner point, meets prev segment.
             xy = point - point_right*(halfwidth*a_position.y*miter_factor);
         }
-        else
-        {
+        else {
             // Point along outside edge.
             xy = point - segment_right*(halfwidth*a_position.y);
             if (join_type == round_join &&
-                miter_factor > min_miter_factor_round_join_mesh)
-            {
+                miter_factor > min_miter_factor_round_join_mesh) {
                 xy = line_intersection(xy, segment_along,
                                        point - turn_sign*point_right*halfwidth,
                                        right_vector(point_right));
