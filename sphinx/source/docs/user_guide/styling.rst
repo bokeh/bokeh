@@ -236,23 +236,11 @@ Use one of these three options to define colors in Bokeh:
 
 .. include:: ../includes/colors.txt
 
-.. warning::
-    Supplying lists of RGB or RGBA color tuples as color arguments (either
-    directly or as a DataSource column reference) doesn't work. See the
-    `discussion on Bokeh's GitHub repository
-    <https://github.com/bokeh/bokeh/issues/2622>`_
-    for more information. Suggested workarounds include using lists of:
-
-    * RGB hexadecimal values
-    * ``bokeh.colors.RGB`` objects (for example:
-      ``[RGB(255, 0, 0), RGB(0, 255, 0)"]``)
-    * CSS-format RGB/RGBA strings (for example:
-      ``["rgb(255, 0, 0)", "rgb(0, 255, 0)"]``)
-
 To specify the alpha value of a color, you have two options:
 
-* Set the alpha directly by using the ``line|fill_alpha`` property.
-* Provide the alpha through a RGBA 4-tuple for the ``line|fill_color`` property.
+* Set the alpha value directly by using the ``line|fill_alpha`` property.
+* Provide the alpha value as part of a RGBA 4-tuple for the ``line|fill_color``
+  property.
 
 Additionally, you can also use a combination of the two or not set any alpha at
 all:
