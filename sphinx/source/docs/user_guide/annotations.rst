@@ -1,70 +1,84 @@
 .. _userguide_annotations:
 
-Adding Annotations
+Adding annotations
 ==================
 
-Bokeh includes several different types of annotations to allow users to add
-supplemental information to their visualizations.
+Bokeh includes several different types of :term:`annotations <Annotation>` you
+can use to add supplemental information to your visualizations.
 
 .. _userguide_plotting_titles:
 
 Titles
 ------
 
-With |Title| annotations, you can add descriptive text to render around the edges
-of a plot.
+Use |Title| annotations to add descriptive text which is rendered around
+the edges of a plot.
 
-When using ``bokeh.plotting`` or ``bokeh.Charts``, the quickest way to add
-a basic title is to pass the text as the ``title`` parameter to |Figure| or
-any Chart function:
+If you use the :ref:`bokeh.plotting <userguide_interfaces_plotting>` interface,
+the quickest way to add a basic title is to pass the text as the ``title``
+parameter to |Figure|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
     :source-position: above
 
-The default title is normally on the top of a plot, aligned to the left. The
-``title_location`` parameter controls on which side of the plot the title appears:
+The default title is generally located above a plot, aligned to the left.
+
+To define the placement of the title in relation to the plot, use the
+``title_location`` parameter. A title can be located above, below, left, or
+right of a plot. For example:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_location.py
     :source-position: above
 
-The default |Title| is accessible through the ``Plot.title`` property.
-Visual properties for font, border, background, and others can be set
-directly on ``.title``. Here is an example that sets font and background
-properties as well as the title text and title alignment using ``.title``:
+Use your plot's ``.title`` property to customize the default |Title|. You can
+set visual properties for font, border, and background, for example.
+
+This example uses the ``.title`` property to set the font and background
+properties as well as the title text and title alignment:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_visuals.py
     :source-position: above
 
-Note that the alignment is measured along the direction of text. For
-example, for titles on the left side of a plot, "left" will be in the
-lower corner.
+Note that the ``align`` property is relative to the direction of the text. For
+example: If you have placed your title on the left side of your plot, setting
+the ``align`` property to ``"left"`` means your text is rendered in the lower
+left corner.
 
-In addition to the default title, you can create and add
-additional |Title| objects to plots using the ``add_layout`` method
-of Plots:
+To add more titles to your document, you need to create additional |Title|
+objects. Use the :func:`~bokeh.models.plots.Plot.add_layout` method of your plot
+to include those additional |Title| objects in your document:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_additional.py
     :source-position: above
 
-If a title and a sticky toolbar are set to the same side, they will occupy
-the same space:
+If a title and a :ref:`toolbar <userguide_tools>` are placed on the same side
+of a plot, they will occupy the same space:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_toolbar.py
     :source-position: above
 
 If the plot size is large enough, this can result in a more compact plot.
 However, if the plot size is not large enough, the title and toolbar may
-visually overlap in a way that is not desirable.
+visually overlap and become impossible to read.
 
 .. _userguide_plotting_legends:
 
 Legends
 -------
 
-You can create |Legend| annotations easily by specifying legend
-arguments to the glyph methods when creating a plot.
+The easiest way to add a legend to your plot is to include any of the
+:ref:`legend_label <userguide_plotting_legends_legend_label>`,
+:ref:`legend_group <userguide_plotting_legends_legend_group>`,
+or :ref:`legend_field <userguide_plotting_legends_legend_field>` properties
+when calling glyph methods. Bokeh then creates a
+|Legend| object for you automatically.
 
-Basic Legend Label
+For more advanced control over a plot's legend, access the |Legend| object
+:ref:`directly <userguide_plotting_legends_manual>`.
+
+.. _userguide_plotting_legends_legend_label:
+
+Basic legend label
 ~~~~~~~~~~~~~~~~~~
 
 To provide a simple explicit label for a glyph, pass the ``legend_label``
@@ -74,53 +88,63 @@ keyword argument:
 
     p.circle('x', 'y', legend_label="some label")
 
-If multiple glyphs are given the same label, all the glyphs will be combined into a
-single legend item with that label.
+If you assign the same label name to multiple glyphs, all the glyphs will be
+combined into a single legend item with that label.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
     :source-position: above
 
-Automatic Grouping (Python)
+.. _userguide_plotting_legends_legend_group:
+
+Automatic grouping (Python)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is often desirable to generate multiple legend items by grouping the values
-in a data source column. It is possible for Bokeh to perform such a grouping by
-passing the ``legend_group`` keyword argument to a glyph method:
+If your data is in the form of a :ref:`ColumnDataSource <userguide_data_cds>`,
+Bokeh can generate legend entries from strings in one of the ColumnDataSource's
+columns. This way, you can create legend entries based on groups of glyphs.
+
+To use data from a column of a ColumnDataSource to generate your plot's legend,
+pass the column name as the ``legend_group`` keyword argument to a glyph method:
 
 .. code-block:: python
 
     p.circle('x', 'y', legend_group="colname", source=source)
 
-When this method is used, the grouping is performed immediately in Python, and
-subsequent Python code will be able to see the individual legend items in
-``Legend.items`` property. If desired, these items can be re-arranged or modified.
+Because ``legend_group`` references a column of a ColumnDataSource, you need to
+always provide a ``source`` argument to the glyph method as well. Additionally,
+the column containing the label names has to be present in the data source at
+that point:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_group.py
     :source-position: above
 
-.. note::
+Using ``legend_group`` means that Bokeh groups the legend entries immediately.
+Therefore, any subsequent Python code will be able to see the individual legend
+items in the ``Legend.items`` property. This way, you can re-arrange or modify
+the legend at any time.
 
-    To use this feature, a ``source`` argument *must also be provided* to the
-    glyph method. Additionally, the column to be grouped must already be present
-    in the data source at that point.
+.. _userguide_plotting_legends_legend_field:
 
-Automatic Grouping (Browser)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Automatic grouping (browser-side)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is also possible to specify that the grouping should happen on the JavaScript
-side, in the browser. This may be desirable, e.g. if the grouping should happen
-on a column that is only computed on the JavaScript side.
+You also have the option to only group elements within your legend on the
+:term:`JavaScript side <BokehJS>`, in the browser. Using browser-side grouping makes sense if you
+want to group a column that is only computed on the JavaScript side, for
+example.
 
 .. code-block:: python
 
     p.circle('x', 'y', legend_field="colname", source=source)
 
 In this case, the Python code does *not* see multiple items in ``Legend.items``.
-Instead, there is only a single item that represents the grouping to perform in
-the browser.
+Instead, there is only a single item that represents the grouping which is then
+performed in the browser.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
     :source-position: above
+
+.. _userguide_plotting_legends_manual:
 
 Manual Legends
 ~~~~~~~~~~~~~~
