@@ -232,29 +232,55 @@ Color properties
 Bokeh objects have several properties related to colors. Use those color
 properties to control the appearance of lines, fills, or text, for example.
 
-Use one of these three options to define colors in Bokeh:
+Use one of these options to define colors in Bokeh:
 
-.. include:: ../includes/colors.txt
+- Any of the
+  `named CSS colors <http://www.w3schools.com/colors/colors_names.asp>`_, such
+  as ``'green'`` or ``'indigo'``. You can also use the additional name
+  ``'transparent'`` (equal to ``'#00000000'``).
+- A CSS4 ``rgb()`` or ``rgba()`` color string, such as
+- ``'rgba(255, 0, 127, 0.6)'`` or ``'rgb(0 127 0 / 1.0)'``.
+- An RGB(A) hex value, such as ``'#FF0000'`` (without alpha information) or
+- ``'#44444444'`` (with alpha information).
+- A 3-tuple of integers ``(r, g, b)`` (where *r*, *g*, and *b* are integers
+  between 0 and 255).
+- A 4-tuple of ``(r, g, b, a)`` (where *r*, *g*, and *b* are integers between 0
+  and 255 and *a* is a floating-point value between 0 and 1).
 
-To specify the alpha value of a color, you have two options:
+To define a series of colors, use an array of color data such as a list or the
+column of a :ref:`ColumnDataSource <userguide_data_cds>`. This also includes
+`NumPy arrays <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
+Using arrays gives you two additional options for defining colors:
 
-* Set the alpha value directly by using the ``line|fill_alpha`` property.
-* Provide the alpha value as part of a RGBA 4-tuple for the ``line|fill_color``
-  property.
+- Arrays of 32-bit unsigned integers representing RGBA values in a 0xRRGGBBAA
+  byte order pattern. For example:
+  ``[0xffff00ff, 0xff0000ff, 0x00ff00ff, 0x0000ffff]``
+- Arrays of strings representing HSL values (hue in ``deg``, saturation and
+  lightness in ``%`` and the alpha value as floating-point value between 0 and
+  1). For example: ``["hsl(60deg 100% 50% / 1.0)", "hsl(0deg 100% 50% / 1.0)", "hsl(120deg 100% 50% / 1.0)"]``
 
-Additionally, you can also use a combination of the two or not set any alpha at
-all:
+For example:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_specifying_colors.py
+    :source-position: above
+
+In addition to specifying the alpha value of a color when defining the color
+itself, you can also set an alpha value separately by using the
+``line_alpha`` or ``fill_alpha`` properties of a glyph.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_specifying_colors_properties.py
     :source-position: none
 
 .. note::
-    If you use the |bokeh.plotting| interface, you have another option: specify
-    ``color`` and/or ``alpha`` as a keyword, as well as the demonstrated color
-    properties. Bokeh applies these inputs to both of the corresponding ``line``
-    and ``fill`` properties. However, you can still provide ``fill|line_alpha``
-    or ``fill|line_color`` in combination with the ``color``/``alpha`` keywords,
-    and the former will take precedence.
+    If you use
+    :ref:`Bokeh's plotting interface <userguide_interfaces_plotting>`, you also
+    have the option to specify ``color`` and/or ``alpha`` as keywords when
+    calling a renderer method. Bokeh automatically applies these values to the
+    corresponding ``fill`` and ``line`` properties of your glyphs.
+
+    You then still have the option to provide additional ``fill_color``,
+    ``fill_alpha``, ``line_color``, and ``line_alpha`` arguments as well. In
+    this case, the former will take precedence.
 
 .. _userguide_styling_arrow_annotations:
 

@@ -605,7 +605,7 @@ class ColorSpec(DataSpec):
         if self.isconst(val):
             return dict(value=val)
 
-        # Check for RGB or RGBa tuple
+        # Check for RGB or RGBA tuple
         if isinstance(val, tuple):
             return dict(value=colors.RGB(*val).to_css())
 

@@ -66,14 +66,12 @@ class RGB(Property):
 class Color(Either):
     """ Accept color values in a variety of ways.
 
-    For colors, because we support named colors and hex values prefaced
-    with a "#", when we are handed a string value, there is a little
-    interpretation: if the value is one of the 147 SVG named colors or
-    it starts with a "#", then it is interpreted as a value.
-
-    If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBA (0..255), with
-    alpha as a float between 0 and 1. (This follows the HTML5 Canvas API.)
+    * If a color is provided as a string, Bokeh determins whether this string
+      represents one of the named CSS colors or a hex value (prefaced with a
+      "#").
+    * If a 3-tuple is provided, then it is treated as an RGB value (between 0 and 255).
+    * If a 4-tuple is provided, then it is treated as an RGBA value (between 0 and 255),
+      with alpha as a float between 0 and 1 (this follows the HTML5 Canvas API).
 
     Example:
 
@@ -106,8 +104,9 @@ class Color(Either):
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
-    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
-    - a 32-bit unsigned integers using the 0xRRGGBBAA byte order pattern
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
+      and a is between 0 and 1
+    - 32-bit unsigned integers using the 0xRRGGBBAA byte order pattern
 
     .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 
