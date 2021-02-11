@@ -72,8 +72,8 @@ class Color(Either):
     it starts with a "#", then it is interpreted as a value.
 
     If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
-    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
+    If a 4-tuple is provided, then it is treated as an RGBA (0..255), with
+    alpha as a float between 0 and 1. (This follows the HTML5 Canvas API.)
 
     Example:
 
@@ -107,7 +107,7 @@ class Color(Either):
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
     - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
-    - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
+    - a 32-bit unsigned integers using the 0xRRGGBBAA byte order pattern
 
     .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 
@@ -145,8 +145,8 @@ class Color(Either):
 class ColorHex(Color):
     """ ref Color
 
-    The only difference with Color is it's transform in hexadecimal string
-    when send to javascript side
+    The only difference to Color is that this class transforms values into
+    hexadecimal strings to be sent to BokehJS.
 
     """
 
@@ -167,7 +167,8 @@ class ColorHex(Color):
 class Alpha(Percent):
 
     _default_help = """\
-    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    Acceptable values are floating-point numbers between 0 and 1 (0 being
+    transparent and 1 being opaque).
     """
 
     def __init__(self, default=1.0, help=None):
