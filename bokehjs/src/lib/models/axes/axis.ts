@@ -190,10 +190,6 @@ export class AxisView extends GuideRendererView {
     axis_label.align = align
 
     axis_label.paint(ctx)
-    ///
-    //axis_label.paint_rect(ctx)
-    //axis_label.paint_bbox(ctx)
-    ///
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
@@ -268,10 +264,6 @@ export class AxisView extends GuideRendererView {
     for (const i of selected) {
       const label = labels[i]
       label.paint(ctx)
-      ///
-      //label.paint_rect(ctx)
-      //label.paint_bbox(ctx)
-      ///
     }
   }
 
