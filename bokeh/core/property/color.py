@@ -66,7 +66,7 @@ class RGB(Property):
 class Color(Either):
     """ Accept color values in a variety of ways.
 
-    * If a color is provided as a string, Bokeh determins whether this string
+    * If a color is provided as a string, Bokeh determines whether this string
       represents one of the named CSS colors (such as "red"), a CSS4 color
       string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
     * If a 3-tuple is provided, it is treated as an RGB value (between 0 and
