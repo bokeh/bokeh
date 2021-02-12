@@ -238,26 +238,22 @@ Use one of these options to define colors in Bokeh:
   `named CSS colors <http://www.w3schools.com/colors/colors_names.asp>`_, such
   as ``'green'`` or ``'indigo'``. You can also use the additional name
   ``'transparent'`` (equal to ``'#00000000'``).
-- A CSS4 ``rgb()`` or ``rgba()`` color string, such as
-- ``'rgba(255, 0, 127, 0.6)'`` or ``'rgb(0 127 0 / 1.0)'``.
 - An RGB(A) hex value, such as ``'#FF0000'`` (without alpha information) or
-- ``'#44444444'`` (with alpha information).
+  ``'#44444444'`` (with alpha information).
+- A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``
+  `color string <https://www.w3.org/TR/css-color-4/>`_, such as
+  ``'rgb(0 127 0 / 1.0)'``, ``'rgba(255, 0, 127, 0.6)'``, or
+  ``hsl(60deg 100% 50% / 1.0)``.
 - A 3-tuple of integers ``(r, g, b)`` (where *r*, *g*, and *b* are integers
   between 0 and 255).
 - A 4-tuple of ``(r, g, b, a)`` (where *r*, *g*, and *b* are integers between 0
   and 255 and *a* is a floating-point value between 0 and 1).
+- A 32-bit unsigned integer representing RGBA values in a 0xRRGGBBAA
+  byte order pattern, such as ``0xffff00ff`` or ``0xff0000ff``.
 
 To define a series of colors, use an array of color data such as a list or the
 column of a :ref:`ColumnDataSource <userguide_data_cds>`. This also includes
 `NumPy arrays <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
-Using arrays gives you two additional options for defining colors:
-
-- Arrays of 32-bit unsigned integers representing RGBA values in a 0xRRGGBBAA
-  byte order pattern. For example:
-  ``[0xffff00ff, 0xff0000ff, 0x00ff00ff, 0x0000ffff]``
-- Arrays of strings representing HSL values (hue in ``deg``, saturation and
-  lightness in ``%`` and the alpha value as floating-point value between 0 and
-  1). For example: ``["hsl(60deg 100% 50% / 1.0)", "hsl(0deg 100% 50% / 1.0)", "hsl(120deg 100% 50% / 1.0)"]``
 
 For example:
 

@@ -67,11 +67,15 @@ class Color(Either):
     """ Accept color values in a variety of ways.
 
     * If a color is provided as a string, Bokeh determins whether this string
-      represents one of the named CSS colors or a hex value (prefaced with a
-      "#").
-    * If a 3-tuple is provided, then it is treated as an RGB value (between 0 and 255).
-    * If a 4-tuple is provided, then it is treated as an RGBA value (between 0 and 255),
+      represents one of the named CSS colors (such as "red"), a CSS4 color
+      string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
+    * If a 3-tuple is provided, it is treated as an RGB value (between 0 and
+      255).
+    * If a 4-tuple is provided, it is treated as an RGBA value (between 0 and
+      255),
       with alpha as a float between 0 and 1 (this follows the HTML5 Canvas API).
+    * If a 32-bit unsigned integer is provided, it is treated as RGBA values in
+      a 0xRRGGBBAA byte order pattern.
 
     Example:
 
@@ -102,11 +106,12 @@ class Color(Either):
 
     - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
-    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
+    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
+      ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
     - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
       and a is between 0 and 1
-    - 32-bit unsigned integers using the 0xRRGGBBAA byte order pattern
+    - a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
 
     .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 

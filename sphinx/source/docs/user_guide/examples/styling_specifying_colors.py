@@ -31,7 +31,7 @@ numpy_array_of_colors = np.array(
 
 p = figure(title="Specifying colors")
 
-# plot glyphs
+# add glyphs to plot
 p.line(x, y1, line_color=single_color)
 p.circle(x, y2, radius=0.12, color=list_of_colors)
 p.triangle(x, y3, size=30, fill_color=numpy_array_of_colors)
