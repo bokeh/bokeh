@@ -261,6 +261,51 @@ export class AxisView extends GuideRendererView {
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
 
+
+    const ids = [...selected.ones()]
+    if (ids.length != 0) {
+      const cbox = this.parent.canvas_view.bbox
+
+      const correct_x = (k: number) => {
+        const bbox = bboxes[k]
+
+        if (bbox.left < 0) {
+          const offset = -bbox.left
+          const {position} = labels[k]
+          labels[k].position = {...position, sx: position.sx + offset}
+        } else if (bbox.right > cbox.width) {
+          const offset = bbox.right - cbox.width
+          const {position} = labels[k]
+          labels[k].position = {...position, sx: position.sx - offset}
+        }
+      }
+
+      const correct_y = (k: number) => {
+        const bbox = bboxes[k]
+
+        if (bbox.top < 0) {
+          const offset = -bbox.top
+          const {position} = labels[k]
+          labels[k].position = {...position, sy: position.sy + offset}
+        } else if (bbox.bottom > cbox.height) {
+          const offset = bbox.bottom - cbox.height
+          const {position} = labels[k]
+          labels[k].position = {...position, sy: position.sy - offset}
+        }
+      }
+
+      const i = ids[0]
+      const j = ids[ids.length - 1]
+
+      if (this.dimension == 0) {
+        correct_x(i)
+        correct_x(j)
+      } else {
+        correct_y(i)
+        correct_y(j)
+      }
+    }
+
     for (const i of selected) {
       const label = labels[i]
       label.paint(ctx)
