@@ -182,8 +182,8 @@ export class AxisView extends GuideRendererView {
 
     const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
     axis_label.position = {
-      sx: Math.round(sx + nx*standoff),
-      sy: Math.round(sy + ny*standoff),
+      sx: sx + nx*standoff,
+      sy: sy + ny*standoff,
       x_anchor: align,
       y_anchor: vertical_align,
     }
@@ -241,8 +241,8 @@ export class AxisView extends GuideRendererView {
       label.visuals = visuals
       label.angle = angle
       label.position = {
-        sx: Math.round(sxs[i] + nxd),
-        sy: Math.round(sys[i] + nyd),
+        sx: sxs[i] + nxd,
+        sy: sys[i] + nyd,
         x_anchor: align,
         y_anchor: vertical_align,
       }
@@ -260,7 +260,6 @@ export class AxisView extends GuideRendererView {
 
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
-
 
     const ids = [...selected.ones()]
     if (ids.length != 0) {
