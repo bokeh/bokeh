@@ -254,9 +254,15 @@ export class AxisView extends GuideRendererView {
     const indices = Indices.all_set(n)
 
     const bboxes = labels.map((l) => l.bbox())
-    const dist: DistanceMeasure =
-      this.dimension == 0 ? (i, j) => bboxes[j].left - bboxes[i].right
-                          : (i, j) => bboxes[i].top - bboxes[j].bottom
+    const dist = ((): DistanceMeasure => {
+      const [range] = this.ranges
+      if (!range.is_reversed)
+        return this.dimension == 0 ? (i, j) => bboxes[j].left - bboxes[i].right
+                                   : (i, j) => bboxes[i].top - bboxes[j].bottom
+      else
+        return this.dimension == 0 ? (i, j) => bboxes[i].left - bboxes[j].right
+                                   : (i, j) => bboxes[j].top - bboxes[i].bottom
+    })()
 
     const {major_label_policy} = this.model
     const selected = major_label_policy.filter(indices, bboxes, dist)
