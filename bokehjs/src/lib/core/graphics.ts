@@ -181,9 +181,16 @@ export class TextBox extends GraphicsBox {
 
     const widths = lines.map((line) => text_width(line, font))
     const heights: number[] = []
+    const ascents: number[] = []
+    const descents: number[] = []
 
     for (const line of lines) {
-      heights.push(max([...line].map((c) => glyph_metrics(c, font, metrics_scale).height)))
+      const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
+      const max_ascent = max(metrics.map((m) => m.ascent))
+      const max_descent = max(metrics.map((m) => m.descent))
+      ascents.push(max_ascent)
+      descents.push(max_descent)
+      heights.push(max_ascent + max_descent)
     }
 
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
@@ -248,11 +255,15 @@ export class TextBox extends GraphicsBox {
     const widths = lines.map((line) => text_width(line, font))
     const heights: number[] = []
     const ascents: number[] = []
+    const descents: number[] = []
 
     for (const line of lines) {
       const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
-      heights.push(max(metrics.map((m) => m.height)))
-      ascents.push(max(metrics.map((m) => m.ascent)))
+      const max_ascent = max(metrics.map((m) => m.ascent))
+      const max_descent = max(metrics.map((m) => m.descent))
+      ascents.push(max_ascent)
+      descents.push(max_descent)
+      heights.push(max_ascent + max_descent)
     }
 
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
