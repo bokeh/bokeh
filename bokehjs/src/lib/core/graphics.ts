@@ -172,8 +172,8 @@ export class TextBox extends GraphicsBox {
   _size(): Size & {metrics: FontMetrics} {
     const {font} = this
 
-    const metrics = font_metrics(font, metrics_scale)
-    const line_spacing = (this.line_height - 1)*metrics.height // TODO: max(trailing(L[n-1]), leading(L[n]))
+    const fmetrics = font_metrics(font, metrics_scale)
+    const line_spacing = (this.line_height - 1)*fmetrics.height // TODO: max(trailing(L[n-1]), leading(L[n]))
 
     const empty = this.text == ""
     const lines = this.text.split("\n")
@@ -186,7 +186,7 @@ export class TextBox extends GraphicsBox {
 
     for (const line of lines) {
       const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
-      const max_ascent = max(metrics.map((m) => m.ascent))
+      const max_ascent = Math.max(max(metrics.map((m) => m.ascent)), fmetrics.cap_height)
       const max_descent = max(metrics.map((m) => m.descent))
       ascents.push(max_ascent)
       descents.push(max_descent)
@@ -199,7 +199,7 @@ export class TextBox extends GraphicsBox {
     const width = max(widths)*w_scale
     const height = empty ? 0 : (sum(heights) + line_spacing*(nlines - 1))*h_scale
 
-    return {width, height, metrics}
+    return {width, height, metrics: fmetrics}
   }
 
   _computed_position(size: Size, metrics: FontMetrics, nlines: number): {x: number, y: number} {
@@ -246,8 +246,8 @@ export class TextBox extends GraphicsBox {
   paint(ctx: Context2d): void {
     const {font} = this
 
-    const metrics = font_metrics(font, metrics_scale)
-    const line_spacing = (this.line_height - 1)*metrics.height // TODO: see above
+    const fmetrics = font_metrics(font, metrics_scale)
+    const line_spacing = (this.line_height - 1)*fmetrics.height // TODO: see above
 
     const lines = this.text.split("\n")
     const nlines = lines.length
@@ -259,7 +259,7 @@ export class TextBox extends GraphicsBox {
 
     for (const line of lines) {
       const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
-      const max_ascent = max(metrics.map((m) => m.ascent))
+      const max_ascent = Math.max(max(metrics.map((m) => m.ascent)), fmetrics.cap_height)
       const max_descent = max(metrics.map((m) => m.descent))
       ascents.push(max_ascent)
       descents.push(max_descent)
@@ -288,7 +288,7 @@ export class TextBox extends GraphicsBox {
       ctx.translate(-sx, -sy)
     }
 
-    let {x, y} = this._computed_position({width, height}, metrics, nlines)
+    let {x, y} = this._computed_position({width, height}, fmetrics, nlines)
 
     if (align == "justify") {
       for (let i = 0; i < nlines; i++) {
