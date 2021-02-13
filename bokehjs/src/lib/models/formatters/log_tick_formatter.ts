@@ -1,10 +1,10 @@
 import {TickFormatter} from "./tick_formatter"
-import {BasicTickFormatter} from "./basic_tick_formatter"
+import {BasicTickFormatter, unicode_replace} from "./basic_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
 import {GraphicsBox, BaseExpo, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
-const {abs, log, round} = Math
+const {log, round} = Math
 
 export namespace LogTickFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -45,20 +45,23 @@ export class LogTickFormatter extends TickFormatter {
 
     if (expos == null)
       return this.basic_formatter.format_graphics(ticks, opts)
-    else
-      return expos.map((expo) => new BaseExpo(new TextBox({text: `${base}`}), new TextBox({text: expo})))
+    else {
+      return expos.map((expo) => {
+        const b = new TextBox({text: unicode_replace(`${base}`)})
+        const e = new TextBox({text: unicode_replace(`${expo}`)})
+        return new BaseExpo(b, e)
+      })
+    }
   }
 
-  protected _exponents(ticks: number[], base: number): string[] | null {
-    let last_expo = null
+  protected _exponents(ticks: number[], base: number): number[] | null {
+    let last_exponent = null
     const exponents = []
-    const minus = "\u2212"
     for (const tick of ticks) {
       const exponent = round(log(tick)/log(base))
-      const expo = exponent >= 0 ? `${exponent}` : `${minus}${abs(exponent)}`
-      if (last_expo != expo) {
-        last_expo = expo
-        exponents.push(expo)
+      if (last_exponent != exponent) {
+        last_exponent = exponent
+        exponents.push(exponent)
       } else
         return null
     }
@@ -75,6 +78,6 @@ export class LogTickFormatter extends TickFormatter {
     if (expos == null)
       return this.basic_formatter.doFormat(ticks, opts)
     else
-      return expos.map((expo) => `${base}^${expo}`)
+      return expos.map((expo) => unicode_replace(`${base}^${expo}`))
   }
 }
