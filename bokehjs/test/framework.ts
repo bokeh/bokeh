@@ -5,7 +5,8 @@ import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
-import {isString} from "@bokehjs/core/util/types"
+import {isString, isArray} from "@bokehjs/core/util/types"
+import {unreachable} from "@bokehjs/core/util/assert"
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -125,7 +126,7 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
   return descriptions(suites, test).join(sep)
 }
 
-export async function run_all(query?: string | RegExp): Promise<void> {
+export async function run_all(query?: string | string[] | RegExp): Promise<void> {
   for await (const result of yield_all(query)) {
     if (result.error != null) {
       console.error(result.error)
@@ -133,9 +134,19 @@ export async function run_all(query?: string | RegExp): Promise<void> {
   }
 }
 
-export async function* yield_all(query?: string | RegExp): AsyncGenerator<PartialResult> {
-  const matches: (d: string) => boolean =
-    query == null ? (_d) => true : (isString(query) ? (d) => d.includes(query) : (d) => d.match(query) != null)
+export async function* yield_all(query?: string | string[] | RegExp): AsyncGenerator<PartialResult> {
+  const matches = ((): (desc: string) => boolean => {
+    if (query == null)
+      return () => true
+    else if (isString(query))
+      return (desc) => desc.includes(query)
+    else if (isArray(query))
+      return (desc) => query.every((q) => desc.includes(q))
+    else if (query instanceof RegExp)
+      return (desc) => desc.match(query) != null
+    else
+      unreachable()
+  })()
 
   for (const [parents, test] of iter_tests()) {
     if (test.skip || !matches(description(parents, test))) {
