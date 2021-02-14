@@ -84,13 +84,13 @@ const _vertical_align_lookup: {[key in Side]: {[key in Orient]: VerticalAlign}} 
     parallel: "bottom",
     normal: "center",
     horizontal: "center",
-    vertical: "center",
+    vertical: "bottom",
   },
   right: {
     parallel: "bottom",
     normal: "center",
     horizontal: "center",
-    vertical: "center",
+    vertical: "bottom",
   },
 }
 
