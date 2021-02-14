@@ -192,6 +192,8 @@ export async function clear(seq: TestSeq): Promise<void> {
   _clear_test(test)
 }
 
+const container = document.querySelector(".container")!
+
 function _clear_test(test: Test): void {
   if (test.view != null) {
     const {model} = test.view
@@ -206,13 +208,16 @@ function _clear_test(test: Test): void {
     test.el.remove()
     test.el = undefined
   }
-  empty(document.body)
+  empty(container)
 }
 
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const {fn} = test
   const start = Date.now()
   let error: Error | null = null
+
+  const desc = div({class: "description"}, description(suites, test, " ⇒ "))
+  container.appendChild(desc)
 
   for (const suite of suites) {
     for (const {fn} of suite.before_each)
@@ -270,7 +275,7 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
     }
   })()
   const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
-  document.body.appendChild(vp)
+  container.appendChild(vp)
   const view = await show(obj, el ?? vp)
   current_test!.view = view
   current_test!.el = vp

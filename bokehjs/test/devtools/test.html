@@ -28,6 +28,18 @@
       .bk-root pre.bk {
         font-family: BokehMono;
       }
+
+      .container {
+        padding: 10px;
+      }
+
+      .description {
+        background: white;
+        font-weight: bold;
+        font-size: 14px;
+        height: 20px;
+        padding: 2 0;
+      }
     </style>
     <script type="text/javascript" src="{{ js('bokeh') }}"></script>
     <script type="text/javascript" src="{{ js('bokeh-api') }}"></script>
@@ -41,6 +53,7 @@
     </script>
   </head>
   <body>
+    <div class="container"></div>
     <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
     <script type="text/javascript">
       async function preload_fonts() {
