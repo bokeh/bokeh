@@ -78,8 +78,8 @@ export abstract class GraphicsBox {
       const s = Math.sin(Math.abs(angle))
 
       return {
-        width: width*c + height*s,
-        height: width*s + height*c,
+        width: Math.abs(width*c + height*s),
+        height: Math.abs(width*s + height*c),
       }
     }
   }
