@@ -248,8 +248,16 @@ function devtools(devtools_port: number, server_port: number, name: string, base
   })
 }
 
+async function keep_alive(): Promise<void> {
+  await new Promise((resolve) => {
+    process.on("SIGINT", () => resolve(undefined))
+  })
+}
+
 task("test:run:headless", async () => {
-  await headless(9222)
+  const proc = await headless(9222)
+  terminate(proc)
+  await keep_alive()
 })
 
 const start_headless = task("test:start:headless", async () => {
