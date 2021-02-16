@@ -129,38 +129,44 @@ Automatic grouping (browser-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You also have the option to only group elements within your legend on the
-:term:`JavaScript side <BokehJS>`, in the browser. Using browser-side grouping makes sense if you
-want to group a column that is only computed on the JavaScript side, for
-example.
+:term:`JavaScript side <BokehJS>`, in the browser. Using browser-side grouping
+makes sense if you want to group a column that is only computed on the
+JavaScript side, for example.
 
 .. code-block:: python
 
     p.circle('x', 'y', legend_field="colname", source=source)
 
 In this case, the Python code does *not* see multiple items in ``Legend.items``.
-Instead, there is only a single item that represents the grouping which is then
-performed in the browser.
+Instead, there is only a single item that represents the grouping, and the
+grouping happens in the browser.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
     :source-position: above
 
 .. _userguide_plotting_legends_manual:
 
-Manual Legends
+Manual legends
 ~~~~~~~~~~~~~~
 
-It is also possible to not specify any of the legend arguments, and manually
-build a :class:`~bokeh.models.annotations.Legend` by hand. An example of this
-can be found in :bokeh-tree:`examples/models/file/legends.py`:
+To build a legend by hand, don't use any of the ``legend`` arguments and instead
+assign values to the various properties of a
+:class:`~bokeh.models.annotations.Legend` object directly.
 
-Explicit Index
+See :bokeh-tree:`examples/models/file/legends.py` for an example.
+
+Explicit index
 ~~~~~~~~~~~~~~
 
-Other times, it may be useful to explicitly tell Bokeh which index into a
-``ColumnDataSource`` should be used when drawing a legend item. In particular,
-if you want to draw multiple legend items for "multi" glyphs such as
-``MultiLine`` or ``Patches``. This is accomplished by specifying an ``index``
-for the legend item, as shown below.
+To explicitly specify which index into a
+:ref:`ColumnDataSource <userguide_data_cds>` to use in a legend, set the
+``index`` property of a ``LegendItem``.
+
+This is useful for displaying multiple entries in a legend whe you use glyphs
+that are rendered in several parts, such as
+:class:`~bokeh.models.glyphs.MultiLine`
+(:func:`~bokeh.plotting.Figure.multi_line`) or
+:class:`~bokeh.models.glyphs.Patches` :func:`~bokeh.plotting.Figure.patches`:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legends_multi_index.py
     :source-position: above
@@ -168,9 +174,11 @@ for the legend item, as shown below.
 Interactive Legends
 ~~~~~~~~~~~~~~~~~~~
 
-It is also possible to configure legends to be interactive, so that clicking
-or tapping on legend entries affects the corresponding glyph visibility. See
-the :ref:`userguide_interaction_legends` section of the User Guide for more
+You can use legends as interactive elements to control some aspects of the
+appearance of your plot. Clicking or tapping on interactive legend entries
+controls the visibility of the glyphs associated with the legend entry.
+
+See :ref:`userguide_interaction_legends` in the User Guide for more
 information and examples.
 
 .. note::
@@ -180,51 +188,61 @@ information and examples.
 
 .. _userguide_plotting_color_bars:
 
-Color Bars
+Color bars
 ----------
 
-A |ColorBar| can be created using a |ColorMapper| instance, which
-contains a color palette. Both on- and off-plot color bars are
-supported; the desired location can be specified when adding the
-|ColorBar| to the plot.
+To create a |ColorBar|, use an instance of |ColorMapper| containing a color
+palette.
 
-.. note::
-    This example depends on the open-source NumPy library in order to
-    generate demonstration data.
+Color bars can be located inside as well as left, right, below or above the
+plot. Specify the location of a color bar when adding the |ColorBar| object to
+the plot using the :func:`~bokeh.models.plots.Plot.add_layout` method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
+
+.. note::
+    This example depends on the open-source NumPy library to generate
+    sample data.
 
 .. _userguide_plotting_arrows:
 
 Arrows
 ------
 
-|Arrow| annotations can be used to connect glyphs and label annotations or
-to simply highlight plot regions. Arrows are compound annotations, meaning
-that their ``start`` and ``end`` attributes are themselves other |ArrowHead|
-annotations. By default, the |Arrow| annotation is one-sided with the ``end``
-set as an ``OpenHead``-type arrowhead (an open-backed wedge style) and the
-``start`` property set to ``None``. Double-sided arrows can be created by
-setting both the ``start`` and ``end`` properties as appropriate |ArrowHead|
-subclass instances.
+You can use |Arrow| annotations to connect glyphs and label annotations. Arrows
+can also help highlight plot regions.
 
-Arrows have standard line properties to set the color and appearance of the
-arrow shaft:
+Arrows are compound annotations. This means that they use additional |ArrowHead|
+objects as their ``start`` and ``end``. By default, the |Arrow| annotation is a
+one-sided arrow: The ``end`` property is set to an ``OpenHead``-type arrowhead
+(looking like an open-backed wedge style). The ``start`` property is set to
+``None``. If you want to create double-sided arrows, set both the ``start`` and
+``end`` properties to one of the available arrowheads. The available arrowheads
+are: :class:`~bokeh.models.arrow_heads.NormalHead`,
+:class:`~bokeh.models.arrow_heads.OpenHead`,
+:class:`~bokeh.models.arrow_heads.TeeHead`,
+and :class:`~bokeh.models.arrow_heads.VeeHead`.
+
+Control the appearance of an arrowhead with these properties:
+
+* use the ``size`` property to control the size of any arrowheads
+* use the line properties such as ``line_color`` and ``line_alpha`` to control
+  the appearance of the outline of the arrowhead.
+* use ``fill_color`` and ``fill_alpha`` to control the appearance of the
+  arrowhead's inner surface, if applicable.
+
+|Arrow| objects themselves have the standard line properties. Set those
+properties to control the color and appearance of the arrow shaft. For example:
 
 .. code-block:: python
 
     my_arrow.line_color = "blue"
     my_arrow.line_alpha = 0.6
 
-Arrows may also be configured to refer to additional non-default x- or
-y-ranges with the ``x_range`` and ``y_range`` properties, in the same way
-as :ref:`userguide_plotting_twin_axes`.
-
-Additionally, any arrowhead objects in ``start`` or ``end`` have a ``size``
-property to control how big the arrowhead is, as well as both line and
-fill properties. The line properties control the outline of the arrowhead,
-and the fill properties control the interior of the arrowhead (if applicable).
+Optionally, you can set the ``x_range`` and ``y_range`` properties to make an
+arrow annotation refer to additional non-default x- or y-ranges. This works the
+same as :ref:`userguide_plotting_twin_axes`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
     :source-position: above
