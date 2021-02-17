@@ -3,6 +3,9 @@ import {Regl, Texture2D} from "regl"
 import {DashCache} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
+import marker_vertex_shader from "./markers.vert"
+import marker_fragment_shader from "./markers.frag"
+import {MarkerType} from "core/enums"
 
 
 // All access to regl is performed via the get_regl() function that returns a
@@ -26,6 +29,7 @@ export class ReglWrapper {
   private _solid_line: ({}) => void
   private _dashed_line: ({}) => void
   private _line_mesh: ({}) => void
+  private _marker_map: Map<MarkerType, ({}) => void>
 
   constructor(gl: WebGLRenderingContext) {
     this._regl = createRegl({
@@ -39,7 +43,6 @@ export class ReglWrapper {
     })
     // What to do if error occurs?
 
-    this._dash_cache = new DashCache(this._regl)
   }
 
   public dashed_line(): ({}) => void {
@@ -49,6 +52,9 @@ export class ReglWrapper {
   }
 
   public get_dash(line_dash: number[]): [[number,number,number], Texture2D] {
+    if (this._dash_cache === undefined)
+      this._dash_cache = new DashCache(this._regl)
+
     return this._dash_cache.get(line_dash)
   }
 
@@ -56,6 +62,18 @@ export class ReglWrapper {
     if (this._line_mesh === undefined)
       this._line_mesh = regl_line_mesh(this._regl)
     return this._line_mesh
+  }
+
+  public marker(marker_type: MarkerType): ({}) => void {
+    if (this._marker_map === undefined)
+      this._marker_map = new Map<MarkerType, ({}) => void>()
+
+    let func = this._marker_map.get(marker_type)
+    if (func === undefined) {
+      func = regl_marker(this._regl, marker_type)
+      this._marker_map.set(marker_type, func)
+    }
+    return func
   }
 
   public solid_line(): ({}) => void {
@@ -283,6 +301,73 @@ function regl_line_mesh(regl: any): ({}) => void {
     count: 2*line_mesh_indices.length,
     primitive: 'lines',
     instances: regl.prop("nsegments"),
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   'one',
+        srcAlpha: 'one',
+        dstRGB:   'one minus src alpha',
+        dstAlpha: 'one minus src alpha',
+      },
+    },
+    depth: { enable: false },
+  })
+}
+
+
+
+// Return a dictionary for a regl attribute that is either one value per
+// instance or the same value for all instances in the same regl call.
+function one_each_or_constant(prop: any, nitems: number, norm: boolean): {[key: string]: any} {
+  return {
+    buffer: prop,
+    divisor: prop.length == nitems ? 0 : 1,
+    normalized: norm,
+  }
+}
+
+
+function regl_marker(regl: any, marker_type: MarkerType): ({}) => void {
+  return regl({
+    vert: marker_vertex_shader,
+    frag: '#define USE_' + marker_type.toUpperCase() + '\n\n' + marker_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: [0.0, 0.0],  // Instanced geometry.
+        divisor: 0,
+      },
+      a_center: {
+        buffer: regl.prop('center'),
+        divisor: 1,
+      },
+      a_size: (_: any, props: any) => {
+        return one_each_or_constant(props['size'], 1, false)
+      },
+      a_angle: (_: any, props: any) => {
+        return one_each_or_constant(props['angle'], 1, false)
+      },
+      a_linewidth: (_: any, props: any) => {
+        return one_each_or_constant(props['linewidth'], 1, false)
+      },
+      a_fg_color: (_: any, props: any) => {
+        return one_each_or_constant(props['fg_color'], 4, true)
+      },
+      a_bg_color: (_: any, props: any) => {
+        return one_each_or_constant(props['bg_color'], 4, true)
+      },
+    },
+
+    uniforms: {
+      u_pixel_ratio: regl.prop('pixel_ratio'),
+      u_canvas_size: regl.prop('canvas_size'),
+      u_antialias: regl.prop('antialias'),
+    },
+
+    primitive: 'points',
+    count: 1,
+    instances: regl.prop('nmarkers'),
 
     blend: {
       enable: true,

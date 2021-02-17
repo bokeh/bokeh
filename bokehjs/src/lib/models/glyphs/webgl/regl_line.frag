@@ -115,7 +115,7 @@ mat2 rotation_matrix(in float sign_start)
 }
 #endif
 
-void main ()
+void main()
 {
     int join_type = int(u_join_type + 0.5);
     int cap_type = int(u_cap_type + 0.5);

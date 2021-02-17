@@ -55,7 +55,7 @@ vec2 line_intersection(in vec2 point0, in vec2 dir0,
     return point0 + lambda0*dir0;
 }
 
-void main ()
+void main()
 {
     if (a_point_start.x < missing_point_threshold ||
         a_point_end.x < missing_point_threshold) {
