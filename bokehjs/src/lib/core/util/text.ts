@@ -1,34 +1,59 @@
+import {unreachable} from "./assert"
+
 export type FontMetrics = {
   height: number
   ascent: number
   descent: number
 }
 
+const has_OffscreenCanvas = (() => {
+  try {
+    return typeof OffscreenCanvas !== "undefined" && new OffscreenCanvas(0, 0).getContext("2d") != null
+  } catch {
+    return false
+  }
+})()
+
+const _offscreen_canvas = (() => {
+  if (has_OffscreenCanvas)
+    return (w: number, h: number) => new OffscreenCanvas(w, h)
+  else {
+    return (w: number, h: number) => {
+      const canvas = document.createElement("canvas")
+      canvas.width = w
+      canvas.height = h
+      return canvas
+    }
+  }
+})()
+
 const metrics_text = "ÅŚg|"
 
-function _native_font_metrics(font: string): FontMetrics {
-  const canvas = document.createElement("canvas")
+const _native_font_metrics = (() => {
+  const canvas = _offscreen_canvas(0, 0)
   const ctx = canvas.getContext("2d")!
 
-  ctx.font = font
-  const metrics = ctx.measureText(metrics_text)
+  return (font: string): FontMetrics => {
+    ctx.font = font
+    const metrics = ctx.measureText(metrics_text)
 
-  const font_ascent = metrics.fontBoundingBoxAscent
-  const font_descent = metrics.fontBoundingBoxDescent
+    const font_ascent = metrics.fontBoundingBoxAscent
+    const font_descent = metrics.fontBoundingBoxDescent
 
-  if (font_ascent != null && font_descent != null) {
-    return {height: font_ascent + font_descent, ascent: font_ascent, descent: font_descent}
+    if (font_ascent != null && font_descent != null) {
+      return {height: font_ascent + font_descent, ascent: font_ascent, descent: font_descent}
+    }
+
+    const text_ascent = metrics.actualBoundingBoxAscent
+    const text_descent = metrics.actualBoundingBoxDescent
+
+    if (text_ascent != null && text_descent != null) {
+      return {height: text_ascent + text_descent, ascent: text_ascent, descent: text_descent}
+    }
+
+    unreachable()
   }
-
-  const text_ascent = metrics.actualBoundingBoxAscent
-  const text_descent = metrics.actualBoundingBoxDescent
-
-  if (text_ascent != null && text_descent != null) {
-    return {height: text_ascent + text_descent, ascent: text_ascent, descent: text_descent}
-  }
-
-  throw new Error("can't compute native font metrics")
-}
+})()
 
 function _internal_font_metrics(font: string): FontMetrics {
   const canvas = document.createElement("canvas")
