@@ -375,8 +375,8 @@ export namespace GlyphRenderer {
     view: p.Property<CDSView>
     glyph: p.Property<Glyph>
     hover_glyph: p.Property<Glyph | null>
-    nonselection_glyph: p.Property<Glyph | "auto">
-    selection_glyph: p.Property<Glyph | "auto">
+    nonselection_glyph: p.Property<Glyph | "auto" | null>
+    selection_glyph: p.Property<Glyph | "auto" | null>
     muted_glyph: p.Property<Glyph | null>
     muted: p.Property<boolean>
   }
@@ -395,13 +395,13 @@ export class GlyphRenderer extends DataRenderer {
   static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Nullable}) => ({
+    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({
       data_source:        [ Ref(ColumnarDataSource) ],
       view:               [ Ref(CDSView), (self) => new CDSView({source: (self as GlyphRenderer).data_source}) ],
       glyph:              [ Ref(Glyph) ],
       hover_glyph:        [ Nullable(Ref(Glyph)), null ],
-      nonselection_glyph: [ Or(Ref(Glyph), Auto), "auto" ],
-      selection_glyph:    [ Or(Ref(Glyph), Auto), "auto" ],
+      nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
+      selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
       muted_glyph:        [ Nullable(Ref(Glyph)), null ],
       muted:              [ Boolean, false ],
     }))
