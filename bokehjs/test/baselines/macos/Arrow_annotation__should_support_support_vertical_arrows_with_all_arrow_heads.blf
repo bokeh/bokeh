@@ -1,0 +1,5 @@
+Column bbox=[0, 0, 600, 400]
+  Plot bbox=[0, 0, 600, 200]
+    Title bbox=[5, 0, 590, 28]
+  Plot bbox=[0, 200, 600, 200]
+    Title bbox=[5, 0, 590, 28]
