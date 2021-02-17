@@ -130,7 +130,6 @@ async function headless(port: number): Promise<ChildProcess> {
     "--headless",
     `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
-    "--hide-scrollbars",
     "--font-render-hinting=none",
     "--disable-font-subpixel-positioning",
     "--force-color-profile=srgb",
