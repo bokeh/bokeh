@@ -164,35 +164,34 @@ You can use ``?k=some%20text`` to filter tests by a keyword.
 CI and Visual Testing
 ~~~~~~~~~~~~~~~~~~~~~
 
-``test:integration`` does two types of tests:
+``test:integration`` does two types of tests and associated baseline files:
 
-* textual baseline tests
-* visual/screenshot tests
+* textual baseline tests: ``*.blf``
+* visual/screenshot tests: ``*.png``
 
-Textual baselines are cross-platform compatible and can be generated locally (on
-supported platforms) or in CI. Visual testing is platform depended and fairly
-sensitive to system configuration (especially in regard to differences in font
-rendering). Visual tests can be performed locally, but given that baseline images
-for all three supported platforms have to be updated, the preferred approach is
-to generate images and compare them in CI.
+Textual baselines are mostly cross-platform compatible and usually can be generated
+locally (on supported platforms) or in CI. Visual testing is platform depended and
+fairly sensitive to system configuration (especially in regard to differences in
+font rendering). Visual tests can be performed locally, but given that baseline
+images for all three supported platforms have to be updated, the preferred approach
+is to generate images and compare them in CI.
 
 The full procedure for visual testing is as follows:
 
 1. Make changes to the repository and write new tests or update existing.
 2. Use ``node make tests`` to incrementally test your changes on your system.
-3. Commit changes to textual baselines (``test/baselines/*``).
-4. Push your changes to GitHub and wait for CI to finish.
-5. If you added new tests, CI will expectedly fail with "missing baseline
+3. Push your changes to GitHub and wait for CI to finish.
+4. If you added new tests, CI will expectedly fail with "missing baseline
    images" error message.
-6. If tests passed then you are done.
-7. If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
+5. If tests passed then you are done.
+6. If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
    test run for your PR and download the associated ``bokehjs-report`` artifact.
-8. Unzip the artifact archive.
-9. Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
+7. Unzip the artifact archive at the root of the repository.
+8. Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
    where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
    for each platform. If there are no unintentional differences, then commit all
-   new or modified files under ``test/baselines/{linux,macos,windows}``.
-10. Push your changes again to GitHub and verify that tests pass this time.
+   new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
+9. Push your changes to GitHub again and verify that tests pass this time.
 
 .. note::
 
