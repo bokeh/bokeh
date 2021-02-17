@@ -130,10 +130,10 @@ async function headless(port: number): Promise<ChildProcess> {
     "--headless",
     `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
-    "--font-render-hinting=none",
-    "--disable-font-subpixel-positioning",
-    "--force-color-profile=srgb",
-    "--force-device-scale-factor=1",
+    "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
+    "--disable-font-subpixel-positioning",  // makes images look similar on all platform
+    "--force-color-profile=srgb",           // ^^^
+    "--force-device-scale-factor=1",        // ^^^
   ]
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
