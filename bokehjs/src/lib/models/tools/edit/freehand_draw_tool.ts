@@ -102,7 +102,7 @@ export class FreehandDrawTool extends EditTool {
     this.define<FreehandDrawTool.Props>(({Int}) => ({
       num_objects: [ Int, 0 ],
     }))
-    
+
     this.register_alias("freehand_draw", () => new FreehandDrawTool())
   }
   tool_name = "Freehand Draw Tool"
