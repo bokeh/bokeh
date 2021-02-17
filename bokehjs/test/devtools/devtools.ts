@@ -385,19 +385,20 @@ async function run_tests(): Promise<boolean> {
                       status.errors.push("state not present in output")
                       status.failure = true
                     } else {
-                      await (async () => {
-                        const baseline_path = path.join(baselines_root, baseline_name)
+                      const baseline_path = path.join(baselines_root, platform, baseline_name)
 
+                      await (async () => {
+                        const baseline_file = `${baseline_path}.blf`
                         const baseline = create_baseline([state])
-                        await fs.promises.writeFile(baseline_path, baseline)
+                        await fs.promises.writeFile(baseline_file, baseline)
                         status.baseline = baseline
 
-                        const existing = load_baseline(baseline_path)
+                        const existing = load_baseline(baseline_file)
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
                           }
-                          const diff = diff_baseline(baseline_path)
+                          const diff = diff_baseline(baseline_file)
                           status.failure = true
                           status.baseline_diff = diff
                           status.errors.push(diff)
@@ -405,17 +406,15 @@ async function run_tests(): Promise<boolean> {
                       })()
 
                       await (async () => {
-                        const baseline_path = path.join(baselines_root, platform, baseline_name)
-
                         const {bbox} = result
                         if (bbox != null) {
                           const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
                           const current = Buffer.from(image.data, "base64")
                           status.image = current
 
-                          const image_path = `${baseline_path}.png`
-                          const write_image = async () => fs.promises.writeFile(image_path, current)
-                          const existing = load_baseline_image(image_path)
+                          const image_file = `${baseline_path}.png`
+                          const write_image = async () => fs.promises.writeFile(image_file, current)
+                          const existing = load_baseline_image(image_file)
 
                           switch (argv.screenshot) {
                             case undefined:
@@ -512,14 +511,12 @@ async function run_tests(): Promise<boolean> {
         })
         await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
-        const files = new Set(await fs.promises.readdir(baselines_root))
-
-        files.delete("linux")
-        files.delete("macos")
-        files.delete("windows")
+        const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
+        files.delete("report.json")
 
         for (const name of baseline_names) {
-          files.delete(name)
+          files.delete(`${name}.blf`)
+          files.delete(`${name}.png`)
         }
 
         if (files.size != 0) {
