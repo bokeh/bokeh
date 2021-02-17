@@ -6,20 +6,31 @@ export type FontMetrics = {
 
 const metrics_text = "ÅŚg|"
 
-export function native_font_metrics(font: string): FontMetrics {
+function _native_font_metrics(font: string): FontMetrics {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
 
   ctx.font = font
   const metrics = ctx.measureText(metrics_text)
 
-  const ascent = metrics.actualBoundingBoxAscent
-  const descent = metrics.actualBoundingBoxDescent
+  const font_ascent = metrics.fontBoundingBoxAscent
+  const font_descent = metrics.fontBoundingBoxDescent
 
-  return {height: ascent + descent, ascent, descent}
+  if (font_ascent != null && font_descent != null) {
+    return {height: font_ascent + font_descent, ascent: font_ascent, descent: font_descent}
+  }
+
+  const text_ascent = metrics.actualBoundingBoxAscent
+  const text_descent = metrics.actualBoundingBoxDescent
+
+  if (text_ascent != null && text_descent != null) {
+    return {height: text_ascent + text_descent, ascent: text_ascent, descent: text_descent}
+  }
+
+  throw new Error("can't compute native font metrics")
 }
 
-function _font_metrics(font: string): FontMetrics {
+function _internal_font_metrics(font: string): FontMetrics {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
 
@@ -67,11 +78,21 @@ function _font_metrics(font: string): FontMetrics {
   return {height: ascent + descent, ascent, descent}
 }
 
+const _font_metrics = (() => {
+  try {
+    _native_font_metrics("normal 10px sans-serif")
+    return _native_font_metrics
+  } catch {
+    return _internal_font_metrics
+  }
+})()
+
 const _metrics_cache: Map<string, FontMetrics> = new Map()
 
 export function font_metrics(font: string): FontMetrics {
   let metrics = _metrics_cache.get(font)
   if (metrics == null) {
+    // TODO: document.fonts.check(font)
     metrics = _font_metrics(font)
     _metrics_cache.set(font, metrics)
   }
