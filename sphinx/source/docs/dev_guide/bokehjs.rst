@@ -75,8 +75,8 @@ Requirements
 ~~~~~~~~~~~~
 
 * node 14.*
-* npm 7.1+ (most recent version)
-* chrome/chromium browser 87+ or equivalent
+* npm 7.4+ (most recent version)
+* chrome/chromium browser 88+ or equivalent
 
 You can install nodejs with conda:
 
@@ -196,7 +196,23 @@ The full procedure for visual testing is as follows:
 .. note::
 
     Make sure to monitor the state of the ``test/baselines`` directory, so that you
-    don't commit unnecessary files. If you do so, subsequent tests will fail.
+    don't commit unnecessary files. If you do so, subsequent tests will fail. Reset
+    this directory after every failed test run (``git checkout`` and/or ``git clean``).
+
+Debugging in Headless Chrome
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Although testing in headless chrome and running tests manually in chrome should agree
+with each other most of the time, there are rare cases where headless and GUI chrome
+diverge. In this situation one has to debug bokehjs' code directly in the headless
+browser.
+
+Start bokehjs' devtools server in one console and run ``node make test:run:headless``
+in another. This starts chrome in headless mode preconfigured for bokehjs' testing
+setup. Then open chrome (or any other web browser), navigate to http://localhost:9222 and
+click ``about:blank`` link. This opens remote devtools console. Use its navigation bar
+and navigate to e.g. http://localhost:5777/integration/run (or other URL mentioned in
+an earlier paragraph). You are now set up for debugging in headless chrome.
 
 Minimal Model/View Module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
