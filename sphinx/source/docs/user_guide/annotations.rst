@@ -59,7 +59,7 @@ of a plot, they will occupy the same space:
 
 If the plot size is large enough, this can result in a more compact plot.
 However, if the plot size is not large enough, the title and toolbar may
-visually overlap and become impossible to read.
+visually overlap.
 
 .. _userguide_plotting_legends:
 
@@ -96,8 +96,8 @@ combined into a single legend item with that label.
 
 .. _userguide_plotting_legends_legend_group:
 
-Automatic grouping (Python)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Automatic grouping (Python-side)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If your data is in the form of a :ref:`ColumnDataSource <userguide_data_cds>`,
 Bokeh can generate legend entries from strings in one of the ColumnDataSource's
@@ -227,12 +227,14 @@ and :class:`~bokeh.models.arrow_heads.VeeHead`.
 Control the appearance of an arrowhead with these properties:
 
 * use the ``size`` property to control the size of any arrowheads
-* use the line properties such as ``line_color`` and ``line_alpha`` to control
-  the appearance of the outline of the arrowhead.
+* use the :ref:`standard line properties <userguide_styling_line_properties>`
+  such as ``line_color`` and ``line_alpha`` to control the appearance of the
+  outline of the arrowhead.
 * use ``fill_color`` and ``fill_alpha`` to control the appearance of the
   arrowhead's inner surface, if applicable.
 
-|Arrow| objects themselves have the standard line properties. Set those
+|Arrow| objects themselves have the
+:ref:`standard line properties <userguide_styling_line_properties>`. Set those
 properties to control the color and appearance of the arrow shaft. For example:
 
 .. code-block:: python
