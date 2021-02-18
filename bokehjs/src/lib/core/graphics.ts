@@ -8,8 +8,6 @@ import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
 
-const metrics_scale = 1
-
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
@@ -172,7 +170,7 @@ export class TextBox extends GraphicsBox {
   _size(): Size & {metrics: FontMetrics} {
     const {font} = this
 
-    const fmetrics = font_metrics(font, metrics_scale)
+    const fmetrics = font_metrics(font)
     const line_spacing = (this.line_height - 1)*fmetrics.height // TODO: max(trailing(L[n-1]), leading(L[n]))
 
     const empty = this.text == ""
@@ -185,7 +183,7 @@ export class TextBox extends GraphicsBox {
     const descents: number[] = []
 
     for (const line of lines) {
-      const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
+      const metrics = [...line].map((c) => glyph_metrics(c, font))
       const max_ascent = Math.max(max(metrics.map((m) => m.ascent)), fmetrics.cap_height)
       const max_descent = max(metrics.map((m) => m.descent))
       ascents.push(max_ascent)
@@ -246,7 +244,7 @@ export class TextBox extends GraphicsBox {
   paint(ctx: Context2d): void {
     const {font} = this
 
-    const fmetrics = font_metrics(font, metrics_scale)
+    const fmetrics = font_metrics(font)
     const line_spacing = (this.line_height - 1)*fmetrics.height // TODO: see above
 
     const lines = this.text.split("\n")
@@ -258,7 +256,7 @@ export class TextBox extends GraphicsBox {
     const descents: number[] = []
 
     for (const line of lines) {
-      const metrics = [...line].map((c) => glyph_metrics(c, font, metrics_scale))
+      const metrics = [...line].map((c) => glyph_metrics(c, font))
       const max_ascent = Math.max(max(metrics.map((m) => m.ascent)), fmetrics.cap_height)
       const max_descent = max(metrics.map((m) => m.descent))
       ascents.push(max_ascent)

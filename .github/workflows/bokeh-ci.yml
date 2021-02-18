@@ -136,7 +136,7 @@ jobs:
       - name: Start chrome headless
         working-directory: ./bokehjs
         shell: bash -l {0}
-        run: node make test:run:headless # starts chrome in the background on port 9222
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
 
       - name: Cache sampledata
         uses: actions/cache@v1

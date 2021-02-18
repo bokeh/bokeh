@@ -1,5 +1,6 @@
-import {settings} from "../settings"
-import {is_windows} from "./platform"
+import {unreachable} from "./assert"
+
+type char = string
 
 export type BoxMetrics = {
   width: number
@@ -16,96 +17,93 @@ export type FontMetrics = {
   x_height: number
 }
 
-type char = string
-
-const _glyph_metrics_cache: Map<string, Map<char, BoxMetrics>> = new Map()
-
-export function glyph_metrics(glyph: char, font: string, scale?: number): BoxMetrics {
-  let font_metrics = _glyph_metrics_cache.get(font)
-  if (font_metrics == null) {
-    font_metrics = new Map()
-    _glyph_metrics_cache.set(font, font_metrics)
-  }
-
-  let glyph_metrics = font_metrics.get(glyph)
-  if (glyph_metrics == null) {
-    glyph_metrics = _glyph_metrics(glyph, font, scale)
-    // TODO: adjust?
-    font_metrics.set(glyph, glyph_metrics)
-  }
-
-  return glyph_metrics
-}
-
-/** @internal */
-export const _glyph_metrics = (() => {
-  const canvas = document.createElement("canvas")
-  const ctx = canvas.getContext("2d")!
-
-  let cwidth = -1
-  let cheight = -1
-
-  return (glyph: char, font: string, scale: number = 1): BoxMetrics => {
-    ctx.font = font
-    const {width: _em} = ctx.measureText("M")
-    const em = _em*scale
-
-    const width = Math.ceil(em)
-    const height = Math.ceil(2.0*em)
-    const baseline = Math.ceil(1.5*em)
-
-    if (cwidth < width || cheight < height) {
-      cwidth = width
-      canvas.width = width
-      cheight = height
-      canvas.height = height
-    }
-
-    ctx.save()
-    ctx.scale(scale, scale)
-
-    ctx.fillStyle = "#f00"
-    ctx.fillRect(0, 0, width, height)
-
-    const measure_ascent = (data: Uint8ClampedArray) => {
-      let k = 0
-      for (let i = 0; i <= baseline; i++) {
-        for (let j = 0; j < width; j++, k += 4)
-          if (data[k] != 255)
-            return baseline - i
-      }
-      return 0
-    }
-
-    const measure_descent = (data: Uint8ClampedArray) => {
-      let k = data.length - 4
-      for (let i = height; i >= baseline; i--) {
-        for (let j = 0; j < width; j++, k -= 4)
-          if (data[k] != 255)
-            return i - baseline
-      }
-      return 0
-    }
-
-    ctx.font = font
-    ctx.fillStyle = "#000"
-
-    ctx.fillText(glyph, 0, baseline/scale)
-    const size = ctx.measureText(glyph)
-
-    const {data} = ctx.getImageData(0, 0, width, height)
-    const ascent = measure_ascent(data)/scale
-    const descent = measure_descent(data)/scale
-
-    ctx.restore()
-
-    return {width: size.width, height: ascent + descent, ascent, descent}
+const has_OffscreenCanvas = (() => {
+  try {
+    return typeof OffscreenCanvas !== "undefined" && new OffscreenCanvas(0, 0).getContext("2d") != null
+  } catch {
+    return false
   }
 })()
 
+const _offscreen_canvas = (() => {
+  if (has_OffscreenCanvas)
+    return (w: number, h: number) => new OffscreenCanvas(w, h)
+  else {
+    return (w: number, h: number) => {
+      const canvas = document.createElement("canvas")
+      canvas.width = w
+      canvas.height = h
+      return canvas
+    }
+  }
+})()
 
-/** @internal */
-export const _font_metrics = (() => {
+const _native_font_metrics = (() => {
+  const canvas = _offscreen_canvas(0, 0)
+  const ctx = canvas.getContext("2d")!
+
+  return (font: string): FontMetrics => {
+    ctx.font = font
+
+    const cap_metrics = ctx.measureText("M")
+    const x_metrics = ctx.measureText("x")
+    const metrics = ctx.measureText("ÅŚg|")
+
+    const font_ascent = metrics.fontBoundingBoxAscent
+    const font_descent = metrics.fontBoundingBoxDescent
+
+    if (font_ascent != null && font_descent != null) {
+      return {
+        height: font_ascent + font_descent,
+        ascent: font_ascent,
+        descent: font_descent,
+        cap_height: cap_metrics.actualBoundingBoxAscent,
+        x_height: x_metrics.actualBoundingBoxAscent,
+      }
+    }
+
+    const text_ascent = metrics.actualBoundingBoxAscent
+    const text_descent = metrics.actualBoundingBoxDescent
+
+    if (text_ascent != null && text_descent != null) {
+      return {
+        height: text_ascent + text_descent,
+        ascent: text_ascent,
+        descent: text_descent,
+        cap_height: cap_metrics.actualBoundingBoxAscent,
+        x_height: x_metrics.actualBoundingBoxAscent,
+      }
+    }
+
+    unreachable()
+  }
+})()
+
+const _native_glyph_metrics = (() => {
+  const canvas = _offscreen_canvas(0, 0)
+  const ctx = canvas.getContext("2d")!
+
+  return (glyph: char, font: string): BoxMetrics => {
+    ctx.font = font
+    const metrics = ctx.measureText(glyph)
+
+    const glyph_ascent = metrics.actualBoundingBoxAscent
+    const glyph_descent = metrics.actualBoundingBoxDescent
+
+    if (glyph_ascent != null && glyph_descent != null) {
+      return {
+        width: metrics.width,
+        height: glyph_ascent + glyph_descent,
+        ascent: glyph_ascent,
+        descent: glyph_descent,
+      }
+    }
+
+    unreachable()
+  }
+})()
+
+const _internal_font_metrics = (() => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
 
@@ -187,26 +185,113 @@ export const _font_metrics = (() => {
   }
 })()
 
-function _adjust_metrics(font: string, metrics: FontMetrics): void {
-  // Override normal 11px Bokeh (Roboto) font in tests, so that baselines
-  // match across platforms. In future will need to provide baselines per
-  // platform.
-  if (settings.dev && is_windows) {
-    if (font.includes("Bokeh") && font.includes("11px")) {
-      metrics.height += 1
-      metrics.descent += 1
+const _internal_glyph_metrics = (() => {
+  const canvas = document.createElement("canvas")
+  const ctx = canvas.getContext("2d")!
+
+  let cwidth = -1
+  let cheight = -1
+
+  return (glyph: char, font: string, scale: number = 1): BoxMetrics => {
+    ctx.font = font
+    const {width: _em} = ctx.measureText("M")
+    const em = _em*scale
+
+    const width = Math.ceil(em)
+    const height = Math.ceil(2.0*em)
+    const baseline = Math.ceil(1.5*em)
+
+    if (cwidth < width || cheight < height) {
+      cwidth = width
+      canvas.width = width
+      cheight = height
+      canvas.height = height
     }
+
+    ctx.save()
+    ctx.scale(scale, scale)
+
+    ctx.fillStyle = "#f00"
+    ctx.fillRect(0, 0, width, height)
+
+    const measure_ascent = (data: Uint8ClampedArray) => {
+      let k = 0
+      for (let i = 0; i <= baseline; i++) {
+        for (let j = 0; j < width; j++, k += 4)
+          if (data[k] != 255)
+            return baseline - i
+      }
+      return 0
+    }
+
+    const measure_descent = (data: Uint8ClampedArray) => {
+      let k = data.length - 4
+      for (let i = height; i >= baseline; i--) {
+        for (let j = 0; j < width; j++, k -= 4)
+          if (data[k] != 255)
+            return i - baseline
+      }
+      return 0
+    }
+
+    ctx.font = font
+    ctx.fillStyle = "#000"
+
+    ctx.fillText(glyph, 0, baseline/scale)
+    const size = ctx.measureText(glyph)
+
+    const {data} = ctx.getImageData(0, 0, width, height)
+    const ascent = measure_ascent(data)/scale
+    const descent = measure_descent(data)/scale
+
+    ctx.restore()
+
+    return {width: size.width, height: ascent + descent, ascent, descent}
   }
-}
+})()
 
-const _metrics_cache: Map<string, FontMetrics> = new Map()
+const _font_metrics = (() => {
+  try {
+    _native_font_metrics("normal 10px sans-serif")
+    return _native_font_metrics
+  } catch {
+    return _internal_font_metrics
+  }
+})()
 
-export function font_metrics(font: string, scale?: number): FontMetrics {
+const _glyph_metrics = (() => {
+  try {
+    _native_glyph_metrics("A", "normal 10px sans-serif")
+    return _native_glyph_metrics
+  } catch {
+    return _internal_glyph_metrics
+  }
+})()
+
+const _metrics_cache: Map<string, {font: FontMetrics, glyphs: Map<char, BoxMetrics>}> = new Map()
+
+export function font_metrics(font: string): FontMetrics {
   let metrics = _metrics_cache.get(font)
   if (metrics == null) {
-    metrics = _font_metrics(font, scale)
-    _adjust_metrics(font, metrics)
+    // TODO: document.fonts.check(font)
+    metrics = {font: _font_metrics(font), glyphs: new Map()}
     _metrics_cache.set(font, metrics)
   }
-  return metrics
+  return metrics.font
+}
+
+export function glyph_metrics(glyph: char, font: string): BoxMetrics {
+  let metrics = _metrics_cache.get(font)
+  if (metrics == null) {
+    font_metrics(font)
+    metrics = _metrics_cache.get(font)!
+  }
+
+  let glyph_metrics = metrics.glyphs.get(glyph)
+  if (glyph_metrics == null) {
+    glyph_metrics = _glyph_metrics(glyph, font)
+    metrics.glyphs.set(glyph, glyph_metrics)
+  }
+
+  return glyph_metrics
 }

@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Axis, CategoricalAxis} from "../axes"
+import {Axis, LinearAxis, LogAxis, CategoricalAxis} from "../axes"
 import {Ticker} from "../tickers/ticker"
 import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
@@ -134,7 +134,14 @@ export class ColorBarView extends AnnotationView {
     const minor_tick_line = mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true)
     const title_text = mixins.attrs_of(this.model, "title_", mixins.Text)
 
-    const AxisCls = color_mapper instanceof CategoricalColorMapper ? CategoricalAxis : Axis
+    const AxisCls = (() => {
+      if (color_mapper instanceof CategoricalColorMapper)
+        return CategoricalAxis
+      else if (color_mapper instanceof LogColorMapper)
+        return LogAxis
+      else
+        return LinearAxis
+    })()
     this._axis = new AxisCls({
       ticker: this._ticker,
       formatter: this._formatter,
