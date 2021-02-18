@@ -12,11 +12,11 @@ y3 = [4, 3, 2]
 # use a single RGBA color
 single_color = (255, 0, 0, 0.5)
 
-# use a list of HSL colors
+# use a list of different colors
 list_of_colors = [
     "hsl(60deg 100% 50% / 1.0)",
-    "hsl(0deg 100% 50% / 0.4)",
-    "hsl(120deg 100% 50% / 1.0)",
+    "rgba(0, 0, 255, 0.9)",
+    "LightSeaGreen",
 ]
 
 # use a series of color values as numpy array

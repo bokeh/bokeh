@@ -69,11 +69,10 @@ class Color(Either):
     * If a color is provided as a string, Bokeh determines whether this string
       represents one of the named CSS colors (such as "red"), a CSS4 color
       string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
-    * If a 3-tuple is provided, it is treated as an RGB value (between 0 and
+    * If a 3-tuple is provided, it is treated as RGB values (between 0 and
       255).
-    * If a 4-tuple is provided, it is treated as an RGBA value (between 0 and
-      255),
-      with alpha as a float between 0 and 1 (this follows the HTML5 Canvas API).
+    * If a 4-tuple is provided, it is treated as RGBA values (between 0 and
+      255 for RGB and alpha as a float between 0 and 1).
     * If a 32-bit unsigned integer is provided, it is treated as RGBA values in
       a 0xRRGGBBAA byte order pattern.
 
