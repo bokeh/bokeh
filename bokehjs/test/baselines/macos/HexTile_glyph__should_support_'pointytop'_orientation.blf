@@ -1,4 +1,4 @@
 Plot bbox=[0, 0, 300, 300]
-  LinearAxis bbox=[21, 276, 274, 24]
-  LinearAxis bbox=[0, 27, 21, 249]
-  Title bbox=[21, 0, 274, 27]
+  LinearAxis bbox=[25, 276, 270, 24]
+  LinearAxis bbox=[0, 27, 25, 249]
+  Title bbox=[25, 0, 270, 27]
