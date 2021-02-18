@@ -102,8 +102,7 @@ export class AxisView extends GuideRendererView {
     this.visuals.axis_line.set_value(ctx)
 
     ctx.beginPath()
-    ctx.moveTo(Math.round(sxs[0] + nx*xoff), Math.round(sys[0] + ny*yoff))
-    for (let i = 1; i < sxs.length; i++) {
+    for (let i = 0; i < sxs.length; i++) {
       const sx = Math.round(sxs[i] + nx*xoff)
       const sy = Math.round(sys[i] + ny*yoff)
       ctx.lineTo(sx, sy)
