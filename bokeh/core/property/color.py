@@ -66,14 +66,15 @@ class RGB(Property):
 class Color(Either):
     """ Accept color values in a variety of ways.
 
-    For colors, because we support named colors and hex values prefaced
-    with a "#", when we are handed a string value, there is a little
-    interpretation: if the value is one of the 147 SVG named colors or
-    it starts with a "#", then it is interpreted as a value.
-
-    If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
-    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
+    * If a color is provided as a string, Bokeh determines whether this string
+      represents one of the named CSS colors (such as "red"), a CSS4 color
+      string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
+    * If a 3-tuple is provided, it is treated as RGB values (between 0 and
+      255).
+    * If a 4-tuple is provided, it is treated as RGBA values (between 0 and
+      255 for RGB and alpha as a float between 0 and 1).
+    * If a 32-bit unsigned integer is provided, it is treated as RGBA values in
+      a 0xRRGGBBAA byte order pattern.
 
     Example:
 
@@ -104,10 +105,12 @@ class Color(Either):
 
     - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
-    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
+    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
+      ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
-    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
-    - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
+      and a is between 0 and 1
+    - a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
 
     .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 
@@ -145,8 +148,8 @@ class Color(Either):
 class ColorHex(Color):
     """ ref Color
 
-    The only difference with Color is it's transform in hexadecimal string
-    when send to javascript side
+    The only difference to Color is that this class transforms values into
+    hexadecimal strings to be sent to BokehJS.
 
     """
 
@@ -167,7 +170,8 @@ class ColorHex(Color):
 class Alpha(Percent):
 
     _default_help = """\
-    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    Acceptable values are floating-point numbers between 0 and 1 (0 being
+    transparent and 1 being opaque).
     """
 
     def __init__(self, default=1.0, help=None):
