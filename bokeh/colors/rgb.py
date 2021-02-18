@@ -98,7 +98,7 @@ class RGB(Color):
                 The RGB color to copy.
 
         Returns:
-            RGB
+            :class:`~bokeh.colors.rgb.RGB`
 
         '''
         return value.copy()
@@ -131,7 +131,7 @@ class RGB(Color):
         ''' Return a corresponding HSL color for this RGB color.
 
         Returns:
-            :class:`~bokeh.colors.rgb.RGB`
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         from .hsl import HSL # prevent circular import
