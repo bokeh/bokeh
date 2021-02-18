@@ -260,6 +260,10 @@ task("test:run:headless", async () => {
   await keep_alive()
 })
 
+task("test:spawn:headless", async () => {
+  await headless(9222)
+})
+
 const start_headless = task("test:start:headless", async () => {
   let port = 9222
   await retry(async () => {
