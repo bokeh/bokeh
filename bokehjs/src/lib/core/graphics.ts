@@ -41,7 +41,7 @@ export abstract class GraphicsBox {
   height?: {value: number, unit: "%"}
   padding?: Padding
   font_size_scale: number = 1.0
-  text_height_metric: TextHeightMetric = "ascent_descent"
+  text_height_metric?: TextHeightMetric
 
   set position(p: Position) {
     this._position = p
@@ -228,8 +228,10 @@ export class TextBox extends GraphicsBox {
   }
 
   _text_line(fmetrics: FontMetrics): {height: number, ascent: number, descent: number} {
+    const metric = this.text_height_metric ?? this.infer_text_height()
+
     const ascent = (() => {
-      switch (this.text_height_metric) {
+      switch (metric) {
         case "x":
         case "x_descent":
           return fmetrics.x_height
@@ -243,7 +245,7 @@ export class TextBox extends GraphicsBox {
     })()
 
     const descent = (() => {
-      switch (this.text_height_metric) {
+      switch (metric) {
         case "x":
         case "cap":
         case "ascent":
@@ -256,6 +258,11 @@ export class TextBox extends GraphicsBox {
     })()
 
     return {height: ascent + descent, ascent, descent}
+  }
+
+  get nlines(): number {
+    const lines = this.text.split("\n")
+    return lines.length
   }
 
   _size(): Size & {metrics: FontMetrics} {
@@ -323,7 +330,8 @@ export class TextBox extends GraphicsBox {
           case "bottom": return height
           case "baseline": {
             if (nlines == 1) {
-              switch (this.text_height_metric) {
+              const metric = this.text_height_metric ?? this.infer_text_height()
+              switch (metric) {
                 case "x":
                 case "x_descent":
                   return metrics.x_height
@@ -454,14 +462,17 @@ export class BaseExpo extends GraphicsBox {
     const bs = this.base.size()
     const es = this.expo.size()
 
+    const shift = this._shift_scale()*bs.height
+    const height = Math.max(bs.height, shift + es.height)
+
     this.base.position = {
       sx: 0, x_anchor: "left",
-      sy: es.height*0.5, y_anchor: "top",
+      sy: height, y_anchor: "bottom",
     }
 
     this.expo.position = {
       sx: bs.width, x_anchor: "left",
-      sy: 0, y_anchor: "top",
+      sy: shift, y_anchor: "bottom",
     }
   }
 
@@ -473,6 +484,15 @@ export class BaseExpo extends GraphicsBox {
     this.expo.font_size_scale = 0.7
     this.base.visuals = v
     this.expo.visuals = v
+  }
+
+  _shift_scale(): number {
+    if (this.base instanceof TextBox && this.base.nlines == 1) {
+      const {x_height, cap_height} = font_metrics(this.base.font)
+      return x_height/cap_height
+    } else {
+      return 2/3
+    }
   }
 
   infer_text_height() {
@@ -494,7 +514,7 @@ export class BaseExpo extends GraphicsBox {
 
     return {
       width: bs.width + es.width,
-      height: bs.height + es.height*0.5,
+      height: Math.max(bs.height, this._shift_scale()*bs.height + es.height),
     }
   }
 
