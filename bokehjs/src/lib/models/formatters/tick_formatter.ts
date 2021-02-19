@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {GraphicsBox, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
 export namespace TickFormatter {
@@ -17,6 +18,10 @@ export abstract class TickFormatter extends Model {
   }
 
   abstract doFormat(ticks: string[] | number[], opts: {loc: number}): string[]
+
+  format_graphics(ticks: string[] | number[], opts: {loc: number}): GraphicsBox[] {
+    return this.doFormat(ticks, opts).map((text) => new TextBox({text}))
+  }
 
   compute(tick: string | number, opts?: {loc: number}): string {
     return this.doFormat([tick] as string[] | number[], opts ?? {loc: 0})[0]

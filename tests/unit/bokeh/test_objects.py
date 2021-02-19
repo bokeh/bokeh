@@ -70,7 +70,7 @@ def large_plot(n):
         col.children.append(plot)
         objects |= set([
             xdr, ydr,
-            xaxis, yaxis,
+            xaxis, xaxis.major_label_policy, yaxis, yaxis.major_label_policy,
             xgrid, ygrid,
             renderer, renderer.view, glyph,
             source, source.selected, source.selection_policy,

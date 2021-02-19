@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 200, 200]
+  LinearAxis bbox=[56, 178, 139, 22]
+  LinearAxis bbox=[30, 5, 26, 173]
+  Title bbox=[0, 90, 0, 88]
+  ToolbarPanel bbox=[0, 5, 30, 85]

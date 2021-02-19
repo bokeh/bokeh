@@ -76,7 +76,7 @@ jobs:
           mkdir -p ${DST}
           if [[ -e ${SRC}/report.json ]];
           then
-            CHANGED=$(git status --short ${SRC}/*.png | cut -c4-)
+            CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
             cp ${SRC}/report.json ${CHANGED} ${DST}
           fi
 

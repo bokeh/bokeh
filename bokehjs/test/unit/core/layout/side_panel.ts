@@ -9,11 +9,11 @@ describe("Panel", () => {
     it("should calculate appropriate axis_label text properties based on location", () => {
       const panel0 = new Panel("left")
       const value0 = panel0.get_label_text_heuristics("parallel")
-      expect(value0).to.be.equal({baseline: "alphabetic", align: "center"})
+      expect(value0).to.be.equal({vertical_align: "bottom", align: "center"})
 
       const panel1 = new Panel("below")
       const value1 = panel1.get_label_text_heuristics(Math.PI/2)
-      expect(value1).to.be.equal({baseline: "middle", align: "right"})
+      expect(value1).to.be.equal({vertical_align: "center", align: "right"})
     })
   })
 
