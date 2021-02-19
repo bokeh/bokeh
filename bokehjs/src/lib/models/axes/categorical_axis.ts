@@ -8,7 +8,7 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {TickLabelOrientation} from "core/enums"
-import {GraphicsBox, TextBox} from "core/graphics"
+import {GraphicsBox, GraphicsBoxes, TextBox} from "core/graphics"
 import {Context2d} from "core/util/canvas"
 import {isString} from "core/util/types"
 import {Orient} from "core/layout/side_panel"
@@ -84,7 +84,7 @@ export class CategoricalAxisView extends AxisView {
     return extents
   }
 
-  protected _get_factor_info(): [GraphicsBox[], Coords, Orient | number, visuals.Text][] {
+  protected _get_factor_info(): [GraphicsBoxes, Coords, Orient | number, visuals.Text][] {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
@@ -92,10 +92,10 @@ export class CategoricalAxisView extends AxisView {
     const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
-    const info: [GraphicsBox[], Coords, Orient | number, visuals.Text][] = []
+    const info: [GraphicsBoxes, Coords, Orient | number, visuals.Text][] = []
 
     const map = (labels: (string | GraphicsBox)[]) => {
-      return labels.map((label) => isString(label) ? new TextBox({text: label}) : label)
+      return new GraphicsBoxes(labels.map((label) => isString(label) ? new TextBox({text: label}) : label))
     }
 
     const format = (ticks: L1Factor[]) => {

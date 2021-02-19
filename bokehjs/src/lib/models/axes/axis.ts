@@ -13,9 +13,9 @@ import {Size, Layoutable} from "core/layout"
 import {Indices} from "core/types"
 import {Panel, SideLayout, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
-import {sum, max} from "core/util/array"
+import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
-import {GraphicsBox, TextBox} from "core/graphics"
+import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs} = Math
@@ -217,7 +217,7 @@ export class AxisView extends GuideRendererView {
     ctx.stroke()
   }
 
-  protected _draw_oriented_labels(ctx: Context2d, labels: GraphicsBox[], coords: Coords,
+  protected _draw_oriented_labels(ctx: Context2d, labels: GraphicsBoxes, coords: Coords,
                                   orient: Orient | number, _side: Side, standoff: number,
                                   visuals: visuals.Text): void {
     if (!visuals.doit || labels.length == 0)
@@ -235,10 +235,11 @@ export class AxisView extends GuideRendererView {
     const {vertical_align, align} = this.panel.get_label_text_heuristics(orient)
     const angle = this.panel.get_label_angle_heuristic(orient)
 
+    labels.visuals = visuals
+    labels.angle = angle
+
     for (let i = 0; i < labels.length; i++) {
-      const label = labels[i]
-      label.visuals = visuals
-      label.angle = angle
+      const label = labels.items[i]
       label.position = {
         sx: sxs[i] + nxd,
         sy: sys[i] + nyd,
@@ -252,7 +253,8 @@ export class AxisView extends GuideRendererView {
     const n = labels.length
     const indices = Indices.all_set(n)
 
-    const bboxes = labels.map((l) => l.bbox())
+    const {items} = labels
+    const bboxes = items.map((l) => l.bbox())
     const dist = ((): DistanceMeasure => {
       const [range] = this.ranges
       if (!range.is_reversed)
@@ -275,12 +277,12 @@ export class AxisView extends GuideRendererView {
 
         if (bbox.left < 0) {
           const offset = -bbox.left
-          const {position} = labels[k]
-          labels[k].position = {...position, sx: position.sx + offset}
+          const {position} = items[k]
+          items[k].position = {...position, sx: position.sx + offset}
         } else if (bbox.right > cbox.width) {
           const offset = bbox.right - cbox.width
-          const {position} = labels[k]
-          labels[k].position = {...position, sx: position.sx - offset}
+          const {position} = items[k]
+          items[k].position = {...position, sx: position.sx - offset}
         }
       }
 
@@ -289,12 +291,12 @@ export class AxisView extends GuideRendererView {
 
         if (bbox.top < 0) {
           const offset = -bbox.top
-          const {position} = labels[k]
-          labels[k].position = {...position, sy: position.sy + offset}
+          const {position} = items[k]
+          items[k].position = {...position, sy: position.sy + offset}
         } else if (bbox.bottom > cbox.height) {
           const offset = bbox.bottom - cbox.height
-          const {position} = labels[k]
-          labels[k].position = {...position, sy: position.sy - offset}
+          const {position} = items[k]
+          items[k].position = {...position, sy: position.sy - offset}
         }
       }
 
@@ -311,7 +313,7 @@ export class AxisView extends GuideRendererView {
     }
 
     for (const i of selected) {
-      const label = labels[i]
+      const label = items[i]
       label.paint(ctx)
     }
   }
@@ -343,18 +345,16 @@ export class AxisView extends GuideRendererView {
     }
   }
 
-  protected _oriented_labels_extent(labels: GraphicsBox[], orient: Orient | number, standoff: number, visuals: visuals.Text): number {
+  protected _oriented_labels_extent(labels: GraphicsBoxes, orient: Orient | number, standoff: number, visuals: visuals.Text): number {
     if (labels.length == 0)
       return 0
 
     const angle = this.panel.get_label_angle_heuristic(orient)
-    for (const label of labels) {
-      label.visuals = visuals
-      label.angle = angle
-    }
+    labels.visuals = visuals
+    labels.angle = angle
 
-    const sizes = labels.map((label) => label.size())
-    const extent = max(this.dimension == 0 ? sizes.map(({height}) => height) : sizes.map(({width}) => width))
+    const size = labels.max_size()
+    const extent = this.dimension == 0 ? size.height : size.width
     const padding = this.panel.is_horizontal ? 5 : extent*0.1
     return extent > 0 ? standoff + extent + padding : 0
   }
@@ -368,7 +368,7 @@ export class AxisView extends GuideRendererView {
     return this.panel.dimension
   }
 
-  compute_labels(ticks: number[]): GraphicsBox[] {
+  compute_labels(ticks: number[]): GraphicsBoxes {
     const labels = this.model.formatter.format_graphics(ticks, this)
     const {major_label_overrides} = this.model
     for (let i = 0; i < ticks.length; i++) {
@@ -376,7 +376,7 @@ export class AxisView extends GuideRendererView {
       if (override != null)
         labels[i] = new TextBox({text: override})
     }
-    return labels
+    return new GraphicsBoxes(labels)
   }
 
   get offsets(): [number, number] {

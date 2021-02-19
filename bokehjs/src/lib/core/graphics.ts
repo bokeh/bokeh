@@ -1,8 +1,8 @@
 import {Size} from "./types"
 import {BBox} from "./util/bbox"
 import {Context2d} from "./util/canvas"
-import {font_metrics, glyph_metrics, FontMetrics} from "./util/text"
-import {max, sum} from "./util/array"
+import {font_metrics, /*glyph_metrics,*/ FontMetrics} from "./util/text"
+import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
@@ -32,6 +32,7 @@ type Position = {
 type Val = number | {value: number, unit: "px" | "%"}
 type Extents = {left: Val, right: Val, top: Val, bottom: Val}
 type Padding = Val | [v: Val, h: Val] | [top: Val, right: Val, bottom: Val, left: Val] | Extents
+type TextHeightMetric = "x" | "cap" | "ascent" | "x_descent" | "cap_descent" | "ascent_descent"
 
 export abstract class GraphicsBox {
   _position: Position = {sx: 0, sy: 0}
@@ -40,6 +41,7 @@ export abstract class GraphicsBox {
   height?: {value: number, unit: "%"}
   padding?: Padding
   font_size_scale: number = 1.0
+  text_height_metric: TextHeightMetric = "ascent_descent"
 
   set position(p: Position) {
     this._position = p
@@ -54,6 +56,10 @@ export abstract class GraphicsBox {
   abstract _rect(): Rect
   abstract _size(): Size
   abstract paint(ctx: Context2d): void
+
+  infer_text_height(): TextHeightMetric {
+    return "ascent_descent"
+  }
 
   bbox(): BBox {
     const {p0, p1, p2, p3} = this.rect()
@@ -167,6 +173,91 @@ export class TextBox extends GraphicsBox {
     this.text = text
   }
 
+  infer_text_height() {
+    if (this.text.includes("\n"))
+      return "ascent_descent"
+    else {
+      function is_math_like(text: string): boolean {
+        for (const c of new Set(text)) {
+          if ("0" <= c && c <= "9")
+            continue
+          switch (c) {
+            case ",":
+            case ".":
+            case "+":
+            case "-":
+            case "\u2212":
+            case "e":
+              continue
+            default:
+              return false
+          }
+        }
+        return true
+      }
+
+      if (is_math_like(this.text))
+        return "cap"
+      else
+        return "ascent_descent"
+
+      /*
+      const {font} = this
+      const fmetrics = font_metrics(font)
+
+      let max_ascent = 0
+      let max_descent = 0
+      for (const c of this.text) {
+        const metrics = glyph_metrics(c, font)
+        max_ascent = Math.max(metrics.ascent)
+        max_descent = Math.max(metrics.descent)
+      }
+
+      const ascent = (() => {
+        if (max_ascent > fmetrics.cap_height)
+          return "ascent"
+        else if (max_ascent > fmetrics.x_height)
+          return "cap"
+        else
+          return "x"
+      })()
+
+      return max_descent > 0 ? `${ascent}_descent` as const : ascent
+      */
+    }
+  }
+
+  _text_line(fmetrics: FontMetrics): {height: number, ascent: number, descent: number} {
+    const ascent = (() => {
+      switch (this.text_height_metric) {
+        case "x":
+        case "x_descent":
+          return fmetrics.x_height
+        case "cap":
+        case "cap_descent":
+          return fmetrics.cap_height
+        case "ascent":
+        case "ascent_descent":
+          return fmetrics.ascent
+      }
+    })()
+
+    const descent = (() => {
+      switch (this.text_height_metric) {
+        case "x":
+        case "cap":
+        case "ascent":
+          return 0
+        case "x_descent":
+        case "cap_descent":
+        case "ascent_descent":
+          return fmetrics.descent
+      }
+    })()
+
+    return {height: ascent + descent, ascent, descent}
+  }
+
   _size(): Size & {metrics: FontMetrics} {
     const {font} = this
 
@@ -178,6 +269,9 @@ export class TextBox extends GraphicsBox {
     const nlines = lines.length
 
     const widths = lines.map((line) => text_width(line, font))
+    const text_line = this._text_line(fmetrics)
+    const text_height = text_line.height*nlines
+    /*
     const heights: number[] = []
     const ascents: number[] = []
     const descents: number[] = []
@@ -191,11 +285,14 @@ export class TextBox extends GraphicsBox {
       heights.push(max_ascent + max_descent)
     }
 
+    const text_height = sum(heights)
+    */
+
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
     const width = max(widths)*w_scale
-    const height = empty ? 0 : (sum(heights) + line_spacing*(nlines - 1))*h_scale
+    const height = empty ? 0 : (text_height + line_spacing*(nlines - 1))*h_scale
 
     return {width, height, metrics: fmetrics}
   }
@@ -224,7 +321,22 @@ export class TextBox extends GraphicsBox {
           case "top": return 0
           case "center": return 0.5*height
           case "bottom": return height
-          case "baseline": return nlines == 1 ? metrics.ascent /*+ padding.top*/ : 0.5*height
+          case "baseline": {
+            if (nlines == 1) {
+              switch (this.text_height_metric) {
+                case "x":
+                case "x_descent":
+                  return metrics.x_height
+                case "cap":
+                case "cap_descent":
+                  return metrics.cap_height
+                case "ascent":
+                case "ascent_descent":
+                  return metrics.ascent
+              }
+            } else
+              return 0.5*height
+          }
         }
       }
     })()
@@ -251,6 +363,10 @@ export class TextBox extends GraphicsBox {
     const nlines = lines.length
 
     const widths = lines.map((line) => text_width(line, font))
+    const text_line = this._text_line(fmetrics)
+    const text_height = text_line.height*nlines
+
+    /*
     const heights: number[] = []
     const ascents: number[] = []
     const descents: number[] = []
@@ -263,12 +379,13 @@ export class TextBox extends GraphicsBox {
       descents.push(max_descent)
       heights.push(max_ascent + max_descent)
     }
+    */
 
     const w_scale = this.width?.unit == "%" ? this.width.value : 1
     const h_scale = this.height?.unit == "%" ? this.height.value : 1
 
     const width = max(widths)*w_scale
-    const height = (sum(heights) + line_spacing*(nlines - 1))*h_scale
+    const height = (text_height + line_spacing*(nlines - 1))*h_scale
 
     ctx.save()
     ctx.fillStyle = this.color
@@ -300,7 +417,7 @@ export class TextBox extends GraphicsBox {
           ctx.fillText(words[j], xij, y)
           xij += word_widths[j] + word_spacing
         }
-        y += heights[i] + line_spacing
+        y += /*heights[i]*/ text_line.height + line_spacing
       }
     } else {
       for (let i = 0; i < nlines; i++) {
@@ -313,8 +430,8 @@ export class TextBox extends GraphicsBox {
         })()
 
         ctx.fillStyle = this.color
-        ctx.fillText(lines[i], xi, y + ascents[i])
-        y += heights[i] + line_spacing
+        ctx.fillText(lines[i], xi, y + /*ascents[i]*/ text_line.ascent)
+        y += /*heights[i]*/ text_line.height + line_spacing
       }
     }
 
@@ -342,7 +459,6 @@ export class BaseExpo extends GraphicsBox {
       sy: es.height*0.5, y_anchor: "top",
     }
 
-
     this.expo.position = {
       sx: bs.width, x_anchor: "left",
       sy: 0, y_anchor: "top",
@@ -357,6 +473,10 @@ export class BaseExpo extends GraphicsBox {
     this.expo.font_size_scale = 0.7
     this.base.visuals = v
     this.expo.visuals = v
+  }
+
+  infer_text_height() {
+    return this.base.infer_text_height()
   }
 
   _rect(): Rect {
@@ -430,5 +550,43 @@ export class BaseExpo extends GraphicsBox {
     })()
 
     return {x, y}
+  }
+}
+
+export class GraphicsBoxes {
+  constructor(readonly items: GraphicsBox[]) {}
+
+  get length(): number {
+    return this.items.length
+  }
+
+  set visuals(v: visuals.Text | visuals.Line | visuals.Fill) {
+    for (const item of this.items) {
+      item.visuals = v
+    }
+
+    const metric_map = {x: 0, cap: 1, ascent: 2, x_descent: 3, cap_descent: 4, ascent_descent: 5}
+    const common = max_by(this.items.map((item) => item.infer_text_height()), (metric) => metric_map[metric])
+
+    for (const item of this.items) {
+      item.text_height_metric = common
+    }
+  }
+
+  set angle(a: number) {
+    for (const item of this.items) {
+      item.angle = a
+    }
+  }
+
+  max_size(): Size {
+    let width = 0
+    let height = 0
+    for (const item of this.items) {
+      const size = item.size()
+      width = Math.max(width, size.width)
+      height = Math.max(height, size.height)
+    }
+    return {width, height}
   }
 }
