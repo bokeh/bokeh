@@ -149,7 +149,7 @@ export class AxisView extends GuideRendererView {
     const extent = this.dimension == 0 ? size.height : size.width
 
     const standoff = this.model.axis_label_standoff
-    const padding = this.panel.is_horizontal ? 5 : extent*0.1
+    const padding = 3
     return extent > 0 ? standoff + extent + padding : 0
   }
 
@@ -355,7 +355,7 @@ export class AxisView extends GuideRendererView {
 
     const size = labels.max_size()
     const extent = this.dimension == 0 ? size.height : size.width
-    const padding = this.panel.is_horizontal ? 5 : extent*0.1
+    const padding = 3
     return extent > 0 ? standoff + extent + padding : 0
   }
 
