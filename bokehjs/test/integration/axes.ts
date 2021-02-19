@@ -1,24 +1,24 @@
 import {display} from "./_util"
 
 import {
-  LinearAxis, CategoricalAxis, LinearScale, CategoricalScale, Range1d, FactorRange, Plot,
-  BasicTicker, AllLabels, NoOverlap,
+  LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
+  Plot, BasicTicker, AllLabels, NoOverlap,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
-describe("LinearAxis", () => {
+(() => {
   type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number}) => Promise<void>
 
-  function hplot(side: Side): PlotFn {
+  function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
       const p = new Plot({
         width: 300,
         height: options?.minor_size ?? 50,
-        x_scale: new LinearScale(),
+        x_scale: axis_type == "linear" ? new LinearScale() : new LogScale(),
         y_scale: new LinearScale(),
-        x_range: new Range1d({start: 100, end: 200}),
+        x_range: axis_type == "linear" ? new Range1d({start: 100, end: 200}) : new Range1d({start: 10**-2, end: 10**11}),
         y_range: new Range1d({start: 0, end: 1}),
         min_border_top: 0,
         min_border_bottom: 0,
@@ -27,21 +27,21 @@ describe("LinearAxis", () => {
         title: null,
         toolbar_location: null,
       })
-      const axis = new LinearAxis(attrs)
+      const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
       p.add_layout(axis, side)
       await display(p)
     }
   }
 
-  function vplot(side: Side): PlotFn {
+  function vplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
       const p = new Plot({
         width: options?.minor_size ?? 50,
         height: 300,
         x_scale: new LinearScale(),
-        y_scale: new LinearScale(),
+        y_scale: axis_type == "linear" ? new LinearScale() : new LogScale(),
         x_range: new Range1d({start: 0, end: 1}),
-        y_range: new Range1d({start: 100, end: 200}),
+        y_range: axis_type == "linear" ? new Range1d({start: 100, end: 200}) : new Range1d({start: 10**-2, end: 10**11}),
         min_border_top: 20,
         min_border_bottom: 20,
         min_border_left: 0,
@@ -49,7 +49,7 @@ describe("LinearAxis", () => {
         title: null,
         toolbar_location: null,
       })
-      const axis = new LinearAxis(attrs)
+      const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
       p.add_layout(axis, side)
       await display(p)
     }
@@ -173,16 +173,30 @@ describe("LinearAxis", () => {
     })
   }
 
-  describe("in horizontal orientation", () => {
-    describe("above a plot", () => test(hplot("above")))
-    describe("below a plot", () => test(hplot("below")))
+  describe("LinearAxis", () => {
+    describe("in horizontal orientation", () => {
+      describe("above a plot", () => test(hplot("above", "linear")))
+      describe("below a plot", () => test(hplot("below", "linear")))
+    })
+
+    describe("in vertical orientation", () => {
+      describe("left of a plot", () => test(vplot("left", "linear")))
+      describe("right of a plot", () => test(vplot("right", "linear")))
+    })
   })
 
-  describe("in vertical orientation", () => {
-    describe("left of a plot", () => test(vplot("left")))
-    describe("right of a plot", () => test(vplot("right")))
+  describe("LogAxis", () => {
+    describe("in horizontal orientation", () => {
+      describe("above a plot", () => test(hplot("above", "log")))
+      describe("below a plot", () => test(hplot("below", "log")))
+    })
+
+    describe("in vertical orientation", () => {
+      describe("left of a plot", () => test(vplot("left", "log")))
+      describe("right of a plot", () => test(vplot("right", "log")))
+    })
   })
-})
+})()
 
 describe("CategoricalAxis", () => {
   type PlotFn = (factors: Factor[], attrs: Partial<CategoricalAxis.Attrs>, options?: {minor_size?: number}) => Promise<void>
