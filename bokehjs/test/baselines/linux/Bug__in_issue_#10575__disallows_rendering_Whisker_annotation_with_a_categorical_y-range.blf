@@ -1,3 +1,3 @@
 Plot bbox=[0, 0, 200, 400]
-  LinearAxis bbox=[56, 375, 139, 25]
-  CategoricalAxis bbox=[0, 5, 56, 370]
+  LinearAxis bbox=[60, 376, 135, 24]
+  CategoricalAxis bbox=[0, 5, 60, 371]
