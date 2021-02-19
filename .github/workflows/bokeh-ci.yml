@@ -435,7 +435,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.6.yml
+          environment-file: ci/environment-test-3.9.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
