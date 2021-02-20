@@ -243,7 +243,7 @@ Use one of these options to define colors in Bokeh:
 - A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``
   `color string <https://www.w3.org/TR/css-color-4/>`_, such as
   ``'rgb(0 127 0 / 1.0)'``, ``'rgba(255, 0, 127, 0.6)'``, or
-  ``hsl(60deg 100% 50% / 1.0)``.
+  ``'hsl(60deg 100% 50% / 1.0)'``.
 - A 3-tuple of integers ``(r, g, b)`` (where *r*, *g*, and *b* are integers
   between 0 and 255).
 - A 4-tuple of ``(r, g, b, a)`` (where *r*, *g*, and *b* are integers between 0

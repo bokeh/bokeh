@@ -254,9 +254,12 @@ same as :ref:`userguide_plotting_twin_axes`.
 Bands
 -----
 
-A |Band| will create a dimensionally linked "stripe", either located in data
-or screen coordinates. One common use for the Band annotation is to indicate
-uncertainty related to a series of measurements.
+A |Band| annotation is a colored stripe that is dimensionally linked to the data
+in a plot. One common use for the band annotation is to indicate uncertainty
+related to a series of measurements.
+
+To define a band, use either
+:ref:`screen units or data-space units <userguide_styling_units>`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_band.py
     :source-position: above
@@ -266,9 +269,14 @@ uncertainty related to a series of measurements.
 Box Annotations
 ---------------
 
-A |BoxAnnotation| can be linked to either data or screen coordinates in order
-to emphasize specific plot regions. By default, box annotation dimensions (e.g.
-``left`` or ``top``) will extend the annotation to the edge of the plot area.
+A |BoxAnnotation| is a rectangular box that you can link to either
+:ref:`data or screen coordinates <userguide_styling_units>` in order
+to highlight specific plot regions.
+
+To define the bounds of these boxes, use the ``left``/``right`` or ``top``/
+``bottom`` properties. If you provide only one bound (for example, a ``left``
+value but no ``right`` value), the box will extend to the edge of the available
+plot area for the dimension you did not specify.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
@@ -278,16 +286,20 @@ to emphasize specific plot regions. By default, box annotation dimensions (e.g.
 Labels
 ------
 
-Labels are text elements that can be used to annotate either glyphs or plot
+Labels are rectangular boxes with additional information about glyphs or plot
 regions.
 
-To create a single text label, use the |Label| annotation. This annotation
-is configured with a ``text`` property containing the text to be displayed,
-as well as ``x`` and ``y`` properties to set the position (in screen or data
-space units). Additionally, a render mode ``"canvas"`` or ``"css"`` may be
-specified. Finally, labels have ``text``, ``border_line``, and
-``background_fill`` properties. These control the visual appearance of the
-text, as well as the border and background of the bounding box for the text:
+To create a single text label, use the |Label| annotation. Those are the most
+important properties for this annotation:
+
+* A ``text`` property containing the text to be displayed inside the label.
+* ``x`` and ``y`` properties to set the position (in screen or data
+  space units). Additionally, a
+* ``text``, ``border_line``, and ``background_fill`` properties. These control
+  the visual appearance of the text, as well as the border and background of the
+  bounding box for the text.
+* An optional ``render_mode`` property that you can set to either ``"canvas"``
+  or ``"css"``.
 
 .. code-block:: python
 
@@ -295,20 +307,18 @@ text, as well as the border and background of the bounding box for the text:
           border_line_color='black', border_line_alpha=1.0,
           background_fill_color='white', background_fill_alpha=1.0)
 
-To create several labels at once, possibly to easily annotate another existing
-glyph, use the |LabelSet| annotation, which is configured with a data
-source in which the ``text`` and the ``x`` and ``y`` positions are given as column
-names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
-which specify a distance in screen space units to offset the label positions
-from ``x`` and ``y``. Finally, the ``level`` property controls the render level,
-to place the label above or underneath other renderers:
+To create several labels at once, use the |LabelSet| annotation. To configure
+the labels of a label set, usa a data source that contains columns with data for
+the labels' ``text``, ``x`` and ``y`` properties. ``LabelSet`` objects can also
+have ``x_offset`` and ``y_offset`` values. Use these offset values to specify
+where to place the label in relation to its ``x`` and ``y`` coordinates.
 
 .. code-block:: python
 
     LabelSet(x='x', y='y', text='names',
              x_offset=5, y_offset=5, source=source)
 
-The following example illustrates the use of both:
+The following example illustrates the use of |Label| and |LabelSet|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
