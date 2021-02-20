@@ -31,6 +31,7 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    Null,
     Nullable,
     Override,
     String,
@@ -193,14 +194,14 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
+    selection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
     An optional glyph used for selected points.
 
     If set to "auto" then the standard glyph will be used for selected
     points.
     """)
 
-    nonselection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
+    nonselection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)

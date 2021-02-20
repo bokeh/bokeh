@@ -1346,7 +1346,7 @@ as follows:
 
 .. code-block:: sh
 
-    bokeh serve --show --allow-websocket-origin=acme:com myapp.py
+    bokeh serve --show --allow-websocket-origin=acme.com myapp.py
 
 This will prevent other sites from embedding your Bokeh application in their
 pages because requests from users viewing those pages will report a different

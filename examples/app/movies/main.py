@@ -5,7 +5,7 @@ import numpy as np
 import pandas.io.sql as psql
 
 from bokeh.io import curdoc
-from bokeh.layouts import column, layout
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, Div, Select, Slider, TextInput
 from bokeh.plotting import figure
 from bokeh.sampledata.movies_data import movie_path
@@ -103,12 +103,9 @@ controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cas
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-inputs = column(*controls, width=320, height=1000)
-inputs.sizing_mode = "fixed"
-l = layout([
-    [desc],
-    [inputs, p],
-], sizing_mode="scale_both")
+inputs = column(*controls, width=320)
+
+l = column(desc, row(inputs, p), sizing_mode="scale_both")
 
 update()  # initial load of the data
 

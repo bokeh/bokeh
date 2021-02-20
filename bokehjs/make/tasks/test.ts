@@ -128,12 +128,12 @@ function chrome(): string {
 async function headless(port: number): Promise<ChildProcess> {
   const args = [
     "--headless",
+    `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
-    "--hide-scrollbars",
-    "--font-render-hinting=none",
-    "--disable-font-subpixel-positioning",
-    "--force-color-profile=srgb",
-    "--force-device-scale-factor=1",
+    "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
+    "--disable-font-subpixel-positioning",  // makes images look similar on all platform
+    "--force-color-profile=srgb",           // ^^^
+    "--force-device-scale-factor=1",        // ^^^
   ]
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
@@ -248,7 +248,19 @@ function devtools(devtools_port: number, server_port: number, name: string, base
   })
 }
 
+async function keep_alive(): Promise<void> {
+  await new Promise((resolve) => {
+    process.on("SIGINT", () => resolve(undefined))
+  })
+}
+
 task("test:run:headless", async () => {
+  const proc = await headless(9222)
+  terminate(proc)
+  await keep_alive()
+})
+
+task("test:spawn:headless", async () => {
   await headless(9222)
 })
 

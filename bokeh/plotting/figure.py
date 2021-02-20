@@ -1304,14 +1304,14 @@ Examples:
 
             .. code-block:: python
 
-                p.hbar_stack(['2016', '2017'], x=10, width=0.9, color=['blue', 'red'], source=source)
+                p.hbar_stack(['2016', '2017'], y=10, width=0.9, color=['blue', 'red'], source=source)
 
             This is equivalent to the following two separate calls:
 
             .. code-block:: python
 
-                p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
-                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
+                p.hbar(bottom=stack(),       top=stack('2016'),         y=10, width=0.9, color='blue', source=source, name='2016')
+                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), y=10, width=0.9, color='red',  source=source, name='2017')
 
         '''
         result = []

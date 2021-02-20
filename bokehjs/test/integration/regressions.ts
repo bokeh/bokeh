@@ -29,6 +29,7 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
 import {Spectral11} from "@bokehjs/api/palettes"
+import {div} from "@bokehjs/core/dom"
 
 const n_marker_types = [...MarkerType].length
 
@@ -776,7 +777,6 @@ describe("Bug", () => {
 
   describe("in issue #10541", () => {
     it("prevents Slope with gradient=0", async () => {
-
       const p = fig([200, 200], {x_range: [-5, 5], y_range: [-5, 5]})
 
       for (const gradient of [1, -1, 0, 2, -0.5]){
@@ -811,6 +811,28 @@ describe("Bug", () => {
 
       p.circle(0, 0, {radius: 1})
       await view.ready
+    })
+  })
+
+  describe("in issue #10851", () => {
+    function box(width: number, height: number): HTMLElement {
+      return div({style: {width: `${width}px`, height: `${height}px`, backgroundColor: "red"}})
+    }
+
+    function layout() {
+      const p0 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
+      const p1 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
+      p0.circle([0, 1, 2], [3, 4, 5])
+      p1.circle([1, 2, 3], [4, 5, 6])
+      return row([p0, p1], {sizing_mode: "scale_width", background: "orange"})
+    }
+
+    it("results in incorrect layout when viewport is smaller than optimal size", async () => {
+      await display(layout(), [500, 300], box(350, 175))
+    })
+
+    it("results in incorrect layout when viewport is larger than optimal size", async () => {
+      await display(layout(), [500, 300], box(450, 225))
     })
   })
 

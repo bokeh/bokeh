@@ -52,8 +52,12 @@ app.get("/integration/report", async (req, res) => {
     case "macos":
     case "windows": {
       const report_path = join("test", "baselines", platform, "report.json")
-      const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
-      res.render("test/devtools/report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
+      try {
+        const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
+        res.render("test/devtools/report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
+      } catch {
+        res.status(404).send("Report unavailable")
+      }
       break
     }
     default:

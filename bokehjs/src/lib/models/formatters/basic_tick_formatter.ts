@@ -2,6 +2,17 @@ import {TickFormatter} from "./tick_formatter"
 import {to_fixed} from "core/util/string"
 import * as p from "core/properties"
 
+export function unicode_replace(input: string): string {
+  let output = ""
+  for (const c of input) {
+    if (c == "-")
+      output += "\u2212"
+    else
+      output += c
+  }
+  return output
+}
+
 export namespace BasicTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
@@ -63,9 +74,9 @@ export class BasicTickFormatter extends TickFormatter {
 
   _format_with_precision(ticks: number[], need_sci: boolean, precision: number | undefined): string[] {
     if (need_sci) {
-      return ticks.map((tick) => tick.toExponential(precision))
+      return ticks.map((tick) => unicode_replace(tick.toExponential(precision)))
     } else {
-      return ticks.map((tick) => to_fixed(tick, precision))
+      return ticks.map((tick) => unicode_replace(to_fixed(tick, precision)))
     }
   }
 
