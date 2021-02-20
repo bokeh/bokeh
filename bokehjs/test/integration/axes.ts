@@ -2,14 +2,14 @@ import {display} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, BasicTicker, AllLabels, NoOverlap,
+  Plot, AllLabels, NoOverlap,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {
-  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number}) => Promise<void>
+  type PlotFn = (attrs: Partial<LinearAxis.Attrs>, options?: {minor_size?: number, num_ticks?: number}) => Promise<void>
 
   function hplot(side: Side, axis_type: "linear" | "log"): PlotFn {
     return async (attrs, options) => {
@@ -28,6 +28,8 @@ import {radians} from "@bokehjs/core/util/math"
         toolbar_location: null,
       })
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+      if (options?.num_ticks != null)
+        axis.ticker.desired_num_ticks = options.num_ticks
       p.add_layout(axis, side)
       await display(p)
     }
@@ -50,6 +52,8 @@ import {radians} from "@bokehjs/core/util/math"
         toolbar_location: null,
       })
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+      if (options?.num_ticks != null)
+        axis.ticker.desired_num_ticks = options.num_ticks
       p.add_layout(axis, side)
       await display(p)
     }
@@ -143,33 +147,27 @@ import {radians} from "@bokehjs/core/util/math"
     })
 
     it("should support major_label_policy=AllLables with major_label_orientation=parallel", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new AllLabels(), major_label_orientation: "parallel"})
+      await plot({major_label_policy: new AllLabels(), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=10) with major_label_orientation=parallel", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "parallel"})
+      await plot({major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=50) with major_label_orientation=parallel", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "parallel"})
+      await plot({major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "parallel"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=AllLables with major_label_orientation=normal", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new AllLabels(), major_label_orientation: "normal"})
+      await plot({major_label_policy: new AllLabels(), major_label_orientation: "normal"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=10) with major_label_orientation=normal", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "normal"})
+      await plot({major_label_policy: new NoOverlap({min_distance: 10}), major_label_orientation: "normal"}, {num_ticks: 20})
     })
 
     it("should support major_label_policy=NoOverlap(min_distance=50) with major_label_orientation=normal", async () => {
-      const ticker = new BasicTicker({desired_num_ticks: 20})
-      await plot({ticker, major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "normal"})
+      await plot({major_label_policy: new NoOverlap({min_distance: 50}), major_label_orientation: "normal"}, {num_ticks: 20})
     })
   }
 
