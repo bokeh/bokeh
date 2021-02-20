@@ -1,14 +1,5 @@
 import {ByteOrder} from "../types"
 
-export const is_windows = (() => {
-  return navigator.appVersion.includes("Windows")
-})()
-
-export const is_ie = (() => {
-  const ua = navigator.userAgent
-  return ua.includes("MSIE") || ua.includes("Trident") || ua.includes("Edge")
-})()
-
 export const is_mobile = (() => {
   return typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0)
 })()

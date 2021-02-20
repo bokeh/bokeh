@@ -178,13 +178,9 @@ export class CanvasLayer {
   to_blob(): Promise<Blob> {
     const {_canvas} = this
     if (_canvas instanceof HTMLCanvasElement) {
-      if (_canvas.msToBlob != null) {
-        return Promise.resolve(_canvas.msToBlob())
-      } else {
-        return new Promise((resolve, reject) => {
-          _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
-        })
-      }
+      return new Promise((resolve, reject) => {
+        _canvas.toBlob((blob) => blob != null ? resolve(blob) : reject(), "image/png")
+      })
     } else {
       const ctx = this._ctx as SVGRenderingContext2D
       const svg = ctx.get_serialized_svg(true)

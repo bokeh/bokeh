@@ -480,12 +480,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   get_serialized_svg(fixNamedEntities: boolean = false): string {
     let serialized = new XMLSerializer().serializeToString(this.__root)
 
-    // IE search for a duplicate xmnls because they didn't implement setAttributeNS correctly
-    const xmlns = /xmlns="http:\/\/www\.w3\.org\/2000\/svg".+xmlns="http:\/\/www\.w3\.org\/2000\/svg/gi
-    if (xmlns.test(serialized)) {
-      serialized = serialized.replace('xmlns="http://www.w3.org/2000/svg', 'xmlns:xlink="http://www.w3.org/1999/xlink')
-    }
-
     if (fixNamedEntities) {
       // loop over each named entity and replace with the proper equivalent.
       for (const [key, value] of namedEntities) {
