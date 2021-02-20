@@ -519,8 +519,15 @@ export class BaseExpo extends GraphicsBox {
   }
 
   paint(ctx: Context2d): void {
-    const {x, y} = this._computed_position()
     ctx.save()
+    const {angle} = this
+    if (angle) {
+      const {sx, sy} = this.position
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      ctx.translate(-sx, -sy)
+    }
+    const {x, y} = this._computed_position()
     ctx.translate(x, y)
     this.base.paint(ctx)
     this.expo.paint(ctx)
