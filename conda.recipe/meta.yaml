@@ -20,7 +20,7 @@ extra:
 requirements:
   build:
     - jinja2
-    - nodejs >=10.13
+    - nodejs >=14
     - numpy
     - packaging
     - python
@@ -67,7 +67,7 @@ test:
     - mypy
     - nbconvert >=5.4
     - networkx
-    - nodejs >=10.13
+    - nodejs >=14
     - numba
     - pandas
     - psutil
