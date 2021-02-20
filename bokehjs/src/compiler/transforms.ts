@@ -311,40 +311,6 @@ export function rename_exports() {
   }
 }
 
-/**
- * Transform `var _this = _super.call(this, seq) || this;` into `var _this = new _super(seq);`.
- */
-export function es5_fix_extend_builtins() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
-    const {factory} = context
-
-    function visit(node: ts.Node): ts.Node {
-      if (ts.isFunctionDeclaration(node)) {
-        if (node.name != null && node.name.text.endsWith("NDArray") && node.body != null) {
-          const [stmt, ...rest] = node.body.statements
-          if (ts.isVariableStatement(stmt) && stmt.declarationList.declarations.length == 1) {
-            const [decl] = stmt.declarationList.declarations
-            if (ts.isIdentifier(decl.name) && decl.name.text == "_this" && decl.initializer != null) {
-              const init = factory.createNewExpression(factory.createIdentifier("_super"), undefined, [factory.createIdentifier("seq")])
-              const decl_new = factory.updateVariableDeclaration(decl, decl.name, decl.exclamationToken, decl.type, init)
-              const decls_new = factory.updateVariableDeclarationList(stmt.declarationList, [decl_new])
-              const stmt_new = factory.updateVariableStatement(stmt, stmt.modifiers, decls_new)
-              const body = factory.createBlock([stmt_new, ...rest], true)
-              const constructor = factory.updateFunctionDeclaration(node, node.decorators, node.modifiers,
-                node.asteriskToken, node.name, node.typeParameters, node.parameters, node.type, body)
-              return constructor
-            }
-          }
-        }
-      }
-
-      return ts.visitEachChild(node, visit, context)
-    }
-
-    return ts.visitNode(root, visit)
-  }
-}
-
 export function fix_esmodule() {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context

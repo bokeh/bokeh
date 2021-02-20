@@ -178,7 +178,7 @@ task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
-    target: "ES5",
+    target: "ES2015",
   })
 
   if (!argv.rebuild) linker.load_cache()

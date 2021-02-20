@@ -231,7 +231,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  target?: "ES2020" | "ES2017" | "ES5"
+  target?: "ES2020" | "ES2017" | "ES2015"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -250,7 +250,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2020" | "ES2017" | "ES5" | null
+  readonly target: "ES2020" | "ES2017" | "ES2015" | null
   readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
@@ -720,8 +720,8 @@ export ${export_type} css;
     if (changed) {
       let collected: string[] | null = null
       if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2020, ES2017, ES5} = ts.ScriptTarget
-        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES5)
+        const {ES2020, ES2017, ES2015} = ts.ScriptTarget
+        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES2015)
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")
@@ -730,9 +730,6 @@ export ${export_type} css;
         const transform: {before: Transformers, after: Transformers} = {
           before: [transforms.collect_imports(imports), transforms.rename_exports(), transforms.collect_exports(exported)],
           after: [],
-        }
-        if (canonical == "core/util/ndarray" && target == ES5) {
-          transform.after.push(transforms.es5_fix_extend_builtins())
         }
 
         // XXX: .json extension will cause an internal error
