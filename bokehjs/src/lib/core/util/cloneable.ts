@@ -19,7 +19,7 @@ export interface Cloneable {
 }
 
 export function is_Cloneable<T>(obj: T): obj is T & Cloneable {
-  return isObject(obj) && (obj as any)[clone] !== undefined
+  return isObject(obj) && clone in obj
 }
 
 export class CloningError extends Error {}
