@@ -30,8 +30,9 @@ right of a plot. For example:
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_location.py
     :source-position: above
 
-Use your plot's ``.title`` property to customize the default |Title|. You can
-set visual properties for font, border, and background, for example.
+Use your plot's ``.title`` property to customize the default |Title|. Use the
+:ref:`standard text properties <userguide_styling_text_properties>` to define
+visual properties such as font, border, and background.
 
 This example uses the ``.title`` property to set the font and background
 properties as well as the title text and title alignment:
@@ -218,11 +219,12 @@ objects as their ``start`` and ``end``. By default, the |Arrow| annotation is a
 one-sided arrow: The ``end`` property is set to an ``OpenHead``-type arrowhead
 (looking like an open-backed wedge style). The ``start`` property is set to
 ``None``. If you want to create double-sided arrows, set both the ``start`` and
-``end`` properties to one of the available arrowheads. The available arrowheads
-are: :class:`~bokeh.models.arrow_heads.NormalHead`,
-:class:`~bokeh.models.arrow_heads.OpenHead`,
-:class:`~bokeh.models.arrow_heads.TeeHead`,
-and :class:`~bokeh.models.arrow_heads.VeeHead`.
+``end`` properties to one of the available arrowheads.
+
+The available arrowheads are:
+
+.. bokeh-plot:: docs/user_guide/examples/annotations_arrowheads.py
+    :source-position: none
 
 Control the appearance of an arrowhead with these properties:
 
@@ -292,14 +294,14 @@ regions.
 To create a single text label, use the |Label| annotation. Those are the most
 important properties for this annotation:
 
-* A ``text`` property containing the text to be displayed inside the label.
+* A ``text`` property containing the text to display inside the label.
 * ``x`` and ``y`` properties to set the position (in screen or data
-  space units). Additionally, a
-* ``text``, ``border_line``, and ``background_fill`` properties. These control
-  the visual appearance of the text, as well as the border and background of the
-  bounding box for the text.
-* An optional ``render_mode`` property that you can set to either ``"canvas"``
-  or ``"css"``.
+  space units).
+* ``x_offset`` and ``y_offset`` properties to specify where to place the label
+  in relation to its ``x`` and ``y`` coordinates.
+* The standard :ref:`text properties <userguide_styling_text_properties>` as
+  well as other styling parameters such as ``border_line`` and
+  ``background_fill`` properties.
 
 .. code-block:: python
 
@@ -308,10 +310,10 @@ important properties for this annotation:
           background_fill_color='white', background_fill_alpha=1.0)
 
 To create several labels at once, use the |LabelSet| annotation. To configure
-the labels of a label set, usa a data source that contains columns with data for
-the labels' ``text``, ``x`` and ``y`` properties. ``LabelSet`` objects can also
-have ``x_offset`` and ``y_offset`` values. Use these offset values to specify
-where to place the label in relation to its ``x`` and ``y`` coordinates.
+the labels of a label set, use a data source that contains columns with data for
+the labels' properties such as ``text``, ``x`` and ``y``. If you assign a
+value to a property such as ``x_offset`` and ``y_offset`` directly instead of a
+column name, this value is used for all labels of the label set.
 
 .. code-block:: python
 
@@ -328,8 +330,14 @@ The following example illustrates the use of |Label| and |LabelSet|:
 Slopes
 ------
 
-|Slope| annotations are lines which may be sloped and extend to the
-edge of the plot area.
+|Slope| annotations are lines that can go from one edge of the plot to
+another at a specific angle.
+
+These are the most commonly used properties for this annotation:
+
+* ``gradient``: The gradient of the line, in data units.
+* ``y_intercept``: The y intercept of the line, in data units.
+* The standard :ref:`line properties <userguide_styling_line_properties>`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
     :source-position: above
@@ -339,8 +347,21 @@ edge of the plot area.
 Spans
 -----
 
-|Span| annotations are lines that have a single dimension (width or height)
-and extend to the edge of the plot area.
+|Span| annotations are lines that are orthogonal to the x or y axis of a plot.
+They have a single dimension (width or height) and go from one edge of the plot
+area to the opposite edge.
+
+These are the most commonly used properties for this annotation:
+
+* ``dimension``: The direction of the span line. The direction can be one of
+  these two values: Either * ``"height"`` for a line that is parallel to the
+  plot's x axis. Or ``"width"`` for a line that is parallel to the plot's y
+  axis.
+* ``location``: The location of the span along the axis specified with
+  ``dimension``.
+* ``location_units``: The :ref:`unit type <userguide_styling_units>` for the
+  location property. The default is to use "data space" units.
+* The standard :ref:`line properties <userguide_styling_line_properties>`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
@@ -350,9 +371,24 @@ and extend to the edge of the plot area.
 Whiskers
 --------
 
-A |Whisker| will create a dimensionally linked "stem", either located in data
-or screen coordinates. Indicating error or uncertainty for measurements at a
-single point would be one common use for the Whisker annotation.
+A |Whisker| annotation is a "stem" that is dimensionally linked to the data in
+the plot. You can define this annotation using
+:ref:`data or screen units <userguide_styling_units>`.
+
+A common use for whisker annotations is to indicate error margins or
+uncertainty for measurements at a single point.
+
+These are the most commonly used properties for this annotation:
+
+* ``lower``: The coordinates of the lower end of the whisker.
+* ``upper``: The coordinates of the upper end of the whisker.
+* ``dimension``: The direction of the whisker. The direction can be one of
+  these two values: Either * ``"width"`` for whiskers that are parallel to the
+  plot's x axis. Or ``"height"`` for whiskers that are parallel to the plot's y
+  axis.
+* ``base``: The location of the whisker along the dimension specified with
+  ``dimension``.
+* The standard :ref:`line properties <userguide_styling_line_properties>`.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
     :source-position: above

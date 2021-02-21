@@ -195,12 +195,14 @@ Fill properties
 
 .. include:: ../includes/fill_props.txt
 
-.. _userguide_styling_text_properties:
+.. _userguide_styling_hatch_properties:
 
 Hatch properties
 ~~~~~~~~~~~~~~~~
 
 .. include:: ../includes/hatch_props.txt
+
+.. _userguide_styling_text_properties:
 
 Text properties
 ~~~~~~~~~~~~~~~
@@ -288,29 +290,6 @@ RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:
     ``fill_alpha``, ``line_color``, and ``line_alpha`` arguments as well. In
     this case, the former will take precedence.
 
-.. _userguide_styling_arrow_annotations:
-
-Arrow annotation property
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To change the design of :ref:`arrow annotations <userguide_plotting_arrows>`,
-use one of Bokeh's several :class:`~bokeh.models.arrow_heads.ArrowHead`
-designs.
-
-By default, an arrow annotation is basically a line with an arrowhead on one
-side. This means that Bokeh sets the ``start`` property of a standard arrow
-object to an ``ArrowHead`` object, while the ``end`` property is set to
-``None``.
-
-Correspondingly, if you want no arrowheads at all, set both ``start`` and
-``end`` to ``None``. Another option to make an arrowhead invisible is to set an
-``ArrowHead`` object's ``visible`` property to ``False``. To create a
-double-sided arrow, apply an ``ArrowHead`` to both ``start`` and
-``end``.
-
-.. bokeh-plot:: docs/user_guide/examples/styling_arrow_annotations.py
-    :source-position: none
-
 .. _userguide_styling_units:
 
 Screen units and data-space units
@@ -325,6 +304,12 @@ data-space units:
 Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, for example. A glyph that is one fifth as wide and tall as the graph
 would have a size of 80 screen units or 2 data-space units.
+
+Many objects in Bokeh have a dedicated property that you can set to either
+"screen" or "data" in order to switch from one unit ot another. In case a
+property accepts a :class:`~bokeh.core.properties.PropertyUnitsSpec`, you can
+pass a dict with both a value and a unit directly. For example:
+``some_data = {"units": "screen", "value": 19}``
 
 .. _userguide_styling_selecting:
 
