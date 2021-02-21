@@ -53,7 +53,7 @@ example of how to initialize a `Range1d` model in both languages:
 
   .. code-block:: javascript
 
-    var xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
+    const xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
 
 This pattern works in all similar situations. Once you create a Bokeh model,
 you can set its properties in exactly the same way in both languages. For
@@ -100,16 +100,16 @@ The JavaScript sample below is very similar to the Python code in
 .. bokehjs-content::
     :title: Bokeh color scatter
 
-    var plt = Bokeh.Plotting;
+    const plt = Bokeh.Plotting;
 
     // set up some data
-    var M = 100;
-    var xx = [];
-    var yy = [];
-    var colors = [];
-    var radii = [];
-    for (var y = 0; y <= M; y += 4) {
-        for (var x = 0; x <= M; x += 4) {
+    const M = 100;
+    const xx = [];
+    const yy = [];
+    const colors = [];
+    const radii = [];
+    for (let y = 0; y <= M; y += 4) {
+        for (let x = 0; x <= M; x += 4) {
             xx.push(x);
             yy.push(y);
             colors.push(plt.color(50+2*x, 30+2*y, 150));
@@ -118,16 +118,16 @@ The JavaScript sample below is very similar to the Python code in
     }
 
     // create a data source
-    var source = new Bokeh.ColumnDataSource({
+    const source = new Bokeh.ColumnDataSource({
         data: { x: xx, y: yy, radius: radii, colors: colors }
     });
 
     // make the plot and add some tools
-    var tools = "pan,crosshair,wheel_zoom,box_zoom,reset,save";
-    var p = plt.figure({ title: "Colorful Scatter", tools: tools });
+    const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,save";
+    const p = plt.figure({ title: "Colorful Scatter", tools: tools });
 
     // call the circle glyph method to add some circle glyphs
-    var circles = p.circle({ field: "x" }, { field: "y" }, {
+    const circles = p.circle({ field: "x" }, { field: "y" }, {
         source: source,
         radius: radii,
         fill_color: colors,
@@ -177,31 +177,31 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
 .. bokehjs-content::
     :title: Bokeh pie chart
 
-    var plt = Bokeh.Plotting;
+    const plt = Bokeh.Plotting;
 
-    var pie_data = {
+    const pie_data = {
         labels: ['Work', 'Eat', 'Commute', 'Sport', 'Watch TV', 'Sleep'],
         values: [8, 2, 2, 4, 0, 8],
     };
 
-    var p1 = Bokeh.Charts.pie(pie_data);
-    var p2 = Bokeh.Charts.pie(pie_data, {
+    const p1 = Bokeh.Charts.pie(pie_data);
+    const p2 = Bokeh.Charts.pie(pie_data, {
         inner_radius: 0.2,
         start_angle: Math.PI / 2
     });
-    var p3 = Bokeh.Charts.pie(pie_data, {
+    const p3 = Bokeh.Charts.pie(pie_data, {
         inner_radius: 0.2,
         start_angle: Math.PI / 6,
         end_angle: 5 * Math.PI / 6
     });
-    var p4 = Bokeh.Charts.pie(pie_data, {
+    const p4 = Bokeh.Charts.pie(pie_data, {
         inner_radius: 0.2,
         palette: "Oranges9",
         slice_labels: "percentages"
     });
 
     // add the plot to a document and display it
-    var doc = new Bokeh.Document();
+    const doc = new Bokeh.Document();
     doc.add_root(plt.gridplot(
                      [[p1, p2], [p3, p4]],
                      {plot_width:250, plot_height:250}));
@@ -224,7 +224,7 @@ some sales data from different regions for different years:
 
 .. code-block:: javascript
 
-    var data = [
+    const data = [
         ['Region', 'Year', 'Sales'],
         ['East',   2015,    23000 ],
         ['East',   2016,    35000 ],
@@ -250,9 +250,9 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 .. bokehjs-content::
     :title: Bokeh bar chart
 
-    var plt = Bokeh.Plotting;
+    const plt = Bokeh.Plotting;
 
-    var bar_data = [
+    const bar_data = [
         ['City', '2010 Population', '2000 Population'],
         ['NYC', 8175000, 8008000],
         ['LA', 3792000, 3694000],
@@ -261,18 +261,18 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
         ['Philadelphia', 1526000, 1517000],
     ];
 
-    var p1 = Bokeh.Charts.bar(bar_data, {
+    const p1 = Bokeh.Charts.bar(bar_data, {
         axis_number_format: "0.[00]a"
     });
-    var p2 = Bokeh.Charts.bar(bar_data, {
+    const p2 = Bokeh.Charts.bar(bar_data, {
         axis_number_format: "0.[00]a",
         stacked: true
     });
-    var p3 = Bokeh.Charts.bar(bar_data, {
+    const p3 = Bokeh.Charts.bar(bar_data, {
         axis_number_format: "0.[00]a",
         orientation: "vertical"
     });
-    var p4 = Bokeh.Charts.bar(bar_data, {
+    const p4 = Bokeh.Charts.bar(bar_data, {
         axis_number_format: "0.[00]a",
         orientation: "vertical",
         stacked: true
@@ -292,12 +292,12 @@ create and modify plots.
     :disable_codepen: true
 
     // create a data source to hold data
-    var source = new Bokeh.ColumnDataSource({
+    const source = new Bokeh.ColumnDataSource({
         data: { x: [], y: [] }
     });
 
     // make a plot with some tools
-    var plot = Bokeh.Plotting.figure({
+    const plot = Bokeh.Plotting.figure({
         title: 'Example of random data',
         tools: "pan,wheel_zoom,box_zoom,reset,save",
         height: 300,
@@ -322,7 +322,7 @@ create and modify plots.
         source.change.emit()
     }
 
-    var addDataButton = document.createElement("Button");
+    const addDataButton = document.createElement("Button");
     addDataButton.appendChild(document.createTextNode("Some data."));
     document.currentScript.parentElement.appendChild(addDataButton);
     addDataButton.addEventListener("click", addPoint);

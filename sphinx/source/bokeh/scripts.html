@@ -27,7 +27,7 @@
             const content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
             $('#banner').append(content);
           }
-          for (var i = 0; i < data.menu.length; i++) {
+          for (let i = 0; i < data.menu.length; i++) {
             const link = "https://docs.bokeh.org/en/" + data.menu[i]
             $('#version-menu').append('<a class="dropdown-item" href="' + link + '">' + data.menu[i] + '</a>')
           }
@@ -55,14 +55,14 @@
     // The event is triggered on "window" (and not the nav item as documented),
     // see https://github.com/twbs/bootstrap/issues/20086
     $(window).on("activate.bs.scrollspy", function(){
-    var navLinks = document.querySelectorAll('#bd-toc-nav a');
-    for (var i = 0; i < navLinks.length; i++) {
-        var navLink = navLinks[i];
+    const navLinks = document.querySelectorAll('#bd-toc-nav a');
+    for (let i = 0; i < navLinks.length; i++) {
+        const navLink = navLinks[i];
         navLink.parentElement.classList.remove('active');
     }
-    var navLinks = document.querySelectorAll('#bd-toc-nav a.active');
-    for (var i = 0; i < navLinks.length; i++) {
-        var navLink = navLinks[i];
+    const navLinksActive = document.querySelectorAll('#bd-toc-nav a.active');
+    for (let i = 0; i < navLinksActive.length; i++) {
+        const navLink = navLinksActive[i];
         navLink.parentElement.classList.add('active');
     }
     });

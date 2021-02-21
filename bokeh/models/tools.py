@@ -896,10 +896,10 @@ class CustomJSHover(Model):
         .. code-block:: python
 
             lat_custom = CustomJSHover(code="""
-                var projections = Bokeh.require("core/util/projections");
-                var x = special_vars.x
-                var y = special_vars.y
-                var coords = projections.wgs84_mercator.invert(x, y)
+                const projections = Bokeh.require("core/util/projections");
+                const x = special_vars.x
+                const y = special_vars.y
+                const coords = projections.wgs84_mercator.invert(x, y)
                 return "" + coords[1]
             """)
 

@@ -53,8 +53,8 @@ for a in aligns:
 
 slider = Slider(title="Text Angle", start=0, end=45, step=1, value=0)
 slider.js_on_change('value', CustomJS(args=renderers, code="""
-    var rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
-    for (var i = 0; i < 9; i++) {
+    const rs = [r0, r1, r2 , r3, r4, r5, r6, r7, r8];
+    for (let i = 0; i < 9; i++) {
         rs[i].glyph.angle = {value: cb_obj.value, units: "deg"}
     }
 """))
