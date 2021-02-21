@@ -638,7 +638,8 @@ Labels
 ~~~~~~
 
 To add or change the text of an axis' overall label, use the ``axis_label``
-property.
+property. To add line breaks to the text in an axis label, include ``\n`` in
+your string.
 
 To control the visual appearance of the label text, use
 `Text Properties`_ prefixed with ``axis_label_``. For instance, to set the text
