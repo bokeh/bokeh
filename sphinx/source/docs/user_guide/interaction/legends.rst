@@ -1,6 +1,6 @@
 .. _userguide_interaction_legends:
 
-Interactive Legends
+Interactive legends
 -------------------
 
 :ref:`userguide_plotting_legends` added to Bokeh plots can be made interactive
@@ -13,7 +13,7 @@ either ``"hide"`` or ``"mute"``.
     Interactive legends only work on "per-glyph" legends. Grouped legends
     do not yet support the features described below.
 
-Hiding Glyphs
+Hiding glyphs
 ~~~~~~~~~~~~~
 
 Sometimes it is desirable to be able to hide glyphs by clicking on an entry
@@ -23,7 +23,7 @@ in a ``Legend``. In Bokeh this can be accomplished by setting the legend
 .. bokeh-plot:: docs/user_guide/examples/interaction_legend_hide.py
     :source-position: above
 
-Muting Glyphs
+Muting glyphs
 ~~~~~~~~~~~~~
 
 Other times it is preferable for legend interaction to mute a glyph, instead

@@ -1,9 +1,9 @@
-from bokeh.models import Arrow, Label, NormalHead, OpenHead, Plot, Range1d, VeeHead
+from bokeh.models import Arrow, Label, NormalHead, OpenHead, Plot, Range1d, TeeHead, VeeHead
 from bokeh.plotting import output_file, show
 
-output_file("arrow_styles.html")
+output_file("arrow_heads.html")
 
-ARROW_HEADS = [OpenHead, NormalHead, VeeHead]
+ARROW_HEADS = [TeeHead, OpenHead, NormalHead, VeeHead]
 HEIGHT = 35 * len(ARROW_HEADS)
 
 p = Plot(plot_width=150, plot_height=HEIGHT,
