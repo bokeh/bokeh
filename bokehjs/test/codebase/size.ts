@@ -18,10 +18,11 @@ const LIMITS = new Map([
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))
+const k = Math.max(...[...LIMITS.values()].map((s) => `${s}`.length))
 
 function pad(value: unknown): string {
   const str = `${value}`
-  const pre = " ".repeat(4 - str.length)
+  const pre = " ".repeat(k - str.length)
   return `${pre}${str}`
 }
 
