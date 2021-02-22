@@ -163,7 +163,7 @@ To explicitly specify which index into a
 :ref:`ColumnDataSource <userguide_data_cds>` to use in a legend, set the
 ``index`` property of a ``LegendItem``.
 
-This is useful for displaying multiple entries in a legend whe you use glyphs
+This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
 :class:`~bokeh.models.glyphs.MultiLine`
 (:func:`~bokeh.plotting.Figure.multi_line`) or
@@ -172,7 +172,7 @@ that are rendered in several parts, such as
 .. bokeh-plot:: docs/user_guide/examples/plotting_legends_multi_index.py
     :source-position: above
 
-Interactive Legends
+Interactive legends
 ~~~~~~~~~~~~~~~~~~~
 
 You can use legends as interactive elements to control some aspects of the
@@ -195,16 +195,12 @@ Color bars
 To create a |ColorBar|, use an instance of |ColorMapper| containing a color
 palette.
 
-Color bars can be located inside as well as left, right, below or above the
+Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to
 the plot using the :func:`~bokeh.models.plots.Plot.add_layout` method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
-
-.. note::
-    This example depends on the open-source NumPy library to generate
-    sample data.
 
 .. _userguide_plotting_arrows:
 
@@ -217,7 +213,7 @@ can also help highlight plot regions.
 Arrows are compound annotations. This means that they use additional |ArrowHead|
 objects as their ``start`` and ``end``. By default, the |Arrow| annotation is a
 one-sided arrow: The ``end`` property is set to an ``OpenHead``-type arrowhead
-(looking like an open-backed wedge style). The ``start`` property is set to
+(looking like an open-backed wedge style) and the ``start`` property is set to
 ``None``. If you want to create double-sided arrows, set both the ``start`` and
 ``end`` properties to one of the available arrowheads.
 
@@ -268,7 +264,7 @@ To define a band, use either
 
 .. _userguide_plotting_box_annotations:
 
-Box Annotations
+Box annotations
 ---------------
 
 A |BoxAnnotation| is a rectangular box that you can link to either

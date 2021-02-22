@@ -96,7 +96,7 @@ is an `example`_ of interaction HoloViews.
 .. _React: https://reactjs.org
 .. _Angular: https://angular.io
 .. _Vue: https://vuejs.org/
-.. _Developing with Javascript: https://docs.bokeh.org/en/dev/docs/user_guide/bokehjs.html
+.. _Developing with JavaScript: https://docs.bokeh.org/en/dev/docs/user_guide/bokehjs.html
 .. _hvPlot: https://hvplot.holoviz.org/
 .. _Panel: https://panel.holoviz.org/
 .. _Jupyter notebooks: https://docs.bokeh.org/en/latest/docs/user_guide/jupyter.html
