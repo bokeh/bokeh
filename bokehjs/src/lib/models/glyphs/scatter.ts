@@ -1,6 +1,7 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
 import {MarkerGL} from "./webgl/markers"
+import {get_regl, ReglWrapper} from "./webgl/regl_wrap"
 import {MarkerType} from "core/enums"
 import {Rect} from "core/types"
 import * as p from "core/properties"
@@ -21,15 +22,18 @@ export class ScatterView extends MarkerView {
   protected _init_webgl(): void {
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      const marker_types = new Set(this.marker)
-      if (marker_types.size == 1) {
-        const [marker_type] = [...marker_types]
+      const regl_wrapper: ReglWrapper = get_regl(webgl.gl)
+      if (regl_wrapper.has_webgl) {
+        const marker_types = new Set(this.marker)
+        if (marker_types.size == 1) {
+          const [marker_type] = [...marker_types]
 
-        if (MarkerGL.is_supported(marker_type)) {
-          const {glglyph} = this
-          if (glglyph == null || glglyph.marker_type != marker_type) {
-            this.glglyph = new MarkerGL(webgl.gl, this, marker_type)
-            return
+          if (MarkerGL.is_supported(marker_type)) {
+            const {glglyph} = this
+            if (glglyph == null || glglyph.marker_type != marker_type) {
+              this.glglyph = new MarkerGL(regl_wrapper, this, marker_type)
+              return
+            }
           }
         }
       }

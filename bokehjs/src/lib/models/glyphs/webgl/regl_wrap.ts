@@ -23,6 +23,7 @@ export function get_regl(gl: WebGLRenderingContext) : ReglWrapper {
 
 export class ReglWrapper {
   private _regl: Regl
+  private _regl_available: boolean
   private _dash_cache: DashCache
 
   // Drawing functions.
@@ -32,17 +33,25 @@ export class ReglWrapper {
   private _marker_map: Map<MarkerType, ({}) => void>
 
   constructor(gl: WebGLRenderingContext) {
-    this._regl = createRegl({
-      gl: gl,
-      extensions: [
-        "angle_instanced_arrays",
-        "oes_texture_float",
-        "oes_texture_float_linear",
-        "webgl_color_buffer_float",
-      ]
-    })
-    // What to do if error occurs?
+    try {
+      this._regl = createRegl({
+        gl: gl,
+        extensions: [
+          "angle_instanced_arrays",
+          "oes_texture_float",
+          "oes_texture_float_linear",
+          "webgl_color_buffer_float",
+        ]
+      })
+      this._regl_available = true
+    }
+    catch(err: unknown) {
+      this._regl_available = false
+    }
+  }
 
+  get has_webgl(): boolean {
+    return this._regl_available
   }
 
   public dashed_line(): ({}) => void {

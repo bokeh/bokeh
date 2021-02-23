@@ -1,5 +1,5 @@
 import {BaseGLGlyph, Transform} from "./base"
-import {get_regl, ReglWrapper} from "./regl_wrap"
+import {ReglWrapper} from "./regl_wrap"
 import {ScatterView} from "../scatter"
 import {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
@@ -41,8 +41,6 @@ function prop_as_array(prop: any): any {
 // Base class for markers. All markers share the same GLSL, except for one
 // function that defines the marker geometry.
 export class MarkerGL extends BaseGLGlyph {
-  protected _regl: ReglWrapper
-
   protected _marker_type: MarkerType
   protected _linewidth: number
   protected _antialias: number
@@ -74,10 +72,9 @@ export class MarkerGL extends BaseGLGlyph {
     }
   }
 
-  constructor(gl: WebGLRenderingContext, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
-    super(gl, glyph)
+  constructor(regl_wrapper: ReglWrapper, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+    super(regl_wrapper, glyph)
 
-    this._regl = get_regl(gl)
     this._marker_type = marker_type
     this._antialias = 0.8
   }
@@ -100,7 +97,7 @@ export class MarkerGL extends BaseGLGlyph {
       ? map(this.glyph.sradius, (radius) => 2*radius)
       : prop_as_array(this.glyph.size)
 
-    this._regl.marker(this._marker_type)({
+    this.regl_wrapper.marker(this._marker_type)({
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
       center: this._centers,

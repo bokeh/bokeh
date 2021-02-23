@@ -1,6 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {LineView} from "../line"
-import {get_regl, ReglWrapper} from "./regl_wrap"
+import {ReglWrapper} from "./regl_wrap"
 import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
@@ -18,8 +18,6 @@ const missing_point_threshold = -1e9
 
 
 export class LineGL extends BaseGLGlyph {
-  protected _regl: ReglWrapper
-
   protected _nsegments: number
   protected _points: Float32Array
   protected _projection: Float32Array
@@ -38,10 +36,9 @@ export class LineGL extends BaseGLGlyph {
 
   protected _debug_show_mesh: boolean
 
-  constructor(gl: WebGLRenderingContext, readonly glyph: LineView) {
-    super(gl, glyph)
+  constructor(regl_wrapper: ReglWrapper, readonly glyph: LineView) {
+    super(regl_wrapper, glyph)
 
-    this._regl = get_regl(gl)
     this._projection = new Float32Array(16)
 
     this._antialias = 1.5   // Make this larger to test antialiasing at edges.
@@ -71,7 +68,7 @@ export class LineGL extends BaseGLGlyph {
     const join_type = join_lookup[line_visuals.line_join.value]
 
     if (this._is_dashed())
-      this._regl.dashed_line()({
+      this.regl_wrapper.dashed_line()({
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
@@ -88,7 +85,7 @@ export class LineGL extends BaseGLGlyph {
         dash_offset: this._dash_offset,
       })
     else
-      this._regl.solid_line()({
+      this.regl_wrapper.solid_line()({
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
@@ -102,7 +99,7 @@ export class LineGL extends BaseGLGlyph {
       })
 
     if (this._debug_show_mesh)
-      this._regl.line_mesh()({
+      this.regl_wrapper.line_mesh()({
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: [0, 0, 0, 1],
@@ -184,7 +181,7 @@ export class LineGL extends BaseGLGlyph {
     this._dash_offset = line_visuals.line_dash_offset.value
 
     if (this._is_dashed()) {
-      [this._dash_tex_info, this._dash_tex] = this._regl.get_dash(this._line_dash)
+      [this._dash_tex_info, this._dash_tex] = this.regl_wrapper.get_dash(this._line_dash)
     }
   }
 }
