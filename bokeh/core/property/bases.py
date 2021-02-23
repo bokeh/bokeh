@@ -326,6 +326,8 @@ class Property(PropertyDescriptorFactory):
         return value
 
     def prepare_value(self, owner: Union[HasProps, Type[HasProps]], name: str, value: Any):
+        if value is Intrinsic:
+            value = self._raw_default()
         if value is Undefined:
             return value
 
