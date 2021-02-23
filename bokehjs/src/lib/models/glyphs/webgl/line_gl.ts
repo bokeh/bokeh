@@ -24,11 +24,8 @@ export class LineGL extends BaseGLGlyph {
   protected _points: Float32Array
   protected _projection: Float32Array
 
-  protected _linewidth: number
   protected _antialias: number
   protected _color: number[]
-  protected _cap_type: number
-  protected _join_type: number
   protected _miter_limit: number
   protected _line_dash: number[]
   protected _dash_offset: number
@@ -67,18 +64,24 @@ export class LineGL extends BaseGLGlyph {
       mainGlGlyph.data_changed = false
     }
 
+    const line_visuals = this.glyph.visuals.line
+    const linewidth = line_visuals.line_width.value
+    const antialias = Math.min(this._antialias, linewidth)
+    const cap_type = cap_lookup[line_visuals.line_cap.value]
+    const join_type = join_lookup[line_visuals.line_join.value]
+
     if (this._is_dashed())
       this._regl.dashed_line()({
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
-        linewidth: this._linewidth,
-        antialias: Math.min(this._antialias, this._linewidth),
+        linewidth: linewidth,
+        antialias: antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: this._join_type,
-        cap_type: this._cap_type,
+        join_type: join_type,
+        cap_type: cap_type,
         length_so_far: this._length_so_far,
         dash_tex: this._dash_tex,
         dash_tex_info: this._dash_tex_info,
@@ -89,13 +92,13 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
-        linewidth: this._linewidth,
-        antialias: Math.min(this._antialias, this._linewidth),
+        linewidth: linewidth,
+        antialias: antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: this._join_type,
-        cap_type: this._cap_type,
+        join_type: join_type,
+        cap_type: cap_type,
       })
 
     if (this._debug_show_mesh)
@@ -103,13 +106,13 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: [0, 0, 0, 1],
-        linewidth: this._linewidth,
-        antialias: Math.min(this._antialias, this._linewidth),
+        linewidth: linewidth,
+        antialias: antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: this._join_type,
-        cap_type: this._cap_type,
+        join_type: join_type,
+        cap_type: cap_type,
       })
   }
 
@@ -173,14 +176,9 @@ export class LineGL extends BaseGLGlyph {
   protected _set_visuals(): void {
     const line_visuals = this.glyph.visuals.line
 
-    this._linewidth = line_visuals.line_width.value
-
     const color = color2rgba(line_visuals.line_color.value,
                              line_visuals.line_alpha.value)
     this._color = color.map(function (val) {return val/255})
-
-    this._cap_type = cap_lookup[line_visuals.line_cap.value]
-    this._join_type = join_lookup[line_visuals.line_join.value]
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
     this._dash_offset = line_visuals.line_dash_offset.value
