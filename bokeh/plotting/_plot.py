@@ -23,6 +23,7 @@ import numpy as np
 
 # Bokeh imports
 from ..core.properties import Datetime
+from ..core.property.singletons import Intrinsic
 from ..models import (
     CategoricalAxis,
     CategoricalScale,
@@ -75,7 +76,12 @@ def get_range(range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
             try:
-                return Range1d(start=range_input[0], end=range_input[1])
+                start, end = range_input
+                if start is None:
+                    start = Intrinsic
+                if end is None:
+                    end = Intrinsic
+                return Range1d(start=start, end=end)
             except ValueError:  # @mattpap suggests ValidationError instead
                 pass
     raise ValueError("Unrecognized range input: '%s'" % str(range_input))
