@@ -1,7 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {LineView} from "../line"
 import {get_regl, ReglWrapper} from "./regl_wrap"
-import {ortho} from "./utils/ortho"
 import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
@@ -68,16 +67,10 @@ export class LineGL extends BaseGLGlyph {
       mainGlGlyph.data_changed = false
     }
 
-    // Projection should be a property of the gl canvas, not each glyph.
-    ortho(this._projection, 0, transform.width, transform.height, 0, -1, 1)
-
-    // Create new length 16 Float32Array each time, not efficient!
-    const projection2: Float32Array = transform.transform.toFloat32Array()
-
     if (this._is_dashed())
       this._regl.dashed_line()({
-        projection: this._projection,
-        projection2: projection2,
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
         color: this._color,
         linewidth: this._linewidth,
         antialias: Math.min(this._antialias, this._linewidth),
@@ -93,8 +86,8 @@ export class LineGL extends BaseGLGlyph {
       })
     else
       this._regl.solid_line()({
-        projection: this._projection,
-        projection2: projection2,
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
         color: this._color,
         linewidth: this._linewidth,
         antialias: Math.min(this._antialias, this._linewidth),
@@ -107,8 +100,8 @@ export class LineGL extends BaseGLGlyph {
 
     if (this._debug_show_mesh)
       this._regl.line_mesh()({
-        projection: this._projection,
-        projection2: projection2,
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
         color: [0, 0, 0, 1],
         linewidth: this._linewidth,
         antialias: Math.min(this._antialias, this._linewidth),

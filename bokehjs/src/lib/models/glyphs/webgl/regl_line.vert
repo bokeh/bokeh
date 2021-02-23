@@ -19,8 +19,8 @@ attribute vec2 a_point_next;
 attribute float a_length_so_far;
 #endif
 
-uniform mat4 u_projection;
-uniform mat4 u_projection2;
+uniform float u_pixel_ratio;
+uniform vec2 u_canvas_size;
 uniform float u_linewidth;
 uniform float u_antialias;
 uniform float u_join_type;
@@ -169,7 +169,9 @@ void main()
         }
     }
 
-    gl_Position = u_projection * u_projection2 * vec4(xy, 0.0, 1.0);
+    vec2 pos = xy + 0.5;  // Bokeh's offset.
+    pos /= u_canvas_size / u_pixel_ratio;  // in 0..1
+    gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
 
     v_coords.x = dot(xy - a_point_start, segment_along);
     v_flags = float(int(has_start_cap) +

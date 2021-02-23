@@ -33,7 +33,6 @@ export abstract class BaseGLGlyph {
       pixel_ratio: this.glyph.renderer.plot_view.canvas_view.pixel_ratio,  // pass pixel_ratio to webgl
       width,
       height,
-      transform: _ctx.getTransform(),
     }
     this.draw(indices, mainglyph, trans)
     return true
@@ -46,5 +45,4 @@ export type Transform = {
   pixel_ratio: number
   width: number
   height: number
-  transform: DOMMatrix
 }

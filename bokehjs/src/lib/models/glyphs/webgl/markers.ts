@@ -82,7 +82,7 @@ export class MarkerGL extends BaseGLGlyph {
     this._antialias = 0.8
   }
 
-  draw(_indices: number[], main_glyph: MarkerLikeView, trans: Transform): void {
+  draw(_indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
     const mainGlGlyph = main_glyph.glglyph!
 
@@ -101,16 +101,16 @@ export class MarkerGL extends BaseGLGlyph {
       : prop_as_array(this.glyph.size)
 
     this._regl.marker(this._marker_type)({
+      canvas_size: [transform.width, transform.height],
+      pixel_ratio: transform.pixel_ratio,
       center: this._centers,
       nmarkers: this._centers.length / 2,
-      pixel_ratio: trans.pixel_ratio,
       antialias: this._antialias,
       size: size,
       angle: prop_as_array(this.glyph.angle),
       linewidth: prop_as_array(this.glyph.visuals.line.line_width),
       fg_color: this._line_rgba,
       bg_color: this._fill_rgba,
-      canvas_size: [trans.width, trans.height],
     })
   }
 

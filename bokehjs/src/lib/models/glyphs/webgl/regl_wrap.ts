@@ -150,9 +150,9 @@ function regl_solid_line(regl: any): ({}) => void {
     },
 
     uniforms: {
+      u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
       u_color: regl.prop('color'),
-      u_projection: regl.prop('projection'),
-      u_projection2: regl.prop('projection2'),
       u_linewidth: regl.prop('linewidth'),
       u_antialias: regl.prop('antialias'),
       u_miter_limit: regl.prop('miter_limit'),
@@ -216,9 +216,9 @@ function regl_dashed_line(regl: any): ({}) => void {
     },
 
     uniforms: {
+      u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
       u_color: regl.prop('color'),
-      u_projection: regl.prop('projection'),
-      u_projection2: regl.prop('projection2'),
       u_linewidth: regl.prop('linewidth'),
       u_antialias: regl.prop('antialias'),
       u_miter_limit: regl.prop('miter_limit'),
@@ -287,9 +287,9 @@ function regl_line_mesh(regl: any): ({}) => void {
     },
 
     uniforms: {
+      u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
       u_color: regl.prop('color'),
-      u_projection: regl.prop('projection'),
-      u_projection2: regl.prop('projection2'),
       u_linewidth: regl.prop('linewidth'),
       u_antialias: regl.prop('antialias'),
       u_miter_limit: regl.prop('miter_limit'),
@@ -360,8 +360,8 @@ function regl_marker(regl: any, marker_type: MarkerType): ({}) => void {
     },
 
     uniforms: {
-      u_pixel_ratio: regl.prop('pixel_ratio'),
       u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
       u_antialias: regl.prop('antialias'),
     },
 
