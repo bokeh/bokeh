@@ -3,7 +3,9 @@ import sinon from "sinon"
 import {expect} from "assertions"
 import {display, fig} from "./_util"
 
-import {HoverTool, BoxAnnotation, ColumnDataSource, CDSView, GlyphRenderer, Circle} from "@bokehjs/models"
+import {
+  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
+} from "@bokehjs/models"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -78,5 +80,15 @@ describe("Bug", () => {
     })
 
     // TODO: this should test WebDataSource
+  })
+
+  describe("in issue #10935", () => {
+    it("prevents to render a plot with a legend and an empty view", async () => {
+      const plot = fig([200, 200])
+      const filter = new BooleanFilter({booleans: [false, false]})
+      const view = new CDSView({filters: [filter]})
+      plot.square([1, 2], [3, 4], {fill_color: ["red", "green"], view, legend: "square"})
+      await display(plot)
+    })
   })
 })
