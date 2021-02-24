@@ -63,11 +63,11 @@ plot = Figure(plot_width=400, plot_height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6, color='#ed5565')
 
 callback_single = CustomJS(args=dict(source=source), code="""
-        var data = source.data;
-        var f = cb_obj.value
-        var x = data['x']
-        var y = data['y']
-        for (var i = 0; i < x.length; i++) {
+        const data = source.data;
+        const f = cb_obj.value
+        const x = data['x']
+        const y = data['y']
+        for (let i = 0; i < x.length; i++) {
             y[i] = Math.pow(x[i], f)
         }
         source.change.emit();
@@ -75,14 +75,14 @@ callback_single = CustomJS(args=dict(source=source), code="""
 
 
 callback_ion = CustomJS(args=dict(source=source), code="""
-        var data = source.data;
-        var f = cb_obj.range
-        var x = data['x']
-        var y = data['y']
-        var pow = (Math.log(y[100])/Math.log(x[100]))
+        const data = source.data;
+        const f = cb_obj.range
+        const x = data['x']
+        const y = data['y']
+        const pow = (Math.log(y[100])/Math.log(x[100]))
         console.log(pow)
-        var delta = (f[1] - f[0])/x.length
-        for (var i = 0; i < x.length; i++) {
+        const delta = (f[1] - f[0])/x.length
+        for (let i = 0; i < x.length; i++) {
             x[i] = delta*i + f[0]
             y[i] = Math.pow(x[i], pow)
         }

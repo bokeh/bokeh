@@ -67,7 +67,7 @@ def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=N
 
 _ONLOAD = """\
 (function() {
-  var fn = function() {
+  const fn = function() {
 %(code)s
   };
   if (document.readyState != "loading") fn();

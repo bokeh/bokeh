@@ -119,8 +119,8 @@ class CustomJSTransform(Transform):
         .. code-block:: javascript
 
             v_func = '''
-            var new_xs = new Array(xs.length)
-            for(var i = 0; i < xs.length; i++) {
+            const new_xs = new Array(xs.length)
+            for(let i = 0; i < xs.length; i++) {
                 new_xs[i] = xs[i] + 0.5
             }
             return new_xs
