@@ -39,7 +39,7 @@ Note that some examples require additional Python modules and hence will result 
 Choose a bokeh version to install from the available versions on anaconda.
 Run `conda search bokeh` for the available versions. Then, build the image using, for example, version 1.4.0:
 ``` shell
-docker build -t bokeh:dev-py3 --build-arg PYTHON=3.6 -f docker-tools/Dockerfile-from-travis .
+docker build -t bokeh:dev-py3 --build-arg PYTHON=3.7 -f docker-tools/Dockerfile-from-travis .
 ```
 
 Also here, you can test the image by `docker run -it`

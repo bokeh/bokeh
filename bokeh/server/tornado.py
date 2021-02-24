@@ -167,11 +167,11 @@ class BokehTornado(TornadoApplication):
 
         websocket_compression_level (int, optional):
             Set the Tornado WebSocket ``compression_level`` documented in
-            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+            https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
         websocket_compression_mem_level (int, optional):
             Set the Tornado WebSocket compression ``mem_level`` documented in
-            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+            https://docs.python.org/3.7/library/zlib.html#zlib.compressobj.
 
         index (str, optional):
             Path to a Jinja2 template to use for the root URL

@@ -20,7 +20,7 @@ This will print general information to standard output, such as Python and Bokeh
     Python version      :  3.6.5
     IPython version     :  6.3.1
     Bokeh version       :  0.12.15
-    BokehJS static path :  /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
+    BokehJS static path :  /opt/anaconda/lib/python3.9/site-packages/bokeh/server/static
     node.js version     :  v8.11.1
     npm version         :  5.8.0
 
@@ -35,7 +35,7 @@ This will produce output like what is shown below
 
 .. code-block:: none
 
-    /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
+    /opt/anaconda/lib/python3.9/site-packages/bokeh/server/static
 
 '''
 
