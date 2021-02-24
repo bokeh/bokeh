@@ -103,7 +103,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.6.yml
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -269,7 +269,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v2
@@ -333,7 +333,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.6.yml
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -435,7 +435,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-test-3.6.yml
+          environment-file: ci/environment-test-3.7.yml
 
       - name: Install downstream packages
         shell: bash -l {0}
