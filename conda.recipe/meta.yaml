@@ -32,10 +32,10 @@ requirements:
     - yaml
 
   host:
-    - python >=3.6
+    - python >=3.7
 
   run:
-    - python >=3.6
+    - python >=3.7
 
     {% for dep in data['install_requires'] %}
     - {{ dep.lower() }}
