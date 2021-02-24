@@ -121,8 +121,8 @@ plot.add_tools(HoverTool(tooltips=tooltips, renderers=[medal]))
 
 open_url = CustomJS(args=dict(source=source), code="""
 source.inspected._1d.indices.forEach(function(index) {
-    var name = source.data["Name"][index];
-    var url = "http://en.wikipedia.org/wiki/" + encodeURIComponent(name);
+    const name = source.data["Name"][index];
+    const url = "http://en.wikipedia.org/wiki/" + encodeURIComponent(name);
     window.open(url);
 });
 """)
