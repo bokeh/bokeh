@@ -164,10 +164,10 @@ The returned ``<script>`` will look something like this:
 
     <script type="text/javascript">
         (function() {
-      var fn = function() {
+      const fn = function() {
         Bokeh.safely(function() {
-          var docs_json = { DOCUMENT DATA HERE };
-          var render_items = [{
+          const docs_json = { DOCUMENT DATA HERE };
+          const render_items = [{
             "docid":"6833819f-9b5b-4904-821e-3f5eec77de9b",
             "elementid":"9574d123-9332-4b5f-96cc-6323bef37f40",
             "modelid":"7b328b27-9b14-4f7b-a5d8-0138bc7b0f59"
@@ -328,8 +328,8 @@ Running ``python scatter.py`` prints out the following:
 .. code-block:: shell
 
     <script type="text/javascript">
-        var docs_json = { DOCUMENT DATA HERE }
-        var render_items = [{
+        const docs_json = { DOCUMENT DATA HERE }
+        const render_items = [{
           "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
           "elementid":"e89297cf-a2dc-4edd-8993-e16f0ca6af04",
           "modelid":"4eff3fdb-80f4-4b4c-a592-f99911e14398"

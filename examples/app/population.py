@@ -16,8 +16,8 @@ groups = list(df.AgeGrp.unique())
 ages = ColumnDataSource(data=dict(AgeGrp=[], Sex=[], Value=[]))
 
 gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
-    var val = new Float64Array(xs.length)
-    for (var i = 0; i < xs.length; i++) {
+    const val = new Float64Array(xs.length)
+    for (let i = 0; i < xs.length; i++) {
         if (source.data['Sex'][i] == 'Male')
             val[i] = -xs[i]
         else

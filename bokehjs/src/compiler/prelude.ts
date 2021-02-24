@@ -43,9 +43,9 @@ const loader = `\
   if (aliases === undefined) aliases = {};
   if (externals === undefined) externals = {};
 
-  var cache = {};
+  const cache = {};
 
-  var normalize = function(name) {
+  const normalize = function(name) {
     if (typeof name === "number")
       return name;
 
@@ -53,27 +53,27 @@ const loader = `\
       return entry;
 
     if (!externals[name]) {
-      var prefix = "@bokehjs/"
+      const prefix = "@bokehjs/"
       if (name.slice(0, prefix.length) === prefix)
         name = name.slice(prefix.length)
     }
 
-    var alias = aliases[name]
+    const alias = aliases[name]
     if (alias != null)
       return alias;
 
-    var trailing = name.length > 0 && name[name.lenght-1] === "/";
-    var index = aliases[name + (trailing ? "" : "/") + "index"];
+    const trailing = name.length > 0 && name[name.lenght-1] === "/";
+    const index = aliases[name + (trailing ? "" : "/") + "index"];
     if (index != null)
       return index;
 
     return name;
   }
 
-  var require = function(name) {
-    var mod = cache[name];
+  const require = function(name) {
+    let mod = cache[name];
     if (!mod) {
-      var id = normalize(name);
+      const id = normalize(name);
 
       mod = cache[id];
       if (!mod) {
@@ -86,7 +86,7 @@ const loader = `\
             } catch (e) {}
           }
 
-          var err = new Error("Cannot find module '" + name + "'");
+          const err = new Error("Cannot find module '" + name + "'");
           err.code = 'MODULE_NOT_FOUND';
           throw err;
         }
@@ -116,7 +116,7 @@ const loader = `\
     return ""
   }
 
-  var main = require(entry);
+  const main = require(entry);
   main.require = require;
 
   if (typeof Proxy !== "undefined") {
@@ -132,21 +132,21 @@ const loader = `\
     if (plugin_aliases === undefined) plugin_aliases = {};
     if (plugin_externals === undefined) plugin_externals = {};
 
-    for (var name in plugin_modules) {
+    for (let name in plugin_modules) {
       modules[name] = plugin_modules[name];
     }
 
-    for (var name in plugin_aliases) {
+    for (let name in plugin_aliases) {
       aliases[name] = plugin_aliases[name];
     }
 
-    for (var name in plugin_externals) {
+    for (let name in plugin_externals) {
       externals[name] = plugin_externals[name];
     }
 
-    var plugin = require(plugin_entry);
+    const plugin = require(plugin_entry);
 
-    for (var name in plugin) {
+    for (let name in plugin) {
       main[name] = plugin[name];
     }
 
@@ -195,8 +195,8 @@ ${comment(license)}
   const Bokeh = root.Bokeh;
   Bokeh[bokeh.version] = bokeh;
 })(this, function() {
-  var define;
-  var parent_require = typeof require === "function" && require
+  let define;
+  const parent_require = typeof require === "function" && require
   return ${loader}\
 `
 }
@@ -215,7 +215,7 @@ ${comment(license)}
 (function(root, factory) {
   factory(root["Bokeh"], ${str(options?.version)});
 })(this, function(Bokeh, version) {
-  var define;
+  let define;
   return (function(modules, entry, aliases, externals) {
     const bokeh = typeof Bokeh !== "undefined" && (version != null ? Bokeh[version] : Bokeh);
     if (bokeh != null) {
@@ -232,7 +232,7 @@ export function default_prelude(options?: {global?: string}): string {
 (function(root, factory) {
   ${options?.global != null ? `root[${str(options.global)}] = factory()` : "Object.assign(root, factory())"};
 })(this, function() {
-  var parent_require = typeof require === "function" && require
+  const parent_require = typeof require === "function" && require
   return ${loader}
 `
 }

@@ -98,8 +98,8 @@ describe("CustomJSTransform", () => {
 
     it("should properly transform an array of values", () => {
       const v_func = `\
-var new_xs = new Array(xs.length)
-for (var i = 0; i < xs.length; i++) {
+const new_xs = new Array(xs.length)
+for (let i = 0; i < xs.length; i++) {
   new_xs[i] = xs[i] + 10
 }
 return new_xs\
@@ -110,8 +110,8 @@ return new_xs\
 
     it("should properly transform an array of values using an arg property", () => {
       const v_func = `\
-var new_xs = new Array(xs.length)
-for(var i = 0; i < xs.length; i++) {
+const new_xs = new Array(xs.length)
+for (let i = 0; i < xs.length; i++) {
   new_xs[i] = xs[i] + foo.start
 }
 return new_xs\

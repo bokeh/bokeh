@@ -19,15 +19,15 @@ p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 s.selected.js_on_change('indices', CustomJS(args=dict(s=s, s2=s2), code="""
     const inds = s.selected.indices;
     const d = s.data;
-    var ym = 0
+    let ym = 0
 
     if (inds.length == 0)
         return;
 
-    for (var i = 0; i < d['color'].length; i++) {
+    for (let i = 0; i < d['color'].length; i++) {
         d['color'][i] = "navy"
     }
-    for (var i = 0; i < inds.length; i++) {
+    for (let i = 0; i < inds.length; i++) {
         d['color'][inds[i]] = "firebrick"
         ym += d['y'][inds[i]]
     }

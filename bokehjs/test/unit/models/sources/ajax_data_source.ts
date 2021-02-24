@@ -66,7 +66,7 @@ describe("ajax_data_source module", () => {
         const code = `
           const result = {foo: [], bar: []}
           const pts = cb_data.response.points
-          for (var i = 0; i < pts.length; i++) {
+          for (let i = 0; i < pts.length; i++) {
             result.foo.push(pts[i][0])
             result.bar.push(pts[i][1])
           }

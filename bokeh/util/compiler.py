@@ -316,7 +316,7 @@ _plugin_umd = \
 (function(root, factory) {
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
-  var define;
+  let define;
   return %(content)s;
 });
 """
@@ -338,7 +338,7 @@ _plugin_template = \
 %(prelude)s\
 ({
   "custom/main": function(require, module, exports) {
-    var models = {
+    const models = {
       %(exports)s
     };
     require("base").register_models(models);
@@ -351,10 +351,10 @@ _plugin_template = \
 _style_template = \
 """\
 (function() {
-  var head = document.getElementsByTagName('head')[0];
-  var style = document.createElement('style');
+  const head = document.getElementsByTagName('head')[0];
+  const style = document.createElement('style');
   style.type = 'text/css';
-  var css = %(css)s;
+  const css = %(css)s;
   if (style.styleSheet) {
     style.styleSheet.cssText = css;
   } else {

@@ -17,15 +17,15 @@ p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
 p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
 callback = CustomJS(args=dict(source=source, linear=linear, step=step, N=N), code="""
-    var mode = cb_obj.value;
-    var data = source.data;
-    var dx = 6 / N;
+    const mode = cb_obj.value;
+    const data = source.data;
+    const dx = 6 / N;
 
     if (mode == 'None') {
         data['x'] = [];
         data['y'] = [];
     } else {
-        var interp;
+        let interp;
         switch (mode) {
             case 'Linear':
                 interp = linear;
@@ -44,7 +44,7 @@ callback = CustomJS(args=dict(source=source, linear=linear, step=step, N=N), cod
                 break;
         }
 
-        for (var i = 0; i < N; i++) {
+        for (let i = 0; i < N; i++) {
             data['x'][i] = i * dx
             data['y'][i] = interp.compute(data['x'][i])
         }

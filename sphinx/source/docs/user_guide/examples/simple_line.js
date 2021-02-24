@@ -1,14 +1,14 @@
 // create some data and a ColumnDataSource
-var x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
-var y = x.map(function (v) { return v * 0.5 + 3.0; });
-var source = new Bokeh.ColumnDataSource({ data: { x: x, y: y } });
+const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
+const y = x.map(function (v) { return v * 0.5 + 3.0; });
+const source = new Bokeh.ColumnDataSource({ data: { x: x, y: y } });
 
 // create some ranges for the plot
-var xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
-var ydr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
+const xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
+const ydr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
 
 // make the plot
-var plot = new Bokeh.Plot({
+const plot = new Bokeh.Plot({
     title: "BokehJS Plot",
     x_range: xdr,
     y_range: ydr,
@@ -18,19 +18,19 @@ var plot = new Bokeh.Plot({
 });
 
 // add axes to the plot
-var xaxis = new Bokeh.LinearAxis({ axis_line_color: null });
-var yaxis = new Bokeh.LinearAxis({ axis_line_color: null });
+const xaxis = new Bokeh.LinearAxis({ axis_line_color: null });
+const yaxis = new Bokeh.LinearAxis({ axis_line_color: null });
 plot.add_layout(xaxis, "below");
 plot.add_layout(yaxis, "left");
 
 // add grids to the plot
-var xgrid = new Bokeh.Grid({ ticker: xaxis.ticker, dimension: 0 });
-var ygrid = new Bokeh.Grid({ ticker: yaxis.ticker, dimension: 1 });
+const xgrid = new Bokeh.Grid({ ticker: xaxis.ticker, dimension: 0 });
+const ygrid = new Bokeh.Grid({ ticker: yaxis.ticker, dimension: 1 });
 plot.add_layout(xgrid);
 plot.add_layout(ygrid);
 
 // add a Line glyph
-var line = new Bokeh.Line({
+const line = new Bokeh.Line({
     x: { field: "x" },
     y: { field: "y" },
     line_color: "#666699",

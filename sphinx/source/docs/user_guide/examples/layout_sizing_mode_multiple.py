@@ -29,7 +29,7 @@ callback = CustomJS(args=dict(source=source, amp=amp, freq=freq, phase=phase, of
     const B = offset.value;
     const x = data['x']
     const y = data['y']
-    for (var i = 0; i < x.length; i++) {
+    for (let i = 0; i < x.length; i++) {
         y[i] = B + A*Math.sin(k*x[i]+phi);
     }
     source.change.emit();

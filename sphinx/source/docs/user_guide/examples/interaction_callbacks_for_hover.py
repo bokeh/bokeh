@@ -26,9 +26,9 @@ code = """
 const links = %s
 const data = {'x0': [], 'y0': [], 'x1': [], 'y1': []}
 const indices = cb_data.index.indices
-for (var i = 0; i < indices.length; i++) {
+for (let i = 0; i < indices.length; i++) {
     const start = indices[i]
-    for (var j = 0; j < links[start].length; j++) {
+    for (let j = 0; j < links[start].length; j++) {
         const end = links[start][j]
         data['x0'].push(circle.data.x[start])
         data['y0'].push(circle.data.y[start])

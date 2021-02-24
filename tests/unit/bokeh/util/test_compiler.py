@@ -39,9 +39,9 @@ function f(a, b) { return a + b; }
 ;
 """, deps=[])
 
-    assert buc.nodejs_compile("""var some = require('some/module');""", "javascript", "some.js") == \
+    assert buc.nodejs_compile("""const some = require('some/module');""", "javascript", "some.js") == \
         dict(code="""\
-var some = require('some/module');
+const some = require('some/module');
 """, deps=["some/module"])
 
     assert buc.nodejs_compile("""

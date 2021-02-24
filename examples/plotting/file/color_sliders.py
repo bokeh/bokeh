@@ -61,7 +61,7 @@ blue_slider = Slider(title="B", start=0, end=255, value=255, step=1)
 # by Tim Down at http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 callback = CustomJS(args=dict(source=source, red=red_slider, blue=blue_slider, green=green_slider), code="""
     function componentToHex(c) {
-        var hex = c.toString(16)
+        const hex = c.toString(16)
         return hex.length == 1 ? "0" + hex : hex
     }
     function rgbToHex(r, g, b) {

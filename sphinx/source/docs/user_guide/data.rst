@@ -478,10 +478,10 @@ TypeScript code. Bokeh makes the ColumnDataSource available through the variable
 .. code-block:: python
 
     custom_filter = CustomJSFilter(code='''
-    var indices = [];
+    const indices = [];
 
     // iterate through rows of data source and see if each satisfies some constraint
-    for (var i = 0; i < source.get_length(); i++){
+    for (let i = 0; i < source.get_length(); i++){
         if (source.data['some_column'][i] == 'some_value'){
             indices.push(true);
         } else {

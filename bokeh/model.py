@@ -155,12 +155,12 @@ def get_class(view_model_name):
 _HTML_REPR = """
 <script>
 (function() {
-  var expanded = false;
-  var ellipsis = document.getElementById("%(ellipsis_id)s");
+  let expanded = false;
+  const ellipsis = document.getElementById("%(ellipsis_id)s");
   ellipsis.addEventListener("click", function() {
-    var rows = document.getElementsByClassName("%(cls_name)s");
-    for (var i = 0; i < rows.length; i++) {
-      var el = rows[i];
+    const rows = document.getElementsByClassName("%(cls_name)s");
+    for (let i = 0; i < rows.length; i++) {
+      const el = rows[i];
       el.style.display = expanded ? "none" : "table-row";
     }
     ellipsis.innerHTML = expanded ? "&hellip;)" : "&lsaquo;&lsaquo;&lsaquo;";
