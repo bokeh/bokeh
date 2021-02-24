@@ -71,7 +71,7 @@
     "terser": "^5.5.0",
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.8.0",
-    "typescript": "~4.1.2",
+    "typescript": "~4.2.2",
     "which": "^2.0.2",
     "yargs": "^16.1.1"
   },
@@ -92,7 +92,7 @@
     "proj4": "^2.6.3",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.23",
-    "tslib": "^2.0.3",
+    "tslib": "^2.1.0",
     "underscore.template": "^0.1.7"
   },
   "scripts": {
