@@ -441,6 +441,10 @@ jobs:
         shell: bash -l {0}
         run: bash ci/install_downstream_packages.sh
 
+      - name: Install downstream packages
+        shell: bash -l {0}
+        run: bash ci/install_downstream_packages.sh
+
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
         with:
