@@ -16,8 +16,8 @@
         // this monkey patches Plotting.show to insert the plot below
         // the script block
 
-        var originalPltShow = Bokeh.Plotting.show;
-        var newPlotShow = function(layoutDomObj, target) {
+        const originalPltShow = Bokeh.Plotting.show;
+        const newPlotShow = function(layoutDomObj, target) {
             if(typeof target === "undefined"){
                 target = document.currentScript.parentElement;
             }
@@ -28,21 +28,21 @@
     $(function() {
 
 
-        var HTML = "";
-        var htmlEl = document.getElementById("codepen-html");
-        for(var i=0; i < htmlEl.childNodes.length; i++){
+        let HTML = "";
+        const htmlEl = document.getElementById("codepen-html");
+        for(let i=0; i < htmlEl.childNodes.length; i++){
             //nodeType == 8 is the special number for comment nodes
             if(htmlEl.childNodes[i].nodeType == 8){
                 HTML = htmlEl.childNodes[i].textContent;
             }
         }
         $(".codepen-wrap ").each(function(iterEl) {
-                var el = $(this),
+                const el = $(this),
                         codeInside = el.find('.codepen-content')[0].innerText,
                         CSS = "",
                         JS = codeInside;
 
-                var data = {
+                const data = {
                   title              : el.attr('data-codepen-title'),
                   description        : "",
                   html               : HTML,
@@ -60,12 +60,12 @@
                   js_external        : "",
                   template           : true
                 };
-                var JSONstring =
+                const JSONstring =
                   JSON.stringify(data)
                   // Quotes will screw up the JSON
                   .replace(/"/g, "&quot;")
                   .replace(/'/g, "&apos;");
-                var jsonInput ='<input type="hidden" name="data" value=\'' +
+                const jsonInput ='<input type="hidden" name="data" value=\'' +
                           JSONstring + '\'>';
                 el.find('form').append(jsonInput);
           });

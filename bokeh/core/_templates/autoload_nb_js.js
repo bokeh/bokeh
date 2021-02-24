@@ -3,16 +3,16 @@
 {% block register_mimetype %}
 
   {%- if register_mime -%}
-  var JS_MIME_TYPE = 'application/javascript';
-  var HTML_MIME_TYPE = 'text/html';
-  var EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
-  var CLASS_NAME = 'output_bokeh rendered_html';
+  const JS_MIME_TYPE = 'application/javascript';
+  const HTML_MIME_TYPE = 'text/html';
+  const EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json';
+  const CLASS_NAME = 'output_bokeh rendered_html';
 
   /**
    * Render data to the DOM node
    */
   function render(props, node) {
-    var script = document.createElement("script");
+    const script = document.createElement("script");
     node.appendChild(script);
   }
 
@@ -20,10 +20,10 @@
    * Handle when an output is cleared or removed
    */
   function handleClearOutput(event, handle) {
-    var cell = handle.cell;
+    const cell = handle.cell;
 
-    var id = cell.output_area._bokeh_element_id;
-    var server_id = cell.output_area._bokeh_server_id;
+    const id = cell.output_area._bokeh_element_id;
+    const server_id = cell.output_area._bokeh_server_id;
     // Clean up Bokeh references
     if (id != null && id in Bokeh.index) {
       Bokeh.index[id].model.document.clear();
@@ -32,11 +32,11 @@
 
     if (server_id !== undefined) {
       // Clean up Bokeh references
-      var cmd = "from bokeh.io.state import curstate; print(curstate().uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
+      const cmd = "from bokeh.io.state import curstate; print(curstate().uuid_to_server['" + server_id + "'].get_sessions()[0].document.roots[0]._id)";
       cell.notebook.kernel.execute(cmd, {
         iopub: {
           output: function(msg) {
-            var id = msg.content.text.trim();
+            const id = msg.content.text.trim();
             if (id in Bokeh.index) {
               Bokeh.index[id].model.document.clear();
               delete Bokeh.index[id];
@@ -45,7 +45,7 @@
         }
       });
       // Destroy server and session
-      var cmd = "import bokeh.io.notebook as ion; ion.destroy_server('" + server_id + "')";
+      const cmd = "import bokeh.io.notebook as ion; ion.destroy_server('" + server_id + "')";
       cell.notebook.kernel.execute(cmd);
     }
   }
@@ -54,15 +54,15 @@
    * Handle when a new output is added
    */
   function handleAddOutput(event, handle) {
-    var output_area = handle.output_area;
-    var output = handle.output;
+    const output_area = handle.output_area;
+    const output = handle.output;
 
     // limit handleAddOutput to display_data with EXEC_MIME_TYPE content only
     if ((output.output_type != "display_data") || (!Object.prototype.hasOwnProperty.call(output.data, EXEC_MIME_TYPE))) {
       return
     }
 
-    var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
+    const toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
       toinsert[toinsert.length - 1].firstChild.textContent = output.data[JS_MIME_TYPE];
@@ -70,10 +70,10 @@
       output_area._bokeh_element_id = output.metadata[EXEC_MIME_TYPE]["id"];
     }
     if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
-      var bk_div = document.createElement("div");
+      const bk_div = document.createElement("div");
       bk_div.innerHTML = output.data[HTML_MIME_TYPE];
-      var script_attrs = bk_div.children[0].attributes;
-      for (var i = 0; i < script_attrs.length; i++) {
+      const script_attrs = bk_div.children[0].attributes;
+      for (let i = 0; i < script_attrs.length; i++) {
         toinsert[toinsert.length - 1].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value);
         toinsert[toinsert.length - 1].firstChild.textContent = bk_div.children[0].textContent
       }
@@ -86,14 +86,14 @@
 
     function append_mime(data, metadata, element) {
       // create a DOM node to render to
-      var toinsert = this.create_output_subarea(
+      const toinsert = this.create_output_subarea(
         metadata,
         CLASS_NAME,
         EXEC_MIME_TYPE
       );
       this.keyboard_manager.register_events(toinsert);
       // Render to node
-      var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
+      const props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
       render(props, toinsert[toinsert.length - 1]);
       element.append(toinsert);
       return toinsert
@@ -119,8 +119,8 @@
 
   // register the mime type if in Jupyter Notebook environment and previously unregistered
   if (root.Jupyter !== undefined) {
-    var events = require('base/js/events');
-    var OutputArea = require('notebook/js/outputarea').OutputArea;
+    const events = require('base/js/events');
+    const OutputArea = require('notebook/js/outputarea').OutputArea;
 
     if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
       register_renderer(events, OutputArea);
@@ -136,7 +136,7 @@
     root._bokeh_failed_load = false;
   }
 
-  var NB_LOAD_WARNING = {'data': {'text/html':
+  const NB_LOAD_WARNING = {'data': {'text/html':
      "<div style='background-color: #fdd'>\n"+
      "<p>\n"+
      "BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this \n"+
@@ -153,7 +153,7 @@
      "</div>"}};
 
   function display_loaded() {
-    var el = document.getElementById({{ elementid|json }});
+    const el = document.getElementById({{ elementid|json }});
     if (el != null) {
       el.textContent = "BokehJS is loading...";
     }
@@ -181,7 +181,7 @@
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     } else if (force !== true) {
-      var cell = $(document.getElementById({{ elementid|json }})).parents('.cell').data().cell;
+      const cell = $(document.getElementById({{ elementid|json }})).parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
 {% endblock %}

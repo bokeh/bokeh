@@ -13,10 +13,10 @@ p.add_tile(get_provider(CARTODBPOSITRON))
 p.circle(x=[0, 2000000, 4000000], y=[4000000, 2000000, 0], size=30)
 
 code = """
-    var projections = Bokeh.require("core/util/projections");
-    var x = special_vars.x
-    var y = special_vars.y
-    var coords = projections.wgs84_mercator.invert(x, y)
+    const projections = Bokeh.require("core/util/projections");
+    const x = special_vars.x
+    const y = special_vars.y
+    const coords = projections.wgs84_mercator.invert(x, y)
     return coords[%d].toFixed(2)
 """
 
