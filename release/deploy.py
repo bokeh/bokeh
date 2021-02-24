@@ -57,7 +57,7 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
             version = config.version
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags}")
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*')
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*"')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to documentation site", details=e.args)
