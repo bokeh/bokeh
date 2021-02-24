@@ -348,6 +348,8 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
+    if (this.glyph.data_size == 0)
+      return
     if (index == null)
       index = this.model.get_reference_point(field, label)
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
@@ -421,9 +423,18 @@ export class GlyphRenderer extends DataRenderer {
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        const i = indexOf(data, value)
-        if (i != -1)
-          index = i
+        if (this.view == null) {
+          const i = indexOf(data, value)
+          if (i != -1)
+            index = i
+        } else {
+          for (const [k, v] of Object.entries(this.view.indices_map)) {
+            if (data[parseInt(k)] == value) {
+              index = v
+              break
+            }
+          }
+        }
       }
     }
     return index

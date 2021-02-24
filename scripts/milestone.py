@@ -284,16 +284,16 @@ def check_milestone_items(items):
 def main(milestone, log_level, verbose, check_only, allow_closed):
     """ Generates a bokeh changelog which includes the given milestone.
 
-    Requires that you set GITHUB_TOKEN to your GitHub API Token. Exit code 2
+    Requires that you set GH_TOKEN to your GitHub API Token. Exit code 2
     indicates there was a verification problem whereas exit code 1 indicates a general
     error in the script. Otherwise you can expect an exit code of 0 for success.
     """
     log_level = "DEBUG" if verbose else log_level
     logging.basicConfig(level=log_level)
 
-    token = os.environ.get("GITHUB_TOKEN", None)
+    token = os.environ.get("GH_TOKEN", None)
     if not token:
-        print("error: GITHUB_TOKEN is not set", file=sys.stderr)
+        print("error: GH_TOKEN is not set", file=sys.stderr)
         sys.exit(1)
 
     items = get_milestone_items(milestone, token, allow_closed)

@@ -327,11 +327,11 @@ class Select(InputWidget):
     value will be corresponding given label. Option groupings can be provided
     by supplying a dictionary object whose values are in the aforementioned
     list format
-    """)
+    """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
 
     value = String(default="", help="""
     Initial or selected value.
-    """)
+    """).accepts(Null, lambda _: "")
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.

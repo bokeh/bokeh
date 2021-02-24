@@ -24,6 +24,7 @@ from bokeh.core.property.descriptors import (
     BasicPropertyDescriptor,
     DataSpecPropertyDescriptor,
 )
+from bokeh.core.property.singletons import Intrinsic
 
 # Module under test
 import bokeh.core.has_props as hp # isort:skip
@@ -100,6 +101,27 @@ def test_HasProps_override() -> None:
     assert ov.int1 == 20
     assert ov.ds1 == field("x")
     assert ov.lst1 == []
+
+def test_HasProps_intrinsic() -> None:
+    obj0 = Parent(int1=Intrinsic, ds1=Intrinsic, lst1=Intrinsic)
+
+    assert obj0.int1 == 10
+    assert obj0.ds1 == field("x")
+    assert obj0.lst1 == []
+
+    obj1 = Parent(int1=30, ds1=field("y"), lst1=["x", "y", "z"])
+
+    assert obj1.int1 == 30
+    assert obj1.ds1 == field("y")
+    assert obj1.lst1 == ["x", "y", "z"]
+
+    obj1.int1 = Intrinsic
+    obj1.ds1 = Intrinsic
+    obj1.lst1 = Intrinsic
+
+    assert obj1.int1 == 10
+    assert obj1.ds1 == field("x")
+    assert obj1.lst1 == []
 
 def test_HasProps_alias() -> None:
     obj0 = AliasedChild()
