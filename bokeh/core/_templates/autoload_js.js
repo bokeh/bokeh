@@ -91,6 +91,8 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
+    const hashes = {{ bundle.hashes|json }};
+
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const element = document.createElement('script');
