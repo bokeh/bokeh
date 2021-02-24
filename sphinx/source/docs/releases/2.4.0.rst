@@ -1,0 +1,23 @@
+.. _release-2-4-0:
+
+2.4.0
+=====
+
+Bokeh Version ``2.4.0`` (XXXXXX 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
+
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-2-4-0-migration:
+
+`Migration Guide <releases.html#release-2-4-0-migration>`__
+-----------------------------------------------------------
+
+Minimum Package Versions
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+This release raises the minimum version for some packages
+
+* Bokeh now requires Python 3.7 or higher.
