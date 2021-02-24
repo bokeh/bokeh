@@ -423,9 +423,18 @@ export class GlyphRenderer extends DataRenderer {
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        const i = indexOf(data, value)
-        if (i != -1)
-          index = i
+        if (this.view == null) {
+          const i = indexOf(data, value)
+          if (i != -1)
+            index = i
+        } else {
+          for (const [k, v] of Object.entries(this.view.indices_map)) {
+            if (data[parseInt(k)] == value) {
+              index = v
+              break
+            }
+          }
+        }
       }
     }
     return index
