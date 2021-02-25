@@ -34,7 +34,7 @@ function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Uniform<n
 
 
 function prop_as_array(prop: any): any {
-  return prop.is_Scalar() ? [prop.value] : prop.array;
+  return prop.is_Scalar() ? [prop.value] : prop.array
 }
 
 
@@ -103,7 +103,7 @@ export class MarkerGL extends BaseGLGlyph {
       center: this._centers,
       nmarkers: this._centers.length / 2,
       antialias: this._antialias,
-      size: size,
+      size,
       angle: prop_as_array(this.glyph.angle),
       linewidth: prop_as_array(this.glyph.visuals.line.line_width),
       fg_color: this._line_rgba,
@@ -121,8 +121,7 @@ export class MarkerGL extends BaseGLGlyph {
       if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
         this._centers[2*i  ] = this.glyph.sx[i]
         this._centers[2*i+1] = this.glyph.sy[i]
-      }
-      else {
+      } else {
         this._centers[2*i  ] = missing_point
         this._centers[2*i+1] = missing_point
       }

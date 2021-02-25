@@ -34,7 +34,7 @@ export class DashCache {
      */
     const n = pattern.length        // Number of items in pattern.
     let len = 0                     // Length of pattern.
-    let twice_jumps: number[] = []  // Twice the jumps between dash middles.
+    const twice_jumps: number[] = []  // Twice the jumps between dash middles.
     for (let i = 0; i < n; i++) {
       len += pattern[i]
       twice_jumps.push(pattern[i] + pattern[(i+1) % n])
@@ -43,13 +43,13 @@ export class DashCache {
     const twice_jumps_gcd = gcd(twice_jumps)
 
     // Starts and ends of dashes and gaps.
-    var starts_and_ends: number[] = [0]
+    const starts_and_ends: number[] = [0]
     for (let i = 0; i < n; i++)
-        starts_and_ends.push(starts_and_ends[i] + pattern[i])
+      starts_and_ends.push(starts_and_ends[i] + pattern[i])
 
     // Length of texture, webgl requires a power of 2.
     const ideal_ntex = 2*len / twice_jumps_gcd
-    const length_pow_2 = is_pow_2(ideal_ntex);
+    const length_pow_2 = is_pow_2(ideal_ntex)
     const ntex = length_pow_2 ? ideal_ntex : 128
 
     // Distance between texture values.
@@ -60,7 +60,7 @@ export class DashCache {
     // When interpolating the texture each texel fills 1/ntex of the length of
     // the texture.  For a single dash the centre of the dash is 0.25 along
     // the texture, so the upstroke offset has to be determined from this.
-    let xstart;
+    let xstart
     if (length_pow_2) {
       xstart = 0.5*pattern[0]
 
@@ -68,15 +68,14 @@ export class DashCache {
         const n_dtex = Math.floor(xstart / dtex)
         xstart -= n_dtex*dtex
       }
-    }
-    else {
+    } else {
       // Have lots of values so don't need to match middles of dashes/gaps.
-      xstart = 0.0;
+      xstart = 0.0
     }
-    let offset = xstart - 0.5*dtex
+    const offset = xstart - 0.5*dtex
 
     // Calculate values for texture.
-    let y = new Float32Array(ntex)
+    const y = new Float32Array(ntex)
     let dash_index = 0
     for (let i = 0; i < ntex; i++) {
       const x = xstart + i*dtex  // Distance along texture.
@@ -110,7 +109,7 @@ export class DashCache {
     return pattern.join(",")
   }
 
-  public _get_or_create(pattern: number[]): [[number,number,number], Texture2D] {
+  public _get_or_create(pattern: number[]): [[number, number, number], Texture2D] {
     const key = this._get_key(pattern)
     let cached = this._map.get(key)
     if (cached === undefined) {
@@ -125,11 +124,12 @@ export class DashCache {
 
         // Store an entry for the requested pattern which is just the simple
         // pattern scaled-up.
-        const [[len0, offset0, ], tex] = cached
+        const len0 = cached[0][0]
+        const offset0 = cached[0][1]
+        const tex = cached[1]
         cached = [[len0, offset0, scale], tex]
         this._map.set(key, cached)
-      }
-      else {
+      } else {
         // Simple pattern with scale of 1.
         const [len, offset, tex] = this._create_texture(pattern)
 
@@ -142,7 +142,7 @@ export class DashCache {
     return cached
   }
 
-  public get(pattern: number[]): [[number,number,number], Texture2D] {
+  public get(pattern: number[]): [[number, number, number], Texture2D] {
     // Limit pattern to even number of items.
     if (pattern.length % 2 == 1)
       pattern = pattern.slice(0, -1)

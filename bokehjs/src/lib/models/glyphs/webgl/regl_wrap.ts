@@ -12,13 +12,16 @@ import {MarkerType} from "core/enums"
 // ReglWrapper object.  This ensures that regl is correctly initialised before
 // it is used, and is only initialised once.
 
-var regl_wrapper: ReglWrapper
+let regl_wrapper: ReglWrapper
 
-export function get_regl(gl: WebGLRenderingContext) : ReglWrapper {
+export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   if (regl_wrapper === undefined)
     regl_wrapper = new ReglWrapper(gl)
   return regl_wrapper
 }
+
+
+type ReglRenderFunction = ({}) => void
 
 
 export class ReglWrapper {
@@ -27,25 +30,24 @@ export class ReglWrapper {
   private _dash_cache: DashCache
 
   // Drawing functions.
-  private _solid_line: ({}) => void
-  private _dashed_line: ({}) => void
-  private _line_mesh: ({}) => void
-  private _marker_map: Map<MarkerType, ({}) => void>
+  private _solid_line: ReglRenderFunction
+  private _dashed_line: ReglRenderFunction
+  private _line_mesh: ReglRenderFunction
+  private _marker_map: Map<MarkerType, ReglRenderFunction>
 
   constructor(gl: WebGLRenderingContext) {
     try {
       this._regl = createRegl({
-        gl: gl,
+        gl,
         extensions: [
           "angle_instanced_arrays",
           "oes_texture_float",
           "oes_texture_float_linear",
           "webgl_color_buffer_float",
-        ]
+        ],
       })
       this._regl_available = true
-    }
-    catch(err: unknown) {
+    } catch (err: unknown) {
       this._regl_available = false
     }
   }
@@ -54,28 +56,28 @@ export class ReglWrapper {
     return this._regl_available
   }
 
-  public dashed_line(): ({}) => void {
-   if (this._dashed_line === undefined)
+  public dashed_line(): ReglRenderFunction {
+    if (this._dashed_line === undefined)
       this._dashed_line = regl_dashed_line(this._regl)
     return this._dashed_line
   }
 
-  public get_dash(line_dash: number[]): [[number,number,number], Texture2D] {
+  public get_dash(line_dash: number[]): [[number, number, number], Texture2D] {
     if (this._dash_cache === undefined)
       this._dash_cache = new DashCache(this._regl)
 
     return this._dash_cache.get(line_dash)
   }
 
-  public line_mesh(): ({}) => void {
+  public line_mesh(): ReglRenderFunction {
     if (this._line_mesh === undefined)
       this._line_mesh = regl_line_mesh(this._regl)
     return this._line_mesh
   }
 
-  public marker(marker_type: MarkerType): ({}) => void {
+  public marker(marker_type: MarkerType): ReglRenderFunction {
     if (this._marker_map === undefined)
-      this._marker_map = new Map<MarkerType, ({}) => void>()
+      this._marker_map = new Map<MarkerType, ReglRenderFunction>()
 
     let func = this._marker_map.get(marker_type)
     if (func === undefined) {
@@ -85,7 +87,7 @@ export class ReglWrapper {
     return func
   }
 
-  public solid_line(): ({}) => void {
+  public solid_line(): ReglRenderFunction {
     if (this._solid_line === undefined)
       this._solid_line = regl_solid_line(this._regl)
     return this._solid_line
@@ -117,16 +119,16 @@ const line_instance_geometry = [
   [-1.0,  1.0],  // 5
 ]
 
-const line_triangle_indices = [[0,1,5], [1,2,5], [5,2,4], [2,3,4]]
+const line_triangle_indices = [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]]
 
 // Indices for debug drawing of mesh used for lines.
 const line_mesh_indices = [
-  [0,1], [1,2], [2,3], [3,4], [4,5], [5,0],  // Edges.
-  [1,5], [2,5], [2,4], // Diagonals.
+  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0],  // Edges.
+  [1, 5], [2, 5], [2, 4], // Diagonals.
 ]
 
 
-function regl_solid_line(regl: any): ({}) => void {
+function regl_solid_line(regl: any): ReglRenderFunction {
   return regl({
     vert: line_vertex_shader,
     frag: line_fragment_shader,
@@ -134,7 +136,7 @@ function regl_solid_line(regl: any): ({}) => void {
     attributes: {
       a_position: {
         buffer: regl.buffer(line_instance_geometry),
-        divisor: 0
+        divisor: 0,
       },
       a_point_prev: {
         buffer: regl.prop("points"),
@@ -183,12 +185,12 @@ function regl_solid_line(regl: any): ({}) => void {
         dstAlpha: 'one minus src alpha',
       },
     },
-    depth: { enable: false },
+    depth: {enable: false},
   })
 }
 
 
-function regl_dashed_line(regl: any): ({}) => void {
+function regl_dashed_line(regl: any): ReglRenderFunction {
   return regl({
     vert: '#define DASHED\n\n' + line_vertex_shader,
     frag: '#define DASHED\n\n' + line_fragment_shader,
@@ -196,7 +198,7 @@ function regl_dashed_line(regl: any): ({}) => void {
     attributes: {
       a_position: {
         buffer: regl.buffer(line_instance_geometry),
-        divisor: 0
+        divisor: 0,
       },
       a_point_prev: {
         buffer: regl.prop("points"),
@@ -252,12 +254,12 @@ function regl_dashed_line(regl: any): ({}) => void {
         dstAlpha: 'one minus src alpha',
       },
     },
-    depth: { enable: false },
+    depth: {enable: false},
   })
 }
 
 
-function regl_line_mesh(regl: any): ({}) => void {
+function regl_line_mesh(regl: any): ReglRenderFunction {
   return regl({
     vert: line_vertex_shader,
     frag: `
@@ -271,7 +273,7 @@ function regl_line_mesh(regl: any): ({}) => void {
     attributes: {
       a_position: {
         buffer: regl.buffer(line_instance_geometry),
-        divisor: 0
+        divisor: 0,
       },
       a_point_prev: {
         buffer: regl.prop("points"),
@@ -320,10 +322,9 @@ function regl_line_mesh(regl: any): ({}) => void {
         dstAlpha: 'one minus src alpha',
       },
     },
-    depth: { enable: false },
+    depth: {enable: false},
   })
 }
-
 
 
 // Return a dictionary for a regl attribute that is either one value per
@@ -337,7 +338,7 @@ function one_each_or_constant(prop: any, nitems: number, norm: boolean): {[key: 
 }
 
 
-function regl_marker(regl: any, marker_type: MarkerType): ({}) => void {
+function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
   return regl({
     vert: marker_vertex_shader,
     frag: '#define USE_' + marker_type.toUpperCase() + '\n\n' + marker_fragment_shader,
@@ -352,19 +353,19 @@ function regl_marker(regl: any, marker_type: MarkerType): ({}) => void {
         divisor: 1,
       },
       a_size: (_: any, props: any) => {
-        return one_each_or_constant(props['size'], 1, false)
+        return one_each_or_constant(props.size, 1, false)
       },
       a_angle: (_: any, props: any) => {
-        return one_each_or_constant(props['angle'], 1, false)
+        return one_each_or_constant(props.angle, 1, false)
       },
       a_linewidth: (_: any, props: any) => {
-        return one_each_or_constant(props['linewidth'], 1, false)
+        return one_each_or_constant(props.linewidth, 1, false)
       },
       a_fg_color: (_: any, props: any) => {
-        return one_each_or_constant(props['fg_color'], 4, true)
+        return one_each_or_constant(props.fg_color, 4, true)
       },
       a_bg_color: (_: any, props: any) => {
-        return one_each_or_constant(props['bg_color'], 4, true)
+        return one_each_or_constant(props.bg_color, 4, true)
       },
     },
 
@@ -387,6 +388,6 @@ function regl_marker(regl: any, marker_type: MarkerType): ({}) => void {
         dstAlpha: 'one minus src alpha',
       },
     },
-    depth: { enable: false },
+    depth: {enable: false},
   })
 }

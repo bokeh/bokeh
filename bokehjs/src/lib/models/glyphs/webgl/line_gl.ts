@@ -72,13 +72,13 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
-        linewidth: linewidth,
-        antialias: antialias,
+        linewidth,
+        antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: join_type,
-        cap_type: cap_type,
+        join_type,
+        cap_type,
         length_so_far: this._length_so_far,
         dash_tex: this._dash_tex,
         dash_tex_info: this._dash_tex_info,
@@ -89,13 +89,13 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: this._color,
-        linewidth: linewidth,
-        antialias: antialias,
+        linewidth,
+        antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: join_type,
-        cap_type: cap_type,
+        join_type,
+        cap_type,
       })
 
     if (this._debug_show_mesh)
@@ -103,13 +103,13 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         color: [0, 0, 0, 1],
-        linewidth: linewidth,
-        antialias: antialias,
+        linewidth,
+        antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type: join_type,
-        cap_type: cap_type,
+        join_type,
+        cap_type,
       })
   }
 
@@ -135,8 +135,7 @@ export class LineGL extends BaseGLGlyph {
       if (isFinite(this.glyph.sx[i-1]) && isFinite(this.glyph.sy[i-1])) {
         this._points[2*i  ] = this.glyph.sx[i-1]
         this._points[2*i+1] = this.glyph.sy[i-1]
-      }
-      else {
+      } else {
         this._points[2*i  ] = missing_point
         this._points[2*i+1] = missing_point
       }
@@ -147,8 +146,7 @@ export class LineGL extends BaseGLGlyph {
       this._points[1] = this._points[2*npoints-1]
       this._points[2*npoints+2] = this._points[4]  // Second point.
       this._points[2*npoints+3] = this._points[5]
-    }
-    else {
+    } else {
       this._points[0] = missing_point
       this._points[1] = missing_point
       this._points[2*npoints+2] = missing_point
@@ -157,15 +155,15 @@ export class LineGL extends BaseGLGlyph {
 
     if (this._is_dashed()) {
       if (this._length_so_far === undefined)
-          this._length_so_far = new Float32Array(this._nsegments)
+        this._length_so_far = new Float32Array(this._nsegments)
 
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
         this._length_so_far[i] = length
         if (this._points[2*i+2] > missing_point_threshold &&
             this._points[2*i+4] > missing_point_threshold)
-          length += Math.sqrt( (this._points[2*i+4] - this._points[2*i+2])**2 +
-                               (this._points[2*i+5] - this._points[2*i+3])**2 )
+          length += Math.sqrt((this._points[2*i+4] - this._points[2*i+2])**2 +
+                              (this._points[2*i+5] - this._points[2*i+3])**2)
       }
     }
   }
@@ -173,9 +171,8 @@ export class LineGL extends BaseGLGlyph {
   protected _set_visuals(): void {
     const line_visuals = this.glyph.visuals.line
 
-    const color = color2rgba(line_visuals.line_color.value,
-                             line_visuals.line_alpha.value)
-    this._color = color.map(function (val) {return val/255})
+    const color = color2rgba(line_visuals.line_color.value, line_visuals.line_alpha.value)
+    this._color = color.map(function(val) { return val/255 })
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
     this._dash_offset = line_visuals.line_dash_offset.value

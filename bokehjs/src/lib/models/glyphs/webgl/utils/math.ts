@@ -6,8 +6,7 @@ function gcd2(a: number, b: number): number {
   if (a > b) {
     higher = a
     lower = b
-  }
-  else {
+  } else {
     higher = b
     lower = a
   }
@@ -24,7 +23,7 @@ function gcd2(a: number, b: number): number {
 }
 
 export function gcd(values: number[]): number {
-  var ret: number = values[0]
+  let ret: number = values[0]
 
   for (let i = 1; i < values.length; i++)
     ret = gcd2(ret, values[i])
