@@ -407,12 +407,15 @@ class PropertyValueColumnData(PropertyValueDict):
         """
         old = self._saved_copy()
 
+        conditions = [isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray)
+            or isinstance(self[k], pd.core.series.Series)
+            or isinstance(new_data[k], pd.core.series.Series)]
         # TODO (bev) Currently this reports old differently for array vs list
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
         for k, v in  new_data.items():
-            if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
+            if conditions[0]:
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
