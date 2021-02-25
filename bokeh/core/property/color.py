@@ -127,6 +127,11 @@ class Color(Either):
                        r"\s*([01]\.?\d*?)\)"),
                  Regex(r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
                        r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
+                 Regex(
+                     r"^hsl(a)?\((((360|3[0-5]\d|2\d{1,2}|1\d{1,2}|\d\d?)(deg)?"
+                     r"|(400|3\d{1,2}|2\d{1,2}|1\d{1,2}|\d\d?)grad|"
+                     r"\d\.?\d*rad|[0-1]\.?\d*turn)(,?\s*(100|\d{1,2}%)){2}"
+                     r"(\s*\/\s*(1|0?\.?\d*))?\))"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)

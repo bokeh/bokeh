@@ -615,7 +615,7 @@ class ColorSpec(DataSpec):
 
         # Check for data source field name or rgb(a) string
         if isinstance(val, str):
-            if val.startswith(("rgb(", "rgba(")):
+            if val.startswith(("rgb(", "rgba(", "hsl(", "hsla(")):
                 return val
 
             return dict(field=val)

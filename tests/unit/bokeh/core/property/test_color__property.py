@@ -58,6 +58,18 @@ class Test_Color:
 
         assert prop.is_valid(RGB(10, 20, 30))
 
+        assert prop.is_valid('hsl(300, 50%, 50%)')
+        assert prop.is_valid('hsl(400grad, 50%, 50%)')
+        assert prop.is_valid('hsl(300deg, 50%, 50%)')
+        assert prop.is_valid('hsl(3.2rad, 50%, 50%)')
+        assert prop.is_valid('hsl(0.3turn, 50%, 50%)')
+
+        assert prop.is_valid('hsla(300, 50%, 50% / 1)')
+        assert prop.is_valid('hsla(400grad, 50%, 50% / 1)')
+        assert prop.is_valid('hsla(300deg, 50%, 50% / 1)')
+        assert prop.is_valid('hsla(3.2rad, 50%, 50% / 1)')
+        assert prop.is_valid('hsla(0.3turn, 50%, 50% / 1)')
+
     def test_invalid(self) -> None:
         prop = bcpc.Color()
         assert not prop.is_valid(None)
