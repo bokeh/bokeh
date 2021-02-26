@@ -11,7 +11,7 @@ Supported platforms
 -------------------
 
 Bokeh is officially supported (and continuously tested) on CPython versions
-3.6+ only. It's possible that Bokeh does work on other versions of Python, but
+3.7+ only. It's possible that Bokeh does work on other versions of Python, but
 no guarantees or support are provided.
 
 Installing with ``conda`` or ``pip``
