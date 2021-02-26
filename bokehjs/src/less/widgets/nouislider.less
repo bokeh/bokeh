@@ -39,8 +39,8 @@
 
   @handle-width: 14px;
   @handle-height: 18px;
-  @handle-right: -@handle-width/2;
-  @handle-top: -(@handle-height - @slider-size)/2 - 1;
+  @handle-right: -@handle-width ./ 2;
+  @handle-top: -(@handle-height - @slider-size) ./ 2 - 1;
 
   .noUi-horizontal .noUi-handle {
     width: @handle-width;
@@ -55,7 +55,7 @@
     top: @handle-right;
   }
 
-  @slider-margin: (@handle-height - @slider-size)/2 + 1;
+  @slider-margin: (@handle-height - @slider-size) ./ 2 + 1;
 
   .noUi-target.noUi-horizontal {
     margin: @slider-margin 0px;
