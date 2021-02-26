@@ -160,6 +160,15 @@ class FileInput(Widget):
         A valid `IANA Media Type`_, with no parameters.
 
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+
+    .. note::
+        A bug in some versions of Chrome on macOS Big Sur currently limits
+        how you can set a file input filter for those users. In those cases,
+        it is impossible to limit the file endings to specific formats -
+        instead, the browser will limit users to predefined sets of file types,
+        such as ``Text/*`` or ``Image/*``. See
+        `this question on Stackoverflow <https://stackoverflow.com/questions/49154550/input-type-file-accept-property-does-not-work-in-chrome>`_
+        for more information.
     """)
 
     multiple = Bool(default=False, help="""
