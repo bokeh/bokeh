@@ -38,7 +38,7 @@ method. Otherwise, use ``pip``.
         conda install bokeh
 
     Alternatively, if you want to make sure you always have the most recent
-    version of Bokeh, install from the
+    version of Bokeh after each new release, install from the
     `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
 
     .. code-block:: sh
