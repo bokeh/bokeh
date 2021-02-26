@@ -164,9 +164,9 @@ class FileInput(Widget):
     .. note::
         A bug in some versions of Chrome on macOS Big Sur currently limits
         how you can set a file input filter for those users. In those cases,
-        it is impossible to limit the file endings to specific formats -
-        instead, the browser will limit users to predefined sets of file types,
-        such as ``Text/*`` or ``Image/*``. See
+        it is impossible to limit the user's selection to specific file
+        extensions - instead, the browser will limit users to predefined sets of
+        file types, such as ``Text/*`` or ``Image/*``. See
         `this question on Stackoverflow <https://stackoverflow.com/questions/49154550/input-type-file-accept-property-does-not-work-in-chrome>`_
         for more information.
     """)
