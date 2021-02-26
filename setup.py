@@ -71,8 +71,8 @@ from _setup_support import ( # isort:skip
 )
 
 # immediately bail on unsupported Python versions
-if sys.version_info[:2] < (3, 6):
-    raise RuntimeError("Bokeh requires python >= 3.6")
+if sys.version_info[:2] < (3, 7):
+    raise RuntimeError("Bokeh requires python >= 3.7")
 
 # we want to have the license at the top level of the GitHub repo, but setup
 # can't include it from there, so copy it to the package directory first thing
@@ -117,7 +117,7 @@ setup(
 
     # details needed by setup
     install_requires=REQUIRES,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     packages=find_packages(include=["bokeh", "bokeh.*"]),
     include_package_data=True,
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main']},
