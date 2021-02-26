@@ -1,62 +1,65 @@
+import {input} from "core/dom"
 import * as p from "core/properties"
 import {Widget, WidgetView} from "models/widgets/widget"
 
 export class FileInputView extends WidgetView {
   model: FileInput
 
-  protected dialogEl: HTMLInputElement
+  protected dialog_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
-    this.connect(this.model.properties.width.change, () => this.render())
   }
 
   render(): void {
-    if (this.dialogEl == null) {
-      this.dialogEl = document.createElement('input')
-      this.dialogEl.type = "file"
-      this.dialogEl.multiple = this.model.multiple
-      this.dialogEl.onchange = () => {
-        const {files} = this.dialogEl
+    const {multiple, accept, disabled, width} = this.model
+
+    if (this.dialog_el == null) {
+      this.dialog_el = input({type: "file", multiple})
+      this.dialog_el.onchange = () => {
+        const {files} = this.dialog_el
         if (files != null) {
           this.load_files(files)
         }
       }
-      this.el.appendChild(this.dialogEl)
+      this.el.appendChild(this.dialog_el)
     }
-    if (this.model.accept != null && this.model.accept != '')
-      this.dialogEl.accept = this.model.accept
 
-    this.dialogEl.style.width = `{this.model.width}px`
-    this.dialogEl.disabled = this.model.disabled
+    if (accept != null && accept != "") {
+      this.dialog_el.accept = accept
+    }
+
+    this.dialog_el.style.width = `${width}px`
+    this.dialog_el.disabled = disabled
   }
 
   async load_files(files: FileList): Promise<void> {
-    const value: string[] = []
-    const filename: string[] = []
-    const mime_type: string[] = []
-    let i: number
+    const values: string[] = []
+    const filenames: string[] = []
+    const mime_types: string[] = []
 
-    for (i = 0; i < files.length; i++){
-      filename.push(files[i].name)
-      const data_url = await this.readfile(files[i])
-      const [, mime, , data] = data_url.split(/[:;,]/, 4)
-      value.push(data)
-      mime_type.push(mime)
+    for (const file of files) {
+      const data_url = await this._read_file(file)
+      const [, mime_type="",, value=""] = data_url.split(/[:;,]/, 4)
+
+      values.push(value)
+      filenames.push(file.name)
+      mime_types.push(mime_type)
     }
+
     if (this.model.multiple) {
-      this.model.filename = filename
-      this.model.mime_type = mime_type
-      this.model.value = value
+      this.model.value = values
+      this.model.filename = filenames
+      this.model.mime_type = mime_types
     } else {
-      this.model.filename = filename[0]
-      this.model.mime_type = mime_type[0]
-      this.model.value = value[0]
+      this.model.value = values[0]
+      this.model.filename = filenames[0]
+      this.model.mime_type = mime_types[0]
     }
   }
 
-  readfile(file: File): Promise<string> {
+  protected _read_file(file: File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
       reader.onload = () => {
@@ -85,7 +88,7 @@ export namespace FileInput {
 
 export interface FileInput extends FileInput.Attrs {}
 
-export abstract class FileInput extends Widget {
+export class FileInput extends Widget {
   properties: FileInput.Props
   __view_type__: FileInputView
 

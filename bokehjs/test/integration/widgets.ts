@@ -9,7 +9,7 @@ import {
   Button, Toggle, Dropdown,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  TextInput, AutocompleteInput, TextAreaInput,
+  TextInput, AutocompleteInput, TextAreaInput, FileInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
@@ -83,6 +83,11 @@ describe("Widgets", () => {
 
   it.allowing(8)("should allow TextAreaInput", async () => {
     const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow FileInput", async () => {
+    const obj = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
     await display(obj, [500, 100])
   })
 
