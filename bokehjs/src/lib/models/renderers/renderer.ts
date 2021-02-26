@@ -3,30 +3,32 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import * as p from "core/properties"
 import {Model} from "../../model"
-import {BBox} from "core/util/bbox"
-
+import {CanvasLayer} from "core/util/canvas"
 import type {Plot, PlotView} from "../plots/plot"
-import type {CanvasLayer} from "../canvas/canvas"
+import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform} from "../canvas/coordinates"
 
-export abstract class RendererView extends View {
+export abstract class RendererView extends View implements visuals.Renderable {
   model: Renderer
   visuals: Renderer.Visuals
 
-  parent: PlotView
+  readonly parent: PlotView
 
   needs_webgl_blit: boolean
 
-  private _coordinates: CoordinateTransform
+  private _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
-    return this._coordinates
+    const {_coordinates} = this
+    if (_coordinates != null)
+      return _coordinates
+    else
+      return this._coordinates = this._initialize_coordinates()
   }
 
   initialize(): void {
     super.initialize()
-    this.visuals = new visuals.Visuals(this.model)
+    this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
-    this._initialize_coordinates()
   }
 
   connect_signals(): void {
@@ -35,12 +37,12 @@ export abstract class RendererView extends View {
     this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
   }
 
-  protected _initialize_coordinates(): void {
+  protected _initialize_coordinates(): CoordinateTransform {
     const {x_range_name, y_range_name} = this.model
     const {frame} = this.plot_view
     const x_scale = frame.x_scales.get(x_range_name)!
     const y_scale = frame.y_scales.get(y_range_name)!
-    this._coordinates = new CoordinateTransform(x_scale, y_scale)
+    return new CoordinateTransform(x_scale, y_scale)
   }
 
   get plot_view(): PlotView {
@@ -52,19 +54,25 @@ export abstract class RendererView extends View {
   }
 
   get layer(): CanvasLayer {
-    const {overlays, primary} = this.plot_view.canvas_view
+    const {overlays, primary} = this.canvas
     return this.model.level == "overlay" ? overlays : primary
   }
 
+  get canvas(): CanvasView {
+    return this.plot_view.canvas_view
+  }
+
   request_render(): void {
-    this.plot_view.request_render()
+    this.request_paint()
+  }
+
+  request_paint(): void {
+    this.plot_view.request_paint(this)
   }
 
   notify_finished(): void {
     this.plot_view.notify_finished()
   }
-
-  interactive_bbox?(sx: number, sy: number): BBox
 
   interactive_hit?(sx: number, sy: number): boolean
 
@@ -84,6 +92,10 @@ export abstract class RendererView extends View {
   }
 
   protected abstract _render(): void
+
+  renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
+    return undefined
+  }
 }
 
 export namespace Renderer {
@@ -110,11 +122,11 @@ export abstract class Renderer extends Model {
   }
 
   static init_Renderer(): void {
-    this.define<Renderer.Props>({
-      level:        [ p.RenderLevel            ],
-      visible:      [ p.Boolean,     true      ],
-      x_range_name: [ p.String,      "default" ],
-      y_range_name: [ p.String,      "default" ],
-    })
+    this.define<Renderer.Props>(({Boolean, String}) => ({
+      level:        [ RenderLevel, "image" ],
+      visible:      [ Boolean, true ],
+      x_range_name: [ String, "default" ],
+      y_range_name: [ String, "default" ],
+    }))
   }
 }

@@ -1,10 +1,10 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import * as visuals from "core/visuals"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
@@ -76,24 +76,24 @@ function _cbb(x0: number, y0: number,
   ]
 }
 
-export interface BezierData extends GlyphData {
-  _x0: NumberArray
-  _y0: NumberArray
-  _x1: NumberArray
-  _y1: NumberArray
-  _cx0: NumberArray
-  _cy0: NumberArray
-  _cx1: NumberArray
-  _cy1: NumberArray
+export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
+  _x0: FloatArray
+  _y0: FloatArray
+  _x1: FloatArray
+  _y1: FloatArray
+  _cx0: FloatArray
+  _cy0: FloatArray
+  _cx1: FloatArray
+  _cy1: FloatArray
 
-  sx0: NumberArray
-  sy0: NumberArray
-  sx1: NumberArray
-  sy1: NumberArray
-  scx0: NumberArray
-  scy0: NumberArray
-  scx1: NumberArray
-  scy1: NumberArray
+  sx0: ScreenArray
+  sy0: ScreenArray
+  sx1: ScreenArray
+  sy1: ScreenArray
+  scx0: ScreenArray
+  scy0: ScreenArray
+  scx1: ScreenArray
+  scy1: ScreenArray
 }
 
 export interface BezierView extends BezierData {}
@@ -108,31 +108,47 @@ export class BezierView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size} = this
+    const {data_size, _x0, _y0, _x1, _y1, _cx0, _cy0, _cx1, _cy1} = this
 
     for (let i = 0; i < data_size; i++) {
-      if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx0[i] + this._cy0[i] + this._cx1[i] + this._cy1[i]))
+      const x0_i = _x0[i]
+      const y0_i = _y0[i]
+      const x1_i = _x1[i]
+      const y1_i = _y1[i]
+      const cx0_i = _cx0[i]
+      const cy0_i = _cy0[i]
+      const cx1_i = _cx1[i]
+      const cy1_i = _cy1[i]
+
+      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
-        const [x0, y0, x1, y1] = _cbb(
-          this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
-          this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i],
-        )
+        const [x0, y0, x1, y1] = _cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
         index.add(x0, y0, x1, y1)
       }
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}: BezierData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: BezierData): void {
     if (this.visuals.line.doit) {
+      const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = data ?? this
+
       for (const i of indices) {
-        if (isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i]))
+        const sx0_i = sx0[i]
+        const sy0_i = sy0[i]
+        const sx1_i = sx1[i]
+        const sy1_i = sy1[i]
+        const scx0_i = scx0[i]
+        const scy0_i = scy0[i]
+        const scx1_i = scx1[i]
+        const scy1_i = scy1[i]
+
+        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
           continue
 
         ctx.beginPath()
-        ctx.moveTo(sx0[i], sy0[i])
-        ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.bezierCurveTo(scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -141,7 +157,7 @@ export class BezierView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {
@@ -165,7 +181,7 @@ export namespace Bezier {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Bezier extends Bezier.Attrs {}
@@ -181,16 +197,16 @@ export class Bezier extends Glyph {
   static init_Bezier(): void {
     this.prototype.default_view = BezierView
 
-    this.define<Bezier.Props>({
-      x0:  [ p.XCoordinateSpec, {field: "x0"}  ],
-      y0:  [ p.YCoordinateSpec, {field: "y0"}  ],
-      x1:  [ p.XCoordinateSpec, {field: "x1"}  ],
-      y1:  [ p.YCoordinateSpec, {field: "y1"}  ],
+    this.define<Bezier.Props>(({}) => ({
+      x0:  [ p.XCoordinateSpec, {field: "x0"} ],
+      y0:  [ p.YCoordinateSpec, {field: "y0"} ],
+      x1:  [ p.XCoordinateSpec, {field: "x1"} ],
+      y1:  [ p.YCoordinateSpec, {field: "y1"} ],
       cx0: [ p.XCoordinateSpec, {field: "cx0"} ],
       cy0: [ p.YCoordinateSpec, {field: "cy0"} ],
       cx1: [ p.XCoordinateSpec, {field: "cx1"} ],
       cy1: [ p.YCoordinateSpec, {field: "cy1"} ],
-    })
+    }))
     this.mixins<Bezier.Mixins>(LineVector)
   }
 }

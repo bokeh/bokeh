@@ -6,7 +6,7 @@ import {CalendarPosition} from "core/enums"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 import flatpickr_css from "styles/widgets/flatpickr.css"
 
 type DateStr = string
@@ -34,13 +34,13 @@ export class DatePickerView extends InputWidgetView {
     super.connect_signals()
 
     const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
-    this.connect(value.change, () => this._picker?.setDate(value.value()))
-    this.connect(min_date.change, () => this._picker?.set("minDate", min_date.value()))
-    this.connect(max_date.change, () => this._picker?.set("maxDate", max_date.value()))
-    this.connect(disabled_dates.change, () => this._picker?.set("disable", disabled_dates.value()))
-    this.connect(enabled_dates.change, () => this._picker?.set("enable", enabled_dates.value()))
-    this.connect(position.change, () => this._picker?.set("position", position.value()))
-    this.connect(inline.change, () => this._picker?.set("inline", inline.value()))
+    this.connect(value.change, () => this._picker?.setDate(this.model.value))
+    this.connect(min_date.change, () => this._picker?.set("minDate", this.model.min_date))
+    this.connect(max_date.change, () => this._picker?.set("maxDate", this.model.max_date))
+    this.connect(disabled_dates.change, () => this._picker?.set("disable", this.model.disabled_dates))
+    this.connect(enabled_dates.change, () => this._picker?.set("enable", this.model.enabled_dates))
+    this.connect(position.change, () => this._picker?.set("position", this.model.position))
+    this.connect(inline.change, () => this._picker?.set("inline", this.model.inline))
   }
 
   remove(): void {
@@ -58,12 +58,12 @@ export class DatePickerView extends InputWidgetView {
 
     super.render()
 
-    this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
+    this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
     this._picker = flatpickr(this.input_el, {
       defaultDate: this.model.value,
-      minDate: this.model.min_date,
-      maxDate: this.model.max_date,
+      minDate: this.model.min_date ?? undefined,
+      maxDate: this.model.max_date ?? undefined,
       inline: this.model.inline,
       position: this.model.position,
       disable: _convert_date_list(this.model.disabled_dates),
@@ -83,8 +83,8 @@ export namespace DatePicker {
 
   export type Props = InputWidget.Props & {
     value:          p.Property<string>
-    min_date:       p.Property<string>
-    max_date:       p.Property<string>
+    min_date:       p.Property<string | null>
+    max_date:       p.Property<string | null>
     disabled_dates: p.Property<DatesList>
     enabled_dates:  p.Property<DatesList>
     position:       p.Property<CalendarPosition>
@@ -105,14 +105,18 @@ export class DatePicker extends InputWidget {
   static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
-    this.define<DatePicker.Props>({
-      value:          [ p.Any                      ],
-      min_date:       [ p.Any                      ],
-      max_date:       [ p.Any                      ],
-      disabled_dates: [ p.Any,              []     ],
-      enabled_dates:  [ p.Any,              []     ],
-      position:       [ p.CalendarPosition, "auto" ],
-      inline:         [ p.Boolean,          false  ],
+    this.define<DatePicker.Props>(({Boolean, String, Array, Tuple, Or, Nullable}) => {
+      const DateStr = String
+      const DatesList = Array(Or(DateStr, Tuple(DateStr, DateStr)))
+      return {
+        value:          [ String ],
+        min_date:       [ Nullable(String), null ],
+        max_date:       [ Nullable(String), null ],
+        disabled_dates: [ DatesList, [] ],
+        enabled_dates:  [ DatesList, [] ],
+        position:       [ CalendarPosition, "auto" ],
+        inline:         [ Boolean, false ],
+      }
     })
   }
 }

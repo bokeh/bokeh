@@ -58,7 +58,7 @@ describe("datarange1d module", () => {
   })
 
   describe("explicit bounds=(10,20) creation", () => {
-    const r = new DataRange1d({start: 10, end:20})
+    const r = new DataRange1d({start: 10, end: 20})
 
     it("should have start = 10", () => {
       expect(r.start).to.be.equal(10)
@@ -78,7 +78,7 @@ describe("datarange1d module", () => {
   })
 
   describe("explicit inverted bounds=(20,10) creation", () => {
-    const r = new DataRange1d({start: 20, end:10})
+    const r = new DataRange1d({start: 20, end: 10})
 
     it("should be reversed", () => {
       expect(r.is_reversed).to.be.true
@@ -341,7 +341,7 @@ describe("datarange1d module", () => {
   describe("update", () => {
 
     it("should update its start and end values", () => {
-      const g = new GlyphRenderer({id: "id"})
+      const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({plots: [p]})
 
@@ -354,7 +354,7 @@ describe("datarange1d module", () => {
     })
 
     it("should not update its start or end values to NaN when log", () => {
-      const g = new GlyphRenderer({id: "id"})
+      const g = new GlyphRenderer()
       const p = new Plot({renderers: [g]})
       const r = new DataRange1d({scale_hint: "log", plots: [p]})
 

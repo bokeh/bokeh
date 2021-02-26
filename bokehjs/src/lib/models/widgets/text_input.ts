@@ -1,64 +1,29 @@
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {TextLikeInput, TextLikeInputView} from "./text_like_input"
 
 import {input} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
-export class TextInputView extends InputWidgetView {
+export class TextInputView extends TextLikeInputView {
   model: TextInput
 
   protected input_el: HTMLInputElement
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
-    this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
-    this.connect(this.model.properties.value_input.change, () => this.input_el.value = this.model.value_input)
-    this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
-    this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
-  }
-
-  render(): void {
-    super.render()
-
-    this.input_el = input({
-      type: "text",
-      class: bk_input,
-      name: this.model.name,
-      value: this.model.value,
-      disabled: this.model.disabled,
-      placeholder: this.model.placeholder,
-    })
-    this.input_el.addEventListener("change", () => this.change_input())
-    this.input_el.addEventListener("input",  () => this.change_input_oninput())
-    this.group_el.appendChild(this.input_el)
-  }
-
-  change_input(): void {
-    this.model.value = this.input_el.value
-    super.change_input()
-  }
-
-  change_input_oninput(): void {
-    this.model.value_input = this.input_el.value
-    super.change_input()
+  protected _render_input(): void {
+    this.input_el = input({type: "text", class: inputs.input})
   }
 }
 
 export namespace TextInput {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputWidget.Props & {
-    value: p.Property<string>
-    value_input: p.Property<string>
-    placeholder: p.Property<string>
-  }
+  export type Props = TextLikeInput.Props
 }
 
 export interface TextInput extends TextInput.Attrs {}
 
-export class TextInput extends InputWidget {
+export class TextInput extends TextLikeInput {
   properties: TextInput.Props
   __view_type__: TextInputView
 
@@ -68,11 +33,5 @@ export class TextInput extends InputWidget {
 
   static init_TextInput(): void {
     this.prototype.default_view = TextInputView
-
-    this.define<TextInput.Props>({
-      value:       [ p.String, "" ],
-      value_input: [ p.String, "" ],
-      placeholder: [ p.String, "" ],
-    })
   }
 }

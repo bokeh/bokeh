@@ -28,11 +28,11 @@ export class ToolProxy extends Model {
   }
 
   static init_ToolProxy(): void {
-    this.define<ToolProxy.Props>({
-      tools:    [ p.Array,   []    ],
-      active:   [ p.Boolean, false ],
-      disabled: [ p.Boolean, false ],
-    })
+    this.define<ToolProxy.Props>(({Boolean, Array, Ref}) => ({
+      tools:    [ Array(Ref(ButtonTool)), [] ],
+      active:   [ Boolean, false ],
+      disabled: [ Boolean, false ],
+    }))
   }
 
   do: Signal0<this>

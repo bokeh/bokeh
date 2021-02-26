@@ -1,12 +1,12 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
-import {Dimensions} from "core/enums"
+import {Dimension, Dimensions} from "core/enums"
 import {MoveEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {values} from "core/util/object"
-import {bk_tool_icon_crosshair} from "styles/icons"
+import {tool_icon_crosshair} from "styles/icons.css"
 
 export class CrosshairToolView extends InspectToolView {
   model: CrosshairTool
@@ -62,53 +62,46 @@ export class CrosshairTool extends InspectTool {
   static init_CrosshairTool(): void {
     this.prototype.default_view = CrosshairToolView
 
-    this.define<CrosshairTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-      line_color: [ p.Color, 'black'     ],
-      line_width: [ p.Number, 1          ],
-      line_alpha: [ p.Number, 1.0        ],
-    })
+    this.define<CrosshairTool.Props>(({Alpha, Number, Color}) => ({
+      dimensions: [ Dimensions, "both" ],
+      line_color: [ Color, "black" ],
+      line_width: [ Number, 1 ],
+      line_alpha: [ Alpha, 1 ],
+    }))
 
-    this.internal({
-      spans:          [ p.Any                    ],
-    })
+    function span(self: CrosshairTool, dimension: Dimension) {
+      return new Span({
+        for_hover: true,
+        dimension,
+        location_units: "screen",
+        level: "overlay",
+        line_color: self.line_color,
+        line_width: self.line_width,
+        line_alpha: self.line_alpha,
+      })
+    }
+
+    this.internal<CrosshairTool.Props>(({Struct, Ref}) => ({
+      spans: [
+        Struct({width: Ref(Span), height: Ref(Span)}),
+        (self) => ({
+          width: span(self as CrosshairTool, "width"),
+          height: span(self as CrosshairTool, "height"),
+        }),
+      ],
+    }))
 
     this.register_alias("crosshair", () => new CrosshairTool())
   }
 
   tool_name = "Crosshair"
-  icon = bk_tool_icon_crosshair
+  icon = tool_icon_crosshair
 
   get tooltip(): string {
-    return this._get_dim_tooltip("Crosshair", this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 
   get synthetic_renderers(): Renderer[] {
     return values(this.spans)
-  }
-
-  initialize(): void {
-    super.initialize()
-
-    this.spans = {
-      width: new Span({
-        for_hover: true,
-        dimension: "width",
-        location_units: "screen",
-        level: "overlay",
-        line_color: this.line_color,
-        line_width: this.line_width,
-        line_alpha: this.line_alpha,
-      }),
-      height: new Span({
-        for_hover: true,
-        dimension: "height",
-        location_units: "screen",
-        level: "overlay",
-        line_color: this.line_color,
-        line_width: this.line_width,
-        line_alpha: this.line_alpha,
-      }),
-    }
   }
 }

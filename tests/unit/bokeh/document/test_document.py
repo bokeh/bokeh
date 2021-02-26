@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -16,7 +16,6 @@ import pytest ; pytest
 
 # Standard library imports
 import logging
-from copy import copy
 
 # External imports
 from mock import patch
@@ -812,48 +811,46 @@ class TestDocument:
         assert len(d.roots) == 1
 
         def patch_test(new_value):
-            serializable_new = root1.lookup('foo').property.to_serializable(root1,
-                                                                              'foo',
-                                                                              new_value)
+            serializable_new = root1.lookup('foo').property.to_serializable(root1, 'foo', new_value)
             event1 = ModelChangedEvent(d, root1, 'foo', root1.foo, new_value, serializable_new)
             patch1, buffers = process_document_events([event1])
             d.apply_json_patch_string(patch1)
             if isinstance(new_value, dict):
-                expected = copy(new_value)
-                if 'units' not in expected:
-                    expected['units'] = root1.foo_units
-                assert expected == root1.lookup('foo').serializable_value(root1)
+                return root1.lookup('foo').serializable_value(root1)
             else:
-                assert new_value == root1.foo
-        patch_test(57)
+                return root1.foo
+        assert patch_test(57) == 57
         assert 'data' == root1.foo_units
-        patch_test(dict(value=58))
+        assert patch_test(dict(value=58)) == dict(value=58)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=58, units='screen'))
+
+        assert patch_test(dict(value=58, units='screen')) == dict(value=58, units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='screen'))
+        assert patch_test(dict(value=59, units='screen')) == dict(value=59, units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=59, units='data'))
+
+        assert patch_test(dict(value=59, units='data')) == dict(value=59)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
+        assert patch_test(dict(value=60, units='data')) == dict(value=60)
         assert 'data' == root1.foo_units
-        patch_test(dict(value=60, units='data'))
+        assert patch_test(dict(value=60, units='data')) == dict(value=60)
         assert 'data' == root1.foo_units
-        patch_test(61)
+
+        assert patch_test(61) == 61
         assert 'data' == root1.foo_units
         root1.foo = "a_string" # so "woot" gets set as a string
-        patch_test("woot")
+        assert patch_test("woot") == "woot"
         assert 'data' == root1.foo_units
-        patch_test(dict(field="woot2"))
+        assert patch_test(dict(field="woot2")) == dict(field="woot2")
         assert 'data' == root1.foo_units
-        patch_test(dict(field="woot2", units='screen'))
+        assert patch_test(dict(field="woot2", units='screen')) == dict(field="woot2", units='screen')
         assert 'screen' == root1.foo_units
-        patch_test(dict(field="woot3"))
+        assert patch_test(dict(field="woot3")) == dict(field="woot3", units="screen")
         assert 'screen' == root1.foo_units
-        patch_test(dict(value=70))
+        assert patch_test(dict(value=70)) == dict(value=70, units="screen")
         assert 'screen' == root1.foo_units
         root1.foo = 123 # so 71 gets set as a number
-        patch_test(71)
+        assert patch_test(71) == 71
         assert 'screen' == root1.foo_units
 
     def test_patch_reference_property(self) -> None:

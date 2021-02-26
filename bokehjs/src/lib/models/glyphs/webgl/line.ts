@@ -1,12 +1,12 @@
 import {Program, VertexBuffer, IndexBuffer, Texture2d} from "./utils"
 import {BaseGLGlyph, Transform} from "./base"
-import {vertex_shader} from "./line.vert"
-import {fragment_shader} from "./line.frag"
+import vertex_shader from "./line.vert"
+import fragment_shader from "./line.frag"
 import {LineView} from "../line"
 import {color2rgba} from "core/util/color"
+import {resolve_line_dash} from "core/visuals/line"
 
 class DashAtlas {
-
   protected readonly _atlas: Map<string, [number, number]> = new Map()
   protected readonly _width = 256
   protected readonly _height = 256
@@ -99,8 +99,6 @@ const caps: {[key: string]: number} = {
 }
 
 export class LineGL extends BaseGLGlyph {
-  readonly glyph: LineView
-
   protected prog: Program
   protected index_buffer: IndexBuffer
   protected vbo_position: VertexBuffer
@@ -127,8 +125,9 @@ export class LineGL extends BaseGLGlyph {
 
   protected cumsum: number
 
-  protected init(): void {
-    const {gl} = this
+  constructor(gl: WebGLRenderingContext, readonly glyph: LineView) {
+    super(gl, glyph)
+
     this._scale_aspect = 0  // keep track, so we know when we need to update segment data
 
     const vert = vertex_shader
@@ -240,12 +239,15 @@ export class LineGL extends BaseGLGlyph {
   }
 
   protected _set_visuals(): void {
-    const color = color2rgba(this.glyph.visuals.line.line_color.value(), this.glyph.visuals.line.line_alpha.value())
-    const cap = caps[this.glyph.visuals.line.line_cap.value()]
-    const join = joins[this.glyph.visuals.line.line_join.value()]
+    const {line_color, line_alpha, line_width, line_cap, line_join, line_dash, line_dash_offset} = this.glyph.visuals.line
 
-    this.prog.set_uniform('u_color', 'vec4', color)
-    this.prog.set_uniform('u_linewidth', 'float', [this.glyph.visuals.line.line_width.value()])
+    const [r, g, b, a] = color2rgba(line_color.value, line_alpha.value)
+    const width = line_width.value
+    const cap = caps[line_cap.value]
+    const join = joins[line_join.value]
+
+    this.prog.set_uniform('u_color', 'vec4', [r/255, g/255, b/255, a/255])
+    this.prog.set_uniform('u_linewidth', 'float', [width])
     this.prog.set_uniform('u_antialias', 'float', [0.9])  // Smaller aa-region to obtain crisper images
 
     this.prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
@@ -253,13 +255,14 @@ export class LineGL extends BaseGLGlyph {
     this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
-    const dash_pattern = this.glyph.visuals.line.line_dash.value()
-    let dash_index = 0; let dash_period = 1
+    const dash_pattern = resolve_line_dash(line_dash.value)
+    let dash_index = 0
+    let dash_period = 1
     if (dash_pattern.length) {
       [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern)
     }
     this.prog.set_uniform('u_dash_index', 'float', [dash_index])  // 0 means solid line
-    this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.value()])
+    this.prog.set_uniform('u_dash_phase', 'float', [line_dash_offset.value])
     this.prog.set_uniform('u_dash_period', 'float', [dash_period])
     this.prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
     this.prog.set_uniform('u_closed', 'float', [0])  // We dont do closed lines
@@ -290,10 +293,10 @@ export class LineGL extends BaseGLGlyph {
     const V_angles = new Float32Array(n*2)
     const V_tangents = (Vt = new Float32Array(n*4))  // mind the 4!
 
-    // Position
+    // Position, replacing non-finite numbers with zeros
     for (let i = 0, end = n; i < end; i++) {
-      V_position[(i*2)+0] = sx[i]
-      V_position[(i*2)+1] = sy[i]
+      V_position[(i*2)+0] = isFinite(sx[i]) ? sx[i] : 0.0
+      V_position[(i*2)+1] = isFinite(sy[i]) ? sy[i] : 0.0
     }
 
     // Tangents & norms (need tangents to calculate segments based on scale)
@@ -330,6 +333,16 @@ export class LineGL extends BaseGLGlyph {
     for (let i = 0, end = n-1; i < end; i++) {
       V_angles[(i*2)+0] = A[i]
       V_angles[(i*2)+1] = A[i+1]
+    }
+
+    // Position, non-finite numbers
+    for (let i = 0, end = n; i < end; i++) {
+      if (!isFinite(sx[i])) {
+        V_position[(i*2)+0] = sx[i]
+      }
+      if (!isFinite(sy[i])) {
+        V_position[(i*2)+1] = sy[i]
+      }
     }
 
     // Step 1: A -- B -- C  =>  A -- B, B' -- C

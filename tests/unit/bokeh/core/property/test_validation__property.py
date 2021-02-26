@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -232,7 +232,7 @@ class TestValidateDetailDefault:
         p = MinMaxBounds()
         with pytest.raises(ValueError) as e:
             p.validate(10)
-        assert matches(str(e.value), r"expected an element of either Auto, Tuple\(Float, Float\) or Tuple\(TimeDelta, TimeDelta\), got 10")
+        assert matches(str(e.value), r"expected an element of either .*, got 10")
     def test_Regex(self) -> None:
         p = Regex("green")
         with pytest.raises(ValueError) as e:

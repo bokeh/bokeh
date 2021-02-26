@@ -2,12 +2,11 @@ import {HasProps} from "./has_props"
 import {Geometry} from "./geometry"
 import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
-import {Renderer, RendererView} from "models/renderers/renderer"
+import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import {GlyphRendererView} from "models/renderers/glyph_renderer"
 import {GraphRendererView} from "models/renderers/graph_renderer"
 import * as p from "./properties"
-
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
 export namespace SelectionManager {
   export type Props = HasProps.Props & {
@@ -27,14 +26,14 @@ export class SelectionManager extends HasProps {
   }
 
   static init_SelectionManager(): void {
-    this.internal({
-      source: [ p.Any ],
-    })
+    this.internal<SelectionManager.Props>(({AnyRef}) => ({
+      source: [ AnyRef() ],
+    }))
   }
 
-  inspectors: Map<Renderer, Selection> = new Map()
+  inspectors: Map<DataRenderer, Selection> = new Map()
 
-  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
+  select(renderer_views: DataRendererView[], geometry: Geometry, final: boolean, mode: SelectionMode = "replace"): boolean {
     // divide renderers into glyph_renderers or graph_renderers
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
@@ -61,7 +60,7 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  inspect(renderer_view: RendererView, geometry: Geometry): boolean {
+  inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
     let did_hit = false
 
     if (renderer_view instanceof GlyphRendererView) {
@@ -71,7 +70,7 @@ export class SelectionManager extends HasProps {
         const inspection = this.get_or_create_inspector(renderer_view.model)
         inspection.update(hit_test_result, true, "replace")
         this.source.setv({inspected: inspection}, {silent: true})
-        this.source.inspect.emit([renderer_view, {geometry}])
+        this.source.inspect.emit([renderer_view.model, {geometry}])
       }
     } else if (renderer_view instanceof GraphRendererView) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
@@ -81,13 +80,13 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  clear(rview?: RendererView): void {
+  clear(rview?: DataRendererView): void {
     this.source.selected.clear()
     if (rview != null)
       this.get_or_create_inspector(rview.model).clear()
   }
 
-  get_or_create_inspector(renderer: Renderer): Selection {
+  get_or_create_inspector(renderer: DataRenderer): Selection {
     let selection = this.inspectors.get(renderer)
     if (selection == null) {
       selection = new Selection()

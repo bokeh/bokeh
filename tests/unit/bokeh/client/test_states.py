@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -28,7 +28,7 @@ class MockConnection:
     async def _wait_for_ack(self): return "_wait_for_ack"
     async def _handle_messages(self): return "_handle_messages"
     async def _transition(self, arg): return ("_transition", arg)
-    async def _transition_to_disconnected(self): return "_transition_to_disconnected"
+    async def _transition_to_disconnected(self, arg): return "_transition_to_disconnected"
     async def _next(self): return "_next"
 
     async def _pop_message(self): return self._to_pop

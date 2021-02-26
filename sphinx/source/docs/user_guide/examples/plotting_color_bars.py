@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColorBar, LogColorMapper, LogTicker
+from bokeh.models import ColorBar, LogColorMapper
 from bokeh.plotting import figure, output_file, show
 
 output_file('color_bar.html')
@@ -19,8 +19,7 @@ plot = figure(x_range=(0,1), y_range=(0,1), toolbar_location=None)
 plot.image(image=[image], color_mapper=color_mapper,
            dh=[1.0], dw=[1.0], x=[0], y=[0])
 
-color_bar = ColorBar(color_mapper=color_mapper, ticker=LogTicker(),
-                     label_standoff=12, border_line_color=None, location=(0,0))
+color_bar = ColorBar(color_mapper=color_mapper, label_standoff=12)
 
 plot.add_layout(color_bar, 'right')
 

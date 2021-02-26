@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -27,14 +27,14 @@ import bokeh.application.handlers.code as bahc # isort:skip
 script_adds_two_roots = """
 from bokeh.io import curdoc
 from bokeh.model import Model
-from bokeh.core.properties import Int, Instance
+from bokeh.core.properties import Int, Instance, Nullable
 
 class AnotherModelInTestScript(Model):
     bar = Int(1)
 
 class SomeModelInTestScript(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 curdoc().add_root(AnotherModelInTestScript())
 curdoc().add_root(SomeModelInTestScript())

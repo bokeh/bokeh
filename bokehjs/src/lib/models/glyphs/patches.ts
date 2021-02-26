@@ -1,24 +1,24 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {minmax, sum} from "core/util/arrayable"
-import {Arrayable, Rect, RaggedArray, Indices} from "core/types"
+import {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export interface PatchesData extends GlyphData {
-  _xs: RaggedArray
-  _ys: RaggedArray
+export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
+  _xs: RaggedArray<FloatArray>
+  _ys: RaggedArray<FloatArray>
 
-  sxs: RaggedArray
-  sys: RaggedArray
+  sxs: RaggedArray<ScreenArray>
+  sys: RaggedArray<ScreenArray>
 }
 
 export interface PatchesView extends PatchesData {}
@@ -50,13 +50,11 @@ export class PatchesView extends GlyphView {
   }
 
   protected _mask_data(): Indices {
-    const xr = this.renderer.plot_view.frame.x_range
-    const [x0, x1] = [xr.min, xr.max]
-
-    const yr = this.renderer.plot_view.frame.y_range
-    const [y0, y1] = [yr.min, yr.max]
-
-    return this.index.indices({x0, x1, y0, y1})
+    const {x_range, y_range} = this.renderer.plot_view.frame
+    return this.index.indices({
+      x0: x_range.min, x1: x_range.max,
+      y0: y_range.min, y1: y_range.max,
+    })
   }
 
   protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
@@ -77,21 +75,26 @@ export class PatchesView extends GlyphView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
+    const {sxs, sys} = data ?? this
+
     for (const i of indices) {
-      const sx = sxs.get(i)
-      const sy = sys.get(i)
+      const sx_i = sxs.get(i)
+      const sy_i = sys.get(i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.fill)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => this._inner_loop(ctx, sx, sy, ctx.fill), () => this.renderer.request_render())
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx, sy, ctx.stroke)
+        this._inner_loop(ctx, sx_i, sy_i, ctx.stroke)
       }
     }
   }
@@ -196,7 +199,7 @@ export class PatchesView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -210,7 +213,7 @@ export namespace Patches {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Patches extends Patches.Attrs {}
@@ -226,10 +229,10 @@ export class Patches extends Glyph {
   static init_Patches(): void {
     this.prototype.default_view = PatchesView
 
-    this.define<Patches.Props>({
+    this.define<Patches.Props>(({}) => ({
       xs: [ p.XCoordinateSeqSpec, {field: "xs"} ],
       ys: [ p.YCoordinateSeqSpec, {field: "ys"} ],
-    })
+    }))
     this.mixins<Patches.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

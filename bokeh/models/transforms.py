@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -29,6 +29,8 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    NonNullable,
+    Nullable,
     Seq,
     String,
 )
@@ -139,7 +141,7 @@ class Dodge(Transform):
     The amount to dodge the input data.
     """)
 
-    range = Instance("bokeh.models.ranges.Range", help="""
+    range = Nullable(Instance("bokeh.models.ranges.Range"), help="""
     When applying ``Dodge`` to categorical data values, the corresponding
     ``FactorRange`` must be supplied as the ``range`` property.
     """)
@@ -163,7 +165,7 @@ class Jitter(Transform):
     The random distribution upon which to pull the random scatter
     """)
 
-    range = Instance("bokeh.models.ranges.Range", help="""
+    range = Nullable(Instance("bokeh.models.ranges.Range"), help="""
     When applying Jitter to Categorical data values, the corresponding
     ``FactorRange`` must be supplied as the ``range`` property.
     """)
@@ -199,15 +201,15 @@ class Interpolator(Transform):
     interpolation.
 
     '''
-    x = Either(String, Seq(Float), help="""
+    x = NonNullable(Either(String, Seq(Float)), help="""
     Independent coordinate denoting the location of a point.
     """)
 
-    y = Either(String, Seq(Float), help="""
+    y = NonNullable(Either(String, Seq(Float)), help="""
     Dependant coordinate denoting the value of a point at a location.
     """)
 
-    data = Instance(ColumnarDataSource, help="""
+    data = Nullable(Instance(ColumnarDataSource), help="""
     Data which defines the source for the named columns if a string is passed to either the ``x`` or ``y`` parameters.
     """)
 

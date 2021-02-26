@@ -17,7 +17,7 @@ p = figure(plot_width=300, plot_height=300, title="Linear Color Map Based on Y")
 
 p.circle(x='x', y='y', line_color=mapper,color=mapper, fill_alpha=1, size=12, source=source)
 
-color_bar = ColorBar(color_mapper=mapper['transform'], width=8,  location=(0,0))
+color_bar = ColorBar(color_mapper=mapper['transform'], width=8)
 
 p.add_layout(color_bar, 'right')
 

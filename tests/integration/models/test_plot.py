@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2021, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -65,11 +65,11 @@ class Test_Plot:
         # updates can take some time
         time.sleep(0.5)
 
-        assert data['iw'][0] is None
+        assert data['iw'][0] == 0
         assert isinstance(data['iw'][1], int)
-        assert data['iw'][1]< 400
+        assert data['iw'][1] < 400
 
-        assert data['ih'][0] is None
+        assert data['ih'][0] == 0
         assert isinstance(data['ih'][1], int)
         assert data['ih'][1] < 400
 

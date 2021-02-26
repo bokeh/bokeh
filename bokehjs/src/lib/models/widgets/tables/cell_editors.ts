@@ -3,10 +3,9 @@ import {input, textarea, select, option, Keys} from "core/dom"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
-import {DTINDEX_NAME} from "./data_table"
-import {Item} from "./table_column"
+import {DTINDEX_NAME, Item} from "./definitions"
 
-import {bk_cell_editor} from "styles/widgets/tables"
+import * as tables from "styles/widgets/tables.css"
 
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
@@ -42,7 +41,7 @@ export abstract class CellEditorView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat(bk_cell_editor)
+    return super.css_classes().concat(tables.cell_editor)
   }
 
   render(): void {
@@ -56,7 +55,8 @@ export abstract class CellEditorView extends DOMView {
   renderEditor(): void {}
 
   disableNavigation(): void {
-    this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
+    // XXX: without cast `event` is of non-specific type `Event`
+    (this.inputEl as HTMLElement).addEventListener("keydown", (event) => {
       switch (event.keyCode) {
         case Keys.Left:
         case Keys.Right:
@@ -119,7 +119,7 @@ export abstract class CellEditorView extends DOMView {
       }
     }
 
-    return { valid: true, msg: null }
+    return {valid: true, msg: null}
   }
 
   validate(): any {
@@ -185,9 +185,9 @@ export class StringEditor extends CellEditor {
 
   static init_StringEditor(): void {
     this.prototype.default_view = StringEditorView
-    this.define<StringEditor.Props>({
-      completions: [ p.Array, [] ],
-    })
+    this.define<StringEditor.Props>(({String, Array}) => ({
+      completions: [ Array(String), [] ],
+    }))
   }
 }
 
@@ -254,9 +254,9 @@ export class SelectEditor extends CellEditor {
 
   static init_SelectEditor(): void {
     this.prototype.default_view = SelectEditorView
-    this.define<SelectEditor.Props>({
-      options: [ p.Array, [] ],
-    })
+    this.define<SelectEditor.Props>(({String, Array}) => ({
+      options: [ Array(String), [] ],
+    }))
   }
 }
 
@@ -346,7 +346,7 @@ export class IntEditorView extends CellEditorView {
   }
 
   serializeValue(): any {
-    return parseInt(this.getValue(), 10) || 0
+    return parseInt(this.getValue(), 10) ?? 0
   }
 
   loadValue(item: Item): void {
@@ -357,7 +357,7 @@ export class IntEditorView extends CellEditorView {
 
   validateValue(value: any): any {
     if (isNaN(value))
-      return { valid: false, msg: "Please enter a valid integer" }
+      return {valid: false, msg: "Please enter a valid integer"}
     else
       return super.validateValue(value)
   }
@@ -378,9 +378,9 @@ export class IntEditor extends CellEditor {
 
   static init_IntEditor(): void {
     this.prototype.default_view = IntEditorView
-    this.define<IntEditor.Props>({
-      step: [ p.Number, 1 ],
-    })
+    this.define<IntEditor.Props>(({Int}) => ({
+      step: [ Int, 1 ],
+    }))
   }
 }
 
@@ -405,7 +405,7 @@ export class NumberEditorView extends CellEditorView {
   }
 
   serializeValue(): any {
-    return parseFloat(this.getValue()) || 0.0
+    return parseFloat(this.getValue()) ?? 0.0
   }
 
   loadValue(item: Item): void {
@@ -416,7 +416,7 @@ export class NumberEditorView extends CellEditorView {
 
   validateValue(value: any): any {
     if (isNaN(value))
-      return { valid: false, msg: "Please enter a valid number" }
+      return {valid: false, msg: "Please enter a valid number"}
     else
       return super.validateValue(value)
   }
@@ -437,9 +437,9 @@ export class NumberEditor extends CellEditor {
 
   static init_NumberEditor(): void {
     this.prototype.default_view = NumberEditorView
-    this.define<NumberEditor.Props>({
-      step: [ p.Number, 0.01 ],
-    })
+    this.define<NumberEditor.Props>(({Number}) => ({
+      step: [ Number, 0.01 ],
+    }))
   }
 }
 

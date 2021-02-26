@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -27,7 +27,7 @@ from .system import System
 __all__ = (
     "verify_anaconda_credentials",
     "verify_aws_credentials",
-    "verify_github_credentials",
+    "verify_google_credentials",
     "verify_npm_credentials",
     "verify_pypi_credentials",
 )
@@ -64,9 +64,7 @@ def collect_credential(**kw: str) -> Callable[[VerifyFunctionType], StepType]:
 
 @collect_credential(token="ANACONDA_TOKEN")
 def verify_anaconda_credentials(config: Config, system: System, *, token: str) -> None:
-    """
-
-    """
+    """"""
     out = system.run(f"anaconda -t {token} whoami")
     if "Username: bokeh" not in out:
         raise RuntimeError(*out.strip().split("\n"))
@@ -74,46 +72,40 @@ def verify_anaconda_credentials(config: Config, system: System, *, token: str) -
 
 @collect_credential(token="PYPI_TOKEN")
 def verify_pypi_credentials(config: Config, system: System, *, token: str) -> None:
-    """
-
-    """
+    """"""
     # TODO is there a way to actually test that the creds work?
     pass
 
 
-@collect_credential(token="GITHUB_TOKEN")
-def verify_github_credentials(config: Config, system: System, *, token: str) -> None:
-    """
-
-    """
-    out = system.run(f"curl -s -H 'Authorization: token {token}' https://api.github.com")
-    if "Bad credentials" in out:
-        raise RuntimeError(*out.strip().split("\n"))
+@collect_credential(token="GOOGLE_API_KEY")
+def verify_google_credentials(config: Config, system: System, *, token: str) -> None:
+    """"""
+    # TODO is there a way to actually test that the creds work?
+    pass
 
 
 @collect_credential(token="NPM_TOKEN")
 def verify_npm_credentials(config: Config, system: System, *, token: str) -> None:
-    """
-
-    """
+    """"""
     system.run("npm set registry 'https://registry.npmjs.org'")
     system.run(f"npm set //registry.npmjs.org/:_authToken {token}")
     out = system.run("npm whoami")
-    if out.strip() != "bokeh":
+    if out.strip() != "bokeh-service":
         raise RuntimeError(*out.strip().split("\n"))
 
 
 @collect_credential(access_key_id="AWS_ACCESS_KEY_ID", secret_access_key="AWS_SECRET_ACCESS_KEY")
 def verify_aws_credentials(config: Config, system: System, *, access_key_id: str, secret_access_key: str) -> None:
-    """
-
-    """
+    """"""
     calling_format = boto.s3.connection.OrdinaryCallingFormat()
     for bucket_name, bucket_region in [
         ("cdn.bokeh.org", "us-east-1"),
         ("cdn-backup.bokeh.org", "us-west-2"),
     ]:
         conn = boto.s3.connect_to_region(
-            bucket_region, aws_access_key_id=access_key_id, aws_secret_access_key=secret_access_key, calling_format=calling_format,
+            bucket_region,
+            aws_access_key_id=access_key_id,
+            aws_secret_access_key=secret_access_key,
+            calling_format=calling_format,
         )
         conn.get_bucket(bucket_name)

@@ -1,20 +1,33 @@
 import {expect} from "assertions"
 
 import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("ContinuousTicker Model", () => {
 
   class MyTicker extends ContinuousTicker {
+    min_interval: number
+    max_interval: number | null
+
     get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
       return 100
     }
+
+    get_min_interval(): number {
+      return this.min_interval
+    }
+
+    get_max_interval(): number {
+      return this.max_interval ?? Infinity
+    }
   }
+
+  const range = new Range1d({start: 0, end: 100})
 
   it("should have five major and minor ticks only inside bounds", () => {
     const ticker = new MyTicker({num_minor_ticks: 2, desired_num_ticks: 5})
 
-    // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
-    const ticks = ticker.get_ticks(-200, 200, null, null, {})
+    const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
     expect(ticks.minor).to.be.equal([-200, -150, -100, -50, 0, 50, 100, 150, 200])
   })
@@ -22,8 +35,7 @@ describe("ContinuousTicker Model", () => {
   it("should have five major and matching minor ticks", () => {
     const ticker = new MyTicker({num_minor_ticks: 1, desired_num_ticks: 5})
 
-    // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
-    const ticks = ticker.get_ticks(-200, 200, null, null, {})
+    const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
     expect(ticks.minor).to.be.equal([-200, -100, 0, 100, 200])
   })
@@ -31,8 +43,7 @@ describe("ContinuousTicker Model", () => {
   it("should have five major and zero minor ticks", () => {
     const ticker = new MyTicker({num_minor_ticks: 0, desired_num_ticks: 5})
 
-    // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
-    const ticks = ticker.get_ticks(-200, 200, null, null, {})
+    const ticks = ticker.get_ticks(-200, 200, range, NaN)
     expect(ticks.major).to.be.equal([-200, -100, 0, 100, 200])
     expect(ticks.minor).to.be.equal([])
   })
@@ -40,8 +51,7 @@ describe("ContinuousTicker Model", () => {
   it("should handle empty start/end case by returning no ticks", () => {
     const ticker = new MyTicker({num_minor_ticks: 2, desired_num_ticks: 5})
 
-    // `range` and `cross_loc` aren't used by the AdaptiveTicker, so are passed as null args
-    const ticks = ticker.get_ticks(NaN, NaN, null, null, {})
+    const ticks = ticker.get_ticks(NaN, NaN, range, NaN)
     expect(ticks.major).to.be.equal([])
     expect(ticks.minor).to.be.equal([])
   })

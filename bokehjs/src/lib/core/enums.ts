@@ -5,22 +5,24 @@ export const Align = Enum("start", "center", "end")
 
 export type Anchor =
   "top_left"    | "top_center"    | "top_right"    |
-  "center_left" | "center"        | "center_right" |
-  "bottom_left" | "bottom_center" | "bottom_right"
+  "center_left" | "center_center" | "center_right" |
+  "bottom_left" | "bottom_center" | "bottom_right" |
+  "top" | "left" | "center" | "right" | "bottom"
 export const Anchor = Enum(
   "top_left",    "top_center",    "top_right",
-  "center_left", "center",        "center_right",
+  "center_left", "center_center", "center_right",
   "bottom_left", "bottom_center", "bottom_right",
+  "top", "left", "center", "right", "bottom",
 )
 
-export type AngleUnits = "deg" | "rad"
-export const AngleUnits = Enum("deg", "rad")
+export type AngleUnits = "deg" | "rad" | "grad" | "turn"
+export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
-export const ButtonType = Enum("default", "primary", "success", "warning", "danger")
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "light"
+export const ButtonType = Enum("default", "primary", "success", "warning", "danger", "light")
 
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")
@@ -76,6 +78,9 @@ export const LineCap = Enum("butt", "round", "square")
 export type LineJoin = "miter" | "round" | "bevel"
 export const LineJoin = Enum("miter", "round", "bevel")
 
+export type LineDash = "solid" | "dashed" | "dotted" | "dotdash" | "dashdot"
+export const LineDash = Enum("solid", "dashed", "dotted", "dotdash", "dashdot")
+
 export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none"
 export const LinePolicy = Enum("prev", "next", "nearest", "interp", "none")
 
@@ -89,14 +94,14 @@ export type MarkerType =
   "asterisk" | "circle" | "circle_cross" | "circle_dot" | "circle_x" |
   "circle_y" | "cross" | "dash" | "diamond" | "diamond_cross" | "diamond_dot" |
   "dot" | "hex" | "hex_dot" | "inverted_triangle" | "plus" | "square" |
-  "square_cross" | "square_dot" | "square_pin" | "square_x" | "triangle" |
-  "triangle_dot" | "triangle_pin" | "x" | "y"
+  "square_cross" | "square_dot" | "square_pin" | "square_x" | "star" | "star_dot" |
+  "triangle" | "triangle_dot" | "triangle_pin" | "x" | "y"
 export const MarkerType = Enum(
   "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
   "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
   "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
-  "square_cross", "square_dot", "square_pin", "square_x", "triangle",
-  "triangle_dot", "triangle_pin", "x", "y",
+  "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
+  "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
 
 export type MutedPolicy = "show" | "ignore"

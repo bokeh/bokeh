@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -24,9 +24,11 @@ import mock
 from _util_models import (
     ANGLE,
     FILL,
+    HATCH,
     LINE,
     TEXT,
     check_fill_properties,
+    check_hatch_properties,
     check_line_properties,
     check_properties_existence,
     check_text_properties,
@@ -38,8 +40,6 @@ from bokeh.models import (
     Arrow,
     ArrowHead,
     Band,
-    BasicTicker,
-    BasicTickFormatter,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -48,6 +48,8 @@ from bokeh.models import (
     LabelSet,
     Legend,
     LegendItem,
+    LinearColorMapper,
+    PolyAnnotation,
     Slope,
     Span,
     Title,
@@ -108,17 +110,18 @@ def test_Legend() -> None:
 
 
 def test_ColorBar() -> None:
-    color_bar = ColorBar()
+    color_mapper = LinearColorMapper()
+    color_bar = ColorBar(color_mapper=color_mapper)
     assert color_bar.location == 'top_right'
-    assert color_bar.orientation == 'vertical'
+    assert color_bar.orientation == 'auto'
     assert color_bar.height == 'auto'
     assert color_bar.width == 'auto'
     assert color_bar.scale_alpha == 1.0
     assert color_bar.title is None
     assert color_bar.title_standoff == 2
-    assert isinstance(color_bar.ticker, BasicTicker)
-    assert isinstance(color_bar.formatter, BasicTickFormatter)
-    assert color_bar.color_mapper is None
+    assert color_bar.ticker == "auto"
+    assert color_bar.formatter == "auto"
+    assert color_bar.color_mapper == color_mapper
     assert color_bar.margin == 30
     assert color_bar.padding == 10
     assert color_bar.label_standoff == 5
@@ -127,7 +130,7 @@ def test_ColorBar() -> None:
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
     check_text_properties(color_bar, "title_", "13px", "bottom", "italic", scalar=True)
-    check_text_properties(color_bar, "major_label_", "11px", "middle", "normal", "center", scalar=True)
+    check_text_properties(color_bar, "major_label_", "11px", "bottom", "normal", "left", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
     check_line_properties(color_bar, "minor_tick_", None)
     check_line_properties(color_bar, "bar_", None)
@@ -155,7 +158,8 @@ def test_ColorBar() -> None:
         "major_tick_out",
         "minor_tick_in",
         "minor_tick_out",
-        "major_label_overrides"],
+        "major_label_overrides",
+        "major_label_policy"],
         prefix('title_', TEXT),
         prefix('major_label_', TEXT),
         prefix('major_tick_', LINE),
@@ -168,15 +172,15 @@ def test_ColorBar() -> None:
 
 def test_Arrow() -> None:
     arrow = Arrow()
-    assert arrow.x_start is None
-    assert arrow.y_start is None
+    assert arrow.x_start == field("x_start")
+    assert arrow.y_start == field("y_start")
     assert arrow.start_units == 'data'
     assert arrow.start is None
-    assert arrow.x_end is None
-    assert arrow.y_end is None
+    assert arrow.x_end == field("x_end")
+    assert arrow.y_end == field("y_end")
     assert arrow.end_units == 'data'
     assert isinstance(arrow.end, ArrowHead)
-    assert arrow.source is None
+    assert isinstance(arrow.source, ColumnDataSource)
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)
@@ -200,18 +204,19 @@ def test_Arrow() -> None:
 def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
     assert box.left is None
-    assert box.left_units == 'data'
+    assert box.left_units == "data"
     assert box.right is None
-    assert box.right_units == 'data'
+    assert box.right_units == "data"
     assert box.bottom is None
-    assert box.bottom_units == 'data'
+    assert box.bottom_units == "data"
     assert box.top is None
-    assert box.top_units == 'data'
-    assert box.x_range_name == 'default'
-    assert box.y_range_name == 'default'
-    assert box.level == 'annotation'
-    check_line_properties(box, "", '#cccccc', 1, 0.3)
+    assert box.top_units == "data"
+    assert box.x_range_name == "default"
+    assert box.y_range_name == "default"
+    assert box.level == "annotation"
+    check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
+    check_hatch_properties(box)
     check_properties_existence(box, [
         "render_mode",
         "visible",
@@ -226,17 +231,17 @@ def test_BoxAnnotation() -> None:
         "x_range_name",
         "y_range_name",
         "level",
-    ], LINE, FILL)
+    ], LINE, FILL, HATCH)
 
 
 def test_Band() -> None:
     band = Band()
     assert band.level == 'annotation'
-    assert band.lower is None
+    assert band.lower == field("lower")
     assert band.lower_units == 'data'
-    assert band.upper is None
+    assert band.upper == field("upper")
     assert band.upper_units == 'data'
-    assert band.base is None
+    assert band.base == field("base")
     assert band.dimension == 'height'
     assert isinstance(band.source, ColumnDataSource)
     assert band.x_range_name == 'default'
@@ -260,13 +265,13 @@ def test_Band() -> None:
 
 
 def test_Label() -> None:
-    label = Label()
+    label = Label(x=11, y=12)
     assert label.level == 'annotation'
-    assert label.x is None
-    assert label.y is None
+    assert label.x == 11
+    assert label.y == 12
     assert label.x_units == 'data'
     assert label.y_units == 'data'
-    assert label.text is None
+    assert label.text == ""
     assert label.angle == 0
     assert label.angle_units == 'rad'
     assert label.x_offset == 0
@@ -305,11 +310,11 @@ def test_Label_accepts_datetime_xy() -> None:
 def test_LabelSet() -> None:
     label_set = LabelSet()
     assert label_set.level == 'annotation'
-    assert label_set.x is None
-    assert label_set.y is None
+    assert label_set.x == field("x")
+    assert label_set.y == field("y")
     assert label_set.x_units == 'data'
     assert label_set.y_units == 'data'
-    assert label_set.text == 'text'
+    assert label_set.text == field("text")
     assert label_set.angle == 0
     assert label_set.angle_units == 'rad'
     assert label_set.x_offset == 0
@@ -342,6 +347,29 @@ def test_LabelSet() -> None:
         ANGLE,
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+def test_PolyAnnotation() -> None:
+    poly = PolyAnnotation()
+    assert poly.xs == []
+    assert poly.xs_units == "data"
+    assert poly.ys == []
+    assert poly.ys_units == "data"
+    assert poly.x_range_name == "default"
+    assert poly.y_range_name == "default"
+    assert poly.level == "annotation"
+    check_line_properties(poly, "", "#cccccc", 1, 0.3)
+    check_fill_properties(poly, "", "#fff9ba", 0.4)
+    check_hatch_properties(poly)
+    check_properties_existence(poly, [
+        "visible",
+        "xs",
+        "xs_units",
+        "ys",
+        "ys_units",
+        "x_range_name",
+        "y_range_name",
+        "level",
+    ], LINE, FILL, HATCH)
 
 def test_Slope() -> None:
     slope = Slope()
@@ -389,7 +417,7 @@ def test_Span_accepts_datetime_location() -> None:
 def test_Title() -> None:
     title = Title()
     assert title.level == 'annotation'
-    assert title.text is None
+    assert title.text == ""
     assert title.vertical_align == 'bottom'
     assert title.align == 'left'
     assert title.offset == 0
@@ -408,6 +436,7 @@ def test_Title() -> None:
         "vertical_align",
         "align",
         "offset",
+        "standoff",
         "text_font",
         "text_font_size",
         "text_font_style",
@@ -424,17 +453,15 @@ def test_Title() -> None:
 def test_Whisker() -> None:
     whisker = Whisker()
     assert whisker.level == 'underlay'
-    assert whisker.lower is None
+    assert whisker.lower == field("lower")
     assert whisker.lower_units == 'data'
     assert isinstance(whisker.lower_head, ArrowHead)
     assert whisker.lower_head.size == 10
-    assert whisker.lower_head.level == 'underlay'
-    assert whisker.upper is None
+    assert whisker.upper == field("upper")
     assert whisker.upper_units == 'data'
     assert isinstance(whisker.upper_head, ArrowHead)
     assert whisker.upper_head.size == 10
-    assert whisker.upper_head.level == 'underlay'
-    assert whisker.base is None
+    assert whisker.base == field("base")
     assert whisker.dimension == 'height'
     assert isinstance(whisker.source, ColumnDataSource)
     assert whisker.x_range_name == 'default'
@@ -469,8 +496,8 @@ def test_Whisker_and_Band_accept_negative_values() -> None:
 
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()
-    gr_1 = GlyphRenderer()
-    gr_2 = GlyphRenderer()
+    gr_1 = GlyphRenderer(data_source=ColumnDataSource())
+    gr_2 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])

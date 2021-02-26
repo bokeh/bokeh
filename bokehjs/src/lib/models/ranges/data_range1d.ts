@@ -1,13 +1,14 @@
 import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
-import {GlyphRenderer} from "../renderers/glyph_renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
+import {concat} from "core/util/array"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {includes} from "core/util/array"
 import type {Plot} from "../plots/plot"
+import {compute_renderers} from "../util"
 
 export type Dim = 0 | 1
 export type Bounds = Map<Renderer, Rect>
@@ -21,8 +22,8 @@ export namespace DataRange1d {
     range_padding: p.Property<number>
     range_padding_units: p.Property<PaddingUnits>
     flipped: p.Property<boolean>
-    follow: p.Property<StartEnd>
-    follow_interval: p.Property<number>
+    follow: p.Property<StartEnd | null>
+    follow_interval: p.Property<number | null>
     default_span: p.Property<number>
     only_visible: p.Property<boolean>
 
@@ -40,29 +41,29 @@ export class DataRange1d extends DataRange {
   }
 
   static init_DataRange1d(): void {
-    this.define<DataRange1d.Props>({
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-      range_padding:       [ p.Number,       0.1       ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd                ],
-      follow_interval:     [ p.Number                  ],
-      default_span:        [ p.Number,       2         ],
-      only_visible:        [ p.Boolean,      false     ],
-    })
+    this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
+      start:               [ Number ],
+      end:                 [ Number ],
+      range_padding:       [ Number, 0.1 ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      flipped:             [ Boolean, false ],
+      follow:              [ Nullable(StartEnd), null ],
+      follow_interval:     [ Nullable(Number), null ],
+      default_span:        [ Number, 2.0 ],
+      only_visible:        [ Boolean, false ],
+    }))
 
-    this.internal({
-      scale_hint: [ p.String, 'auto' ],
-    })
+    this.internal<DataRange1d.Props>(({Enum}) => ({
+      scale_hint: [ Enum("log", "auto"), "auto" ],
+    }))
   }
 
-  protected _initial_start: number
-  protected _initial_end: number
+  protected _initial_start: number | null
+  protected _initial_end: number | null
   protected _initial_range_padding: number
   protected _initial_range_padding_units: PaddingUnits
-  protected _initial_follow: StartEnd
-  protected _initial_follow_interval: number
+  protected _initial_follow: StartEnd | null
+  protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
   protected _plot_bounds: Map<Plot, Rect>
@@ -91,27 +92,11 @@ export class DataRange1d extends DataRange {
     return Math.max(this.start, this.end)
   }
 
-  computed_renderers(): Renderer[] {
+  computed_renderers(): DataRenderer[] {
     // TODO (bev) check that renderers actually configured with this range
-    const names = this.names
-    let renderers = this.renderers
-
-    if (renderers.length == 0) {
-      for (const plot of this.plots) {
-        const rs = plot.renderers.filter((r) => r instanceof GlyphRenderer)
-        renderers = renderers.concat(rs)
-      }
-    }
-
-    if (names.length > 0)
-      renderers = renderers.filter((r) => includes(names, r.name))
-
-    logger.debug(`computed ${renderers.length} renderers for ${this}`)
-    for (const renderer of renderers) {
-      logger.trace(` - ${renderer}`)
-    }
-
-    return renderers
+    const {renderers, names} = this
+    const all_renderers = concat(this.plots.map((plot) => plot.data_renderers))
+    return compute_renderers(renderers.length == 0 ? "auto" : renderers, all_renderers, names)
   }
 
   /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
@@ -280,6 +265,12 @@ export class DataRange1d extends DataRange {
         end = this._initial_end
     }
 
+    let needs_emit = false
+    if (this.bounds == "auto") {
+      this.setv({bounds: [start, end]}, {silent: true})
+      needs_emit = true
+    }
+
     // only trigger updates when there are changes
     const [_start, _end] = [this.start, this.end]
     if (start != _start || end != _end) {
@@ -289,12 +280,11 @@ export class DataRange1d extends DataRange {
       if (end != _end)
         new_range.end = end
       this.setv(new_range)
+      needs_emit = false
     }
 
-    if (this.bounds == 'auto')
-      this.setv({bounds: [start, end]}, {silent: true})
-
-    this.change.emit()
+    if (needs_emit)
+      this.change.emit()
   }
 
   reset(): void {

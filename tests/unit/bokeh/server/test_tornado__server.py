@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -18,6 +18,8 @@ import pytest ; pytest
 import json
 import logging
 import os
+import sys
+from subprocess import run
 
 # Bokeh imports
 from _util_server import http_get, url
@@ -25,6 +27,7 @@ from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
+from bokeh.server.views.ws import WSHandler
 
 # Module under test
 import bokeh.server.tornado as tornado # isort:skip
@@ -38,6 +41,11 @@ logging.basicConfig(level=logging.DEBUG)
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@pytest.mark.skipif(sys.platform != "win32" or sys.version_info < (3, 8), reason="event loop test only for win, py>=3.8")
+def test_windows_event_loop_fixup():
+    proc = run([sys.executable, "-c", "import asyncio, sys; import bokeh.server.tornado; sys.exit(int(isinstance(asyncio.get_event_loop_policy(), asyncio.WindowsProactorEventLoopPolicy)))"'']) # noqa
+    assert proc.returncode == 0, "bokeh.server did not fixup windows event loop"
 
 def test_default_resources(ManagedServerLoop) -> None:
     application = Application()
@@ -132,6 +140,16 @@ def test_websocket_max_message_size_bytes() -> None:
     app = Application()
     t = tornado.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
     assert t.settings['websocket_max_message_size'] == 12345
+
+def test_websocket_compression_level() -> None:
+    app = Application()
+    t = tornado.BokehTornado({"/": app}, websocket_compression_level=2,
+                             websocket_compression_mem_level=3)
+    ws_rules = [rule for rule in t.wildcard_router.rules if issubclass(rule.target, WSHandler)]
+    assert len(ws_rules) == 1
+    ws_rule = ws_rules[0]
+    assert ws_rule.target_kwargs.get('compression_level') == 2
+    assert ws_rule.target_kwargs.get('mem_level') == 3
 
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()

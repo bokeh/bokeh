@@ -22,10 +22,10 @@ export class TableWidget extends Widget {
   }
 
   static init_TableWidget(): void {
-    this.define<TableWidget.Props>({
-      source: [ p.Instance ],
-      view:   [ p.Instance, () => new CDSView() ],
-    })
+    this.define<TableWidget.Props>(({Ref}) => ({
+      source: [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
+      view:   [ Ref(CDSView), () => new CDSView() ],
+    }))
   }
 
   initialize(): void {

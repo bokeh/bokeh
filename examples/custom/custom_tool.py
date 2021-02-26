@@ -67,9 +67,9 @@ export class DrawTool extends GestureTool {
   static init_DrawTool(): void {
     this.prototype.default_view = DrawToolView
 
-    this.define<DrawTool.Props>({
-      source: [ p.Instance ],
-    })
+    this.define<DrawTool.Props>(({Ref}) => ({
+      source: [ Ref(ColumnDataSource) ],
+    }))
   }
 }
 """

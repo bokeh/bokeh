@@ -4,8 +4,7 @@ import {ButtonType} from "core/enums"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
-import buttons_css from "styles/buttons.css"
+import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class ButtonGroupView extends ControlView {
   model: ButtonGroup
@@ -33,7 +32,7 @@ export abstract class ButtonGroupView extends ControlView {
 
     this._buttons = this.model.labels.map((label, i) => {
       const button = div({
-        class: [bk_btn, bk_btn_type(this.model.button_type)],
+        class: [buttons.btn, buttons[`btn_${this.model.button_type}` as const]],
         disabled: this.model.disabled,
       }, label)
       button.addEventListener("click", () => this.change_active(i))
@@ -42,7 +41,7 @@ export abstract class ButtonGroupView extends ControlView {
 
     this._update_active()
 
-    const group = div({class: bk_btn_group}, this._buttons)
+    const group = div({class: buttons.btn_group}, this._buttons)
     this.el.appendChild(group)
   }
 
@@ -71,9 +70,9 @@ export abstract class ButtonGroup extends Control {
   }
 
   static init_ButtonGroup(): void {
-    this.define<ButtonGroup.Props>({
-      labels:      [ p.Array,      []        ],
-      button_type: [ p.ButtonType, "default" ],
-    })
+    this.define<ButtonGroup.Props>(({String, Array}) => ({
+      labels:      [ Array(String), [] ],
+      button_type: [ ButtonType, "default" ],
+    }))
   }
 }

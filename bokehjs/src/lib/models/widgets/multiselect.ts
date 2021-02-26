@@ -3,12 +3,12 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
 
-  protected select_el: HTMLSelectElement
+  protected input_el: HTMLSelectElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -33,15 +33,15 @@ export class MultiSelectView extends InputWidgetView {
       return option({value}, _label)
     })
 
-    this.select_el = select({
+    this.input_el = select({
       multiple: true,
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, options)
 
-    this.select_el.addEventListener("change", () => this.change_input())
-    this.group_el.appendChild(this.select_el)
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
 
     this.render_selection()
   }
@@ -54,7 +54,7 @@ export class MultiSelectView extends InputWidgetView {
 
     // Note that some browser implementations might not reduce
     // the number of visible options for size <= 3.
-    this.select_el.size = this.model.size
+    this.input_el.size = this.model.size
   }
 
   change_input(): void {
@@ -73,7 +73,7 @@ export class MultiSelectView extends InputWidgetView {
     // focus remains on <select> and one can seamlessly scroll
     // up/down.
     if (is_focused)
-      this.select_el.focus()
+      this.input_el.focus()
   }
 }
 
@@ -100,10 +100,10 @@ export class MultiSelect extends InputWidget {
   static init_MultiSelect(): void {
     this.prototype.default_view = MultiSelectView
 
-    this.define<MultiSelect.Props>({
-      value:   [ p.Array, [] ],
-      options: [ p.Array, [] ],
-      size:    [ p.Number, 4 ], // 4 is the HTML default
-    })
+    this.define<MultiSelect.Props>(({Int, String, Array, Tuple, Or}) => ({
+      value:   [ Array(String), [] ],
+      options: [ Array(Or(String, Tuple(String, String))), [] ],
+      size:    [ Int, 4 ], // 4 is the HTML default
+    }))
   }
 }

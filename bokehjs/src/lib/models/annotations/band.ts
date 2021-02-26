@@ -1,28 +1,14 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Context2d} from "core/util/canvas"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
-import {Dimension} from "core/enums"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class BandView extends UpperLowerView {
   model: Band
   visuals: Band.Visuals
 
-  connect_signals(): void {
-    super.connect_signals()
-    const update = () => this.set_data(this.model.source)
-    this.connect(this.model.change, update)
-    this.connect(this.model.source.streaming, update)
-    this.connect(this.model.source.patching, update)
-    this.connect(this.model.source.change, update)
-  }
-
-  protected _render(): void {
-    this._map_data()
-
-    const {ctx} = this.layer
-
+  paint(ctx: Context2d): void {
     // Draw the band body
     ctx.beginPath()
     ctx.moveTo(this._lower_sx[0], this._lower_sy[0])
@@ -71,17 +57,11 @@ export class BandView extends UpperLowerView {
 export namespace Band {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UpperLower.Props & {
-    lower: p.DistanceSpec
-    upper: p.DistanceSpec
-    base: p.DistanceSpec
-    dimension: p.Property<Dimension>
-    source: p.Property<ColumnarDataSource>
-  } & Mixins
+  export type Props = UpperLower.Props & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.Line & mixins.Fill
 
-  export type Visuals = UpperLower.Visuals & {line: Line, fill: Fill}
+  export type Visuals = UpperLower.Visuals & {line: visuals.Line, fill: visuals.Fill}
 }
 
 export interface Band extends Band.Attrs {}
@@ -97,9 +77,9 @@ export class Band extends UpperLower {
   static init_Band(): void {
     this.prototype.default_view = BandView
 
-    this.mixins<Band.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<Band.Mixins>([mixins.Line, mixins.Fill])
 
-    this.override({
+    this.override<Band.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",

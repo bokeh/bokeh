@@ -3,7 +3,7 @@ import {logger} from "../core/logging"
 import {unescape, uuid4} from "../core/util/string"
 import {entries} from "core/util/object"
 import {isString} from "../core/util/types"
-import {defer} from "core/util/callback"
+import {defer} from "core/util/defer"
 import {View} from "core/view"
 
 import {DocsJson, RenderItem} from "./json"
@@ -35,7 +35,9 @@ export async function embed_item(item: JsonItem, target_id?: string): Promise<Vi
   const roots: Roots = {[item.root_id]: target_id}
   const render_item: RenderItem = {roots, root_ids: [item.root_id], docid: doc_id}
 
-  const [views] = await defer(() => _embed_items(docs_json, [render_item]))
+  await defer()
+
+  const [views] = await _embed_items(docs_json, [render_item])
   return views
 }
 
@@ -44,7 +46,8 @@ export async function embed_item(item: JsonItem, target_id?: string): Promise<Vi
 // absolute_url as well if non-relative links are needed for resources. This function
 // should probably be split in to two pieces to reflect the different usage patterns
 export async function embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
-  return await defer(() => _embed_items(docs_json, render_items, app_path, absolute_url))
+  await defer()
+  return _embed_items(docs_json, render_items, app_path, absolute_url)
 }
 
 async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<View[][]> {
@@ -70,7 +73,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
       try {
         views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
-      } catch (error) {
+      } catch (error: unknown) {
         console.log("Error rendering Bokeh items:", error)
       }
     } else

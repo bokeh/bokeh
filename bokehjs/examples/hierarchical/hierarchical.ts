@@ -1,4 +1,5 @@
-import * as Bokeh from "bokehjs"
+import Bokeh from "/static/js/bokeh.esm.js"
+import "/static/js/bokeh-api.esm.js"
 
 const {figure, show} = Bokeh.Plotting
 const {concat, zip} = Bokeh.LinAlg
@@ -22,7 +23,7 @@ export namespace Hierarchical {
   const counts = concat(zip(data["2015"], data["2016"], data["2017"])) // like an hstack
 
   const p = figure({x_range: new FactorRange({factors: x, range_padding: 0.1}),
-                    plot_height: 250, toolbar_location: null, title: "Fruit Counts by Year"})
+                    height: 250, toolbar_location: null, title: "Fruit Counts by Year"})
   p.vbar({x, top: counts, width: 0.9})
 
   p.xaxis.map((axis) => axis.major_label_orientation = 1)

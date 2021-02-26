@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -33,6 +33,7 @@ ALL = (
     'Complex',
     'Int',
     'Float',
+    'Null',
     'String',
 )
 
@@ -45,8 +46,6 @@ class Test_Bool:
     def test_valid(self) -> None:
         prop = bcpp.Bool()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
@@ -56,6 +55,7 @@ class Test_Bool:
     def test_invalid(self) -> None:
         prop = bcpp.Bool()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(0)
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
@@ -108,8 +108,6 @@ class Test_Complex:
     def test_valid(self) -> None:
         prop = bcpp.Complex()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
         assert prop.is_valid(0.0)
@@ -150,6 +148,7 @@ class Test_Complex:
     def test_invalid(self) -> None:
         prop = bcpp.Complex()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -172,8 +171,6 @@ class Test_Complex:
 class Test_Float:
     def test_valid(self) -> None:
         prop = bcpp.Float()
-
-        assert prop.is_valid(None)
 
         assert prop.is_valid(0)
         assert prop.is_valid(1)
@@ -210,6 +207,7 @@ class Test_Float:
     def test_invalid(self) -> None:
         prop = bcpp.Float()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
@@ -238,8 +236,6 @@ class Test_Int:
     def test_valid(self) -> None:
         prop = bcpp.Int()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(0)
         assert prop.is_valid(1)
 
@@ -267,6 +263,7 @@ class Test_Int:
     def test_invalid(self) -> None:
         prop = bcpp.Int()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
         assert not prop.is_valid(1.0+1.0j)
@@ -303,14 +300,13 @@ class Test_String:
     def test_valid(self) -> None:
         prop = bcpp.String()
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid("")
         assert prop.is_valid("6")
 
     def test_invalid(self) -> None:
         prop = bcpp.String()
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

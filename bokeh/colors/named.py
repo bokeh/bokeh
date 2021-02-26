@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -144,6 +144,7 @@ pink                 = NamedColor("pink",                  255,  192,  203)
 plum                 = NamedColor("plum",                  221,  160,  221)
 powderblue           = NamedColor("powderblue",            176,  224,  230)
 purple               = NamedColor("purple",                128,  0,    128)
+rebeccapurple        = NamedColor("rebeccapurple",         102,  51,   153)
 red                  = NamedColor("red",                   255,  0,    0  )
 rosybrown            = NamedColor("rosybrown",             188,  143,  143)
 royalblue            = NamedColor("royalblue",             65,   105,  225)

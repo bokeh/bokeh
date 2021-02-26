@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -28,9 +28,7 @@ def is_check(step: StepType) -> bool:
 
 
 class Pipeline:
-    """
-
-    """
+    """"""
 
     def __init__(self, steps: Sequence[StepType], config: Config, system: System):
         self._steps = steps
@@ -38,9 +36,7 @@ class Pipeline:
         self._system = system
 
     def execute(self) -> None:
-        """
-
-        """
+        """"""
         LOG.clear()
 
         for step in self._steps:

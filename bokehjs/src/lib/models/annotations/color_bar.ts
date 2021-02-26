@@ -1,446 +1,97 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {ContinuousTicker} from "../tickers/continuous_ticker"
+import {Title} from "./title"
+import {CartesianFrame} from "../canvas/cartesian_frame"
+import {Axis, LinearAxis, LogAxis, CategoricalAxis} from "../axes"
+import {Ticker} from "../tickers/ticker"
+import {BasicTicker, LogTicker, BinnedTicker, CategoricalTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
-import {BasicTicker} from "../tickers/basic_ticker"
-import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
+import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
+import {LabelingPolicy, NoOverlap} from "../policies/labeling"
+import {ColorMapper} from "../mappers/color_mapper"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper} from "../mappers"
-import {LinearScale} from "../scales/linear_scale"
-import {LinearInterpolationScale} from "../scales/linear_interpolation_scale"
-import {Scale} from "../scales/scale"
-import {LogScale} from "../scales/log_scale"
-import {Range1d} from "../ranges/range1d"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper} from "../mappers"
+import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
+import {Range, Range1d, FactorRange} from "../ranges"
 
-import {Arrayable} from "core/types"
-import {LegendLocation, Orientation} from "core/enums"
+import {Anchor, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import * as text_util from "core/util/text"
-import {min, max, range, reversed, is_empty} from "core/util/array"
-import {map} from "core/util/arrayable"
-import {isString, isArray} from "core/util/types"
+import {range, reversed} from "core/util/array"
 import {Context2d} from "core/util/canvas"
-import {Size} from "core/layout"
+import {Grid, Layoutable, SizingPolicy, Percent} from "core/layout"
+import {HStack, VStack, NodeLayout} from "core/layout/alignments"
+import {BorderLayout} from "core/layout/border"
+import {Panel} from "core/layout/side_panel"
 import {unreachable} from "core/util/assert"
+import {build_view} from "core/build_views"
+import {BBox} from "core/util/bbox"
+import {isString} from "core/util/types"
+import {SerializableState} from "core/view"
 
-const SHORT_DIM = 25
-const LONG_DIM_MIN_SCALAR = 0.3
-const LONG_DIM_MAX_SCALAR = 0.8
-
-export type Coords = [Arrayable<number>, Arrayable<number>]
-
-export type TickInfo = {
-  coords: {major: Coords, minor: Coords}
-  labels: {major: string[]}
-}
+const MINOR_DIM = 25
+const MAJOR_DIM_MIN_SCALAR = 0.3
+const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
   model: ColorBar
   visuals: ColorBar.Visuals
+  layout: Layoutable
 
-  protected image: HTMLCanvasElement
+  protected _image: HTMLCanvasElement
+
+  protected _frame: CartesianFrame
+
+  protected _axis: Axis
+  protected _axis_view: Axis["__view_type__"]
+
+  protected _title?: Title
+  protected _title_view?: Title["__view_type__"]
+
+  protected _ticker: Ticker
+  protected _formatter: TickFormatter
+
+  protected _inner_layout: BorderLayout
+
+  protected _major_range: Range
+  protected _major_scale: Scale
+  protected _minor_range: Range
+  protected _minor_scale: Scale
+
+  private _orientation: Orientation
+  get orientation(): Orientation {
+    return this._orientation
+  }
 
   initialize(): void {
     super.initialize()
-    this._set_canvas_image()
-  }
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.ticker.change, () => this.plot_view.request_render())
-    this.connect(this.model.formatter.change, () => this.plot_view.request_render())
-    if (this.model.color_mapper != null) {
-      this.connect(this.model.color_mapper.change, () => {
-        this._set_canvas_image()
-        this.plot_view.request_render()
-      })
-    }
-  }
+    const {ticker, formatter, color_mapper} = this.model
 
-  protected _get_size(): Size {
-    if (this.model.color_mapper == null)
-      return {width: 0, height: 0}
-    else {
-      const {width, height} = this.compute_legend_dimensions()
-      return {width, height}
-    }
-  }
-
-  protected _set_canvas_image(): void {
-    if (this.model.color_mapper == null)
-      return
-
-    let {palette} = this.model.color_mapper
-
-    if (this.model.orientation == 'vertical')
-      palette = reversed(palette)
-
-    let w: number, h: number
-    switch (this.model.orientation) {
-      case "vertical": {
-        [w, h] = [1, palette.length]
-        break
+    this._ticker = ticker != "auto" ? ticker : (() => {
+      switch (true) {
+        case color_mapper instanceof LogColorMapper:
+          return new LogTicker()
+        case color_mapper instanceof ScanningColorMapper:
+          return new BinnedTicker({mapper: color_mapper as ScanningColorMapper})
+        case color_mapper instanceof CategoricalColorMapper:
+          return new CategoricalTicker()
+        default:
+          return new BasicTicker()
       }
-      case "horizontal": {
-        [w, h] = [palette.length, 1]
-        break
+    })()
+
+    this._formatter = formatter != "auto" ? formatter : (() => {
+      switch (true) {
+        case this._ticker instanceof LogTicker:
+          return new LogTickFormatter()
+        case color_mapper instanceof CategoricalColorMapper:
+          return new CategoricalTickFormatter()
+        default:
+          return new BasicTickFormatter()
       }
-    }
+    })()
 
-    const canvas = document.createElement('canvas')
-    canvas.width = w
-    canvas.height = h
-    const image_ctx = canvas.getContext('2d')!
-    const image_data = image_ctx.getImageData(0, 0, w, h)
-
-    // We always want to draw the entire palette linearly, so we create a new
-    // LinearColorMapper instance and map a monotonic range of values with
-    // length = palette.length to get each palette color in order.
-    const cmap = new LinearColorMapper({palette}).rgba_mapper
-    const buf8 = cmap.v_compute(range(0, palette.length))
-    image_data.data.set(buf8)
-    image_ctx.putImageData(image_data, 0, 0)
-
-    this.image = canvas
-  }
-
-  compute_legend_dimensions(): {width: number, height: number} {
-    const image_dimensions = this._computed_image_dimensions()
-    const [image_height, image_width] = [image_dimensions.height, image_dimensions.width]
-
-    const label_extent = this._get_label_extent()
-    const title_extent = this._title_extent()
-    const tick_extent = this._tick_extent()
-    const {padding} = this.model
-
-    let legend_height: number, legend_width: number
-    switch (this.model.orientation) {
-      case "vertical":
-        legend_height = image_height + title_extent + 2*padding
-        legend_width = image_width + tick_extent + label_extent + 2*padding
-        break
-      case "horizontal":
-        legend_height = image_height + title_extent + tick_extent + label_extent + 2*padding
-        legend_width = image_width + 2*padding
-        break
-    }
-
-    return {width: legend_width, height: legend_height}
-  }
-
-  compute_legend_location(): {sx: number, sy: number} {
-    const legend_dimensions = this.compute_legend_dimensions()
-    const [legend_height, legend_width] = [legend_dimensions.height, legend_dimensions.width]
-
-    const legend_margin = this.model.margin
-
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
-    const [hr, vr] = panel.bbox.ranges
-    const {location} = this.model
-
-    let sx: number, sy: number
-    if (isString(location)) {
-      switch (location) {
-        case 'top_left':
-          sx = hr.start + legend_margin
-          sy = vr.start + legend_margin
-          break
-        case 'top_center':
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = vr.start + legend_margin
-          break
-        case 'top_right':
-          sx = hr.end - legend_margin - legend_width
-          sy = vr.start + legend_margin
-          break
-        case 'bottom_right':
-          sx = hr.end - legend_margin - legend_width
-          sy = vr.end - legend_margin - legend_height
-          break
-        case 'bottom_center':
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = vr.end - legend_margin - legend_height
-          break
-        case 'bottom_left':
-          sx = hr.start + legend_margin
-          sy = vr.end - legend_margin - legend_height
-          break
-        case 'center_left':
-          sx = hr.start + legend_margin
-          sy = (vr.end + vr.start)/2 - legend_height/2
-          break
-        case 'center':
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = (vr.end + vr.start)/2 - legend_height/2
-          break
-        case 'center_right':
-          sx = hr.end - legend_margin - legend_width
-          sy = (vr.end + vr.start)/2 - legend_height/2
-          break
-      }
-    } else if (isArray(location) && location.length == 2) {
-      const [vx, vy] = location
-      sx = panel.xview.compute(vx)
-      sy = panel.yview.compute(vy) - legend_height
-    } else
-      unreachable()
-
-    return {sx, sy}
-  }
-
-  protected _render(): void {
-    if (this.model.color_mapper == null)
-      return
-
-    const {ctx} = this.layer
-    ctx.save()
-
-    const {sx, sy} = this.compute_legend_location()
-    ctx.translate(sx, sy)
-    this._draw_bbox(ctx)
-
-    const image_offset = this._get_image_offset()
-    ctx.translate(image_offset.x, image_offset.y)
-
-    this._draw_image(ctx)
-
-    const tick_info = this.tick_info()
-    this._draw_major_ticks(ctx, tick_info)
-    this._draw_minor_ticks(ctx, tick_info)
-    this._draw_major_labels(ctx, tick_info)
-
-    if (this.model.title)
-      this._draw_title(ctx)
-
-    ctx.restore()
-  }
-
-  protected _draw_bbox(ctx: Context2d): void {
-    const bbox = this.compute_legend_dimensions()
-    ctx.save()
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fillRect(0, 0, bbox.width, bbox.height)
-    }
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.strokeRect(0, 0, bbox.width, bbox.height)
-    }
-    ctx.restore()
-  }
-
-  protected _draw_image(ctx: Context2d): void {
-    const image = this._computed_image_dimensions()
-    ctx.save()
-    ctx.setImageSmoothingEnabled(false)
-    ctx.globalAlpha = this.model.scale_alpha
-    ctx.drawImage(this.image, 0, 0, image.width, image.height)
-    if (this.visuals.bar_line.doit) {
-      this.visuals.bar_line.set_value(ctx)
-      ctx.strokeRect(0, 0, image.width, image.height)
-    }
-    ctx.restore()
-  }
-
-  protected _draw_major_ticks(ctx: Context2d, tick_info: TickInfo): void {
-    if (!this.visuals.major_tick_line.doit)
-      return
-
-    const [nx, ny] = this._normals()
-    const image = this._computed_image_dimensions()
-    const [x_offset, y_offset] = [image.width * nx, image.height * ny]
-
-    const [sx, sy] = tick_info.coords.major
-    const tin = this.model.major_tick_in
-    const tout = this.model.major_tick_out
-
-    ctx.save()
-    ctx.translate(x_offset, y_offset)
-    this.visuals.major_tick_line.set_value(ctx)
-    for (let i = 0, end = sx.length; i < end; i++) {
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i] + nx*tout), Math.round(sy[i] + ny*tout))
-      ctx.lineTo(Math.round(sx[i] - nx*tin), Math.round(sy[i] - ny*tin))
-      ctx.stroke()
-    }
-    ctx.restore()
-  }
-
-  protected _draw_minor_ticks(ctx: Context2d, tick_info: TickInfo): void {
-    if (!this.visuals.minor_tick_line.doit)
-      return
-
-    const [nx, ny] = this._normals()
-    const image = this._computed_image_dimensions()
-    const [x_offset, y_offset] = [image.width * nx, image.height * ny]
-
-    const [sx, sy] = tick_info.coords.minor
-    const tin = this.model.minor_tick_in
-    const tout = this.model.minor_tick_out
-
-    ctx.save()
-    ctx.translate(x_offset, y_offset)
-    this.visuals.minor_tick_line.set_value(ctx)
-    for (let i = 0, end = sx.length; i < end; i++) {
-      ctx.beginPath()
-      ctx.moveTo(Math.round(sx[i] + nx*tout), Math.round(sy[i] + ny*tout))
-      ctx.lineTo(Math.round(sx[i] - nx*tin), Math.round(sy[i] - ny*tin))
-      ctx.stroke()
-    }
-    ctx.restore()
-  }
-
-  protected _draw_major_labels(ctx: Context2d, tick_info: TickInfo): void {
-    if (!this.visuals.major_label_text.doit)
-      return
-
-    const [nx, ny] = this._normals()
-    const image = this._computed_image_dimensions()
-    const [x_offset, y_offset] = [image.width * nx, image.height * ny]
-    const standoff = (this.model.label_standoff + this._tick_extent())
-    const [x_standoff, y_standoff] = [standoff*nx, standoff*ny]
-
-    const [sx, sy] = tick_info.coords.major
-
-    const formatted_labels = tick_info.labels.major
-
-    this.visuals.major_label_text.set_value(ctx)
-
-    ctx.save()
-    ctx.translate(x_offset + x_standoff, y_offset + y_standoff)
-    for (let i = 0, end = sx.length; i < end; i++) {
-      ctx.fillText(
-        formatted_labels[i],
-        Math.round(sx[i] + nx*this.model.label_standoff),
-        Math.round(sy[i] + ny*this.model.label_standoff),
-      )
-    }
-    ctx.restore()
-  }
-
-  protected _draw_title(ctx: Context2d): void {
-    if (!this.visuals.title_text.doit)
-      return
-
-    ctx.save()
-    this.visuals.title_text.set_value(ctx)
-    ctx.fillText(this.model.title, 0, -this.model.title_standoff)
-    ctx.restore()
-  }
-
-  /*protected*/ _get_label_extent(): number {
-    const major_labels = this.tick_info().labels.major
-
-    let label_extent: number
-    if (!is_empty(major_labels)) {
-      const {ctx} = this.layer
-      ctx.save()
-      this.visuals.major_label_text.set_value(ctx)
-      switch (this.model.orientation) {
-        case "vertical":
-          label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)))
-          break
-        case "horizontal":
-          label_extent = text_util.measure_font(this.visuals.major_label_text.font_value()).height
-          break
-      }
-
-      label_extent += this.model.label_standoff
-      ctx.restore()
-    } else
-      label_extent = 0
-
-    return label_extent
-  }
-
-  /*protected*/ _get_image_offset(): {x: number, y: number} {
-    // Returns image offset relative to legend bounding box
-    const x = this.model.padding
-    const y = this.model.padding + this._title_extent()
-    return {x, y}
-  }
-
-  // {{{ TODO: state
-  _normals(): [number, number] {
-    return this.model.orientation == 'vertical' ? [1, 0] : [0, 1]
-  }
-
-  _title_extent(): number {
-    const font_value = this.model.title_text_font + " " + this.model.title_text_font_size + " " + this.model.title_text_font_style
-    const title_extent = this.model.title ? text_util.measure_font(font_value).height + this.model.title_standoff : 0
-    return title_extent
-  }
-
-  _tick_extent(): number {
-    return max([this.model.major_tick_out, this.model.minor_tick_out])
-  }
-
-  _computed_image_dimensions(): {height: number, width: number} {
-    /*
-    Heuristics to determine ColorBar image dimensions if set to "auto"
-
-    Note: Returns the height/width values for the ColorBar's scale image, not
-    the dimensions of the entire ColorBar.
-
-    If the short dimension (the width of a vertical bar or height of a
-    horizontal bar) is set to "auto", the resulting dimension will be set to
-    25 px.
-
-    For a ColorBar in a side panel with the long dimension (the height of a
-    vertical bar or width of a horizontal bar) set to "auto", the
-    resulting dimension will be as long as the adjacent frame edge, so that the
-    bar "fits" to the plot.
-
-    For a ColorBar in the plot frame with the long dimension set to "auto", the
-    resulting dimension will be the greater of:
-      * The length of the color palette * 25px
-      * The parallel frame dimension * 0.30
-        (i.e the frame height for a vertical ColorBar)
-    But not greater than:
-      * The parallel frame dimension * 0.80
-    */
-
-    const frame_height = this.plot_view.frame.bbox.height
-    const frame_width = this.plot_view.frame.bbox.width
-    const title_extent = this._title_extent()
-
-    let height: number, width: number
-    switch (this.model.orientation) {
-      case "vertical": {
-        if (this.model.height == 'auto') {
-          if (this.panel != null)
-            height = frame_height - 2*this.model.padding - title_extent
-          else {
-            height = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_height*LONG_DIM_MIN_SCALAR])
-            height = min([height, frame_height*LONG_DIM_MAX_SCALAR - 2*this.model.padding - title_extent])
-          }
-        } else
-          height = this.model.height
-
-        width = this.model.width == 'auto' ? SHORT_DIM : this.model.width
-        break
-      }
-      case "horizontal": {
-        height = this.model.height == 'auto' ? SHORT_DIM : this.model.height
-
-        if (this.model.width == 'auto') {
-          if (this.panel != null)
-            width = frame_width - 2*this.model.padding
-          else {
-            width = max([this.model.color_mapper.palette.length*SHORT_DIM, frame_width*LONG_DIM_MIN_SCALAR])
-            width = min([width, frame_width*LONG_DIM_MAX_SCALAR - 2*this.model.padding])
-          }
-        } else
-          width = this.model.width
-        break
-      }
-    }
-
-    return {width, height}
-  }
-
-  /*protected*/ _tick_coordinate_scale(scale_length: number): Scale {
     /*
     Creates and returns a scale instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's
@@ -450,129 +101,448 @@ export class ColorBarView extends AnnotationView {
     Note: the type of color_mapper has to match the type of scale (i.e.
     a LinearColorMapper will require a corresponding LinearScale instance).
     */
+    this._major_range = (() => {
+      if (color_mapper instanceof CategoricalColorMapper) {
+        const {factors} = color_mapper
+        return new FactorRange({factors})
+      } else if (color_mapper instanceof ContinuousColorMapper) {
+        const {min, max} = color_mapper.metrics
+        return new Range1d({start: min, end: max})
+      } else
+        unreachable()
+    })()
 
-    const ranges = {
-      source_range: new Range1d({
-        start: this.model.color_mapper.metrics.min,
-        end: this.model.color_mapper.metrics.max,
-      }),
-      target_range: new Range1d({
-        start: 0,
-        end: scale_length,
-      }),
+    this._major_scale = (() => {
+      if (color_mapper instanceof LinearColorMapper)
+        return new LinearScale()
+      else if (color_mapper instanceof LogColorMapper)
+        return new LogScale()
+      else if (color_mapper instanceof ScanningColorMapper) {
+        const {binning} = color_mapper.metrics
+        return new LinearInterpolationScale({binning})
+      } else if (color_mapper instanceof CategoricalColorMapper) {
+        return new CategoricalScale()
+      } else
+        unreachable()
+    })()
+
+    this._minor_range = new Range1d({start: 0, end: 1})
+    this._minor_scale = new LinearScale()
+
+    const major_label_text = mixins.attrs_of(this.model, "major_label_", mixins.Text, true)
+    const major_tick_line = mixins.attrs_of(this.model, "major_tick_", mixins.Line, true)
+    const minor_tick_line = mixins.attrs_of(this.model, "minor_tick_", mixins.Line, true)
+    const title_text = mixins.attrs_of(this.model, "title_", mixins.Text)
+
+    const AxisCls = (() => {
+      if (color_mapper instanceof CategoricalColorMapper)
+        return CategoricalAxis
+      else if (color_mapper instanceof LogColorMapper)
+        return LogAxis
+      else
+        return LinearAxis
+    })()
+    this._axis = new AxisCls({
+      ticker: this._ticker,
+      formatter: this._formatter,
+      major_tick_in: this.model.major_tick_in,
+      major_tick_out: this.model.major_tick_out,
+      minor_tick_in: this.model.minor_tick_in,
+      minor_tick_out: this.model.minor_tick_out,
+      major_label_standoff: this.model.label_standoff,
+      major_label_overrides: this.model.major_label_overrides,
+      major_label_policy: this.model.major_label_policy,
+      axis_line_color: null,
+      ...major_label_text,
+      ...major_tick_line,
+      ...minor_tick_line,
+    })
+
+    const {title} = this.model
+    if (title) {
+      this._title = new Title({
+        text: title,
+        standoff: this.model.title_standoff,
+        ...title_text,
+      })
+    }
+  }
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const self = this
+    const parent: any = {
+      get parent() {
+        return self.parent
+      },
+      get root() {
+        return self.root
+      },
+      get frame() {
+        return self._frame
+      },
+      get canvas_view() {
+        return self.parent.canvas_view
+      },
+      request_layout() {
+        self.parent.request_layout()
+      },
     }
 
-    const {color_mapper} = this.model
-    if (color_mapper instanceof LinearColorMapper)
-      return new LinearScale(ranges)
-    else if (color_mapper instanceof LogColorMapper)
-      return new LogScale(ranges)
-    else if (color_mapper instanceof ScanningColorMapper) {
-      const {binning} = color_mapper.metrics
-      return new LinearInterpolationScale({...ranges, binning})
+    this._axis_view = await build_view(this._axis, {parent})
+    if (this._title != null)
+      this._title_view = await build_view(this._title, {parent})
+  }
+
+  remove(): void {
+    this._title_view?.remove()
+    this._axis_view.remove()
+    super.remove()
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
+    this.connect(this._ticker.change, () => this.request_render())
+    this.connect(this._formatter.change, () => this.request_render())
+    this.connect(this.model.color_mapper.metrics_change, () => {
+      const range = this._major_range
+      const scale = this._major_scale
+
+      const {color_mapper} = this.model
+
+      if (color_mapper instanceof ContinuousColorMapper && range instanceof Range1d) {
+        const {min, max} = color_mapper.metrics
+        range.setv({start: min, end: max})
+      }
+
+      if (color_mapper instanceof ScanningColorMapper && scale instanceof LinearInterpolationScale) {
+        const {binning} = color_mapper.metrics
+        scale.binning = binning
+      }
+
+      this._set_canvas_image()
+      this.plot_view.request_layout() // this.request_render()
+    })
+  }
+
+  protected _set_canvas_image(): void {
+    const {orientation} = this
+
+    const palette = (() => {
+      const {palette} = this.model.color_mapper
+      if (orientation == "vertical")
+        return reversed(palette)
+      else
+        return palette
+    })()
+
+    const [w, h] = (() => {
+      if (orientation == "vertical")
+        return [1, palette.length]
+      else
+        return [palette.length, 1]
+    })()
+
+    const canvas = this._image = document.createElement("canvas")
+    canvas.width = w
+    canvas.height = h
+    const image_ctx = canvas.getContext("2d")!
+    const image_data = image_ctx.getImageData(0, 0, w, h)
+
+    // We always want to draw the entire palette linearly, so we create a new
+    // LinearColorMapper instance and map a monotonic range of values with
+    // length = palette.length to get each palette color in order.
+    const cmap = new LinearColorMapper({palette}).rgba_mapper
+    const buf8 = cmap.v_compute(range(0, palette.length))
+    image_data.data.set(buf8)
+    image_ctx.putImageData(image_data, 0, 0)
+  }
+
+  update_layout(): void {
+    const {location, width: w, height: h, padding, margin} = this.model
+
+    const [valign, halign] = (() => {
+      if (isString(location)) {
+        switch (location) {
+          case "top_left":
+            return ["start", "start"] as const
+          case "top":
+          case "top_center":
+            return ["start", "center"] as const
+          case "top_right":
+            return ["start", "end"] as const
+          case "bottom_left":
+            return ["end", "start"] as const
+          case "bottom":
+          case "bottom_center":
+            return ["end", "center"] as const
+          case "bottom_right":
+            return ["end", "end"] as const
+          case "left":
+          case "center_left":
+            return ["center", "start"] as const
+          case "center":
+          case "center_center":
+            return ["center", "center"] as const
+          case "right":
+          case "center_right":
+            return ["center", "end"] as const
+        }
+      } else
+        return ["end", "start"] as const // "bottom_left"
+    })()
+
+    const orientation = this._orientation = (() => {
+      const {orientation} = this.model
+      if (orientation == "auto") {
+        if (this.panel != null)
+          return this.panel.is_horizontal ? "horizontal" : "vertical"
+        else {
+          if (halign == "start" || halign == "end" || (halign == "center" && valign == "center"))
+            return "vertical"
+          else
+            return "horizontal"
+        }
+      } else
+        return orientation
+    })()
+
+    const center_panel = new NodeLayout()
+    const top_panel    = new VStack()
+    const bottom_panel = new VStack()
+    const left_panel   = new HStack()
+    const right_panel  = new HStack()
+
+    center_panel.absolute = true
+    top_panel.absolute = true
+    bottom_panel.absolute = true
+    left_panel.absolute = true
+    right_panel.absolute = true
+
+    const [x_scale, y_scale, x_range, y_range] = (() => {
+      if (orientation == "horizontal")
+        return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
+      else
+        return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
+    })()
+    this._frame = new CartesianFrame(x_scale, y_scale, x_range, y_range)
+
+    center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
+
+    const layout = new BorderLayout()
+    this._inner_layout = layout
+    layout.absolute = true
+
+    layout.center_panel = center_panel
+    layout.top_panel    = top_panel
+    layout.bottom_panel = bottom_panel
+    layout.left_panel   = left_panel
+    layout.right_panel  = right_panel
+
+    const padding_box = {left: padding, right: padding, top: padding, bottom: padding}
+    const margin_box = (() => {
+      if (this.panel == null) {
+        if (isString(location))
+          return {left: margin, right: margin, top: margin, bottom: margin}
+        else {
+          const [left, bottom] = location
+          return {left, right: margin, top: margin, bottom}
+        }
+      } else {
+        if (isString(location))
+          return undefined
+        else {
+          const [left, bottom] = location
+          return {left, right: 0, top: 0, bottom}
+        }
+      }
+    })()
+
+    layout.padding = padding_box
+
+    let major_policy: SizingPolicy
+    let major_size: number | undefined
+    let min_major_size: number | Percent | undefined
+    let max_major_size: number | Percent | undefined
+    if (this.panel != null) {
+      major_policy = "max"
+      major_size = undefined
+      min_major_size = undefined
+      max_major_size = undefined
     } else {
-      // TODO: Categorical*Mapper needs painters
-      unreachable()
-    }
-  }
-
-  protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {
-    // XXX: passing null as cross_loc probably means MercatorTickFormatters, etc
-    // will not function properly in conjunction with colorbars
-    const formatted_labels = this.model.formatter.doFormat(initial_labels, null as any)
-
-    for (let i = 0, end = major_ticks.length; i < end; i++) {
-      if (major_ticks[i] in this.model.major_label_overrides)
-        formatted_labels[i] = this.model.major_label_overrides[major_ticks[i]]
-    }
-
-    return formatted_labels
-  }
-
-  tick_info(): TickInfo {
-    const image_dimensions = this._computed_image_dimensions()
-
-    let scale_length: number
-    switch (this.model.orientation) {
-      case "vertical": {
-        scale_length = image_dimensions.height
-        break
-      }
-      case "horizontal": {
-        scale_length = image_dimensions.width
-        break
+      if ((orientation == "horizontal" ? w : h) == "auto") {
+        major_policy = "fixed"
+        major_size = this.model.color_mapper.palette.length*MINOR_DIM
+        min_major_size = {percent: MAJOR_DIM_MIN_SCALAR}
+        max_major_size = {percent: MAJOR_DIM_MAX_SCALAR}
+      } else {
+        major_policy = "fit"
+        major_size = undefined
       }
     }
 
-    const scale = this._tick_coordinate_scale(scale_length)
-    const [i, j] = this._normals()
-    const [start, end] = [this.model.color_mapper.metrics.min, this.model.color_mapper.metrics.max]
+    if (orientation == "horizontal") {
+      const width = w == "auto" ? undefined : w
+      const height = h == "auto" ? MINOR_DIM : h
 
-    // XXX: passing null as cross_loc probably means MercatorTickers, etc
-    // will not function properly in conjunction with colorbars
-    const ticks = this.model.ticker.get_ticks(start, end, null, null, this.model.ticker.desired_num_ticks)
+      layout.set_sizing({
+        width_policy: major_policy, height_policy: "min",
+        width: major_size, min_width: min_major_size, max_width: max_major_size,
+        halign, valign, margin: margin_box,
+      })
+      layout.center_panel.set_sizing({width_policy: w == "auto" ? "fit" : "fixed", height_policy: "fixed", width, height})
+    } else {
+      const width = w == "auto" ? MINOR_DIM : w
+      const height = h == "auto" ? undefined : h
 
-    const majors = ticks.major
-    const minors = ticks.minor
-
-    const major_coords: [number[], number[]] = [[], []]
-    const minor_coords: [number[], number[]] = [[], []]
-
-    for (let ii = 0, _end = majors.length; ii < _end; ii++) {
-      if (majors[ii] < start || majors[ii] > end)
-        continue
-
-      major_coords[i].push(majors[ii])
-      major_coords[j].push(0)
+      layout.set_sizing({
+        width_policy: "min", height_policy: major_policy,
+        height: major_size, min_height: min_major_size, max_height: max_major_size,
+        halign, valign, margin: margin_box,
+      })
+      layout.center_panel.set_sizing({width_policy: "fixed", height_policy: h == "auto" ? "fit" : "fixed", width, height})
     }
 
-    for (let ii = 0, _end = minors.length; ii < _end; ii++) {
-      if (minors[ii] < start || minors[ii] > end)
-        continue
+    top_panel.set_sizing({width_policy: "fit", height_policy: "min"})
+    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"})
+    left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
+    right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
-      minor_coords[i].push(minors[ii])
-      minor_coords[j].push(0)
+    const {_title_view} = this
+    if (_title_view != null) {
+      if (orientation == "horizontal") {
+        _title_view.panel = new Panel("above")
+        _title_view.update_layout()
+        top_panel.children.push(_title_view.layout)
+      } else {
+        _title_view.panel = new Panel("left")
+        _title_view.update_layout()
+        left_panel.children.push(_title_view.layout)
+      }
     }
 
-    const labels = {major: this._format_major_labels(major_coords[i], majors)}
+    const {panel} = this
+    const side = (() => {
+      if (panel != null && orientation == panel.orientation)
+        return panel.side
+      else
+        return orientation == "horizontal" ? "below" : "right"
+    })()
 
-    const coords: {major: Coords, minor: Coords} = {
-      major: [[], []],
-      minor: [[], []],
+    const stack = (() => {
+      switch (side) {
+        case "above":
+          return top_panel
+        case "below":
+          return bottom_panel
+        case "left":
+          return left_panel
+        case "right":
+          return right_panel
+      }
+    })()
+
+    const {_axis_view} = this
+    _axis_view.panel = new Panel(side)
+    _axis_view.update_layout()
+    stack.children.push(_axis_view.layout)
+
+    if (this.panel != null) {
+      const outer = new Grid([{layout, row: 0, col: 0}])
+      outer.absolute = true
+
+      if (orientation == "horizontal") {
+        outer.set_sizing({width_policy: "max", height_policy: "min"})
+      } else {
+        outer.set_sizing({width_policy: "min", height_policy: "max"})
+      }
+
+      this.layout = outer
+    } else {
+      this.layout = this._inner_layout
     }
 
-    coords.major[i] = scale.v_compute(major_coords[i])
-    coords.minor[i] = scale.v_compute(minor_coords[i])
+    const {visible} = this.model
+    this.layout.sizing.visible = visible
 
-    coords.major[j] = major_coords[j]
-    coords.minor[j] = minor_coords[j]
-
-    // Because we want the scale to be reversed
-    if (this.model.orientation == 'vertical') {
-      coords.major[i] = map(coords.major[i], (coord) => scale_length - coord)
-      coords.minor[i] = map(coords.minor[i], (coord) => scale_length - coord)
-    }
-
-    return {coords, labels}
+    this._set_canvas_image()
   }
-  // }}}
+
+  protected _render(): void {
+    const {ctx} = this.layer
+    ctx.save()
+    this._paint_bbox(ctx, this._inner_layout.bbox)
+    this._paint_image(ctx, this._inner_layout.center_panel.bbox)
+    this._title_view?.render()
+    this._axis_view.render()
+    ctx.restore()
+  }
+
+  protected _paint_bbox(ctx: Context2d, bbox: BBox): void {
+    const {x, y} = bbox
+    let {width, height} = bbox
+
+    // XXX: shrink outline region by 1px to make right and bottom lines visible
+    // if they are on the edge of the canvas.
+    if (x + width >= this.parent.canvas_view.bbox.width) {
+      width -= 1
+    }
+    if (y + height >= this.parent.canvas_view.bbox.height) {
+      height -= 1
+    }
+
+    ctx.save()
+    if (this.visuals.background_fill.doit) {
+      this.visuals.background_fill.set_value(ctx)
+      ctx.fillRect(x, y, width, height)
+    }
+    if (this.visuals.border_line.doit) {
+      this.visuals.border_line.set_value(ctx)
+      ctx.strokeRect(x, y, width, height)
+    }
+    ctx.restore()
+  }
+
+  protected _paint_image(ctx: Context2d, bbox: BBox): void {
+    const {x, y, width, height} = bbox
+    ctx.save()
+    ctx.setImageSmoothingEnabled(false)
+    ctx.globalAlpha = this.model.scale_alpha
+    ctx.drawImage(this._image, x, y, width, height)
+    if (this.visuals.bar_line.doit) {
+      this.visuals.bar_line.set_value(ctx)
+      ctx.strokeRect(x, y, width, height)
+    }
+    ctx.restore()
+  }
+
+  serializable_state(): SerializableState {
+    const {children = [], ...state} = super.serializable_state()
+    if (this._title_view != null)
+      children.push(this._title_view.serializable_state())
+    children.push(this._axis_view.serializable_state())
+    return {...state, children}
+  }
 }
 
 export namespace ColorBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    location: p.Property<LegendLocation | [number, number]>
-    orientation: p.Property<Orientation>
-    title: p.Property<string>
+    location: p.Property<Anchor | [number, number]>
+    orientation: p.Property<Orientation | "auto">
+    title: p.Property<string | null>
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
     scale_alpha: p.Property<number>
-    ticker: p.Property<ContinuousTicker>
-    formatter: p.Property<TickFormatter>
+    ticker: p.Property<Ticker | "auto">
+    formatter: p.Property<TickFormatter | "auto">
     major_label_overrides: p.Property<{[key: string]: string}>
-    color_mapper: p.Property<ContinuousColorMapper>
+    major_label_policy: p.Property<LabelingPolicy>
+    color_mapper: p.Property<ColorMapper>
     label_standoff: p.Property<number>
     margin: p.Property<number>
     padding: p.Property<number>
@@ -625,34 +595,33 @@ export class ColorBar extends Annotation {
       ["background_",  mixins.Fill],
     ])
 
-    this.define<ColorBar.Props>({
-      location:                [ p.Any,         'top_right' ],
-      orientation:             [ p.Orientation, 'vertical'  ],
-      title:                   [ p.String                   ],
-      title_standoff:          [ p.Number,      2           ],
-      width:                   [ p.Any,         'auto'      ],
-      height:                  [ p.Any,         'auto'      ],
-      scale_alpha:             [ p.Number,      1.0         ],
-      ticker:                  [ p.Instance,    () => new BasicTicker()        ],
-      formatter:               [ p.Instance,    () => new BasicTickFormatter() ],
-      major_label_overrides:   [ p.Any,         {}          ],
-      color_mapper:            [ p.Instance                 ],
-      label_standoff:          [ p.Number,      5           ],
-      margin:                  [ p.Number,      30          ],
-      padding:                 [ p.Number,      10          ],
-      major_tick_in:           [ p.Number,      5           ],
-      major_tick_out:          [ p.Number,      0           ],
-      minor_tick_in:           [ p.Number,      0           ],
-      minor_tick_out:          [ p.Number,      0           ],
-    })
+    this.define<ColorBar.Props>(({Alpha, Number, String, Tuple, Dict, Or, Ref, Auto, Nullable}) => ({
+      location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
+      orientation:           [ Or(Orientation, Auto), "auto" ],
+      title:                 [ Nullable(String), null ],
+      title_standoff:        [ Number, 2 ],
+      width:                 [ Or(Number, Auto), "auto" ],
+      height:                [ Or(Number, Auto), "auto" ],
+      scale_alpha:           [ Alpha, 1.0 ],
+      ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
+      formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
+      major_label_overrides: [ Dict(String), {} ],
+      major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
+      color_mapper:          [ Ref(ColorMapper) ],
+      label_standoff:        [ Number, 5 ],
+      margin:                [ Number, 30 ],
+      padding:               [ Number, 10 ],
+      major_tick_in:         [ Number, 5 ],
+      major_tick_out:        [ Number, 0 ],
+      minor_tick_in:         [ Number, 0 ],
+      minor_tick_out:        [ Number, 0 ],
+    }))
 
-    this.override({
+    this.override<ColorBar.Props>({
       background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
       bar_line_color: null,
       border_line_color: null,
-      major_label_text_align: "center",
-      major_label_text_baseline: "middle",
       major_label_text_font_size: "11px",
       major_tick_line_color: "#ffffff",
       minor_tick_line_color: null,

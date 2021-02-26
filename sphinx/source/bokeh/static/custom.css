@@ -38,16 +38,14 @@ html {
 }
 
 .bd-search {
-    position: relative;
-    padding: 1rem 15px;
-    margin-right: -15px;
-    margin-left: -15px;
-    border-bottom: 1px solid rgba(0,0,0,.05);
+  position: relative;
+  padding-bottom: 20px;
 }
 
-.search-front-page {
-    margin: 0 auto;
+@media (min-width: 768px) {
+  .search-front-page {
     width: 50%;
+  }
 }
 
 /* minimal copy paste from bootstrap docs css to get sidebars working */
@@ -301,14 +299,14 @@ body { font-family: "Lato", sans-serif; }
 .btn-primary { filter: brightness(90%); background-color: #C02942; border-color: #C02942; }
 .btn-primary:hover { filter: brightness(100%); background-color: #C02942; border-color: #C02942; }
 
-a { color: #D95B43; }
+a { color: #CF462A; }
 
 h1 { font-family: "Work Sans", sans-serif; }
 h2 { font-family: "Work Sans", sans-serif; }
 h3 { font-family: "Work Sans", sans-serif; }
 h4 { font-family: "Work Sans", sans-serif; }
 
-.link { color: #D95B43; }
+.link { color: #CF462A; }
 
 .links { background-color: #542437; color: #fff; font-family: "Lato", sans-serif; }
 .links h6 { font-family: "Work Sans", sans-serif; font-weight: 700; font-size: 14px; }
@@ -324,7 +322,7 @@ h4 { font-family: "Work Sans", sans-serif; }
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    color: #D95B43;
+    color: #CF462A;
     cursor: pointer;
     display: block;
     font-size: 1em;
@@ -363,7 +361,7 @@ h4 { font-family: "Work Sans", sans-serif; }
 }
 
 #banner .version-alert {
-  background-color: #D95B43;
+  background-color: #CF462A;
   padding: 1em;
   color: #fff;
   font-family: "Work Sans", sans-serif;
@@ -392,7 +390,11 @@ div.bk-root {
 }
 
 code {
-  color: #D95B43;
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, "Lucida Console", Courier, monospace;
+  color: rgb(33, 37, 41);
+  padding: 2px 3px 0px 3px;
+  font-size: 80%;
+  background-color:#eef0f1;
 }
 
 a.headerlink {
@@ -414,4 +416,71 @@ a.nav-external:after {
 
 span.highlighted {
   background-color: #ECD078;
+}
+
+/* Custom styles for documentation landing page (index.rst) and other pages
+using sphinx_panels */
+
+.bokeh-examples {
+  padding: 0px;
+}
+
+.bokeh-examples img {
+  width: 100%;
+  height: 100%;
+}
+
+.bg-bokeh-one {
+  background-color: rgba(246,169,27,0.3);
+}
+
+.bg-bokeh-two {
+  background-color: rgba(165,205,57,0.3);
+}
+
+.bg-bokeh-three {
+  background-color: rgba(0,170,174,0.3);
+}
+
+.bg-bokeh-four {
+  background-color: rgba(240,82,35,0.3);
+}
+
+.bg-bokeh-five {
+  background-color: rgba(138,40,137,0.3);
+}
+
+.bg-bokeh-six {
+  background-color: rgba(32,178,84,0.3);
+}
+
+.bg-bokeh-seven {
+  background-color: rgba(236,21,87,0.3);
+}
+
+.card-header p {
+  font-weight: 600;
+  font-size: 125%;
+}
+
+.card-text a {
+  font-weight: 600;
+}
+
+@media (max-width: 575px) {
+  .examples-container .d-flex {
+    width: 25%;
+  }
+}
+
+/* customize highlight color for sphinx code blocks */
+.highlight .hll {
+  background-color: rgba(246,169,27,0.3);
+}
+
+/* image style for styling.rst examples */
+
+.theme-examples img {
+  border: 2px solid #eeeeee;
+  margin-bottom: 3px;
 }

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -13,6 +13,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Annulus`
 * :class:`~bokeh.models.glyphs.Arc`
 * :class:`~bokeh.models.glyphs.Bezier`
+* :class:`~bokeh.models.glyphs.Circle`
 * :class:`~bokeh.models.glyphs.Ellipse`
 * :class:`~bokeh.models.glyphs.HArea`
 * :class:`~bokeh.models.glyphs.HBar`
@@ -30,6 +31,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Quadratic`
 * :class:`~bokeh.models.glyphs.Ray`
 * :class:`~bokeh.models.glyphs.Rect`
+* :class:`~bokeh.models.glyphs.Scatter`
 * :class:`~bokeh.models.glyphs.Segment`
 * :class:`~bokeh.models.glyphs.Step`
 * :class:`~bokeh.models.glyphs.Text`
@@ -56,7 +58,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Anchor, Direction, StepMode
+from ..core.enums import Anchor, Direction, StepMode, enumeration
+from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
@@ -66,8 +69,12 @@ from ..core.properties import (
     Include,
     Instance,
     Int,
+    MarkerSpec,
+    NullDistanceSpec,
     NumberSpec,
     Override,
+    ScreenDistanceSpec,
+    Size,
     String,
     StringSpec,
 )
@@ -112,6 +119,7 @@ __all__ = (
     'ImageRGBA',
     'ImageURL',
     'Line',
+    'Marker',
     'MultiLine',
     'MultiPolygons',
     'Oval',
@@ -134,15 +142,64 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
+@abstract
+class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
+    ''' Base class for glyphs that are simple markers with line and
+    fill properties, located at an (x, y) location with a specified
+    size.
+
+    .. note::
+        For simplicity, all markers have both line and fill properties
+        declared, however some marker types (`asterisk`, `cross`, `x`)
+        only draw lines. For these markers, the fill values are simply
+        ignored.
+
+    '''
+
+    _args = ('x', 'y', 'size', 'angle')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-axis coordinates for the center of the markers.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-axis coordinates for the center of the markers.
+    """)
+
+    hit_dilation = Size(default=1.0, help="""
+    The factor by which to dilate the hit radius
+    which is responsible for defining the range in which a
+    marker responds to interactions with the Hover and Tap
+    tools.
+    """)
+
+    size = ScreenDistanceSpec(default=4, help="""
+    The size (diameter) values for the markers in screen space units.
+    """)
+
+    angle = AngleSpec(default=0.0, help="""
+    The angles to rotate the markers.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the markers.
+    """)
+
+class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annular wedges.
 
     '''
 
     __example__ = "examples/reference/models/AnnularWedge.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
@@ -153,19 +210,19 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the center of the annular wedges.
     """)
 
-    inner_radius = DistanceSpec(help="""
+    inner_radius = DistanceSpec(default=field("inner_radius"), help="""
     The inner radii of the annular wedges.
     """)
 
-    outer_radius = DistanceSpec(help="""
+    outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annular wedges.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the annular wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the annular wedges, as measured from the horizontal.
     """)
 
@@ -181,15 +238,17 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the annular wedges.
     """)
 
-class Annulus(XYGlyph, LineGlyph, FillGlyph):
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the annular wedges.
+    """)
+
+class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annuli.
 
     '''
 
     __example__ = "examples/reference/models/Annulus.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'inner_radius', 'outer_radius')
 
     x = NumberSpec(default=field("x"), help="""
@@ -200,11 +259,11 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the center of the annuli.
     """)
 
-    inner_radius = DistanceSpec(help="""
+    inner_radius = DistanceSpec(default=field("inner_radius"), help="""
     The inner radii of the annuli.
     """)
 
-    outer_radius = DistanceSpec(help="""
+    outer_radius = DistanceSpec(default=field("outer_radius"), help="""
     The outer radii of the annuli.
     """)
 
@@ -216,6 +275,10 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the annuli.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the annuli.
+    """)
+
 class Arc(XYGlyph, LineGlyph):
     ''' Render arcs.
 
@@ -223,8 +286,6 @@ class Arc(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Arc.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
@@ -235,15 +296,15 @@ class Arc(XYGlyph, LineGlyph):
     The y-coordinates of the center of the arcs.
     """)
 
-    radius = DistanceSpec(help="""
+    radius = DistanceSpec(default=field("radius"), help="""
     Radius of the arc.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the arcs, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the arcs, as measured from the horizontal.
     """)
 
@@ -266,8 +327,6 @@ class Bezier(LineGlyph):
 
     __example__ = "examples/reference/models/Bezier.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1")
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -306,15 +365,50 @@ class Bezier(LineGlyph):
     The %s values for the Bezier curves.
     """)
 
-class Ellipse(XYGlyph, LineGlyph, FillGlyph):
+class Circle(Marker):
+    ''' Render circle markers. '''
+
+    __example__ = "examples/reference/models/Circle.py"
+
+    _args = ('x', 'y')
+
+    radius = NullDistanceSpec(help="""
+    The radius values for circle markers (in "data space" units, by default).
+
+    .. note::
+        Circle markers are slightly unusual in that they support specifying
+        a radius in addition to a size. Only one of ``radius`` or ``size``
+        should be given.
+
+    .. warning::
+        Note that ``Circle`` glyphs are always drawn as circles on the screen,
+        even in cases where the data space aspect ratio is not 1-1. In all
+        cases where radius values are specified, the "distance" for the radius
+        is measured along the dimension specified by ``radius_dimension``. If
+        the aspect ratio is very large or small, the drawn circles may appear
+        much larger or smaller than expected. See :bokeh-issue:`626` for more
+        information.
+
+    """)
+
+    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
+    What dimension to measure circle radii along.
+
+    When the data space aspect ratio is not 1-1, then the size of the drawn
+    circles depends on what direction is used to measure the "distance" of
+    the radius. This property allows that direction to be controlled.
+
+    Setting this dimension to 'max' will calculate the radius on both the x
+    and y dimensions and use the maximum of the two, 'min' selects the minimum.
+    """)
+
+class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render ellipses.
 
     '''
 
     __example__ = "examples/reference/models/Ellipse.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -325,11 +419,11 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the centers of the ellipses.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The widths of each ellipse.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The heights of each ellipse.
     """)
 
@@ -338,14 +432,18 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    The %s values for the ellipses.
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    The %s values for the ellipses.
     """)
 
-class HArea(FillGlyph, HatchGlyph, LineGlyph):
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the ellipses.
+    """)
+
+class HArea(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a horizontally directed area between two equal length sequences
     of x-coordinates with the same y-coordinates.
 
@@ -353,8 +451,6 @@ class HArea(FillGlyph, HatchGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/HArea.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x1', 'x2', 'y')
 
     x1 = NumberSpec(default=field("x1"), help="""
@@ -374,7 +470,7 @@ class HArea(FillGlyph, HatchGlyph, LineGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the horizontal directed area.
     """)
 
 class HBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -385,15 +481,13 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/HBar.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('y', 'height', 'right', 'left')
 
     y = NumberSpec(default=field("y"), help="""
     The y-coordinates of the centers of the horizontal bars.
     """)
 
-    height = NumberSpec(help="""
+    height = NumberSpec(default=1, help="""
     The heights of the vertical bars.
     """)
 
@@ -401,7 +495,7 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The x-coordinates of the left edges.
     """)
 
-    right = NumberSpec(help="""
+    right = NumberSpec(default=field("right"), help="""
     The x-coordinates of the right edges.
     """)
 
@@ -417,15 +511,13 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the horizontal bars.
     """)
 
-class HexTile(LineGlyph, FillGlyph):
+class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     ''' Render horizontal tiles on a regular hexagonal grid.
 
     '''
 
     __example__ = "examples/reference/models/HexTile.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('q', 'r')
 
     size = Float(1.0, help="""
@@ -443,11 +535,11 @@ class HexTile(LineGlyph, FillGlyph):
 
     """)
 
-    r = NumberSpec(help="""
+    r = NumberSpec(default=field("r"), help="""
     The "row" axial coordinates of the tile centers.
     """)
 
-    q = NumberSpec(help="""
+    q = NumberSpec(default=field("q"), help="""
     The "column" axial coordinates of the tile centers.
     """)
 
@@ -460,15 +552,18 @@ class HexTile(LineGlyph, FillGlyph):
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the hex tiles.
     """)
 
     line_color = Override(default=None)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the hex tiles.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the hex tiles.
+    """)
 
 class Image(XYGlyph):
     ''' Render images given as scalar data together with a color mapper.
@@ -496,8 +591,6 @@ class Image(XYGlyph):
 
         super().__init__(**kwargs)
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
     # a hook to specify any additional kwargs handled by an initializer
@@ -508,7 +601,7 @@ class Image(XYGlyph):
         )
     }
 
-    image = NumberSpec(help="""
+    image = NumberSpec(default=field("image"), help="""
     The arrays of scalar data for the images to be colormapped.
     """)
 
@@ -520,7 +613,7 @@ class Image(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec(help="""
+    dw = DistanceSpec(default=field("dw"), help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -528,7 +621,7 @@ class Image(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec(help="""
+    dh = DistanceSpec(default=field("dh"), help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -549,7 +642,7 @@ class Image(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    color_mapper = Instance(ColorMapper, help="""
+    color_mapper = Instance(ColorMapper, lambda: LinearColorMapper(palette="Greys9"), help="""
     A ``ColorMapper`` to use to map the scalar data from ``image``
     into RGBA values for display.
 
@@ -565,11 +658,9 @@ class ImageRGBA(XYGlyph):
 
     '''
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
 
-    image = NumberSpec(help="""
+    image = NumberSpec(default=field("image"), help="""
     The arrays of RGBA data for the images.
     """)
 
@@ -581,7 +672,7 @@ class ImageRGBA(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    dw = DistanceSpec(help="""
+    dw = DistanceSpec(default=field("dw"), help="""
     The widths of the plot regions that the images will occupy.
 
     .. note::
@@ -589,7 +680,7 @@ class ImageRGBA(XYGlyph):
         That number is fixed by the image itself.
     """)
 
-    dh = DistanceSpec(help="""
+    dh = DistanceSpec(default=field("dh"), help="""
     The height of the plot region that the image will occupy.
 
     .. note::
@@ -620,11 +711,9 @@ class ImageURL(XYGlyph):
 
     __example__ = "examples/reference/models/ImageURL.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'dilate')
 
-    url = StringSpec(default=None, help="""
+    url = StringSpec(default=field("url"), help="""
     The URLs to retrieve images from.
 
     .. note::
@@ -640,14 +729,14 @@ class ImageURL(XYGlyph):
     The y-coordinates to locate the image anchors.
     """)
 
-    w = DistanceSpec(default=None, help="""
+    w = NullDistanceSpec(help="""
     The width of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
     at its actual image size (regardless of the units specified here).
     """)
 
-    h = DistanceSpec(default=None, help="""
+    h = NullDistanceSpec(help="""
     The height of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
@@ -693,8 +782,6 @@ class Line(ConnectedXYGlyph, LineGlyph):
     of values only produces one glyph on the Plot.
 
     '''
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     __example__ = "examples/reference/models/Line.py"
@@ -721,8 +808,6 @@ class MultiLine(LineGlyph):
 
     __example__ = "examples/reference/models/MultiLine.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -751,8 +836,6 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/MultiPolygons.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -782,10 +865,10 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the patches.
+    The %s values for the multipolygons.
     """)
 
-class Oval(XYGlyph, LineGlyph, FillGlyph):
+class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render ovals.
 
     This glyph renders ovals using Bezier curves, which are similar,
@@ -800,8 +883,6 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
 
     __example__ = "examples/reference/models/Oval.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -812,11 +893,11 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the centers of the ovals.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The overall widths of each oval.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The overall height of each oval.
     """)
 
@@ -832,6 +913,10 @@ class Oval(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the ovals.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the ovals.
+    """)
+
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render a single patch.
 
@@ -842,8 +927,6 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Patch.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     x = NumberSpec(default=field("x"), help="""
@@ -889,8 +972,6 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Patches.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('xs', 'ys')
 
     xs = NumberSpec(default=field("xs"), help="""
@@ -930,23 +1011,21 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/Quad.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('left', 'right', 'top', 'bottom')
 
-    left = NumberSpec(help="""
+    left = NumberSpec(default=field("left"), help="""
     The x-coordinates of the left edges.
     """)
 
-    right = NumberSpec(help="""
+    right = NumberSpec(default=field("right"), help="""
     The x-coordinates of the right edges.
     """)
 
-    bottom = NumberSpec(help="""
+    bottom = NumberSpec(default=field("bottom"), help="""
     The y-coordinates of the bottom edges.
     """)
 
-    top = NumberSpec(help="""
+    top = NumberSpec(default=field("top"), help="""
     The y-coordinates of the top edges.
     """)
 
@@ -959,7 +1038,7 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the quads.
     """)
 
 class Quadratic(LineGlyph):
@@ -969,8 +1048,6 @@ class Quadratic(LineGlyph):
 
     __example__ = "examples/reference/models/Quadratic.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ("x0", "y0", "x1", "y1", "cx", "cy")
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -1008,8 +1085,6 @@ class Ray(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Ray.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'length', 'angle')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1020,11 +1095,11 @@ class Ray(XYGlyph, LineGlyph):
     The y-coordinates to start the rays.
     """)
 
-    angle = AngleSpec(help="""
+    angle = AngleSpec(default=0, help="""
     The angles in radians to extend the rays, as measured from the horizontal.
     """)
 
-    length = DistanceSpec(help="""
+    length = DistanceSpec(default=0, help="""
     The length to extend the ray. Note that this ``length`` defaults
     to data units (measured in the x-direction).
     """)
@@ -1033,15 +1108,13 @@ class Ray(XYGlyph, LineGlyph):
     The %s values for the rays.
     """)
 
-class Rect(XYGlyph, LineGlyph, FillGlyph):
+class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render rectangles.
 
     '''
 
     __example__ = "examples/reference/models/Rect.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'width', 'height', 'angle', 'dilate')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1052,11 +1125,11 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the centers of the rectangles.
     """)
 
-    width = DistanceSpec(help="""
+    width = DistanceSpec(default=field("width"), help="""
     The overall widths of the rectangles.
     """)
 
-    height = DistanceSpec(help="""
+    height = DistanceSpec(default=field("height"), help="""
     The overall heights of the rectangles.
     """)
 
@@ -1081,6 +1154,69 @@ class Rect(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the rectangles.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the rectangles.
+    """)
+
+class Scatter(Marker):
+    ''' Render scatter markers selected from a predefined list of designs.
+
+    Use ``Scatter`` to draw any of Bokeh's built-in marker types:
+    ``asterisk``, ``circle``, ``circle_cross``, ``circle_dot``, ``circle_x``,
+    ``circle_y``, ``cross``, ``dash``, ``diamond``, ``diamond_cross``,
+    ``diamond_dot``, ``dot``, ``hex``, ``hex_dot``, ``inverted_triangle``,
+    ``plus``, ``square``, ``square_cross``, ``square_dot``, ``square_pin``,
+    ``square_x``, ``star``, ``star_dot``, ``triangle``, ``triangle_dot``,
+    ``triangle_pin``, ``x``, or ``y``. This collection is available in
+    :class:`~bokeh.core.enums.MarkerType`.
+
+    Bokeh's built-in markers consist of a set of base markers, most of which can
+    be combined with different kinds of additional visual features:
+
+    .. bokeh-plot:: docs/user_guide/examples/plotting_markertypes.py
+        :source-position: none
+
+    You can select marker types in two ways:
+
+    * To draw the **same marker for all values**, use the ``marker`` attribute
+      to specify the name of a specific marker. For example:
+
+      .. code-block:: python
+
+          glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+          plot.add_glyph(source, glyph)
+
+      This will render square markers for all points.
+
+    * Alternatively, to use **marker types specified in a data source column**,
+      assign the column name to the ``marker`` attribute. For example:
+
+      .. code-block:: python
+
+          # source.data['markers'] = ["circle", "square", "circle", ... ]
+
+          glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+          plot.add_glyph(source, glyph)
+
+    .. note::
+        When you draw ``circle`` markers with ``Scatter``, you can only assign a
+        size in :ref:`screen units <userguide_styling_units>` (by passing a
+        number of pixels to the ``size`` argument). In case you want to define
+        the radius of circles in :ref:`data units <userguide_styling_units>`,
+        use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
+        ``Scatter`` glyph.
+
+    '''
+
+    __example__ = "examples/reference/models/Scatter.py"
+
+    _args = ('x', 'y', 'size', 'angle', 'marker')
+
+    marker = MarkerSpec(default="circle", help="""
+    Which marker to render. This can be the name of any built in marker,
+    e.g. "circle", or a reference to a data column containing such names.
+    """)
+
 class Segment(LineGlyph):
     ''' Render segments.
 
@@ -1088,8 +1224,6 @@ class Segment(LineGlyph):
 
     __example__ = "examples/reference/models/Segment.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x0', 'y0', 'x1', 'y1')
 
     x0 = NumberSpec(default=field("x0"), help="""
@@ -1125,8 +1259,6 @@ class Step(XYGlyph, LineGlyph):
 
     __example__ = "examples/reference/models/Step.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1137,7 +1269,7 @@ class Step(XYGlyph, LineGlyph):
     The y-coordinates for the steps.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the steps.
     """)
 
@@ -1157,8 +1289,6 @@ class Text(XYGlyph, TextGlyph):
 
     __example__ = "examples/reference/models/Text.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'text', 'angle', 'x_offset', 'y_offset')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1203,8 +1333,6 @@ class VArea(FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/VArea.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y1', 'y2')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1220,11 +1348,11 @@ class VArea(FillGlyph, HatchGlyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the vertical directed area
+    The %s values for the vertical directed area.
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    The %s values for the vertical directed area.
     """)
 
 class VBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -1234,15 +1362,13 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
 
     __example__ = "examples/reference/models/VBar.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'width', 'top', 'bottom')
 
     x = NumberSpec(default=field("x"), help="""
     The x-coordinates of the centers of the vertical bars.
     """)
 
-    width = NumberSpec(help="""
+    width = NumberSpec(default=1, help="""
     The widths of the vertical bars.
     """)
 
@@ -1250,7 +1376,7 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the bottom edges.
     """)
 
-    top = NumberSpec(help="""
+    top = NumberSpec(default=field("top"), help="""
     The y-coordinates of the top edges.
     """)
 
@@ -1266,15 +1392,13 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The %s values for the vertical bars.
     """)
 
-class Wedge(XYGlyph, LineGlyph, FillGlyph):
+class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render wedges.
 
     '''
 
     __example__ = "examples/reference/models/Wedge.py"
 
-    # a canonical order for positional args that can be used for any
-    # functions derived from this class
     _args = ('x', 'y', 'radius', 'start_angle', 'end_angle', 'direction')
 
     x = NumberSpec(default=field("x"), help="""
@@ -1285,15 +1409,15 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
     The y-coordinates of the points of the wedges.
     """)
 
-    radius = DistanceSpec(help="""
+    radius = DistanceSpec(default=field("radius"), help="""
     Radii of the wedges.
     """)
 
-    start_angle = AngleSpec(help="""
+    start_angle = AngleSpec(default=field("start_angle"), help="""
     The angles to start the wedges, as measured from the horizontal.
     """)
 
-    end_angle = AngleSpec(help="""
+    end_angle = AngleSpec(default=field("end_angle"), help="""
     The angles to end the wedges, as measured from the horizontal.
     """)
 
@@ -1309,6 +1433,10 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
     The %s values for the wedges.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the wedges.
+    """)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -1320,11 +1448,3 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-# XXX: allow `from bokeh.models.glyphs import *
-from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross, # isort:skip
-                      Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)   # isort:skip
-
-# Fool pyflakes
-(Asterisk, Circle, CircleCross, CircleX, Cross, Dash, Diamond, DiamondCross,
-Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)

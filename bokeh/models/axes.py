@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -28,10 +28,13 @@ from ..core.properties import (
     Dict,
     Either,
     Enum,
+    Factor,
     Float,
     Include,
     Instance,
     Int,
+    Null,
+    Nullable,
     Override,
     Seq,
     String,
@@ -46,6 +49,7 @@ from .formatters import (
     MercatorTickFormatter,
     TickFormatter,
 )
+from .labeling import AllLabels, LabelingPolicy
 from .renderers import GuideRenderer
 from .tickers import (
     BasicTicker,
@@ -117,7 +121,7 @@ class Axis(GuideRenderer):
     of ticks.
     """)
 
-    axis_label = String(default='', help="""
+    axis_label = Nullable(String, default="", help="""
     A text label for the axis, displayed parallel to the axis rule.
 
     .. note::
@@ -152,6 +156,10 @@ class Axis(GuideRenderer):
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
+    """)
+
+    major_label_policy = Instance(LabelingPolicy, default=lambda: AllLabels(), help="""
+    Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
     major_label_props = Include(ScalarTextProps, help="""
@@ -196,7 +204,7 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    fixed_location = Either(Float, String, Tuple(String, String), Tuple(String, String, String), default=None, help="""
+    fixed_location = Either(Null, Float, Factor, help="""
     Set to specify a fixed coordinate location to draw the axis. The direction
     of ticks and major labels is determined by the side panel that the axis
     belongs to.

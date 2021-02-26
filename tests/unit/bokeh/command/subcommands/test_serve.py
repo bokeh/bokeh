@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -320,6 +320,22 @@ def test_args() -> None:
             help    = "Set the Tornado websocket_max_message_size value "
                       "(default: 20MB)",
             default = 20*1024*1024,
+            type    = int,
+        )),
+
+        ('--websocket-compression-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression_level",
+            default = None,
+            type    = int,
+        )),
+
+        ('--websocket-compression-mem-level', dict(
+            metavar = 'LEVEL',
+            action  = 'store',
+            help    = "Set the Tornado WebSocket compression mem_level",
+            default = None,
             type    = int,
         )),
 

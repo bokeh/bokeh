@@ -1,13 +1,10 @@
 from math import pi
 
-from bokeh.document import Document
-from bokeh.embed import file_html
-from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,
-                          RedoTool, ResetTool, UndoTool, WheelZoomTool,)
-from bokeh.resources import INLINE
-from bokeh.util.browser import view
-from gear import Gear
+from bokeh.plotting import figure
+from bokeh.layouts import column
+from bokeh.io import show
 
+from gear import Gear
 
 def pitch_radius(module, teeth):
     return float(module*teeth)/2
@@ -18,12 +15,15 @@ def half_tooth(teeth):
 line_color = '#606060'
 fill_color = ['#ddd0dd', '#d0d0e8', '#ddddd0']
 
-def sample_gear():
-    xdr = Range1d(start=-30, end=30)
-    ydr = Range1d(start=-30, end=30)
+tools = "pan, wheel_zoom, box_zoom, undo, redo, reset"
 
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
-    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
+def individual_gear():
+    plot = figure(
+        x_range=(-30, 30), y_range=(-30, 30),
+        x_axis_type=None, y_axis_type=None,
+        width=800, height=800,
+        tools=tools,
+    )
 
     glyph = Gear(x=0, y=0, module=5, teeth=8, angle=0, shaft_size=0.2, fill_color=fill_color[2], line_color=line_color)
     plot.add_glyph(glyph)
@@ -31,11 +31,12 @@ def sample_gear():
     return plot
 
 def classical_gear(module, large_teeth, small_teeth):
-    xdr = Range1d(start=-300, end=150)
-    ydr = Range1d(start=-100, end=100)
-
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
-    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
+    plot = figure(
+        x_range=(-300, 150), y_range=(-100, 100),
+        x_axis_type=None, y_axis_type=None,
+        width=800, height=800,
+        tools=tools,
+    )
 
     radius = pitch_radius(module, large_teeth)
     angle = 0
@@ -58,11 +59,12 @@ def classical_gear(module, large_teeth, small_teeth):
     return plot
 
 def epicyclic_gear(module, sun_teeth, planet_teeth):
-    xdr = Range1d(start=-150, end=150)
-    ydr = Range1d(start=-150, end=150)
-
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
-    plot.add_tools(PanTool(), WheelZoomTool(), BoxZoomTool(), UndoTool(), RedoTool(), ResetTool())
+    plot = figure(
+        x_range=(-150, 150), y_range=(-150, 150),
+        x_axis_type=None, y_axis_type=None,
+        width=800, height=800,
+        tools=tools,
+    )
 
     annulus_teeth = sun_teeth + 2*planet_teeth
 
@@ -96,19 +98,8 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
 
     return plot
 
-doc = Document()
-doc.add_root(sample_gear())
+individual = individual_gear()
+classical  = classical_gear(5, 52, 24)
+epicyclic  = epicyclic_gear(5, 24, 12)
 
-classical = classical_gear(5, 52, 24)
-epicyclic = epicyclic_gear(5, 24, 12)
-
-doc.add_root(classical)
-doc.add_root(epicyclic)
-
-if __name__ == "__main__":
-    doc.validate()
-    filename = "gears.html"
-    with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Gears"))
-    print("Wrote %s" % filename)
-    view(filename)
+show(column(individual, classical, epicyclic))

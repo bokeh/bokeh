@@ -1,10 +1,19 @@
+import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
+import {color2css} from "core/util/color"
 import {GMapPlot} from "./gmap_plot"
-import {PlotView, RangeInfo} from "./plot_canvas"
+import {PlotView} from "./plot_canvas"
 import {FrameBox} from "../canvas/canvas"
+import {RangeInfo, RangeOptions} from "./range_manager"
+
+type GMapRangeInfo = RangeInfo & {
+  sdx?: number
+  sdy?: number
+  factor?: number
+}
 
 declare global {
   interface Window {
@@ -14,12 +23,13 @@ declare global {
 
 const gmaps_ready = new Signal0({}, "gmaps_ready")
 
-const load_google_api = function(api_key: string): void {
+const load_google_api = function(api_key: string, api_version: string): void {
   window._bokeh_gmaps_callback = () => gmaps_ready.emit()
 
+  const enc = encodeURIComponent
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = `https://maps.googleapis.com/maps/api/js?v=3.36&key=${api_key}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
 
@@ -51,12 +61,17 @@ export class GMapPlotView extends PlotView {
     this.initial_lat = lat
     this.initial_lng = lng
 
+    if (!this.model.api_key) {
+      const url = "https://developers.google.com/maps/documentation/javascript/get-api-key"
+      logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
+    }
+
     if (typeof google === "undefined" || google.maps == null) {
       if (typeof window._bokeh_gmaps_callback === "undefined") {
-        const decoded_api_key = atob(this.model.api_key)
-        load_google_api(decoded_api_key)
+        const {api_key, api_version} = this.model
+        load_google_api(api_key, api_version)
       }
-      gmaps_ready.connect(() => this.request_render())
+      gmaps_ready.connect(() => this.request_paint("everything"))
     }
 
     this.unpause()
@@ -67,21 +82,20 @@ export class GMapPlotView extends PlotView {
     super.remove()
   }
 
-  update_range(range_info: RangeInfo & {sdx?: number, sdy?: number, factor?: number} | null): void {
+  update_range(range_info: GMapRangeInfo | null, options?: RangeOptions): void {
     // RESET -------------------------
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})
       this.map.setOptions({zoom: this.initial_zoom})
-      super.update_range(null)
+      super.update_range(null, options)
 
     // PAN ----------------------------
     } else if (range_info.sdx != null || range_info.sdy != null) {
-      this.map.panBy(range_info.sdx || 0, range_info.sdy || 0)
-      super.update_range(range_info)
+      this.map.panBy(range_info.sdx ?? 0, range_info.sdy ?? 0)
+      super.update_range(range_info, options)
 
     // ZOOM ---------------------------
     } else if (range_info.factor != null) {
-
       // The zoom count decreases the sensitivity of the zoom. (We could make this user configurable)
       if (this.zoom_count !== 10) {
         this.zoom_count += 1
@@ -91,7 +105,7 @@ export class GMapPlotView extends PlotView {
 
       this.pause()
 
-      super.update_range(range_info)
+      super.update_range(range_info, options)
 
       const zoom_change = range_info.factor < 0 ?  -1 : 1
 
@@ -120,10 +134,10 @@ export class GMapPlotView extends PlotView {
     const {maps} = google
 
     this.map_types = {
-      satellite : maps.MapTypeId.SATELLITE,
-      terrain   : maps.MapTypeId.TERRAIN,
-      roadmap   : maps.MapTypeId.ROADMAP,
-      hybrid    : maps.MapTypeId.HYBRID,
+      satellite: maps.MapTypeId.SATELLITE,
+      terrain: maps.MapTypeId.TERRAIN,
+      roadmap: maps.MapTypeId.ROADMAP,
+      hybrid: maps.MapTypeId.HYBRID,
     }
 
     const mo = this.model.map_options
@@ -205,15 +219,15 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_map_type(): void {
-    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type] })
+    this.map.setOptions({mapTypeId: this.map_types[this.model.map_options.map_type]})
   }
 
   protected _update_scale_control(): void {
-    this.map.setOptions({scaleControl: this.model.map_options.scale_control })
+    this.map.setOptions({scaleControl: this.model.map_options.scale_control})
   }
 
   protected _update_tilt(): void {
-    this.map.setOptions({tilt: this.model.map_options.tilt })
+    this.map.setOptions({tilt: this.model.map_options.tilt})
   }
 
   protected _update_options(): void {
@@ -225,7 +239,7 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_styles(): void {
-    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles) })
+    this.map.setOptions({styles: JSON.parse(this.model.map_options.styles)})
   }
 
   protected _update_zoom(): void {
@@ -270,7 +284,7 @@ export class GMapPlotView extends PlotView {
     ctx.closePath()
 
     if (this.model.border_fill_color != null) {
-      ctx.fillStyle = this.model.border_fill_color
+      ctx.fillStyle = color2css(this.model.border_fill_color)
       ctx.fill()
     }
   }

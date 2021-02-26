@@ -1,7 +1,8 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Arrayable, NumberArray} from "core/types"
+import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
+import {Arrayable, ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 import {unreachable} from "core/util/assert"
@@ -11,6 +12,10 @@ export type L2Factor = [string, string]
 export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
+export type FactorSeq = L1Factor[] | L2Factor[] | L3Factor[]
+
+export const Factor = Or(Str, Tuple(Str, Str), Tuple(Str, Str, Str))
+export const FactorSeq = Or(Arr(Str), Arr(Tuple(Str, Str)), Arr(Tuple(Str, Str, Str)))
 
 export type BoxedFactor = [string] | L2Factor | L3Factor
 
@@ -126,22 +131,22 @@ export class FactorRange extends Range {
   }
 
   static init_FactorRange(): void {
-    this.define<FactorRange.Props>({
-      factors:             [ p.Array,        []        ],
-      factor_padding:      [ p.Number,       0         ],
-      subgroup_padding:    [ p.Number,       0.8       ],
-      group_padding:       [ p.Number,       1.4       ],
-      range_padding:       [ p.Number,       0         ],
-      range_padding_units: [ p.PaddingUnits, "percent" ],
-      start:               [ p.Number                  ],
-      end:                 [ p.Number                  ],
-    })
+    this.define<FactorRange.Props>(({Number}) => ({
+      factors:             [ FactorSeq, [] ],
+      factor_padding:      [ Number, 0 ],
+      subgroup_padding:    [ Number, 0.8 ],
+      group_padding:       [ Number, 1.4 ],
+      range_padding:       [ Number, 0 ],
+      range_padding_units: [ PaddingUnits, "percent" ],
+      start:               [ Number ],
+      end:                 [ Number ],
+    }))
 
-    this.internal({
-      levels:      [ p.Number      ], // how many levels of
-      mids:        [ p.Array, null ], // mid level factors (if 3 total levels)
-      tops:        [ p.Array, null ], // top level factors (whether 2 or 3 total levels)
-    })
+    this.internal<FactorRange.Props>(({Number, String, Array, Tuple, Nullable}) => ({
+      levels: [ Number ], // how many levels of
+      mids:   [ Nullable(Array(Tuple(String, String))), null ], // mid level factors (if 3 total levels)
+      tops:   [ Nullable(Array(String)), null ], // top level factors (whether 2 or 3 total levels)
+    }))
   }
 
   protected _mapping: Mapping
@@ -231,9 +236,9 @@ export class FactorRange extends Range {
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): NumberArray {
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): ScreenArray {
     const n = xs.length
-    const array = new NumberArray(n)
+    const array = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       array[i] = this.synthetic(xs[i])
     }

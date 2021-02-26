@@ -24,9 +24,9 @@ export class CompositeTicker extends ContinuousTicker {
   }
 
   static init_CompositeTicker(): void {
-    this.define<CompositeTicker.Props>({
-      tickers: [p.Array, [] ],
-    })
+    this.define<CompositeTicker.Props>(({Array, Ref}) => ({
+      tickers: [ Array(Ref(ContinuousTicker)), [] ],
+    }))
   }
 
   // The tickers should be in order of increasing interval size; specifically,
@@ -42,11 +42,11 @@ export class CompositeTicker extends ContinuousTicker {
     return this.tickers.map((ticker) => ticker.get_max_interval())
   }
 
-  get min_interval(): number {
+  get_min_interval(): number {
     return this.min_intervals[0]
   }
 
-  get max_interval(): number {
+  get_max_interval(): number {
     return this.max_intervals[0]
   }
 
@@ -84,7 +84,7 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }

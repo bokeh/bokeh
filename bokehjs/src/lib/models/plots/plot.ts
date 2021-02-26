@@ -19,8 +19,9 @@ import {Toolbar} from "../tools/toolbar"
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
 import {Glyph} from "../glyphs/glyph"
-import {DataSource} from "../sources/data_source"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
@@ -38,8 +39,8 @@ export namespace Plot {
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
 
-    plot_width: p.Property<number>
-    plot_height: p.Property<number>
+    plot_width: p.Property<number | null>
+    plot_height: p.Property<number | null>
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
@@ -53,7 +54,7 @@ export namespace Plot {
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
 
-    renderers: p.Property<DataRenderer[]>
+    renderers: p.Property<Renderer[]>
 
     x_range: p.Property<Range>
     extra_x_ranges: p.Property<{[key: string]: Range}>
@@ -65,7 +66,7 @@ export namespace Plot {
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
-    lod_threshold: p.Property<number>
+    lod_threshold: p.Property<number | null>
     lod_timeout: p.Property<number>
 
     hidpi: p.Property<boolean>
@@ -106,7 +107,7 @@ export class Plot extends LayoutDOM {
   properties: Plot.Props
   __view_type__: PlotView
 
-  use_map?: boolean
+  readonly use_map: boolean = false
 
   reset: Signal0<this>
 
@@ -123,85 +124,68 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>({
-      toolbar:           [ p.Instance, () => new Toolbar()     ],
-      toolbar_location:  [ p.Location, 'right'                 ],
-      toolbar_sticky:    [ p.Boolean,  true                    ],
+    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar_location:  [ Nullable(Location), "right" ],
+      toolbar_sticky:    [ Boolean, true ],
 
-      plot_width:        [ p.Number,   600                     ],
-      plot_height:       [ p.Number,   600                     ],
+      plot_width:        [ p.Alias("width") ],
+      plot_height:       [ p.Alias("height") ],
 
-      frame_width:       [ p.Number,   null                    ],
-      frame_height:      [ p.Number,   null                    ],
+      frame_width:       [ Nullable(Number), null ],
+      frame_height:      [ Nullable(Number), null ],
 
-      title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
-      title_location:    [ p.Location, 'above'                 ],
+      title:             [ Or(Ref(Title), String, Null), () => new Title({text: ""}) ],
+      title_location:    [ Nullable(Location), "above" ],
 
-      above:             [ p.Array,    []                      ],
-      below:             [ p.Array,    []                      ],
-      left:              [ p.Array,    []                      ],
-      right:             [ p.Array,    []                      ],
-      center:            [ p.Array,    []                      ],
+      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
 
-      renderers:         [ p.Array,    []                      ],
+      renderers:         [ Array(Ref(Renderer)), [] ],
 
-      x_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-      y_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
+      x_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      y_range:           [ Ref(Range), () => new DataRange1d() ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
 
-      x_scale:           [ p.Instance, () => new LinearScale() ],
-      y_scale:           [ p.Instance, () => new LinearScale() ],
+      x_scale:           [ Ref(Scale), () => new LinearScale() ],
+      y_scale:           [ Ref(Scale), () => new LinearScale() ],
 
-      lod_factor:        [ p.Number,   10                      ],
-      lod_interval:      [ p.Number,   300                     ],
-      lod_threshold:     [ p.Number,   2000                    ],
-      lod_timeout:       [ p.Number,   500                     ],
+      lod_factor:        [ Number, 10 ],
+      lod_interval:      [ Number, 300 ],
+      lod_threshold:     [ Nullable(Number), 2000 ],
+      lod_timeout:       [ Number, 500 ],
 
-      hidpi:             [ p.Boolean,  true                    ],
-      output_backend:    [ p.OutputBackend, "canvas"           ],
+      hidpi:             [ Boolean, true ],
+      output_backend:    [ OutputBackend, "canvas" ],
 
-      min_border:        [ p.Number,   5                       ],
-      min_border_top:    [ p.Number,   null                    ],
-      min_border_left:   [ p.Number,   null                    ],
-      min_border_bottom: [ p.Number,   null                    ],
-      min_border_right:  [ p.Number,   null                    ],
+      min_border:        [ Nullable(Number), 5 ],
+      min_border_top:    [ Nullable(Number), null ],
+      min_border_left:   [ Nullable(Number), null ],
+      min_border_bottom: [ Nullable(Number), null ],
+      min_border_right:  [ Nullable(Number), null ],
 
-      inner_width:       [ p.Number                            ],
-      inner_height:      [ p.Number                            ],
-      outer_width:       [ p.Number                            ],
-      outer_height:      [ p.Number                            ],
+      inner_width:       [ Number, 0 ],
+      inner_height:      [ Number, 0 ],
+      outer_width:       [ Number, 0 ],
+      outer_height:      [ Number, 0 ],
 
-      match_aspect:      [ p.Boolean,  false                   ],
-      aspect_scale:      [ p.Number,   1                       ],
+      match_aspect:      [ Boolean, false ],
+      aspect_scale:      [ Number, 1 ],
 
-      reset_policy:      [ p.ResetPolicy,  "standard"          ],
-    })
+      reset_policy:      [ ResetPolicy, "standard" ],
+    }))
 
-    this.override({
+    this.override<Plot.Props>({
+      width: 600,
+      height: 600,
       outline_line_color: "#e5e5e5",
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
-  }
-
-  // TODO: change this when we drop ES5 compatibility (https://github.com/microsoft/TypeScript/issues/338)
-  get width(): number | null {
-    // const width = super.width
-    const width = this.properties.width.get_value()
-    return width != null ? width : this.plot_width
-  }
-  set width(width: number | null) {
-    this.setv({width, plot_width: width})
-  }
-
-  get height(): number | null {
-    // const height = super.height
-    const height = this.properties.height.get_value()
-    return height != null ? height : this.plot_height
-  }
-  set height(height: number | null) {
-    this.setv({height, plot_height: height})
   }
 
   protected _doc_attached(): void {
@@ -252,13 +236,17 @@ export class Plot extends LayoutDOM {
     del(this.center)
   }
 
-  add_renderers(...renderers: DataRenderer[]): void {
+  get data_renderers(): DataRenderer[] {
+    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+  }
+
+  add_renderers(...renderers: Renderer[]): void {
     this.renderers = this.renderers.concat(renderers)
   }
 
-  add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
-    const attrs = {...extra_attrs, data_source: source, glyph}
-    const renderer = new GlyphRenderer(attrs)
+  add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
+      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
+    const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
     this.add_renderers(renderer)
     return renderer
   }

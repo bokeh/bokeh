@@ -4,7 +4,6 @@ import {isString} from "core/util/types"
 export type Fragment = string | ArrayBuffer
 
 export class Receiver {
-
   message: Message | null = null
 
   protected _partial: Message | null = null

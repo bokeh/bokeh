@@ -46,7 +46,10 @@ export class SpinnerView extends NumericInputView {
   protected wrapper_el: HTMLDivElement
   protected btn_up_el: HTMLButtonElement
   protected btn_down_el: HTMLButtonElement
-  private _interval_handle: ReturnType<typeof setInterval>
+  private _handles:  {
+    interval: ReturnType<typeof setInterval> | undefined
+    timeout: ReturnType<typeof setTimeout> | undefined
+  }
   private _counter: number
   private _interval: number
 
@@ -57,6 +60,7 @@ export class SpinnerView extends NumericInputView {
 
   initialize(): void {
     super.initialize()
+    this._handles = {interval: undefined, timeout: undefined}
     this._interval = 200
   }
 
@@ -102,14 +106,17 @@ export class SpinnerView extends NumericInputView {
 
   get precision(): number {
     const {low, high, step} = this.model
-    return max(...[low, high, step].map(abs).reduce<number[]>((prev, val) => {
-      if (val!=null) prev.push(val)
-      return prev
-    }, []).map(precision))
+    const p = precision
+    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)))
+  }
+
+  remove(): void {
+    this._stop_incrementation()
+    super.remove()
   }
 
   _start_incrementation(sign: 1|-1): void {
-    clearInterval(this._interval_handle)
+    clearInterval(this._handles.interval)
     this._counter = 0
     const {step} = this.model
     const increment_with_increasing_rate = (step: number) => {
@@ -117,20 +124,23 @@ export class SpinnerView extends NumericInputView {
       if (this._counter % 5 == 0) {
         const quotient  = Math.floor(this._counter / 5)
         if (quotient < 10) {
-          clearInterval(this._interval_handle)
-          this._interval_handle = setInterval(() => increment_with_increasing_rate(step), this._interval/(quotient+1))
+          clearInterval(this._handles.interval)
+          this._handles.interval = setInterval(() => increment_with_increasing_rate(step), this._interval/(quotient+1))
         } else if (quotient >= 10 && quotient <= 13) {
-          clearInterval(this._interval_handle)
-          this._interval_handle = setInterval(() => increment_with_increasing_rate(step*2), this._interval/10)
+          clearInterval(this._handles.interval)
+          this._handles.interval = setInterval(() => increment_with_increasing_rate(step*2), this._interval/10)
         }
       }
       this.increment(step)
     }
-    this._interval_handle = setInterval(() => increment_with_increasing_rate(sign * step), this._interval)
+    this._handles.interval = setInterval(() => increment_with_increasing_rate(sign * step), this._interval)
   }
 
   _stop_incrementation(): void {
-    clearInterval(this._interval_handle)
+    clearTimeout(this._handles.timeout)
+    this._handles.timeout = undefined
+    clearInterval(this._handles.interval)
+    this._handles.interval = undefined
     this.model.value_throttled = this.model.value
   }
 
@@ -140,7 +150,7 @@ export class SpinnerView extends NumericInputView {
     this.increment(sign * this.model.step)
     this.input_el.focus()
     //while mouse is down we increment at a certain rate
-    this._start_incrementation(sign)
+    this._handles.timeout = setTimeout(() => this._start_incrementation(sign), this._interval)
   }
 
   _btn_mouse_up(): void {
@@ -221,14 +231,14 @@ export class Spinner extends NumericInput {
   static init_Spinner(): void {
     this.prototype.default_view = SpinnerView
 
-    this.define<Spinner.Props>({
-      value_throttled:      [ p.Number,    null ],
-      step:                 [ p.Number,       1 ],
-      page_step_multiplier: [ p.Number,      10 ],
-      wheel_wait:           [ p.Number,     100 ],
-    })
+    this.define<Spinner.Props>(({Number, Nullable}) => ({
+      value_throttled:      [ Nullable(Number), null ],
+      step:                 [ Number, 1 ],
+      page_step_multiplier: [ Number, 10 ],
+      wheel_wait:           [ Number, 100 ],
+    }))
 
-    this.override({
+    this.override<Spinner.Props>({
       mode: "float",
     })
   }

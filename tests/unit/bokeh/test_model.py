@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -91,6 +91,37 @@ class Test_js_on_change:
         m.js_on_change('foo', cb, cb)
         assert m.js_property_callbacks == {"foo": [cb]}
 
+class Test_js_on_event:
+
+    def test_with_multple_callbacks(self) -> None:
+        cb1 = CustomJS(code="foo")
+        cb2 = CustomJS(code="bar")
+        m = SomeModel()
+        m.js_on_event("some", cb1, cb2)
+        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+
+    def test_with_multple_callbacks_separately(self) -> None:
+        cb1 = CustomJS(code="foo")
+        cb2 = CustomJS(code="bar")
+        m = SomeModel()
+        m.js_on_event("some", cb1)
+        assert m.js_event_callbacks == {"some": [cb1]}
+        m.js_on_event("some", cb2)
+        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+
+    def test_ignores_dupe_callbacks(self) -> None:
+        cb = CustomJS(code="foo")
+        m = SomeModel()
+        m.js_on_event("some", cb, cb)
+        assert m.js_event_callbacks == {"some": [cb]}
+
+    def test_ignores_dupe_callbacks_separately(self) -> None:
+        cb = CustomJS(code="foo")
+        m = SomeModel()
+        m.js_on_event("some", cb)
+        assert m.js_event_callbacks == {"some": [cb]}
+        m.js_on_event("some", cb)
+        assert m.js_event_callbacks == {"some": [cb]}
 
 class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:
@@ -176,7 +207,7 @@ def test_all_builtin_models_default_constructible() -> None:
             cls()
         except Exception:
             bad.append(name)
-        assert bad == []
+    assert bad == []
 
 def test_select() -> None:
     # we aren't trying to replace test_query here, only test

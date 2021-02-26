@@ -19,16 +19,12 @@ export class ServerSentDataSource extends WebDataSource {
 
   protected initialized: boolean = false
 
-  destroy(): void {
-    super.destroy()
-  }
-
   setup(): void {
     if (!this.initialized) {
       this.initialized = true
       const source = new EventSource(this.data_url)
       source.onmessage = (event) => {
-        this.load_data(JSON.parse(event.data), this.mode, this.max_size)
+        this.load_data(JSON.parse(event.data), this.mode, this.max_size ?? undefined)
       }
     }
   }

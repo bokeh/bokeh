@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -142,7 +142,7 @@ def test_get_svg_no_svg_present() -> None:
     assert svgs == [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20">'
             '<defs/>'
-            '<image width="20" height="20" preserveAspectRatio="none" transform="translate(0, 0)" xlink:href="'
+            '<image width="20" height="20" preserveAspectRatio="none" xlink:href="'
             'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAbElEQVQ4T2P8//+/AwMDAwhTBTD+//+/gYGBoZ4'
             'qpjEwMIwaCAnJN2/eMPz69YtgsLKxsTGIiIigqMMahs+ePWOQkpIiaCA2daMGQoJtNAxxJp+BSzbE5hRmZuYL4uLiBsheGC1tCJYHBBUAAA7h'
             'kkaBfwzpAAAAAElFTkSuQmCC"/>'

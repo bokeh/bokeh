@@ -3,6 +3,4 @@
 bokeh.models.markers.CircleDot
 ------------------------------
 
-.. autoclass:: bokeh.models.markers.CircleDot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.CircleDot

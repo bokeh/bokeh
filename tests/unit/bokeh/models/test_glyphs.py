@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -103,13 +103,14 @@ def test_AnnularWedge() -> None:
     glyph = AnnularWedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius is None
-    assert glyph.outer_radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.inner_radius == field("inner_radius")
+    assert glyph.outer_radius == field("outer_radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
-    check_fill_properties(glyph)
     check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -122,17 +123,18 @@ def test_AnnularWedge() -> None:
         "end_angle",
         "end_angle_units",
         "direction",
-    ], FILL, LINE, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Annulus() -> None:
     glyph = Annulus()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.inner_radius is None
-    assert glyph.outer_radius is None
-    check_fill_properties(glyph)
+    assert glyph.inner_radius == field("inner_radius")
+    assert glyph.outer_radius == field("outer_radius")
     check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -140,16 +142,16 @@ def test_Annulus() -> None:
         "inner_radius_units",
         "outer_radius",
         "outer_radius_units",
-    ], FILL, LINE, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Arc() -> None:
     glyph = Arc()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.radius == field("radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
@@ -205,12 +207,12 @@ def test_HArea() -> None:
 def test_HBar() -> None:
     glyph = HBar()
     assert glyph.y == field("y")
-    assert glyph.height is None
+    assert glyph.height == 1
     assert glyph.left == 0
-    assert glyph.right is None
+    assert glyph.right == field("right")
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "y",
         "height",
@@ -221,11 +223,11 @@ def test_HBar() -> None:
 
 def test_Image() -> None:
     glyph = Image()
-    assert glyph.image is None
+    assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw is None
-    assert glyph.dh is None
+    assert glyph.dw == field("dw")
+    assert glyph.dh == field("dh")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
@@ -243,11 +245,11 @@ def test_Image() -> None:
 
 def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
-    assert glyph.image is None
+    assert glyph.image == field("image")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.dw is None
-    assert glyph.dh is None
+    assert glyph.dw == field("dw")
+    assert glyph.dh == field("dh")
     assert glyph.dilate is False
     check_properties_existence(glyph, [
         "image",
@@ -264,7 +266,7 @@ def test_ImageRGBA() -> None:
 
 def test_ImageURL() -> None:
     glyph = ImageURL()
-    assert glyph.url is None
+    assert glyph.url == field("url")
     assert glyph.x == field("x")
     assert glyph.y == field("y")
     assert glyph.w is None
@@ -319,9 +321,9 @@ def test_MultiPolygons() -> None:
     glyph = MultiPolygons()
     assert glyph.xs == field("xs")
     assert glyph.ys == field("ys")
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "xs",
         "ys",
@@ -332,11 +334,12 @@ def test_Oval() -> None:
     glyph = Oval()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width is None
-    assert glyph.height is None
+    assert glyph.width == field("width")
+    assert glyph.height == field("height")
     assert glyph.angle == 0
-    check_fill_properties(glyph)
     check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -346,16 +349,16 @@ def test_Oval() -> None:
         "height_units",
         "angle",
         "angle_units",
-    ], FILL, LINE, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Patch() -> None:
     glyph = Patch()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -366,9 +369,9 @@ def test_Patches() -> None:
     glyph = Patches()
     assert glyph.xs == field("xs")
     assert glyph.ys == field("ys")
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "xs",
         "ys",
@@ -377,13 +380,13 @@ def test_Patches() -> None:
 
 def test_Quad() -> None:
     glyph = Quad()
-    assert glyph.left is None
-    assert glyph.right is None
-    assert glyph.bottom is None
-    assert glyph.top is None
+    assert glyph.left == field("left")
+    assert glyph.right == field("right")
+    assert glyph.bottom == field("bottom")
+    assert glyph.top == field("top")
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "left",
         "right",
@@ -415,8 +418,8 @@ def test_Ray() -> None:
     glyph = Ray()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.angle is None
-    assert glyph.length is None
+    assert glyph.angle == 0
+    assert glyph.length == 0
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -432,12 +435,13 @@ def test_Rect() -> None:
     glyph = Rect()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.width is None
-    assert glyph.height is None
+    assert glyph.width == field("width")
+    assert glyph.height == field("height")
     assert glyph.angle == 0
     assert glyph.dilate is False
-    check_fill_properties(glyph)
     check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -448,7 +452,7 @@ def test_Rect() -> None:
         "angle",
         "angle_units",
         "dilate",
-    ], FILL, LINE, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Segment() -> None:
@@ -514,12 +518,12 @@ def test_VArea() -> None:
 def test_VBar() -> None:
     glyph = VBar()
     assert glyph.x == field("x")
-    assert glyph.width is None
-    assert glyph.top is None
+    assert glyph.width == 1
+    assert glyph.top == field("top")
     assert glyph.bottom == 0
+    check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
-    check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "width",
@@ -532,12 +536,13 @@ def test_Wedge() -> None:
     glyph = Wedge()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.radius is None
-    assert glyph.start_angle is None
-    assert glyph.end_angle is None
+    assert glyph.radius == field("radius")
+    assert glyph.start_angle == field("start_angle")
+    assert glyph.end_angle == field("end_angle")
     assert glyph.direction == "anticlock"
-    check_fill_properties(glyph)
     check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
     check_properties_existence(glyph, [
         "x",
         "y",
@@ -548,124 +553,138 @@ def test_Wedge() -> None:
         "end_angle",
         "end_angle_units",
         "direction",
-    ], FILL, LINE, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 
 def test_Asterisk() -> None:
     marker = Asterisk()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Circle() -> None:
     marker = Circle()
     check_marker_properties(marker)
     assert marker.radius is None
-    check_fill_properties(marker)
     check_line_properties(marker)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
     check_properties_existence(marker, [
         "radius",
         "radius_units",
         "radius_dimension",
-    ], MARKER, FILL, LINE, GLYPH)
+    ], MARKER, LINE, FILL, HATCH, GLYPH)
 
 
 def test_CircleCross() -> None:
     marker = CircleCross()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_CircleX() -> None:
     marker = CircleX()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Cross() -> None:
     marker = Cross()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Dash() -> None:
     marker = Dash()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Diamond() -> None:
     marker = Diamond()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_DiamondCross() -> None:
     marker = DiamondCross()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_InvertedTriangle() -> None:
     marker = InvertedTriangle()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Square() -> None:
     marker = Square()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_SquareCross() -> None:
     marker = SquareCross()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_SquareX() -> None:
     marker = SquareX()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_Triangle() -> None:
     marker = Triangle()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 
 def test_X() -> None:
     marker = X()
     check_marker_properties(marker)
-    check_fill_properties(marker)
     check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+    check_fill_properties(marker)
+    check_hatch_properties(marker)
+    check_properties_existence(marker, MARKER, LINE, FILL, HATCH, GLYPH, ["marker"])
 
 #-----------------------------------------------------------------------------
 # Dev API

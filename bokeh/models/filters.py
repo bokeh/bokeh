@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import AnyRef, Bool, Dict, Int, Seq, String
+from ..core.properties import AnyRef, Bool, Int, NonNullable, Nullable, Seq, String, RestrictedDict
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
     '''
 
-    indices = Seq(Int, help="""
+    indices = Nullable(Seq(Int), help="""
     A list of integer indices representing the subset of data to select.
     """)
 
@@ -61,7 +61,7 @@ class BooleanFilter(Filter):
     where the values of the booleans array is True.
     '''
 
-    booleans = Seq(Bool, help="""
+    booleans = Nullable(Seq(Bool), help="""
     A list of booleans indicating which rows of data to select.
     """)
 
@@ -76,11 +76,11 @@ class GroupFilter(Filter):
     column column_name match the group variable.
     '''
 
-    column_name = String(help="""
+    column_name = NonNullable(String, help="""
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = String(help="""
+    group = NonNullable(String, help="""
     The value of the column indicating the rows of data to keep.
     """)
 
@@ -102,7 +102,7 @@ class CustomJSFilter(Filter):
 
     '''
 
-    args = Dict(String, AnyRef, help="""
+    args = RestrictedDict(String, AnyRef, disallow=("source",), help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.

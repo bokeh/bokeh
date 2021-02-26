@@ -6,14 +6,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strictNullChecks": true,
-    "strictBindCallApply": false,
-    "strictFunctionTypes": false,
-    "strictPropertyInitialization": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
     "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "commonjs",
@@ -21,10 +22,11 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2017",
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "target": "ES2020",
+    "lib": ["es2020", "dom", "dom.iterable"],
     "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "../../build/js/compiler"
   },
   "include": ["./**/*.ts"]
 }

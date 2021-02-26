@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -31,6 +31,8 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
+    Null,
+    Nullable,
     Override,
     String,
 )
@@ -46,7 +48,7 @@ from ..core.validation.errors import (
 from ..model import Model
 from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebSource
+from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------
@@ -94,16 +96,7 @@ class Renderer(Model):
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
 
-
-@abstract
-class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
-
-    '''
-
-    level = Override(default="glyph")
-
-class TileRenderer(DataRenderer):
+class TileRenderer(Renderer):
     '''
 
     '''
@@ -124,13 +117,20 @@ class TileRenderer(DataRenderer):
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
     """)
 
+    level = Override(default="image")
+
+@abstract
+class DataRenderer(Renderer):
+    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``GraphRenderer``).
+
+    '''
+
+    level = Override(default="glyph")
+
 class GlyphRenderer(DataRenderer):
     '''
 
     '''
-
-    def __str__(self):
-        return f"GlyphRenderer(id={self.id}, glyph={str(self.glyph)}, ...)"
 
     @error(CDSVIEW_FILTERS_WITH_CONNECTED)
     def _check_cdsview_filters_with_connected(self):
@@ -153,7 +153,7 @@ class GlyphRenderer(DataRenderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
-        if isinstance(self.data_source, WebSource): return
+        if isinstance(self.data_source, WebDataSource): return
         missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
@@ -169,9 +169,9 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        if "view" not in kw:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if "view" not in kwargs and "data_source" in kwargs:
             self.view = CDSView(source=self.data_source)
 
     data_source = Instance(DataSource, help="""
@@ -194,14 +194,14 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
+    selection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
     An optional glyph used for selected points.
 
     If set to "auto" then the standard glyph will be used for selected
     points.
     """)
 
-    nonselection_glyph = Either(Auto, Instance(Glyph), default="auto", help="""
+    nonselection_glyph = Either(Auto, Instance(Glyph), Null, default="auto", help="""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
@@ -210,12 +210,12 @@ class GlyphRenderer(DataRenderer):
     be used for non-selected points.
     """)
 
-    hover_glyph = Instance(Glyph, help="""
+    hover_glyph = Nullable(Instance(Glyph), help="""
     An optional glyph used for inspected points, e.g., those that are
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Instance(Glyph, help="""
+    muted_glyph = Nullable(Instance(Glyph), help="""
     """)
 
     muted = Bool(False, help="""

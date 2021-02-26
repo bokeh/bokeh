@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -41,6 +41,9 @@ import bokeh.core.properties as bcp # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'Alias',
+    'Alpha',
+    'AlphaSpec',
     'Angle',
     'AngleSpec',
     'Any',
@@ -64,6 +67,8 @@ ALL = (
     'DistanceSpec',
     'Either',
     'Enum',
+    'Factor',
+    'FactorSeq',
     'Float',
     'FontSize',
     'FontSizeSpec',
@@ -80,6 +85,10 @@ ALL = (
     'MarkerType',
     'MinMaxBounds',
     'NonNegativeInt',
+    'NonNullable',
+    'Null',
+    'NullStringSpec',
+    'Nullable',
     'NumberSpec',
     'Override',
     'PandasDataFrame',
@@ -88,8 +97,10 @@ ALL = (
     'PositiveInt',
     'PropertyUnitsSpec',
     'RGB',
+    'Readonly',
     'Regex',
     'RelativeDelta',
+    'RestrictedDict',
     'ScreenDistanceSpec',
     'Seq',
     'Size',

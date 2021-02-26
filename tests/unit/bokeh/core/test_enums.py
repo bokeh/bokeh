@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -138,15 +138,16 @@ class Test_bce:
     def test_Anchor(self) -> None:
         assert tuple(bce.Anchor) == (
             "top_left",    "top_center",    "top_right",
-            "center_left", "center",        "center_right",
-            "bottom_left", "bottom_center", "bottom_right"
+            "center_left", "center_center", "center_right",
+            "bottom_left", "bottom_center", "bottom_right",
+            "top", "left", "center", "right", "bottom",
         )
 
     def test_AngleUnits(self) -> None:
-        assert tuple(bce.AngleUnits) == ('deg', 'rad')
+        assert tuple(bce.AngleUnits) == ("deg", "rad", "grad", "turn")
 
     def test_ButtonType(self) -> None:
-        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
+        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "light")
 
     def test_CalendarPosition(self) -> None:
         assert tuple(bce.CalendarPosition) == ("auto", "above", "below")
@@ -202,8 +203,9 @@ class Test_bce:
     def test_LegendLocation(self) -> None:
         assert tuple(bce.LegendLocation) == (
             "top_left",    "top_center",    "top_right",
-            "center_left", "center",        "center_right",
-            "bottom_left", "bottom_center", "bottom_right"
+            "center_left", "center_center", "center_right",
+            "bottom_left", "bottom_center", "bottom_right",
+            "top", "left", "center", "right", "bottom",
         )
 
     def test_LineCap(self) -> None:
@@ -224,11 +226,11 @@ class Test_bce:
     def test_MarkerType(self) -> None:
         assert tuple(bce.MarkerType) == ("asterisk", "circle", "circle_cross", "circle_dot", "circle_x", "circle_y", "cross",
                                          "dash", "diamond", "diamond_cross", "diamond_dot", "dot", "hex", "hex_dot", "inverted_triangle",
-                                         "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "triangle",
-                                         "triangle_dot", "triangle_pin", "x", "y")
+                                         "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
+                                         "triangle", "triangle_dot", "triangle_pin", "x", "y")
 
     def test_NamedColor(self) -> None:
-        assert len(tuple(bce.NamedColor)) == 147
+        assert len(tuple(bce.NamedColor)) == 148
         assert tuple(bce.NamedColor) == tuple(named.__all__)
 
     def test_NumeralLanguage(self) -> None:

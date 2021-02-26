@@ -1,7 +1,9 @@
 import tz from "timezone"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {TickFormatter} from "../formatters/tick_formatter"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 
 export class DateSliderView extends AbstractSliderView {
   model: DateSlider
@@ -26,7 +28,7 @@ export class DateSlider extends AbstractSlider {
   static init_DateSlider(): void {
     this.prototype.default_view = DateSliderView
 
-    this.override({
+    this.override<DateSlider.Props>({
       format: "%d %b %Y",
     })
   }
@@ -34,7 +36,10 @@ export class DateSlider extends AbstractSlider {
   behaviour = "tap" as "tap"
   connected = [true, false]
 
-  protected _formatter(value: number, format: string): string {
-    return tz(value, format)
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format))
+      return tz(value, format)
+    else
+      return format.compute(value)
   }
 }

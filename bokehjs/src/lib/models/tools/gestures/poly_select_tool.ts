@@ -6,7 +6,7 @@ import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {bk_tool_icon_polygon_select} from "styles/icons"
+import {tool_icon_polygon_select} from "styles/icons.css"
 
 export class PolySelectToolView extends SelectToolView {
   model: PolySelectTool
@@ -35,7 +35,7 @@ export class PolySelectToolView extends SelectToolView {
 
   _doubletap(ev: TapEvent): void {
     this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
-    this.plot_view.push_state('poly_select', {selection: this.plot_view.get_selection()})
+    this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
     this._clear_data()
   }
 
@@ -61,7 +61,6 @@ export class PolySelectToolView extends SelectToolView {
     const geometry: PolyGeometry = {type: 'poly', sx, sy}
     this._select(geometry, final, mode)
   }
-
 }
 
 export const DEFAULT_POLY_OVERLAY = () => {
@@ -101,15 +100,15 @@ export class PolySelectTool extends SelectTool {
   static init_PolySelectTool(): void {
     this.prototype.default_view = PolySelectToolView
 
-    this.define<PolySelectTool.Props>({
-      overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
-    })
+    this.define<PolySelectTool.Props>(({Ref}) => ({
+      overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+    }))
 
     this.register_alias("poly_select", () => new PolySelectTool())
   }
 
   tool_name = "Poly Select"
-  icon = bk_tool_icon_polygon_select
+  icon = tool_icon_polygon_select
   event_type = "tap" as "tap"
   default_order = 11
 }

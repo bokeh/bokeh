@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2021, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -26,12 +26,17 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-def test_balck() -> None:
+PATHS = [
+    "release",
+    "bokeh/sphinxext"
+]
+
+def test_black() -> None:
     ''' Assures that the Python codebase imports are correctly formatted.
 
     '''
     chdir(TOP_PATH)
-    proc = run(["black", "-l", "160", "--diff", "--check", "release"], capture_output=True)
+    proc = run(["black", "-l", "165", "--diff", "--check"] + PATHS, capture_output=True)
     assert proc.returncode == 0, f"black issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------

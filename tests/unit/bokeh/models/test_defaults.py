@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -15,6 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.property.singletons import Undefined
 from bokeh.model import Model
 
 # Module under test
@@ -41,7 +42,9 @@ def all_descriptors():
 @pytest.mark.parametrize("name, descriptor", list(all_descriptors()))
 def test_default_values(name, descriptor) -> None:
     p = descriptor.property
-    assert p.is_valid(p._raw_default()) is True, "%s.%s has an invalid default value" % (name, descriptor.name)
+    value = p._raw_default()
+    if value is not Undefined:
+        assert p.is_valid(value) is True, f"{name}.{descriptor.name} has an invalid default value {value!r}"
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
+    Anchor,
     AngleUnits,
     Dimension,
     FontStyle,
@@ -34,21 +35,25 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alpha,
     Angle,
     AngleSpec,
     Auto,
     Bool,
-    ColorSpec,
+    Color,
     Datetime,
     Dict,
     Either,
     Enum,
     Float,
-    FontSizeSpec,
     Include,
     Instance,
     Int,
     List,
+    NonNullable,
+    Null,
+    Nullable,
+    NullStringSpec,
     NumberSpec,
     Override,
     PropertyUnitsSpec,
@@ -56,12 +61,14 @@ from ..core.properties import (
     String,
     StringSpec,
     Tuple,
+    field,
     value,
 )
 from ..core.property_mixins import (
     FillProps,
     LineProps,
     ScalarFillProps,
+    ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
     TextProps,
@@ -73,11 +80,12 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.serialization import convert_datetime_type
-from .formatters import BasicTickFormatter, TickFormatter
-from .mappers import ContinuousColorMapper
+from .formatters import TickFormatter
+from .labeling import LabelingPolicy, NoOverlap
+from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
-from .tickers import BasicTicker, ContinuousTicker
+from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -89,6 +97,7 @@ __all__ = (
     'Band',
     'BoxAnnotation',
     'ColorBar',
+    'DataAnnotation',
     'Label',
     'LabelSet',
     'Legend',
@@ -115,7 +124,7 @@ def _DEFAULT_ARROW():
 # This only exists to prevent a circular import.
 def _DEFAULT_TEE():
     from .arrow_heads import TeeHead
-    return TeeHead(level="underlay", size=10)
+    return TeeHead(size=10)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -128,6 +137,16 @@ class Annotation(Renderer):
     '''
 
     level = Override(default="annotation")
+
+@abstract
+class DataAnnotation(Annotation):
+    ''' Base class for annotations that utilize a data source.
+
+    '''
+
+    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
+    Local data source to use when rendering annotations on the plot.
+    """)
 
 @abstract
 class TextAnnotation(Annotation):
@@ -162,7 +181,7 @@ class LegendItem(Model):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 
-    label = StringSpec(default=None, help="""
+    label = NullStringSpec(help="""
     A label for this legend. Can be a string, or a column of a
     ColumnDataSource. If ``label`` is a field, then it must
     be in the renderers' data_source.
@@ -173,7 +192,7 @@ class LegendItem(Model):
     then all data_sources of renderers must be the same.
     """)
 
-    index = Int(default=None, help="""
+    index = Nullable(Int, help="""
     The column data index to use for drawing the representative items.
 
     If None (the default), then Bokeh will automatically choose an index to
@@ -219,7 +238,7 @@ class Legend(Annotation):
     when they are drawn.
     """)
 
-    title = String(help="""
+    title = Nullable(String, help="""
     The title text to render.
     """)
 
@@ -299,7 +318,7 @@ class Legend(Annotation):
 
     padding = Int(10, help="""
     Amount of padding around the contents of the legend. Only applicable when
-    when border is visible, otherwise collapses to 0.
+    border is visible, otherwise collapses to 0.
     """)
 
     spacing = Int(3, help="""
@@ -341,10 +360,9 @@ class ColorBar(Annotation):
 
     '''
 
-    location = Either(Enum(LegendLocation), Tuple(Float, Float),
-        default="top_right", help="""
+    location = Either(Enum(Anchor), Tuple(Float, Float), default="top_right", help="""
     The location where the color bar should draw itself. It's either one of
-    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    ``bokeh.core.enums.Anchor``'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
 
@@ -353,15 +371,15 @@ class ColorBar(Annotation):
         have to be set to `(0,0)`.
     """)
 
-    orientation = Enum(Orientation, default="vertical", help="""
+    orientation = Either(Enum(Orientation), Auto, default="auto", help="""
     Whether the color bar should be oriented vertically or horizontally.
     """)
 
-    height = Either(Auto, Int(), help="""
+    height = Either(Auto, Int, help="""
     The height (in pixels) that the color scale should occupy.
     """)
 
-    width = Either(Auto, Int(), help="""
+    width = Either(Auto, Int, help="""
     The width (in pixels) that the color scale should occupy.
     """)
 
@@ -369,7 +387,7 @@ class ColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = String(help="""
+    title = Nullable(String, help="""
     The title text to render.
     """)
 
@@ -385,11 +403,11 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the title from the color bar.
     """)
 
-    ticker = Instance(ContinuousTicker, default=lambda: BasicTicker(), help="""
+    ticker = Either(Instance(Ticker), Auto, default="auto", help="""
     A Ticker to use for computing locations of axis components.
     """)
 
-    formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
+    formatter = Either(Instance(TickFormatter), Auto, default="auto", help="""
     A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
@@ -398,8 +416,12 @@ class ColorBar(Annotation):
     override normal formatting.
     """)
 
-    color_mapper = Instance(ContinuousColorMapper, help="""
-    A continuous color mapper containing a color palette to render.
+    major_label_policy = Instance(LabelingPolicy, default=lambda: NoOverlap(), help="""
+    Allows to filter out labels, e.g. declutter labels to avoid overlap.
+    """)
+
+    color_mapper = Instance(ColorMapper, help="""
+    A color mapper containing a color palette to render.
 
     .. warning::
         If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
@@ -420,10 +442,6 @@ class ColorBar(Annotation):
     major_label_props = Include(ScalarTextProps, help="""
     The %s of the major tick labels.
     """)
-
-    major_label_text_align = Override(default="center")
-
-    major_label_text_baseline = Override(default="middle")
 
     major_label_text_font_size = Override(default="11px")
 
@@ -483,18 +501,18 @@ class ColorBar(Annotation):
 
     background_fill_alpha = Override(default=0.95)
 
-class Arrow(Annotation):
+class Arrow(DataAnnotation):
     ''' Render arrows as an annotation.
 
     See :ref:`userguide_plotting_arrows` for information on plotting arrows.
 
     '''
 
-    x_start = NumberSpec(help="""
+    x_start = NumberSpec(default=field("x_start"), help="""
     The x-coordinates to locate the start of the arrows.
     """)
 
-    y_start = NumberSpec(help="""
+    y_start = NumberSpec(default=field("y_start"), help="""
     The y-coordinates to locate the start of the arrows.
     """)
 
@@ -503,15 +521,15 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
+    start = Nullable(Instance('.models.arrow_heads.ArrowHead'), help="""
     Instance of ``ArrowHead``.
     """)
 
-    x_end = NumberSpec(help="""
+    x_end = NumberSpec(default=field("x_end"), help="""
     The x-coordinates to locate the end of the arrows.
     """)
 
-    y_end = NumberSpec(help="""
+    y_end = NumberSpec(default=field("y_end"), help="""
     The y-coordinates to locate the end of the arrows.
     """)
 
@@ -520,16 +538,12 @@ class Arrow(Annotation):
     space" units by default.
     """)
 
-    end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
+    end = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_ARROW, help="""
     Instance of ``ArrowHead``.
     """)
 
     body_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow body.
-    """)
-
-    source = Instance(DataSource, help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
 class BoxAnnotation(Annotation):
@@ -539,7 +553,7 @@ class BoxAnnotation(Annotation):
 
     '''
 
-    left = Either(Auto, NumberSpec(), default=None, help="""
+    left = Either(Null, Auto, NumberSpec(), help="""
     The x-coordinates of the left edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -551,7 +565,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    right = Either(Auto, NumberSpec(), default=None, help="""
+    right = Either(Null, Auto, NumberSpec(), help="""
     The x-coordinates of the right edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -563,7 +577,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    bottom = Either(Auto, NumberSpec(), default=None, help="""
+    bottom = Either(Null, Auto, NumberSpec(), help="""
     The y-coordinates of the bottom edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -575,7 +589,7 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    top = Either(Auto, NumberSpec(), default=None, help="""
+    top = Either(Null, Auto, NumberSpec(), help="""
     The y-coordinates of the top edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -591,13 +605,17 @@ class BoxAnnotation(Annotation):
     The %s values for the box.
     """)
 
-    line_alpha = Override(default=0.3)
-
-    line_color = Override(default="#cccccc")
-
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the box.
     """)
+
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the box.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
 
     fill_alpha = Override(default=0.4)
 
@@ -616,31 +634,27 @@ class BoxAnnotation(Annotation):
 
     """)
 
-class Band(Annotation):
+class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
     See :ref:`userguide_plotting_bands` for information on plotting bands.
 
     '''
-    lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    lower = PropertyUnitsSpec(default=field("lower"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    upper = PropertyUnitsSpec(default=field("upper"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    base = PropertyUnitsSpec(default=field("base"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the band can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
     line_props = Include(ScalarLineProps, use_prefix=False, help="""
@@ -679,7 +693,7 @@ class Label(TextAnnotation):
 
     '''
 
-    x = Float(help="""
+    x = NonNullable(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -691,7 +705,7 @@ class Label(TextAnnotation):
     by default.
     """)
 
-    y = Float(help="""
+    y = NonNullable(Float, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
@@ -703,7 +717,7 @@ class Label(TextAnnotation):
     by default.
     """)
 
-    text = String(help="""
+    text = String(default="", help="""
     The text value to render.
     """)
 
@@ -751,7 +765,7 @@ class Label(TextAnnotation):
 
     border_line_color = Override(default=None)
 
-class LabelSet(TextAnnotation):
+class LabelSet(TextAnnotation): # TODO: DataAnnotation
     ''' Render multiple text labels as annotations.
 
     ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
@@ -776,7 +790,7 @@ class LabelSet(TextAnnotation):
 
     '''
 
-    x = NumberSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
     The x-coordinates to locate the text anchors.
     """)
 
@@ -785,7 +799,7 @@ class LabelSet(TextAnnotation):
     by default.
     """)
 
-    y = NumberSpec(help="""
+    y = NumberSpec(default=field("y"), help="""
     The y-coordinates to locate the text anchors.
     """)
 
@@ -794,7 +808,7 @@ class LabelSet(TextAnnotation):
     by default.
     """)
 
-    text = StringSpec("text", help="""
+    text = StringSpec(default=field("text"), help="""
     The text values to render.
     """)
 
@@ -869,13 +883,17 @@ class PolyAnnotation(Annotation):
     The %s values for the polygon.
     """)
 
-    line_alpha = Override(default=0.3)
-
-    line_color = Override(default="#cccccc")
-
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the polygon.
     """)
+
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the polygon.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
 
     fill_alpha = Override(default=0.4)
 
@@ -888,11 +906,11 @@ class Slope(Annotation):
 
     """
 
-    gradient = Float(help="""
+    gradient = Nullable(Float, help="""
     The gradient of the line, in data units
     """)
 
-    y_intercept = Float(help="""
+    y_intercept = Nullable(Float, help="""
     The y intercept of the line, in data units
     """)
 
@@ -907,7 +925,7 @@ class Span(Annotation):
 
     """
 
-    location = Float(help="""
+    location = Nullable(Float, help="""
     The location of the span, along ``dimension``.
 
     Datetime values are also accepted, but note that they are immediately
@@ -948,7 +966,7 @@ class Title(TextAnnotation):
 
     '''
 
-    text = String(help="""
+    text = String(default="", help="""
     The text value to render.
     """)
 
@@ -977,13 +995,16 @@ class Title(TextAnnotation):
 
     """)
 
+    standoff = Float(default=10, help="""
+    """)
+
     text_font = String(default="helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
     ``'helvetica'``.
 
     """)
 
-    text_font_size = FontSizeSpec(default="13px")
+    text_font_size = String(default="13px")
 
     text_font_style = Enum(FontStyle, default="bold", help="""
     A style to use for rendering text.
@@ -996,26 +1017,12 @@ class Title(TextAnnotation):
 
     """)
 
-    text_color = ColorSpec(default="#444444", help="""
+    text_color = Color(default="#444444", help="""
     A color to use to fill text with.
-
-    Acceptable values are:
-
-    - any of the 147 named `CSS colors`_, e.g ``'green'``, ``'indigo'``
-    - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
-    - a 3-tuple of integers (r,g,b) between 0 and 255
-    - a 4-tuple of (r,g,b,a) where r,g,b are integers between 0..255 and a is between 0..1
-
-    .. _CSS colors: http://www.w3schools.com/cssref/css_colornames.asp
-
     """)
 
-    text_alpha = NumberSpec(default=1.0, help="""
+    text_alpha = Alpha(help="""
     An alpha value to use to fill text with.
-
-    Acceptable values are floating point numbers between 0 (transparent)
-    and 1 (opaque).
-
     """)
 
     background_props = Include(ScalarFillProps, use_prefix=True, help="""
@@ -1058,40 +1065,36 @@ class Tooltip(Annotation):
     Whether tooltip's arrow should be shown.
     """)
 
-class Whisker(Annotation):
+class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.
 
     See :ref:`userguide_plotting_whiskers` for information on plotting whiskers.
 
     '''
 
-    lower = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    lower = PropertyUnitsSpec(default=field("lower"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
-    lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    lower_head = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_TEE, help="""
     Instance of ``ArrowHead``.
     """)
 
-    upper = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    upper = PropertyUnitsSpec(default=field("upper"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
-    upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
+    upper_head = Nullable(Instance('.models.arrow_heads.ArrowHead'), default=_DEFAULT_TEE, help="""
     Instance of ``ArrowHead``.
     """)
 
-    base = PropertyUnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
+    base = PropertyUnitsSpec(default=field("base"), units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
     dimension = Enum(Dimension, default='height', help="""
     The direction of the whisker can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
-    Local data source to use when rendering annotations on the plot.
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""

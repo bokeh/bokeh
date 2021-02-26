@@ -1,25 +1,36 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
-import {ArrowHead, TeeHead} from "./arrow_head"
+import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Context2d} from "core/util/canvas"
+import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
   model: Whisker
   visuals: Whisker.Visuals
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
-    this.connect(this.model.source.patching, () => this.set_data(this.model.source))
-    this.connect(this.model.source.change, () => this.set_data(this.model.source))
+  protected lower_head: ArrowHeadView | null
+  protected upper_head: ArrowHeadView | null
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {lower_head, upper_head} = this.model
+    if (lower_head != null)
+      this.lower_head = await build_view(lower_head, {parent: this})
+    if (upper_head != null)
+      this.upper_head = await build_view(upper_head, {parent: this})
   }
 
-  protected _render(): void {
-    this._map_data()
+  set_data(source: ColumnarDataSource): void {
+    super.set_data(source)
+    this.lower_head?.set_data(source)
+    this.upper_head?.set_data(source)
+  }
 
-    const {ctx} = this.layer
-
+  paint(ctx: Context2d): void {
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         this.visuals.line.set_vectorize(ctx, i)
@@ -32,22 +43,22 @@ export class WhiskerView extends UpperLowerView {
 
     const angle = this.model.dimension == "height" ? 0 : Math.PI / 2
 
-    if (this.model.lower_head != null) {
+    if (this.lower_head != null) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
         ctx.save()
         ctx.translate(this._lower_sx[i], this._lower_sy[i])
         ctx.rotate(angle + Math.PI)
-        this.model.lower_head.render(ctx, i)
+        this.lower_head.render(ctx, i)
         ctx.restore()
       }
     }
 
-    if (this.model.upper_head != null) {
+    if (this.upper_head != null) {
       for (let i = 0, end = this._upper_sx.length; i < end; i++) {
         ctx.save()
         ctx.translate(this._upper_sx[i], this._upper_sy[i])
         ctx.rotate(angle)
-        this.model.upper_head.render(ctx, i)
+        this.upper_head.render(ctx, i)
         ctx.restore()
       }
     }
@@ -58,13 +69,13 @@ export namespace Whisker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UpperLower.Props & {
-    lower_head: p.Property<ArrowHead>
-    upper_head: p.Property<ArrowHead>
+    lower_head: p.Property<ArrowHead | null>
+    upper_head: p.Property<ArrowHead | null>
   } & Mixins
 
   export type Mixins = LineVector
 
-  export type Visuals = UpperLower.Visuals & {line: Line}
+  export type Visuals = UpperLower.Visuals & {line: visuals.LineVector}
 }
 
 export interface Whisker extends Whisker.Attrs {}
@@ -82,13 +93,13 @@ export class Whisker extends UpperLower {
 
     this.mixins<Whisker.Mixins>(LineVector)
 
-    this.define<Whisker.Props>({
-      lower_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
-      upper_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
-    })
+    this.define<Whisker.Props>(({Ref, Nullable}) => ({
+      lower_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
+      upper_head: [ Nullable(Ref(ArrowHead)), () => new TeeHead({size: 10}) ],
+    }))
 
-    this.override({
-      level: 'underlay',
+    this.override<Whisker.Props>({
+      level: "underlay",
     })
   }
 }

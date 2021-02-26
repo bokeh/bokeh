@@ -8,7 +8,9 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {TickLabelOrientation} from "core/enums"
+import {GraphicsBox, GraphicsBoxes, TextBox} from "core/graphics"
 import {Context2d} from "core/util/canvas"
+import {isString} from "core/util/types"
 import {Orient} from "core/layout/side_panel"
 
 export type CategoricalTickCoords = TickCoords & {
@@ -25,7 +27,7 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
@@ -55,8 +57,8 @@ export class CategoricalAxisView extends AxisView {
       }
     }
 
-    const tex = this._tick_label_extent()
-    this._draw_ticks(ctx, coords, -3, (tex-6), this.visuals.separator_line)
+    const tex = this.extents.tick_label
+    this._draw_ticks(ctx, coords, -3, tex - 6, this.visuals.separator_line)
   }
 
   protected _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
@@ -66,7 +68,7 @@ export class CategoricalAxisView extends AxisView {
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
       this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
-      standoff += extents.tick_label[i]
+      standoff += extents.tick_labels[i]
     }
   }
 
@@ -75,52 +77,59 @@ export class CategoricalAxisView extends AxisView {
 
     const extents = []
     for (const [labels,, orient, visuals] of info) {
-      const extent = this._oriented_labels_extent(labels, orient, this.panel.side, this.model.major_label_standoff, visuals)
+      const extent = this._oriented_labels_extent(labels, orient, this.model.major_label_standoff, visuals)
       extents.push(extent)
     }
 
     return extents
   }
 
-  protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+  protected _get_factor_info(): [GraphicsBoxes, Coords, Orient | number, visuals.Text][] {
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, loc)
     const coords = this.tick_coords
 
-    const info: [string[], Coords, Orient | number, visuals.Text][] = []
+    const info: [GraphicsBoxes, Coords, Orient | number, visuals.Text][] = []
+
+    const map = (labels: (string | GraphicsBox)[]) => {
+      return new GraphicsBoxes(labels.map((label) => isString(label) ? new TextBox({text: label}) : label))
+    }
+
+    const format = (ticks: L1Factor[]) => {
+      return map(this.model.formatter.doFormat(ticks, this))
+    }
 
     if (range.levels == 1) {
       const major = ticks.major as L1Factor[]
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
     } else if (range.levels == 2) {
       const major = (ticks.major as L2Factor[]).map((x) => x[1])
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     } else if (range.levels == 3) {
       const major = (ticks.major as L3Factor[]).map((x) => x[2])
-      const labels = this.model.formatter.doFormat(major, this)
+      const labels = format(major)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([mid_labels as string[], coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
-      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
+      info.push([map(mid_labels as string[]), coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
+      info.push([map(ticks.tops as string[]), coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     }
 
     return info
   }
 
-  // {{{ TODO: state
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc)
 
     const coords: CategoricalTickCoords = {
       major: [[], []],
@@ -130,21 +139,20 @@ export class CategoricalAxisView extends AxisView {
     }
 
     coords.major[i] = ticks.major as any
-    coords.major[j] = ticks.major.map((_x) => this.loc)
+    coords.major[j] = ticks.major.map(() => this.loc)
 
     if (range.levels == 3) {
       coords.mids[i] = ticks.mids as any
-      coords.mids[j] = ticks.mids.map((_x) => this.loc)
+      coords.mids[j] = ticks.mids.map(() => this.loc)
     }
 
     if (range.levels > 1) {
       coords.tops[i] = ticks.tops as any
-      coords.tops[j] = ticks.tops.map((_x) => this.loc)
+      coords.tops[j] = ticks.tops.map(() => this.loc)
     }
 
     return coords
   }
-  // }}}
 }
 
 export namespace CategoricalAxis {
@@ -191,12 +199,12 @@ export class CategoricalAxis extends Axis {
       ["subgroup_",  mixins.Text],
     ])
 
-    this.define<CategoricalAxis.Props>({
-      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
-    })
+    this.define<CategoricalAxis.Props>(({Number, Or}) => ({
+      group_label_orientation:    [ Or(TickLabelOrientation, Number), "parallel" ],
+      subgroup_label_orientation: [ Or(TickLabelOrientation, Number), "parallel" ],
+    }))
 
-    this.override({
+    this.override<CategoricalAxis.Props>({
       ticker: () => new CategoricalTicker(),
       formatter: () => new CategoricalTickFormatter(),
       separator_line_color: "lightgrey",

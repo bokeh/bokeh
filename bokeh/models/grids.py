@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -26,6 +26,7 @@ from ..core.properties import (
     Include,
     Instance,
     Int,
+    Nullable,
     Override,
     Seq,
     Tuple,
@@ -64,14 +65,14 @@ class Grid(GuideRenderer):
     will span the entire visible range.
     """)
 
-    axis = Instance(Axis, help="""
+    axis = Nullable(Instance(Axis), help="""
     An Axis to delegate ticking to. If the ticker property is None, then the
     Grid will use the ticker on the specified axis for computing where to draw
     grid lines. Otherwise, it ticker is not None, it will take precedence over
     any Axis.
     """)
 
-    ticker = Instance(Ticker, help="""
+    ticker = Nullable(Instance(Ticker), help="""
     A Ticker to use for computing locations for the Grid lines.
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 

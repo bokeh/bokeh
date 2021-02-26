@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -343,7 +343,7 @@ async def test__exclude_headers(ManagedServerLoop) -> None:
         token = extract_token_from_json(html)
         payload = get_token_payload(token)
         assert 'headers' in payload
-        assert payload['headers'] == {'Accept-Encoding': 'gzip'}
+        assert payload["headers"].get("Accept-Encoding") == "gzip"
 
 async def test__include_cookies(ManagedServerLoop) -> None:
     application = Application()

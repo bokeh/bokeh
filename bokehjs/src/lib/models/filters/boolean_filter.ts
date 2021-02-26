@@ -21,9 +21,9 @@ export class BooleanFilter extends Filter {
   }
 
   static init_BooleanFilter(): void {
-    this.define<BooleanFilter.Props>({
-      booleans: [ p.Array, null ],
-    })
+    this.define<BooleanFilter.Props>(({Boolean, Array, Nullable}) => ({
+      booleans: [ Nullable(Array(Boolean)), null ],
+    }))
   }
 
   compute_indices(source: ColumnarDataSource): Indices {

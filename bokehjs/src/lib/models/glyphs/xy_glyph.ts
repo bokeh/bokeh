@@ -1,15 +1,15 @@
-import {NumberArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
-export interface XYGlyphData extends GlyphData {
-  _x: NumberArray
-  _y: NumberArray
+export type XYGlyphData = GlyphData & {
+  _x: FloatArray
+  _y: FloatArray
 
-  sx: NumberArray
-  sy: NumberArray
+  sx: ScreenArray
+  sy: ScreenArray
 }
 
 export interface XYGlyphView extends XYGlyphData {}
@@ -23,11 +23,11 @@ export abstract class XYGlyphView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size} = this
+    const {_x, _y, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x = this._x[i]
-      const y = this._y[i]
+      const x = _x[i]
+      const y = _y[i]
 
       if (isNaN(x + y) || !isFinite(x + y))
         index.add_empty()
@@ -63,9 +63,9 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static init_XYGlyph(): void {
-    this.define<XYGlyph.Props>({
+    this.define<XYGlyph.Props>(({}) => ({
       x: [ p.XCoordinateSpec, {field: "x"} ],
       y: [ p.YCoordinateSpec, {field: "y"} ],
-    })
+    }))
   }
 }

@@ -1,4 +1,6 @@
-import {Arrayable, NumberArray, Rect, Box, Interval} from "../types"
+import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
+import {equals, Equatable, Comparator} from "./eq"
+import {Rect as GraphicsRect} from "./affine"
 
 const {min, max} = Math
 
@@ -53,11 +55,10 @@ export type Position = HorizontalPosition & VerticalPosition
 
 export type CoordinateMapper = {
   compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => NumberArray
+  v_compute: (vv: Arrayable<number>) => ScreenArray
 }
 
-export class BBox implements Rect {
-
+export class BBox implements Rect, Equatable {
   readonly x0: number
   readonly y0: number
   readonly x1: number
@@ -133,6 +134,16 @@ export class BBox implements Rect {
     }
   }
 
+  equals(that: Rect): boolean {
+    return this.x0 == that.x0 && this.y0 == that.y0 &&
+           this.x1 == that.x1 && this.y1 == that.y1
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return cmp.eq(this.x0, that.x0) && cmp.eq(this.y0, that.y0) &&
+           cmp.eq(this.x1, that.x1) && cmp.eq(this.y1, that.y1)
+  }
+
   toString(): string {
     return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
   }
@@ -150,8 +161,22 @@ export class BBox implements Rect {
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
-  get rect(): Rect { return {x0: this.x0, y0: this.y0, x1: this.x1, y1: this.y1} }
-  get box(): Box { return {x: this.x, y: this.y, width: this.width, height: this.height} }
+  get size(): Size { return {width: this.width, height: this.height} }
+
+  get rect(): GraphicsRect {
+    const {x0, y0, x1, y1} = this
+    return {
+      p0: {x: x0, y: y0},
+      p1: {x: x1, y: y0},
+      p2: {x: x1, y: y1},
+      p3: {x: x0, y: y1},
+    }
+  }
+
+  get box(): Box {
+    const {x, y, width, height} = this
+    return {x, y, width, height}
+  }
 
   get h_range(): Interval { return {start: this.x0, end: this.x1} }
   get v_range(): Interval { return {start: this.y0, end: this.y1} }
@@ -163,13 +188,24 @@ export class BBox implements Rect {
   get hcenter(): number { return (this.left + this.right)/2 }
   get vcenter(): number { return (this.top + this.bottom)/2 }
 
-  relativize(): BBox {
+  get area(): number { return this.width*this.height }
+
+  relative(): BBox {
     const {width, height} = this
     return new BBox({x: 0, y: 0, width, height})
   }
 
+  translate(tx: number, ty: number): BBox {
+    const {x, y, width, height} = this
+    return new BBox({x: tx + x, y: ty + y, width, height})
+  }
+
+  relativize(x: number, y: number): [number, number] {
+    return [x - this.x, y - this.y]
+  }
+
   contains(x: number, y: number): boolean {
-    return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
+    return this.x0 <= x && x <= this.x1 && this.y0 <= y && y <= this.y1
   }
 
   clip(x: number, y: number): [number, number] {
@@ -186,6 +222,24 @@ export class BBox implements Rect {
     return [x, y]
   }
 
+  grow_by(size: number): BBox {
+    return new BBox({
+      left: this.left - size,
+      right: this.right + size,
+      top: this.top - size,
+      bottom: this.bottom + size,
+    })
+  }
+
+  shrink_by(size: number): BBox {
+    return new BBox({
+      left: this.left + size,
+      right: this.right - size,
+      top: this.top + size,
+      bottom: this.bottom - size,
+    })
+  }
+
   union(that: Rect): BBox {
     return new BBox({
       x0: min(this.x0, that.x0),
@@ -195,8 +249,22 @@ export class BBox implements Rect {
     })
   }
 
-  equals(that: Rect): boolean {
-    return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
+  intersection(that: Rect): BBox | null {
+    if (!this.intersects(that))
+      return null
+    else {
+      return new BBox({
+        x0: max(this.x0, that.x0),
+        y0: max(this.y0, that.y0),
+        x1: min(this.x1, that.x1),
+        y1: min(this.y1, that.y1),
+      })
+    }
+  }
+
+  intersects(that: Rect): boolean {
+    return !(that.x1 < this.x0 || that.x0 > this.x1 ||
+             that.y1 < this.y0 || that.y0 > this.y1)
   }
 
   get xview(): CoordinateMapper {
@@ -204,8 +272,8 @@ export class BBox implements Rect {
       compute: (x: number): number => {
         return this.left + x
       },
-      v_compute: (xx: Arrayable<number>): NumberArray => {
-        const _xx = new NumberArray(xx.length)
+      v_compute: (xx: Arrayable<number>): ScreenArray => {
+        const _xx = new ScreenArray(xx.length)
         const left = this.left
         for (let i = 0; i < xx.length; i++) {
           _xx[i] = left + xx[i]
@@ -220,8 +288,8 @@ export class BBox implements Rect {
       compute: (y: number): number => {
         return this.bottom - y
       },
-      v_compute: (yy: Arrayable<number>): NumberArray => {
-        const _yy = new NumberArray(yy.length)
+      v_compute: (yy: Arrayable<number>): ScreenArray => {
+        const _yy = new ScreenArray(yy.length)
         const bottom = this.bottom
         for (let i = 0; i < yy.length; i++) {
           _yy[i] = bottom - yy[i]

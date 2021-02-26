@@ -12,7 +12,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PointDrawTool, PointDrawToolView} from "@bokehjs/models/tools/edit/point_draw_tool"
 
-import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
@@ -66,11 +66,11 @@ describe("PointDrawTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new PointDrawTool()
-      expect(tool.tooltip).to.be.equal('Point Draw Tool')
+      const tool0 = new PointDrawTool()
+      expect(tool0.tooltip).to.be.equal("Point Draw Tool")
 
-      const custom_tool = new PointDrawTool({custom_tooltip: 'Point Draw Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Point Draw Custom')
+      const tool1 = new PointDrawTool({description: "My Point Draw"})
+      expect(tool1.tooltip).to.be.equal("My Point Draw")
     })
   })
 

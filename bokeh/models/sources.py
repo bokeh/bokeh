@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -30,8 +30,11 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    NonNullable,
+    Nullable,
     PandasDataFrame,
     PandasGroupBy,
+    Readonly,
     Seq,
     String,
 )
@@ -57,6 +60,7 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'ServerSentDataSource',
+    'WebDataSource',
     'WebSource',
 )
 
@@ -70,7 +74,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
+    selected = Readonly(Instance(Selection), default=lambda: Selection(), help="""
     An instance of a ``Selection`` that indicates selected indices on this ``DataSource``.
     This is a read-only property. You may only change the attributes of this object
     to change the selection (e.g., ``selected.indices``).
@@ -101,7 +105,7 @@ class ColumnDataSource(ColumnarDataSource):
 
       .. code-block:: python
 
-          data = {'x': [1,2,3,4], 'y': np.ndarray([10.0, 20.0, 30.0, 40.0])}
+          data = {'x': [1,2,3,4], 'y': np.array([10.0, 20.0, 30.0, 40.0])}
 
           source = ColumnDataSource(data)
 
@@ -702,14 +706,14 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     '''
 
-    geojson = JSON(help="""
+    geojson = NonNullable(JSON, help="""
     GeoJSON that contains features for plotting. Currently
     ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
     """)
 
 @abstract
-class WebSource(ColumnDataSource):
+class WebDataSource(ColumnDataSource):
     ''' Base class for web column data sources that can update from data
     URLs.
 
@@ -718,7 +722,7 @@ class WebSource(ColumnDataSource):
 
     '''
 
-    adapter = Instance(CustomJS, help="""
+    adapter = Nullable(Instance(CustomJS), help="""
     A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
     format.
 
@@ -730,7 +734,7 @@ class WebSource(ColumnDataSource):
     (i.e.  a mapping of string column names to arrays of data).
     """)
 
-    max_size = Int(help="""
+    max_size = Nullable(Int, help="""
     Maximum size of the data columns. If a new fetch would result in columns
     larger than ``max_size``, then earlier data is dropped to make room.
     """)
@@ -740,17 +744,20 @@ class WebSource(ColumnDataSource):
     replace existing data entirely.
     """)
 
-    data_url = String(help="""
+    data_url = NonNullable(String, help="""
     A URL to to fetch data from.
     """)
 
-class ServerSentDataSource(WebSource):
+# TODO: deprecated, remove at bokeh 3.0
+WebSource = WebDataSource
+
+class ServerSentDataSource(WebDataSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(WebSource):
+class AjaxDataSource(WebDataSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 
@@ -781,7 +788,7 @@ class AjaxDataSource(WebSource):
 
     '''
 
-    polling_interval = Int(help="""
+    polling_interval = Nullable(Int, help="""
     A polling interval (in milliseconds) for updating data source.
     """)
 

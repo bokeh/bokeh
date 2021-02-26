@@ -10,7 +10,7 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
-export interface HasXYGlyph {
+export type HasXYGlyph = {
   glyph: XYGlyph
 }
 
@@ -49,7 +49,10 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return null
     }
-    const renderer_view = this.plot_view.renderer_views.get(renderer)!
+    const renderer_view = this.plot_view.renderer_view(renderer)
+    if (renderer_view == null)
+      return null
+
     const x = renderer_view.coordinates.x_scale.invert(sx)
     const y = renderer_view.coordinates.y_scale.invert(sy)
     return [x, y]
@@ -149,12 +152,14 @@ export abstract class EditToolView extends GestureToolView {
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()
       const cds = renderer.data_source
-      const views = [this.plot_view.renderer_views.get(renderer)!]
-      const did_hit = sm.select(views, geometry, true, mode)
-      if (did_hit) {
-        selected.push(renderer)
+      const view = this.plot_view.renderer_view(renderer)
+      if (view != null) {
+        const did_hit = sm.select([view], geometry, true, mode)
+        if (did_hit) {
+          selected.push(renderer)
+        }
+        cds.properties.selected.change.emit()
       }
-      cds.properties.selected.change.emit()
     }
     return selected
   }
@@ -165,8 +170,7 @@ export namespace EditTool {
 
   export type Props = GestureTool.Props & {
     custom_icon: p.Property<string>
-    custom_tooltip: p.Property<string>
-    empty_value: p.Property<any>
+    empty_value: p.Property<unknown>
     renderers: p.Property<GlyphRenderer[]>
   }
 }
@@ -182,19 +186,14 @@ export abstract class EditTool extends GestureTool {
   }
 
   static init_EditTool(): void {
-    this.define<EditTool.Props>({
-      custom_icon:    [ p.String    ],
-      custom_tooltip: [ p.String    ],
-      empty_value:    [ p.Any       ],
-      renderers:      [ p.Array, [] ],
-    })
-  }
-
-  get tooltip(): string {
-    return this.custom_tooltip || this.tool_name
+    this.define<EditTool.Props>(({Unknown, String, Array, Ref}) => ({
+      custom_icon: [ String ],
+      empty_value: [ Unknown ],
+      renderers:   [ Array(Ref(GlyphRenderer)), [] ],
+    }))
   }
 
   get computed_icon(): string {
-    return this.custom_icon || this.icon
+    return this.custom_icon ?? this.icon
   }
 }

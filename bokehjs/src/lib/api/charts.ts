@@ -1,9 +1,11 @@
 import {Palette} from "./palettes"
 import * as palettes from "./palettes"
-import {zip, unzip, sum, cumsum, copy, transpose} from "../core/util/array"
-import {isArray} from "../core/util/types"
-import {sprintf} from "../core/util/templating"
-import {Anchor, TooltipAttachment} from "../core/enums"
+import {Color} from "core/types"
+import {is_dark, color2rgba} from "core/util/color"
+import {zip, unzip, sum, cumsum, copy, transpose} from "core/util/array"
+import {isArray} from "core/util/types"
+import {sprintf} from "core/util/templating"
+import {Anchor, TooltipAttachment} from "core/enums"
 
 import {
   Plot,
@@ -17,33 +19,8 @@ import {
   TickFormatter, BasicTickFormatter, NumeralTickFormatter,
 } from "./models"
 
-type RGB = [number, number, number]
-
-function num2hexcolor(num: number): string {
-  return sprintf("#%06x", num)
-}
-
-function hexcolor2rgb(color: string): RGB {
-  const r = parseInt(color.substr(1, 2), 16)
-  const g = parseInt(color.substr(3, 2), 16)
-  const b = parseInt(color.substr(5, 2), 16)
-  return [r, g, b]
-}
-
-function is_dark([r, g, b]: RGB): boolean {
-  const l = 1 - (0.299*r + 0.587*g + 0.114*b)/255
-  return l >= 0.6
-}
-
-export type Color = string
-
-function norm_palette(palette: Palette | Color[] = "Spectral11"): Color[] {
-  if (isArray(palette))
-    return palette
-  else {
-    type Pals = {[key in Palette]: number[]}
-    return (palettes as Pals)[palette].map(num2hexcolor)
-  }
+function resolve_palette(palette: Palette | Color[] = "Spectral11"): Color[] {
+  return isArray(palette) ? palette : palettes[palette]
 }
 
 export interface ChartOpts {
@@ -107,12 +84,12 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   const inner_radius = opts.inner_radius != null ? opts.inner_radius : 0
   const outer_radius = opts.outer_radius != null ? opts.outer_radius : 1
 
-  const palette = norm_palette(opts.palette)
+  const palette = resolve_palette(opts.palette)
 
   const colors: Color[] = []
   for (let i = 0; i < normalized_values.length; i++)
     colors.push(palette[i % palette.length])
-  const text_colors = colors.map((c) => is_dark(hexcolor2rgb(c)) ? "white" : "black")
+  const text_colors = colors.map((c) => is_dark(color2rgba(c)) ? "white" : "black")
 
   function to_cartesian(r: number, alpha: number): [number, number] {
     return [r*Math.cos(alpha), r*Math.sin(alpha)]
@@ -165,7 +142,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
 
   const g2 = new Text({
     x: {field: "text_cx"}, y: {field: "text_cy"},
-    text: {field: opts.slice_labels || "labels"},
+    text: {field: opts.slice_labels ?? "labels"},
     angle: {field: "text_angles"},
     text_align: "center", text_baseline: "middle",
     text_color: {field: "text_colors"}, text_font_size: "12px",
@@ -178,9 +155,6 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   const xdr = new DataRange1d({renderers: [r1], range_padding: 0.2})
   const ydr = new DataRange1d({renderers: [r1], range_padding: 0.2})
   const plot = new Plot({x_range: xdr, y_range: ydr})
-
-  if (opts.width != null) plot.plot_width = opts.width
-  if (opts.height != null) plot.plot_height = opts.height
 
   plot.add_renderers(r1, r2)
 
@@ -223,7 +197,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   let xdr: Range = new DataRange1d({start: 0})
   let xscale: Scale = new LinearScale()
 
-  const palette = norm_palette(opts.palette)
+  const palette = resolve_palette(opts.palette)
 
   const stacked = opts.stacked != null ? opts.stacked : false
   const orientation = opts.orientation != null ? opts.orientation : "horizontal"
@@ -323,9 +297,6 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   const plot = new Plot({x_range: xdr, y_range: ydr, x_scale: xscale, y_scale: yscale})
-
-  if (opts.width != null) plot.plot_width = opts.width
-  if (opts.height != null) plot.plot_height = opts.height
 
   plot.add_renderers(...renderers)
   plot.add_layout(yaxis, "left")

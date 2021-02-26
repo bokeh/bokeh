@@ -36,9 +36,9 @@ export abstract class Box extends LayoutDOM {
   }
 
   static init_Box(): void {
-    this.define<Box.Props>({
-      children: [ p.Array,  [] ],
-      spacing:  [ p.Number, 0  ],
-    })
+    this.define<Box.Props>(({Number, Array, Ref}) => ({
+      children: [ Array(Ref(LayoutDOM)), [] ],
+      spacing:  [ Number, 0 ],
+    }))
   }
 }

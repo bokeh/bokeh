@@ -1,8 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
-import {Signal0} from "core/signaling"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {BBox, CoordinateMapper} from "core/util/bbox"
@@ -13,22 +12,19 @@ export class BoxAnnotationView extends AnnotationView {
   model: BoxAnnotation
   visuals: BoxAnnotation.Visuals
 
-  private sleft: number
-  private sright: number
-  private sbottom: number
-  private stop: number
+  protected bbox: BBox = new BBox()
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_paint(this))
-    this.connect(this.model.data_update, () => this.plot_view.request_paint(this))
+    this.connect(this.model.change, () => this.request_render())
   }
 
   protected _render(): void {
+    const {left, right, top, bottom} = this.model
+
     // don't render if *all* position are null
-    if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
+    if (left == null && right == null && top == null && bottom == null)
       return
-    }
 
     const {frame} = this.plot_view
     const xscale = this.coordinates.x_scale
@@ -50,40 +46,45 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame.bbox.left)
-    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame.bbox.right)
-    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame.bbox.top)
-    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame.bbox.bottom)
+    this.bbox = new BBox({
+      left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
+      right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
+      top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
+      bottom: _calc_dim(bottom, this.model.bottom_units, yscale, frame.bbox.yview, frame.bbox.bottom),
+    })
 
-    this._paint_box(this.sleft, this.sright, this.sbottom, this.stop)
+    this._paint_box()
   }
 
-  protected _paint_box(sleft: number, sright: number, sbottom: number, stop: number): void {
+  protected _paint_box(): void {
     const {ctx} = this.layer
     ctx.save()
 
+    const {left, top, width, height} = this.bbox
     ctx.beginPath()
-    ctx.rect(sleft, stop, sright-sleft, sbottom-stop)
+    ctx.rect(left, top, width, height)
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       ctx.fill()
     }
+
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      ctx.fill()
+    }
+
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
       ctx.stroke()
     }
+
     ctx.restore()
   }
 
   interactive_bbox(): BBox {
-    const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
-    return new BBox({
-      x0: this.sleft-tol,
-      y0: this.stop-tol,
-      x1: this.sright+tol,
-      y1: this.sbottom+tol,
-    })
+    const tolerance = this.model.line_width + EDGE_TOLERANCE
+    return this.bbox.grow_by(tolerance)
   }
 
   interactive_hit(sx: number, sy: number): boolean {
@@ -95,11 +96,13 @@ export class BoxAnnotationView extends AnnotationView {
 
   cursor(sx: number, sy: number): string | null {
     const tol = 3
-    if (Math.abs(sx-this.sleft) < tol || Math.abs(sx-this.sright) < tol)
+
+    const {left, right, bottom, top} = this.bbox
+    if (Math.abs(sx-left) < tol || Math.abs(sx-right) < tol)
       return this.model.ew_cursor
-    else if (Math.abs(sy-this.sbottom) < tol || Math.abs(sy-this.stop) < tol)
+    else if (Math.abs(sy-bottom) < tol || Math.abs(sy-top) < tol)
       return this.model.ns_cursor
-    else if (sx > this.sleft && sx < this.sright && sy > this.stop && sy < this.sbottom)
+    else if (this.bbox.contains(sx, sy))
       return this.model.in_cursor
     else
       return null
@@ -110,7 +113,6 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    render_mode: p.Property<RenderMode>
     top: p.Property<number | null>
     top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
@@ -123,11 +125,13 @@ export namespace BoxAnnotation {
     ew_cursor: p.Property<string | null>
     ns_cursor: p.Property<string | null>
     in_cursor: p.Property<string | null>
+    /** @deprecated */
+    render_mode: p.Property<RenderMode>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
@@ -143,28 +147,29 @@ export class BoxAnnotation extends Annotation {
   static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
-    this.mixins<BoxAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<BoxAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
-    this.define<BoxAnnotation.Props>({
-      render_mode:  [ p.RenderMode,   'canvas'  ],
-      top:          [ p.Number,       null      ],
-      top_units:    [ p.SpatialUnits, 'data'    ],
-      bottom:       [ p.Number,       null      ],
-      bottom_units: [ p.SpatialUnits, 'data'    ],
-      left:         [ p.Number,       null      ],
-      left_units:   [ p.SpatialUnits, 'data'    ],
-      right:        [ p.Number,       null      ],
-      right_units:  [ p.SpatialUnits, 'data'    ],
-    })
+    this.define<BoxAnnotation.Props>(({Number, Nullable}) => ({
+      top:          [ Nullable(Number), null ],
+      top_units:    [ SpatialUnits, "data" ],
+      bottom:       [ Nullable(Number), null ],
+      bottom_units: [ SpatialUnits, "data" ],
+      left:         [ Nullable(Number), null ],
+      left_units:   [ SpatialUnits, "data" ],
+      right:        [ Nullable(Number), null ],
+      right_units:  [ SpatialUnits, "data" ],
+      /** @deprecated */
+      render_mode:  [ RenderMode, "canvas" ],
+    }))
 
-    this.internal({
-      screen:    [ p.Boolean, false ],
-      ew_cursor: [ p.String,  null  ],
-      ns_cursor: [ p.String,  null  ],
-      in_cursor: [ p.String,  null  ],
-    })
+    this.internal<BoxAnnotation.Props>(({Boolean, String, Nullable}) => ({
+      screen:    [ Boolean, false ],
+      ew_cursor: [ Nullable(String), null ],
+      ns_cursor: [ Nullable(String), null ],
+      in_cursor: [ Nullable(String), null ],
+    }))
 
-    this.override({
+    this.override<BoxAnnotation.Props>({
       fill_color: '#fff9ba',
       fill_alpha: 0.4,
       line_color: '#cccccc',
@@ -172,15 +177,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  data_update: Signal0<this>
-
-  initialize(): void {
-    super.initialize()
-    this.data_update = new Signal0(this, "data_update")
-  }
-
   update({left, right, top, bottom}: {left: number | null, right: number | null, top: number | null, bottom: number | null}): void {
-    this.setv({left, right, top, bottom, screen: true}, {silent: true})
-    this.data_update.emit()
+    this.setv({left, right, top, bottom, screen: true})
   }
 }

@@ -6,8 +6,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strictNullChecks": true,
-    "strictBindCallApply": false,
-    "strictFunctionTypes": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "strictPropertyInitialization": false,
     "alwaysStrict": true,
     "noErrorTruncation": true,
@@ -15,6 +15,7 @@
     "stripInternal": true,
     "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "ES2020",
@@ -22,10 +23,14 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2017",
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "target": "ES2020",
+    "lib": ["es2020", "dom", "dom.iterable"],
     "types": ["hammerjs", "googlemaps"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "../../build/js/lib",
+    "declarationDir": "../../build/js/types",
+    "rootDirs": [".", "../../build/dts/"]
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../../build/dts"]
 }

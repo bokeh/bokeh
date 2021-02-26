@@ -3,6 +3,4 @@
 bokeh.models.markers.Dot
 ------------------------
 
-.. autoclass:: bokeh.models.markers.Dot
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.Dot

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -25,15 +25,17 @@ from ..core.properties import (
     Instance,
     Int,
     List,
+    Null,
+    Nullable,
     Seq,
     String,
     Tuple,
 )
-from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs, markers
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 from ..transform import linear_cmap
 from ..util.options import Options
-from ._decorators import glyph_method
+from ._decorators import glyph_method, marker_method
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
 from ._stack import double_stack, single_stack
@@ -48,7 +50,7 @@ DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 __all__ = (
     'Figure',
     'figure',
-    'markers'
+    'markers',
 )
 
 #-----------------------------------------------------------------------------
@@ -67,72 +69,74 @@ class Figure(Plot):
     .. hlist::
         :columns: 3
 
-        * :func:`~bokeh.plotting.figure.Figure.annular_wedge`
-        * :func:`~bokeh.plotting.figure.Figure.annulus`
-        * :func:`~bokeh.plotting.figure.Figure.arc`
-        * :func:`~bokeh.plotting.figure.Figure.asterisk`
-        * :func:`~bokeh.plotting.figure.Figure.bezier`
-        * :func:`~bokeh.plotting.figure.Figure.circle`
-        * :func:`~bokeh.plotting.figure.Figure.circle_cross`
-        * :func:`~bokeh.plotting.figure.Figure.circle_dot`
-        * :func:`~bokeh.plotting.figure.Figure.circle_x`
-        * :func:`~bokeh.plotting.figure.Figure.circle_y`
-        * :func:`~bokeh.plotting.figure.Figure.cross`
-        * :func:`~bokeh.plotting.figure.Figure.dash`
-        * :func:`~bokeh.plotting.figure.Figure.diamond`
-        * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
-        * :func:`~bokeh.plotting.figure.Figure.diamond_dot`
-        * :func:`~bokeh.plotting.figure.Figure.dot`
-        * :func:`~bokeh.plotting.figure.Figure.ellipse`
-        * :func:`~bokeh.plotting.figure.Figure.harea`
-        * :func:`~bokeh.plotting.figure.Figure.hbar`
-        * :func:`~bokeh.plotting.figure.Figure.hex`
-        * :func:`~bokeh.plotting.figure.Figure.hex_tile`
-        * :func:`~bokeh.plotting.figure.Figure.image`
-        * :func:`~bokeh.plotting.figure.Figure.image_rgba`
-        * :func:`~bokeh.plotting.figure.Figure.image_url`
-        * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
-        * :func:`~bokeh.plotting.figure.Figure.line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
-        * :func:`~bokeh.plotting.figure.Figure.oval`
-        * :func:`~bokeh.plotting.figure.Figure.patch`
-        * :func:`~bokeh.plotting.figure.Figure.patches`
-        * :func:`~bokeh.plotting.figure.Figure.plus`
-        * :func:`~bokeh.plotting.figure.Figure.quad`
-        * :func:`~bokeh.plotting.figure.Figure.quadratic`
-        * :func:`~bokeh.plotting.figure.Figure.ray`
-        * :func:`~bokeh.plotting.figure.Figure.rect`
-        * :func:`~bokeh.plotting.figure.Figure.segment`
-        * :func:`~bokeh.plotting.figure.Figure.square`
-        * :func:`~bokeh.plotting.figure.Figure.square_cross`
-        * :func:`~bokeh.plotting.figure.Figure.square_dot`
-        * :func:`~bokeh.plotting.figure.Figure.square_pin`
-        * :func:`~bokeh.plotting.figure.Figure.square_x`
-        * :func:`~bokeh.plotting.figure.Figure.step`
-        * :func:`~bokeh.plotting.figure.Figure.text`
-        * :func:`~bokeh.plotting.figure.Figure.triangle`
-        * :func:`~bokeh.plotting.figure.Figure.triangle_dot`
-        * :func:`~bokeh.plotting.figure.Figure.triangle_pin`
-        * :func:`~bokeh.plotting.figure.Figure.varea`
-        * :func:`~bokeh.plotting.figure.Figure.vbar`
-        * :func:`~bokeh.plotting.figure.Figure.wedge`
-        * :func:`~bokeh.plotting.figure.Figure.x`
-        * :func:`~bokeh.plotting.figure.Figure.y`
+        * :func:`~bokeh.plotting.Figure.annular_wedge`
+        * :func:`~bokeh.plotting.Figure.annulus`
+        * :func:`~bokeh.plotting.Figure.arc`
+        * :func:`~bokeh.plotting.Figure.asterisk`
+        * :func:`~bokeh.plotting.Figure.bezier`
+        * :func:`~bokeh.plotting.Figure.circle`
+        * :func:`~bokeh.plotting.Figure.circle_cross`
+        * :func:`~bokeh.plotting.Figure.circle_dot`
+        * :func:`~bokeh.plotting.Figure.circle_x`
+        * :func:`~bokeh.plotting.Figure.circle_y`
+        * :func:`~bokeh.plotting.Figure.cross`
+        * :func:`~bokeh.plotting.Figure.dash`
+        * :func:`~bokeh.plotting.Figure.diamond`
+        * :func:`~bokeh.plotting.Figure.diamond_cross`
+        * :func:`~bokeh.plotting.Figure.diamond_dot`
+        * :func:`~bokeh.plotting.Figure.dot`
+        * :func:`~bokeh.plotting.Figure.ellipse`
+        * :func:`~bokeh.plotting.Figure.harea`
+        * :func:`~bokeh.plotting.Figure.hbar`
+        * :func:`~bokeh.plotting.Figure.hex`
+        * :func:`~bokeh.plotting.Figure.hex_tile`
+        * :func:`~bokeh.plotting.Figure.image`
+        * :func:`~bokeh.plotting.Figure.image_rgba`
+        * :func:`~bokeh.plotting.Figure.image_url`
+        * :func:`~bokeh.plotting.Figure.inverted_triangle`
+        * :func:`~bokeh.plotting.Figure.line`
+        * :func:`~bokeh.plotting.Figure.multi_line`
+        * :func:`~bokeh.plotting.Figure.multi_polygons`
+        * :func:`~bokeh.plotting.Figure.oval`
+        * :func:`~bokeh.plotting.Figure.patch`
+        * :func:`~bokeh.plotting.Figure.patches`
+        * :func:`~bokeh.plotting.Figure.plus`
+        * :func:`~bokeh.plotting.Figure.quad`
+        * :func:`~bokeh.plotting.Figure.quadratic`
+        * :func:`~bokeh.plotting.Figure.ray`
+        * :func:`~bokeh.plotting.Figure.rect`
+        * :func:`~bokeh.plotting.Figure.segment`
+        * :func:`~bokeh.plotting.Figure.square`
+        * :func:`~bokeh.plotting.Figure.square_cross`
+        * :func:`~bokeh.plotting.Figure.square_dot`
+        * :func:`~bokeh.plotting.Figure.square_pin`
+        * :func:`~bokeh.plotting.Figure.square_x`
+        * :func:`~bokeh.plotting.Figure.star`
+        * :func:`~bokeh.plotting.Figure.star_dot`
+        * :func:`~bokeh.plotting.Figure.step`
+        * :func:`~bokeh.plotting.Figure.text`
+        * :func:`~bokeh.plotting.Figure.triangle`
+        * :func:`~bokeh.plotting.Figure.triangle_dot`
+        * :func:`~bokeh.plotting.Figure.triangle_pin`
+        * :func:`~bokeh.plotting.Figure.varea`
+        * :func:`~bokeh.plotting.Figure.vbar`
+        * :func:`~bokeh.plotting.Figure.wedge`
+        * :func:`~bokeh.plotting.Figure.x`
+        * :func:`~bokeh.plotting.Figure.y`
 
     There is a scatter function that can be parameterized by marker type:
 
-    * :func:`~bokeh.plotting.figure.Figure.scatter`
+    * :func:`~bokeh.plotting.Figure.scatter`
 
     There are also specialized methods for stacking bars:
 
-    * bars: :func:`~bokeh.plotting.figure.Figure.hbar_stack`, :func:`~bokeh.plotting.figure.Figure.vbar_stack`
-    * lines: :func:`~bokeh.plotting.figure.Figure.hline_stack`, :func:`~bokeh.plotting.figure.Figure.vline_stack`
-    * areas: :func:`~bokeh.plotting.figure.Figure.harea_stack`, :func:`~bokeh.plotting.figure.Figure.varea_stack`
+    * bars: :func:`~bokeh.plotting.Figure.hbar_stack`, :func:`~bokeh.plotting.Figure.vbar_stack`
+    * lines: :func:`~bokeh.plotting.Figure.hline_stack`, :func:`~bokeh.plotting.Figure.vline_stack`
+    * areas: :func:`~bokeh.plotting.Figure.harea_stack`, :func:`~bokeh.plotting.Figure.varea_stack`
 
     As well as one specialized method for making simple hexbin plots:
 
-    * :func:`~bokeh.plotting.figure.Figure.hexbin`
+    * :func:`~bokeh.plotting.Figure.hexbin`
 
     In addition to all the ``Figure`` property attributes, the following
     options are also accepted:
@@ -151,10 +155,6 @@ class Figure(Plot):
             raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
         if 'plot_height' in kw and 'height' in kw:
             raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
-        if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
 
         opts = FigureOptions(kw)
 
@@ -203,7 +203,7 @@ Examples:
     def arc(self, **kwargs):
         pass
 
-    @glyph_method(markers.Asterisk)
+    @marker_method()
     def asterisk(self, **kwargs):
         """
 Examples:
@@ -224,7 +224,7 @@ Examples:
     def bezier(self, **kwargs):
         pass
 
-    @glyph_method(markers.Circle)
+    @glyph_method(glyphs.Circle)
     def circle(self, **kwargs):
         """
 .. note::
@@ -245,7 +245,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleCross)
+    @marker_method()
     def circle_cross(self, **kwargs):
         """
 Examples:
@@ -263,7 +263,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleCross)
+    @marker_method()
     def circle_dot(self, **kwargs):
         """
 Examples:
@@ -281,7 +281,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleX)
+    @marker_method()
     def circle_x(self, **kwargs):
         """
 Examples:
@@ -299,7 +299,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.CircleX)
+    @marker_method()
     def circle_y(self, **kwargs):
         """
 Examples:
@@ -317,7 +317,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Cross)
+    @marker_method()
     def cross(self, **kwargs):
         """
 Examples:
@@ -335,7 +335,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Dash)
+    @marker_method()
     def dash(self, **kwargs):
         """
 Examples:
@@ -353,7 +353,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Diamond)
+    @marker_method()
     def diamond(self, **kwargs):
         """
 Examples:
@@ -371,7 +371,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.DiamondCross)
+    @marker_method()
     def diamond_cross(self, **kwargs):
         """
 Examples:
@@ -389,7 +389,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.DiamondDot)
+    @marker_method()
     def diamond_dot(self, **kwargs):
         """
 Examples:
@@ -407,7 +407,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Dot)
+    @marker_method()
     def dot(self, **kwargs):
         """
 Examples:
@@ -477,7 +477,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Hex)
+    @marker_method()
     def hex(self, **kwargs):
         """
 Examples:
@@ -494,7 +494,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Hex)
+    @marker_method()
     def hex_dot(self, **kwargs):
         """
 Examples:
@@ -552,7 +552,7 @@ Examples:
     def image_url(self, **kwargs):
         pass
 
-    @glyph_method(markers.InvertedTriangle)
+    @marker_method()
     def inverted_triangle(self, **kwargs):
         """
 Examples:
@@ -687,7 +687,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Plus)
+    @marker_method()
     def plus(self, **kwargs):
         """
 Examples:
@@ -798,7 +798,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Square)
+    @marker_method()
     def square(self, **kwargs):
         """
 Examples:
@@ -815,7 +815,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareCross)
+    @marker_method()
     def square_cross(self, **kwargs):
         """
 Examples:
@@ -833,7 +833,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareDot)
+    @marker_method()
     def square_dot(self, **kwargs):
         """
 Examples:
@@ -851,7 +851,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquarePin)
+    @marker_method()
     def square_pin(self, **kwargs):
         """
 Examples:
@@ -869,7 +869,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.SquareX)
+    @marker_method()
     def square_x(self, **kwargs):
         """
 Examples:
@@ -887,6 +887,42 @@ Examples:
 
 """
 
+    @marker_method()
+    def star(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.star(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                  color="#1C9099", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def star_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.star_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
     @glyph_method(glyphs.Text)
     def text(self, **kwargs):
         """
@@ -896,7 +932,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Triangle)
+    @marker_method()
     def triangle(self, **kwargs):
         """
 Examples:
@@ -914,7 +950,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.TriangleDot)
+    @marker_method()
     def triangle_dot(self, **kwargs):
         """
 Examples:
@@ -932,7 +968,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.TrianglePin)
+    @marker_method()
     def triangle_pin(self, **kwargs):
         """
 Examples:
@@ -1003,7 +1039,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.X)
+    @marker_method()
     def x(self, **kwargs):
         """
 Examples:
@@ -1020,7 +1056,7 @@ Examples:
 
 """
 
-    @glyph_method(markers.Y)
+    @marker_method()
     def y(self, **kwargs):
         """
 Examples:
@@ -1039,7 +1075,7 @@ Examples:
 
     # -------------------------------------------------------------------------
 
-    @glyph_method(markers.Scatter)
+    @glyph_method(glyphs.Scatter)
     def _scatter(self, **kwargs):
         pass
 
@@ -1268,14 +1304,14 @@ Examples:
 
             .. code-block:: python
 
-                p.hbar_stack(['2016', '2017'], x=10, width=0.9, color=['blue', 'red'], source=source)
+                p.hbar_stack(['2016', '2017'], y=10, width=0.9, color=['blue', 'red'], source=source)
 
             This is equivalent to the following two separate calls:
 
             .. code-block:: python
 
-                p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
-                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
+                p.hbar(bottom=stack(),       top=stack('2016'),         y=10, width=0.9, color='blue', source=source, name='2016')
+                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), y=10, width=0.9, color='red',  source=source, name='2017')
 
         '''
         result = []
@@ -1585,19 +1621,19 @@ class FigureOptions(Options):
     Number of minor ticks between adjacent y-axis major ticks.
     """)
 
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    x_axis_location = Nullable(Enum(VerticalLocation), default="below", help="""
     Where the x-axis should be located.
     """)
 
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    y_axis_location = Nullable(Enum(HorizontalLocation), default="left", help="""
     Where the y-axis should be located.
     """)
 
-    x_axis_label = String(default="", help="""
+    x_axis_label = Nullable(String, default="", help="""
     A label for the x-axis.
     """)
 
-    y_axis_label = String(default="", help="""
+    y_axis_label = Nullable(String, default="", help="""
     A label for the y-axis.
     """)
 
@@ -1605,7 +1641,7 @@ class FigureOptions(Options):
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
@@ -1617,15 +1653,15 @@ class FigureOptions(Options):
     Which tap tool should initially be active.
     """)
 
-    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the y-axis.
     """)
 
-    tooltips = Either(String, List(Tuple(String, String)), help="""
+    tooltips = Either(Null, String, List(Tuple(String, String)), help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
     tool is specified in the ``tools`` argument, this value will override that

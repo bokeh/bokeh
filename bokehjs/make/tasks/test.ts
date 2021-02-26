@@ -1,7 +1,7 @@
 import {spawn, ChildProcess} from "child_process"
 import {Socket} from "net"
 import {argv} from "yargs"
-import {join, delimiter} from "path"
+import {join, delimiter, basename, dirname} from "path"
 import os from "os"
 import assert from "assert"
 
@@ -9,7 +9,7 @@ import which from "which"
 
 import {task, task2, success, passthrough, BuildError} from "../task"
 import {Linker} from "@compiler/linker"
-import {default_prelude} from "@compiler/prelude"
+import * as preludes from "@compiler/prelude"
 import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
@@ -55,36 +55,20 @@ async function find_port(port: number): Promise<number> {
   return port
 }
 
-function mocha(files: string[]): Promise<void> {
-  let args = ["node_modules/mocha/bin/_mocha"]
+function terminate(proc: ChildProcess): void {
+  process.once("exit",    () => proc.kill())
+  process.once("SIGINT",  () => proc.kill("SIGINT"))
+  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+}
 
-  if (argv.debug) {
-    if (argv.debug === true)
-      args.unshift("--inspect-brk")
-    else
-      args.unshift(`--inspect-brk=${argv.debug}`)
-  }
-
-  if (argv.k)
-    args.push("--grep", argv.k as string)
-
-  args = args.concat(
-    ["--reporter", (argv.reporter as string | undefined) || "spec"],
-    ["--slow", "5s"],
-    ["--exit"],
-    files,
-  )
-
+function node(files: string[]): Promise<void> {
   const env = {
     ...process.env,
     NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
-
-  process.once('exit',    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  const proc = spawn(process.execPath, files, {stdio: "inherit", env})
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -93,7 +77,7 @@ function mocha(files: string[]): Promise<void> {
         resolve()
       else {
         const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
-        reject(new BuildError("mocha", `tests ${comment}`))
+        reject(new BuildError("node", `tests ${comment}`))
       }
     })
   })
@@ -103,8 +87,8 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:size", ["test:codebase:compile"], async () => {
-  await mocha(["./build/test/codebase/size.js"])
+task("test:codebase", ["test:codebase:compile"], async () => {
+  await node(["./build/test/codebase/index.js"])
 })
 
 function sys_path(): string {
@@ -118,6 +102,7 @@ function sys_path(): string {
       path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
       break
     case "Windows_NT":
+      path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
       path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
       break
   }
@@ -143,19 +128,15 @@ function chrome(): string {
 async function headless(port: number): Promise<ChildProcess> {
   const args = [
     "--headless",
+    `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
     `--remote-debugging-port=${port}`,
-    "--hide-scrollbars",
-    "--font-render-hinting=none",
-    "--disable-font-subpixel-positioning",
-    "--force-color-profile=srgb",
-    "--force-device-scale-factor=1",
+    "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
+    "--disable-font-subpixel-positioning",  // makes images look similar on all platform
+    "--force-color-profile=srgb",           // ^^^
+    "--force-device-scale-factor=1",        // ^^^
   ]
   const executable = chrome()
   const proc = spawn(executable, args, {stdio: "pipe"})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
 
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
@@ -193,10 +174,7 @@ async function server(port: number): Promise<ChildProcess> {
   }
 
   const proc = spawn(process.execPath, args, {stdio: ["inherit", "inherit", "inherit", "ipc"]})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -234,10 +212,12 @@ function opt(name: string, value: unknown): string {
 }
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
+  const legacy = argv.legacy === true ? "?legacy" : ""
+
   const args = [
     "--no-warnings",
     "./test/devtools",
-    `http://localhost:${server_port}/${name}`,
+    `http://localhost:${server_port}/${name}${legacy}`,
     `--port=${devtools_port}`,
     opt("k", argv.k),
     opt("grep", argv.grep),
@@ -252,11 +232,8 @@ function devtools(devtools_port: number, server_port: number, name: string, base
       args.unshift(`--inspect-brk=${argv.debug}`)
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit'})
-
-  process.once("exit",    () => proc.kill())
-  process.once("SIGINT",  () => proc.kill("SIGINT"))
-  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+  const proc = spawn(process.execPath, args, {stdio: "inherit"})
+  terminate(proc)
 
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
@@ -271,11 +248,28 @@ function devtools(devtools_port: number, server_port: number, name: string, base
   })
 }
 
+async function keep_alive(): Promise<void> {
+  await new Promise((resolve) => {
+    process.on("SIGINT", () => resolve(undefined))
+  })
+}
+
+task("test:run:headless", async () => {
+  const proc = await headless(9222)
+  terminate(proc)
+  await keep_alive()
+})
+
+task("test:spawn:headless", async () => {
+  await headless(9222)
+})
+
 const start_headless = task("test:start:headless", async () => {
   let port = 9222
   await retry(async () => {
     port = await find_port(port)
-    await headless(port)
+    const proc = await headless(port)
+    terminate(proc)
   }, 3)
   return success(port)
 })
@@ -293,11 +287,34 @@ const start = task2("test:start", [start_headless, start_server], async (devtool
   return success([devtools_port, server_port] as [number, number])
 })
 
-function compile(name: string) {
-  compile_typescript(`./test/${name}/tsconfig.json`)
+function compile(name: string, options?: {auto_index?: boolean}) {
+  // `files` is in TS canonical form, i.e. `/` is the separator on all platforms
+  const base_dir = `test/${name}`
+
+  compile_typescript(`./${base_dir}/tsconfig.json`, !options?.auto_index ? {} : {
+    inputs(files) {
+      const imports = ['export * from "../framework"']
+
+      for (const file of files) {
+        if (file.startsWith(base_dir) && file.endsWith(".ts")) {
+          const name = basename(file, ".ts")
+          if (!name.startsWith("_") && !name.endsWith(".d")) {
+            const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
+            const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
+            imports.push(`import "${module}"`)
+          }
+        }
+      }
+
+      const index = `${base_dir}/index.ts`
+      const source = imports.join("\n")
+
+      return new Map([[index, source]])
+    },
+  })
 }
 
-function bundle(name: string): void {
+async function bundle(name: string): Promise<void> {
   const linker = new Linker({
     entries: [join(paths.build_dir.test, name, "index.js")],
     bases: [paths.build_dir.test, "./node_modules"],
@@ -305,43 +322,54 @@ function bundle(name: string): void {
     target: "ES2020",
     minify: false,
     externals: [/^@bokehjs\//],
-    prelude: () => default_prelude({global: "Tests"}),
     shims: ["fs", "module"],
   })
 
   if (!argv.rebuild) linker.load_cache()
-  const [bundle] = linker.link()
+  const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
-  bundle.assemble().write(join(paths.build_dir.test, `${name}.js`))
+  const prelude = {
+    main: preludes.default_prelude({global: "Tests"}),
+    plugin: preludes.plugin_prelude(),
+  }
+
+  const postlude = {
+    main: preludes.postlude(),
+    plugin: preludes.plugin_postlude(),
+  }
+
+  bundle.assemble({prelude, postlude}).write(join(paths.build_dir.test, `${name}.js`))
+
+  if (!status)
+    throw new BuildError(`${name}:bundle`, "unable to bundle modules")
 }
 
-task("test:compile:unit", async () => compile("unit"))
-const unit_bundle = task("test:unit:bundle", [passthrough("test:compile:unit")], async () => bundle("unit"))
+task("test:compile:unit", async () => compile("unit", {auto_index: true}))
+const build_unit = task("test:build:unit", [passthrough("test:compile:unit")], async () => await bundle("unit"))
 
-task2("test:unit", [start, unit_bundle], async ([devtools_port, server_port]) => {
+task2("test:unit", [start, build_unit], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "unit")
   return success(undefined)
 })
 
-task("test:compile:integration", async () => compile("integration"))
-const integration_bundle = task("test:integration:bundle", [passthrough("test:compile:integration")], async () => bundle("integration"))
+task("test:compile:integration", async () => compile("integration", {auto_index: true}))
+const build_integration = task("test:build:integration", [passthrough("test:compile:integration")], async () => await bundle("integration"))
 
-task2("test:integration", [start, integration_bundle], async ([devtools_port, server_port]) => {
+task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "integration", "test/baselines")
   return success(undefined)
 })
 
 task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
-const defaults_bundle = task("test:defaults:bundle", [passthrough("test:defaults:compile")], async () => bundle("defaults"))
+const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
 
-task2("test:defaults", [start, defaults_bundle], async ([devtools_port, server_port]) => {
+task2("test:defaults", [start, build_defaults], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "defaults")
   return success(undefined)
 })
 
-task("test:bundle", ["test:defaults:bundle", "test:unit:bundle", "test:integration:bundle"])
-task("test:build", ["test:bundle"])
+task("test:build", ["test:build:defaults", "test:build:unit", "test:build:integration"])
 
 task("test:lib", ["test:unit", "test:integration"])
-task("test", ["test:size", "test:defaults", "test:lib"])
+task("test", ["test:codebase", "test:defaults", "test:lib"])

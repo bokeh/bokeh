@@ -4,8 +4,7 @@ import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
 import * as p from "core/properties"
 
-import {bk_inline} from "styles/mixins"
-import {bk_input_group} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
@@ -13,7 +12,7 @@ export class CheckboxGroupView extends InputGroupView {
   render(): void {
     super.render()
 
-    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
+    const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
     this.el.appendChild(group)
 
     const {active, labels} = this.model
@@ -65,10 +64,10 @@ export class CheckboxGroup extends InputGroup {
   static init_CheckboxGroup(): void {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define<CheckboxGroup.Props>({
-      active:   [ p.Array,   []    ],
-      labels:   [ p.Array,   []    ],
-      inline:   [ p.Boolean, false ],
-    })
+    this.define<CheckboxGroup.Props>(({Boolean, Int, String, Array}) => ({
+      active: [ Array(Int), [] ],
+      labels: [ Array(String), [] ],
+      inline: [ Boolean, false ],
+    }))
   }
 }

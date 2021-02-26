@@ -1,21 +1,18 @@
 import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
+import {ColumnType} from "./definitions"
 
 import * as p from "core/properties"
-import {Column} from "@bokeh/slickgrid"
 import {uniqueId} from "core/util/string"
 import {Sort} from "core/enums"
 import {Model} from "../../../model"
-
-export type Item = {[key: string]: any}
-export type ColumnType = Column<Item> & {model?: CellEditor}
 
 export namespace TableColumn {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
     field: p.Property<string>
-    title: p.Property<string>
+    title: p.Property<string | null>
     width: p.Property<number>
     formatter: p.Property<CellFormatter>
     editor: p.Property<CellEditor>
@@ -34,15 +31,15 @@ export class TableColumn extends Model {
   }
 
   static init_TableColumn(): void {
-    this.define<TableColumn.Props>({
-      field:        [ p.String                                ],
-      title:        [ p.String                                ],
-      width:        [ p.Number,   300                         ],
-      formatter:    [ p.Instance, () => new StringFormatter() ],
-      editor:       [ p.Instance, () => new StringEditor()    ],
-      sortable:     [ p.Boolean,  true                        ],
-      default_sort: [ p.Sort,     "ascending"                 ],
-    })
+    this.define<TableColumn.Props>(({Boolean, Number, String, Nullable, Ref}) => ({
+      field:        [ String ],
+      title:        [ Nullable(String), null ],
+      width:        [ Number, 300 ],
+      formatter:    [ Ref(StringFormatter), () => new StringFormatter() ],
+      editor:       [ Ref(StringEditor), () => new StringEditor() ],
+      sortable:     [ Boolean, true ],
+      default_sort: [ Sort, "ascending" ],
+    }))
   }
 
   toColumn(): ColumnType {

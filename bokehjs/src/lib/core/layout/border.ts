@@ -3,6 +3,13 @@ import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
+  *[Symbol.iterator]() {
+    yield this.top_panel
+    yield this.bottom_panel
+    yield this.left_panel
+    yield this.right_panel
+    yield this.center_panel
+  }
 
   top_panel: Layoutable
   bottom_panel: Layoutable
@@ -11,21 +18,25 @@ export class BorderLayout extends Layoutable {
   center_panel: Layoutable
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+  padding: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
   protected _measure(viewport: Size): SizeHint {
-    viewport = new Sizeable(viewport).bounded_to(this.sizing.size)
+    viewport = new Sizeable({
+      width: this.sizing.width_policy == "fixed" || viewport.width == Infinity ? this.sizing.width : viewport.width,
+      height: this.sizing.height_policy == "fixed" || viewport.height == Infinity ? this.sizing.height : viewport.height,
+    })
 
     const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
-    const left = Math.max(left_hint.width, this.min_border.left)
+    const left = Math.max(left_hint.width, this.min_border.left) + this.padding.left
 
     const right_hint = this.right_panel.measure({width: 0, height: viewport.height})
-    const right = Math.max(right_hint.width, this.min_border.right)
+    const right = Math.max(right_hint.width, this.min_border.right) + this.padding.right
 
     const top_hint = this.top_panel.measure({width: viewport.width, height: 0})
-    const top = Math.max(top_hint.height, this.min_border.top)
+    const top = Math.max(top_hint.height, this.min_border.top) + this.padding.top
 
     const bottom_hint = this.bottom_panel.measure({width: viewport.width, height: 0})
-    const bottom = Math.max(bottom_hint.height, this.min_border.bottom)
+    const bottom = Math.max(bottom_hint.height, this.min_border.bottom) + this.padding.bottom
 
     const center_viewport = new Sizeable(viewport).shrink_by({left, right, top, bottom})
     const center = this.center_panel.measure(center_viewport)

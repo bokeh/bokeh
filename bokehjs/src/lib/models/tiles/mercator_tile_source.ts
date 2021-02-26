@@ -22,12 +22,12 @@ export class MercatorTileSource extends TileSource {
   }
 
   static init_MercatorTileSource(): void {
-    this.define<MercatorTileSource.Props>({
-      snap_to_zoom: [ p.Boolean, false ],
-      wrap_around:  [ p.Boolean, true  ],
-    })
+    this.define<MercatorTileSource.Props>(({Boolean}) => ({
+      snap_to_zoom: [ Boolean, false ],
+      wrap_around:  [ Boolean, true ],
+    }))
 
-    this.override({
+    this.override<MercatorTileSource.Props>({
       x_origin_offset:    20037508.34,
       y_origin_offset:    20037508.34,
       initial_resolution: 156543.03392804097,
@@ -220,7 +220,6 @@ export class MercatorTileSource extends TileSource {
     let tileY = 0
     const tileZ = quadKey.length
     for (let i = tileZ; i > 0; i--) {
-
       const value = quadKey.charAt(tileZ - i)
       const mask = 1 << (i - 1)
 

@@ -1,11 +1,11 @@
 import {expect} from "assertions"
 
-import {Panel, Tabs} from "@bokehjs/models/layouts/tabs"
+import {Panel} from "@bokehjs/models/layouts/panel"
+import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("Tabs", () => {
-
   function new_tabs(): Tabs {
     const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),

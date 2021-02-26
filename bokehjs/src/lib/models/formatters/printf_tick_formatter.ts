@@ -20,9 +20,9 @@ export class PrintfTickFormatter extends TickFormatter {
   }
 
   static init_PrintfTickFormatter(): void {
-    this.define<PrintfTickFormatter.Props>({
-      format: [ p.String, '%s' ],
-    })
+    this.define<PrintfTickFormatter.Props>(({String}) => ({
+      format: [ String, "%s" ],
+    }))
   }
 
   doFormat(ticks: number[], _opts: {loc: number}): string[] {

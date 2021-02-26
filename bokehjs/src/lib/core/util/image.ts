@@ -56,6 +56,9 @@ export class ImageLoader {
   }
 
   get image(): Image {
-    return this._image
+    if (this._finished)
+      return this._image
+    else
+      throw new Error("not loaded yet")
   }
 }

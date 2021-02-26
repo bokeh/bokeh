@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -314,7 +314,9 @@ class BaseResources:
 
     def _file_paths(self, kind):
         minified = ".min" if not self.dev and self.minified else ""
-        files = ["%s%s.%s" % (component, minified, kind) for component in self.components(kind)]
+        legacy = ".legacy" if self.legacy else ""
+
+        files = [f"{component}{legacy}{minified}.{kind}" for component in self.components(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 

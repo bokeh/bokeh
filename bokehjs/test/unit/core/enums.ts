@@ -7,13 +7,14 @@ describe("enums module", () => {
   it("should have Anchor", () => {
     expect([...enums.Anchor]).to.be.equal([
       "top_left",    "top_center",    "top_right",
-      "center_left", "center",        "center_right",
+      "center_left", "center_center", "center_right",
       "bottom_left", "bottom_center", "bottom_right",
+      "top", "left", "center", "right", "bottom",
     ])
   })
 
   it("should have AngleUnits", () => {
-    expect([...enums.AngleUnits]).to.be.equal(["deg", "rad"])
+    expect([...enums.AngleUnits]).to.be.equal(["deg", "rad", "grad", "turn"])
   })
 
   it("should have BoxOrigin", () => {
@@ -21,7 +22,7 @@ describe("enums module", () => {
   })
 
   it("should have ButtonType", () => {
-    expect([...enums.ButtonType]).to.be.equal(["default", "primary", "success", "warning", "danger"])
+    expect([...enums.ButtonType]).to.be.equal(["default", "primary", "success", "warning", "danger", "light"])
   })
 
   it("should have Dimension", () => {
@@ -76,8 +77,9 @@ describe("enums module", () => {
   it("should have LegendLocation", () => {
     expect([...enums.LegendLocation]).to.be.equal([
       "top_left",    "top_center",    "top_right",
-      "center_left", "center",        "center_right",
+      "center_left", "center_center", "center_right",
       "bottom_left", "bottom_center", "bottom_right",
+      "top", "left", "center", "right", "bottom",
     ])
   })
 
@@ -106,7 +108,8 @@ describe("enums module", () => {
       "asterisk", "circle", "circle_cross", "circle_dot", "circle_x", "circle_y",
       "cross", "dash", "diamond", "diamond_cross", "diamond_dot", "dot", "hex",
       "hex_dot", "inverted_triangle", "plus", "square", "square_cross", "square_dot",
-      "square_pin", "square_x", "triangle", "triangle_dot", "triangle_pin", "x", "y",
+      "square_pin", "square_x", "star", "star_dot", "triangle", "triangle_dot",
+      "triangle_pin", "x", "y",
     ])
   })
 

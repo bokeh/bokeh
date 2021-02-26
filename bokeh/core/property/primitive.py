@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide properties for Python primitive types.
+""" Provide properties for Python primitive types.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -42,6 +42,7 @@ __all__ = (
     'Complex',
     'Int',
     'Float',
+    'Null',
     'String',
 )
 
@@ -49,13 +50,23 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+class Null(PrimitiveProperty):
+    """ Accept only ``None`` value.
+
+        Use this in conjunction with ``Either(Null, Type)`` or as ``Nullable(Type)``.
+    """
+
+    _underlying_type = (type(None),)
+
+    def __init__(self, default=None, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class Bool(PrimitiveProperty):
-    ''' Accept boolean values.
+    """ Accept boolean values.
 
     Args:
-        default (obj or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (obj, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -86,16 +97,19 @@ class Bool(PrimitiveProperty):
 
             >>> m.prop = 10  # ValueError !!
 
-    '''
+    """
+
     _underlying_type = bokeh_bool_types
 
+    def __init__(self, default=False, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class Complex(PrimitiveProperty):
-    ''' Accept complex floating point values.
+    """ Accept complex floating point values.
 
     Args:
-        default (complex or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (complex, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -110,16 +124,19 @@ class Complex(PrimitiveProperty):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
+
     _underlying_type = (numbers.Complex,)
 
+    def __init__(self, default=0j, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class Int(PrimitiveProperty):
-    ''' Accept signed integer values.
+    """ Accept signed integer values.
 
     Args:
-        default (int or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (int, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -150,16 +167,19 @@ class Int(PrimitiveProperty):
 
             >>> m.prop = 10.3  # ValueError !!
 
-    '''
+    """
+
     _underlying_type = bokeh_integer_types
 
+    def __init__(self, default=0, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class Float(PrimitiveProperty):
-    ''' Accept floating point values.
+    """ Accept floating point values.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -191,16 +211,19 @@ class Float(PrimitiveProperty):
             >>> m.prop = "foo"  # ValueError !!
 
 
-    '''
+    """
+
     _underlying_type = (numbers.Real,)
 
+    def __init__(self, default=0.0, *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
 class String(PrimitiveProperty):
-    ''' Accept string values.
+    """ Accept string values.
 
     Args:
-        default (string or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (string, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -231,8 +254,12 @@ class String(PrimitiveProperty):
 
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
-    '''
+    """
+
     _underlying_type = (str,)
+
+    def __init__(self, default="", *, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------
 # Dev API

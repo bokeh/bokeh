@@ -1,9 +1,9 @@
 import {expect} from "assertions"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {ImageRGBA} from "@bokehjs/models/glyphs/image_rgba"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {NumberArray} from '@bokehjs/core/types'
+import {ScreenArray} from '@bokehjs/core/types'
 
 describe("ImageRGBA module", () => {
 
@@ -20,8 +20,8 @@ describe("ImageRGBA module", () => {
       const image_rgba_view = await create_glyph_view(image_rgba, data)
       image_rgba_view.map_data()
 
-      expect(image_rgba_view.sw).to.be.equal(new NumberArray([34]))
-      expect(image_rgba_view.sh).to.be.equal(new NumberArray([38]))
+      expect(image_rgba_view.sw).to.be.equal(new ScreenArray([34]))
+      expect(image_rgba_view.sh).to.be.equal(new ScreenArray([38]))
     })
 
     it("`_map_data` should correctly map data if w and h units are 'screen'", async () => {
@@ -37,8 +37,8 @@ describe("ImageRGBA module", () => {
       const image_rgba_view = await create_glyph_view(image_rgba, data)
       image_rgba_view.map_data()
 
-      expect(image_rgba_view.sw).to.be.equal(new NumberArray([1]))
-      expect(image_rgba_view.sh).to.be.equal(new NumberArray([2]))
+      expect(image_rgba_view.sw).to.be.equal(new ScreenArray([1]))
+      expect(image_rgba_view.sh).to.be.equal(new ScreenArray([2]))
     })
   })
 })

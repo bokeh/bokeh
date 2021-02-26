@@ -1,28 +1,24 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {Size} from "core/layout"
-import {Text} from "core/visuals"
+import {VerticalAlign, TextAlign} from "core/enums"
+import {Size, Layoutable} from "core/layout"
+import {Panel} from "core/layout/side_panel"
+import {font_metrics} from "core/util/text"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
-
-  initialize(): void {
-    super.initialize()
-    this.visuals.text = new Text(this.model)
-  }
+  layout: Layoutable
+  panel: Panel
 
   protected _get_location(): [number, number] {
-    const panel = this.panel!
-
     const hmargin = this.model.offset
-    const vmargin = 5
+    const vmargin = this.model.standoff/2
 
     let sx: number, sy: number
-    const {bbox} = panel
-    switch (panel.side) {
+    const {bbox} = this.layout
+    switch (this.panel.side) {
       case 'above':
       case 'below': {
         switch (this.model.vertical_align) {
@@ -40,9 +36,9 @@ export class TitleView extends TextAnnotationView {
       }
       case 'left': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = bbox.left    - vmargin; break
+          case 'top':    sx = bbox.left    + vmargin; break
           case 'middle': sx = bbox.hcenter;           break
-          case 'bottom': sx = bbox.right   + vmargin; break
+          case 'bottom': sx = bbox.right   - vmargin; break
         }
 
         switch (this.model.align) {
@@ -80,7 +76,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.layer.ctx, text, sx, sy, angle)
@@ -91,9 +87,15 @@ export class TitleView extends TextAnnotationView {
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
     else {
-      this.visuals.text.set_value(this.layer.ctx)
-      const {width, ascent} = this.layer.ctx.measureText(text)
-      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
+      const {ctx} = this.layer
+      this.visuals.text.set_value(ctx)
+
+      const {width} = this.layer.ctx.measureText(text)
+      const {height} = font_metrics(ctx.font)
+
+      // XXX: The magic 2px is for backwards compatibility. This will be removed at
+      // some point, but currently there is no point breaking half of visual tests.
+      return {width, height: 2 + height*this.model.text_line_height + this.model.standoff}
     }
   }
 }
@@ -103,20 +105,14 @@ export namespace Title {
 
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
-    text_font: p.Property<string> // XXX: Font
-    text_font_size: p.StringSpec
-    text_font_style: p.Property<FontStyle>
-    text_color: p.ColorSpec
-    text_alpha: p.NumberSpec
-    text_line_height: p.NumberSpec
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
-    text_align: p.Property<TextAlign>
-    text_baseline: p.Property<TextBaseline>
+    standoff: p.Property<number>
   } & Mixins
 
   export type Mixins =
+    mixins.Text           &
     mixins.BorderLine     &
     mixins.BackgroundFill
 
@@ -137,31 +133,28 @@ export class Title extends TextAnnotation {
     this.prototype.default_view = TitleView
 
     this.mixins<Title.Mixins>([
+      mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
     ])
 
-    this.define<Title.Props>({
-      text:             [ p.String                     ],
-      text_font:        [ p.Font,          'helvetica' ],
-      text_font_size:   [ p.StringSpec,    '13px'      ],
-      text_font_style:  [ p.FontStyle,     'bold'      ],
-      text_color:       [ p.ColorSpec,     '#444444'   ],
-      text_alpha:       [ p.NumberSpec,    1.0         ],
-      text_line_height: [ p.Number,        1.0         ],
-      vertical_align:   [ p.VerticalAlign, 'bottom'    ],
-      align:            [ p.TextAlign,     'left'      ],
-      offset:           [ p.Number,        0           ],
-    })
+    this.define<Title.Props>(({Number, String}) => ({
+      text:             [ String, "" ],
+      vertical_align:   [ VerticalAlign, "bottom" ],
+      align:            [ TextAlign, "left" ],
+      offset:           [ Number, 0 ],
+      standoff:         [ Number, 10 ],
+    }))
 
-    this.override({
+    this.prototype._props.text_align.options.internal = true
+    this.prototype._props.text_baseline.options.internal = true
+
+    this.override<Title.Props>({
+      text_font_size: "13px",
+      text_font_style: "bold",
+      text_line_height: 1.0,
       background_fill_color: null,
       border_line_color: null,
-    })
-
-    this.internal({
-      text_align:    [ p.TextAlign,    'left'   ],
-      text_baseline: [ p.TextBaseline, 'bottom' ],
     })
   }
 }

@@ -1,11 +1,11 @@
 import {LineVector} from "core/property_mixins"
-import {Line} from "core/visuals"
-import {Rect, NumberArray} from "core/types"
+import * as visuals from "core/visuals"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_vector_legend} from "./utils"
 import * as p from "core/properties"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -28,20 +28,20 @@ function _qbb(u: number, v: number, w: number): [number, number] {
   }
 }
 
-export interface QuadraticData extends GlyphData {
-  _x0: NumberArray
-  _y0: NumberArray
-  _x1: NumberArray
-  _y1: NumberArray
-  _cx: NumberArray
-  _cy: NumberArray
+export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
+  _x0: FloatArray
+  _y0: FloatArray
+  _x1: FloatArray
+  _y1: FloatArray
+  _cx: FloatArray
+  _cy: FloatArray
 
-  sx0: NumberArray
-  sy0: NumberArray
-  sx1: NumberArray
-  sy1: NumberArray
-  scx: NumberArray
-  scy: NumberArray
+  sx0: ScreenArray
+  sy0: ScreenArray
+  sx1: ScreenArray
+  sy1: ScreenArray
+  scx: ScreenArray
+  scy: ScreenArray
 }
 
 export interface QuadraticView extends QuadraticData {}
@@ -56,29 +56,45 @@ export class QuadraticView extends GlyphView {
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size} = this
+    const {_x0, _x1, _y0, _y1, _cx, _cy, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      if (isNaN(this._x0[i] + this._x1[i] + this._y0[i] + this._y1[i] + this._cx[i] + this._cy[i]))
+      const x0_i = _x0[i]
+      const x1_i = _x1[i]
+      const y0_i = _y0[i]
+      const y1_i = _y1[i]
+      const cx_i = _cx[i]
+      const cy_i = _cy[i]
+
+      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()
       else {
-        const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
-        const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
+        const [x0, x1] = _qbb(x0_i, cx_i, x1_i)
+        const [y0, y1] = _qbb(y0_i, cy_i, y1_i)
 
         index.add(x0, y0, x1, y1)
       }
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx0, sy0, sx1, sy1, scx, scy}: QuadraticData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: QuadraticData): void {
     if (this.visuals.line.doit) {
+      const {sx0, sy0, sx1, sy1, scx, scy} = data ?? this
+
       for (const i of indices) {
-        if (isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i]))
+        const sx0_i = sx0[i]
+        const sy0_i = sy0[i]
+        const sx1_i = sx1[i]
+        const sy1_i = sy1[i]
+        const scx_i = scx[i]
+        const scy_i = scy[i]
+
+        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
           continue
 
         ctx.beginPath()
-        ctx.moveTo(sx0[i], sy0[i])
-        ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.quadraticCurveTo(scx_i, scy_i, sx1_i, sy1_i)
 
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
@@ -87,7 +103,7 @@ export class QuadraticView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+    generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
   scenterxy(): [number, number] {
@@ -109,7 +125,7 @@ export namespace Quadratic {
 
   export type Mixins = LineVector
 
-  export type Visuals = Glyph.Visuals & {line: Line}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}
@@ -125,14 +141,14 @@ export class Quadratic extends Glyph {
   static init_Quadratic(): void {
     this.prototype.default_view = QuadraticView
 
-    this.define<Quadratic.Props>({
+    this.define<Quadratic.Props>(({}) => ({
       x0: [ p.XCoordinateSpec, {field: "x0"} ],
       y0: [ p.YCoordinateSpec, {field: "y0"} ],
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
       y1: [ p.YCoordinateSpec, {field: "y1"} ],
       cx: [ p.XCoordinateSpec, {field: "cx"} ],
       cy: [ p.YCoordinateSpec, {field: "cy"} ],
-    })
+    }))
     this.mixins<Quadratic.Mixins>(LineVector)
   }
 }

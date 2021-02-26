@@ -1,33 +1,39 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
+import {DataAnnotationView} from "./data_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import * as mixins from "core/property_mixins"
-import {LineJoin, LineCap} from "core/enums"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {div, display} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
-import {Arrayable} from "core/types"
+import {Arrayable, FloatArray} from "core/types"
 import {Context2d} from "core/util/canvas"
+import {font_metrics} from "core/util/text"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
   visuals: LabelSet.Visuals
 
-  protected _x: Arrayable<number>
-  protected _y: Arrayable<number>
-  protected _text: Arrayable<string>
-  protected _angle: Arrayable<number>
-  protected _x_offset: Arrayable<number>
-  protected _y_offset: Arrayable<number>
+  protected _x: FloatArray
+  protected _y: FloatArray
+  protected text: p.Uniform<string>
+  protected angle: p.Uniform<number>
+  protected x_offset: p.Uniform<number>
+  protected y_offset: p.Uniform<number>
+
+  // XXX: can't inherit DataAnnotation currently
+  set_data(source: ColumnarDataSource): void {
+    DataAnnotationView.prototype.set_data.call(this, source)
+  }
 
   initialize(): void {
     super.initialize()
-
     this.set_data(this.model.source)
 
     if (this.model.render_mode == 'css') {
-      for (let i = 0, end = this._text.length; i < end; i++) {
+      for (let i = 0, end = this.text.length; i < end; i++) {
         const el = div({style: {display: "none"}})
         this.el!.appendChild(el)
       }
@@ -36,57 +42,36 @@ export class LabelSetView extends TextAnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    if (this.model.render_mode == 'css') {
-      // dispatch CSS update immediately
-      this.connect(this.model.change, () => {
-        this.set_data(this.model.source)
+
+    const render = () => {
+      this.set_data(this.model.source)
+
+      if (this.model.render_mode == "css")
         this.render()
-      })
-      this.connect(this.model.source.streaming, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-      this.connect(this.model.source.patching, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-      this.connect(this.model.source.change, () => {
-        this.set_data(this.model.source)
-        this.render()
-      })
-    } else {
-      this.connect(this.model.change, () => {
-        this.set_data(this.model.source)
-        this.plot_view.request_render()
-      })
-      this.connect(this.model.source.streaming, () => {
-        this.set_data(this.model.source)
-        this.plot_view.request_render()
-      })
-      this.connect(this.model.source.patching, () => {
-        this.set_data(this.model.source)
-        this.plot_view.request_render()
-      })
-      this.connect(this.model.source.change, () => {
-        this.set_data(this.model.source)
-        this.plot_view.request_render()
-      })
+      else
+        this.request_render()
     }
+
+    this.connect(this.model.change, render)
+    this.connect(this.model.source.streaming, render)
+    this.connect(this.model.source.patching, render)
+    this.connect(this.model.source.change, render)
   }
 
-  set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.visuals.warm_cache(source)
+  protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
+    const {width} = ctx.measureText(text)
+    const {height} = font_metrics(this.visuals.text.font_value(0))
+    return [width, height]
   }
 
   protected _map_data(): [Arrayable<number>, Arrayable<number>] {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const panel = this.layout != null ? this.layout : this.plot_view.frame
 
-    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
-    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
+    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.bbox.xview.v_compute(this._x)
+    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.bbox.yview.v_compute(this._y)
 
     return [sx, sy]
   }
@@ -97,17 +82,19 @@ export class LabelSetView extends TextAnnotationView {
 
     const [sx, sy] = this._map_data()
 
-    for (let i = 0, end = this._text.length; i < end; i++) {
-      draw(ctx, i, this._text[i], sx[i] + this._x_offset[i], sy[i] - this._y_offset[i], this._angle[i])
+    for (let i = 0, end = this.text.length; i < end; i++) {
+      draw(ctx, i, this.text.get(i), sx[i] + this.x_offset.get(i), sy[i] - this.y_offset.get(i), this.angle.get(i))
     }
   }
 
   protected _get_size(): Size {
     const {ctx} = this.layer
-    this.visuals.text.set_value(ctx)
+    this.visuals.text.set_vectorize(ctx, 0)
 
-    const {width, ascent} = ctx.measureText(this._text[0])
-    return {width, height: ascent}
+    const {width} = ctx.measureText(this.text.get(0))
+    const {height} = font_metrics(ctx.font)
+
+    return {width, height}
   }
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {
@@ -145,35 +132,31 @@ export class LabelSetView extends TextAnnotationView {
     el.textContent = text
 
     this.visuals.text.set_vectorize(ctx, i)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const [x, y] = this._calculate_bounding_box_dimensions(ctx, text)
 
-    // attempt to support vector-style ("8 4 8") line dashing for css mode
-    const ld = this.visuals.border_line.line_dash.value()
-    const line_dash = ld.length < 2 ? "solid" : "dashed"
-
-    this.visuals.border_line.set_vectorize(ctx, i)
-    this.visuals.background_fill.set_vectorize(ctx, i)
-
-    el.style.position = 'absolute'
-    el.style.left = `${sx + bbox_dims[0]}px`
-    el.style.top = `${sy + bbox_dims[1]}px`
-    el.style.color = `${this.visuals.text.text_color.value()}`
-    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    el.style.font = `${this.visuals.text.font_value()}`
-    el.style.lineHeight = "normal"  // needed to prevent ipynb css override
+    el.style.position = "absolute"
+    el.style.left = `${sx + x}px`
+    el.style.top = `${sy + y}px`
+    el.style.color = ctx.fillStyle as string
+    el.style.font = ctx.font
+    el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
       el.style.transform = `rotate(${angle}rad)`
     }
 
     if (this.visuals.background_fill.doit) {
-      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
+      this.visuals.background_fill.set_vectorize(ctx, i)
+      el.style.backgroundColor = ctx.fillStyle as string
     }
 
     if (this.visuals.border_line.doit) {
-      el.style.borderStyle = `${line_dash}`
-      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
-      el.style.borderColor = `${this.visuals.border_line.color_value()}`
+      this.visuals.border_line.set_vectorize(ctx, i)
+
+      // attempt to support vector-style ("8 4 8") line dashing for css mode
+      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
+      el.style.borderWidth = `${ctx.lineWidth}px`
+      el.style.borderColor = ctx.strokeStyle as string
     }
 
     display(el)
@@ -184,8 +167,8 @@ export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TextAnnotation.Props & {
-    x: p.NumberSpec
-    y: p.NumberSpec
+    x: p.XCoordinateSpec
+    y: p.YCoordinateSpec
     x_units: p.Property<SpatialUnits>
     y_units: p.Property<SpatialUnits>
     text: p.StringSpec
@@ -193,24 +176,18 @@ export namespace LabelSet {
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
-
-    // line:border_ v
-    border_line_color: p.ColorSpec
-    border_line_width: p.NumberSpec
-    border_line_alpha: p.NumberSpec
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-
-    // fill:background_ v
-    background_fill_color: p.ColorSpec
-    background_fill_alpha: p.NumberSpec
   } & Mixins
 
-  export type Mixins = mixins.TextVector
+  export type Mixins =
+    mixins.TextVector &
+    mixins.Prefixed<"border", mixins.LineVector> &
+    mixins.Prefixed<"background", mixins.FillVector>
 
-  export type Visuals = TextAnnotation.Visuals
+  export type Visuals = TextAnnotation.Visuals & {
+    text: visuals.TextVector
+    border_line: visuals.LineVector
+    background_fill: visuals.FillVector
+  }
 }
 
 export interface LabelSet extends LabelSet.Attrs {}
@@ -232,19 +209,19 @@ export class LabelSet extends TextAnnotation {
       ["background_", mixins.FillVector],
     ])
 
-    this.define<LabelSet.Props>({
-      x:            [ p.NumberSpec                      ],
-      y:            [ p.NumberSpec                      ],
-      x_units:      [ p.SpatialUnits, 'data'            ],
-      y_units:      [ p.SpatialUnits, 'data'            ],
-      text:         [ p.StringSpec,   { field: "text" } ],
-      angle:        [ p.AngleSpec,    0                 ],
-      x_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      y_offset:     [ p.NumberSpec,   { value: 0 }      ],
-      source:       [ p.Instance,     () => new ColumnDataSource()  ],
-    })
+    this.define<LabelSet.Props>(({Ref}) => ({
+      x:            [ p.XCoordinateSpec, {field: "x"} ],
+      y:            [ p.YCoordinateSpec, {field: "y"} ],
+      x_units:      [ SpatialUnits, "data" ],
+      y_units:      [ SpatialUnits, "data" ],
+      text:         [ p.StringSpec, {field: "text"} ],
+      angle:        [ p.AngleSpec, 0 ],
+      x_offset:     [ p.NumberSpec, {value: 0} ],
+      y_offset:     [ p.NumberSpec, {value: 0} ],
+      source:       [ Ref(ColumnDataSource), () => new ColumnDataSource() ],
+    }))
 
-    this.override({
+    this.override<LabelSet.Props>({
       background_fill_color: null,
       border_line_color: null,
     })

@@ -3,6 +3,4 @@
 bokeh.models.markers.TrianglePin
 --------------------------------
 
-.. autoclass:: bokeh.models.markers.TrianglePin
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.TrianglePin

@@ -2,6 +2,9 @@ import {Arrayable} from "../types"
 
 const {sin, cos} = Math
 
+export type Point = {x: number, y: number}
+export type Rect = {p0: Point, p1: Point, p2: Point, p3: Point}
+
 export class AffineTransform {
 
   constructor(
@@ -25,6 +28,19 @@ export class AffineTransform {
   get is_identity(): boolean {
     const {a, b, c, d, e, f} = this
     return a == 1 && b == 0 && c == 0 && d == 1 && e == 0 && f == 0
+  }
+
+  apply_point(p: Point): Point {
+    const [x, y] = this.apply(p.x, p.y)
+    return {x, y}
+  }
+
+  apply_rect(rect: Rect): Rect {
+    const p0 = this.apply_point(rect.p0)
+    const p1 = this.apply_point(rect.p1)
+    const p2 = this.apply_point(rect.p2)
+    const p3 = this.apply_point(rect.p3)
+    return {p0, p1, p2, p3}
   }
 
   apply(x: number, y: number): [number, number] {

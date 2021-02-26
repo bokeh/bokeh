@@ -1,18 +1,18 @@
-declare interface CommMessage {
-  buffers: DataView[]
-  content: {
+declare namespace google.colab {
+  declare export type CommMessage = {
+    buffers: ArrayBuffer[]
     data: string
   }
-}
 
-declare interface Comm {
-  messages: AsyncGenerator<CommMessage>
-}
+  declare export type Comm = {
+    messages: AsyncGenerator<CommMessage>
+  }
 
-declare namespace google.colab {
-  export const kernel: {
+  declare export type Kernel = {
     comms: {
       registerTarget(target: string, fn: (comm: Comm) => void): void
     }
   }
+
+  declare export const kernel: Kernel | undefined
 }

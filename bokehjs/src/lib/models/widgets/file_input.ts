@@ -75,9 +75,9 @@ export class FileInputView extends WidgetView {
 export namespace FileInput {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Widget.Props & {
-    value: p.Property<string|string[]>
-    mime_type: p.Property<string|string[]>
-    filename: p.Property<string|string[]>
+    value: p.Property<string | string[]>
+    mime_type: p.Property<string | string[]>
+    filename: p.Property<string | string[]>
     accept: p.Property<string>
     multiple: p.Property<boolean>
   }
@@ -86,7 +86,6 @@ export namespace FileInput {
 export interface FileInput extends FileInput.Attrs {}
 
 export abstract class FileInput extends Widget {
-
   properties: FileInput.Props
   __view_type__: FileInputView
 
@@ -97,12 +96,12 @@ export abstract class FileInput extends Widget {
   static init_FileInput(): void {
     this.prototype.default_view = FileInputView
 
-    this.define<FileInput.Props>({
-      value:     [ p.Any, '' ],
-      mime_type: [ p.Any, '' ],
-      filename:  [ p.Any, '' ],
-      accept:    [ p.String, '' ],
-      multiple:  [ p.Boolean, false ],
-    })
+    this.define<FileInput.Props>(({Boolean, String, Array, Or}) => ({
+      value:     [ Or(String, Array(String)), "" ],
+      mime_type: [ Or(String, Array(String)), "" ],
+      filename:  [ Or(String, Array(String)), "" ],
+      accept:    [ String, "" ],
+      multiple:  [ Boolean, false ],
+    }))
   }
 }

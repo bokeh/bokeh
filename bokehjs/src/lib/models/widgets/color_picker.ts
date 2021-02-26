@@ -2,16 +2,17 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {Color} from "core/types"
 import {input} from "core/dom"
 import * as p from "core/properties"
+import {color2css} from "core/util/color"
 
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class ColorPickerView extends InputWidgetView {
   model: ColorPicker
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
-    this.connect(this.model.properties.color.change, () => this.input_el.value = this.model.color)
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
+    this.connect(this.model.properties.color.change, () => this.input_el.value = color2css(this.model.color))
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }
 
@@ -20,7 +21,7 @@ export class ColorPickerView extends InputWidgetView {
 
     this.input_el = input({
       type: "color",
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       value: this.model.color,
       disabled: this.model.disabled,
@@ -56,8 +57,8 @@ export class ColorPicker extends InputWidget {
   static init_ColorPicker(): void {
     this.prototype.default_view = ColorPickerView
 
-    this.define<ColorPicker.Props>({
-      color: [ p.Color, "#000000" ],
-    })
+    this.define<ColorPicker.Props>(({Color}) => ({
+      color: [ Color, "#000000" ],
+    }))
   }
 }

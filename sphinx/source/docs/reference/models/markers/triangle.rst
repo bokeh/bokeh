@@ -3,6 +3,4 @@
 bokeh.models.markers.Triangle
 -----------------------------
 
-.. autoclass:: bokeh.models.markers.Triangle
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.Triangle

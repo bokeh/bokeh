@@ -2,7 +2,6 @@ import {IndexBuffer, VertexBuffer} from "./buffer"
 import {Texture2d} from "./texture"
 
 export class Program {
-
   UTYPEMAP: {[key: string]: string} = {
     float: "uniform1fv",
     vec2: "uniform2fv",
@@ -36,6 +35,7 @@ export class Program {
     vec2: [2, 5126],
     vec3: [3, 5126],
     vec4: [4, 5126],
+    vec4_uint8: [4, 5121],
   }
 
   readonly handle: WebGLProgram
@@ -241,7 +241,8 @@ export class Program {
     }
   }
 
-  set_attribute(name: string, type_: string, value: VertexBuffer | number[], stride: number = 0, offset: number = 0): void {
+  set_attribute(name: string, type_: string, value: VertexBuffer | number[],
+      stride: number = 0, offset: number = 0, normalize: boolean = false): void {
     // Set an attribute value.
     //
     // An attribute represents per-vertex data and can only be used
@@ -289,7 +290,7 @@ export class Program {
     } else {
       const [size, gtype] = this.ATYPEINFO[type_]
       const funcname = "vertexAttribPointer"
-      const args = [size, gtype, false, stride, offset]
+      const args = [size, gtype, normalize, stride, offset]
       this._attributes.set(name, [value.handle, handle, funcname, args])
     }
   }

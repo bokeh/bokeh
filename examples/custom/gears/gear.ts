@@ -1,24 +1,24 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "models/glyphs/xy_glyph"
-import {generic_area_legend} from "models/glyphs/utils"
-import {isString} from "core/util/types"
-import {Context2d} from "core/util/canvas"
-import {Arrayable, Rect} from "core/types"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
-import * as p from "core/properties"
+import {XYGlyph, XYGlyphView, XYGlyphData} from "@bokehjs/models/glyphs/xy_glyph"
+import {generic_area_vector_legend} from "@bokehjs/models/glyphs/utils"
+import {isString} from "@bokehjs/core/util/types"
+import {Context2d} from "@bokehjs/core/util/canvas"
+import {ScreenArray, Rect} from "@bokehjs/core/types"
+import {LineVector, FillVector, HatchVector} from "@bokehjs/core/property_mixins"
+import * as visuals from "@bokehjs/core/visuals"
+import * as p from "@bokehjs/core/properties"
 
 import {Draw, gear_tooth, internal_gear_tooth}  from "./gear_utils"
 import {arc_to_bezier} from "./bezier"
 
 export interface GearData extends XYGlyphData {
-  _angle: Arrayable<number>
-  _module: Arrayable<number>
-  _pressure_angle: Arrayable<number>
-  _shaft_size: Arrayable<number>
-  _teeth: Arrayable<number>
-  _internal: Arrayable<boolean>
+  angle: p.Uniform<number>
+  module: p.Uniform<number>
+  pressure_angle: p.Uniform<number>
+  shaft_size: p.Uniform<number>
+  teeth: p.Uniform<number>
+  internal: p.Uniform<boolean>
 
-  smodule: Arrayable<number>
+  smodule: ScreenArray
 }
 
 export interface GearView extends GearData {}
@@ -28,48 +28,63 @@ export class GearView extends XYGlyphView {
   visuals: Gear.Visuals
 
   _map_data(): void {
-    this.smodule = this.sdist(this.renderer.xscale, this._x, this._module, 'edge')
+    this.smodule = this.sdist(this.renderer.xscale, this._x, this.module, 'edge')
   }
 
-  _render(ctx: Context2d, indices: number[],
-          {sx, sy, smodule, _angle, _teeth, _pressure_angle, _shaft_size, _internal}: GearData): void {
+  _render(ctx: Context2d, indices: number[], data?: GearData): void {
+    const {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _angle[i] + smodule[i] + _teeth[i] + _pressure_angle[i] + _shaft_size[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const angle_i = angle.get(i)
+      const smodule_i = smodule[i]
+      const teeth_i = teeth.get(i)
+      const pressure_angle_i = pressure_angle.get(i)
+      const shaft_size_i = shaft_size.get(i)
+      const internal_i = internal.get(i)
+
+      if (isNaN(sx_i + sy_i + angle_i + smodule_i + teeth_i + pressure_angle_i + shaft_size_i))
         continue
 
-      const fn = _internal[i] ? internal_gear_tooth : gear_tooth
-      const seq0 = fn(smodule[i], _teeth[i], _pressure_angle[i])
+      const fn = internal_i ? internal_gear_tooth : gear_tooth
+      const seq0 = fn(smodule_i, teeth_i, pressure_angle_i)
       const [, x, y, ...seq] = seq0
 
       ctx.save()
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(_angle[i])
+      ctx.translate(sx_i, sy_i)
+      ctx.rotate(angle_i)
 
       ctx.beginPath()
 
-      const rot = 2*Math.PI/_teeth[i]
+      const rot = 2*Math.PI/teeth_i
       ctx.moveTo(x as number, y as number)
 
-      for (let j = 0; j < _teeth[i]; j++) {
+      for (let j = 0; j < teeth_i; j++) {
         this._render_seq(ctx, seq)
         ctx.rotate(rot)
       }
 
       ctx.closePath()
 
-      const pitch_radius = smodule[i]*_teeth[i]/2
-      if (_internal[i]) {
-        const rim_radius = pitch_radius + 2.75*smodule[i]
+      const pitch_radius = smodule_i*teeth_i/2
+      if (internal_i) {
+        const rim_radius = pitch_radius + 2.75*smodule_i
         ctx.moveTo(rim_radius, 0)
         ctx.arc(0, 0, rim_radius, 0, 2*Math.PI, true)
-      } else if (_shaft_size[i] > 0) {
-        const shaft_radius = pitch_radius*_shaft_size[i]
+      } else if (shaft_size_i > 0) {
+        const shaft_radius = pitch_radius*shaft_size_i
         ctx.moveTo(shaft_radius, 0)
         ctx.arc(0, 0, shaft_radius, 0, 2*Math.PI, true)
       }
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
+
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
         ctx.fill()
       }
 
@@ -142,7 +157,7 @@ export class GearView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -158,9 +173,9 @@ export namespace Gear {
     internal:       p.BooleanSpec
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Gear extends Gear.Attrs {}
@@ -173,18 +188,20 @@ export class Gear extends XYGlyph {
     super(attrs)
   }
 
+  static __module__ = "gears"
+
   static init_Gear(): void {
     this.prototype.default_view = GearView
 
-    this.mixins<Gear.Mixins>([LineVector, FillVector])
+    this.mixins<Gear.Mixins>([LineVector, FillVector, HatchVector])
 
-    this.define<Gear.Props>({
-      angle:          [ p.AngleSpec,   0     ],
-      module:         [ p.NumberSpec         ],
-      pressure_angle: [ p.NumberSpec,  20    ], // TODO: units: deg
-      shaft_size:     [ p.NumberSpec,  0.3   ],
-      teeth:          [ p.NumberSpec         ],
+    this.define<Gear.Props>(() => ({
+      angle:          [ p.AngleSpec, 0 ],
+      module:         [ p.NumberSpec ],
+      pressure_angle: [ p.NumberSpec, 20 ], // TODO: units: deg
+      shaft_size:     [ p.NumberSpec, 0.3 ],
+      teeth:          [ p.NumberSpec ],
       internal:       [ p.BooleanSpec, false ],
-    })
+    }))
   }
 }

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -33,8 +33,11 @@ from ...core.properties import (
     Int,
     Interval,
     List,
+    Null,
+    Nullable,
     Override,
     PositiveInt,
+    Readonly,
     String,
     Tuple,
 )
@@ -97,7 +100,7 @@ class FileInput(Widget):
     selected files.
     '''
 
-    value = Either(String, List(String), default='', readonly=True, help='''
+    value = Readonly(Either(String, List(String)), default="", help='''
     The base64-enconded contents of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the contents
@@ -109,7 +112,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filenames (see below)
     ''')
 
-    mime_type = Either(String, List(String), default='', readonly=True, help='''
+    mime_type = Readonly(Either(String, List(String)), default="", help='''
     The mime-type of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -121,7 +124,7 @@ class FileInput(Widget):
     The sequence of files is given by the list of filename (see below)
     ''')
 
-    filename = Either(String, List(String), default='', readonly=True, help='''
+    filename = Readonly(Either(String, List(String)), default="", help='''
     The name(s) of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -170,17 +173,17 @@ class NumericInput(InputWidget):
 
     '''
 
-    value = Either(Float, Int, help="""
+    value = Either(Null, Float, Int, help="""
     Initial or entered value.
 
     Change events are triggered whenever <enter> is pressed.
     """)
 
-    low = Either(Float, Int, help="""
+    low = Either(Null, Float, Int, help="""
     Optional lowest allowable value.
     """)
 
-    high = Either(Float, Int, help="""
+    high = Either(Null, Float, Int, help="""
     Optional highest allowable value.
     """)
 
@@ -196,7 +199,7 @@ class NumericInput(InputWidget):
     mode float: 1, -1.2, 1.1e-25
     """)
 
-    format = Either(String, Instance(TickFormatter), help="""
+    format = Either(Null, String, Instance(TickFormatter), help="""
     """)
 
 
@@ -205,7 +208,13 @@ class Spinner(NumericInput):
 
     '''
 
-    value_throttled = Either(Float, Int, help="""
+    def __init__(self, **kwargs):
+        if "value" in kwargs and "value_throttled" not in kwargs:
+            kwargs["value_throttled"] = kwargs["value"]
+
+        super().__init__(**kwargs)
+
+    value_throttled = Readonly(Either(Null, Float, Int), help="""
     value reported at the end of interactions
     """)
 
@@ -225,9 +234,8 @@ class Spinner(NumericInput):
     mouse wheel is used to change the input
     """)
 
-
-class TextInput(InputWidget):
-    ''' Single-line input widget.
+class TextLikeInput(InputWidget):
+    ''' Base class for text-like input widgets.
 
     '''
 
@@ -248,8 +256,17 @@ class TextInput(InputWidget):
     Placeholder for empty input field.
     """)
 
+    max_length = Nullable(Int, help="""
+    Max count of characters in field
+    """)
 
-class TextAreaInput(TextInput):
+class TextInput(TextLikeInput):
+    ''' Single-line input widget.
+
+    '''
+
+
+class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.
 
     '''
@@ -262,9 +279,7 @@ class TextAreaInput(TextInput):
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Int(default=500, help="""
-    Max count of characters in field
-    """)
+    max_length = Override(default=500)
 
 
 class PasswordInput(TextInput):
@@ -295,6 +310,10 @@ class AutocompleteInput(TextInput):
 
     case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
 
+    restrict = Bool(default=True, help="""
+    Set to False in order to allow users to enter text that is not present in the list of completion strings.
+    """)
+
 
 class Select(InputWidget):
     ''' Single-select widget.
@@ -308,11 +327,11 @@ class Select(InputWidget):
     value will be corresponding given label. Option groupings can be provided
     by supplying a dictionary object whose values are in the aforementioned
     list format
-    """)
+    """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
 
     value = String(default="", help="""
     Initial or selected value.
-    """)
+    """).accepts(Null, lambda _: "")
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.
@@ -357,15 +376,15 @@ class MultiChoice(InputWidget):
     Whether to add a button to remove a selected option.
     """)
 
-    max_items = Int(default=None, help="""
+    max_items = Nullable(Int, help="""
     The maximum number of items that can be selected.
     """)
 
-    option_limit = Int(default=None, help="""
+    option_limit = Nullable(Int, help="""
     The number of choices that will be rendered in the dropdown.
     """)
 
-    placeholder = String(default=None, help="""
+    placeholder = Nullable(String, help="""
     A string that is displayed if not item is added.
     """)
 
@@ -382,11 +401,11 @@ class DatePicker(InputWidget):
     The initial or picked date.
     """)
 
-    min_date = Date(default=None, help="""
+    min_date = Nullable(Date, help="""
     Optional earliest allowable date.
     """)
 
-    max_date = Date(default=None, help="""
+    max_date = Nullable(Date, help="""
     Optional latest allowable date.
     """)
 

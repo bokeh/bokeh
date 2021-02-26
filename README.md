@@ -10,9 +10,8 @@
 <tr>
   <td>Latest Release</td>
   <td>
-    <img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="Latest release version" />
-    <a href="https://badge.fury.io/js/%40bokeh%2Fbokehjs">
-      <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
+    <img src="https://badge.fury.io/py/bokeh.svg" alt="pypi version" />
+    <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
     </a>
   </td>
 
@@ -65,7 +64,11 @@
   <td>Build Status</td>
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://github.com/bokeh/bokeh/workflows/GitHub-CI/badge.svg?branch=master"
+    <img src="https://github.com/bokeh/bokeh/workflows/Bokeh-CI/badge.svg?branch=master"
+         alt="Current github actions build status" />
+    </a>
+    <a href="https://github.com/bokeh/bokeh/actions">
+    <img src="https://github.com/bokeh/bokeh/workflows/BokehJS-CI/badge.svg?branch=master"
          alt="Current github actions build status" />
     </a>
   </td>
@@ -256,11 +259,11 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
+For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html).
 
 ## Resources
 
-Once Bokeh is installed, check out the [Getting Started](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://docs.bokeh.org/en/latest/docs/user_guide/quickstart.html).
+Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
 Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
@@ -280,7 +283,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) as well as sponsorship by the organizations and companies below:
 
-<table>
+<table align="center">
 <tr>
   <td>
     <a href="https://www.numfocus.org/">
@@ -288,6 +291,14 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="NumFocus Logo" width="200"/>
     </a>
   </td>
+  <td colspan="2">
+    <a href="https://www.blackstone.com/the-firm/">
+    <img src="https://static.bokeh.org/sponsor/blackstone.png"
+         alt="Blackstone Logo" width="400"/>
+    </a>
+  </td>
+ </tr>
+ <tr>
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
@@ -308,7 +319,6 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
   </td>
 </tr>
 </table>
-
 
 <table align="center">
 <tr>

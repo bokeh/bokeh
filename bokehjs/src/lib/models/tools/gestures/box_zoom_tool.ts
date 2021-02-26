@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
-import {bk_tool_icon_box_zoom} from "styles/icons"
+import {tool_icon_box_zoom} from "styles/icons.css"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -143,7 +143,7 @@ export class BoxZoomToolView extends GestureToolView {
 
     const zoom_info = {xrs, yrs}
 
-    this.plot_view.push_state('box_zoom', {range: zoom_info})
+    this.plot_view.state.push("box_zoom", {range: zoom_info})
     this.plot_view.update_range(zoom_info)
   }
 }
@@ -190,12 +190,12 @@ export class BoxZoomTool extends GestureTool {
   static init_BoxZoomTool(): void {
     this.prototype.default_view = BoxZoomToolView
 
-    this.define<BoxZoomTool.Props>({
-      dimensions:   [ p.Dimensions, "both"              ],
-      overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ p.Boolean,    false               ],
-      origin:       [ p.BoxOrigin,  "corner"            ],
-    })
+    this.define<BoxZoomTool.Props>(({Boolean, Ref}) => ({
+      dimensions:   [ Dimensions, "both" ],
+      overlay:      [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
+      match_aspect: [ Boolean, false ],
+      origin:       [ BoxOrigin, "corner" ],
+    }))
 
     this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: 'both'}))
     this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: 'width'}))
@@ -203,11 +203,11 @@ export class BoxZoomTool extends GestureTool {
   }
 
   tool_name = "Box Zoom"
-  icon = bk_tool_icon_box_zoom
+  icon = tool_icon_box_zoom
   event_type = "pan" as "pan"
   default_order = 20
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

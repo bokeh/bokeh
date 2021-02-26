@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -71,6 +71,7 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
+.. autoclass:: Alpha
 .. autoclass:: Angle
 .. autoclass:: Any
 .. autoclass:: AnyRef
@@ -113,10 +114,12 @@ Container Properties
 .. autoclass:: RelativeDelta
 .. autoclass:: Seq
 .. autoclass:: Tuple
+.. autoclass:: RestrictedDict
 
 DataSpec Properties
 -------------------
 
+.. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
 .. autoclass:: ColorSpec
 .. autoclass:: DataDistanceSpec
@@ -179,6 +182,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alias',
+    'Alpha',
+    'AlphaSpec',
     'Angle',
     'AngleSpec',
     'Any',
@@ -202,6 +208,8 @@ __all__ = (
     'DistanceSpec',
     'Either',
     'Enum',
+    'Factor',
+    'FactorSeq',
     'Float',
     'FontSize',
     'FontSizeSpec',
@@ -218,6 +226,10 @@ __all__ = (
     'MarkerType',
     'MinMaxBounds',
     'NonNegativeInt',
+    'NonNullable',
+    'Null',
+    'NullStringSpec',
+    'Nullable',
     'NumberSpec',
     'Override',
     'PandasDataFrame',
@@ -226,8 +238,10 @@ __all__ = (
     'PositiveInt',
     'PropertyUnitsSpec',
     'RGB',
+    'Readonly',
     'Regex',
     'RelativeDelta',
+    'RestrictedDict',
     'ScreenDistanceSpec',
     'Seq',
     'Size',
@@ -248,11 +262,14 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+from .property.alias import Alias; Alias
+
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
 
 from .property.auto import Auto; Auto
 
+from .property.color import Alpha; Alpha
 from .property.color import Color; Color
 from .property.color import RGB; RGB
 from .property.color import ColorHex; ColorHex
@@ -264,21 +281,32 @@ from .property.container import List; List
 from .property.container import Seq; Seq
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
+from .property.container import RestrictedDict; RestrictedDict
 
+from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
+from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
 from .property.dataspec import DataDistanceSpec; DataDistanceSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
 from .property.dataspec import expr; expr
 from .property.dataspec import field; field
 from .property.dataspec import FontSizeSpec; FontSizeSpec
+from .property.dataspec import FontStyleSpec; FontStyleSpec
 from .property.dataspec import HatchPatternSpec; HatchPatternSpec
+from .property.dataspec import IntSpec; IntSpec
+from .property.dataspec import LineCapSpec; LineCapSpec
+from .property.dataspec import LineJoinSpec; LineJoinSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
+from .property.dataspec import NullDistanceSpec; NullDistanceSpec
+from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
 from .property.dataspec import StringSpec; StringSpec
+from .property.dataspec import TextAlignSpec; TextAlignSpec
+from .property.dataspec import TextBaselineSpec; TextBaselineSpec
 from .property.dataspec import UnitsSpec; UnitsSpec
 from .property.dataspec import value; value
 
@@ -286,15 +314,23 @@ from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
 
+from .property.descriptors import UnsetValueError; UnsetValueError
+
 from .property.either import Either; Either
 
 from .property.enum import Enum; Enum
+
+from .property.factors import Factor; Factor
+from .property.factors import FactorSeq; FactorSeq
 
 from .property.include import Include ; Include
 
 from .property.instance import Instance; Instance
 
 from .property.json import JSON; JSON
+
+from .property.nullable import NonNullable; NonNullable
+from .property.nullable import Nullable; Nullable
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
@@ -313,7 +349,10 @@ from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
+from .property.primitive import Null; Null
 from .property.primitive import String; String
+
+from .property.readonly import Readonly; Readonly
 
 from .property.string import Base64String; Base64String
 from .property.string import Regex; Regex

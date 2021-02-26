@@ -1,4 +1,5 @@
 import {Renderer, RendererView} from "./renderer"
+import {GlyphView} from "../glyphs/glyph"
 import {Scale} from "../scales/scale"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
@@ -14,6 +15,8 @@ export abstract class DataRendererView extends RendererView {
   get yscale(): Scale {
     return this.coordinates.y_scale
   }
+
+  abstract get glyph_view(): GlyphView
 }
 
 export namespace DataRenderer {
@@ -35,10 +38,14 @@ export abstract class DataRenderer extends Renderer {
   }
 
   static init_DataRenderer(): void {
-    this.override({
+    this.override<DataRenderer.Props>({
       level: 'glyph',
     })
   }
 
   abstract get_selection_manager(): SelectionManager
+
+  get selection_manager(): SelectionManager {
+    return this.get_selection_manager()
+  }
 }

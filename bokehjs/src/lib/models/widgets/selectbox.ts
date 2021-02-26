@@ -4,7 +4,7 @@ import {entries} from "core/util/object"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {bk_input} from "styles/widgets/inputs"
+import * as inputs from "styles/widgets/inputs.css"
 
 export class SelectView extends InputWidgetView {
   model: Select
@@ -20,18 +20,25 @@ export class SelectView extends InputWidgetView {
     this.on_change(options, () => {
       empty(this.input_el)
       append(this.input_el, ...this.options_el())
+      this._update_value()
     })
   }
 
-  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[]  {
+  private _known_values = new Set<string>()
+
+  protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[] {
+    const {_known_values} = this
+    _known_values.clear()
+
     function build_options(values: (string | [string, string])[]): HTMLOptionElement[] {
       return values.map((el) => {
         let value, label
         if (isString(el))
-          value = label  = el
+          value = label = el
         else
           [value, label] = el
 
+        _known_values.add(value)
         return option({value}, label)
       })
     }
@@ -47,7 +54,7 @@ export class SelectView extends InputWidgetView {
     super.render()
 
     this.input_el = select({
-      class: bk_input,
+      class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, this.options_el())
@@ -66,9 +73,10 @@ export class SelectView extends InputWidgetView {
 
   protected _update_value(): void {
     const {value} = this.model
-    if (value != null && value.length != 0) {
-      this.input_el.value = this.model.value
-    }
+    if (this._known_values.has(value))
+      this.input_el.value = value
+    else
+      this.input_el.removeAttribute("value")
   }
 }
 
@@ -94,9 +102,12 @@ export class Select extends InputWidget {
   static init_Select(): void {
     this.prototype.default_view = SelectView
 
-    this.define<Select.Props>({
-      value:   [ p.String, '' ],
-      options: [ p.Any,    [] ], // TODO (bev) is this used?
+    this.define<Select.Props>(({String, Array, Tuple, Dict, Or}) => {
+      const Options = Array(Or(String, Tuple(String, String)))
+      return {
+        value:   [ String, "" ],
+        options: [ Or(Options, Dict(Options)), [] ],
+      }
     })
   }
 }

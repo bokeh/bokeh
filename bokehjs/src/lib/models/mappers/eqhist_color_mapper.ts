@@ -23,9 +23,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
   }
 
   static init_EqHistColorMapper(): void {
-    this.define<EqHistColorMapper.Props>({
-      bins: [ p.Int, 256*256 ],
-    })
+    this.define<EqHistColorMapper.Props>(({Int}) => ({
+      bins: [ Int, 256*256 ],
+    }))
   }
 
   protected scan(data: Arrayable<number>, n: number): {min: number, max: number, binning: Arrayable<number>} {
@@ -80,6 +80,11 @@ export class EqHistColorMapper extends ScanningColorMapper {
       if (finite_bins != n)
         logger.warn("EqHistColorMapper warning: Histogram equalization did not converge.")
     }
+
+    // XXX: should this be guaranteed by the above algorithm?
+    binning[0] = low
+    binning[binning.length-1] = high
+
     return {min: low, max: high, binning}
   }
 }

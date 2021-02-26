@@ -22,9 +22,9 @@ export class Popup extends Model {
   }
 
   static init_Popup(): void {
-    this.define<Popup.Props>({
-      message: [ p.String, "" ]
-    })
+    this.define<Popup.Props>(({String}) => ({
+      message: [ String, "" ]
+    }))
   }
 
   execute(data_source: ColumnarDataSource): void {

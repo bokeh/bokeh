@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import typing as tp
 from inspect import isclass
 from json import loads
 from operator import itemgetter
@@ -26,7 +27,7 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import Any, Dict, Instance, List, String
+from .core.properties import AnyRef, Bool, Dict, Instance, List, Nullable, String
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
@@ -39,6 +40,7 @@ from .util.serialization import make_id
 __all__ = (
     'collect_models',
     'get_class',
+    'DataModel',
     'Model',
 )
 
@@ -234,16 +236,17 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
-    def __str__(self):
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
+    def __str__(self) -> str:
+        name = self.__class__.__name__
+        return f"{name}(id={self.id!r}, ...)"
 
     __repr__ = __str__
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
-    name = String(help="""
+    name: tp.Union[None, str] = Nullable(String, help="""
     An arbitrary, user-supplied name for this model.
 
     This name can be useful when querying the document to retrieve specific
@@ -262,7 +265,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
-    tags = List(Any, help="""
+    tags: tp.List[tp.Any] = List(AnyRef, help="""
     An optional list of arbitrary, user-supplied values to attach to this
     model.
 
@@ -319,6 +322,19 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     """)
 
+    syncable: bool = Bool(default=True, help="""
+    Indicates whether this model should be synchronized back to a Bokeh server when
+    updated in a web browser. Setting to ``False`` may be useful to reduce network
+    traffic when dealing with frequently updated objects whose updated values we
+    don't need.
+
+    .. note::
+        Setting this property to ``False`` will prevent any ``on_change()`` callbacks
+        on this object from triggering. However, any JS-side callbacks will still
+        work.
+
+    """)
+
     # Properties --------------------------------------------------------------
 
     @property
@@ -364,14 +380,21 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
 
     # Public methods ----------------------------------------------------------
 
-    def js_on_event(self, event, *callbacks):
-        if not isinstance(event, str) and issubclass(event, Event):
+    def js_on_event(self, event: tp.Union[str, tp.Type[Event]], *callbacks) -> None:
+        if isinstance(event, str):
+            pass
+        elif isinstance(event, type) and issubclass(event, Event):
             event = event.event_name
+        else:
+            raise ValueError(f"expected string event name or event class, got {event}")
 
-        old_callbacks = self.js_event_callbacks.get("event", [])
-        new_callbacks = [ callback for callback in callbacks if callback not in old_callbacks ]
+        all_callbacks = list(self.js_event_callbacks.get(event, []))
 
-        self.js_event_callbacks[event] = old_callbacks + new_callbacks
+        for callback in callbacks:
+            if callback not in all_callbacks:
+                all_callbacks.append(callback)
+
+        self.js_event_callbacks[event] = all_callbacks
 
     def js_link(self, attr, other, other_attr, attr_selector=None):
         ''' Link two Bokeh model properties using JavaScript.
@@ -436,19 +459,21 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 )
 
         '''
-        if attr not in self.properties():
+        descriptor = self.lookup(attr, raises=False)
+        if descriptor is None:
             raise ValueError("%r is not a property of self (%r)" % (attr, self))
 
         if not isinstance(other, Model):
             raise ValueError("'other' is not a Bokeh model: %r" % other)
 
-        if other_attr not in other.properties():
+        other_descriptor = other.lookup(other_attr, raises=False)
+        if other_descriptor is None:
             raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
 
         from bokeh.models import CustomJS
 
         selector = f"[{attr_selector!r}]" if attr_selector is not None else ""
-        cb = CustomJS(args=dict(other=other), code=f"other.{other_attr} = this.{attr}{selector}")
+        cb = CustomJS(args=dict(other=other), code=f"other.{other_descriptor.name} = this.{descriptor.name}{selector}")
 
         self.js_on_change(attr, cb)
 
@@ -484,8 +509,9 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         if not all(isinstance(x, CustomJS) for x in callbacks):
             raise ValueError("not all callback values are CustomJS instances")
 
-        if event in self.properties():
-            event = "change:%s" % event
+        descriptor = self.lookup(event, raises=False)
+        if descriptor is not None:
+            event = f"change:{descriptor.name}"
 
         old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:
@@ -522,9 +548,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
             widget.on_change('value', callback1, callback2, ..., callback_n)
 
         '''
-        if attr not in self.properties():
-            raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super().on_change(attr, *callbacks)
+        descriptor = self.lookup(attr)
+        super().on_change(descriptor.name, *callbacks)
 
     def references(self):
         ''' Returns all ``Models`` that this object has references to.
@@ -653,7 +678,8 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super().trigger(attr, old, new, hint=hint, setter=setter)
+        descriptor = self.lookup(attr)
+        super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.
@@ -770,6 +796,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         html += _HTML_REPR % dict(ellipsis_id=ellipsis_id, cls_name=cls_name)
 
         return html
+
+@abstract
+class DataModel(Model):
+    __data_model__ = True
 
 #-----------------------------------------------------------------------------
 # Private API

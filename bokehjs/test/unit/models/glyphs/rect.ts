@@ -1,12 +1,12 @@
 import {expect} from "assertions"
 import * as sinon from "sinon"
 
-import {create_glyph_view} from "./glyph_utils"
+import {create_glyph_view} from "./_util"
 import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Geometry} from "@bokehjs/core/geometry"
-import {NumberArray} from '@bokehjs/core/types'
+import {ScreenArray} from '@bokehjs/core/types'
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
 
@@ -32,7 +32,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.equal({ x0: 1, y0: -20, x1: 4, y1: 30 })
+      expect(bounds).to.be.equal({x0: 1, y0: -20, x1: 4, y1: 30})
     })
 
     it("should calculate log bounds based on data values > 0", async () => {
@@ -40,7 +40,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.equal({ x0: 1, y0: 10, x1: 4, y1: 30 })
+      expect(log_bounds).to.be.equal({x0: 1, y0: 10, x1: 4, y1: 30})
     })
 
     it("should calculate log bounds when NaNs are present", async () => {
@@ -48,7 +48,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.equal({ x0: 1, y0: 10, x1: 3, y1: 10 })
+      expect(log_bounds).to.be.equal({x0: 1, y0: 10, x1: 3, y1: 10})
     })
 
     it("should hit test rects against an index", async () => {
@@ -113,8 +113,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(NumberArray.of(20))
-      expect(glyph_view.sh).to.be.equal(NumberArray.of(40))
+      expect(glyph_view.sw).to.be.equal(ScreenArray.of(20))
+      expect(glyph_view.sh).to.be.equal(ScreenArray.of(40))
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
@@ -125,8 +125,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(new NumberArray([10]))
-      expect(glyph_view.sh).to.be.equal(new NumberArray([20]))
+      expect(glyph_view.sw).to.be.equal(new ScreenArray([10]))
+      expect(glyph_view.sh).to.be.equal(new ScreenArray([20]))
     })
 
     // XXX: needs update
@@ -135,8 +135,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
 
-      expect(glyph_view.sx0).to.be.equal(NumberArray.of(0))
-      expect(glyph_view.sy1).to.be.equal(NumberArray.of(0))
+      expect(glyph_view.sx0).to.be.equal(ScreenArray.of(0))
+      expect(glyph_view.sy1).to.be.equal(ScreenArray.of(0))
     })
 
     // XXX: needs update
@@ -148,8 +148,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data)
       glyph_view.map_data()
 
-      expect(glyph_view.sx0).to.be.equal(NumberArray.of(-5))
-      expect(glyph_view.sy1).to.be.equal(NumberArray.of(-10))
+      expect(glyph_view.sx0).to.be.equal(ScreenArray.of(-5))
+      expect(glyph_view.sy1).to.be.equal(ScreenArray.of(-10))
     })
 
     /* XXX
@@ -180,8 +180,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(NumberArray.of(20))
-      expect(glyph_view.sh).to.be.equal(NumberArray.of(0))
+      expect(glyph_view.sw).to.be.equal(ScreenArray.of(20))
+      expect(glyph_view.sh).to.be.equal(ScreenArray.of(0))
     })
 
     describe("hit-testing", () => {
@@ -283,8 +283,8 @@ describe("Rect", () => {
           const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "log"})
 
-          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333 })!
-          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666 })!
+          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333})!
+          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666})!
 
           expect(result4.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
           expect(result5.indices).to.be.equal([2])

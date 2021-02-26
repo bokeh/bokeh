@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -171,6 +171,7 @@ def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.double_click() # start editing a cell
+    actions.click()        # XXX: perhaps sleep() would also work; not required when interacting manually
     actions.double_click() # select all text and overwrite it in the next step
     actions.send_keys(text + Keys.ENTER)
     actions.perform()

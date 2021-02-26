@@ -1,9 +1,9 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer} from "../../renderers/data_renderer"
+import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
-import {compute_renderers, RendererSpec} from "../util"
+import {compute_renderers} from "../../util"
 import * as p from "core/properties"
 import {KeyEvent, UIEvent} from "core/ui_events"
 import {SelectionMode} from "core/enums"
@@ -23,9 +23,8 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    const renderers = this.model.renderers
-    const all_renderers = this.plot_model.renderers
-    const names = this.model.names
+    const {renderers, names} = this.model
+    const all_renderers = this.plot_model.data_renderers
     return compute_renderers(renderers, all_renderers, names)
   }
 
@@ -73,7 +72,8 @@ export abstract class SelectToolView extends GestureToolView {
     for (const renderer of this.computed_renderers) {
       renderer.get_selection_manager().clear()
     }
-    this.plot_view.request_render()
+    const renderer_views = this.computed_renderers.map((r) => this.plot_view.renderer_view(r)!)
+    this.plot_view.request_paint(renderer_views)
   }
 
   _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
@@ -82,11 +82,11 @@ export abstract class SelectToolView extends GestureToolView {
     for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
 
-      const r_views = []
+      const r_views: DataRendererView[] = []
       for (const r of renderers) {
-        const r_view = this.plot_view.renderer_views.get(r)
+        const r_view = this.plot_view.renderer_view(r)
         if (r_view != null) {
-          r_views.push(r_view)
+          r_views.push(r_view as DataRendererView)
         }
       }
       sm.select(r_views, geometry, final, mode)
@@ -142,7 +142,8 @@ export namespace SelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    renderers: p.Property<RendererSpec>
+    renderers: p.Property<DataRenderer[] | "auto">
+    /** @deprecated */
     names: p.Property<string[]>
     mode: p.Property<SelectionMode>
   }
@@ -166,11 +167,11 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static init_SelectTool(): void {
-    this.define<SelectTool.Props>({
-      renderers: [ p.Any,   'auto'    ],
-      names:     [ p.Array, []        ],
-      mode:      [ p.Any,   "replace" ],
-    })
+    this.define<SelectTool.Props>(({String, Array, Ref, Or, Auto}) => ({
+      renderers: [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+      names:     [ Array(String), [] ],
+      mode:      [ SelectionMode, "replace" ],
+    }))
   }
 
   get menu(): MenuItem[] | null {

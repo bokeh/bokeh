@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -54,8 +54,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -98,8 +98,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -134,8 +134,9 @@ jobs:
         run: bash ci/install_bokeh_package.sh
 
       - name: Start chrome headless
+        working-directory: ./bokehjs
         shell: bash -l {0}
-        run: google-chrome --headless --no-sandbox --remote-debugging-port=9222 &
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -176,7 +177,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -220,8 +221,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -268,11 +269,11 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -327,8 +328,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -375,8 +376,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
@@ -429,12 +430,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2-beta
-      - uses: goanpeca/setup-miniconda@v1
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
           environment-file: ci/environment-test-3.6.yml
+
+      - name: Install downstream packages
+        shell: bash -l {0}
+        run: bash ci/install_downstream_packages.sh
 
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
@@ -463,10 +468,6 @@ jobs:
       - name: Install Bokeh package
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
-
-      - name: Install downstream packages
-        shell: bash -l {0}
-        run: bash ci/install_downstream_packages.sh
 
       - name: Run tests
         shell: bash -l {0}

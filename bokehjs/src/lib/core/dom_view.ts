@@ -2,13 +2,12 @@ import {View} from "./view"
 import {createElement, remove} from "./dom"
 
 export class DOMView extends View {
-
   tagName: keyof HTMLElementTagNameMap
 
   el: HTMLElement
 
   /** @override */
-  root: DOMView
+  readonly root: DOMView
 
   initialize(): void {
     super.initialize()

@@ -1,5 +1,4 @@
-import {Arrayable, ArrayableNew} from "../types"
-import {isArray} from "./types"
+import {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
 import {clamp} from "./math"
 
 export function is_empty(array: Arrayable): boolean {
@@ -7,7 +6,7 @@ export function is_empty(array: Arrayable): boolean {
 }
 
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
-  if (isArray<T>(array))
+  if (Array.isArray(array))
     return array.slice()
   else
     return new (array.constructor as any)(array)
@@ -83,8 +82,19 @@ export function subselect<T>(array: Arrayable<T>, indices: Arrayable<number>): A
   return result
 }
 
+export function mul<T extends Arrayable<number>>(array: T, coeff: number, output?: T): T {
+  const n = array.length
+  const result: T = output ?? new (array.constructor as any)(n)
+  for (let i = 0; i < n; i++) {
+    result[i] = array[i]*coeff
+  }
+  return result
+}
+
 export function map(array: Float64Array, fn: (item: number, i: number, array: Float64Array) => number): Float64Array
 export function map(array: Float32Array, fn: (item: number, i: number, array: Float32Array) => number): Float32Array
+export function map(array: FloatArray, fn: (item: number, i: number, array: Float32Array) => number): FloatArray
+export function map(array: TypedArray, fn: (item: number, i: number, array: Float32Array) => number): TypedArray
 export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
 
@@ -95,6 +105,14 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: a
     result[i] = fn(array[i], i, array)
   }
   return result
+}
+
+export function inplace_map<T>(array: Arrayable<T>, fn: (item: T, i: number) => T, output?: Arrayable<T>): void {
+  const n = array.length
+  const result = output ?? array
+  for (let i = 0; i < n; i++) {
+    result[i] = fn(array[i], i)
+  }
 }
 
 export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]

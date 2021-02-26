@@ -64,7 +64,7 @@ export type ToolAliases = {
 export abstract class ToolView extends View {
   model: Tool
 
-  parent: PlotView
+  readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent
@@ -121,6 +121,7 @@ export namespace Tool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    description: p.Property<string | null>
     active: p.Property<boolean>
   }
 }
@@ -140,25 +141,19 @@ export abstract class Tool extends Model {
   static init_Tool(): void {
     this.prototype._known_aliases = new Map()
 
-    this.internal({
-      active: [ p.Boolean, false ],
-    })
+    this.define<Tool.Props>(({String, Nullable}) => ({
+      description: [ Nullable(String), null ],
+    }))
+
+    this.internal<Tool.Props>(({Boolean}) => ({
+      active: [ Boolean, false ],
+    }))
   }
 
   readonly event_type?: EventType | EventType[]
 
   get synthetic_renderers(): Renderer[] {
     return []
-  }
-
-  // utility function to return a tool name, modified
-  // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(name: string, dims: Dimensions): string {
-    switch (dims) {
-      case "width":  return `${name} (x-axis)`
-      case "height": return `${name} (y-axis)`
-      case "both":   return name
-    }
   }
 
   // utility function to get limits along both dimensions, given

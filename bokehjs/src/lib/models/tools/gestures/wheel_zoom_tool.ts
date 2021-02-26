@@ -3,8 +3,8 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 import {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {is_mobile} from "core/util/compat"
-import {bk_tool_icon_wheel_zoom} from "styles/icons"
+import {is_mobile} from "core/util/platform"
+import {tool_icon_wheel_zoom} from "styles/icons.css"
 
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool
@@ -44,11 +44,12 @@ export class WheelZoomToolView extends GestureToolView {
 
     const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
 
-    this.plot_view.push_state('wheel_zoom', {range: zoom_info})
-    this.plot_view.update_range(zoom_info, false, true, this.model.maintain_focus)
+    this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
-    if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model)
+    const {maintain_focus} = this.model
+    this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus})
+
+    this.model.document?.interactive_start(this.plot_model)
   }
 }
 
@@ -76,12 +77,12 @@ export class WheelZoomTool extends GestureTool {
   static init_WheelZoomTool(): void {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>({
-      dimensions:     [ p.Dimensions, "both" ],
-      maintain_focus: [ p.Boolean,    true   ],
-      zoom_on_axis:   [ p.Boolean,    true   ],
-      speed:          [ p.Number,     1/600  ],
-    })
+    this.define<WheelZoomTool.Props>(({Boolean, Number}) => ({
+      dimensions:     [ Dimensions, "both" ],
+      maintain_focus: [ Boolean, true ],
+      zoom_on_axis:   [ Boolean, true ],
+      speed:          [ Number, 1/600 ],
+    }))
 
     this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: 'both'}))
     this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: 'width'}))
@@ -89,11 +90,11 @@ export class WheelZoomTool extends GestureTool {
   }
 
   tool_name = "Wheel Zoom"
-  icon = bk_tool_icon_wheel_zoom
+  icon = tool_icon_wheel_zoom
   event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
   default_order = 10
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

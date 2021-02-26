@@ -9,9 +9,6 @@ regressions. This chapter describes how to run various tests locally in
 a development environment, guidelines for writing tests, and information
 regarding the continuous testing infrastructure.
 
-.. contents::
-    :local:
-    :depth: 2
 
 Running Tests Locally
 ---------------------
@@ -218,21 +215,11 @@ There are a number of files that affect the build configuration:
 Etiquette
 ~~~~~~~~~
 
-CI services provide finite free build workers to Open Source projects. A few
-considerations will help you be considerate of others needing these limited
-resources:
+CI services provide finite free build workers to Open Source projects. Grouping commits into meaningful
+chunks of work before pushing into GitHub (i.e. not pushing on every commit)
+will help you be considerate of others needing these limited resources.
 
-* Group commits into meaningful chunks of work before pushing to GitHub (i.e.
-  don't push on every commit).
 
-* If expensive ``examples`` tests are not needed (e.g. for a docs-only Pull
-  Request), they may be disabled by adding the text
-
-  .. code-block:: none
-
-    [ci disable examples]
-
-  to your commit message.
 
 .. _contact the developers: https://discourse.bokeh.org/c/development
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers

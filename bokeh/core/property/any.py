@@ -1,15 +1,15 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide wildcard properties.
+""" Provide wildcard properties.
 
 The Any and AnyRef properties can be used to hold values without performing
 any validation.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -38,7 +38,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Any(Property):
-    ''' Accept all values.
+    """ Accept all values.
 
     The ``Any`` property does not do any validation or transformation.
 
@@ -80,10 +80,13 @@ class Any(Property):
 
             >>> m.prop = [1, 2, 3]
 
-    '''
+    """
 
-class AnyRef(Property):
-    ''' Accept all values and force reference discovery. '''
+    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+
+class AnyRef(Any):
+    """ Accept all values and force reference discovery. """
 
     @property
     def has_ref(self):

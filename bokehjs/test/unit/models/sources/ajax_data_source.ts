@@ -4,6 +4,7 @@ import * as sinon from 'sinon'
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {AjaxDataSource} from "@bokehjs/models/sources/ajax_data_source"
+import {WebDataSource} from "@bokehjs/models/sources/web_data_source"
 import {Data} from "@bokehjs/core/types"
 import {last} from "@bokehjs/core/util/array"
 
@@ -82,12 +83,12 @@ describe("ajax_data_source module", () => {
       })
 
       it("should use a JavaScript function adapter", () => {
-        function execute(_cb_obj: AjaxDataSource, cb_data: {response: {points: [number, number][]}}): Data {
+        function execute(_cb_obj: WebDataSource, cb_data: {response: Data}): Data {
           const foo: number[] = []
           const bar: number[] = []
-          for (const pt of cb_data.response.points) {
-            foo.push(pt[0])
-            bar.push(pt[1])
+          for (const [pt0, pt1] of cb_data.response.points as [number, number][]) {
+            foo.push(pt0)
+            bar.push(pt1)
           }
           return {foo, bar}
         }
@@ -138,12 +139,14 @@ describe("ajax_data_source module", () => {
       })
     })
 
-    describe("get_column method", () => {
+    describe("get_column() method", () => {
 
       it("should return empty lists for not-yet-existant columns", () => {
         const s = new AjaxDataSource({data_url: "http://foo.com"})
         const c = s.get_column("foo")
         expect(c).to.be.equal([])
+        const n = s.get_length()
+        expect(n).to.be.equal(0)
       })
     })
 

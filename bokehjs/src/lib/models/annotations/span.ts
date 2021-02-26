@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
-import {Line} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import * as p from "core/properties"
 import {CoordinateMapper} from "core/util/bbox"
@@ -35,14 +35,14 @@ export class SpanView extends AnnotationView {
 
     let height: number, sleft: number, stop: number, width: number
     if (this.model.dimension == 'width') {
-      stop = _calc_dim(yscale, frame.yview)
+      stop = _calc_dim(yscale, frame.bbox.yview)
       sleft = frame.bbox.left
       width = frame.bbox.width
-      height = this.model.properties.line_width.value()
+      height = this.model.line_width
     } else {
       stop = frame.bbox.top
-      sleft = _calc_dim(xscale, frame.xview)
-      width = this.model.properties.line_width.value()
+      sleft = _calc_dim(xscale, frame.bbox.xview)
+      width = this.model.line_width
       height = frame.bbox.height
     }
 
@@ -74,9 +74,9 @@ export namespace Span {
     for_hover: p.Property<boolean>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.Line
 
-  export type Visuals = Annotation.Visuals & {line: Line}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line}
 }
 
 export interface Span extends Span.Attrs {}
@@ -92,21 +92,21 @@ export class Span extends Annotation {
   static init_Span(): void {
     this.prototype.default_view = SpanView
 
-    this.mixins<Span.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Span.Mixins>(mixins.Line)
 
-    this.define<Span.Props>({
-      render_mode:    [ p.RenderMode,   'canvas'  ],
-      location:       [ p.Number,       null      ],
-      location_units: [ p.SpatialUnits, 'data'    ],
-      dimension:      [ p.Dimension,    'width'   ],
-    })
+    this.define<Span.Props>(({Number, Nullable}) => ({
+      render_mode:    [ RenderMode, "canvas" ],
+      location:       [ Nullable(Number), null ],
+      location_units: [ SpatialUnits, "data" ],
+      dimension:      [ Dimension, "width" ],
+    }))
 
-    this.override({
+    this.internal<Span.Props>(({Boolean}) => ({
+      for_hover: [ Boolean, false ],
+    }))
+
+    this.override<Span.Props>({
       line_color: 'black',
-    })
-
-    this.internal({
-      for_hover: [ p.Boolean, false ],
     })
   }
 }

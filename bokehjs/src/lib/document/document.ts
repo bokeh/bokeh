@@ -3,6 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
+import {Serializer} from "core/serializer"
 import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
@@ -10,12 +11,13 @@ import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
-import {isEqual} from "core/util/eq"
+import {is_equal} from "core/util/eq"
 import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
 import {Model} from "model"
+import {ModelDef, resolve_defs} from "./defs"
 import {
   DocumentEvent, DocumentEventBatch, DocumentChangedEvent, ModelChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
@@ -43,16 +45,17 @@ export class EventManager {
   }
 }
 
-export interface DocJson {
+export type DocJson = {
   version?: string
   title?: string
+  defs?: ModelDef[]
   roots: {
-    root_ids: string[]
+    root_ids: ID[]
     references: Struct[]
   }
 }
 
-export interface Patch {
+export type Patch = {
   references: Struct[]
   events: DocumentChanged[]
 }
@@ -66,7 +69,6 @@ export const DEFAULT_TITLE = "Bokeh Application"
 // This class should match the API of the Python Document class
 // as much as possible.
 export class Document {
-
   readonly event_manager: EventManager
   readonly idle: Signal0<this>
 
@@ -75,7 +77,7 @@ export class Document {
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: Map<(event: DocumentEvent) => void, boolean>
+  protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
@@ -314,7 +316,7 @@ export class Document {
     }
   }
 
-  remove_on_change(callback: (event: DocumentEvent) => void): void {
+  remove_on_change(callback: ((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void)): void {
     this._callbacks.delete(callback)
   }
 
@@ -325,25 +327,13 @@ export class Document {
           callback(ev)
         }
       } else {
-        callback(event)
+        callback(event as any) // TODO
       }
     }
   }
 
-  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: unknown}): void {
+  _notify_change(model: HasProps, attr: string, old_value: unknown, new_value: unknown, options?: {setter_id?: string, hint?: DocumentChangedEvent}): void {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
-  }
-
-  static _references_json(references: Iterable<HasProps>, include_defaults: boolean = true): Struct[] {
-    const references_json: Struct[] = []
-    for (const r of references) {
-      const struct = r.struct()
-      struct.attributes = r.attributes_as_json(include_defaults)
-      // server doesn't want id in here since it's already in ref above
-      delete struct.attributes.id
-      references_json.push(struct)
-    }
-    return references_json
   }
 
   static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
@@ -360,7 +350,7 @@ export class Document {
     for (const obj of references_json) {
       const obj_id = obj.id
       const obj_type = obj.type
-      const obj_attrs = obj.attributes || {}
+      const obj_attrs = obj.attributes ?? {}
 
       let instance = existing_models.get(obj_id)
       if (instance == null) {
@@ -477,7 +467,10 @@ export class Document {
     }
   }
 
-  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: any, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
+  //////
+  ///{{{
+
+  static _event_for_attribute_change(changed_obj: Struct, key: string, new_value: unknown, doc: Document, value_refs: Set<HasProps>): ModelChanged | null {
     const changed_model = doc.get_model_by_id(changed_obj.id)! // XXX!
     if (!changed_model.property(key).syncable)
       return null
@@ -523,7 +516,7 @@ export class Document {
       } else if (old_value == null || new_value == null) {
         events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       } else {
-        if (!isEqual(old_value, new_value))
+        if (!is_equal(old_value, new_value))
           events.push(Document._event_for_attribute_change(from_obj, key, new_value, to_doc, value_refs))
       }
     }
@@ -578,31 +571,38 @@ export class Document {
         events = events.concat(update_model_events)
       }
     }
+
+    const serializer = new Serializer({include_defaults: false})
+    serializer.to_serializable([...value_refs])
+
     return {
-      references: Document._references_json(value_refs, false), // include_defaults=false
+      references: [...serializer.definitions],
       events,
     }
   }
+
+  ///}}}
+  //////
 
   to_json_string(include_defaults: boolean = true): string {
     return JSON.stringify(this.to_json(include_defaults))
   }
 
   to_json(include_defaults: boolean = true): DocJson {
-    const root_ids = this._roots.map((r) => r.id)
-    const root_references = this._all_models.values()
+    const serializer = new Serializer({include_defaults})
+    const roots = serializer.to_serializable(this._roots)
     return {
       version: js_version,
       title: this._title,
       roots: {
-        root_ids,
-        references: Document._references_json(root_references, include_defaults),
+        root_ids: roots.map((r) => r.id),
+        references: [...serializer.definitions],
       },
     }
   }
 
   static from_json_string(s: string): Document {
-    const json: any = JSON.parse(s)
+    const json = JSON.parse(s)
     return Document.from_json(json)
   }
 
@@ -621,6 +621,10 @@ export class Document {
       logger.warn(versions_string)
     } else
       logger.debug(versions_string)
+
+    if (json.defs != null) {
+      resolve_defs(json.defs)
+    }
 
     const roots_json = json.roots
     const root_ids = roots_json.root_ids
@@ -650,18 +654,15 @@ export class Document {
   }
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {
-    const references = new Set<HasProps>()
-    const json_events: DocumentChanged[] = []
     for (const event of events) {
-      if (event.document !== this) {
-        logger.warn("Cannot create a patch using events from a different document, event had ", event.document, " we are ", this)
+      if (event.document != this)
         throw new Error("Cannot create a patch using events from a different document")
-      }
-      json_events.push(event.json(references))
     }
+
+    const serializer = new Serializer()
     return {
-      events: json_events,
-      references: Document._references_json(references),
+      events: serializer.to_serializable(events),
+      references: [...serializer.definitions],
     }
   }
 

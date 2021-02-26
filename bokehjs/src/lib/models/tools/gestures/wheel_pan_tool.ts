@@ -2,7 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
-import {bk_tool_icon_wheel_pan} from "styles/icons"
+import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
 export class WheelPanToolView extends GestureToolView {
@@ -51,8 +51,6 @@ export class WheelPanToolView extends GestureToolView {
         sy1 = sy_high
         break
       }
-      default:
-        throw new Error("this shouldn't have happened")
     }
 
     const {x_scales, y_scales} = frame
@@ -63,11 +61,10 @@ export class WheelPanToolView extends GestureToolView {
     // for GMap plots, and GMap plots always preserve aspect, so effective the value
     // of 'dimensions' is ignored.
     const pan_info = {xrs, yrs, factor}
-    this.plot_view.push_state('wheel_pan', {range: pan_info})
-    this.plot_view.update_range(pan_info, false, true)
+    this.plot_view.state.push("wheel_pan", {range: pan_info})
+    this.plot_view.update_range(pan_info, {scrolling: true})
 
-    if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model)
+    this.model.document?.interactive_start(this.plot_model)
   }
 }
 
@@ -93,24 +90,24 @@ export class WheelPanTool extends GestureTool {
   static init_WheelPanTool(): void {
     this.prototype.default_view = WheelPanToolView
 
-    this.define<WheelPanTool.Props>({
-      dimension: [ p.Dimension, "width" ],
-    })
+    this.define<WheelPanTool.Props>(() => ({
+      dimension: [ Dimension, "width" ],
+    }))
 
-    this.internal({
-      speed: [ p.Number, 1/1000 ],
-    })
+    this.internal<WheelPanTool.Props>(({Number}) => ({
+      speed: [ Number, 1/1000 ],
+    }))
 
     this.register_alias("xwheel_pan", () => new WheelPanTool({dimension: "width"}))
     this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))
   }
 
   tool_name = "Wheel Pan"
-  icon = bk_tool_icon_wheel_pan
+  icon = tool_icon_wheel_pan
   event_type = "scroll" as "scroll"
   default_order = 12
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimension)
+    return this._get_dim_tooltip(this.dimension)
   }
 }

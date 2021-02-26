@@ -1,6 +1,5 @@
 name: bk-test
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - python=3.8
@@ -33,14 +32,14 @@ dependencies:
   - mypy
   - nbconvert >=5.4
   - networkx
-  - nodejs >=10.13
+  - nodejs 14.*
   - numba
   - pandas
   - psutil
   - pydot
   - pygments
-  - pytest >=6.0.0
-  - pytest-asyncio >=0.12.0
+  - pytest
+  - pytest-asyncio=0.12.0
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
@@ -48,6 +47,11 @@ dependencies:
   - selenium >=3.8
   - scipy
   - sphinx
+  - sphinx-panels
+  - pip
+  - pip:
+    - sphinxext-opengraph
+    - sphinx-reredirects
 
   # examples
   - flask >=1.0

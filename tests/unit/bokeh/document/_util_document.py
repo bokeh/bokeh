@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import DistanceSpec, Instance, Int, String
+from bokeh.core.properties import DistanceSpec, Instance, Int, Nullable, String
 from bokeh.model import Model
 
 # Module under test
@@ -33,10 +33,10 @@ class AnotherModelInTestDocument(Model):
 
 class SomeModelInTestDocument(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 class ModelThatOverridesName(Model):
-    name = String()
+    name = String(default="")
 
 class ModelWithSpecInTestDocument(Model):
     foo = DistanceSpec(2)

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -35,6 +35,7 @@ ALL = (
     'Dict',
     'List',
     'RelativeDelta',
+    'RestrictedDict',
     'Seq',
     'Tuple',
 )
@@ -55,12 +56,12 @@ class Test_Array:
     def test_valid(self) -> None:
         prop = bcpc.Array(Float)
 
-        assert prop.is_valid(None)
         assert prop.is_valid(np.array([1,2,3]))
 
     def test_invalid(self) -> None:
         prop = bcpc.Array(Float)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -94,13 +95,13 @@ class Test_Dict:
     def test_valid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
-        assert prop.is_valid(None)
         assert prop.is_valid({})
         assert prop.is_valid({"foo": [1,2,3]})
 
     def test_invalid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -139,13 +140,13 @@ class Test_List:
     def test_valid(self) -> None:
         prop = bcpc.List(Int)
 
-        assert prop.is_valid(None)
         assert prop.is_valid([])
         assert prop.is_valid([1,2,3])
 
     def test_invalid(self) -> None:
         prop = bcpc.List(Int)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -184,8 +185,6 @@ class Test_Seq:
     def test_valid(self) -> None:
         prop = bcpc.Seq(Int)
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid(())
         assert prop.is_valid([])
         assert prop.is_valid(np.array([1,2,3]))
@@ -197,6 +196,7 @@ class Test_Seq:
     def test_invalid(self) -> None:
         prop = bcpc.Seq(Int)
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -245,13 +245,12 @@ class Test_Tuple:
     def test_valid(self) -> None:
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
-        assert prop.is_valid(None)
-
         assert prop.is_valid((1, "", [1, 2, 3]))
 
     def test_invalid(self) -> None:
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)
@@ -285,6 +284,19 @@ class Test_Tuple:
     def test_str(self) -> None:
         prop = bcpc.Tuple(Int, Int)
         assert str(prop) == "Tuple(Int, Int)"
+
+class Test_RestrictedDict:
+    def test_valid(self) -> None:
+        prop = bcpc.RestrictedDict(String, bcpc.List(Int), disallow=("disallowed_key_1", "disallowed_key_2"))
+
+        assert prop.is_valid({"non_disallowed_key_1": [1,2,3]})
+        assert prop.is_valid({"non_disallowed_key_2": [1,2,3]})
+
+    def test_invalid(self) -> None:
+        prop = bcpc.RestrictedDict(String, bcpc.List(Int), disallow=("disallowed_key_1", "disallowed_key_2"))
+
+        assert not prop.is_valid({"disallowed_key_1": [1,2,3]})
+        assert not prop.is_valid({"disallowed_key_2": [1,2,3]})
 
 #-----------------------------------------------------------------------------
 # Dev API

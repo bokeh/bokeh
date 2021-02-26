@@ -3,7 +3,8 @@ import {expect} from "assertions"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 
-import {TableDataProvider, DataTable, DTINDEX_NAME} from "@bokehjs/models/widgets/tables/data_table"
+import {TableDataProvider, DataTable} from "@bokehjs/models/widgets/tables/data_table"
+import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 
 import {range} from "@bokehjs/core/util/array"
 

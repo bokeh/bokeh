@@ -4,15 +4,14 @@ import * as p from "core/properties"
 import {Color} from "core/types"
 import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
+import {color2css} from "core/util/color"
 
 import {Control, ControlView} from "./control"
 import {TickFormatter} from "../formatters/tick_formatter"
 
-import {bk_slider_value, bk_slider_title} from "styles/widgets/sliders"
-import {bk_input_group} from "styles/widgets/inputs"
-
+import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"
-import sliders_css from "styles/widgets/sliders.css"
+import * as inputs from "styles/widgets/inputs.css"
 
 export interface SliderSpec {
   start: number
@@ -72,13 +71,13 @@ abstract class AbstractBaseSliderView extends ControlView {
     this.title_el.style.display = hide_header ? "none" : ""
 
     if (!hide_header) {
-      if (this.model.title.length != 0)
+      if (this.model.title?.length != 0)
         this.title_el.textContent = `${this.model.title}: `
 
       if (this.model.show_value) {
         const {value} = this._calc_to()
         const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
-        this.title_el.appendChild(span({class: bk_slider_value}, pretty))
+        this.title_el.appendChild(span({class: sliders.slider_value}, pretty))
       }
     }
   }
@@ -86,7 +85,7 @@ abstract class AbstractBaseSliderView extends ControlView {
   protected _set_bar_color(): void {
     if (!this.model.disabled) {
       const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
-      connect_el.style.backgroundColor = this.model.bar_color
+      connect_el.style.backgroundColor = color2css(this.model.bar_color)
     }
   }
 
@@ -151,10 +150,10 @@ abstract class AbstractBaseSliderView extends ControlView {
     else
       this.slider_el.removeAttribute('disabled')
 
-    this.title_el = div({class: bk_slider_title})
+    this.title_el = div({class: sliders.slider_title})
     this._update_title()
 
-    this.group_el = div({class: bk_input_group}, this.title_el, this.slider_el)
+    this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
     this.el.appendChild(this.group_el)
   }
 
@@ -163,13 +162,12 @@ abstract class AbstractBaseSliderView extends ControlView {
   }
 
   protected _change(values: number[]): void {
-    this.model.value = this._calc_from(values)
-    this.model.value_throttled = this.model.value
+    const value = this._calc_from(values)
+    this.model.setv({value, value_throttled: value})
   }
 }
 
 export abstract class AbstractSliderView extends AbstractBaseSliderView {
-
   protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
@@ -188,7 +186,6 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView {
 }
 
 export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
-
   protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
@@ -207,7 +204,7 @@ export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props & {
-    title: p.Property<string>
+    title: p.Property<string | null>
     show_value: p.Property<boolean>
     start: p.Property<any> // XXX
     end: p.Property<any> // XXX
@@ -232,9 +229,9 @@ export abstract class AbstractSlider extends Control {
   }
 
   static init_AbstractSlider(): void {
-    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref}) => {
+    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref, Nullable}) => {
       return {
-        title:           [ String, "" ],
+        title:           [ Nullable(String), "" ],
         show_value:      [ Boolean, true ],
         start:           [ Any ],
         end:             [ Any ],
@@ -252,9 +249,7 @@ export abstract class AbstractSlider extends Control {
   behaviour: "drag" | "tap"
   connected: false | boolean[] = false
 
-  protected _formatter(value: number, _format: string | TickFormatter): string {
-    return `${value}`
-  }
+  protected abstract _formatter(value: number, format: string | TickFormatter): string
 
   pretty(value: number): string {
     return this._formatter(value, this.format)

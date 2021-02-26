@@ -1,6 +1,7 @@
-import {display, row} from "./utils"
+import {display, row, column} from "./_util"
 
 import {range} from "@bokehjs/core/util/array"
+import {ButtonType} from "@bokehjs/core/enums"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
@@ -8,7 +9,7 @@ import {
   Button, Toggle, Dropdown,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  TextInput, AutocompleteInput,
+  TextInput, AutocompleteInput, TextAreaInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
@@ -19,8 +20,17 @@ import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 describe("Widgets", () => {
   it("should allow Button", async () => {
-    const obj = new Button({label: "Button 1", button_type: "primary"})
-    await display(obj, [500, 100])
+    const buttons = [...(function* () {
+      for (const button_type of ButtonType) {
+        yield new Button({
+          label: `Button ${button_type}`,
+          button_type,
+          width: 300, height: 30, sizing_mode: "fixed",
+        })
+      }
+    })()]
+    const obj = column(buttons)
+    await display(obj, [350, buttons.length*(30 + 10) + 50])
   })
 
   it.allowing(6)("should allow Toggle", async () => {
@@ -68,6 +78,11 @@ describe("Widgets", () => {
   it.allowing(8)("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = new AutocompleteInput({placeholder: "Enter value ...", completions})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextAreaInput", async () => {
+    const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4})
     await display(obj, [500, 100])
   })
 
@@ -173,7 +188,7 @@ describe("Rows of widgets", () => {
     const w0 = new TextInput({value: "Widget 1"})
     const w1 = new TextInput({value: "Widget 2", height: 50})
     const layout = row([w0, w1])
-    await display(layout, [500, 100])
+    await display(layout, [700, 100])
   })
 
   it("should allow DataTable to fill row", async () => {

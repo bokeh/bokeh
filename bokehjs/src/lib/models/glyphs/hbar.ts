@@ -1,21 +1,21 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export interface HBarData extends BoxData {
-  _left: NumberArray
-  _y: NumberArray
-  _height: NumberArray
-  _right: NumberArray
+export type HBarData = BoxData & {
+  _left: FloatArray
+  _y: FloatArray
+  readonly height: p.Uniform<number>
+  _right: FloatArray
 
-  sy: NumberArray
-  sh: NumberArray
-  sleft: NumberArray
-  sright: NumberArray
-  stop: NumberArray
-  sbottom: NumberArray
+  sy: ScreenArray
+  sh: ScreenArray
+  sleft: ScreenArray
+  sright: ScreenArray
+  stop: ScreenArray
+  sbottom: ScreenArray
 
-  max_height: number
+  readonly max_height: number
 }
 
 export interface HBarView extends HBarData {}
@@ -31,22 +31,28 @@ export class HBarView extends BoxView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const l = Math.min(this._left[i], this._right[i])
-    const r = Math.max(this._left[i], this._right[i])
-    const t = this._y[i] + 0.5*this._height[i]
-    const b = this._y[i] - 0.5*this._height[i]
+    const left_i = this._left[i]
+    const right_i = this._right[i]
+    const y_i = this._y[i]
+    const half_height_i = this.height.get(i)/2
+
+    const l = Math.min(left_i, right_i)
+    const r = Math.max(left_i, right_i)
+    const t = y_i + half_height_i
+    const b = y_i - half_height_i
+
     return [l, r, t, b]
   }
 
   protected _map_data(): void {
     this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this._height, "center")
+    this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
     this.sleft = this.renderer.xscale.v_compute(this._left)
     this.sright = this.renderer.xscale.v_compute(this._right)
 
     const n = this.sy.length
-    this.stop = new NumberArray(n)
-    this.sbottom = new NumberArray(n)
+    this.stop = new ScreenArray(n)
+    this.sbottom = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       this.stop[i] = this.sy[i] - this.sh[i]/2
       this.sbottom[i] = this.sy[i] + this.sh[i]/2
@@ -82,11 +88,11 @@ export class HBar extends Box {
   static init_HBar(): void {
     this.prototype.default_view = HBarView
 
-    this.define<HBar.Props>({
-      left:   [ p.XCoordinateSpec, {value: 0}       ],
-      y:      [ p.YCoordinateSpec, {field: "y"}     ],
-      height: [ p.NumberSpec,      {value: 1}       ],
+    this.define<HBar.Props>(({}) => ({
+      left:   [ p.XCoordinateSpec, {value: 0} ],
+      y:      [ p.YCoordinateSpec, {field: "y"} ],
+      height: [ p.NumberSpec,      {value: 1} ],
       right:  [ p.XCoordinateSpec, {field: "right"} ],
-    })
+    }))
   }
 }

@@ -6,7 +6,7 @@ import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_poly_edit} from "styles/icons"
+import {tool_icon_poly_edit} from "styles/icons.css"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -18,6 +18,7 @@ export class PolyEditToolView extends PolyToolView {
   _selected_renderer: GlyphRenderer | null
   _basepoint: [number, number] | null
   _drawing: boolean = false
+  _cur_index: number | null = null
 
   _doubletap(ev: TapEvent): void {
     if (!this.model.active)
@@ -56,22 +57,39 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active)
       return
 
+    const vsync_renderer = this.model.renderers[0]
+    const vsync_updater = () => this._update_vertices(vsync_renderer)
+    const vsync_ds = vsync_renderer?.data_source
+
     const renderers = this._select_event(ev, "replace", this.model.renderers)
     if (!renderers.length) {
       this._set_vertices([], [])
       this._selected_renderer = null
       this._drawing = false
+      this._cur_index = null
+      if (vsync_ds != null)
+        vsync_ds.disconnect(vsync_ds.properties.data.change, vsync_updater)
       return
     }
+    if (vsync_ds != null)
+      vsync_ds.connect(vsync_ds.properties.data.change, vsync_updater)
 
-    const renderer = renderers[0]
+    this._cur_index = renderers[0].data_source.selected.indices[0]
+    this._update_vertices(renderers[0])
+  }
+
+  _update_vertices(renderer: GlyphRenderer): void {
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
-    const index = cds.selected.indices[0]
+    const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
+
+    if (this._drawing) return
+    if ((index == null) && (xkey || ykey)) return
+
     let xs: number[]
     let ys: number[]
-    if (xkey) {
+    if (xkey && index != null) {  // redundant xkey null check to satisfy build-time checks
       xs = cds.data[xkey][index]
       if (!isArray(xs))
         cds.data[xkey][index] = xs = Array.from(xs)
@@ -79,7 +97,7 @@ export class PolyEditToolView extends PolyToolView {
       xs = glyph.xs.value
     }
 
-    if (ykey) {
+    if (ykey && index != null) {
       ys = cds.data[ykey][index]
       if (!isArray(ys))
         cds.data[ykey][index] = ys = Array.from(ys)
@@ -236,6 +254,8 @@ export class PolyEditTool extends PolyTool {
   properties: PolyEditTool.Props
   __view_type__: PolyEditToolView
 
+  renderers: (GlyphRenderer & HasPolyGlyph)[]
+
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
   }
@@ -245,7 +265,7 @@ export class PolyEditTool extends PolyTool {
   }
 
   tool_name = "Poly Edit Tool"
-  icon = bk_tool_icon_poly_edit
+  icon = tool_icon_poly_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }

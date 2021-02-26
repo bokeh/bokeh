@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -21,13 +21,13 @@ import sys
 # Bokeh imports
 from ..core.properties import field
 from ..models import (
+    Circle,
     ColumnarDataSource,
     ColumnDataSource,
     GlyphRenderer,
     MultiLine,
     Scatter,
 )
-from ..models.markers import marker_types
 from ._renderer import make_glyph, pop_visuals
 
 #-----------------------------------------------------------------------------
@@ -74,21 +74,17 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
             raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     marker = kwargs.pop('node_marker', None)
+    marker_type = Scatter
     if isinstance(marker, dict) and 'field' in marker or marker in node_source.data:
-        marker_type = Scatter
         kwargs['node_marker'] = field(marker)
     else:
         if isinstance(marker, dict) and 'value' in marker:
             marker = marker['value']
-        elif marker is None:
-            marker = 'circle'
-        if marker == "scatter":
-            marker_type = Scatter
+
+        if marker is None or marker == "circle":
+            marker_type = Circle
         else:
-            marker_type = marker_types.get(marker)
-    if marker_type is None:
-        msg = "Could not determine marker type for node_marker={marker}".format(marker=repr(marker))
-        raise ValueError(msg)
+            kwargs["node_marker"] = marker
 
     ## node stuff
     node_visuals = pop_visuals(marker_type, kwargs, prefix="node_")
@@ -139,12 +135,14 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     hnode_glyph = make_glyph(marker_type, node_kwargs, hnode_visuals)
     mnode_glyph = make_glyph(marker_type, node_kwargs, mnode_visuals)
 
-    node_renderer = GlyphRenderer(glyph=node_glyph,
-                                  nonselection_glyph=nsnode_glyph,
-                                  selection_glyph=snode_glyph,
-                                  hover_glyph=hnode_glyph,
-                                  muted_glyph=mnode_glyph,
-                                  data_source=node_source)
+    node_renderer = GlyphRenderer(
+        data_source=node_source,
+        glyph=node_glyph,
+        selection_glyph=snode_glyph or "auto",
+        nonselection_glyph=nsnode_glyph or "auto",
+        hover_glyph=hnode_glyph,
+        muted_glyph=mnode_glyph,
+    )
 
     ## edge stuff
     edge_kwargs = {k.lstrip('edge_'): v for k, v in kwargs.copy().items() if k.lstrip('edge_') in MultiLine.properties()}
@@ -155,12 +153,14 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
     hedge_glyph = make_glyph(MultiLine, edge_kwargs, hedge_visuals)
     medge_glyph = make_glyph(MultiLine, edge_kwargs, medge_visuals)
 
-    edge_renderer = GlyphRenderer(glyph=edge_glyph,
-                                  nonselection_glyph=nsedge_glyph,
-                                  selection_glyph=sedge_glyph,
-                                  hover_glyph=hedge_glyph,
-                                  muted_glyph=medge_glyph,
-                                  data_source=edge_source)
+    edge_renderer = GlyphRenderer(
+        data_source=edge_source,
+        glyph=edge_glyph,
+        selection_glyph=sedge_glyph or "auto",
+        nonselection_glyph=nsedge_glyph or "auto",
+        hover_glyph=hedge_glyph,
+        muted_glyph=medge_glyph,
+    )
 
     renderer_kwargs = {attr: kwargs.pop(attr) for attr in RENDERER_ARGS if attr in kwargs}
 

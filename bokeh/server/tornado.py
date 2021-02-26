@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-import sys
 from pprint import pformat
 from urllib.parse import urljoin
 
@@ -35,12 +34,14 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 from ..util.string import format_docstring
+from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection
 from .contexts import ApplicationContext
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
+from .views.ws import WSHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -164,6 +165,14 @@ class BokehTornado(TornadoApplication):
             Set the Tornado ``websocket_max_message_size`` value.
             (default: {DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES})
 
+        websocket_compression_level (int, optional):
+            Set the Tornado WebSocket ``compression_level`` documented in
+            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+
+        websocket_compression_mem_level (int, optional):
+            Set the Tornado WebSocket compression ``mem_level`` documented in
+            https://docs.python.org/3.6/library/zlib.html#zlib.compressobj.
+
         index (str, optional):
             Path to a Jinja2 template to use for the root URL
 
@@ -211,6 +220,8 @@ class BokehTornado(TornadoApplication):
                  use_index=True,
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+                 websocket_compression_level=None,
+                 websocket_compression_mem_level=None,
                  index=None,
                  auth_provider=NullAuth(),
                  xsrf_cookies=False,
@@ -353,8 +364,12 @@ class BokehTornado(TornadoApplication):
                     route = p[0]
                 else:
                     route = key + p[0]
+                context = {"application_context": self._applications[key]}
+                if issubclass(p[1], WSHandler):
+                    context['compression_level'] = websocket_compression_level
+                    context['mem_level'] = websocket_compression_mem_level
                 route = self._prefix + route
-                app_patterns.append((route, p[1], { "application_context" : self._applications[key] }))
+                app_patterns.append((route, p[1], context))
 
             websocket_path = None
             for r in app_patterns:
@@ -711,10 +726,4 @@ BokehTornado.__doc__ = format_docstring(
     DEFAULT_SESSION_TOKEN_EXPIRATION=DEFAULT_SESSION_TOKEN_EXPIRATION,
 )
 
-# See https://github.com/bokeh/bokeh/issues/9507
-if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
-    import asyncio
-    if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
-        # WindowsProactorEventLoopPolicy is not compatible with tornado 6
-        # fallback to the pre-3.8 default of WindowsSelectorEventLoopPolicy
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+fixup_windows_event_loop_policy()

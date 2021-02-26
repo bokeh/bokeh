@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -70,7 +70,7 @@ class HSL(Color):
         ''' Return a copy of this color value.
 
         Returns:
-            HSL
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         return HSL(self.h, self.s, self.l, self.a)
@@ -84,7 +84,7 @@ class HSL(Color):
                 The HSL color to copy.
 
         Returns:
-            HSL
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         return value.copy()
@@ -98,7 +98,7 @@ class HSL(Color):
                 The RGB color to convert.
 
         Returns:
-            HSL
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         return value.to_hsl()
@@ -119,7 +119,7 @@ class HSL(Color):
         ''' Return a HSL copy for this HSL color.
 
         Returns:
-            HSL
+            :class:`~bokeh.colors.hsl.HSL`
 
         '''
         return self.copy()
@@ -129,7 +129,7 @@ class HSL(Color):
         this HSL color.
 
         Returns:
-            HSL
+            :class:`~bokeh.colors.rgb.RGB`
 
         '''
         from .rgb import RGB # prevent circular import

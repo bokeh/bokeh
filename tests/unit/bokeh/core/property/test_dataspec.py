@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -25,6 +25,7 @@ import numpy as np
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
+from bokeh.core.property.descriptors import UnsetValueError
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip
@@ -34,19 +35,27 @@ import bokeh.core.property.dataspec as bcpd # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'AlphaSpec',
     'AngleSpec',
     'ColorSpec',
+    'DashPatternSpec',
     'DataSpec',
     'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
     'FontSizeSpec',
+    'FontStyleSpec',
     'HatchPatternSpec',
+    'IntSpec',
+    'LineCapSpec',
+    'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
     'ScreenDistanceSpec',
     'StringSpec',
+    'TextAlignSpec',
+    'TextBaselineSpec',
     'UnitsSpec',
     'value',
 )
@@ -74,25 +83,14 @@ def test_dataspec_dict_to_serializable() -> None:
 
 
 class Test_AngleSpec:
-    def test_default_none(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.AngleSpec(None)
-
-        a = Foo()
-
-        assert a.x is None
-        assert a.x_units == 'rad'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'rad'
-
     def test_autocreate_no_parens(self) -> None:
         class Foo(HasProps):
             x = bcpd.AngleSpec
 
         a = Foo()
 
-        assert a.x is None
+        with pytest.raises(UnsetValueError):
+            a.x
         assert a.x_units == 'rad'
         a.x = 14
         assert a.x == 14
@@ -291,30 +289,19 @@ class Test_DataDistanceSpec:
             x = bcpd.DataDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'data'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 
 class Test_DistanceSpec:
-    def test_default_none(self) -> None:
-        class Foo(HasProps):
-            x = bcpd.DistanceSpec(None)
-
-        a = Foo()
-
-        assert a.x is None
-        assert a.x_units == 'data'
-        a.x = 14
-        assert a.x == 14
-        assert a.x_units == 'data'
-
     def test_autocreate_no_parens(self) -> None:
         class Foo(HasProps):
             x = bcpd.DistanceSpec
 
         a = Foo()
 
-        assert a.x is None
+        with pytest.raises(UnsetValueError):
+            a.x
         assert a.x_units == 'data'
         a.x = 14
         assert a.x == 14
@@ -337,12 +324,12 @@ def test_field_function() -> None:
 class Test_FontSizeSpec:
     def test_font_size_from_string(self) -> None:
         class Foo(HasProps):
-            x = bcpd.FontSizeSpec(default=None)
+            x = bcpd.FontSizeSpec(default="0px")
 
         css_units = "%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px"
 
         a = Foo()
-        assert a.x is None
+        assert a.x == "0px"
 
         for unit in css_units.split("|"):
 
@@ -389,7 +376,7 @@ class Test_FontSizeSpec:
 
     def test_bad_font_size_values(self) -> None:
         class Foo(HasProps):
-            x = bcpd.FontSizeSpec(default=None)
+            x = bcpd.FontSizeSpec(default="0px")
 
         a = Foo()
 
@@ -404,7 +391,7 @@ class Test_FontSizeSpec:
 
     def test_fields(self) -> None:
         class Foo(HasProps):
-            x = bcpd.FontSizeSpec(default=None)
+            x = bcpd.FontSizeSpec(default="0px")
 
         a = Foo()
 
@@ -445,8 +432,6 @@ class Test_NumberSpec:
         assert Foo.__dict__["x"].serializable_value(f) == {"value": 15}
         f.x = dict(value=32)
         assert Foo.__dict__["x"].serializable_value(f) == {"value": 32}
-        f.x = None
-        assert Foo.__dict__["x"].serializable_value(f) is None
 
     def tests_accepts_timedelta(self):
         class Foo(HasProps):
@@ -549,17 +534,18 @@ class Test_NumberSpec:
 
         a = Foo()
 
-        assert a.x is None
+        with pytest.raises(UnsetValueError):
+            a.x
         a.x = 14
         assert a.x == 14
 
     def test_set_from_json_keeps_mode(self) -> None:
         class Foo(HasProps):
-            x = bcpd.NumberSpec(default=None)
+            x = bcpd.NumberSpec(default=-1)
 
         a = Foo()
 
-        assert a.x is None
+        assert a.x == -1
 
         # set as a value
         a.x = 14
@@ -589,7 +575,7 @@ class Test_UnitSpec:
             x = bcpd.ScreenDistanceSpec("x")
         foo = Foo(x=dict(field='foo'))
         props = foo.properties_with_values(include_defaults=False)
-        assert props['x']['units'] == 'screen'
+        assert "units" not in props['x']
         assert props['x']['field'] == 'foo'
         assert props['x'] is not foo.x
 

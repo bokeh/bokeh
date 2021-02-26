@@ -1,24 +1,24 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import {Arrayable, Rect, NumberArray, Indices} from "core/types"
+import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export interface MultiPolygonsData extends GlyphData {
-  _xs: NumberArray[][][]
-  _ys: NumberArray[][][]
+export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> & {
+  _xs: FloatArray[][][]
+  _ys: FloatArray[][][]
 
-  sxs: NumberArray[][][]
-  sys: NumberArray[][][]
+  sxs: ScreenArray[][][]
+  sys: ScreenArray[][][]
 }
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
@@ -121,16 +121,14 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   protected _mask_data(): Indices {
-    const xr = this.renderer.plot_view.frame.x_range
-    const [x0, x1] = [xr.min, xr.max]
-
-    const yr = this.renderer.plot_view.frame.y_range
-    const [y0, y1] = [yr.min, yr.max]
-
-    return this.index.indices({x0, x1, y0, y1})
+    const {x_range, y_range} = this.renderer.plot_view.frame
+    return this.index.indices({
+      x0: x_range.min, x1: x_range.max,
+      y0: y_range.min, y1: y_range.max,
+    })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: NumberArray[][], sy: NumberArray[][]): void {
+  protected _inner_loop(ctx: Context2d, sx: ScreenArray[][], sy: ScreenArray[][]): void {
     ctx.beginPath()
     for (let j = 0, endj = sx.length; j < endj; j++) {
       for (let k = 0, endk = sx[j].length; k < endk; k++) {
@@ -149,26 +147,29 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
+      const {sxs, sys} = data ?? this
 
       for (const i of indices) {
-        const [sx, sy] = [sxs[i], sys[i]]
+        const sx_i = sxs[i]
+        const sy_i = sys[i]
 
         if (this.visuals.fill.doit) {
           this.visuals.fill.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
-        this.visuals.hatch.doit2(ctx, i, () => {
-          this._inner_loop(ctx, sx, sy)
+        if (this.visuals.hatch.doit) {
+          this.visuals.hatch.set_vectorize(ctx, i)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
-        }, () => this.renderer.request_render())
+        }
 
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx, sy)
+          this._inner_loop(ctx, sx_i, sy_i)
           ctx.stroke()
         }
       }
@@ -301,7 +302,7 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -315,7 +316,7 @@ export namespace MultiPolygons {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface MultiPolygons extends MultiPolygons.Attrs {}
@@ -331,10 +332,10 @@ export class MultiPolygons extends Glyph {
   static init_MultiPolygons(): void {
     this.prototype.default_view = MultiPolygonsView
 
-    this.define<MultiPolygons.Props>({
+    this.define<MultiPolygons.Props>(({}) => ({
       xs: [ p.XCoordinateSeqSeqSeqSpec, {field: "xs"} ],
       ys: [ p.YCoordinateSeqSeqSeqSpec, {field: "ys"} ],
-    })
+    }))
     this.mixins<MultiPolygons.Mixins>([LineVector, FillVector, HatchVector])
   }
 }

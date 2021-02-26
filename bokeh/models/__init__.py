@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -40,6 +40,7 @@ from .formatters import *
 from .glyphs import *
 from .graphs import *
 from .grids import *
+from .labeling import *
 from .layouts import *
 from .map_plots import *
 from .mappers import *

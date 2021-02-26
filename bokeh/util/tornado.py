@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 import threading
 from collections import defaultdict
 from traceback import format_exception
@@ -42,6 +43,15 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+# See https://github.com/bokeh/bokeh/issues/9507
+def fixup_windows_event_loop_policy() -> None:
+    if sys.platform == 'win32' and sys.version_info[:3] >= (3, 8, 0):
+        import asyncio
+        if type(asyncio.get_event_loop_policy()) is asyncio.WindowsProactorEventLoopPolicy:
+            # WindowsProactorEventLoopPolicy is not compatible with tornado 6
+            # fallback to the pre-3.8 default of WindowsSelectorEventLoopPolicy
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 #-----------------------------------------------------------------------------
 # Private API

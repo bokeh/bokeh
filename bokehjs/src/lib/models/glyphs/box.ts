@@ -1,25 +1,25 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {Anchor} from "core/enums"
-import {Line, Fill, Hatch} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export interface BoxData extends GlyphData {
-  _right: NumberArray
-  _bottom: NumberArray
-  _left: NumberArray
-  _top: NumberArray
+export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
+  _right: FloatArray
+  _bottom: FloatArray
+  _left: FloatArray
+  _top: FloatArray
 
-  sright: NumberArray
-  sbottom: NumberArray
-  sleft: NumberArray
-  stop: NumberArray
+  sright: ScreenArray
+  sbottom: ScreenArray
+  sleft: ScreenArray
+  stop: ScreenArray
 }
 
 export interface BoxView extends BoxData {}
@@ -35,16 +35,20 @@ export abstract class BoxView extends GlyphView {
     const bottom = Math.max(this.sbottom[i], this.stop[i])  //
 
     switch (anchor) {
-      case "top_left":      return {x: left,             y: top             }
-      case "top_center":    return {x: (left + right)/2, y: top             }
-      case "top_right":     return {x: right,            y: top             }
-      case "bottom_left":   return {x: left,             y: bottom          }
-      case "bottom_center": return {x: (left + right)/2, y: bottom          }
-      case "bottom_right":  return {x: right,            y: bottom          }
+      case "top_left":      return {x: left,             y: top}
+      case "top":
+      case "top_center":    return {x: (left + right)/2, y: top}
+      case "top_right":     return {x: right,            y: top}
+      case "bottom_left":   return {x: left,             y: bottom}
+      case "bottom":
+      case "bottom_center": return {x: (left + right)/2, y: bottom}
+      case "bottom_right":  return {x: right,            y: bottom}
+      case "left":
       case "center_left":   return {x: left,             y: (top + bottom)/2}
-      case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
+      case "center":
+      case "center_center": return {x: (left + right)/2, y: (top + bottom)/2}
+      case "right":
       case "center_right":  return {x: right,            y: (top + bottom)/2}
-      default:              return null
     }
   }
 
@@ -63,34 +67,43 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[],
-                    {sleft, sright, stop, sbottom}: BoxData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: BoxData): void {
+    const {sleft, sright, stop, sbottom} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i]))
+      const sleft_i = sleft[i]
+      const stop_i = stop[i]
+      const sright_i = sright[i]
+      const sbottom_i = sbottom[i]
+
+      if (isNaN(sleft_i + stop_i + sright_i + sbottom_i))
         continue
 
-      ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+      // XXX: this is needed for SVG canvas, because fill and hatch visuals
+      // share Context2d.fillStyle, which gets overriden in SVG, instead of
+      // causing overpaint (as in canvas).
+      function path() {
+        ctx.beginPath()
+        ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
+      }
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        path()
         ctx.fill()
       }
 
-      this.visuals.hatch.doit2(ctx, i, () => {
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        path()
         ctx.fill()
-      }, () => this.renderer.request_render())
+      }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        path()
         ctx.stroke()
       }
-
     }
   }
 
@@ -141,7 +154,7 @@ export abstract class BoxView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -152,7 +165,7 @@ export namespace Box {
 
   export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface Box extends Box.Attrs {}

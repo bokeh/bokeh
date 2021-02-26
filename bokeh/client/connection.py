@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -32,6 +32,7 @@ from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
 from ..util.string import format_url_query_arguments
+from ..util.tornado import fixup_windows_event_loop_policy
 from .states import (
     CONNECTED_AFTER_ACK,
     CONNECTED_BEFORE_ACK,
@@ -63,13 +64,14 @@ class ClientConnection:
 
     '''
 
-    def __init__(self, session, websocket_url, io_loop=None, arguments=None):
+    def __init__(self, session, websocket_url, io_loop=None, arguments=None, max_message_size=20*1024*1024):
         ''' Opens a websocket connection to the server.
 
         '''
         self._url = websocket_url
         self._session = session
         self._arguments = arguments
+        self._max_message_size = max_message_size
         self._protocol = Protocol()
         self._receiver = Receiver(self._protocol)
         self._socket = None
@@ -266,7 +268,7 @@ class ClientConnection:
         formatted_url = format_url_query_arguments(self._url, self._arguments)
         request = HTTPRequest(formatted_url)
         try:
-            socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token])
+            socket = await websocket_connect(request, subprotocols=["bokeh", self._session.token], max_message_size=self._max_message_size)
             self._socket = WebSocketClientConnectionWrapper(socket)
         except HTTPClientError as e:
             await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, e.code, e.message))
@@ -409,3 +411,5 @@ class ClientConnection:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+fixup_windows_event_loop_policy()

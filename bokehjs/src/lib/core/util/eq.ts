@@ -1,11 +1,18 @@
 // Based on Underscore.js 1.8.3 (http://underscorejs.org)
 
 import {PlainObject} from "../types"
+import {isObject} from "./types"
+
+const {hasOwnProperty} = Object.prototype
 
 export const equals = Symbol("equals")
 
-export interface Equals {
+export interface Equatable {
   [equals](that: this, cmp: Comparator): boolean
+}
+
+function is_Equatable<T>(obj: T): obj is T & Equatable {
+  return isObject(obj) && (obj as any)[equals] !== undefined
 }
 
 export const wildcard: any = Symbol("wildcard")
@@ -59,7 +66,7 @@ export class Comparator {
     b_stack.push(b)
 
     const result = (() => {
-      if (a[equals] != null && b[equals] != null) {
+      if (is_Equatable(a) && is_Equatable(b)) {
         return a[equals](b, this)
       }
 
@@ -171,7 +178,7 @@ export class Comparator {
       return false
 
     for (const key of keys) {
-      if (!b.hasOwnProperty(key) || !this.eq(a[key], b[key]))
+      if (!hasOwnProperty.call(b, key) || !this.eq(a[key], b[key]))
         return false
     }
 

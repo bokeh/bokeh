@@ -3,6 +3,4 @@
 bokeh.models.markers.Asterisk
 -----------------------------
 
-.. autoclass:: bokeh.models.markers.Asterisk
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.Asterisk

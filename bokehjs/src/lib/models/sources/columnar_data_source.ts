@@ -9,6 +9,9 @@ import {uniq} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
+import type {Renderer} from "../renderers/renderer"
+import {Geometry} from "core/geometry"
+import {is_NDArray} from "core/util/ndarray"
 
 // Abstract baseclass for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -43,7 +46,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<unknown, this> // XXX: <[indices, tool, renderer-view, source, data], this>
+  inspect: Signal<[Renderer, {geometry: Geometry}], this>
 
   streaming: Signal0<this>
   patching: Signal<number[], this>
@@ -53,21 +56,21 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   static init_ColumnarDataSource(): void {
-    this.define<ColumnarDataSource.Props>({
-      selection_policy: [ p.Instance, () => new UnionRenderers() ],
-    })
+    this.define<ColumnarDataSource.Props>(({Ref}) => ({
+      selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
+    }))
 
-    this.internal({
-      selection_manager: [ p.Instance, (self: ColumnarDataSource) => new SelectionManager({source: self}) ],
-      inspected:         [ p.Instance, () => new Selection() ],
-    })
+    this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
+      selection_manager: [ AnyRef(), (self) => new SelectionManager({source: self as ColumnarDataSource}) ],
+      inspected:         [ AnyRef(), () => new Selection() ],
+    }))
   }
 
   initialize(): void {
     super.initialize()
 
     this._select = new Signal0(this, "select")
-    this.inspect = new Signal(this, "inspect") // XXX: <[indices, tool, renderer-view, source, data], this>
+    this.inspect = new Signal(this, "inspect")
 
     this.streaming = new Signal0(this, "streaming")
     this.patching = new Signal(this, "patching")
@@ -84,7 +87,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   get_length(soft: boolean = true): number | null {
-    const lengths = uniq(values(this.data).map((v) => v.length))
+    const lengths = uniq(values(this.data).map((v) => is_NDArray(v) ? v.shape[0] : v.length))
 
     switch (lengths.length) {
       case 0: {

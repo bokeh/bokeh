@@ -1,0 +1,7 @@
+GridBox bbox=[0, 0, 600, 300]
+  Plot bbox=[0, 0, 300, 300]
+    LinearAxis bbox=[29, 278, 266, 22]
+    LinearAxis bbox=[0, 5, 29, 273]
+  Plot bbox=[100, 0, 300, 300]
+    LinearAxis bbox=[29, 278, 266, 22]
+    LinearAxis bbox=[0, 5, 29, 273]

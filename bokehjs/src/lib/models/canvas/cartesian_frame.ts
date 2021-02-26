@@ -1,5 +1,4 @@
 import {CategoricalScale} from "../scales/categorical_scale"
-import {ContinuousScale} from "../scales/continuous_scale"
 import {LogScale} from "../scales/log_scale"
 import {Scale} from "../scales/scale"
 import {Range} from "../ranges/range"
@@ -7,14 +6,18 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {LayoutItem} from "core/layout"
 import {BBox} from "core/util/bbox"
 import {entries, to_object} from "core/util/object"
 import {assert} from "core/util/assert"
 
 type Ranges = {[key: string]: Range}
 
-export class CartesianFrame extends LayoutItem {
+export class CartesianFrame {
+
+  private _bbox: BBox = new BBox()
+  get bbox(): BBox {
+    return this._bbox
+  }
 
   constructor(private readonly in_x_scale: Scale,
               private readonly in_y_scale: Scale,
@@ -22,7 +25,6 @@ export class CartesianFrame extends LayoutItem {
               readonly y_range: Range,
               private readonly extra_x_ranges: Ranges = {},
               private readonly extra_y_ranges: Ranges = {}) {
-    super()
     assert(in_x_scale.source_range == null && in_x_scale.target_range == null)
     assert(in_y_scale.source_range == null && in_y_scale.target_range == null)
     this._configure_scales()
@@ -45,14 +47,11 @@ export class CartesianFrame extends LayoutItem {
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {
-      if (range instanceof DataRange1d || range instanceof Range1d) {
-        if (!(scale instanceof ContinuousScale))
-          throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
-      }
+      const factor_range = range instanceof FactorRange
+      const categorical_scale = scale instanceof CategoricalScale
 
-      if (range instanceof FactorRange) {
-        if (!(scale instanceof CategoricalScale))
-          throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
+      if (factor_range != categorical_scale) {
+        throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
       }
 
       if (scale instanceof LogScale && range instanceof DataRange1d)
@@ -95,9 +94,17 @@ export class CartesianFrame extends LayoutItem {
     }
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
+  set_geometry(bbox: BBox): void {
+    this._bbox = bbox
     this._update_scales()
+  }
+
+  get x_target(): Range1d {
+    return this._x_target
+  }
+
+  get y_target(): Range1d {
+    return this._y_target
   }
 
   get x_ranges(): Map<string, Range> {

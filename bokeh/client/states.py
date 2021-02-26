@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -136,7 +136,7 @@ class WAITING_FOR_REPLY:
     async def run(self, connection):
         message = await connection._pop_message()
         if message is None:
-            return await connection._transition_to_disconnected()
+            return await connection._transition_to_disconnected(DISCONNECTED(ErrorReason.NETWORK_ERROR))
         elif 'reqid' in message.header and message.header['reqid'] == self.reqid:
             self._reply = message
             return await connection._transition(CONNECTED_AFTER_ACK())

@@ -37,7 +37,7 @@ function randomString(holder: KV<string>): string {
 function createNamedToNumberedLookup(input: string, radix: number): Map<string, string> {
   const lookup = new Map()
   const items = input.split(',')
-  radix = radix || 10
+  radix = radix ?? 10
   // Map from named to numbered entities.
   for (let i = 0; i < items.length; i += 2) {
     const entity = '&' + items[i + 1] + ';'
@@ -52,15 +52,15 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
 // helper function to map canvas-textAlign to svg-textAnchor
 function getTextAnchor(textAlign: string): string {
   // TODO: support rtl languages
-  const mapping: KV<string> = {left:"start", right:"end", center:"middle", start:"start", end:"end"}
-  return mapping[textAlign] || mapping.start
+  const mapping: KV<string> = {left: "start", right: "end", center: "middle", start: "start", end: "end"}
+  return mapping[textAlign] ?? mapping.start
 }
 
 // helper function to map canvas-textBaseline to svg-dominantBaseline
 function getDominantBaseline(textBaseline: string): string {
   // INFO: not supported in all browsers
-  const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top:"text-before-edge", bottom:"text-after-edge", middle:"central"}
-  return mapping[textBaseline] || mapping.alphabetic
+  const mapping: KV<string> = {alphabetic: "alphabetic", hanging: "hanging", top: "text-before-edge", bottom: "text-after-edge", middle: "central"}
+  return mapping[textBaseline] ?? mapping.alphabetic
 }
 
 // Unpack entities lookup where the numbers are in radix 32 to reduce the size
@@ -120,37 +120,37 @@ type StyleState = {[key in StyleAttr]: Style}
 
 // Some basic mappings for attributes and default values.
 const STYLES: StyleState = {
-  strokeStyle:{
+  strokeStyle: {
     svgAttr: "stroke", // corresponding svg attribute
     canvas: "#000000", // canvas default
     svg: "none",       // svg default
     apply: "stroke",   // apply on stroke() or fill()
   },
-  fillStyle:{
+  fillStyle: {
     svgAttr: "fill",
     canvas: "#000000",
     svg: null, // svg default is black, but we need to special case this to handle canvas stroke without fill
     apply: "fill",
   },
-  lineCap:{
+  lineCap: {
     svgAttr: "stroke-linecap",
     canvas: "butt",
     svg: "butt",
     apply: "stroke",
   },
-  lineJoin:{
+  lineJoin: {
     svgAttr: "stroke-linejoin",
     canvas: "miter",
     svg: "miter",
     apply: "stroke",
   },
-  miterLimit:{
+  miterLimit: {
     svgAttr: "stroke-miterlimit",
     canvas: 10,
     svg: 4,
     apply: "stroke",
   },
-  lineWidth:{
+  lineWidth: {
     svgAttr: "stroke-width",
     canvas: 1,
     svg: 1,
@@ -162,26 +162,26 @@ const STYLES: StyleState = {
     svg: 1,
     apply: "fill stroke",
   },
-  font:{
+  font: {
     // font converts to multiple svg attributes, there is custom logic for this
     canvas: "10px sans-serif",
   },
-  shadowColor:{
+  shadowColor: {
     canvas: "#000000",
   },
-  shadowOffsetX:{
+  shadowOffsetX: {
     canvas: 0,
   },
-  shadowOffsetY:{
+  shadowOffsetY: {
     canvas: 0,
   },
-  shadowBlur:{
+  shadowBlur: {
     canvas: 0,
   },
-  textAlign:{
+  textAlign: {
     canvas: "start",
   },
-  textBaseline:{
+  textBaseline: {
     canvas: "alphabetic",
   },
   lineDash: {
@@ -266,7 +266,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   __currentElement: SVGElement // null?
   __currentDefaultPath: string
   __currentPosition: {x: number, y: number} | null = null
-  __currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
+  //__currentElementsToStyle: {element: SVGElement, children: SVGElement[]} | null = null
   __fontUnderline?: string
   __fontHref?: string
 
@@ -402,7 +402,8 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
    * Apples the current styles to the current SVG element. On "ctx.fill" or "ctx.stroke"
    */
   __applyStyleToCurrentElement(type: string): void {
-    let currentElement = this.__currentElement
+    const currentElement = this.__currentElement
+    /*
     const currentStyleGroup = this.__currentElementsToStyle
     if (currentStyleGroup != null) {
       currentElement.setAttribute(type, "")
@@ -411,12 +412,13 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         node.setAttribute(type, "")
       }
     }
+    */
 
     const keys = Object.keys(STYLES) as StyleAttr[]
     for (let i = 0; i < keys.length; i++) {
       const style = STYLES[keys[i]]
       const value = this[keys[i]]
-      if (style.apply) {
+      if (style.apply?.includes(type)) {
         if (value instanceof CanvasPattern) {
           for (const def of [...value.__ctx.__defs.childNodes]) {
             if (def instanceof Element) {
@@ -430,7 +432,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         } else if (value instanceof CanvasGradient) {
           const id = value.__root.getAttribute("id")
           currentElement.setAttribute(style.apply, `url(#${id})`)
-        } else if (style.apply.indexOf(type) !== -1 && style.svg !== value) {
+        } else if (style.svg !== value) {
           if ((style.svgAttr === "stroke" || style.svgAttr === "fill") && isString(value) && value.indexOf("rgba") !== -1) {
             // separate alpha value, since illustrator can't handle it
             const regex = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d?\.?\d*)\s*\)/gi
@@ -779,12 +781,21 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   /**
     * Sets fill properties on the current element
     */
-  fill(): void {
+  fill(fill_rule?: CanvasFillRule): void {
     if (this.__currentElement.nodeName === "path") {
       this.__currentElement.setAttribute("paint-order", "stroke")
     }
+    // XXX: hack (?) to allow fill and hatch visuals on same canvas path
+    if (this.__currentElement.getAttribute("fill") != "none") {
+      const path = this.__currentElement.cloneNode(true) as SVGElement
+      this.__root.appendChild(path)
+      this.__currentElement = path
+    }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")
+    if (fill_rule != null) {
+      this.__currentElement.setAttribute("fill-rule", fill_rule)
+    }
     if (this._clip_path != null) {
       this.__currentElement.setAttribute("clip-path", this._clip_path)
     }
@@ -893,14 +904,13 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       id: randomString(this.__ids),
       cx: `${tx1}px`,
       cy: `${ty1}px`,
-      r : `${r1}px`,
+      r: `${r1}px`,
       fx: `${tx0}px`,
       fy: `${ty0}px`,
       gradientUnits: "userSpaceOnUse",
     }, false)
     this.__defs.appendChild(grad)
     return new CanvasGradient(grad, this)
-
   }
 
   /**
@@ -910,11 +920,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     const regex = /^\s*(?=(?:(?:[-a-z]+\s*){0,2}(italic|oblique))?)(?=(?:(?:[-a-z]+\s*){0,2}(small-caps))?)(?=(?:(?:[-a-z]+\s*){0,2}(bold(?:er)?|lighter|[1-9]00))?)(?:(?:normal|\1|\2|\3)\s*){0,3}((?:xx?-)?(?:small|large)|medium|smaller|larger|[.\d]+(?:\%|in|[cem]m|ex|p[ctx]))(?:\s*\/\s*(normal|[.\d]+(?:\%|in|[cem]m|ex|p[ctx])))?\s*([-,\'\"\sa-z0-9]+?)\s*$/i
     const fontPart = regex.exec(this.font)!
     const data: FontData = {
-      style: fontPart[1] || 'normal',
-      size: fontPart[4] || '10px',
-      family: fontPart[6] || 'sans-serif',
-      weight: fontPart[3] || 'normal',
-      decoration: fontPart[2] || 'normal',
+      style: fontPart[1] ?? 'normal',
+      size: fontPart[4] ?? '10px',
+      family: fontPart[6] ?? 'sans-serif',
+      weight: fontPart[3] ?? 'normal',
+      decoration: fontPart[2] ?? 'normal',
     }
 
     // canvas doesn't support underline natively, but we can pass this attribute
@@ -1088,7 +1098,6 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     // parent, svg, defs, group, currentElement, svgImage, canvas, context, id
     const parent = this.__root
-    const translateDirective = "translate(" + dx + ", " + dy + ")"
     const transform = this._transform.clone().translate(dx, dy)
     if (image instanceof SVGRenderingContext2D || image instanceof SVGSVGElement) {
       // In the future we may want to clone nodes instead.
@@ -1131,7 +1140,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
         context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh)
         image = canvas
       }
-      svgImage.setAttribute("transform", translateDirective)
+      this._apply_transform(svgImage, transform)
       const url = image instanceof HTMLCanvasElement ? image.toDataURL() : image.getAttribute("src")!
       svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", url)
       parent.appendChild(svgImage)
@@ -1150,7 +1159,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
       context.drawImage(image, sx, sy, sw, sh, 0, 0, dw, dh)
       image = canvas
 
-      svgImage.setAttribute("transform", translateDirective)
+      this._apply_transform(svgImage, transform)
       svgImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", image.toDataURL())
       parent.appendChild(svgImage)
     }

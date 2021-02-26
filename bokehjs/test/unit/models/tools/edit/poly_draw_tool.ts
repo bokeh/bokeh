@@ -3,7 +3,6 @@ import * as sinon from "sinon"
 
 import {Keys} from "@bokehjs/core/dom"
 import {build_view} from "@bokehjs/core/build_views"
-import {NumberArray} from '@bokehjs/core/types'
 
 import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -13,7 +12,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PolyDrawTool, PolyDrawToolView} from "@bokehjs/models/tools/edit/poly_draw_tool"
 
-import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface PolyDrawTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -71,11 +70,11 @@ describe("PolyDrawTool", (): void => {
   describe("Model", () => {
 
     it("should create proper tooltip", () => {
-      const tool = new PolyDrawTool()
-      expect(tool.tooltip).to.be.equal('Polygon Draw Tool')
+      const tool0 = new PolyDrawTool()
+      expect(tool0.tooltip).to.be.equal("Polygon Draw Tool")
 
-      const custom_tool = new PolyDrawTool({custom_tooltip: 'Poly Draw Custom'})
-      expect(custom_tool.tooltip).to.be.equal('Poly Draw Custom')
+      const tool1 = new PolyDrawTool({description: "My Poly Draw"})
+      expect(tool1.tooltip).to.be.equal("My Poly Draw")
     })
   })
 
@@ -222,8 +221,8 @@ describe("PolyDrawTool", (): void => {
 
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
-      testcase.data_source.data.xs[2] = NumberArray.from(testcase.data_source.data.xs[2])
-      testcase.data_source.data.ys[2] = NumberArray.from(testcase.data_source.data.ys[2])
+      testcase.data_source.data.xs[2] = Float32Array.from(testcase.data_source.data.xs[2])
+      testcase.data_source.data.ys[2] = Float32Array.from(testcase.data_source.data.ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
 

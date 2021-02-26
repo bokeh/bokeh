@@ -2,14 +2,14 @@ import {Transform} from "./transform"
 import {Range} from "../ranges/range"
 import {Factor, FactorRange} from "../ranges/factor_range"
 import * as p from "core/properties"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, infer_type} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
 
 export namespace RangeTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Transform.Props & {
-    range: p.Property<Range>
+    range: p.Property<Range | null>
   }
 }
 
@@ -23,9 +23,9 @@ export abstract class RangeTransform extends Transform {
   }
 
   static init_RangeTransform(): void {
-    this.define<RangeTransform.Props>({
-      range: [ p.Instance ],
-    })
+    this.define<RangeTransform.Props>(({Ref, Nullable}) => ({
+      range: [ Nullable(Ref(Range)), null ],
+    }))
   }
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
@@ -37,7 +37,7 @@ export abstract class RangeTransform extends Transform {
     else
       throw new Error("unexpected")
 
-    const result = new NumberArray(xs.length)
+    const result = new (infer_type(xs))(xs.length)
     for (let i = 0; i < xs.length; i++) {
       const x = xs[i]
       result[i] = this._compute(x)
@@ -55,5 +55,4 @@ export abstract class RangeTransform extends Transform {
   }
 
   protected abstract _compute(x: number): number
-
 }

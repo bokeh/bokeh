@@ -3,35 +3,33 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Rect, NumberArray} from "core/types"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {Rect, FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {HexTileOrientation} from "core/enums"
 import {inplace} from "core/util/projections"
 
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export interface HexTileData extends GlyphData {
-  _q: NumberArray
-  _r: NumberArray
+export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
+  readonly q: p.Uniform<number>
+  readonly r: p.Uniform<number>
 
-  _x: NumberArray
-  _y: NumberArray
+  _x: FloatArray
+  _y: FloatArray
 
-  _scale: NumberArray
+  readonly scale: p.Uniform<number>
 
-  sx: NumberArray
-  sy: NumberArray
+  sx: ScreenArray
+  sy: ScreenArray
 
   svx: Vertices
   svy: Vertices
-
-  ssize: number
 }
 
 export interface HexTileView extends HexTileData {}
@@ -47,23 +45,28 @@ export class HexTileView extends GlyphView {
   }
 
   protected _set_data(): void {
-    const n = this._q.length
-
     const {orientation, size, aspect_scale} = this.model
+    const {q, r} = this
 
-    this._x = new NumberArray(n)
-    this._y = new NumberArray(n)
+    const n = this.q.length
+    this._x = new Float64Array(n)
+    this._y = new Float64Array(n)
+    const {_x, _y} = this
 
     const sqrt3 = Math.sqrt(3)
     if (orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * sqrt3 * (this._q[i] + this._r[i]/2) / aspect_scale
-        this._y[i] = -size * 3/2 * this._r[i]
+        const q_i = q.get(i)
+        const r2_i = r.get(i)/2
+        _x[i] = size*sqrt3*(q_i + r2_i)/aspect_scale
+        _y[i] = -3*size*r2_i
       }
     } else {
       for (let i = 0; i < n; i++) {
-        this._x[i] = size * 3/2 * this._q[i]
-        this._y[i] = -size * sqrt3 * (this._r[i] + this._q[i]/2) * aspect_scale
+        const q2_i = q.get(i)/2
+        const r_i = r.get(i)
+        _x[i] = 3*size*q2_i
+        _y[i] = -size*sqrt3*(r_i + q2_i)*aspect_scale
       }
     }
   }
@@ -133,21 +136,32 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HexTileData): void {
+    const {sx, sy, svx, svy, scale} = data ?? this
+
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _scale[i]))
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const scale_i = scale.get(i)
+
+      if (isNaN(sx_i + sy_i + scale_i))
         continue
 
-      ctx.translate(sx[i], sy[i])
+      ctx.translate(sx_i, sy_i)
       ctx.beginPath()
       for (let j = 0; j < 6; j++) {
-        ctx.lineTo(svx[j]*_scale[i], svy[j]*_scale[i])
+        ctx.lineTo(svx[j]*scale_i, svy[j]*scale_i)
       }
       ctx.closePath()
-      ctx.translate(-sx[i], -sy[i])
+      ctx.translate(-sx_i, -sy_i)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
+
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
         ctx.fill()
       }
 
@@ -155,7 +169,6 @@ export class HexTileView extends GlyphView {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
       }
-
     }
   }
 
@@ -204,7 +217,7 @@ export class HexTileView extends GlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
@@ -214,15 +227,15 @@ export namespace HexTile {
   export type Props = Glyph.Props & {
     r: p.NumberSpec
     q: p.NumberSpec
+    scale: p.NumberSpec
     size: p.Property<number>
     aspect_scale: p.Property<number>
-    scale: p.NumberSpec
     orientation: p.Property<HexTileOrientation>
   } & Mixins
 
-  export type Mixins = LineVector & FillVector
+  export type Mixins = LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
 export interface HexTile extends HexTile.Attrs { }
@@ -238,15 +251,15 @@ export class HexTile extends Glyph {
   static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
-    this.mixins<HexTile.Mixins>([LineVector, FillVector])
-    this.define<HexTile.Props>({
-      r:            [ p.NumberSpec                      ],
-      q:            [ p.NumberSpec                      ],
-      size:         [ p.Number,             1.0         ],
-      aspect_scale: [ p.Number,             1.0         ],
-      scale:        [ p.NumberSpec,         1.0         ],
-      orientation:  [ p.HexTileOrientation, "pointytop" ],
-    })
-    this.override({line_color: null})
+    this.mixins<HexTile.Mixins>([LineVector, FillVector, HatchVector])
+    this.define<HexTile.Props>(({Number}) => ({
+      r:            [ p.NumberSpec, {field: "r"} ],
+      q:            [ p.NumberSpec, {field: "q"} ],
+      scale:        [ p.NumberSpec, 1.0 ],
+      size:         [ Number, 1.0 ],
+      aspect_scale: [ Number, 1.0 ],
+      orientation:  [ HexTileOrientation, "pointytop" ],
+    }))
+    this.override<HexTile.Props>({line_color: null})
   }
 }

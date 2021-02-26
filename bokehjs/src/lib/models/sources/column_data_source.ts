@@ -82,7 +82,6 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
   let patched_range = false
 
   for (const [ind, val] of patch) {
-
     // make the single index case look like the length-3 multi-index case
     let shape: number[]
     let item: Arrayable
@@ -157,9 +156,9 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static init_ColumnDataSource(): void {
-    this.define<ColumnDataSource.Props>({
-      data: [ p.Any, {} ],
-    })
+    this.define<ColumnDataSource.Props>(({Dict, Any /*Arrayable*/}) => ({
+      data: [ Dict(Any /*Arrayable*/), {} ], // TODO: resolve ndarray refs earlier
+    }))
   }
 
   stream(new_data: Data, rollover?: number, setter_id?: string): void {

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -93,8 +93,8 @@ def _docstring_extra(extra_docs):
     return "" if extra_docs is None else extra_docs
 
 def _docstring_header(glyphclass):
-    module = "markers" if issubclass(glyphclass, Marker) else "glyphs"
-    return f"Configure and add :class:`~bokeh.models.{module}.{glyphclass.__name__}` glyphs to this Figure."
+    glyph_class = "Scatter" if issubclass(glyphclass, Marker) else glyphclass.__name__
+    return f"Configure and add :class:`~bokeh.models.glyphs.{glyph_class}` glyphs to this Figure."
 
 def _docstring_kwargs(parameters):
     arglines = []

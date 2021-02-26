@@ -1,4 +1,5 @@
-import {display, fig, row, column, grid} from "./utils"
+import {expect} from "../unit/assertions"
+import {display, fig, row, column, grid} from "./_util"
 
 import {Spacer, Tabs, Panel} from "@bokehjs/models/layouts"
 import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
@@ -6,8 +7,8 @@ import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
-import {Matrix} from "@bokehjs/core/util/data_structures"
-import {figure, gridplot, color} from "@bokehjs/api/plotting"
+import {Matrix} from "@bokehjs/core/util/matrix"
+import {figure, gridplot} from "@bokehjs/api/plotting"
 
 const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
@@ -50,6 +51,8 @@ describe("3x3 GridBox", () => {
     ["aqua", "maroon", "yellow" ],
   ])
 
+  const viewport: [number, number] = [300, 300]
+
   it("fixed spacers 50px x 50px", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
 
@@ -60,7 +63,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items)
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed spacers 50px x 50px, spacing 5px", async () => {
@@ -73,7 +76,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {spacing: 5})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed spacers 50px x 50px, vspacing 5px, hspacing 10px", async () => {
@@ -86,7 +89,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {spacing: [5, 10]})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed and 1 x-max spacers, c2 auto", async () => {
@@ -100,7 +103,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {cols: {2: {policy: "auto"}}})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed and 2 x-max spacers, c2 auto", async () => {
@@ -114,7 +117,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {cols: {2: {policy: "auto"}}})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed and 2 x-max spacers, c2 flex=2", async () => {
@@ -128,7 +131,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {cols: {2: {policy: "max", flex: 2}}})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed and 3 x-max spacers, c2 flex=2", async () => {
@@ -142,7 +145,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {cols: {2: {policy: "max", flex: 2}}})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed and 3 x-max spacers, c2 flex=2 align=end", async () => {
@@ -156,7 +159,7 @@ describe("3x3 GridBox", () => {
     ])
 
     const l = grid(items, {cols: {2: {policy: "max", flex: 2, align: "end"}}})
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=start", async () => {
@@ -172,7 +175,7 @@ describe("3x3 GridBox", () => {
       rows: {"*": {policy: "auto", align: "start"}},
       cols: {"*": {policy: "auto", align: "start"}},
     })
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=center", async () => {
@@ -188,7 +191,7 @@ describe("3x3 GridBox", () => {
       rows: {"*": {policy: "auto", align: "center"}},
       cols: {"*": {policy: "auto", align: "center"}},
     })
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=end", async () => {
@@ -204,7 +207,7 @@ describe("3x3 GridBox", () => {
       rows: {"*": {policy: "auto", align: "end"}},
       cols: {"*": {policy: "auto", align: "end"}},
     })
-    await display(l, [300, 300])
+    await display(l, viewport)
   })
 })
 
@@ -219,7 +222,7 @@ describe("GridBox", () => {
       const x = 100.0/ncols*col
       const y = 100.0/nrows*row
       const [r, g, b] = [Math.floor(50 + 2*x), Math.floor(30 + 2*y), 150]
-      return s0(color(r, g, b))
+      return s0([r, g, b])
     })
 
     const l = grid(items)
@@ -266,7 +269,7 @@ describe("gridplot()", () => {
 
     const figs = coeffs.map((ycoeff) => {
       return coeffs.map((xcoeff) => {
-        const fig = figure({plot_height: 200, plot_width: 200})
+        const fig = figure({height: 200, width: 200})
         fig.xaxis.map((axis) => (axis.formatter as any).use_scientific = false)
         fig.yaxis.map((axis) => (axis.formatter as any).use_scientific = false)
         fig.xaxis.map((axis) => axis.major_label_orientation = "vertical")
@@ -280,70 +283,76 @@ describe("gridplot()", () => {
   }
 
   it("should align axes when toolbar_location=null", async () => {
-    await display(layout(null), [800, 800])
+    await display(layout(null))
   })
 
   it("should align axes when toolbar_location=above", async () => {
-    await display(layout("above"), [800, 800])
+    await display(layout("above"))
   })
 
   it("should align axes when toolbar_location=right", async () => {
-    await display(layout("right"), [800, 800])
+    await display(layout("right"))
   })
 
   it("should align axes when toolbar_location=left", async () => {
-    await display(layout("left"), [800, 800])
+    await display(layout("left"))
   })
 
   it("should align axes when toolbar_location=below", async () => {
-    await display(layout("below"), [800, 800])
+    await display(layout("below"))
   })
 })
 
 describe("ToolbarBox", () => {
-  const fig = (width: number = 100, height: number = 100) => {
-    const p = figure({width, height, tools: "pan,reset,help", toolbar_location: null})
+  const fig = () => {
+    const p = figure({width: 250, height: 250, tools: "pan,reset,help", toolbar_location: null})
     p.circle([0, 5, 10], [0, 5, 10], {size: 10})
     return p
   }
 
   function tb_above() {
-    const p = fig(250, 250)
+    const p = fig()
     const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "above"})
     return column([tb, p])
   }
 
   function tb_below() {
-    const p = fig(250, 250)
+    const p = fig()
     const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "below"})
     return column([p, tb])
   }
 
   function tb_left() {
-    const p = fig(250, 250)
+    const p = fig()
     const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "left"})
     return row([tb, p])
   }
 
   function tb_right() {
-    const p = fig(250, 250)
+    const p = fig()
     const tb = new ToolbarBox({toolbar: p.toolbar, toolbar_location: "right"})
     return row([p, tb])
   }
 
+  const viewport: [number, number] = [300, 300]
+
   it("should allow placement above a figure", async () => {
-    await display(tb_above(), [300, 300])
+    const {view} = await display(tb_above(), viewport)
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement below a figure", async () => {
-    await display(tb_below(), [300, 300])
+    const {view} = await display(tb_below(), viewport)
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement left of a figure", async () => {
-    await display(tb_left(),  [300, 300])
+    const {view} = await display(tb_left(), viewport)
+    expect(() => view.export("svg")).to.not.throw()
   })
 
   it("should allow placement right of a figure", async () => {
-    await display(tb_right(), [300, 300])
+    const {view} = await display(tb_right(), viewport)
+    expect(() => view.export("svg")).to.not.throw()
   })
 })

@@ -1,26 +1,18 @@
-import {SidePanel} from "core/layout/side_panel"
-import {Size} from "core/layout"
-import * as proj from "core/util/projections"
-import {extend} from "core/util/object"
-
 import {Renderer, RendererView} from "../renderers/renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+
+import {Panel} from "core/layout/side_panel"
+import {Size, Layoutable} from "core/layout"
+import {SerializableState} from "core/view"
+import * as p from "core/properties"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
-  layout: SidePanel
+  layout?: Layoutable
+  panel?: Panel
 
-  get panel(): SidePanel | undefined { // XXX
-    return this.layout
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-
-    const p = this.model.properties
-    this.on_change(p.visible, () => this.plot_view.request_layout())
-  }
+  update_layout?(): void
+  after_layout?(): void
 
   get_size(): Size {
     if (this.model.visible) {
@@ -34,31 +26,30 @@ export abstract class AnnotationView extends RendererView {
     throw new Error("not implemented")
   }
 
-  set_data(source: ColumnarDataSource): void {
-    const data = this.model.materialize_dataspecs(source)
-    extend(this as any, data)
+  connect_signals(): void {
+    super.connect_signals()
 
-    if (this.plot_model.use_map) {
-      const self = this as any
-      if (self._x != null)
-        [self._x, self._y] = proj.project_xy(self._x, self._y)
-      if (self._xs != null)
-        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
-    }
+    const p = this.model.properties
+    this.on_change(p.visible, () => {
+      if (this.layout != null) {
+        this.layout.visible = this.model.visible
+        this.plot_view.request_layout()
+      }
+    })
   }
 
   get needs_clip(): boolean {
     return this.layout == null // TODO: change this, when center layout is fully implemented
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     const state = super.serializable_state()
     return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
   }
 }
 
 export namespace Annotation {
-  export type Attrs = Renderer.Attrs
+  export type Attrs = p.AttrsOf<Props>
 
   export type Props = Renderer.Props
 
@@ -76,7 +67,7 @@ export abstract class Annotation extends Renderer {
   }
 
   static init_Annotation(): void {
-    this.override({
+    this.override<Annotation.Props>({
       level: 'annotation',
     })
   }

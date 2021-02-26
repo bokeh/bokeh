@@ -24,11 +24,11 @@ export class CustomJSTransform extends Transform {
   }
 
   static init_CustomJSTransform(): void {
-    this.define<CustomJSTransform.Props>({
-      args:       [ p.Any,    {}     ], // TODO (bev) better type
-      func:       [ p.String, ""     ],
-      v_func:     [ p.String, ""     ],
-    })
+    this.define<CustomJSTransform.Props>(({Unknown, String, Dict}) => ({
+      args:   [ Dict(Unknown), {} ],
+      func:   [ String, "" ],
+      v_func: [ String, "" ],
+    }))
   }
 
   get names(): string[] {

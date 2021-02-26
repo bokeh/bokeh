@@ -1,66 +1,49 @@
+export const GeneratorFunction: GeneratorFunctionConstructor = Object.getPrototypeOf(function*() {}).constructor
+
+export type uint8  = number
+export type uint16 = number
+export type uint32 = number
+
+export type ByteOrder = "little" | "big"
+
 export type ID = string
 
-export type Color = string
-
-export {TypedArray} from "./util/ndarray"
-
-export type NumberArray = Float32Array
-export const NumberArray = Float32Array
+export type Color = string | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
 
 export type ColorArray = Uint32Array
 export const ColorArray = Uint32Array
 
-import {equals, Equals, Comparator} from "core/util/eq"
+export type RGBAArray = Uint8ClampedArray
+export const RGBAArray = Uint8ClampedArray
 
-export class RaggedArray implements Equals {
+import {TypedArray} from "./util/ndarray"
+export {TypedArray}
 
-  static [Symbol.toStringTag] = "RaggedArray"
+export type FloatArray = Float32Array | Float64Array
+export type FloatArrayConstructor = Float32ArrayConstructor | Float64ArrayConstructor
 
-  constructor(readonly offsets: Uint32Array, readonly array: NumberArray) {}
+export function infer_type(a0: Float64Array, a1?: FloatArray): Float64ArrayConstructor
+export function infer_type(a0: FloatArray, a1: Float64Array): Float64ArrayConstructor
+export function infer_type(a0: Float32Array, a1?: Float32Array): Float32ArrayConstructor
+export function infer_type(a0: FloatArray, a1: FloatArray): FloatArrayConstructor
+export function infer_type(a0: Arrayable<number>, a1?: Arrayable<number>): FloatArrayConstructor
 
-  [equals](that: this, cmp: Comparator): boolean {
-    return cmp.arrays(this.offsets, that.offsets) && cmp.arrays(this.array, that.array)
-  }
+export function infer_type(a0: Arrayable<number>, a1?: Arrayable<number>): FloatArrayConstructor {
+  if (a0 instanceof Float64Array || a0 instanceof Array)
+    return Float64Array
+  if (a1 instanceof Float64Array || a1 instanceof Array)
+    return Float64Array
+  return Float32Array
+}
 
-  get length(): number {
-    return this.offsets.length
-  }
+export type ScreenArray = Float32Array
+export const ScreenArray = Float32Array
 
-  clone(): RaggedArray {
-    return new RaggedArray(new Uint32Array(this.offsets), new NumberArray(this.array))
-  }
-
-  static from(items: number[][]): RaggedArray {
-    const n = items.length
-    const offsets = new Uint32Array(n)
-    let offset = 0
-    for (let i = 0; i < n; i++) {
-      const length = items[i].length
-      offsets[i] = offset
-      offset += length
-    }
-    const array = new NumberArray(offset)
-    for (let i = 0; i < n; i++) {
-      array.set(items[i], offsets[i])
-    }
-    return new RaggedArray(offsets, array)
-  }
-
-  *[Symbol.iterator](): IterableIterator<NumberArray> {
-    const {offsets, length} = this
-    for (let i = 0; i < length; i++) {
-      yield this.array.subarray(offsets[i], offsets[i + 1])
-    }
-  }
-
-  get(i: number): NumberArray {
-    const {offsets} = this
-    return this.array.subarray(offsets[i], offsets[i + 1])
-  }
-
-  set(i: number, array: ArrayLike<number>): void {
-    this.array.set(array, this.offsets[i])
-  }
+export function to_screen(array: Iterable<number>): ScreenArray {
+  if (!(array instanceof Float32Array))
+    return new Float32Array(array)
+  else
+    return array
 }
 
 export type Arrayable<T = any> = {
@@ -111,4 +94,5 @@ export type Interval = {
   end: number
 }
 
-export {BitSet as Indices} from "./util/data_structures"
+export {BitSet as Indices} from "./util/bitset"
+export type {RaggedArray} from "./util/ragged_array"

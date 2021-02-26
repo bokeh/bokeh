@@ -4,14 +4,13 @@ import {Class} from "core/class"
 import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {empty} from "core/dom"
+import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
 import {reversed} from "core/util/array"
 
-import {bk_toolbar_button} from "styles/toolbar"
-
-import toolbar_css from "styles/toolbar.css"
+import toolbar_css, * as toolbars from "styles/toolbar.css"
 import icons_css from "styles/icons.css"
 import menus_css from "styles/menus.css"
 
@@ -21,7 +20,7 @@ import type {ToolbarBaseView} from "./toolbar_base"
 
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
-  parent: ToolbarBaseView
+  readonly parent: ToolbarBaseView
 
   private _hammer: InstanceType<typeof Manager>
   private _menu?: ContextMenu
@@ -68,7 +67,7 @@ export abstract class ButtonToolButtonView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat(bk_toolbar_button)
+    return super.css_classes().concat(toolbars.toolbar_button)
   }
 
   render(): void {
@@ -130,9 +129,9 @@ export abstract class ButtonTool extends Tool {
   }
 
   static init_ButtonTool(): void {
-    this.internal({
-      disabled: [ p.Boolean, false ],
-    })
+    this.internal<ButtonTool.Props>(({Boolean}) => ({
+      disabled: [ Boolean, false ],
+    }))
   }
 
   tool_name: string
@@ -141,8 +140,20 @@ export abstract class ButtonTool extends Tool {
 
   button_view: Class<ButtonToolButtonView>
 
+  // utility function to return a tool name, modified
+  // by the active dimensions. Used by tools that have dimensions
+  protected _get_dim_tooltip(dims: Dimensions): string {
+    const {description, tool_name} = this
+    if (description != null)
+      return description
+    else if (dims == "both")
+      return tool_name
+    else
+      return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
+  }
+
   get tooltip(): string {
-    return this.tool_name
+    return this.description ?? this.tool_name
   }
 
   get computed_icon(): string {

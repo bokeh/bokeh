@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend, line_interpolation} from "./utils"
+import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import {LineGL} from "./webgl/line"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {Arrayable, Rect} from "core/types"
@@ -10,7 +10,7 @@ import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
-export interface LineData extends XYGlyphData {}
+export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 
 export interface LineView extends LineData {}
 
@@ -30,14 +30,19 @@ export class LineView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
+    const {sx, sy} = data ?? this
+
     let drawing = false
     let last_index: number | null = null
 
     this.visuals.line.set_value(ctx)
     for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+
       if (drawing) {
-        if (!isFinite(sx[i] + sy[i])) {
+        if (!isFinite(sx_i + sy_i)) {
           ctx.stroke()
           ctx.beginPath()
           drawing = false
@@ -52,10 +57,10 @@ export class LineView extends XYGlyphView {
       }
 
       if (drawing)
-        ctx.lineTo(sx[i], sy[i])
+        ctx.lineTo(sx_i, sy_i)
       else {
         ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
+        ctx.moveTo(sx_i, sy_i)
         drawing = true
       }
 
@@ -78,10 +83,10 @@ export class LineView extends XYGlyphView {
     const result = new Selection()
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
-    const threshold = Math.max(2, this.visuals.line.line_width.value() / 2)
+    const threshold = Math.max(2, this.line_width.value/2)
 
     for (let i = 0, end = this.sx.length-1; i < end; i++) {
-      const p0 = {x: this.sx[i],     y: this.sy[i]    }
+      const p0 = {x: this.sx[i],     y: this.sy[i]}
       const p1 = {x: this.sx[i + 1], y: this.sy[i + 1]}
       const dist = hittest.dist_to_segment(point, p0, p1)
 
@@ -126,8 +131,8 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
-    generic_line_legend(this.visuals, ctx, bbox, index)
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+    generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
 
@@ -136,9 +141,9 @@ export namespace Line {
 
   export type Props = XYGlyph.Props & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/
+  export type Mixins = mixins.LineScalar
 
-  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
+  export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
 }
 
 export interface Line extends Line.Attrs {}
@@ -154,6 +159,6 @@ export class Line extends XYGlyph {
   static init_Line(): void {
     this.prototype.default_view = LineView
 
-    this.mixins<Line.Mixins>(mixins.Line/*Scalar*/)
+    this.mixins<Line.Mixins>(mixins.LineScalar)
   }
 }

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -29,7 +29,9 @@ from ..core.properties import (
     Float,
     Instance,
     Int,
+    NonNullable,
     Override,
+    String,
 )
 from ..core.validation import error, warning
 from ..core.validation.errors import (
@@ -63,11 +65,11 @@ class MapOptions(Model):
 
     '''
 
-    lat = Float(help="""
+    lat = NonNullable(Float, help="""
     The latitude where the map should be centered.
     """)
 
-    lng = Float(help="""
+    lng = NonNullable(Float, help="""
     The longitude where the map should be centered.
     """)
 
@@ -112,7 +114,7 @@ class GMapOptions(MapOptions):
     Whether the Google map should display its distance scale control.
     """)
 
-    styles = JSON(help="""
+    styles = NonNullable(JSON, help="""
     A JSON array of `map styles`_ to use for the ``GMapPlot``. Many example styles can
     `be found here`_.
 
@@ -175,9 +177,18 @@ class GMapPlot(MapPlot):
 
     border_fill_color = Override(default="#ffffff")
 
-    api_key = Base64String(help="""
+    api_key = NonNullable(Base64String, help="""
     Google Maps API requires an API key. See https://developers.google.com/maps/documentation/javascript/get-api-key
     for more information on how to obtain your own.
+    """)
+
+    api_version = String(default="3.43", help="""
+    The version of Google Maps API to use. See https://developers.google.com/maps/documentation/javascript/versions
+    for more information.
+
+    .. note::
+        Changing this value may result in broken map rendering.
+
     """)
 
     x_range = Override(default=lambda: Range1d())

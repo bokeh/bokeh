@@ -1,6 +1,6 @@
 .. _userguide_extensions_examples_ticking:
 
-Specialized Axis Ticking
+Specialized axis ticking
 ------------------------
 
 This example shows how to create a custom ``TickFormatter`` class that displays

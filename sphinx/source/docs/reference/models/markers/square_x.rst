@@ -3,6 +3,4 @@
 bokeh.models.markers.SquareX
 ----------------------------
 
-.. autoclass:: bokeh.models.markers.SquareX
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.SquareX

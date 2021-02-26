@@ -28,9 +28,9 @@ async function compile() {
   if (argv.file != null) {
     const input = {
       code: argv.code != null ? argv.code as string : read(argv.file as string)!,
-      lang: (argv.lang as string | undefined) || "typescript",
+      lang: (argv.lang as string | undefined) ?? "typescript",
       file: argv.file as string,
-      bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to
+      bokehjs_dir: (argv.bokehjsDir as string | undefined) ?? "./build", // this is what bokeh.settings defaults to
     }
     return await compile_and_resolve_deps(input)
   } else {
@@ -49,8 +49,9 @@ async function main() {
       const bokeh_version = argv.bokehVersion as string
       const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
       process.exit(result ? 0 : 1)
-    } catch (error) {
-      console.log(error.stack)
+    } catch (error: unknown) {
+      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      console.log(msg)
       process.exit(1)
     }
   } else if (cmd == "init") {
@@ -62,15 +63,17 @@ async function main() {
       const bokeh_version = argv.bokehVersion as string
       const result = await init(base_dir, bokehjs_dir, {interactive, bokehjs_version, bokeh_version})
       process.exit(result ? 0 : 1)
-    } catch (error) {
-      console.log(error.stack)
+    } catch (error: unknown) {
+      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      console.log(msg)
       process.exit(1)
     }
   } else {
     try {
       reply(await compile())
-    } catch (error) {
-      reply({error: error.stack})
+    } catch (error: unknown) {
+      const msg = error instanceof Error && error.stack ? error.stack : `${error}`
+      reply({error: msg})
     }
   }
 }

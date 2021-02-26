@@ -1,8 +1,12 @@
-import {display, fig, grid} from "./utils"
+import {display, fig, grid} from "./_util"
 
-import pipeline from "./data"
+import pipeline from "./_data"
 
-import {Plot, Range1d, GlyphRenderer, LinearColorMapper, EqHistColorMapper} from "@bokehjs/models"
+import {
+  Plot, Range1d, GlyphRenderer,
+  LinearColorMapper, EqHistColorMapper,
+  ColorBar,
+} from "@bokehjs/models"
 import {Plasma256} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
@@ -92,39 +96,51 @@ describe("Color mapping", () => {
     }
 
     function eqhist_mapped_plot(data: Float64NDArray) {
-      const color_mapper = new EqHistColorMapper({palette: Plasma256})
+      const palette = Plasma256
+      const color_mapper = new EqHistColorMapper({palette})
+
       const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
       p.image({image: [data as any], x: 0, y: 0, dw: 10, dh: 10, color_mapper})
+
+      const color_bar = new ColorBar({
+        color_mapper,
+        ticker: "auto",
+        formatter: "auto",
+        orientation: "horizontal",
+        padding: 0,
+      })
+      p.add_layout(color_bar, "below")
+
       return p
     }
 
     it("should support pipeline data", async () =>{
       const p = eqhist_mapped_plot(pipeline)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support sparse squares data", async () =>{
       const squares = sparse_squares()
       const p = eqhist_mapped_plot(squares)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support uniformly distributed data", async () =>{
       const noise = simple_noise()
       const p = eqhist_mapped_plot(noise)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support gaussian distributed data", async () =>{
       const gaussian = simple_gaussian()
       const p = eqhist_mapped_plot(gaussian)
-      await display(p, [350, 350])
+      await display(p)
     })
 
     it("should support sparse cells data", async () =>{
       const cells = sparse_cells()
       const p = eqhist_mapped_plot(cells)
-      await display(p, [350, 350])
+      await display(p)
     })
   })
 
@@ -204,12 +220,12 @@ describe("Color mapping", () => {
 
     it("should work", async () => {
       const grid = make_grid()
-      await display(grid, [550, 550])
+      await display(grid)
     })
 
     it("should work after panning", async () => {
       const grid = make_grid()
-      const {view} = await display(grid, [550, 550])
+      const {view} = await display(grid)
       const pv3 = view.child_views[3] as Plot["__view_type__"]
       const p3 = pv3.model
       // TODO: synchronized
@@ -222,10 +238,10 @@ describe("Color mapping", () => {
 
     it("should work after selection", async () => {
       const grid = make_grid()
-      const {view} = await display(grid, [550, 550])
+      const {view} = await display(grid)
       const pv3 = view.child_views[3] as Plot["__view_type__"]
       const g3 = pv3.model.renderers[0] as GlyphRenderer
-      const gv3 = pv3.renderer_views.get(g3) as GlyphRenderer["__view_type__"]
+      const gv3 = pv3.renderer_view(g3)!
       const sel = gv3.model.get_selection_manager()
       const [sx0, sx1] = pv3.frame.x_scale.r_compute(20, 40)
       const [sy0, sy1] = pv3.frame.y_scale.r_compute(20, 40)

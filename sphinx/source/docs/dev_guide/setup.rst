@@ -12,9 +12,6 @@ For this reason, in order to develop Bokeh from a source checkout, you must
 first be able to build BokehJS. This chapter will walk you through getting a
 full development environment set up.
 
-.. contents::
-    :local:
-    :depth: 2
 
 .. dev_guide_preliminaries:
 
@@ -111,7 +108,7 @@ commands:
 .. code-block:: sh
 
     cd bokehjs
-    npm install -g npm
+    npm install -g npm@7
 
 If you do not wish to install globally (i.e. with ``-g``), then all
 subsequent ``npm`` commands will need to be adjusted to use the local

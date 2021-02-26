@@ -1,7 +1,9 @@
 import * as p from "./properties"
 import {Color} from "./types"
-import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import * as k from "./kinds"
 import {Texture} from "models/textures/texture"
+import {keys} from "./util/object"
 
 export type HatchPattern = HatchPatternType | string
 export type HatchExtra = {[key: string]: Texture}
@@ -14,7 +16,7 @@ export type Line = {
   line_width: p.Property<number>
   line_join: p.Property<LineJoin>
   line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
+  line_dash: p.Property<LineDash | number[]>
   line_dash_offset: p.Property<number>
 }
 
@@ -44,38 +46,38 @@ export type Text = {
 }
 
 export const Line: p.DefineOf<Line> = {
-  line_color:       [ p.Color,        "black"     ],
-  line_alpha:       [ p.Number,       1.0         ],
-  line_width:       [ p.Number,       1           ],
-  line_join:        [ p.LineJoin,     "bevel"     ],
-  line_cap:         [ p.LineCap,      "butt"      ],
-  line_dash:        [ p.Array,        []          ],
-  line_dash_offset: [ p.Number,       0           ],
+  line_color:       [ k.Nullable(k.Color), "black" ],
+  line_alpha:       [ k.Alpha, 1.0 ],
+  line_width:       [ k.Number, 1 ],
+  line_join:        [ LineJoin, "bevel"],
+  line_cap:         [ LineCap, "butt" ],
+  line_dash:        [ k.Or(LineDash, k.Array(k.Number)), [] ],
+  line_dash_offset: [ k.Number, 0 ],
 }
 
 export const Fill: p.DefineOf<Fill> = {
-  fill_color:       [ p.Color,        "gray"      ],
-  fill_alpha:       [ p.Number,       1.0         ],
+  fill_color:       [ k.Nullable(k.Color), "gray" ],
+  fill_alpha:       [ k.Alpha, 1.0 ],
 }
 
 export const Hatch: p.DefineOf<Hatch> = {
-  hatch_color:      [ p.Color,        "black"     ],
-  hatch_alpha:      [ p.Number,       1.0         ],
-  hatch_scale:      [ p.Number,       12.0        ],
-  hatch_pattern:    [ p.NullString,   null        ],
-  hatch_weight:     [ p.Number,       1.0         ],
-  hatch_extra:      [ p.Any,          {}          ],
+  hatch_color:      [ k.Nullable(k.Color), "black" ],
+  hatch_alpha:      [ k.Alpha, 1.0 ],
+  hatch_scale:      [ k.Number, 12.0 ],
+  hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.String)), null ],
+  hatch_weight:     [ k.Number, 1.0 ],
+  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
 }
 
 export const Text: p.DefineOf<Text> = {
-  text_color:       [ p.Color,        "#444444"   ],
-  text_alpha:       [ p.Number,       1.0         ],
-  text_font:        [ p.Font,         "helvetica" ],
-  text_font_size:   [ p.FontSize,     "16px"      ],
-  text_font_style:  [ p.FontStyle,    "normal"    ],
-  text_align:       [ p.TextAlign,    "left"      ],
-  text_baseline:    [ p.TextBaseline, "bottom"    ],
-  text_line_height: [ p.Number,       1.2         ],
+  text_color:       [ k.Nullable(k.Color), "#444444" ],
+  text_alpha:       [ k.Alpha, 1.0 ],
+  text_font:        [ p.Font, "helvetica" ],
+  text_font_size:   [ k.FontSize, "16px" ],
+  text_font_style:  [ FontStyle, "normal" ],
+  text_align:       [ TextAlign, "left" ],
+  text_baseline:    [ TextBaseline, "bottom" ],
+  text_line_height: [ k.Number, 1.2 ],
 }
 
 // Scalar
@@ -86,7 +88,7 @@ export type LineScalar = {
   line_width: p.ScalarSpec<number>
   line_join: p.ScalarSpec<LineJoin>
   line_cap: p.ScalarSpec<LineCap>
-  line_dash: p.ScalarSpec<number[]>
+  line_dash: p.ScalarSpec<LineDash | number[]>
   line_dash_offset: p.ScalarSpec<number>
 }
 
@@ -121,7 +123,7 @@ export const LineScalar: p.DefineOf<LineScalar> = {
   line_width:       [ p.NumberScalar,       1           ],
   line_join:        [ p.LineJoinScalar,     "bevel"     ],
   line_cap:         [ p.LineCapScalar,      "butt"      ],
-  line_dash:        [ p.ArrayScalar,        []          ],
+  line_dash:        [ p.LineDashScalar,     []          ],
   line_dash_offset: [ p.NumberScalar,       0           ],
 }
 
@@ -142,7 +144,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
 export const TextScalar: p.DefineOf<TextScalar> = {
   text_color:       [ p.ColorScalar,        "#444444"   ],
   text_alpha:       [ p.NumberScalar,       1.0         ],
-  text_font:        [ p.Font,               "helvetica" ],
+  text_font:        [ p.FontScalar,         "helvetica" ],
   text_font_size:   [ p.FontSizeScalar,     "16px"      ],
   text_font_style:  [ p.FontStyleScalar,    "normal"    ],
   text_align:       [ p.TextAlignScalar,    "left"      ],
@@ -153,48 +155,48 @@ export const TextScalar: p.DefineOf<TextScalar> = {
 // Vectorized
 
 export type LineVector = {
-  line_color: p.VectorSpec<Color | null>
+  line_color: p.ColorSpec
   line_alpha: p.VectorSpec<number>
   line_width: p.VectorSpec<number>
-  line_join: p.Property<LineJoin>
-  line_cap: p.Property<LineCap>
-  line_dash: p.Property<number[]>
-  line_dash_offset: p.Property<number>
+  line_join: p.VectorSpec<LineJoin>
+  line_cap: p.VectorSpec<LineCap>
+  line_dash: p.VectorSpec<LineDash | number[]>
+  line_dash_offset: p.VectorSpec<number>
 }
 
 export type FillVector = {
-  fill_color: p.VectorSpec<Color | null>
+  fill_color: p.ColorSpec
   fill_alpha: p.VectorSpec<number>
 }
 
 export type HatchVector = {
-  hatch_color: p.VectorSpec<Color | null>
+  hatch_color: p.ColorSpec
   hatch_alpha: p.VectorSpec<number>
   hatch_scale: p.VectorSpec<number>
   hatch_pattern: p.VectorSpec<HatchPattern | null>
   hatch_weight: p.VectorSpec<number>
-  hatch_extra: p.Property<HatchExtra>
+  hatch_extra: p.ScalarSpec<HatchExtra>
 }
 
 export type TextVector = {
-  text_color: p.VectorSpec<Color | null>
+  text_color: p.ColorSpec
   text_alpha: p.VectorSpec<number>
-  text_font: p.Property<string>
+  text_font: p.VectorSpec<string>
   text_font_size: p.VectorSpec<string>
-  text_font_style: p.Property<FontStyle>
-  text_align: p.Property<TextAlign>
-  text_baseline: p.Property<TextBaseline>
-  text_line_height: p.Property<number>
+  text_font_style: p.VectorSpec<FontStyle>
+  text_align: p.VectorSpec<TextAlign>
+  text_baseline: p.VectorSpec<TextBaseline>
+  text_line_height: p.VectorSpec<number>
 }
 
 export const LineVector: p.DefineOf<LineVector> = {
-  line_color:       [ p.ColorSpec,      "black"     ],
-  line_alpha:       [ p.NumberSpec,     1.0         ],
-  line_width:       [ p.NumberSpec,     1           ],
-  line_join:        [ p.LineJoin,       "bevel"     ],
-  line_cap:         [ p.LineCap,        "butt"      ],
-  line_dash:        [ p.Array,          []          ],
-  line_dash_offset: [ p.Number,         0           ],
+  line_color:       [ p.ColorSpec,    "black"     ],
+  line_alpha:       [ p.NumberSpec,   1.0         ],
+  line_width:       [ p.NumberSpec,   1           ],
+  line_join:        [ p.LineJoinSpec, "bevel" ],
+  line_cap:         [ p.LineCapSpec,  "butt" ],
+  line_dash:        [ p.LineDashSpec, [] ],
+  line_dash_offset: [ p.NumberSpec,   0 ],
 }
 
 export const FillVector: p.DefineOf<FillVector> = {
@@ -208,204 +210,52 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ p.Any,            {}          ],
+  hatch_extra:      [ p.AnyScalar,      {}          ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {
-  text_color:       [ p.ColorSpec,      "#444444"   ],
-  text_alpha:       [ p.NumberSpec,     1.0         ],
-  text_font:        [ p.Font,           "helvetica" ],
-  text_font_size:   [ p.FontSizeSpec,   "16px"      ],
-  text_font_style:  [ p.FontStyle,      "normal"    ],
-  text_align:       [ p.TextAlign,      "left"      ],
-  text_baseline:    [ p.TextBaseline,   "bottom"    ],
-  text_line_height: [ p.Number,         1.2         ],
+  text_color:       [ p.ColorSpec, "#444444" ],
+  text_alpha:       [ p.NumberSpec, 1.0 ],
+  text_font:        [ p.FontSpec, "helvetica" ],
+  text_font_size:   [ p.FontSizeSpec, "16px"],
+  text_font_style:  [ p.FontStyleSpec, "normal" ],
+  text_align:       [ p.TextAlignSpec, "left" ],
+  text_baseline:    [ p.TextBaselineSpec, "bottom" ],
+  text_line_height: [ p.NumberSpec, 1.2 ],
 }
 
-// Common property mixins used in models. This duplication is currently unavoidable.
-// Remove this when https://github.com/Microsoft/TypeScript/issues/12754 is fixed.
+export type Prefixed<P extends string, T> = {[key in keyof T & string as `${P}_${key}`]: T[key]}
 
-export type LabelText = {
-  label_text_color: Text["text_color"]
-  label_text_alpha: Text["text_alpha"]
-  label_text_font: Text["text_font"]
-  label_text_font_size: Text["text_font_size"]
-  label_text_font_style: Text["text_font_style"]
-  label_text_align: Text["text_align"]
-  label_text_baseline: Text["text_baseline"]
-  label_text_line_height: Text["text_line_height"]
-}
+export type AxisLabelText = Prefixed<"axis_label", Text>
+export type AxisLine = Prefixed<"axis", Line>
+export type BackgroundFill = Prefixed<"background", Fill>
+export type BandFill = Prefixed<"band", Fill>
+export type BandHatch = Prefixed<"band", Hatch>
+export type BarLine = Prefixed<"bar", Line>
+export type BorderFill = Prefixed<"border", Fill>
+export type BorderLine = Prefixed<"border", Line>
+export type GridLine = Prefixed<"grid", Line>
+export type GroupText = Prefixed<"group", Text>
+export type InactiveFill = Prefixed<"inactive", Fill>
+export type LabelText = Prefixed<"label", Text>
+export type MajorLabelText = Prefixed<"major_label", Text>
+export type MajorTickLine = Prefixed<"major_tick", Line>
+export type MinorGridLine = Prefixed<"minor_grid", Line>
+export type MinorTickLine = Prefixed<"minor_tick", Line>
+export type OutlineLine = Prefixed<"outline", Line>
+export type SeparatorLine = Prefixed<"separator", Line>
+export type SubGroupText = Prefixed<"subgroup", Text>
+export type TitleText = Prefixed<"title", Text>
 
-export type InactiveFill = {
-  inactive_fill_color: Fill["fill_color"]
-  inactive_fill_alpha: Fill["fill_alpha"]
-}
+type Mixins = Text | Line | Fill | Hatch
 
-export type BorderLine = {
-  border_line_color: Line["line_color"]
-  border_line_alpha: Line["line_alpha"]
-  border_line_width: Line["line_width"]
-  border_line_join: Line["line_join"]
-  border_line_cap: Line["line_cap"]
-  border_line_dash: Line["line_dash"]
-  border_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BackgroundFill = {
-  background_fill_color: Fill["fill_color"]
-  background_fill_alpha: Fill["fill_alpha"]
-}
-
-export type MajorLabelText = {
-  major_label_text_color: Text["text_color"]
-  major_label_text_alpha: Text["text_alpha"]
-  major_label_text_font: Text["text_font"]
-  major_label_text_font_size: Text["text_font_size"]
-  major_label_text_font_style: Text["text_font_style"]
-  major_label_text_align: Text["text_align"]
-  major_label_text_baseline: Text["text_baseline"]
-  major_label_text_line_height: Text["text_line_height"]
-}
-
-export type TitleText = {
-  title_text_color: Text["text_color"]
-  title_text_alpha: Text["text_alpha"]
-  title_text_font: Text["text_font"]
-  title_text_font_size: Text["text_font_size"]
-  title_text_font_style: Text["text_font_style"]
-  title_text_align: Text["text_align"]
-  title_text_baseline: Text["text_baseline"]
-  title_text_line_height: Text["text_line_height"]
-}
-
-export type MajorTickLine = {
-  major_tick_line_color: Line["line_color"]
-  major_tick_line_alpha: Line["line_alpha"]
-  major_tick_line_width: Line["line_width"]
-  major_tick_line_join: Line["line_join"]
-  major_tick_line_cap: Line["line_cap"]
-  major_tick_line_dash: Line["line_dash"]
-  major_tick_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type MinorTickLine = {
-  minor_tick_line_color: Line["line_color"]
-  minor_tick_line_alpha: Line["line_alpha"]
-  minor_tick_line_width: Line["line_width"]
-  minor_tick_line_join: Line["line_join"]
-  minor_tick_line_cap: Line["line_cap"]
-  minor_tick_line_dash: Line["line_dash"]
-  minor_tick_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BarLine = {
-  bar_line_color: Line["line_color"]
-  bar_line_alpha: Line["line_alpha"]
-  bar_line_width: Line["line_width"]
-  bar_line_join: Line["line_join"]
-  bar_line_cap: Line["line_cap"]
-  bar_line_dash: Line["line_dash"]
-  bar_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type AxisLine = {
-  axis_line_color: Line["line_color"]
-  axis_line_alpha: Line["line_alpha"]
-  axis_line_width: Line["line_width"]
-  axis_line_join: Line["line_join"]
-  axis_line_cap: Line["line_cap"]
-  axis_line_dash: Line["line_dash"]
-  axis_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type AxisLabelText = {
-  axis_label_text_color: Text["text_color"]
-  axis_label_text_alpha: Text["text_alpha"]
-  axis_label_text_font: Text["text_font"]
-  axis_label_text_font_size: Text["text_font_size"]
-  axis_label_text_font_style: Text["text_font_style"]
-  axis_label_text_align: Text["text_align"]
-  axis_label_text_baseline: Text["text_baseline"]
-  axis_label_text_line_height: Text["text_line_height"]
-}
-
-export type GridLine = {
-  grid_line_color: Line["line_color"]
-  grid_line_alpha: Line["line_alpha"]
-  grid_line_width: Line["line_width"]
-  grid_line_join: Line["line_join"]
-  grid_line_cap: Line["line_cap"]
-  grid_line_dash: Line["line_dash"]
-  grid_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type MinorGridLine = {
-  minor_grid_line_color: Line["line_color"]
-  minor_grid_line_alpha: Line["line_alpha"]
-  minor_grid_line_width: Line["line_width"]
-  minor_grid_line_join: Line["line_join"]
-  minor_grid_line_cap: Line["line_cap"]
-  minor_grid_line_dash: Line["line_dash"]
-  minor_grid_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BandFill = {
-  band_fill_color: Fill["fill_color"]
-  band_fill_alpha: Fill["fill_alpha"]
-}
-
-export type BandHatch = {
-  band_hatch_color: Hatch["hatch_color"]
-  band_hatch_alpha: Hatch["hatch_alpha"]
-  band_hatch_scale: Hatch["hatch_scale"]
-  band_hatch_pattern: Hatch["hatch_pattern"]
-  band_hatch_weight: Hatch["hatch_weight"]
-  band_hatch_extra: Hatch["hatch_extra"]
-}
-
-export type OutlineLine = {
-  outline_line_color: Line["line_color"]
-  outline_line_alpha: Line["line_alpha"]
-  outline_line_width: Line["line_width"]
-  outline_line_join: Line["line_join"]
-  outline_line_cap: Line["line_cap"]
-  outline_line_dash: Line["line_dash"]
-  outline_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type BorderFill = {
-  border_fill_color: Fill["fill_color"]
-  border_fill_alpha: Fill["fill_alpha"]
-}
-
-export type SeparatorLine = {
-  separator_line_color: Line["line_color"]
-  separator_line_alpha: Line["line_alpha"]
-  separator_line_width: Line["line_width"]
-  separator_line_join: Line["line_join"]
-  separator_line_cap: Line["line_cap"]
-  separator_line_dash: Line["line_dash"]
-  separator_line_dash_offset: Line["line_dash_offset"]
-}
-
-export type GroupText = {
-  group_text_color: Text["text_color"]
-  group_text_alpha: Text["text_alpha"]
-  group_text_font: Text["text_font"]
-  group_text_font_size: Text["text_font_size"]
-  group_text_font_style: Text["text_font_style"]
-  group_text_align: Text["text_align"]
-  group_text_baseline: Text["text_baseline"]
-  group_text_line_height: Text["text_line_height"]
-}
-
-export type SubGroupText = {
-  subgroup_text_color: Text["text_color"]
-  subgroup_text_alpha: Text["text_alpha"]
-  subgroup_text_font: Text["text_font"]
-  subgroup_text_font_size: Text["text_font_size"]
-  subgroup_text_font_style: Text["text_font_style"]
-  subgroup_text_align: Text["text_align"]
-  subgroup_text_baseline: Text["text_baseline"]
-  subgroup_text_line_height: Text["text_line_height"]
+export function attrs_of<P extends string, T extends Mixins>(
+    model: any, prefix: P, mixin: p.DefineOf<T>, prefixed: boolean = false): {[key: string]: any} {
+  const attrs: {[key: string]: unknown} = {}
+  for (const attr of keys(mixin)) {
+    const prefixed_attr = `${prefix}${attr}` as const
+    const value = model[prefixed_attr]
+    attrs[prefixed ? prefixed_attr : attr] = value
+  }
+  return attrs
 }

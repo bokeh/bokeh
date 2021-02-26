@@ -12,17 +12,14 @@ import {logger} from "core/logging"
 import {BoxSizing} from "core/layout"
 
 import {WidgetView} from "../widget"
+import {ColumnType, Item, DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
-import {TableColumn, ColumnType, Item} from "./table_column"
+import {TableColumn} from "./table_column"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
-import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
-
+import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
-import tables_css from "styles/widgets/tables.css"
-
-export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 export const AutosizeModes = {
   fit_columns: "FCV",
@@ -31,8 +28,9 @@ export const AutosizeModes = {
   none: "NOA",
 }
 
-export class TableDataProvider implements DataProvider<Item> {
+let _warned_not_reorderable = false
 
+export class TableDataProvider implements DataProvider<Item> {
   index: number[]
   source: ColumnDataSource
   view: CDSView
@@ -125,7 +123,6 @@ export class DataTableView extends WidgetView {
   protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
-  protected _warned_not_reorderable = false
   protected _width: number | null = null
 
   connect_signals(): void {
@@ -236,13 +233,13 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: bk_cell_index,
-      headerCssClass: bk_header_index,
+      cssClass: tables.cell_index,
+      headerCssClass: tables.header_index,
     }
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat(bk_data_table)
+    return super.css_classes().concat(tables.data_table)
   }
 
   get autosize(): string {
@@ -263,7 +260,7 @@ export class DataTableView extends WidgetView {
 
     let checkbox_selector: CheckboxSelectColumn<Item> | null = null
     if (this.model.selectable == "checkbox") {
-      checkbox_selector = new CheckboxSelectColumn({cssClass: bk_cell_select})
+      checkbox_selector = new CheckboxSelectColumn({cssClass: tables.cell_select})
       columns.unshift(checkbox_selector.getColumnDefinition())
     }
 
@@ -283,9 +280,9 @@ export class DataTableView extends WidgetView {
     let {reorderable} = this.model
 
     if (reorderable && !(typeof $ !== "undefined" && $.fn != null && ($.fn as any).sortable != null)) {
-      if (!this._warned_not_reorderable) {
+      if (!_warned_not_reorderable) {
         logger.warn("jquery-ui is required to enable DataTable.reorderable")
-        this._warned_not_reorderable = true
+        _warned_not_reorderable = true
       }
       reorderable = false
     }
@@ -428,26 +425,26 @@ export class DataTable extends TableWidget {
   static init_DataTable(): void {
     this.prototype.default_view = DataTableView
 
-    this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Null}) => ({
+    this.define<DataTable.Props>(({Array, Boolean, Int, Ref, String, Enum, Or, Nullable}) => ({
       autosize_mode:       [ Enum("fit_columns", "fit_viewport", "none", "force_fit"), "force_fit" ],
       auto_edit:           [ Boolean, false ],
       columns:             [ Array(Ref(TableColumn)), [] ],
-      fit_columns:         [ Or(Boolean, Null), null ],
-      frozen_columns:      [ Or(Int, Null), null ],
-      frozen_rows:         [ Or(Int, Null), null ],
+      fit_columns:         [ Nullable(Boolean), null ],
+      frozen_columns:      [ Nullable(Int), null ],
+      frozen_rows:         [ Nullable(Int), null ],
       sortable:            [ Boolean, true ],
       reorderable:         [ Boolean, true ],
       editable:            [ Boolean, false ],
       selectable:          [ Or(Boolean, Enum("checkbox")), true ],
-      index_position:      [ Or(Int, Null), 0 ],
-      index_header:        [ String,  "#"   ],
-      index_width:         [ Int,     40    ],
-      scroll_to_selection: [ Boolean, true  ],
-      header_row:          [ Boolean, true  ],
-      row_height:          [ Int,     25    ],
+      index_position:      [ Nullable(Int), 0 ],
+      index_header:        [ String, "#" ],
+      index_width:         [ Int, 40 ],
+      scroll_to_selection: [ Boolean, true ],
+      header_row:          [ Boolean, true ],
+      row_height:          [ Int, 25 ],
     }))
 
-    this.override({
+    this.override<DataTable.Props>({
       width: 600,
       height: 400,
     })

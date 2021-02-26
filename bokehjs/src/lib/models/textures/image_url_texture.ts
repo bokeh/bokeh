@@ -1,6 +1,7 @@
 import {Texture} from "./texture"
 import * as p from "core/properties"
-import {Context2d} from 'core/util/canvas'
+import {Color} from "core/types"
+import {PatternSource} from "core/visuals/patterns"
 import {ImageLoader} from "core/util/image"
 
 export namespace ImageURLTexture {
@@ -21,28 +22,20 @@ export abstract class ImageURLTexture extends Texture {
   }
 
   static init_ImageURLTexture(): void {
-    this.define<ImageURLTexture.Props>({
-      url: [ p.String ],
-    })
+    this.define<ImageURLTexture.Props>(({String}) => ({
+      url: [ String ],
+    }))
   }
+
+  private _loader: ImageLoader
 
   initialize(): void {
     super.initialize()
     this._loader = new ImageLoader(this.url)
   }
 
-  get_pattern(_color: any, _scale: number, _weight: number): (ctx: Context2d) => CanvasPattern | null {
-    return (ctx: Context2d): CanvasPattern | null => {
-      if (!this._loader.finished) {
-        return null
-      }
-      return ctx.createPattern(this._loader.image, this.repetition)
-    }
+  get_pattern(_color: Color, _scale: number, _weight: number): PatternSource | Promise<PatternSource> {
+    const {_loader} = this
+    return this._loader.finished ? _loader.image : _loader.promise
   }
-
-  onload(defer_func: () => void): void {
-    this._loader.promise.then(() => defer_func())
-  }
-
-  private _loader: ImageLoader
 }

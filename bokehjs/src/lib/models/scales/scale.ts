@@ -1,7 +1,7 @@
 import {Transform} from "../transforms"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import * as p from "core/properties"
 
 export namespace Scale {
@@ -23,19 +23,21 @@ export abstract class Scale extends Transform {
   }
 
   static init_Scale(): void {
-    this.internal({
-      source_range: [ p.Any ],
-      target_range: [ p.Any ], // p.Instance(Range1d)
-    })
+    this.internal<Scale.Props>(({Ref}) => ({
+      source_range: [ Ref(Range) ],
+      target_range: [ Ref(Range1d) ],
+    }))
   }
+
+  abstract get s_compute(): (x: number) => number
 
   abstract compute(x: number): number
 
-  abstract v_compute(xs: Arrayable<number>): NumberArray
+  abstract v_compute(xs: Arrayable<number>): ScreenArray
 
   abstract invert(sx: number): number
 
-  abstract v_invert(sxs: Arrayable<number>): NumberArray
+  abstract v_invert(sxs: Arrayable<number>): FloatArray
 
   r_compute(x0: number, x1: number): [number, number] {
     if (this.target_range.is_reversed)
@@ -58,9 +60,9 @@ export abstract class Scale extends Transform {
     return factor * x + offset
   }
 
-  _linear_v_compute(xs: Arrayable<number>): NumberArray {
+  _linear_v_compute(xs: Arrayable<number>): ScreenArray {
     const [factor, offset] = this._linear_compute_state()
-    const result = new NumberArray(xs.length)
+    const result = new ScreenArray(xs.length)
     for (let i = 0; i < xs.length; i++)
       result[i] = factor*xs[i] + offset
     return result
@@ -71,9 +73,9 @@ export abstract class Scale extends Transform {
     return (xprime - offset) / factor
   }
 
-  _linear_v_invert(xprimes: Arrayable<number>): NumberArray {
+  _linear_v_invert(xprimes: Arrayable<number>): FloatArray {
     const [factor, offset] = this._linear_compute_state()
-    const result = new NumberArray(xprimes.length)
+    const result = new Float64Array(xprimes.length)
     for (let i = 0; i < xprimes.length; i++)
       result[i] = (xprimes[i] - offset) / factor
     return result

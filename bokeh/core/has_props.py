@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -27,13 +27,16 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from warnings import warn
 
 # Bokeh imports
 from ..util.string import nice_join
+from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
+from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
+from .property.singletons import Undefined
 from .property.wrappers import PropertyValueContainer
 
 #-----------------------------------------------------------------------------
@@ -69,6 +72,9 @@ def abstract(cls):
 
     return cls
 
+def is_DataModel(cls):
+    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False)
+
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -88,14 +94,26 @@ class MetaHasProps(type):
 
         # Now handle all the Override
         overridden_defaults = {}
+        aliased_properties = {}
         for name, prop in class_dict.items():
-            if not isinstance(prop, Override):
-                continue
-            if prop.default_overridden:
-                overridden_defaults[name] = prop.default
+            if isinstance(prop, Alias):
+                aliased_properties[name] = prop
+            elif isinstance(prop, Override):
+                if prop.default_overridden:
+                    overridden_defaults[name] = prop.default
 
         for name, default in overridden_defaults.items():
             del class_dict[name]
+
+        def make_property(target_name, help):
+            fget = lambda self: getattr(self, target_name)
+            fset = lambda self, value: setattr(self, target_name, value)
+            return property(fget, fset, None, help)
+
+        property_aliases = {}
+        for name, alias in aliased_properties.items():
+            property_aliases[name] = alias.name
+            class_dict[name] = make_property(alias.name, alias.help)
 
         generators = dict()
         for name, generator in class_dict.items():
@@ -137,6 +155,7 @@ class MetaHasProps(type):
         class_dict["__properties__"] = set(new_class_attrs)
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
+        class_dict["__property_aliases__"] = property_aliases
         if len(overridden_defaults) > 0:
             class_dict["__overridden_defaults__"] = overridden_defaults
         if dataspecs:
@@ -285,8 +304,9 @@ class HasProps(metaclass=MetaHasProps):
             raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
                 (name, self.__class__.__name__, text, nice_join(matches)))
 
-    def __str__(self):
-        return "%s(...)" % self.__class__.__name__
+    def __str__(self) -> str:
+        name = self.__class__.__name__
+        return f"{name}(...)"
 
     __repr__ = __str__
 
@@ -310,6 +330,52 @@ class HasProps(metaclass=MetaHasProps):
             return False
         else:
             return self.properties_with_values() == other.properties_with_values()
+
+    # TODO: this assumes that HasProps/Model are defined as in bokehjs, which
+    # isn't the case here. HasProps must be serializable through refs only.
+    @classmethod
+    def static_to_serializable(cls, serializer):
+        # TODO: resolving already visited objects should be serializer's duty
+        modelref = serializer.get_ref(cls)
+        if modelref is not None:
+            return modelref
+
+        bases = [ basecls for basecls in cls.__bases__ if is_DataModel(basecls) ]
+        if len(bases) == 0:
+            extends = None
+        elif len(bases) == 1:
+            extends = bases[0].static_to_serializable(serializer)
+        else:
+            raise RuntimeError("multiple bases are not supported")
+
+        name = cls.__view_model__
+        module = cls.__view_module__
+
+        # TODO: remove this
+        if module == "__main__" or module.split(".")[0] == "bokeh":
+            module = None
+
+        properties = []
+        overrides = []
+
+        # TODO: don't use unordered sets
+        for prop_name in list(cls.__properties__):
+            descriptor = cls.lookup(prop_name)
+            kind = None # TODO: serialize kinds
+            default = descriptor.property._default # TODO: private member
+            properties.append(dict(name=prop_name, kind=kind, default=default))
+
+        for prop_name, default in getattr(cls, "__overridden_defaults__", {}).items():
+            overrides.append(dict(name=prop_name, default=default))
+
+        modeldef = dict(name=name, module=module, extends=extends, properties=properties, overrides=overrides)
+        modelref = dict(name=name, module=module)
+
+        serializer.add_ref(cls, modelref, modeldef)
+        return modelref
+
+    def to_serializable(self, serializer):
+        pass # TODO: new serializer, hopefully in near future
 
     def set_from_json(self, name, json, models=None, setter=None):
         ''' Set a property value on this object from JSON.
@@ -403,18 +469,26 @@ class HasProps(metaclass=MetaHasProps):
             self.set_from_json(k, v, models, setter)
 
     @classmethod
-    def lookup(cls, name):
+    def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor]:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
         Args:
             name (str) : name of the property to search for
+            raises (bool) : whether to raise or return None if missing
 
         Returns:
             PropertyDescriptor : descriptor for property named ``name``
 
         '''
-        return getattr(cls, name)
+        resolved_name = cls._property_aliases().get(name, name)
+        attr = getattr(cls, resolved_name, None)
+        if attr is not None:
+            return attr
+        elif not raises:
+            return None
+        else:
+            raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @classmethod
     def properties_with_refs(cls):
@@ -491,7 +565,7 @@ class HasProps(metaclass=MetaHasProps):
         '''
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")
 
-    def properties_with_values(self, include_defaults: bool = True) -> Dict[str, Any]:
+    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
@@ -512,18 +586,29 @@ class HasProps(metaclass=MetaHasProps):
            dict : mapping from property names to their values
 
         '''
-        return self.query_properties_with_values(lambda prop: prop.serialized, include_defaults)
+        return self.query_properties_with_values(lambda prop: prop.serialized,
+            include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
     def _overridden_defaults(cls):
         ''' Returns a dictionary of defaults that have been overridden.
 
-        This is an implementation detail of Property.
+        .. note::
+            This is an implementation detail of ``Property``.
 
         '''
         return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
 
-    def query_properties_with_values(self, query, include_defaults=True):
+    @classmethod
+    def _property_aliases(cls) -> Dict[str, str]:
+        ''' Returns a dictionary of aliased properties.
+
+        .. note::
+            This is an implementation detail of ``Property``.
+        '''
+        return accumulate_dict_from_superclasses(cls, "__property_aliases__")
+
+    def query_properties_with_values(self, query, *, include_defaults: bool = True, include_undefined: bool = False):
         ''' Query the properties values of |HasProps| instances with a
         predicate.
 
@@ -559,10 +644,18 @@ class HasProps(metaclass=MetaHasProps):
             if not query(descriptor):
                 continue
 
-            value = descriptor.serializable_value(self)
-            if not include_defaults and key not in themed_keys:
-                if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
+            try:
+                value = descriptor.serializable_value(self)
+            except UnsetValueError:
+                if include_undefined:
+                    value = Undefined
+                else:
                     continue
+            else:
+                if not include_defaults and key not in themed_keys:
+                    if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
+                        continue
+
             result[key] = value
 
         return result

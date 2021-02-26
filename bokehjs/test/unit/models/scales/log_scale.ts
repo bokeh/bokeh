@@ -2,7 +2,6 @@ import {expect} from "assertions"
 
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {NumberArray} from '@bokehjs/core/types'
 
 describe("LogScale module", () => {
 
@@ -47,23 +46,23 @@ describe("LogScale module", () => {
 
     it("should vector map NaN values to NaN", () => {
       const scale = mkscale()
-      expect(scale.v_compute([NaN])).to.be.equal(new NumberArray([NaN]))
+      expect(scale.v_compute([NaN])).to.be.equal(new Float32Array([NaN]))
     })
 
     it("should vector map infinity values to NaN", () => {
       const scale = mkscale()
       scale.source_range.start = 0
-      expect(scale.v_compute([0])).to.be.equal(new NumberArray([NaN]))
+      expect(scale.v_compute([0])).to.be.equal(new Float32Array([NaN]))
     })
 
     it("should vector map values logly", () => {
       const scale = mkscale()
-      expect(scale.v_compute([1, 10, 100, 10000])).to.be.equal(new NumberArray([10, 35, 60, 110]))
+      expect(scale.v_compute([1, 10, 100, 10000])).to.be.equal(new Float32Array([10, 35, 60, 110]))
     })
 
-    it("should map to a NumberArray", () => {
+    it("should map to a Float32Array", () => {
       const scale = mkscale()
-      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(NumberArray)
+      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float32Array)
     })
   })
 
@@ -81,7 +80,7 @@ describe("LogScale module", () => {
     it("should vector map inverse map values logly", () => {
       const scale = mkscale()
       const values = scale.v_invert([-15, 10, 35, 60, 85, 110])
-      expect(values).to.be.similar(new NumberArray([0.1, 1, 10, 100, 1000, 10000]))
+      expect(values).to.be.similar(new Float64Array([0.1, 1, 10, 100, 1000, 10000]))
     })
   })
 })

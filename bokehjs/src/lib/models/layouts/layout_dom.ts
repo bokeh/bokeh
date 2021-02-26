@@ -4,19 +4,21 @@ import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
+import {color2css} from "core/util/color"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
-import {bk_root} from "styles/root"
-import {CanvasLayer} from "../canvas/canvas"
+import {root} from "styles/root.css"
+import {CanvasLayer} from "core/util/canvas"
+import {SerializableState} from "core/view"
 
 export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
 
   root: LayoutDOMView
-  parent: LayoutDOMView
+  readonly parent: LayoutDOMView
 
   protected _idle_notified: boolean = false
 
@@ -39,6 +41,7 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     await this.build_child_views()
   }
 
@@ -114,7 +117,7 @@ export abstract class LayoutDOMView extends DOMView {
     empty(this.el) // XXX: this should be in super
 
     const {background} = this.model
-    this.el.style.backgroundColor = background != null ? background : ""
+    this.el.style.backgroundColor = background != null ? color2css(background) : ""
 
     classes(this.el).clear().add(...this.css_classes())
 
@@ -324,7 +327,7 @@ export abstract class LayoutDOMView extends DOMView {
 
       while (measuring = measuring.parentElement) {
         // .bk-root element doesn't bring any value
-        if (measuring.classList.contains(bk_root))
+        if (measuring.classList.contains(root))
           continue
 
         // we reached <body> element, so use viewport size
@@ -370,7 +373,7 @@ export abstract class LayoutDOMView extends DOMView {
     return composite
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
@@ -389,7 +392,7 @@ export namespace LayoutDOM {
     min_height: p.Property<number | null>
     max_width: p.Property<number | null>
     max_height: p.Property<number | null>
-    margin: p.Property<number | [number, number] | [number, number, number, number]>
+    margin: p.Property<number | [number, number] | [number, number, number, number] | null>
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
@@ -414,25 +417,25 @@ export abstract class LayoutDOM extends Model {
 
   static init_LayoutDOM(): void {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Null, Auto, Color, Array, Tuple, Or} = types
+      const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
-        width:         [ Or(Number, Null), null ],
-        height:        [ Or(Number, Null), null ],
-        min_width:     [ Or(Number, Null), null ],
-        min_height:    [ Or(Number, Null), null ],
-        max_width:     [ Or(Number, Null), null ],
-        max_height:    [ Or(Number, Null), null ],
-        margin:        [ Or(Number, Number2, Number4), [0, 0, 0, 0] ],
+        width:         [ Nullable(Number), null ],
+        height:        [ Nullable(Number), null ],
+        min_width:     [ Nullable(Number), null ],
+        min_height:    [ Nullable(Number), null ],
+        max_width:     [ Nullable(Number), null ],
+        max_height:    [ Nullable(Number), null ],
+        margin:        [ Nullable(Or(Number, Number2, Number4)), [0, 0, 0, 0] ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
-        sizing_mode:   [ Or(SizingMode, Null), null ],
+        sizing_mode:   [ Nullable(SizingMode), null ],
         visible:       [ Boolean, true ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align)), "start" ],
-        background:    [ Or(Color, Null), null ],
+        background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
       }
     })

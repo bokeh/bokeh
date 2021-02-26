@@ -1,0 +1,12 @@
+{
+  "name": "gears",
+  "version": "0.0.1",
+  "description": "",
+  "license": "BSD-3-Clause",
+  "keywords": [],
+  "repository": {},
+  "dependencies": {
+    "bokehjs": "file:../../../bokehjs"
+  },
+  "devDependencies": {}
+}

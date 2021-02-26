@@ -28,12 +28,12 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   }
 
   static init_ContinuousColorMapper(): void {
-    this.define<ContinuousColorMapper.Props>(({Number, String, Null, Ref, Color, Or, Tuple, Array}) => {
+    this.define<ContinuousColorMapper.Props>(({Number, String, Ref, Color, Or, Tuple, Array, Nullable}) => {
       return {
-        high:       [ Or(Number, Null), null ],
-        low:        [ Or(Number, Null), null ],
-        high_color: [ Or(Color, Null), null ],
-        low_color:  [ Or(Color, Null), null ],
+        high:       [ Nullable(Number), null ],
+        low:        [ Nullable(Number), null ],
+        high_color: [ Nullable(Color), null ],
+        low_color:  [ Nullable(Color), null ],
         domain:     [ Array(Tuple(Ref(GlyphRenderer), Or(String, Array(String)))), [] ],
       }
     })
@@ -58,10 +58,13 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     const {domain, palette} = this
     const all_data = [...this._collect(domain)]
     this._scan_data = this.scan(all_data, palette.length)
+    this.metrics_change.emit()
     this.change.emit()
   }
 
-  get metrics(): {min: number, max: number} {
+  MatricsType: {min: number, max: number}
+
+  get metrics(): this["MatricsType"] {
     if (this._scan_data == null) {
       this.update_data()
     }
@@ -117,6 +120,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     const {domain} = this
     const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
     this._scan_data = this.scan(all_data, palette.length)
+    this.metrics_change.emit()
 
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]

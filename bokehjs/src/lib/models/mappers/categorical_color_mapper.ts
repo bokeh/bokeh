@@ -1,6 +1,6 @@
 import {CategoricalMapper, cat_v_compute} from "./categorical_mapper"
 import {ColorMapper} from "./color_mapper"
-import {Factor} from "../ranges/factor_range"
+import {Factor, FactorSeq} from "../ranges/factor_range"
 
 import * as p from "core/properties"
 import {Arrayable, ArrayableOf} from "core/types"
@@ -21,11 +21,11 @@ export class CategoricalColorMapper extends ColorMapper {
   }
 
   static init_CategoricalColorMapper(): void {
-    this.define<CategoricalColorMapper.Props>({
-      factors: [ p.Array     ],
-      start:   [ p.Number, 0 ],
-      end:     [ p.Number    ],
-    })
+    this.define<CategoricalColorMapper.Props>(({Number, Nullable}) => ({
+      factors: [ FactorSeq ],
+      start:   [ Number, 0 ],
+      end:     [ Nullable(Number), null ],
+    }))
   }
 
   protected _v_compute<T>(data: ArrayableOf<Factor>, values: Arrayable<T>,

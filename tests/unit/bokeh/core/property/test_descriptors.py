@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -19,7 +19,7 @@ from mock import patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Int, List
+from bokeh.core.properties import Int, List, Nullable
 from bokeh.model import Model
 
 # Module under test
@@ -35,6 +35,7 @@ ALL = (
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
     'UnitsSpecPropertyDescriptor',
+    'UnsetValueError',
 )
 
 #-----------------------------------------------------------------------------
@@ -163,7 +164,7 @@ class Test_BasicPropertyDescriptor:
 
     def test___delete__(self) -> None:
         class Foo(Model):
-            foo = Int()
+            foo = Nullable(Int())
             bar = List(Int, default=[10])
             baz = Int(default=20)
             quux = List(Int, default=[30])

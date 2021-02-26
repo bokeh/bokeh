@@ -1,13 +1,14 @@
 import {Range} from "./range"
-import {Renderer} from "../renderers/renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import * as p from "core/properties"
 
 export namespace DataRange {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Range.Props & {
+    /** @deprecated */
     names: p.Property<string[]>
-    renderers: p.Property<Renderer[]>
+    renderers: p.Property<DataRenderer[] | "auto">
   }
 }
 
@@ -21,9 +22,9 @@ export abstract class DataRange extends Range {
   }
 
   static init_DataRange(): void {
-    this.define<DataRange.Props>({
-      names:     [ p.Array, [] ],
-      renderers: [ p.Array, [] ],
-    })
+    this.define<DataRange.Props>(({String, Array, Ref}) => ({
+      names:     [ Array(String), [] ],
+      renderers: [ Array(Ref(DataRenderer)), [] ], // TODO: [] -> "auto"
+    }))
   }
 }

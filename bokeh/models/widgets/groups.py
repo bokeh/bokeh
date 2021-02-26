@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, List, String
+from ...core.properties import Bool, Int, List, Nullable, String
 from .buttons import ButtonLike
 from .widget import Widget
 
@@ -105,7 +105,7 @@ class RadioGroup(Group):
 
     '''
 
-    active = Int(None, help="""
+    active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is
     selected.
     """)
@@ -124,7 +124,7 @@ class RadioButtonGroup(ButtonGroup):
 
     '''
 
-    active = Int(None, help="""
+    active = Nullable(Int, help="""
     The index of the selected radio box, or ``None`` if nothing is
     selected.
     """)

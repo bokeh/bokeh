@@ -3,10 +3,17 @@ import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {StyleSheet, stylesheet} from "./dom"
 import {isArray} from "./util/types"
+import {Box} from "./types"
 
 import root_css from "styles/root.css"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
+
+export type SerializableState = {
+  type: string
+  bbox?: Box
+  children?: SerializableState[]
+}
 
 export namespace View {
   export type Options = {
@@ -16,12 +23,12 @@ export namespace View {
 }
 
 export class View implements ISignalable {
-
   readonly removed = new Signal0<this>(this, "removed")
 
   readonly model: HasProps
 
-  private _parent: View | null | undefined
+  readonly parent: View | null
+  readonly root: View
 
   protected _ready: Promise<void> = Promise.resolve(undefined)
   get ready(): Promise<void> {
@@ -30,10 +37,17 @@ export class View implements ISignalable {
 
   protected _has_finished: boolean
 
+  /** @internal */
+  protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
+
   connect<Args, Sender extends object>(signal: Signal<Args, Sender>, slot: Slot<Args, Sender>): boolean {
-    const new_slot = (args: Args, sender: Sender): void => {
-      const promise = Promise.resolve(slot.call(this, args, sender))
-      this._ready = this._ready.then(() => promise)
+    let new_slot = this._slots.get(slot)
+    if (new_slot == null) {
+      new_slot = (args: Args, sender: Sender): void => {
+        const promise = Promise.resolve(slot.call(this, args, sender))
+        this._ready = this._ready.then(() => promise)
+      }
+      this._slots.set(slot, new_slot)
     }
 
     return signal.connect(new_slot, this)
@@ -44,12 +58,11 @@ export class View implements ISignalable {
   }
 
   constructor(options: View.Options) {
-    if (options.model != null)
-      this.model = options.model
-    else
-      throw new Error("model of a view wasn't configured")
-
-    this._parent = options.parent
+    const {model, parent} = options
+    this.model = model
+    this.parent = parent
+    this.root = parent == null ? this : parent.root
+    this.removed.emit()
   }
 
   initialize(): void {
@@ -65,7 +78,6 @@ export class View implements ISignalable {
   async lazy_initialize(): Promise<void> {}
 
   remove(): void {
-    this._parent = undefined
     this.disconnect_signals()
     this.removed.emit()
   }
@@ -74,23 +86,12 @@ export class View implements ISignalable {
     return `${this.model.type}View(${this.model.id})`
   }
 
-  serializable_state(): {[key: string]: unknown} {
+  serializable_state(): SerializableState {
     return {type: this.model.type}
   }
 
-  get parent(): View | null {
-    if (this._parent !== undefined)
-      return this._parent
-    else
-      throw new Error("parent of a view wasn't configured")
-  }
-
   get is_root(): boolean {
-    return this.parent === null
-  }
-
-  get root(): View {
-    return this.is_root ? this : this.parent!.root
+    return this.parent == null
   }
 
   assert_root(): void {
@@ -109,7 +110,7 @@ export class View implements ISignalable {
   connect_signals(): void {}
 
   disconnect_signals(): void {
-    Signal.disconnectReceiver(this)
+    Signal.disconnect_receiver(this)
   }
 
   on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {

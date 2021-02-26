@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -48,7 +48,7 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-pinned_template_sha256 = "f3667e80d84d19b7d2b0642a3dd17131b72c0468981a3dd08227345d1fb2cfe5"
+pinned_template_sha256 = "7ef90f10663ac0168363c95050a718ad5a0caa27a69145b2b4cdf916787a8554"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the

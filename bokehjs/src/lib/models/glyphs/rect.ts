@@ -1,8 +1,7 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
-import {generic_area_legend} from "./utils"
+import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray, to_screen, infer_type} from "core/types"
 import * as types from "core/types"
 import * as p from "core/properties"
 import {max} from "core/util/arrayable"
@@ -10,10 +9,10 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
-export interface RectData extends CenterRotatableData {
-  sx0: NumberArray
-  sy1: NumberArray
-  ssemi_diag: NumberArray
+export type RectData = CenterRotatableData & {
+  sx0: ScreenArray
+  sy1: ScreenArray
+  ssemi_diag: ScreenArray
 }
 
 export interface RectView extends RectData {}
@@ -22,93 +21,77 @@ export class RectView extends CenterRotatableView {
   model: Rect
   visuals: Rect.Visuals
 
-  protected _set_data(): void {
-    this.max_w2 = 0
-    if (this.model.properties.width.units == "data")
-      this.max_w2 = this.max_width/2
-
-    this.max_h2 = 0
-    if (this.model.properties.height.units == "data")
-      this.max_h2 = this.max_height/2
-  }
-
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale)
+      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
     else {
-      this.sw = this._width
+      this.sw = to_screen(this.width)
 
       const n = this.sx.length
-      this.sx0 = new NumberArray(n)
+      this.sx0 = new ScreenArray(n)
       for (let i = 0; i < n; i++)
         this.sx0[i] = this.sx[i] - this.sw[i]/2
     }
 
     if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale)
+      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
     else {
-      this.sh = this._height
+      this.sh = to_screen(this.height)
 
-      const n =  this.sy.length
-      this.sy1 = new NumberArray(n)
+      const n = this.sy.length
+      this.sy1 = new ScreenArray(n)
       for (let i = 0; i < n; i++)
         this.sy1[i] = this.sy[i] - this.sh[i]/2
     }
 
     const n = this.sw.length
-    this.ssemi_diag = new NumberArray(n)
+    this.ssemi_diag = new ScreenArray(n)
     for (let i = 0; i < n; i++)
       this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, _angle}: RectData): void {
-    if (this.visuals.fill.doit) {
-      for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
-          continue
+  protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
+    const {sx, sy, sx0, sy1, sw, sh, angle} = data ?? this
 
-        //no need to test the return value, we call fillRect for every glyph anyway
-        this.visuals.fill.set_vectorize(ctx, i)
+    for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sx0_i = sx0[i]
+      const sy1_i = sy1[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const angle_i = angle.get(i)
 
-        if (_angle[i]) {
-          ctx.translate(sx[i], sy[i])
-          ctx.rotate(_angle[i])
-          ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-_angle[i])
-          ctx.translate(-sx[i], -sy[i])
-        } else
-          ctx.fillRect(sx0[i], sy1[i], sw[i], sh[i])
-      }
-    }
+      if (isNaN(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
+        continue
 
-    if (this.visuals.line.doit) {
+      if (sw_i == 0 || sh_i == 0)
+        continue
+
       ctx.beginPath()
+      if (angle_i) {
+        ctx.translate(sx_i, sy_i)
+        ctx.rotate(angle_i)
+        ctx.rect(-sw_i/2, -sh_i/2, sw_i, sh_i)
+        ctx.rotate(-angle_i)
+        ctx.translate(-sx_i, -sy_i)
+      } else
+        ctx.rect(sx0_i, sy1_i, sw_i, sh_i)
 
-      for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
-          continue
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
 
-        // fillRect does not fill zero-height or -width rects, but rect(...)
-        // does seem to stroke them (1px wide or tall). Explicitly ignore rects
-        // with zero width or height to be consistent
-        if (sw[i] == 0 || sh[i] == 0)
-          continue
+      if (this.visuals.hatch.doit) {
+        this.visuals.hatch.set_vectorize(ctx, i)
+        ctx.fill()
+      }
 
-        if (_angle[i]) {
-          ctx.translate(sx[i], sy[i])
-          ctx.rotate(_angle[i])
-          ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-          ctx.rotate(-_angle[i])
-          ctx.translate(-sx[i], -sy[i])
-        } else
-          ctx.rect(sx0[i], sy1[i], sw[i], sh[i])
-
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
         ctx.stroke()
-        ctx.beginPath()
       }
-
-      ctx.stroke()
     }
   }
 
@@ -124,12 +107,12 @@ export class RectView extends CenterRotatableView {
 
     const n = this.sx0.length
 
-    const scenter_x = new NumberArray(n)
+    const scenter_x = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       scenter_x[i] = this.sx0[i] + this.sw[i]/2
     }
 
-    const scenter_y = new NumberArray(n)
+    const scenter_y = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
       scenter_y[i] = this.sy1[i] + this.sh[i]/2
     }
@@ -147,9 +130,10 @@ export class RectView extends CenterRotatableView {
 
     const indices = []
     for (const i of this.index.indices({x0, x1, y0, y1})) {
-      if (this._angle[i]) {
-        const s = Math.sin(-this._angle[i])
-        const c = Math.cos(-this._angle[i])
+      const angle_i = this.angle.get(i)
+      if (angle_i) {
+        const s = Math.sin(-angle_i)
+        const c = Math.cos(-angle_i)
         const px = c*(sx - this.sx[i]) - s*(sy - this.sy[i]) + this.sx[i]
         const py = s*(sx - this.sx[i]) + c*(sy - this.sy[i]) + this.sy[i]
         sx = px
@@ -171,16 +155,18 @@ export class RectView extends CenterRotatableView {
     return new Selection({indices})
   }
 
-  protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: Arrayable<number>,
-                                                  scale: Scale): [NumberArray, NumberArray] {
+  protected _map_dist_corner_for_data_side_length(coord: Arrayable<number>, side_length: p.Uniform<number>,
+                                                  scale: Scale): [ScreenArray, ScreenArray] {
     const n = coord.length
 
-    const pt0 = new NumberArray(n)
-    const pt1 = new NumberArray(n)
+    const pt0 = new Float64Array(n)
+    const pt1 = new Float64Array(n)
 
     for (let i = 0; i < n; i++) {
-      pt0[i] = coord[i] - side_length[i]/2
-      pt1[i] = coord[i] + side_length[i]/2
+      const coord_i = coord[i]
+      const half_side_length_i = side_length.get(i)/2
+      pt0[i] = coord_i - half_side_length_i
+      pt1[i] = coord_i + half_side_length_i
     }
 
     const spt0 = scale.v_compute(pt0)
@@ -201,13 +187,14 @@ export class RectView extends CenterRotatableView {
     return [sside_length, spt_corner]
   }
 
-  protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): NumberArray {
-    const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
+  protected _ddist(dim: 0 | 1, spts: FloatArray, spans: FloatArray): FloatArray {
+    const ArrayType = infer_type(spts, spans)
 
+    const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
     const spt0 = spts
 
     const m = spt0.length
-    const spt1 = new NumberArray(m)
+    const spt1 = new ArrayType(m)
     for (let i = 0; i < m; i++)
       spt1[i] = spt0[i] + spans[i]
 
@@ -215,30 +202,21 @@ export class RectView extends CenterRotatableView {
     const pt1 = scale.v_invert(spt1)
 
     const n = pt0.length
-    const ddist = new NumberArray(n)
+    const ddist = new ArrayType(n)
     for (let i = 0; i < n; i++)
       ddist[i] = Math.abs(pt1[i] - pt0[i])
     return ddist
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
-    generic_area_legend(this.visuals, ctx, bbox, index)
-  }
-
-  protected _bounds({x0, x1, y0, y1}: types.Rect): types.Rect {
-    return {
-      x0: x0 - this.max_w2,
-      x1: x1 + this.max_w2,
-      y0: y0 - this.max_h2,
-      y1: y1 + this.max_h2,
-    }
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
 export namespace Rect {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = CenterRotatable.Props & LineVector & FillVector & {
+  export type Props = CenterRotatable.Props & {
     dilate: p.Property<boolean>
   }
 
@@ -257,8 +235,8 @@ export class Rect extends CenterRotatable {
 
   static init_Rect(): void {
     this.prototype.default_view = RectView
-    this.define<Rect.Props>({
-      dilate: [ p.Boolean, false ],
-    })
+    this.define<Rect.Props>(({Boolean}) => ({
+      dilate: [ Boolean, false ],
+    }))
   }
 }

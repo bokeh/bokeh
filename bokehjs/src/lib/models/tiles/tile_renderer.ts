@@ -2,7 +2,7 @@ import {Tile} from "./tile_source"
 import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
-import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
@@ -13,11 +13,8 @@ import {Image, ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {SelectionManager} from "core/selection_manager"
-import {ColumnDataSource} from "../sources/column_data_source"
 
-import {bk_tile_attribution} from "styles/tiles"
-import tiles_css from "styles/tiles.css"
+import tiles_css, {tile_attribution} from "styles/tiles.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -29,7 +26,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
   y_coord: number
 }
 
-export class TileRendererView extends DataRendererView {
+export class TileRendererView extends RendererView {
   model: TileRenderer
 
   protected attribution_el?: HTMLElement
@@ -101,7 +98,7 @@ export class TileRendererView extends DataRendererView {
       const offset_bottom = layout.bbox.height - frame.bbox.bottom
       const max_width = frame.bbox.width
       this.attribution_el = div({
-        class: bk_tile_attribution,
+        class: tile_attribution,
         style: {
           position: "absolute",
           right: `${offset_right}px`,
@@ -185,8 +182,8 @@ export class TileRendererView extends DataRendererView {
       const extent = this.get_extent()
       const zoom_level = this.model.tile_source.get_level_by_extent(extent, this.map_frame.bbox.height, this.map_frame.bbox.width)
       const new_extent = this.model.tile_source.snap_to_zoom_level(extent, this.map_frame.bbox.height, this.map_frame.bbox.width, zoom_level)
-      this.x_range.setv({start:new_extent[0], end: new_extent[2]})
-      this.y_range.setv({start:new_extent[1], end: new_extent[3]})
+      this.x_range.setv({start: new_extent[0], end: new_extent[2]})
+      this.y_range.setv({start: new_extent[1], end: new_extent[3]})
       this.extent = new_extent
       this._last_height = this.map_frame.bbox.height
       this._last_width = this.map_frame.bbox.width
@@ -250,7 +247,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _set_rect(): void {
-    const outline_width = this.plot_model.properties.outline_line_width.value()
+    const outline_width = this.plot_model.outline_line_width
     const l = this.map_frame.bbox.left + (outline_width/2)
     const t = this.map_frame.bbox.top + (outline_width/2)
     const w = this.map_frame.bbox.width - outline_width
@@ -270,7 +267,7 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _prefetch_tiles(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
     const extent = this.get_extent()
     const h = this.map_frame.bbox.height
     const w = this.map_frame.bbox.width
@@ -298,10 +295,10 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _update(): void {
-    const { tile_source } = this.model
+    const {tile_source} = this.model
 
-    const { min_zoom } = tile_source
-    const { max_zoom } = tile_source
+    const {min_zoom} = tile_source
+    const {max_zoom} = tile_source
 
     let extent = this.get_extent()
     const zooming_out = (this.extent[2] - this.extent[0]) < (extent[2] - extent[0])
@@ -381,7 +378,7 @@ export class TileRendererView extends DataRendererView {
 export namespace TileRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = DataRenderer.Props & {
+  export type Props = Renderer.Props & {
     alpha: p.Property<number>
     smoothing: p.Property<boolean>
     tile_source: p.Property<TileSource>
@@ -391,7 +388,7 @@ export namespace TileRenderer {
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
-export class TileRenderer extends DataRenderer {
+export class TileRenderer extends Renderer {
   properties: TileRenderer.Props
   __view_type__: TileRendererView
 
@@ -402,20 +399,15 @@ export class TileRenderer extends DataRenderer {
   static init_TileRenderer(): void {
     this.prototype.default_view = TileRendererView
 
-    this.define<TileRenderer.Props>({
-      alpha:          [ p.Number,   1.0              ],
-      smoothing:      [ p.Boolean,  true             ],
-      tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-      render_parents: [ p.Boolean,  true             ],
+    this.define<TileRenderer.Props>(({Boolean, Number, Ref}) => ({
+      alpha:          [ Number, 1.0 ],
+      smoothing:      [ Boolean, true ],
+      tile_source:    [ Ref(TileSource), () => new WMTSTileSource() ],
+      render_parents: [ Boolean, true ],
+    }))
+
+    this.override<TileRenderer.Props>({
+      level: "image",
     })
-  }
-
-  // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs
-  private _selection_manager = new SelectionManager({
-    source: new ColumnDataSource(),
-  })
-
-  get_selection_manager(): SelectionManager {
-    return this._selection_manager
   }
 }

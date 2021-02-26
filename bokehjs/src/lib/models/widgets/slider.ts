@@ -1,9 +1,9 @@
 import * as numbro from "@bokeh/numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {TickFormatter} from "../formatters/tick_formatter"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
-import {TickFormatter} from "../formatters/tick_formatter"
 
 export class SliderView extends AbstractSliderView {
   model: Slider
@@ -28,7 +28,7 @@ export class Slider extends AbstractSlider {
   static init_Slider(): void {
     this.prototype.default_view = SliderView
 
-    this.override({
+    this.override<Slider.Props>({
       format: "0[.]00",
     })
   }
@@ -37,10 +37,9 @@ export class Slider extends AbstractSlider {
   connected = [true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)){
+    if (isString(format))
       return numbro.format(value, format)
-    } else {
-      return format.doFormat([value], {loc: 0})[0]
-    }
+    else
+      return format.compute(value)
   }
 }

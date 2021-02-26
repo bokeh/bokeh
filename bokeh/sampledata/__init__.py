@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -23,17 +23,18 @@ programmatically.
     >>> bokeh.sampledata.download()
 
 By default, data is downloaded and stored to a directory ``$HOME/.bokeh/data``.
-(The directory is created if it does not already exist.) Bokeh looks for
-a YAML configuration file at ``$HOME/.bokeh/config``. The YAML key
-``sampledata_dir`` can be set to the absolute path of a directory where
-the data should be stored. For instance adding the following line to the
+This directory will be created if it does not already exist.
+
+Bokeh also looks for a YAML configuration file at ``$HOME/.bokeh/config``. The
+YAML key ``sampledata_dir`` can be set to the absolute path of a directory where
+the data should be stored. For example, add the following line to the
 config file:
 
 .. code-block:: sh
 
     sampledata_dir: /tmp/bokeh_data
 
-will cause the sample data to be stored in ``/tmp/bokeh_data``.
+This will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
 '''
 

@@ -2,8 +2,7 @@ import {div, classes, display, undisplay, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
 import {enumerate} from "./iterator"
 
-//import menus_css from "styles/menus.css"
-import * as styles from "styles/menus"
+import /*menus_css,*/ * as menus from "styles/menus.css"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 
@@ -22,7 +21,6 @@ export type MenuOptions = {
 }
 
 export class ContextMenu {
-
   readonly el: HTMLElement = div()
   protected _open: boolean = false
 
@@ -105,7 +103,7 @@ export class ContextMenu {
     for (const [item, i] of enumerate(this.items)) {
       let el: HTMLElement
       if (item == null) {
-        el = div({class: styles.bk_divider})
+        el = div({class: menus.divider})
       } else if (item.if != null && !item.if()) {
         continue
       } else {

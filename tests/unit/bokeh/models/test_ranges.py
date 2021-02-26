@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -106,7 +106,7 @@ class Test_Range1d:
     def test_bounds_with_text_rejected_as_the_correct_value_error(self) -> None:
         with pytest.raises(ValueError) as e:
             Range1d(1, 2, bounds="21")  # The string is indexable, so this may not fail properly
-        assert e.value.args[0].startswith('expected an element of either')
+        assert "expected either None or" in e.value.args[0]
 
 
     def test_bounds_with_three_item_tuple_raises_valueerror(self) -> None:

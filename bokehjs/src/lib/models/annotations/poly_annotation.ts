@@ -1,8 +1,10 @@
 import {Annotation, AnnotationView} from "./annotation"
+import {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {SpatialUnits} from "core/enums"
-import {Signal0} from "core/signaling"
+import {Arrayable} from "core/types"
+import {CoordinateMapper} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
@@ -11,10 +13,7 @@ export class PolyAnnotationView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    // need to respond to either normal BB change events or silent
-    // "data only updates" that tools might want to use
-    this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.data_update, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.request_render())
   }
 
   protected _render(): void {
@@ -23,43 +22,46 @@ export class PolyAnnotationView extends AnnotationView {
     if (xs.length != ys.length)
       return
 
-    if (xs.length < 3 || ys.length < 3)
+    const n = xs.length
+    if (n < 3)
       return
 
     const {frame} = this.plot_view
     const {ctx} = this.layer
 
-    for (let i = 0, end = xs.length; i < end; i++) {
-      let sx: number
-      if (this.model.xs_units == 'screen')
-        sx = this.model.screen ? xs[i] : frame.xview.compute(xs[i])
-      else
-        throw new Error("not implemented")
+    const xscale = this.coordinates.x_scale
+    const yscale = this.coordinates.y_scale
 
-      let sy: number
-      if (this.model.ys_units == 'screen')
-        sy = this.model.screen ? ys[i] : frame.yview.compute(ys[i])
+    const {screen} = this.model
+    function _calc_dim(values: Arrayable<number>, units: SpatialUnits, scale: Scale, view: CoordinateMapper): Arrayable<number> {
+      if (screen)
+        return values
       else
-        throw new Error("not implemented")
-
-      if (i == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx, sy)
-      } else {
-        ctx.lineTo(sx, sy)
-      }
+        return units == "data" ? scale.v_compute(values) : view.v_compute(values)
     }
 
+    const sxs = _calc_dim(xs, this.model.xs_units, xscale, frame.bbox.xview)
+    const sys = _calc_dim(ys, this.model.ys_units, yscale, frame.bbox.yview)
+
+    ctx.beginPath()
+    for (let i = 0; i < n; i++) {
+      ctx.lineTo(sxs[i], sys[i])
+    }
     ctx.closePath()
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       ctx.fill()
+    }
+
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      ctx.fill()
+    }
+
+    if (this.visuals.line.doit) {
+      this.visuals.line.set_value(ctx)
+      ctx.stroke()
     }
   }
 }
@@ -75,9 +77,9 @@ export namespace PolyAnnotation {
     screen: p.Property<boolean>
   } & Mixins
 
-  export type Mixins = mixins.Line/*Scalar*/ & mixins.Fill/*Scalar*/
+  export type Mixins = mixins.Line & mixins.Fill & mixins.Hatch
 
-  export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Annotation.Visuals & {line: visuals.Line, fill: visuals.Fill, hatch: visuals.Hatch}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
@@ -86,8 +88,6 @@ export class PolyAnnotation extends Annotation {
   properties: PolyAnnotation.Props
   __view_type__: PolyAnnotationView
 
-  data_update: Signal0<this>
-
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)
   }
@@ -95,20 +95,20 @@ export class PolyAnnotation extends Annotation {
   static init_PolyAnnotation(): void {
     this.prototype.default_view = PolyAnnotationView
 
-    this.mixins<PolyAnnotation.Mixins>([mixins.Line/*Scalar*/, mixins.Fill/*Scalar*/])
+    this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
-    this.define<PolyAnnotation.Props>({
-      xs:           [ p.Array,        []        ],
-      xs_units:     [ p.SpatialUnits, 'data'    ],
-      ys:           [ p.Array,        []        ],
-      ys_units:     [ p.SpatialUnits, 'data'    ],
-    })
+    this.define<PolyAnnotation.Props>(({Number, Array}) => ({
+      xs:           [ Array(Number), [] ],
+      xs_units:     [ SpatialUnits, "data" ],
+      ys:           [ Array(Number), [] ],
+      ys_units:     [ SpatialUnits, "data" ],
+    }))
 
-    this.internal({
-      screen: [ p.Boolean, false ],
-    })
+    this.internal<PolyAnnotation.Props>(({Boolean}) => ({
+      screen: [ Boolean, false ],
+    }))
 
-    this.override({
+    this.override<PolyAnnotation.Props>({
       fill_color: "#fff9ba",
       fill_alpha: 0.4,
       line_color: "#cccccc",
@@ -116,13 +116,7 @@ export class PolyAnnotation extends Annotation {
     })
   }
 
-  initialize(): void {
-    super.initialize()
-    this.data_update = new Signal0(this, "data_update")
-  }
-
   update({xs, ys}: {xs: number[], ys: number[]}): void {
-    this.setv({xs, ys, screen: true}, {silent: true})
-    this.data_update.emit()
+    this.setv({xs, ys, screen: true}, {check_eq: false}) // XXX: because of inplace updates in tools
   }
 }

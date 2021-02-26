@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide color related properties.
+""" Provide color related properties.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -29,6 +29,7 @@ from .container import Tuple
 from .either import Either
 from .enum import Enum
 from .numeric import Byte, Percent
+from .singletons import Undefined
 from .string import Regex
 
 #-----------------------------------------------------------------------------
@@ -36,6 +37,7 @@ from .string import Regex
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Alpha',
     'Color',
     'RGB',
     'ColorHex',
@@ -47,29 +49,32 @@ __all__ = (
 
 
 class RGB(Property):
-    ''' Accept colors.RGB values.
+    """ Accept colors.RGB values.
 
-    '''
+    """
 
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or isinstance(value, colors.RGB)):
-            msg = "" if not detail else "expected RGB value, got %r" % (value,)
-            raise ValueError(msg)
+        if isinstance(value, colors.RGB):
+            return
+
+        msg = "" if not detail else f"expected RGB value, got {value!r}"
+        raise ValueError(msg)
 
 
 class Color(Either):
-    ''' Accept color values in a variety of ways.
+    """ Accept color values in a variety of ways.
 
-    For colors, because we support named colors and hex values prefaced
-    with a "#", when we are handed a string value, there is a little
-    interpretation: if the value is one of the 147 SVG named colors or
-    it starts with a "#", then it is interpreted as a value.
-
-    If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
-    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
+    * If a color is provided as a string, Bokeh determines whether this string
+      represents one of the named CSS colors (such as "red"), a CSS4 color
+      string (such as "rgb(0, 200, 0)"), or a hex value (such as "#00FF00").
+    * If a 3-tuple is provided, it is treated as RGB values (between 0 and
+      255).
+    * If a 4-tuple is provided, it is treated as RGBA values (between 0 and
+      255 for RGB and alpha as a float between 0 and 1).
+    * If a 32-bit unsigned integer is provided, it is treated as RGBA values in
+      a 0xRRGGBBAA byte order pattern.
 
     Example:
 
@@ -93,11 +98,30 @@ class Color(Either):
 
             >>> m.prop = (100.2, 57.3, 10.2) # ValueError !!
 
-    '''
+    """
 
-    def __init__(self, default=None, help=None):
+    _default_help = """\
+    Acceptable values are:
+
+    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
+    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
+      ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
+    - a 3-tuple of integers (r, g, b) between 0 and 255
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
+      and a is between 0 and 1
+    - a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
+
+    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
+
+    """
+
+    def __init__(self, default=Undefined, help=None):
         types = (Enum(enums.NamedColor),
+                 Regex(r"^#[0-9a-fA-F]{3}$"),
+                 Regex(r"^#[0-9a-fA-F]{4}$"),
                  Regex(r"^#[0-9a-fA-F]{6}$"),
+                 Regex(r"^#[0-9a-fA-F]{8}$"),
                  Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
                        r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
                        r"\s*([01]\.?\d*?)\)"),
@@ -106,6 +130,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
+        help = f"{help or ''}\n{self._default_help}"
         super().__init__(*types, default=default, help=help)
 
     def __str__(self):
@@ -121,12 +146,12 @@ class Color(Either):
 
 
 class ColorHex(Color):
-    ''' ref Color
+    """ ref Color
 
-    The only difference with Color is it's transform in hexadecimal string
-    when send to javascript side
+    The only difference to Color is that this class transforms values into
+    hexadecimal strings to be sent to BokehJS.
 
-    '''
+    """
 
     def transform(self, value):
         if isinstance(value, str):
@@ -140,6 +165,18 @@ class ColorHex(Color):
         else:
             value = value.to_hex()
         return value.lower()
+
+
+class Alpha(Percent):
+
+    _default_help = """\
+    Acceptable values are floating-point numbers between 0 and 1 (0 being
+    transparent and 1 being opaque).
+    """
+
+    def __init__(self, default=1.0, help=None):
+        help = f"{help or ''}\n{self._default_help}"
+        super().__init__(default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

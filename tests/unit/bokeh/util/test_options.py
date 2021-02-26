@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import Int, String
+from bokeh.core.properties import Int, Nullable, String
 
 # Module under test
 from bokeh.util.options import Options # isort:skip
@@ -26,7 +26,7 @@ from bokeh.util.options import Options # isort:skip
 
 class DummyOpts(Options):
     foo = String(default="thing")
-    bar = Int()
+    bar = Nullable(Int())
 
 #-----------------------------------------------------------------------------
 # General API

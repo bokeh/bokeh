@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -227,17 +227,19 @@ Align = enumeration("start", "center", "end")
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
-    "center_left", "center",        "center_right",
-    "bottom_left", "bottom_center", "bottom_right")
+    "center_left", "center_center", "center_right",
+    "bottom_left", "bottom_center", "bottom_right",
+    "top", "left", "center", "right", "bottom",
+)
 
 #: Specify the units for an angle value
-AngleUnits = enumeration("deg", "rad")
+AngleUnits = enumeration("deg", "rad", "grad", "turn")
 
 #: Specify autosize mode for DataTable
 AutosizeMode = enumeration("fit_columns", "fit_viewport", "force_fit", "none")
 
 #: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger", "light")
 
 #: Specify a position for the DatePicker calendar to display
 CalendarPosition = enumeration("auto", "above", "below")
@@ -351,11 +353,11 @@ MarkerType = enumeration(
     "asterisk", "circle", "circle_cross", "circle_dot", "circle_x",
     "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
     "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
-    "square_cross", "square_dot", "square_pin", "square_x", "triangle",
-    "triangle_dot", "triangle_pin", "x", "y"
+    "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
+    "triangle", "triangle_dot", "triangle_pin", "x", "y"
 )
 
-#: Specify one of the 137 named CSS colors
+#: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify a locale for printing numeric values

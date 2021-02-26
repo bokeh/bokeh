@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {SelectionMode} from "core/enums"
 import {union, intersection, difference} from "core/util/array"
 import {merge} from "core/util/object"
-import {Glyph, GlyphView} from "../glyphs/glyph"
+import type {Glyph, GlyphView} from "../glyphs/glyph"
 
 export type OpaqueIndices = number[]
 
@@ -43,21 +43,18 @@ export class Selection extends Model {
   }
 
   static init_Selection(): void {
-    this.define<Selection.Props>({
-      indices:           [ p.Array,   [] ],
-      line_indices:      [ p.Array,   [] ],
-      multiline_indices: [ p.Any,     {} ],
-    })
+    this.define<Selection.Props>(({Int, Array, Dict}) => ({
+      indices:           [ Array(Int), [] ],
+      line_indices:      [ Array(Int), [] ],
+      multiline_indices: [ Dict(Array(Int)), {} ],
+    }))
 
-    this.internal({
-      selected_glyphs:   [ p.Array,   [] ],
-      view:              [ p.Any         ],
-      image_indices:     [ p.Array,   [] ], // Used internally to support hover tool for now. Python API TBD
-    })
-  }
-
-  initialize(): void {
-    super.initialize()
+    this.internal<Selection.Props>(({Int, Array, AnyRef, Struct, Nullable}) => ({
+      selected_glyphs:   [ Array(AnyRef()), [] ],
+      view:              [ Nullable(AnyRef()), null ],
+      // Used internally to support hover tool for now. Python API TBD
+      image_indices:     [ Array(Struct({index: Int, dim1: Int, dim2: Int, flat_index: Int})), [] ],
+    }))
   }
 
   get selected_glyph(): Glyph | null {

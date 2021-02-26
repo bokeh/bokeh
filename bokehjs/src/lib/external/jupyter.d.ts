@@ -1,13 +1,13 @@
-declare interface CommMessage {
+declare type CommMessage = {
   buffers: DataView[]
   content: {
     data: string
   }
 }
 
-declare interface Comm {
+declare type Comm = {
   target_name: string
-  on_msg: (msg: CommMessage) => void
+  on_msg(fn: (msg: CommMessage) => void): void
   onMsg: (comm_msg: CommMessage) => void
 }
 

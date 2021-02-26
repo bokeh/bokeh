@@ -1,11 +1,9 @@
-import {Annotation, AnnotationView} from "./annotation"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {ColumnDataSource} from "../sources/column_data_source"
+import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import {Arrayable} from "core/types"
-import {Dimension} from "core/enums"
+import {Dimension, SpatialUnits} from "core/enums"
 import * as p from "core/properties"
 
-export abstract class UpperLowerView extends AnnotationView {
+export abstract class UpperLowerView extends DataAnnotationView {
   model: UpperLower
   visuals: UpperLower.Visuals
 
@@ -13,27 +11,12 @@ export abstract class UpperLowerView extends AnnotationView {
   protected _upper: Arrayable<number>
   protected _base:  Arrayable<number>
 
-  protected max_lower: number
-  protected max_upper: number
-  protected max_base:  number
-
   protected _lower_sx: Arrayable<number>
   protected _lower_sy: Arrayable<number>
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
-  initialize(): void {
-    super.initialize()
-    this.set_data(this.model.source)
-  }
-
-  set_data(source: ColumnarDataSource): void {
-    super.set_data(source)
-    this.visuals.warm_cache(source)
-    this.plot_view.request_render()
-  }
-
-  protected _map_data(): void {
+  map_data(): void {
     const {frame} = this.plot_view
     const dim = this.model.dimension
 
@@ -43,8 +26,8 @@ export abstract class UpperLowerView extends AnnotationView {
     const limit_scale = dim == "height" ? yscale : xscale
     const base_scale  = dim == "height" ? xscale : yscale
 
-    const limit_view = dim == "height" ? frame.yview : frame.xview
-    const base_view  = dim == "height" ? frame.xview : frame.yview
+    const limit_view = dim == "height" ? frame.bbox.yview : frame.bbox.xview
+    const base_view  = dim == "height" ? frame.bbox.xview : frame.bbox.yview
 
     let _lower_sx
     if (this.model.properties.lower.units == "data")
@@ -59,7 +42,7 @@ export abstract class UpperLowerView extends AnnotationView {
       _upper_sx = limit_view.v_compute(this._upper)
 
     let _base_sx
-    if (this.model.properties.base.units  == "data")
+    if (this.model.properties.base.units == "data")
       _base_sx  = base_scale.v_compute(this._base)
     else
       _base_sx  = base_view.v_compute(this._base)
@@ -77,23 +60,37 @@ export abstract class UpperLowerView extends AnnotationView {
   }
 }
 
+export class XOrYCoordinateSpec extends p.CoordinateSpec {
+  readonly obj: UpperLower
+
+  spec: p.Spec<this["__value__"]> & {units: SpatialUnits}
+
+  get dimension(): "x" | "y" {
+    return this.obj.dimension == "width" ? "x" : "y"
+  }
+
+  // XXX: a hack to make a coordinate & unit spec
+  get units(): SpatialUnits {
+    return this.spec.units ?? "data"
+  }
+}
+
 export namespace UpperLower {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Annotation.Props & {
-    lower: p.DistanceSpec
-    upper: p.DistanceSpec
-    base: p.DistanceSpec
+  export type Props = DataAnnotation.Props & {
     dimension: p.Property<Dimension>
-    source: p.Property<ColumnarDataSource>
+    lower: XOrYCoordinateSpec
+    upper: XOrYCoordinateSpec
+    base: XOrYCoordinateSpec
   }
 
-  export type Visuals = Annotation.Visuals
+  export type Visuals = DataAnnotation.Visuals
 }
 
 export interface UpperLower extends UpperLower.Attrs {}
 
-export class UpperLower extends Annotation {
+export class UpperLower extends DataAnnotation {
   properties: UpperLower.Props
 
   constructor(attrs?: Partial<UpperLower.Attrs>) {
@@ -101,12 +98,11 @@ export class UpperLower extends Annotation {
   }
 
   static init_UpperLower(): void {
-    this.define<UpperLower.Props>({
-      lower:        [ p.DistanceSpec                               ],
-      upper:        [ p.DistanceSpec                               ],
-      base:         [ p.DistanceSpec                               ],
-      dimension:    [ p.Dimension,    'height'                     ],
-      source:       [ p.Instance,     () => new ColumnDataSource() ],
-    })
+    this.define<UpperLower.Props>(() => ({
+      dimension: [ Dimension, "height" ],
+      lower:     [ XOrYCoordinateSpec, {field: "lower"} ],
+      upper:     [ XOrYCoordinateSpec, {field: "upper"} ],
+      base:      [ XOrYCoordinateSpec, {field: "base"} ],
+    }))
   }
 }

@@ -2,14 +2,14 @@ import {Attrs} from "../types"
 import {isPlainObject} from "./types"
 import {keys} from "./object"
 
-export interface Struct {
+export type Struct = {
   id: string
   type: string
   subtype?: string
   attributes: Attrs
 }
 
-export interface Ref {
+export type Ref = {
   id: string
 }
 

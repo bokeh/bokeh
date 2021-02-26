@@ -1,6 +1,6 @@
 .. _userguide_interaction_jscallbacks:
 
-JavaScript Callbacks
+JavaScript callbacks
 --------------------
 
 While the main goal of Bokeh is to provide a path to create rich interactive
@@ -25,7 +25,7 @@ a Bokeh server (but can also be used in conjunction with a Bokeh server).
 
 .. _userguide_interaction_jscallbacks_customjs:
 
-CustomJS Callbacks
+CustomJS callbacks
 ~~~~~~~~~~~~~~~~~~
 
 To supply a snippet of JavaScript code that should be executed (in the
@@ -54,12 +54,12 @@ Note that in addition to the ``code`` property, ``CustomJS`` also accepts
 an ``args`` property that maps string names to Bokeh models. Any Bokeh
 models that are configured in ``args`` (on the "Python side") will
 automatically be available to the JavaScript code by the corresponding name.
-Additionally, the model that triggers the callback (i.e. the model that
+Additionally, the model that triggers the callback (that is the model that
 the callback is attached to) will be available as ``cb_obj``.
 
 .. _userguide_interaction_jscallbacks_customjs_properties:
 
-CustomJS for Model Property Events
+CustomJS for model property events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These ``CustomJS`` callbacks can be attached to property change events on
@@ -74,7 +74,7 @@ any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
 It should be mentioned that the first parameter to ``js_on_change`` is
 actually the name of a BokehJS event. The full format for a property
-change event is, e.g., ``"change:start"``, but Bokeh will automatically
+change event is, for example, ``"change:start"``, but Bokeh will automatically
 convert any property name into one of these BokehJS change events for you.
 Additionally, some Bokeh models have additional specialized events. For
 example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
@@ -90,7 +90,7 @@ is executed to update some data:
 
 .. _userguide_interaction_jscallbacks_customjs_interactions:
 
-CustomJS for User Interaction Events
+CustomJS for user interaction events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to responding to property change events using js_on_change, Bokeh
@@ -133,7 +133,7 @@ user interacts with it:
 Examples
 ~~~~~~~~
 
-CustomJS for Widgets
+CustomJS for widgets
 ''''''''''''''''''''
 
 A common use case for property callbacks is responding to changes to widgets.
@@ -143,7 +143,7 @@ changes the source of a plot when the slider is used.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
     :source-position: above
 
-CustomJS for Selections
+CustomJS for selections
 '''''''''''''''''''''''
 
 Another common scenario is wanting to specify the same kind of callback to be
@@ -162,7 +162,7 @@ a line through that value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_selections_lasso_mean.py
     :source-position: above
 
-CustomJS for Ranges
+CustomJS for ranges
 '''''''''''''''''''
 
 The properties of range objects may also be connected to ``CustomJS`` callbacks
@@ -171,7 +171,7 @@ in order to perform specialized work whenever a range changes:
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
     :source-position: above
 
-CustomJS for Tools
+CustomJS for tools
 ''''''''''''''''''
 
 Selection tools emit events that can drive useful callbacks. Below, a
@@ -183,7 +183,7 @@ via the geometry field of the ``cb_data`` callback object), in order to update a
     :source-position: above
 
 
-CustomJS for Specialized Events
+CustomJS for specialized events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to the generic mechanisms described above for adding ``CustomJS``
@@ -197,12 +197,12 @@ to specific events or situations.
     described above, and as such, may be deprecated in favor of the generic
     mechanism in the future.
 
-CustomJS for Hover
-''''''''''''''''''
+CustomJS for hover tool
+'''''''''''''''''''''''
 
-The ``HoverTool`` has a callback which comes with two pieces of built-in data: the
-``index`` and the ``geometry``. The ``index`` is the indices of any points that the
-hover tool is over.
+The ``HoverTool`` has a callback which comes with two pieces of built-in data:
+the ``index`` and the ``geometry``. The ``index`` is the indices of any points
+that the hover tool is over.
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_hover.py
     :source-position: above

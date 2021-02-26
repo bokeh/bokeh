@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {Axis, AxisView} from "@bokehjs/models/axes/axis"
+import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
 import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -9,6 +9,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {build_view} from "@bokehjs/core/build_views"
+import {TextBox} from "@bokehjs/core/graphics"
 
 describe("Axis", () => {
 
@@ -26,9 +27,10 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
 
-    expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
+    const labels = axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])
+    expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
   it("loc should return numeric fixed_location", async () => {
@@ -45,7 +47,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(10)
   })
 
@@ -63,7 +65,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -82,7 +84,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -101,7 +103,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
     expect(axis_view.loc).to.be.equal(0.5)
   })
 })
@@ -128,7 +130,7 @@ describe("AxisView", () => {
     plot.add_layout(axis, 'below')
 
     const plot_view = (await build_view(plot)).build()
-    const axis_view = plot_view.renderer_views.get(axis)! as AxisView
+    const axis_view = plot_view.renderer_view(axis)!
 
     return {axis, axis_view}
   }
@@ -146,25 +148,5 @@ describe("AxisView", () => {
   it("_tick_extent should return the major_tick_out property", async () => {
     const {axis, axis_view} = await build()
     expect(axis_view._tick_extent()).to.be.equal(axis.major_tick_out)
-  })
-
-  it("_axis_label_extent should be greater than axis_label_standoff", async () => {
-    const {axis, axis_view} = await build({axis_label: 'Left axis label'})
-    expect(axis_view._axis_label_extent()).to.be.above(axis.axis_label_standoff)
-  })
-
-  it("_axis_label_extent should be greater than the font_size", async () => {
-    const {axis_view} = await build({axis_label: 'Left axis label'})
-    expect(axis_view._axis_label_extent()).to.be.above(13.3333)
-  })
-
-  it("_axis_label_extent should be 0 if axis_label is null", async () => {
-    const {axis_view} = await build({axis_label: null})
-    expect(axis_view._axis_label_extent()).to.be.equal(0)
-  })
-
-  it("_axis_label_extent should be 0 if axis_label is empty", async () => {
-    const {axis_view} = await build({axis_label: ""})
-    expect(axis_view._axis_label_extent()).to.be.equal(0)
   })
 })

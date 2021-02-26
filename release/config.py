@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -42,9 +42,7 @@ class Config:
         self._secrets: Dict[str, str] = {}
 
     def add_secret(self, name: str, secret: str) -> None:
-        """
-
-        """
+        """"""
         if name in self._secrets:
             raise RuntimeError()
         LOG.add_scrubber(Scrubber(secret, name=name))
@@ -66,6 +64,13 @@ class Config:
             return VersionType.DEV
         else:
             return VersionType.FULL
+
+    @property
+    def pep440_version(self) -> str:
+        # pep 440 requires "." before "dev"
+        if self.version_type == VersionType.DEV:
+            return f"{self.base_version}.{self.ext_type}{self.ext_number}"
+        return self.version
 
     @property
     def js_version(self) -> str:

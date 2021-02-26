@@ -163,7 +163,7 @@ export function offset(element: HTMLElement) {
 
 export function matches(el: HTMLElement, selector: string): boolean {
   const p: any = Element.prototype
-  const f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector
+  const f = p.matches ?? p.webkitMatchesSelector ?? p.mozMatchesSelector ?? p.msMatchesSelector
   return f.call(el, selector)
 }
 
@@ -270,7 +270,6 @@ export function children(el: HTMLElement): HTMLElement[] {
 }
 
 export class ClassList {
-
   private readonly classList: DOMTokenList
 
   constructor(readonly el: HTMLElement) {
@@ -398,3 +397,11 @@ export class StyleSheet {
 }
 
 export const stylesheet = new StyleSheet(document.head)
+
+export async function dom_ready(): Promise<void> {
+  if (document.readyState == "loading") {
+    return new Promise((resolve, _reject) => {
+      document.addEventListener("DOMContentLoaded", () => resolve(), {once: true})
+    })
+  }
+}

@@ -1,9 +1,10 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Text, Line, Fill} from "core/visuals"
+import * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {measure_font} from "core/util/text"
+import {SideLayout} from "core/layout/side_panel"
+import {font_metrics} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
 
@@ -11,7 +12,13 @@ export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
   visuals: TextAnnotation.Visuals
 
-  readonly rotate: boolean = true
+  update_layout(): void {
+    const {panel} = this
+    if (panel != null)
+      this.layout = new SideLayout(panel, () => this.get_size(), true)
+    else
+      this.layout = undefined
+  }
 
   protected el?: HTMLElement
 
@@ -36,7 +43,7 @@ export abstract class TextAnnotationView extends AnnotationView {
       // dispatch CSS update immediately
       this.connect(this.model.change, () => this.render())
     } else {
-      this.connect(this.model.change, () => this.plot_view.request_render())
+      this.connect(this.model.change, () => this.request_render())
     }
   }
 
@@ -49,7 +56,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = measure_font(this.visuals.text.font_value())
+    const {height} = font_metrics(this.visuals.text.font_value())
     return [width, height]
   }
 
@@ -120,21 +127,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     undisplay(el)
 
     this.visuals.text.set_value(ctx)
-    const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
+    const [x, y] = this._calculate_bounding_box_dimensions(ctx, text)
 
-    // attempt to support vector string-style ("8 4 8") line dashing for css mode
-    const ld = this.visuals.border_line.line_dash.value()
-    const line_dash = ld.length < 2 ? "solid" : "dashed"
-
-    this.visuals.border_line.set_value(ctx)
-    this.visuals.background_fill.set_value(ctx)
-
-    el.style.position = 'absolute'
-    el.style.left = `${sx + bbox_dims[0]}px`
-    el.style.top = `${sy + bbox_dims[1]}px`
-    el.style.color = `${this.visuals.text.text_color.value()}`
-    el.style.opacity = `${this.visuals.text.text_alpha.value()}`
-    el.style.font = `${this.visuals.text.font_value()}`
+    el.style.position = "absolute"
+    el.style.left = `${sx + x}px`
+    el.style.top = `${sy + y}px`
+    el.style.color = ctx.fillStyle as string
+    el.style.font = ctx.font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
@@ -142,13 +141,17 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
 
     if (this.visuals.background_fill.doit) {
-      el.style.backgroundColor = `${this.visuals.background_fill.color_value()}`
+      this.visuals.background_fill.set_value(ctx)
+      el.style.backgroundColor = ctx.fillStyle as string
     }
 
     if (this.visuals.border_line.doit) {
-      el.style.borderStyle = `${line_dash}`
-      el.style.borderWidth = `${this.visuals.border_line.line_width.value()}px`
-      el.style.borderColor = `${this.visuals.border_line.color_value()}`
+      this.visuals.border_line.set_value(ctx)
+
+      // attempt to support vector-style ("8 4 8") line dashing for css mode
+      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
+      el.style.borderWidth = `${ctx.lineWidth}px`
+      el.style.borderColor = ctx.strokeStyle as string
     }
 
     el.textContent = text
@@ -164,9 +167,9 @@ export namespace TextAnnotation {
   }
 
   export type Visuals = Annotation.Visuals & {
-    text: Text
-    border_line: Line
-    background_fill: Fill
+    text: visuals.Text
+    border_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 
@@ -181,8 +184,8 @@ export abstract class TextAnnotation extends Annotation {
   }
 
   static init_TextAnnotation(): void {
-    this.define<TextAnnotation.Props>({
-      render_mode: [ p.RenderMode, "canvas" ],
-    })
+    this.define<TextAnnotation.Props>(() => ({
+      render_mode: [ RenderMode, "canvas" ],
+    }))
   }
 }

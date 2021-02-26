@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -22,6 +22,7 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.models import (
     CategoricalScale,
+    CustomJS,
     DataRange1d,
     FactorRange,
     GlyphRenderer,
@@ -140,31 +141,21 @@ class TestPlotValidation:
 
     def test_missing_scale(self) -> None:
         p = figure()
-        p.x_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale")
 
-        p.y_scale = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale")
+        with pytest.raises(ValueError):
+            p.x_scale = None
+
+        with pytest.raises(ValueError):
+            p.y_scale = None
 
     def test_missing_range(self) -> None:
         p = figure()
-        p.x_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range")
 
-        p.y_range = None
-        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
-        assert mock_logger.error.call_count == 1
-        assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range")
+        with pytest.raises(ValueError):
+            p.x_range = None
+
+        with pytest.raises(ValueError):
+            p.y_range = None
 
     def test_bad_extra_range_name(self) -> None:
         p = figure()
@@ -187,11 +178,13 @@ class TestPlotValidation:
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
+    def test_bad_extra_range_only_immediate_refs(self) -> None:
         # test whether adding a figure (*and* it's extra ranges)
         # to another's references doesn't create a false positive
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
         dep.grid.x_range_name="foo"
+        p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 0
@@ -278,16 +271,14 @@ def test__check_required_scale_has_scales() -> None:
 
 
 def test__check_required_scale_missing_scales() -> None:
-    plot = Plot(x_scale=None, y_scale=None)
-    check = plot._check_required_scale()
-    assert check != []
+    with pytest.raises(ValueError):
+        Plot(x_scale=None, y_scale=None)
 
 
 def test__check_compatible_scale_and_ranges_compat_numeric() -> None:
     plot = Plot(x_scale=LinearScale(), x_range=Range1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check == []
-
 
     plot = Plot(y_scale=LogScale(), y_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()

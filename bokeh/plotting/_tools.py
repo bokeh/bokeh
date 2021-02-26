@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -29,6 +29,7 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 
 # External imports
@@ -36,7 +37,7 @@ from typing_extensions import Literal
 
 # Bokeh imports
 from ..models import HoverTool, Plot, Tool, Toolbar
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, InspectTool, Scroll, Tap
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,7 +59,7 @@ __all__ = (
 # TODO: str should be literal union of e.g. pan | xpan | ypan
 Auto = Literal["auto"]
 ActiveDrag = Union[Drag, Auto, str, None]
-ActiveInspect = Union[List[Inspection], Inspection, Auto, str, None]
+ActiveInspect = Union[List[InspectTool], InspectTool, Auto, str, None]
 ActiveScroll = Union[Scroll, Auto, str, None]
 ActiveTap = Union[Tap, Auto, str, None]
 
@@ -81,31 +82,31 @@ def process_active_tools(toolbar: Toolbar, tool_map: Dict[str, Tool],
         This function sets properties on Toolbar
     """
     if active_drag in ['auto', None] or isinstance(active_drag, Tool):
-        toolbar.active_drag = active_drag
+        toolbar.active_drag = cast(Any, active_drag)
     elif active_drag in tool_map:
-        toolbar.active_drag = tool_map[active_drag]
+        toolbar.active_drag = cast(Any, tool_map[active_drag])
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
 
     if active_inspect in ["auto", None] or isinstance(active_inspect, Tool) or \
             (isinstance(active_inspect, list) and all(isinstance(t, Tool) for t in active_inspect)):
-        toolbar.active_inspect = active_inspect
+        toolbar.active_inspect = cast(Any, active_inspect)
     elif isinstance(active_inspect, str) and active_inspect in tool_map:
-        toolbar.active_inspect = tool_map[active_inspect]
+        toolbar.active_inspect = cast(Any, tool_map[active_inspect])
     else:
         raise ValueError("Got unknown %r for 'active_inspect', which was not a string supplied in 'tools' argument" % active_scroll)
 
     if active_scroll in ['auto', None] or isinstance(active_scroll, Tool):
-        toolbar.active_scroll = active_scroll
+        toolbar.active_scroll = cast(Any, active_scroll)
     elif active_scroll in tool_map:
-        toolbar.active_scroll = tool_map[active_scroll]
+        toolbar.active_scroll = cast(Any, tool_map[active_scroll])
     else:
         raise ValueError("Got unknown %r for 'active_scroll', which was not a string supplied in 'tools' argument" % active_scroll)
 
     if active_tap in ['auto', None] or isinstance(active_tap, Tool):
-        toolbar.active_tap = active_tap
+        toolbar.active_tap = cast(Any, active_tap)
     elif active_tap in tool_map:
-        toolbar.active_tap = tool_map[active_tap]
+        toolbar.active_tap = cast(Any, tool_map[active_tap])
     else:
         raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
 

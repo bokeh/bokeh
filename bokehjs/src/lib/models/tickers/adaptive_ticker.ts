@@ -1,16 +1,7 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import {argmin, nth} from "core/util/array"
+import {clamp, log} from "core/util/math"
 import * as p from "core/properties"
-
-// Forces a number x into a specified range [min_val, max_val].
-function clamp(x: number, min_val: number, max_val: number): number {
-  return Math.max(min_val, Math.min(max_val, x))
-}
-
-// A log function with an optional base.
-function log(x: number, base=Math.E): number {
-  return Math.log(x) / Math.log(base)
-}
 
 // This Ticker produces nice round ticks at any magnitude.
 // AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
@@ -23,7 +14,7 @@ export namespace AdaptiveTicker {
     base: p.Property<number>
     mantissas: p.Property<number[]>
     min_interval: p.Property<number>
-    max_interval: p.Property<number>
+    max_interval: p.Property<number | null> // XXX: null -> Infinity, but can't serialize currently
   }
 }
 
@@ -37,12 +28,20 @@ export class AdaptiveTicker extends ContinuousTicker {
   }
 
   static init_AdaptiveTicker(): void {
-    this.define<AdaptiveTicker.Props>({
-      base:         [ p.Number, 10.0      ],
-      mantissas:    [ p.Array,  [1, 2, 5] ],
-      min_interval: [ p.Number, 0.0       ],
-      max_interval: [ p.Number            ],
-    })
+    this.define<AdaptiveTicker.Props>(({Number, Array, Nullable}) => ({
+      base:         [ Number, 10.0 ],
+      mantissas:    [ Array(Number), [1, 2, 5] ],
+      min_interval: [ Number, 0.0 ],
+      max_interval: [ Nullable(Number), null ],
+    }))
+  }
+
+  get_min_interval(): number {
+    return this.min_interval
+  }
+
+  get_max_interval(): number {
+    return this.max_interval ?? Infinity
   }
 
   /*protected*/ extended_mantissas: number[]

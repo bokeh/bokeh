@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -144,7 +144,7 @@ class AutoloadJsConsumer(SessionConsumer):
         bundle = bundle_for_objs_and_resources(None, resources)
 
         render_items = [RenderItem(token=session.token, elementid=element_id, use_for_title=False)]
-        bundle.add(Script(script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)))
+        bundle.add(Script(script_for_render_items({}, render_items, app_path=app_path, absolute_url=absolute_url)))
 
         js = AUTOLOAD_JS.render(bundle=bundle, elementid=element_id)
         headers = [
@@ -229,7 +229,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
         await self.accept("bokeh")
 
     async def disconnect(self, close_code):
-        pass
+        self.connection.session.destroy()
 
     async def receive(self, text_data) -> None:
         fragment = text_data

@@ -4,7 +4,7 @@ import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
-export interface ImageData extends ImageDataBase {}
+export type ImageData = ImageDataBase
 
 export interface ImageView extends ImageData {}
 
@@ -21,11 +21,11 @@ export class ImageView extends ImageBaseView {
     // Only reset image_data if already initialized
     if (this.image_data != null) {
       this._set_data(null)
-      this.renderer.plot_view.request_render()
+      this.renderer.request_render()
     }
   }
 
-  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8Array {
+  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
     return cmap.v_compute(img)
   }
@@ -57,8 +57,8 @@ export class Image extends ImageBase {
   static init_Image(): void {
     this.prototype.default_view = ImageView
 
-    this.define<Image.Props>({
-      color_mapper: [ p.Instance, () => new LinearColorMapper({palette: Greys9()}) ],
-    })
+    this.define<Image.Props>(({Ref}) => ({
+      color_mapper: [ Ref(ColorMapper), () => new LinearColorMapper({palette: Greys9()}) ],
+    }))
   }
 }

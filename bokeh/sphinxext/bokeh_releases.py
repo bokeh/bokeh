@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -106,7 +106,7 @@ class BokehReleases(BokehDirective):
             rst_text = f".. include:: releases/{v}.rst"
             try:
                 hashes = get_sri_hashes_for_version(v)
-                rst_text += _SRI_SECTION_PRE % v
+                rst_text += _SRI_SECTION_PRE % v  # TODO (bev) get rid of old style string substituion
                 for key, val in sorted(hashes.items()):
                     rst_text += f"    ``{key}``, ``{val}``\n"
                 rst_text += _SRI_SECTION_POST

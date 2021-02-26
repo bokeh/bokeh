@@ -1,8 +1,9 @@
 import {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
-import fs = require("fs")
-import path = require("path")
+import fs from "fs"
+import path from "path"
+import readline from "readline"
 import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
@@ -10,6 +11,27 @@ import {Bar, Presets} from "cli-progress"
 import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
+
+let rl: readline.Interface | undefined
+if (process.platform == "win32") {
+  rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  rl.on("SIGINT", () => {
+    process.emit("SIGINT", "SIGINT")
+  })
+}
+
+process.on("SIGINT", () => {
+  console.log()
+  process.exit(130)
+})
+
+process.on("exit", () => {
+  rl?.close()
+})
 
 const url = argv._[0]
 const port = parseInt(argv.port as string | undefined ?? "9222")
@@ -49,7 +71,7 @@ function timeout(ms: number): Promise<void> {
 }
 
 function encode(s: string): string {
-  return s.replace(/[ \/]/g, "_")
+  return s.replace(/[ \/\[\]]/g, "_")
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
@@ -68,7 +90,7 @@ async function run_tests(): Promise<boolean> {
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName || "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName ?? "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -76,7 +98,7 @@ async function run_tests(): Promise<boolean> {
         const {text, exception, url, lineNumber, columnNumber, stackTrace} = exceptionDetails
         return {
           text: exception != null && exception.description != null ? exception.description : text,
-          url: url || "(inline)",
+          url: url ?? "(inline)",
           line: lineNumber+1,
           col: columnNumber+1,
           trace: stackTrace ? collect_trace(stackTrace) : [],
@@ -124,7 +146,7 @@ async function run_tests(): Promise<boolean> {
       async function with_timeout<T>(promise: Promise<T>, wait: number): Promise<T | Timeout> {
         try {
           return await Promise.race([promise, timeout(wait)]) as T
-        } catch (err) {
+        } catch (err: unknown) {
           if (err instanceof TimeoutError) {
             return new Timeout()
           } else {
@@ -157,8 +179,10 @@ async function run_tests(): Promise<boolean> {
       await Network.enable()
       await Network.setCacheDisabled({cacheDisabled: true})
 
-      await Runtime.enable()
       await Page.enable()
+      await Page.navigate({url: "about:blank"})
+
+      await Runtime.enable()
       await Log.enable()
 
       async function override_metrics(dpr: number = 1): Promise<void> {
@@ -183,8 +207,9 @@ async function run_tests(): Promise<boolean> {
       }
 
       await Page.loadEventFired()
-      const ready = await is_ready()
+      await evaluate("preload_fonts()")
 
+      const ready = await is_ready()
       if (!ready) {
         fail(`failed to render ${url}`)
       }
@@ -296,7 +321,6 @@ async function run_tests(): Promise<boolean> {
             return ` | 1 ${single}`
           else
             return ` | ${value} ${plural ?? single}`
-
         }
         return {
           failures: format(failures, "failure", "failures"),
@@ -361,19 +385,20 @@ async function run_tests(): Promise<boolean> {
                       status.errors.push("state not present in output")
                       status.failure = true
                     } else {
-                      await (async () => {
-                        const baseline_path = path.join(baselines_root, baseline_name)
+                      const baseline_path = path.join(baselines_root, platform, baseline_name)
 
+                      await (async () => {
+                        const baseline_file = `${baseline_path}.blf`
                         const baseline = create_baseline([state])
-                        await fs.promises.writeFile(baseline_path, baseline)
+                        await fs.promises.writeFile(baseline_file, baseline)
                         status.baseline = baseline
 
-                        const existing = load_baseline(baseline_path)
+                        const existing = load_baseline(baseline_file)
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
                           }
-                          const diff = diff_baseline(baseline_path)
+                          const diff = diff_baseline(baseline_file)
                           status.failure = true
                           status.baseline_diff = diff
                           status.errors.push(diff)
@@ -381,17 +406,15 @@ async function run_tests(): Promise<boolean> {
                       })()
 
                       await (async () => {
-                        const baseline_path = path.join(baselines_root, platform, baseline_name)
-
                         const {bbox} = result
                         if (bbox != null) {
                           const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
                           const current = Buffer.from(image.data, "base64")
                           status.image = current
 
-                          const image_path = `${baseline_path}.png`
-                          const write_image = async () => fs.promises.writeFile(image_path, current)
-                          const existing = load_baseline_image(image_path)
+                          const image_file = `${baseline_path}.png`
+                          const write_image = async () => fs.promises.writeFile(image_file, current)
+                          const existing = load_baseline_image(image_file)
 
                           switch (argv.screenshot) {
                             case undefined:
@@ -488,14 +511,12 @@ async function run_tests(): Promise<boolean> {
         })
         await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
-        const files = new Set(await fs.promises.readdir(baselines_root))
-
-        files.delete("linux")
-        files.delete("macos")
-        files.delete("windows")
+        const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
+        files.delete("report.json")
 
         for (const name of baseline_names) {
-          files.delete(name)
+          files.delete(`${name}.blf`)
+          files.delete(`${name}.png`)
         }
 
         if (files.size != 0) {
@@ -509,10 +530,12 @@ async function run_tests(): Promise<boolean> {
     } finally {
       await Runtime.discardConsoleEntries()
     }
-  } catch (err) {
+  } catch (error: unknown) {
     failure = true
-    if (!(err instanceof Exit))
-      console.error(`INTERNAL ERROR: ${err.stack ?? err}`)
+    if (!(error instanceof Exit)) {
+      const msg = error instanceof Error && error.stack ? error.stack : error
+      console.error(`INTERNAL ERROR: ${msg}`)
+    }
   } finally {
     if (client) {
       await client.close()
@@ -530,24 +553,32 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const min_version = 83
+const chrome_min_version = 87
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
   const major = parseInt(match?.groups?.major ?? "0")
-  const ok = min_version <= major
+  const ok = chrome_min_version <= major
   if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(min_version)}`)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chrome_min_version)}`)
   return ok
 }
 
-async function main(): Promise<void> {
+async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
   const ok0 = await check_version(browser)
   const ok1 = await run_tests()
-  if (!(ok0 && ok1))
+  process.exit(ok0 && ok1 ? 0 : 1)
+}
+
+async function main(): Promise<void> {
+  try {
+    await run()
+  } catch (e: unknown) {
+    console.log(`CRITICAL ERROR: ${e}`)
     process.exit(1)
+  }
 }
 
 main()

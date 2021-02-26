@@ -43,3 +43,9 @@ declare class ClipboardItem {
 interface Clipboard {
   write(items: ClipboardItem[]): Promise<void>
 }
+
+interface Document {
+  fonts: {
+    check(font: string, text?: string): boolean
+  }
+}

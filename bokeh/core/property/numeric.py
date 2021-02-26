@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the numeric properties.
+""" Provide the numeric properties.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .bases import ParameterizedProperty
 from .primitive import Float, Int
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,8 +47,8 @@ class NonNegativeInt(Int):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or value >= 0):
-            raise ValueError("expected non-negative integer, got %r" % (value))
+        if value < 0:
+            raise ValueError(f"expected non-negative integer, got {value!r}")
 
 class PositiveInt(Int):
     """ Accept positive integers. """
@@ -55,12 +56,12 @@ class PositiveInt(Int):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or value > 0):
-            raise ValueError("expected positive integer, got %r" % (value))
+        if value <= 0:
+            raise ValueError(f"expected positive integer, got {value!r}")
 
 
 class Interval(ParameterizedProperty):
-    ''' Accept numeric values that are contained within a given interval.
+    """ Accept numeric values that are contained within a given interval.
 
     Args:
         interval_type (numeric property):
@@ -96,8 +97,8 @@ class Interval(ParameterizedProperty):
 
             >>> m.prop = "foo" # ValueError !!
 
-    '''
-    def __init__(self, interval_type, start, end, default=None, help=None):
+    """
+    def __init__(self, interval_type, start, end, default=Undefined, help=None):
         self.interval_type = self._validate_type_param(interval_type)
         # Make up a property name for validation purposes
         self.interval_type.validate(start)
@@ -107,7 +108,8 @@ class Interval(ParameterizedProperty):
         super().__init__(default=default, help=help)
 
     def __str__(self):
-        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.interval_type}, {self.start!r}, {self.end!r})"
 
     @property
     def type_params(self):
@@ -116,12 +118,12 @@ class Interval(ParameterizedProperty):
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
+        if not (self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
+            msg = "" if not detail else f"expected a value of type {self.interval_type} in range [{self.start}, {self.end}], got {value!r}"
             raise ValueError(msg)
 
 class Byte(Interval):
-    ''' Accept integral byte values (0-255).
+    """ Accept integral byte values (0-255).
 
     Example:
 
@@ -139,17 +141,16 @@ class Byte(Interval):
 
             >>> m.prop = 10.3 # ValueError !!
 
-    '''
+    """
     def __init__(self, default=0, help=None):
         super().__init__(Int, 0, 255, default=default, help=help)
 
 class Size(Float):
-    ''' Accept non-negative numeric values.
+    """ Accept non-negative numeric values.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -182,24 +183,23 @@ class Size(Float):
 
             >>> m.prop = "foo" # ValueError !!
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or 0.0 <= value):
-            msg = "" if not detail else "expected a non-negative number, got %r" % value
+        if value < 0:
+            msg = "" if not detail else f"expected a non-negative number, got {value!r}"
             raise ValueError(msg)
 
 class Percent(Float):
-    ''' Accept floating point percentage values.
+    """ Accept floating point percentage values.
 
     ``Percent`` can be useful and semantically meaningful for specifying
     things like alpha values and extents.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -234,24 +234,25 @@ class Percent(Float):
 
             >>> m.prop = 5   # ValueError !!
 
-    '''
+    """
     def validate(self, value, detail=True):
         super().validate(value, detail)
 
-        if not (value is None or 0.0 <= value <= 1.0):
-            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
-            raise ValueError(msg)
+        if 0.0 <= value <= 1.0:
+            return
+
+        msg = "" if not detail else f"expected a value in range [0, 1], got {value!r}"
+        raise ValueError(msg)
 
 class Angle(Float):
-    ''' Accept floating point angle values.
+    """ Accept floating point angle values.
 
     ``Angle`` is equivalent to :class:`~bokeh.core.properties.Float` but is
     provided for cases when it is more semantically meaningful.
 
     Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
+        default (float, optional) :
+            A default value for attributes created from this property to have.
 
         help (str or None, optional) :
             A documentation string for this property. It will be automatically
@@ -266,7 +267,7 @@ class Angle(Float):
             Whether attributes created from this property are read-only.
             (default: False)
 
-    '''
+    """
     pass
 
 #-----------------------------------------------------------------------------

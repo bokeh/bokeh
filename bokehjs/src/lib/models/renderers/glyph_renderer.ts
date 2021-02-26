@@ -9,7 +9,7 @@ import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
 import {indexOf, filter} from "core/util/arrayable"
-import {difference, includes} from "core/util/array"
+import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -48,19 +48,25 @@ export class GlyphRendererView extends DataRendererView {
   muted_glyph?: GlyphView
   decimated_glyph: GlyphView
 
+  get glyph_view(): GlyphView {
+    return this.glyph
+  }
+
   protected all_indices: Indices
   protected decimated: Indices
 
-  set_data_timestamp: number
   protected last_dtrender: number
 
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
-    const has_fill = includes(base_glyph._mixins, "fill")
-    const has_line = includes(base_glyph._mixins, "line")
-    const glyph_attrs = clone(base_glyph.attributes)
+    this.glyph = await this.build_glyph_view(base_glyph)
+
+    const has_fill = "fill" in this.glyph.visuals
+    const has_line = "line" in this.glyph.visuals
+
+    const glyph_attrs = {...base_glyph.attributes}
     delete glyph_attrs.id
 
     function mk_glyph(defaults: Defaults): typeof base_glyph {
@@ -70,19 +76,17 @@ export class GlyphRendererView extends DataRendererView {
       return new (base_glyph.constructor as any)(attrs)
     }
 
-    this.glyph = await this.build_glyph_view(base_glyph)
-
     let {selection_glyph} = this.model
     if (selection_glyph == null)
       selection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (selection_glyph === "auto")
+    else if (selection_glyph == "auto")
       selection_glyph = mk_glyph(selection_defaults)
     this.selection_glyph = await this.build_glyph_view(selection_glyph)
 
     let {nonselection_glyph} = this.model
-    if ((nonselection_glyph == null))
+    if (nonselection_glyph == null)
       nonselection_glyph = mk_glyph({fill: {}, line: {}})
-    else if (nonselection_glyph === "auto")
+    else if (nonselection_glyph == "auto")
       nonselection_glyph = mk_glyph(nonselection_defaults)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
@@ -97,7 +101,13 @@ export class GlyphRendererView extends DataRendererView {
     const decimated_glyph = mk_glyph(decimated_defaults)
     this.decimated_glyph = await this.build_glyph_view(decimated_glyph)
 
-    this.set_data(false)
+    this.selection_glyph.set_base(this.glyph)
+    this.nonselection_glyph.set_base(this.glyph)
+    this.hover_glyph?.set_base(this.glyph)
+    this.muted_glyph?.set_base(this.glyph)
+    this.decimated_glyph.set_base(this.glyph)
+
+    this.set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -117,32 +127,47 @@ export class GlyphRendererView extends DataRendererView {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.glyph.change, () => this.set_data())
-    this.connect(this.model.data_source.change, () => this.set_data())
-    this.connect(this.model.data_source.streaming, () => this.set_data())
-    this.connect(this.model.data_source.patching, (indices: number[] /* XXX: WHY? */) => this.set_data(true, indices))
-    this.connect(this.model.data_source.selected.change, () => this.request_render())
-    this.connect(this.model.data_source._select, () => this.request_render())
+    const render = () => this.request_render()
+    const update = () => this.update_data()
+
+    this.connect(this.model.change, render)
+
+    this.connect(this.glyph.model.change, update)
+    this.connect(this.selection_glyph.model.change, update)
+    this.connect(this.nonselection_glyph.model.change, update)
     if (this.hover_glyph != null)
-      this.connect(this.model.data_source.inspect, () => this.request_render())
-    this.connect(this.model.properties.view.change, () => this.set_data())
-    this.connect(this.model.view.change, () => this.set_data())
-    this.connect(this.model.properties.visible.change, () => this.plot_view.update_dataranges())
+      this.connect(this.hover_glyph.model.change, update)
+    if (this.muted_glyph != null)
+      this.connect(this.muted_glyph.model.change, update)
+    this.connect(this.decimated_glyph.model.change, update)
+
+    this.connect(this.model.data_source.change, update)
+    this.connect(this.model.data_source.streaming, update)
+    this.connect(this.model.data_source.patching, (indices) => this.update_data(indices))
+    this.connect(this.model.data_source.selected.change, render)
+    this.connect(this.model.data_source._select, render)
+    if (this.hover_glyph != null)
+      this.connect(this.model.data_source.inspect, render)
+    this.connect(this.model.properties.view.change, update)
+    this.connect(this.model.view.properties.indices.change, update)
+    this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
+    this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const [, range] of x_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, update)
     }
 
     for (const [, range] of y_ranges) {
       if (range instanceof FactorRange)
-        this.connect(range.change, () => this.set_data())
+        this.connect(range.change, update)
     }
 
-    this.connect(this.model.glyph.transformchange, () => this.set_data())
+    const {transformchange, exprchange} = this.model.glyph
+    this.connect(transformchange, update)
+    this.connect(exprchange, update)
   }
 
   _update_masked_indices(): Indices {
@@ -151,22 +176,21 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
+  update_data(indices?: number[]): void {
+    this.set_data(indices)
+    this.request_render()
+  }
+
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(request_render: boolean = true, indices: number[] | null = null): void {
+  set_data(indices?: number[]): void {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
     const {all_indices} = this
 
     this.glyph.set_data(source, all_indices, indices)
-
-    this.glyph.set_visuals(source, all_indices)
-    this.decimated_glyph.set_visuals(source, all_indices)
-    this.selection_glyph?.set_visuals(source, all_indices)
-    this.nonselection_glyph?.set_visuals(source, all_indices)
-    this.hover_glyph?.set_visuals(source, all_indices)
-    this.muted_glyph?.set_visuals(source, all_indices)
+    this.set_visuals()
 
     this._update_masked_indices()
 
@@ -177,11 +201,19 @@ export class GlyphRendererView extends DataRendererView {
       this.decimated.set(i)
     }
 
-    this.set_data_timestamp = Date.now()
+    this.plot_view.invalidate_dataranges = true
+  }
 
-    if (request_render) {
-      this.request_render()
-    }
+  set_visuals(): void {
+    const source = this.model.data_source
+    const {all_indices} = this
+
+    this.glyph.set_visuals(source, all_indices)
+    this.decimated_glyph.set_visuals(source, all_indices)
+    this.selection_glyph?.set_visuals(source, all_indices)
+    this.nonselection_glyph?.set_visuals(source, all_indices)
+    this.hover_glyph?.set_visuals(source, all_indices)
+    this.muted_glyph?.set_visuals(source, all_indices)
   }
 
   get has_webgl(): boolean {
@@ -256,22 +288,22 @@ export class GlyphRendererView extends DataRendererView {
     if (!selected_full_indices.length) {
       if (this.glyph instanceof LineView) {
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
       } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
-          glyph.render(ctx, all_indices, this.glyph)
+          glyph.render(ctx, all_indices)
         } else {
           for (const sglyph of inspected.selected_glyphs) {
             if (sglyph == this.glyph.model)
-              this.hover_glyph.render(ctx, all_indices, this.glyph)
+              this.hover_glyph.render(ctx, all_indices)
           }
         }
       } else {
-        glyph.render(ctx, indices, this.glyph)
+        glyph.render(ctx, indices)
         if (this.hover_glyph && inspected_subset_indices.length)
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     // Render with selection
     } else {
@@ -302,13 +334,13 @@ export class GlyphRendererView extends DataRendererView {
         }
       }
 
-      nonselection_glyph.render(ctx, nonselected_subset_indices, this.glyph)
-      selection_glyph.render(ctx, selected_subset_indices, this.glyph)
+      nonselection_glyph.render(ctx, nonselected_subset_indices)
+      selection_glyph.render(ctx, selected_subset_indices)
       if (this.hover_glyph != null) {
         if (this.glyph instanceof LineView)
-          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
+          this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
-          this.hover_glyph.render(ctx, inspected_subset_indices, this.glyph)
+          this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     }
 
@@ -316,6 +348,8 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
+    if (this.glyph.data_size == 0)
+      return
     if (index == null)
       index = this.model.get_reference_point(field, label)
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
@@ -342,10 +376,10 @@ export namespace GlyphRenderer {
     data_source: p.Property<ColumnarDataSource>
     view: p.Property<CDSView>
     glyph: p.Property<Glyph>
-    hover_glyph: p.Property<Glyph>
-    nonselection_glyph: p.Property<Glyph | "auto">
-    selection_glyph: p.Property<Glyph | "auto">
-    muted_glyph: p.Property<Glyph>
+    hover_glyph: p.Property<Glyph | null>
+    nonselection_glyph: p.Property<Glyph | "auto" | null>
+    selection_glyph: p.Property<Glyph | "auto" | null>
+    muted_glyph: p.Property<Glyph | null>
     muted: p.Property<boolean>
   }
 }
@@ -363,22 +397,22 @@ export class GlyphRenderer extends DataRenderer {
   static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
-    this.define<GlyphRenderer.Props>({
-      data_source:        [ p.Instance           ],
-      view:               [ p.Instance, () => new CDSView() ],
-      glyph:              [ p.Instance           ],
-      hover_glyph:        [ p.Instance           ],
-      nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
-      selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
-      muted_glyph:        [ p.Instance           ],
-      muted:              [ p.Boolean,  false    ],
-    })
+    this.define<GlyphRenderer.Props>(({Boolean, Auto, Or, Ref, Null, Nullable}) => ({
+      data_source:        [ Ref(ColumnarDataSource) ],
+      view:               [ Ref(CDSView), (self) => new CDSView({source: (self as GlyphRenderer).data_source}) ],
+      glyph:              [ Ref(Glyph) ],
+      hover_glyph:        [ Nullable(Ref(Glyph)), null ],
+      nonselection_glyph: [ Or(Ref(Glyph), Auto, Null), "auto" ],
+      selection_glyph:    [ Or(Ref(Glyph), Auto, Null), "auto" ],
+      muted_glyph:        [ Nullable(Ref(Glyph)), null ],
+      muted:              [ Boolean, false ],
+    }))
   }
 
   initialize(): void {
     super.initialize()
 
-    if (this.view.source == null) {
+    if (this.view.source != this.data_source) {
       this.view.source = this.data_source
       this.view.compute_indices()
     }
@@ -389,9 +423,18 @@ export class GlyphRenderer extends DataRenderer {
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        const i = indexOf(data, value)
-        if (i != -1)
-          index = i
+        if (this.view == null) {
+          const i = indexOf(data, value)
+          if (i != -1)
+            index = i
+        } else {
+          for (const [k, v] of Object.entries(this.view.indices_map)) {
+            if (data[parseInt(k)] == value) {
+              index = v
+              break
+            }
+          }
+        }
       }
     }
     return index

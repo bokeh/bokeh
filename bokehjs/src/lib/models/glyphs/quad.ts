@@ -1,17 +1,17 @@
 import {Box, BoxView, BoxData} from "./box"
-import {NumberArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export interface QuadData extends BoxData {
-  _right: NumberArray
-  _bottom: NumberArray
-  _left: NumberArray
-  _top: NumberArray
+export type QuadData = BoxData & {
+  _right: FloatArray
+  _bottom: FloatArray
+  _left: FloatArray
+  _top: FloatArray
 
-  sright: NumberArray
-  sbottom: NumberArray
-  sleft: NumberArray
-  stop: NumberArray
+  sright: ScreenArray
+  sbottom: ScreenArray
+  sleft: ScreenArray
+  stop: ScreenArray
 }
 
 export interface QuadView extends QuadData {}
@@ -21,8 +21,8 @@ export class QuadView extends BoxView {
   visuals: Quad.Visuals
 
   scenterxy(i: number): [number, number] {
-    const scx = (this.sleft[i] + this.sright[i])/2
-    const scy = (this.stop[i] + this.sbottom[i])/2
+    const scx = this.sleft[i]/2 + this.sright[i]/2
+    const scy = this.stop[i]/2 + this.sbottom[i]/2
     return [scx, scy]
   }
 
@@ -61,11 +61,11 @@ export class Quad extends Box {
   static init_Quad(): void {
     this.prototype.default_view = QuadView
 
-    this.define<Quad.Props>({
-      right:  [ p.XCoordinateSpec, {field: "right"}  ],
+    this.define<Quad.Props>(({}) => ({
+      right:  [ p.XCoordinateSpec, {field: "right"} ],
       bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
-      left:   [ p.XCoordinateSpec, {field: "left"}   ],
-      top:    [ p.YCoordinateSpec, {field: "top"}    ],
-    })
+      left:   [ p.XCoordinateSpec, {field: "left"} ],
+      top:    [ p.YCoordinateSpec, {field: "top"} ],
+    }))
   }
 }

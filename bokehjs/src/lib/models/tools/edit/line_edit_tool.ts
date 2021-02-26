@@ -3,7 +3,7 @@ import {Dimensions} from "core/enums"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import * as p from "core/properties"
-import {bk_tool_icon_line_edit} from "styles/icons"
+import {tool_icon_line_edit} from "styles/icons.css"
 import {Line} from "models/glyphs/line"
 
 export interface HasLineGlyph {
@@ -141,23 +141,26 @@ export interface LineEditTool extends LineEditTool.Attrs { }
 export class LineEditTool extends LineTool {
   properties: LineEditTool.Props
   __view_type__: LineEditToolView
+
+  renderers: (GlyphRenderer & HasLineGlyph)[]
+
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
   }
 
   static init_LineEditTool(): void {
     this.prototype.default_view = LineEditToolView
-    this.define<LineEditTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-    })
+    this.define<LineEditTool.Props>(() => ({
+      dimensions: [ Dimensions, "both" ],
+    }))
   }
 
   tool_name = "Line Edit Tool"
-  icon = bk_tool_icon_line_edit
+  icon = tool_icon_line_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

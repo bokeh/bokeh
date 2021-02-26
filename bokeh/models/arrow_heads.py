@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Float, Include, Override
-from ..core.property_mixins import ScalarFillProps, ScalarLineProps
-from .annotations import Annotation
+from ..core.properties import Include, NumberSpec, Override
+from ..core.property_mixins import FillProps, LineProps
+from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,21 +42,21 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class ArrowHead(Annotation):
+class ArrowHead(Model):
     ''' Base class for arrow heads.
 
     '''
+
+    size = NumberSpec(default=25, help="""
+    The size, in pixels, of the arrow head.
+    """)
 
 class OpenHead(ArrowHead):
     ''' Render an open-body arrow head.
 
     '''
 
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, use_prefix=False, help="""
 
     The %s values for the arrow head outline.
     """)
@@ -66,15 +66,11 @@ class NormalHead(ArrowHead):
 
     '''
 
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
+    fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the arrow head interior.
     """)
 
@@ -85,11 +81,7 @@ class TeeHead(ArrowHead):
 
     '''
 
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
@@ -98,15 +90,11 @@ class VeeHead(ArrowHead):
 
     '''
 
-    size = Float(default=25, help="""
-    The size, in pixels, of the arrow head.
-    """)
-
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
+    fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the arrow head interior.
     """)
 

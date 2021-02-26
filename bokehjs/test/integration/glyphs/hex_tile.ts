@@ -1,4 +1,4 @@
-import {display, fig} from "../utils"
+import {display, fig} from "../_util"
 
 import {repeat} from "@bokehjs/core/util/array"
 
@@ -53,51 +53,73 @@ describe("HexTile glyph", () => {
     ...repeat("gold",   4),
   ]
 
+  const hatches = [
+    ...repeat("o", 4),
+    ...repeat("+", 5),
+    ...repeat("@", 6),
+    ...repeat("/", 7),
+    ...repeat("x", 6),
+    ...repeat("v", 5),
+    ...repeat("`", 4),
+  ]
+
   it("should support 'pointytop' orientation", async () => {
     const p0 = fig([300, 300], {match_aspect: true, title: "pointytop"})
     p0.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop"})
-    await display(p0, [350, 350])
+    await display(p0)
   })
 
   it("should support 'pointytop' orientation with size=10", async () => {
     const p1 = fig([300, 300], {match_aspect: true, title: "pointytop, size=10"})
     p1.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", size: 10})
-    await display(p1, [350, 350])
+    await display(p1)
+  })
+
+  it("should support 'pointytop' orientation with hatch patterns", async () => {
+    const p1 = fig([300, 300], {match_aspect: true, title: "pointytop, hatch"})
+    p1.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", hatch_pattern: hatches})
+    await display(p1)
   })
 
   it("should support 'pointytop' orientation and aspect_scale=2", async () => {
     const p2 = fig([300, 300], {match_aspect: true, title: "pointytop, aspect_scale=2"})
     p2.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", aspect_scale: 2})
-    await display(p2, [350, 350])
+    await display(p2)
   })
 
   it("should support 'pointytop' orientation and aspect_scale=0.5", async () => {
     const p3 = fig([300, 300], {match_aspect: true, title: "pointytop, aspect_scale=0.5"})
     p3.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", aspect_scale: 0.5})
-    await display(p3, [350, 350])
+    await display(p3)
   })
 
   it("should support 'flattop' orientation", async () => {
     const f0 = fig([300, 300], {match_aspect: true, title: "flattop"})
     f0.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop"})
-    await display(f0, [350, 350])
+    await display(f0)
   })
 
   it("should support 'flattop' orientation with size=10", async () => {
     const f1 = fig([300, 300], {match_aspect: true, title: "flattop, size=10"})
     f1.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", size: 10})
-    await display(f1, [350, 350])
+    await display(f1)
+  })
+
+  it("should support 'flattop' orientation with hatch patterns", async () => {
+    const f1 = fig([300, 300], {match_aspect: true, title: "flattop, hatch"})
+    f1.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", hatch_pattern: hatches})
+    await display(f1)
   })
 
   it("should support 'flattop' orientation and aspect_scale=2", async () => {
     const f2 = fig([300, 300], {match_aspect: true, title: "flattop, aspect_scale=2"})
     f2.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", aspect_scale: 2})
-    await display(f2, [350, 350])
+    await display(f2)
   })
 
   it("should support 'flattop' orientation and aspect_scale=0.5", async () => {
     const f3 = fig([300, 300], {match_aspect: true, title: "flattop, aspect_scale=0.5"})
     f3.hex_tile(fr, fq, {line_color: "white", fill_color: colors, orientation: "flattop", aspect_scale: 0.5})
-    await display(f3, [350, 350])
+    await display(f3)
   })
 })

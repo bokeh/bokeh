@@ -1,14 +1,14 @@
 import {Model} from "../../model"
-import {Plot} from "../plots/plot"
+import type {Plot} from "../plots/plot"
 import * as p from "core/properties"
 
 export namespace Range {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    bounds: p.Property<[number, number] | "auto" | null>
-    min_interval: p.Property<number>
-    max_interval: p.Property<number>
+    bounds: p.Property<[number | null, number | null] | "auto" | null>
+    min_interval: p.Property<number | null>
+    max_interval: p.Property<number | null>
     plots: p.Property<Plot[]>
   }
 }
@@ -23,21 +23,22 @@ export abstract class Range extends Model {
   }
 
   static init_Range(): void {
-    this.define<Range.Props>({
-      bounds:       [ p.Any ], // TODO (bev)
-      min_interval: [ p.Any ],
-      max_interval: [ p.Any ],
-    })
+    this.define<Range.Props>(({Number, Tuple, Or, Auto, Nullable}) => ({
+      bounds:       [ Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto)), null ],
+      min_interval: [ Nullable(Number), null ],
+      max_interval: [ Nullable(Number), null ],
+    }))
 
-    this.internal({
-      plots: [ p.Array, [] ],
-    })
+    this.internal<Range.Props>(({Array, AnyRef}) => ({
+      plots: [ Array(AnyRef()), [] ],
+    }))
   }
 
   start: number
   end: number
-  min: number
-  max: number
+
+  abstract get min(): number
+  abstract get max(): number
 
   have_updated_interactively: boolean = false
 
@@ -48,6 +49,6 @@ export abstract class Range extends Model {
   }
 
   get is_valid(): boolean {
-    return !isNaN(this.min) && !isNaN(this.max)
+    return isFinite(this.min) && isFinite(this.max)
   }
 }

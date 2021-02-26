@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -24,15 +24,20 @@ import warnings
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import (
+    Alias,
     Bool,
     Dict,
+    Either,
     Enum,
     Float,
     Include,
     Instance,
     Int,
     List,
+    Null,
+    Nullable,
     Override,
+    Readonly,
     String,
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
@@ -50,7 +55,7 @@ from ..core.validation.warnings import (
     FIXED_WIDTH_POLICY,
     MISSING_RENDERERS,
 )
-from ..model import Model, collect_filtered_models
+from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
@@ -70,6 +75,8 @@ from .tools import HoverTool, Tool, Toolbar
 __all__ = (
     'Plot',
 )
+
+_VALID_PLACES = ('left', 'right', 'above', 'below', 'center')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -253,10 +260,9 @@ class Plot(LayoutDOM):
             None
 
         '''
-        valid_places = ['left', 'right', 'above', 'below', 'center']
-        if place not in valid_places:
+        if place not in _VALID_PLACES:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
+                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(_VALID_PLACES))
             )
 
         getattr(self, place).append(obj)
@@ -382,19 +388,20 @@ class Plot(LayoutDOM):
 
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
-        msg  = ""
-        filt = lambda x: x is not self and isinstance(x, Plot)
-        for ref in collect_filtered_models(filt, self):
-            prop_names = ref.properties()
-            bad = []
-            if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
-                if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
-                    bad.append(('x_range_name', ref.x_range_name))
-                if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
-                    bad.append(('y_range_name', ref.y_range_name))
-            if bad:
-                if msg: msg += ", "
-                msg += (", ".join("%s=%r" % (a, b) for (a,b) in bad) + " [%s]" % ref)
+        msg   = ""
+        valid = {
+            f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
+            for axis in ("x_range", "y_range")
+        }
+        for place in _VALID_PLACES + ('renderers',):
+            for ref in getattr(self, place):
+                bad = ', '.join(
+                    f"{axis}='{getattr(ref, axis)}'"
+                    for axis, keys in valid.items()
+                    if getattr(ref, axis, 'default') not in keys
+                )
+                if bad:
+                    msg += (", " if msg else "") + f"{bad} [{ref}]"
         if msg:
             return msg
 
@@ -443,11 +450,11 @@ class Plot(LayoutDOM):
     Whether to use HiDPI mode when available.
     """)
 
-    title = Instance(Title, default=lambda: Title(text=""), help="""
+    title = Either(Null, String, Instance(Title), default=lambda: Title(text=""), help="""
     A title for the plot. Can be a text string or a Title annotation.
     """)
 
-    title_location = Enum(Location, default="above", help="""
+    title_location = Nullable(Enum(Location), default="above", help="""
     Where the title will be located. Titles on the left or right side
     will be rotated.
     """)
@@ -460,7 +467,7 @@ class Plot(LayoutDOM):
 
     renderers = List(Instance(Renderer), help="""
     A list of all renderers for this plot, including guides and annotations
-    in addition to glyphs and markers.
+    in addition to glyphs.
 
     This property can be manipulated by hand, but the ``add_glyph`` and
     ``add_layout`` methods are recommended to help make sure all necessary
@@ -472,7 +479,7 @@ class Plot(LayoutDOM):
     automatically created with the plot if necessary.
     """)
 
-    toolbar_location = Enum(Location, default="right", help="""
+    toolbar_location = Nullable(Enum(Location), default="right", help="""
     Where the toolbar will be located. If set to None, no toolbar
     will be attached to the plot.
     """)
@@ -502,34 +509,29 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    plot_width = Int(600, help="""
+    width = Override(default=600)
+
+    height = Override(default=600)
+
+    plot_width: int = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
-
-    .. note::
-        This corresponds directly to the width of the HTML canvas.
-
     """)
 
-    plot_height = Int(600, help="""
+    plot_height: int = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
-
-    .. note::
-        This corresponds directly to the height of the HTML canvas.
-
     """)
 
-    frame_width = Int(default=None, help="""
+    frame_width = Nullable(Int, help="""
     The width of a plot frame or the inner width of a plot, excluding any
     axes, titles, border padding, etc.
     """)
 
-    frame_height = Int(default=None, help="""
+    frame_height = Nullable(Int, help="""
     The height of a plot frame or the inner height of a plot, excluding any
     axes, titles, border padding, etc.
     """)
 
-
-    inner_width = Int(readonly=True, help="""
+    inner_width = Readonly(Int, help="""
     This is the exact width of the plotting canvas, i.e. the width of
     the actual plot, without toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -540,7 +542,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    inner_height = Int(readonly=True, help="""
+    inner_height = Readonly(Int, help="""
     This is the exact height of the plotting canvas, i.e. the height of
     the actual plot, without toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -551,7 +553,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    outer_width = Int(readonly=True, help="""
+    outer_width = Readonly(Int, help="""
     This is the exact width of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -562,7 +564,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    outer_height = Int(readonly=True, help="""
+    outer_height = Readonly(Int, help="""
     This is the exact height of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -585,7 +587,7 @@ class Plot(LayoutDOM):
 
     border_fill_color = Override(default='#ffffff')
 
-    min_border_top = Int(help="""
+    min_border_top = Nullable(Int, help="""
     Minimum size in pixels of the padding region above the top of the
     central plot region.
 
@@ -595,7 +597,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_bottom = Int(help="""
+    min_border_bottom = Nullable(Int, help="""
     Minimum size in pixels of the padding region below the bottom of
     the central plot region.
 
@@ -605,7 +607,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_left = Int(help="""
+    min_border_left = Nullable(Int, help="""
     Minimum size in pixels of the padding region to the left of
     the central plot region.
 
@@ -615,7 +617,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border_right = Int(help="""
+    min_border_right = Nullable(Int, help="""
     Minimum size in pixels of the padding region to the right of
     the central plot region.
 
@@ -625,7 +627,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    min_border = Int(5, help="""
+    min_border = Nullable(Int, default=5, help="""
     A convenience property to set all all the ``min_border_X`` properties
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
@@ -635,7 +637,7 @@ class Plot(LayoutDOM):
     Decimation factor to use when applying level-of-detail decimation.
     """)
 
-    lod_threshold = Int(2000, help="""
+    lod_threshold = Nullable(Int, default=2000, help="""
     A number of data points, above which level-of-detail downsampling may
     be performed by glyph renderers. Set to ``None`` to disable any
     level-of-detail downsampling.

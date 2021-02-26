@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
 import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
-import {bk_tool_icon_box_select} from "styles/icons"
+import {tool_icon_box_select} from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
@@ -53,7 +53,7 @@ export class BoxSelectToolView extends SelectToolView {
 
     this._base_point = null
 
-    this.plot_view.push_state('box_select', {selection: this.plot_view.get_selection()})
+    this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
@@ -105,12 +105,12 @@ export class BoxSelectTool extends SelectTool {
   static init_BoxSelectTool(): void {
     this.prototype.default_view = BoxSelectToolView
 
-    this.define<BoxSelectTool.Props>({
-      dimensions:             [ p.Dimensions, "both"              ],
-      select_every_mousemove: [ p.Boolean,    false               ],
-      overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      origin:                 [ p.BoxOrigin,  "corner"            ],
-    })
+    this.define<BoxSelectTool.Props>(({Boolean, Ref}) => ({
+      dimensions:             [ Dimensions, "both" ],
+      select_every_mousemove: [ Boolean, false ],
+      overlay:                [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
+      origin:                 [ BoxOrigin, "corner" ],
+    }))
 
     this.register_alias("box_select", () => new BoxSelectTool())
     this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: 'width'}))
@@ -118,11 +118,11 @@ export class BoxSelectTool extends SelectTool {
   }
 
   tool_name = "Box Select"
-  icon = bk_tool_icon_box_select
+  icon = tool_icon_box_select
   event_type = "pan" as "pan"
   default_order = 30
 
   get tooltip(): string {
-    return this._get_dim_tooltip(this.tool_name, this.dimensions)
+    return this._get_dim_tooltip(this.dimensions)
   }
 }

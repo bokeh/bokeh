@@ -1,6 +1,12 @@
 import numpy as np
 import scipy.misc
-from numba import njit
+
+try:
+    from numba import njit
+except ImportError:
+    import warnings
+    warnings.warn("numba is not installed. This example will be painfully slow.")
+    njit = lambda f: f
 
 from bokeh.io import curdoc
 from bokeh.layouts import column

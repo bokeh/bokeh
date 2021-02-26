@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -22,10 +22,11 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import LatLon
 from ..core.has_props import abstract
-from ..core.properties import Enum, Float, Instance, Int, Override, Seq
+from ..core.properties import Auto, Either, Enum, Float, Instance, Int, NonNullable, Nullable, Override, Seq
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
+from .mappers import ScanningColorMapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -33,6 +34,7 @@ from ..model import Model
 
 __all__ = (
     'Ticker',
+    'BinnedTicker',
     'ContinuousTicker',
     'FixedTicker',
     'AdaptiveTicker',
@@ -118,7 +120,7 @@ class AdaptiveTicker(ContinuousTicker):
     The smallest allowable interval between two adjacent ticks.
     """)
 
-    max_interval = Float(help="""
+    max_interval = Nullable(Float, help="""
     The largest allowable interval between two adjacent ticks.
 
     .. note::
@@ -149,7 +151,7 @@ class SingleIntervalTicker(ContinuousTicker):
 
     '''
 
-    interval = Float(help="""
+    interval = NonNullable(Float, help="""
     The interval between adjacent ticks.
     """)
 
@@ -196,7 +198,7 @@ class MercatorTicker(BasicTicker):
 
     '''
 
-    dimension = Enum(LatLon, default=None, help="""
+    dimension = Nullable(Enum(LatLon), help="""
     Specify whether to generate ticks for Latitude or Longitude.
 
     Projected coordinates are not separable, computing Latitude and Longitude
@@ -272,6 +274,18 @@ class DatetimeTicker(CompositeTicker):
 
         YearsTicker(),
     ])
+
+class BinnedTicker(Ticker):
+    """Ticker that aligns ticks exactly at bin boundaries of a scanning color mapper. """
+
+    mapper = Instance(ScanningColorMapper, help="""
+    A scanning color mapper (e.g. ``EqHistColorMapper``) to use.
+    """)
+
+    num_major_ticks = Either(Int, Auto, default=8, help="""
+    The number of major tick positions to show or "auto" to use the
+    number of bins provided by the mapper.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

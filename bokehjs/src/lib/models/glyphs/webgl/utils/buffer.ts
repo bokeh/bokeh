@@ -37,7 +37,7 @@ export abstract class Buffer {
     }
   }
 
-  set_data(offset: number, data: TypedArray): void {
+  set_data(offset: number, data: TypedArray | Uint8ClampedArray): void {
     // Set the buffer data.
     //
     // Parameters

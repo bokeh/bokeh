@@ -4,9 +4,10 @@ import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
 
+import {Color} from  "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {svg_colors} from  "@bokehjs/core/util/svg_colors"
+import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
 
@@ -40,7 +41,7 @@ namespace Some {
     any: p.Property<any>
     array: p.Property<number[]>
     boolean: p.Property<boolean>
-    color: p.Property<string>
+    color: p.Property<Color>
     instance: p.Property<HasProps>
     number: p.Property<number>
     int: p.Property<number>
@@ -74,21 +75,21 @@ class Some extends HasProps {
   }
 
   static init_Some(): void {
-    this.define<Some.Props>({
-      anchor: [ p.Anchor ],
-      any: [ p.Any ],
-      array: [ p.Array ],
-      boolean: [ p.Boolean ],
-      color: [ p.Color ],
-      instance: [ p.Instance ],
-      number: [ p.Number ],
-      int: [ p.Int ],
-      angle: [ p.Angle ],
-      percent: [ p.Percent ],
-      string: [ p.String ],
-      font_size: [ p.FontSize ],
-      font: [ p.Font ],
-      direction: [ p.Direction ],
+    this.define<Some.Props>((kinds) => ({
+      anchor: [ enums.Anchor ],
+      any: [ kinds.Any ],
+      array: [ kinds.Array(kinds.Number) ],
+      boolean: [ kinds.Boolean ],
+      color: [ kinds.Color ],
+      instance: [ kinds.Ref(HasProps) ],
+      number: [ kinds.Number ],
+      int: [ kinds.Int ],
+      angle: [ kinds.Angle ],
+      percent: [ kinds.Percent ],
+      string: [ kinds.String ],
+      font_size: [ kinds.FontSize ],
+      font: [ kinds.Font ],
+      direction: [ enums.Direction ],
       angle_spec: [ p.AngleSpec ],
       boolean_spec: [ p.BooleanSpec ],
       color_spec: [ p.ColorSpec ],
@@ -100,7 +101,7 @@ class Some extends HasProps {
       number_spec: [ p.NumberSpec ],
       string_spec: [ p.StringSpec ],
       null_string_spec: [ p.NullStringSpec ],
-    })
+    }))
   }
 }
 
@@ -142,10 +143,10 @@ describe("properties module", () => {
     })
 
     it("should reject bad specs", () => {
-      expect(p.isSpec({expr: "foo", value:"bar"})).to.be.false
-      expect(p.isSpec({expr: "foo", field:"bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value:"bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value:"bar", expr: "baz"})).to.be.false
+      expect(p.isSpec({expr: "foo", value: "bar"})).to.be.false
+      expect(p.isSpec({expr: "foo", field: "bar"})).to.be.false
+      expect(p.isSpec({field: "foo", value: "bar"})).to.be.false
+      expect(p.isSpec({field: "foo", value: "bar", expr: "baz"})).to.be.false
     })
   })
 
@@ -247,12 +248,12 @@ describe("properties module", () => {
         const obj1 = new Some({number_spec: 1})
         const p1 = obj1.properties.number_spec
         const arr1 = p1.array(source)
-        expect(arr1).to.be.equal(new Float32Array([1, 1, 1, 1, 1]))
+        expect(arr1).to.be.equal(new Float64Array([1, 1, 1, 1, 1]))
 
         const obj2 = new Some({number_spec: {value: 2}})
         const p2 = obj2.properties.number_spec
         const arr2 = p2.array(source)
-        expect(arr2).to.be.equal(new Float32Array([2, 2, 2, 2, 2]))
+        expect(arr2).to.be.equal(new Float64Array([2, 2, 2, 2, 2]))
       })
 
       it("should return an array if there is a valid expr spec", () => {
@@ -260,7 +261,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {expr: new TestExpression()}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 4]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 4]))
       })
 
       it("should return an array if there is a valid field spec", () => {
@@ -268,7 +269,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
@@ -276,7 +277,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "field"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 1, 2, 3, 10]))
+        expect(arr).to.be.equal(new Float64Array([0, 1, 2, 3, 10]))
       })
 
       it("should throw an Error otherwise", () => {
@@ -284,7 +285,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo"}})
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([NaN, NaN, NaN]))
+        expect(arr).to.be.equal(new Float64Array([NaN, NaN, NaN]))
       })
 
       it("should apply a spec transform to a field", () => {
@@ -292,7 +293,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {field: "foo", transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([0, 2, 4, 6, 14]))
+        expect(arr).to.be.equal(new Float64Array([0, 2, 4, 6, 14]))
       })
 
       it("should apply a spec transform to a value array", () => {
@@ -300,7 +301,7 @@ describe("properties module", () => {
         const obj = new Some({number_spec: {value: 2, transform: new TestTransform()}} as any) // XXX: transform
         const prop = obj.properties.number_spec
         const arr = prop.array(source)
-        expect(arr).to.be.equal(new Float32Array([2, 3, 4, 5, 6]))
+        expect(arr).to.be.equal(new Float64Array([2, 3, 4, 5, 6]))
       })
 
       describe("changing the property attribute value", () => {
@@ -318,7 +319,7 @@ describe("properties module", () => {
         const obj = new Some({string_spec: {value: "foo"}})
         const prop = obj.properties.string_spec
         obj.string_spec = {value: "bar"}
-        expect(prop.spec).to.be.equal({value: "bar"})
+        expect(prop.get_value()).to.be.equal({value: "bar"})
       })
     })
   })
@@ -357,13 +358,20 @@ describe("properties module", () => {
       it("should multiply radians by -1", () => {
         const obj = new Some({angle_spec: {value: 10, units: "rad"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-10, 0, 10, 20])).to.be.equal([10, -0, -10, -20])
+        expect(prop.materialize(-10)).to.be.equal(10)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(10)).to.be.equal(-10)
+        expect(prop.materialize(20)).to.be.equal(-20)
+        expect(prop.v_materialize([-10, 0, 10, 20])).to.be.equal(new Float32Array([10, -0, -10, -20]))
       })
 
       it("should convert degrees to -1 * radians", () => {
         const obj = new Some({angle_spec: {value: 10, units: "deg"}})
         const prop = obj.properties.angle_spec
-        expect(prop.normalize([-180, 0, 180])).to.be.equal([Math.PI, -0, -Math.PI])
+        expect(prop.materialize(-180)).to.be.equal(Math.PI)
+        expect(prop.materialize(0)).to.be.equal(-0)
+        expect(prop.materialize(180)).to.be.equal(-Math.PI)
+        expect(prop.v_materialize([-180, 0, 180])).to.be.equal(new Float32Array([Math.PI, -0, -Math.PI]))
       })
     })
   })
@@ -376,7 +384,7 @@ describe("properties module", () => {
       it("should return undefined on array input", () => {
         expect(prop.valid([])).to.be.true
         expect(prop.valid([1, 2, 3])).to.be.true
-        expect(prop.valid(new Float32Array([1, 2, 3]))).to.be.true
+        expect(prop.valid(new Float32Array([1, 2, 3]))).to.be.false
       })
 
       it("should throw an Error on non-array input", () => {
@@ -424,22 +432,26 @@ describe("properties module", () => {
         "rgba(200, 0, 0, 0.5)",
         "rgba(0, 255, 0, 0)",
         "rgba(0, 0, 255, 1)",
-      ]
-
-      const bad_tuples = [
         "rgb(254.5, 0, 0)",
         "rgba(245.5, 0, 0, 0.5)",
         "rgba(255.0, 0, 0, 0.5)",
         "rgba(2550, 0, 0, 0.5)",
         "rgba(255, 0, 0, 5)",
         "rgb(255, 0, 0, 0)",
+      ]
+
+      const bad_tuples = [
         "rgba(255, 0, 0, 0.5, 0)",
         "rgb( )",
         "rgb(a, b, c)",
       ]
 
-      it("should return undefined on RGBa input", () => {
+      it("should support hex string input", () => {
         expect(prop.valid("#aabbccdd")).to.be.true
+      })
+
+      it("should support integer input", () => {
+        expect(prop.valid(0xff0080)).to.be.true
       })
 
       describe("should return undefined on good integer rgb and rgba tuples", () => {
@@ -459,14 +471,13 @@ describe("properties module", () => {
       })
 
       it("should return undefined on svg color input", () => {
-        for (const color of keys(svg_colors)) {
+        for (const color of keys(named_colors)) {
           expect(prop.valid(color)).to.be.true
         }
       })
 
       it("should throw an Error on other input", () => {
         expect(prop.valid(true)).to.be.false
-        expect(prop.valid(10)).to.be.false
         expect(prop.valid(10.2)).to.be.false
         expect(prop.valid("foo")).to.be.false
         expect(prop.valid({})).to.be.false
@@ -491,23 +502,6 @@ describe("properties module", () => {
         enum_validation_errors(prop)
       })
     })
-
-    describe("normalize", () => {
-      it("should convert 'clock' to false", () => {
-        const result = prop.normalize(["clock"])
-        expect(result).to.be.equal(new Uint8Array([0]))
-      })
-
-      it("should convert 'anticlock' to true", () => {
-        const result = prop.normalize(["anticlock"])
-        expect(result).to.be.equal(new Uint8Array([1]))
-      })
-
-      it("should return a Uint8Array", () => {
-        const result = prop.normalize(["clock", "anticlock"])
-        expect(result).to.be.equal(new Uint8Array([0, 1]))
-      })
-    })
   })
 
   describe("DistanceSpec", () => {
@@ -516,19 +510,19 @@ describe("properties module", () => {
       it("should default to data units", () => {
         const obj = new Some({distance_spec: {value: 10}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("data")
+        expect(prop.units).to.be.equal("data")
       })
 
       it("should accept screen units", () => {
         const obj = new Some({distance_spec: {value: 10, units: "screen"}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("screen")
+        expect(prop.units).to.be.equal("screen")
       })
 
       it("should accept data units", () => {
         const obj = new Some({distance_spec: {value: 10, units: "data"}})
         const prop = obj.properties.distance_spec
-        expect(prop.spec.units).to.be.equal("data")
+        expect(prop.units).to.be.equal("data")
       })
 
       it("should throw an Error on bad units", () => {

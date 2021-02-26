@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -65,10 +65,10 @@ def check_repo_is_bokeh(config: Config, system: System) -> ActionReturn:
 
     try:
         remote = system.run("git config --get remote.origin.url")
-        if remote.strip() == "git@github.com:bokeh/bokeh.git":
+        if remote.strip() in ("git@github.com:bokeh/bokeh.git", "https://github.com/bokeh/bokeh"):
             return PASSED("Executing inside the the bokeh/bokeh repository")
         else:
-            return FAILED("Executing OUTSIDE the bokeh/bokeh repository")
+            return FAILED(f"Executing OUTSIDE the bokeh/bokeh repository (bad remote: {remote})")
     except RuntimeError as e:
         return FAILED("Could not determine Git config remote.origin.url", details=e.args)
 

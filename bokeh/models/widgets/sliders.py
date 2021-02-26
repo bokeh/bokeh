@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -34,6 +34,9 @@ from ...core.properties import (
     Instance,
     Int,
     Override,
+    NonNullable,
+    Nullable,
+    Readonly,
     String,
     Tuple,
 )
@@ -67,9 +70,12 @@ class AbstractSlider(Widget):
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
 
+        if "value" in kwargs and "value_throttled" not in kwargs:
+            kwargs["value_throttled"] = kwargs["value"]
+
         super().__init__(**kwargs)
 
-    title = String(default="", help="""
+    title = Nullable(String, default="", help="""
     Slider's label.
     """)
 
@@ -102,19 +108,19 @@ class AbstractSlider(Widget):
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
 
-    start = Float(help="""
+    start = NonNullable(Float, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = NonNullable(Float, help="""
     The maximum allowable value.
     """)
 
-    value = Float(help="""
+    value = NonNullable(Float, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Float(help="""
+    value_throttled = Readonly(NonNullable(Float), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -127,19 +133,19 @@ class Slider(AbstractSlider):
 class RangeSlider(AbstractSlider):
     """ Range-slider based number range selection widget. """
 
-    value = Tuple(Float, Float, help="""
+    value = NonNullable(Tuple(Float, Float), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Tuple(Float, Float, help="""
+    value_throttled = Readonly(NonNullable(Tuple(Float, Float)), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
-    start = Float(help="""
+    start = NonNullable(Float, help="""
     The minimum allowable value.
     """)
 
-    end = Float(help="""
+    end = NonNullable(Float, help="""
     The maximum allowable value.
     """)
 
@@ -181,19 +187,19 @@ class DateSlider(AbstractSlider):
 
         return self.value
 
-    value = Datetime(help="""
+    value = NonNullable(Datetime, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Datetime(help="""
+    value_throttled = Readonly(NonNullable(Datetime), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Datetime(help="""
+    start = NonNullable(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = Datetime(help="""
+    end = NonNullable(Datetime, help="""
     The maximum allowable value.
     """)
 
@@ -248,19 +254,19 @@ class DateRangeSlider(AbstractSlider):
             d2 = v2
         return d1, d2
 
-    value = Tuple(Datetime, Datetime, help="""
+    value = NonNullable(Tuple(Datetime, Datetime), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Tuple(Datetime, Datetime, help="""
+    value_throttled = Readonly(NonNullable(Tuple(Datetime, Datetime)), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = Datetime(help="""
+    start = NonNullable(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = Datetime(help="""
+    end = NonNullable(Datetime, help="""
     The maximum allowable value.
     """)
 

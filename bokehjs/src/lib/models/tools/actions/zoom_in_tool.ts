@@ -1,5 +1,9 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
-import {bk_tool_icon_zoom_in} from "styles/icons"
+import {tool_icon_zoom_in} from "styles/icons.css"
+
+export class ZoomInToolView extends ZoomBaseToolView {
+  model: ZoomBaseTool
+}
 
 export interface ZoomInTool extends ZoomBaseTool.Attrs {}
 
@@ -12,15 +16,14 @@ export class ZoomInTool extends ZoomBaseTool {
   }
 
   static init_ZoomInTool(): void {
-    this.prototype.default_view = ZoomBaseToolView
+    this.prototype.default_view = ZoomInToolView
 
-    this.register_alias("zoom_in", () => new ZoomInTool({dimensions: 'both'}))
-    this.register_alias("xzoom_in", () => new ZoomInTool({dimensions: 'width'}))
-    this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: 'height'}))
+    this.register_alias("zoom_in", () => new ZoomInTool({dimensions: "both"}))
+    this.register_alias("xzoom_in", () => new ZoomInTool({dimensions: "width"}))
+    this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
   }
 
-  sign = 1
+  sign = 1 as 1
   tool_name = "Zoom In"
-  icon = bk_tool_icon_zoom_in
-
+  icon = tool_icon_zoom_in
 }

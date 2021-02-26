@@ -1,0 +1,154 @@
+.. _release-2-3-0:
+
+2.3.0
+=====
+
+Bokeh Version ``2.3.0`` (February 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
+
+* Multi-line axis and tick labels are now possible (:bokeh-issue:`8169`)
+* Log axes display using superscripts (:bokeh-issue:`8954`)
+* ``DataModel`` base class to define custom "properties-only" Bokeh subclasses
+  added (:bokeh-issue:`3674`)
+* Colorbar supports "eqhist" and categorical color mappings
+  (:bokeh-issue:`5618`,  :bokeh-issue:`10493`)
+* "Edges Only" inspection policy added for graphs (:bokeh-issue:`10637`)
+* Hatch patterns can be used with all fill-able glyphs and annotations
+  (:bokeh-issue:`10824`)
+* New "star" markers added (:bokeh-issue:`10836`)
+* Arrowheads and line-dash patterns can be vectorized
+  (:bokeh-issue:`6835`, :bokeh-issue:`10203`)
+* Tornado websocket compression options added (:bokeh-issue:`10798`)
+
+Important bug-fixes include:
+
+* A major bug with datetime precision causing several regressions was fixed
+  (:bokeh-issue:`10738`)
+* SVG export no longer flips images (:bokeh-issue:`10725`)
+* ``LabelSet`` and ``Whisker`` now work for categorical ranges
+  (:bokeh-issue:`10454`, :bokeh-issue:`10575`)
+* ``MultiLine`` hover fixed (:bokeh-issue:`10458`)
+* ``MultiChoice`` and ``MulitSelect`` disabling now works
+  (:bokeh-issue:`10452`, :bokeh-issue:`10507`)
+* Date sliders can use a ``TickFormatter`` (:bokeh-issue:`10458`)
+
+The documentation has also received renewed attention:
+
+* New `First steps <https://docs.bokeh.org/en/latest/docs/first_steps.html>`_
+  sections
+* Documentation updated to reflect
+  `new style guidelines <https://docs.bokeh.org/en/latest/docs/dev_guide/documentation.html#documentation-style-guidelines>`_
+* Basic OpenGraph metadata has been added to docs pages
+* New landing page on `docs.bokeh.org <https://docs.bokeh.org>`_
+
+As well as many other small issues were closed. For full details, see the
+:bokeh-tree:`CHANGELOG`.
+
+Please note that the next release level (2.4) will drop support for Python 3.6,
+and also be the final release level to support IE and other legacy browsers.
+
+.. _release-2-3-0-migration:
+
+`Migration Guide <releases.html#release-2-3-0-migration>`__
+-----------------------------------------------------------
+
+Properties are non-nullable by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, all properties accepted ``None`` (``null`` in BokehJS) as a value.
+As of this release, ``None`` is only accepted by properties explicitly marked
+as nullable, e.g.``Nullable(Int)`` accepts integers and ``None``. All current
+models and their properties were adjusted as needed, so there will be no
+difference from users' perspective. However, custom extensions may require
+updates if they relied on the old behavior.
+
+Primitive and derived properties have default values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some properties did not have sensible intrinsic default values (``Int``
+defaulted to ``None``, for example). Now all properties have default values,
+such as ``0`` for ``Int``, or ``""`` for ``String``. You can remove a default
+value by marking a property as non-nullable, e.g. ``NonNullable(Int)``. In this
+case, a user is required to set a property value. An attempt to retrieve the
+value of a non-nullable property before it is set will raise an
+``UnsetValueException``.
+
+Use ``Readonly()`` to indicate readonly properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The old syntax, e.g. ``Int(readonly=True)``, is still accepted, but will be
+removed in the future. Use ``Readonly(Int)`` instead.
+
+``ArrowHead`` is not an annotation anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ArrowHead`` no longer inherits from the ``Annotation`` base class. This will
+pave the way for vectorizable arrowheads.
+
+Four of Bokeh's base models are renamed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Certain base models were renamed to unify naming convention with BokehJS:
+
++---------------+-------------------+
+| Old name      | New name          |
++===============+===================+
+| ``WebSource`` | ``WebDataSource`` |
++---------------+-------------------+
+| ``Action``    | ``ActionTool``    |
++---------------+-------------------+
+| ``Gesture``   | ``GestureTool``   |
++---------------+-------------------+
+| ``Inspect``   | ``InspectTool``   |
++---------------+-------------------+
+
+Old names are retained for compatibility but are deprecated and will be removed
+in Bokeh 3.0.
+
+``names`` properties were deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``DataRange.names``, ``SelectTool.names``, and ``HoverTool.names`` are
+deprecated and will be removed in Bokeh 3.0. Use the ``renderers`` properties
+instead, possibly in combination with ``plot.select(name="renderer name")``.
+
+BokehJS visuals have different semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously ``Line``, ``Fill``, ``Text``, and ``Hatch`` visuals were used across
+primitive, scalar, and vector properties. Those are now split into more specific
+versions, e.g. ``Line``, ``LineScalar``, and ``LineVector``. This should only
+affect custom extensions that use visuals.
+
+Marker models are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Marker models like ``Asterisk``, ``CircleX``, ``X``, etc. are deprecated. Use
+the ``Scatter`` glyph with a marker type instead, e.g. replace ``Asterisk()``
+with ``Scatter(marker="asterisk")``. Marker methods on ``Figure`` will default
+to use ``Scatter`` glyph. Marker models were removed from BokehJS.
+
+Tooltip deprecations
+~~~~~~~~~~~~~~~~~~~~
+
+``EditTool.custom_tooltip``, ``HelpTool.help_tooltip`` and
+``CustomAction.action_tooltip`` were deprecated Use ``Tool.description``, which
+can also be used with all other types tools, instead.
+
+New ``"auto"`` defaults for color bar properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ColorBar`` properties ``orientation``, ``ticker``, and ``formatter`` now
+default to ``"auto"``. Previously, these properties had concrete defaults
+(``"vertical"``, ``BasicTicker()`` and ``BasicTickFormatter()`` respectively).
+In most cases, this will not affect user code. However, if you relied on setting
+e.g. ``color_bar.ticker.base = 60``, then the code will need to be replaced with
+``color_bar.ticker = BasicTicker(base=60)``.
+
+``CartesianFrame`` is not a layout anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This only affects extension creators. ``CartesianFrame`` is now responsible only
+for maintaining the coordinate system of a plot. Use the ``layout.center_panel``
+of a plot to access any layout-related capability. Note you can still use
+``CartesianFrame.bbox``, so most code doesn't have to change.

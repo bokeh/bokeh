@@ -1,11 +1,17 @@
+# Standard library imports
+import os
+from datetime import date
+
+# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 
 # -- Project configuration -----------------------------------------------------
 
 author = "Bokeh Contributors"
+year = date.today().year
 
-copyright = f"©2019 {author}."
+copyright = f"©{year} {author}."
 
 project = 'Bokeh'
 
@@ -18,6 +24,9 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'sphinxext.opengraph',
+    'sphinx_panels',
+    'sphinx_reredirects',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -66,17 +75,36 @@ autodoc_member_order = 'groupwise'
 
 bokeh_missing_google_api_key_ok = False
 
+if not bokeh_missing_google_api_key_ok:
+    if "GOOGLE_API_KEY" not in os.environ:
+        raise RuntimeError("\n\nThe GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                           "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
+
 bokeh_plot_pyfile_include_dirs = ['docs']
 
 intersphinx_mapping = {
     'python' : ('https://docs.python.org/3/', None),
     'pandas' : ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy'  : ('https://docs.scipy.org/doc/numpy/', None)
+    'numpy'  : ('https://numpy.org/doc/stable/', None)
 }
 
 napoleon_include_init_with_doc = True
 
 pygments_style = 'sphinx'
+
+redirects = {
+    "docs/installation": "first_steps/installation.html",
+    "docs/user_guide/quickstart": "../first_steps.html",
+}
+
+# configuration for sphinxext.opengraph
+ogp_site_url = 'https://docs.bokeh.org/en/latest/'
+ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta property="twitter:site" content="@bokeh" />',
+    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
+]
 
 # -- Options for HTML output ---------------------------------------------------
 

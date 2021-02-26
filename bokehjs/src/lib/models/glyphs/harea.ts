@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable, FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -7,14 +7,14 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export interface HAreaData extends AreaData {
-  _x1: NumberArray
-  _x2: NumberArray
-  _y: NumberArray
+export type HAreaData = AreaData & {
+  _x1: FloatArray
+  _x2: FloatArray
+  _y: FloatArray
 
-  sx1: NumberArray
-  sx2: NumberArray
-  sy: NumberArray
+  sx1: ScreenArray
+  sx2: ScreenArray
+  sy: ScreenArray
 }
 
 export interface HAreaView extends HAreaData {}
@@ -52,21 +52,24 @@ export class HAreaView extends AreaView {
     func.call(ctx)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], {sx1, sx2, sy}: HAreaData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
+    const {sx1, sx2, sy} = data ?? this
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
       this._inner(ctx, sx1, sx2, sy, ctx.fill)
     }
 
-    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
-
+    if (this.visuals.hatch.doit) {
+      this.visuals.hatch.set_value(ctx)
+      this._inner(ctx, sx1, sx2, sy, ctx.fill)
+    }
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const L = this.sy.length
-    const sx = new NumberArray(2*L)
-    const sy = new NumberArray(2*L)
+    const sx = new ScreenArray(2*L)
+    const sy = new ScreenArray(2*L)
 
     for (let i = 0, end = L; i < end; i++) {
       sx[i] = this.sx1[i]
@@ -123,10 +126,10 @@ export class HArea extends Area {
   static init_HArea(): void {
     this.prototype.default_view = HAreaView
 
-    this.define<HArea.Props>({
+    this.define<HArea.Props>(({}) => ({
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
       x2: [ p.XCoordinateSpec, {field: "x2"} ],
-      y:  [ p.YCoordinateSpec, {field: "y"}  ],
-    })
+      y:  [ p.YCoordinateSpec, {field: "y"} ],
+    }))
   }
 }

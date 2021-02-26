@@ -2,17 +2,23 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, NumberArray, ColorArray} from "./types"
+import {Arrayable, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
-import {map} from "./util/arrayable"
-import {is_color, color2rgba, encode_rgba} from "./util/color"
-import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {mul} from "./util/arrayable"
+import {to_radians_coeff} from "./util/math"
+import {is_Color, color2rgba, encode_rgba} from "./util/color"
+import {to_big_endian} from "./util/platform"
+import {isBoolean, isNumber, isString, isArray, isTypedArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vector, Dimensional} from "./vectorization"
+import {Scalar, Vector, Dimensional, Transform, Expression, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
+import {is_NDArray, NDArray} from "./util/ndarray"
+
+import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
+export {Uniform, UniformScalar, UniformVector}
 
 function valueToString(value: any): string {
   try {
@@ -29,25 +35,42 @@ export function isSpec(obj: any): boolean {
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
 }
 
+export type Spec<T> = {
+  readonly value?: T
+  readonly field?: string
+  readonly expr?: Expression<T>
+  readonly transform?: Transform<unknown, T>
+}
+
 //
 // Property base class
 //
+
+export type UniformsOf<M> = {
+  [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
+                  M[K] extends ScalarSpec<infer T, any> ? UniformScalar<T> :
+                  M[K] extends Property<infer T>        ? T                : never
+}
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | Kind<T>, (T | (() => T))?, PropertyOptions?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
 }
 
-export type PropertyOptions = {
+export type DefaultsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
+}
+
+export type PropertyOptions<T> = {
   internal?: boolean
-  optional?: boolean
+  on_update?(value: T, obj: HasProps): void
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions): Property<T>
+  new (obj: HasProps, attr: string, kind: Kind<T>, default_value?: (obj: HasProps) => T, initial_value?: T, options?: PropertyOptions<T>): Property<T>
   readonly prototype: Property<T>
 }
 
@@ -62,16 +85,10 @@ export abstract class Property<T = unknown> {
     return !this.internal
   }
 
-  /*protected*/ spec: { // XXX: too many failures for now
-    readonly value?: any
-    readonly field?: string
-    readonly expr?: any
-    readonly transform?: any // Transform
-    units?: any
-  }
+  protected spec: Spec<T>
 
   get_value(): T {
-    return this.spec.value
+    return this.spec.value!
   }
 
   set_value(val: T): void {
@@ -92,19 +109,20 @@ export abstract class Property<T = unknown> {
 
   readonly change: Signal0<HasProps>
 
-  readonly internal: boolean
-  readonly optional: boolean
+  /*readonly*/ internal: boolean
+
+  on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly kind: Kind<T>,
               readonly default_value?: (obj: HasProps) => T,
               initial_value?: T,
-              options: PropertyOptions = {}) {
+              options: PropertyOptions<T> = {}) {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
-    this.optional = options.optional ?? false
+    this.on_update = options.on_update
 
     let attr_value: T
     if (initial_value !== undefined) {
@@ -117,8 +135,10 @@ export abstract class Property<T = unknown> {
       else if (default_value !== undefined)
         attr_value = default_value(obj)
       else {
-        //throw new Error("no default")
-        attr_value = null as any // XXX: nullable properties
+        // XXX: temporary and super sketchy, but affects only "readonly" and a few internal properties
+        // console.warn(`${this.obj}.${this.attr} has no value nor default`)
+        this.spec = {value: null as any}
+        return
       }
     }
 
@@ -128,9 +148,9 @@ export abstract class Property<T = unknown> {
   //protected abstract _update(attr_value: T): void
 
   protected _update(attr_value: T): void {
-    if (attr_value != null) // XXX: non-nullalble types
-      this.validate(attr_value)
+    this.validate(attr_value)
     this.spec = {value: attr_value}
+    this.on_update?.(attr_value, this.obj)
   }
 
   toString(): string {
@@ -144,9 +164,9 @@ export abstract class Property<T = unknown> {
     return values
   }
 
-  validate(value: any): void {
+  validate(value: unknown): void {
     if (!this.valid(value))
-      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
+      throw new Error(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
   }
 
   valid(value: unknown): boolean {
@@ -155,7 +175,7 @@ export abstract class Property<T = unknown> {
 
   // ----- property accessors
 
-  value(do_spec_transform: boolean = true): any {
+  _value(do_spec_transform: boolean = true): any {
     if (!this.is_value)
       throw new Error("attempted to retrieve property value for property without value specification")
     let ret = this.normalize([this.spec.value])[0]
@@ -165,70 +185,90 @@ export abstract class Property<T = unknown> {
   }
 }
 
+export class PropertyAlias {
+  constructor(readonly attr: string) {}
+}
+export function Alias(attr: string) {
+  return new PropertyAlias(attr)
+}
+
 //
 // Primitive Properties
 //
 
 export class PrimitiveProperty<T> extends Property<T> {}
 
+/** @deprecated */
 export class Any extends Property<any> {}
 
+/** @deprecated */
 export class Array extends Property<any[]> {
   valid(value: unknown): boolean {
-    return isArray(value) || value instanceof Float32Array || value instanceof Float64Array
+    return isArray(value) || isTypedArray(value)
   }
 }
 
+/** @deprecated */
 export class Boolean extends Property<boolean> {
   valid(value: unknown): boolean {
     return isBoolean(value)
   }
 }
 
+/** @deprecated */
 export class Color extends Property<types.Color> {
   valid(value: unknown): boolean {
-    return isString(value) && is_color(value)
+    return is_Color(value)
   }
 }
 
+/** @deprecated */
 export class Instance extends Property<any /*HasProps*/> {
   //valid(value: unknown): boolean { return  value.properties != null }
 }
 
+/** @deprecated */
 export class Number extends Property<number> {
   valid(value: unknown): boolean {
     return isNumber(value)
   }
 }
 
+/** @deprecated */
 export class Int extends Number {
   valid(value: unknown): boolean {
     return isNumber(value) && (value | 0) == value
   }
 }
 
+/** @deprecated */
 export class Angle extends Number {}
 
+/** @deprecated */
 export class Percent extends Number {
   valid(value: unknown): boolean {
     return isNumber(value) && 0 <= value && value <= 1.0
   }
 }
 
+/** @deprecated */
 export class String extends Property<string> {
   valid(value: unknown): boolean {
     return isString(value)
   }
 }
 
+/** @deprecated */
 export class NullString extends Property<string | null> {
   valid(value: unknown): boolean {
     return value === null || isString(value)
   }
 }
 
+/** @deprecated */
 export class FontSize extends String {}
 
+/** @deprecated */
 export class Font extends String {
   _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
@@ -239,14 +279,16 @@ export class Font extends String {
 // Enum properties
 //
 
+/** @deprecated */
 export abstract class EnumProperty<T extends string> extends Property<T> {
-  readonly enum_values: T[]
+  abstract get enum_values(): T[]
 
   valid(value: unknown): boolean {
     return isString(value) && includes(this.enum_values, value)
   }
 }
 
+/** @deprecated */
 export function Enum<T extends string>(values: Iterable<T>): PropertyConstructor<T> {
   return class extends EnumProperty<T> {
     get enum_values(): T[] {
@@ -272,55 +314,53 @@ export class Direction extends EnumProperty<enums.Direction> {
   }
 }
 
-/* TODO: remove this {{{ */
-export const Anchor = Enum(enums.Anchor)
-export const AngleUnits = Enum(enums.AngleUnits)
-export const BoxOrigin = Enum(enums.BoxOrigin)
-export const ButtonType = Enum(enums.ButtonType)
-export const CalendarPosition = Enum(enums.CalendarPosition)
-export const Dimension = Enum(enums.Dimension)
-export const Dimensions = Enum(enums.Dimensions)
-export const Distribution = Enum(enums.Distribution)
-export const FontStyle = Enum(enums.FontStyle)
-export const HatchPatternType = Enum(enums.HatchPatternType)
-export const HTTPMethod = Enum(enums.HTTPMethod)
-export const HexTileOrientation = Enum(enums.HexTileOrientation)
-export const HoverMode = Enum(enums.HoverMode)
-export const LatLon = Enum(enums.LatLon)
-export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
-export const LegendLocation = Enum(enums.LegendLocation)
-export const LineCap = Enum(enums.LineCap)
-export const LineJoin = Enum(enums.LineJoin)
-export const LinePolicy = Enum(enums.LinePolicy)
-export const Location = Enum(enums.Location)
-export const Logo = Enum(enums.Logo)
-export const MarkerType = Enum(enums.MarkerType)
-export const MutedPolicy = Enum(enums.MutedPolicy)
-export const Orientation = Enum(enums.Orientation)
-export const OutputBackend = Enum(enums.OutputBackend)
-export const PaddingUnits = Enum(enums.PaddingUnits)
-export const Place = Enum(enums.Place)
-export const PointPolicy = Enum(enums.PointPolicy)
-export const RadiusDimension = Enum(enums.RadiusDimension)
-export const RenderLevel = Enum(enums.RenderLevel)
-export const RenderMode = Enum(enums.RenderMode)
-export const ResetPolicy = Enum(enums.ResetPolicy)
-export const RoundingFunction = Enum(enums.RoundingFunction)
-export const Side = Enum(enums.Side)
-export const SizingMode = Enum(enums.SizingMode)
-export const Sort = Enum(enums.Sort)
-export const SpatialUnits = Enum(enums.SpatialUnits)
-export const StartEnd = Enum(enums.StartEnd)
-export const StepMode = Enum(enums.StepMode)
-export const TapBehavior = Enum(enums.TapBehavior)
-export const TextAlign = Enum(enums.TextAlign)
-export const TextBaseline = Enum(enums.TextBaseline)
-export const TextureRepetition = Enum(enums.TextureRepetition)
-export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
-export const TooltipAttachment = Enum(enums.TooltipAttachment)
-export const UpdateMode = Enum(enums.UpdateMode)
-export const VerticalAlign = Enum(enums.VerticalAlign)
-/* }}} */
+/** @deprecated */ export const Anchor = Enum(enums.Anchor)
+/** @deprecated */ export const AngleUnits = Enum(enums.AngleUnits)
+/** @deprecated */ export const BoxOrigin = Enum(enums.BoxOrigin)
+/** @deprecated */ export const ButtonType = Enum(enums.ButtonType)
+/** @deprecated */ export const CalendarPosition = Enum(enums.CalendarPosition)
+/** @deprecated */ export const Dimension = Enum(enums.Dimension)
+/** @deprecated */ export const Dimensions = Enum(enums.Dimensions)
+/** @deprecated */ export const Distribution = Enum(enums.Distribution)
+/** @deprecated */ export const FontStyle = Enum(enums.FontStyle)
+/** @deprecated */ export const HatchPatternType = Enum(enums.HatchPatternType)
+/** @deprecated */ export const HTTPMethod = Enum(enums.HTTPMethod)
+/** @deprecated */ export const HexTileOrientation = Enum(enums.HexTileOrientation)
+/** @deprecated */ export const HoverMode = Enum(enums.HoverMode)
+/** @deprecated */ export const LatLon = Enum(enums.LatLon)
+/** @deprecated */ export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
+/** @deprecated */ export const LegendLocation = Enum(enums.LegendLocation)
+/** @deprecated */ export const LineCap = Enum(enums.LineCap)
+/** @deprecated */ export const LineJoin = Enum(enums.LineJoin)
+/** @deprecated */ export const LinePolicy = Enum(enums.LinePolicy)
+/** @deprecated */ export const Location = Enum(enums.Location)
+/** @deprecated */ export const Logo = Enum(enums.Logo)
+/** @deprecated */ export const MarkerType = Enum(enums.MarkerType)
+/** @deprecated */ export const MutedPolicy = Enum(enums.MutedPolicy)
+/** @deprecated */ export const Orientation = Enum(enums.Orientation)
+/** @deprecated */ export const OutputBackend = Enum(enums.OutputBackend)
+/** @deprecated */ export const PaddingUnits = Enum(enums.PaddingUnits)
+/** @deprecated */ export const Place = Enum(enums.Place)
+/** @deprecated */ export const PointPolicy = Enum(enums.PointPolicy)
+/** @deprecated */ export const RadiusDimension = Enum(enums.RadiusDimension)
+/** @deprecated */ export const RenderLevel = Enum(enums.RenderLevel)
+/** @deprecated */ export const RenderMode = Enum(enums.RenderMode)
+/** @deprecated */ export const ResetPolicy = Enum(enums.ResetPolicy)
+/** @deprecated */ export const RoundingFunction = Enum(enums.RoundingFunction)
+/** @deprecated */ export const Side = Enum(enums.Side)
+/** @deprecated */ export const SizingMode = Enum(enums.SizingMode)
+/** @deprecated */ export const Sort = Enum(enums.Sort)
+/** @deprecated */ export const SpatialUnits = Enum(enums.SpatialUnits)
+/** @deprecated */ export const StartEnd = Enum(enums.StartEnd)
+/** @deprecated */ export const StepMode = Enum(enums.StepMode)
+/** @deprecated */ export const TapBehavior = Enum(enums.TapBehavior)
+/** @deprecated */ export const TextAlign = Enum(enums.TextAlign)
+/** @deprecated */ export const TextBaseline = Enum(enums.TextBaseline)
+/** @deprecated */ export const TextureRepetition = Enum(enums.TextureRepetition)
+/** @deprecated */ export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
+/** @deprecated */ export const TooltipAttachment = Enum(enums.TooltipAttachment)
+/** @deprecated */ export const UpdateMode = Enum(enums.UpdateMode)
+/** @deprecated */ export const VerticalAlign = Enum(enums.VerticalAlign)
 
 //
 // DataSpec properties
@@ -331,8 +371,11 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   __scalar__: S
 
   get_value(): S {
+    // XXX: denormalize value for serialization, because bokeh doens't support scalar properties
+    const {value, expr, transform} = this.spec
+    return (expr != null || transform != null ? this.spec : value) as any
     // XXX: allow obj.x = null; obj.x == null
-    return this.spec.value === null ? null : this.spec as any
+    // return this.spec.value === null ? null : this.spec as any
   }
 
   protected _update(attr_value: S | T): void {
@@ -344,6 +387,32 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     if (this.spec.value != null)
       this.validate(this.spec.value)
   }
+
+  materialize(value: T): T {
+    return value
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  uniform(source: ColumnarDataSource): UniformScalar<T/*T_out!!!*/> {
+    const {expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
+    if (expr != null) {
+      let result = (expr as ScalarExpression<T>).compute(source)
+      if (transform != null)
+        result = transform.compute(result) as any
+      result = this.materialize(result)
+      return this.scalar(result, n)
+    } else {
+      let result = value
+      if (transform != null)
+        result = transform.compute(result)
+      result = this.materialize(result as any)
+      return this.scalar(result, n)
+    }
+  }
 }
 
 export class AnyScalar extends ScalarSpec<any> {}
@@ -354,6 +423,12 @@ export class NullStringScalar extends ScalarSpec<string | null> {}
 export class ArrayScalar extends ScalarSpec<any[]> {}
 export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
+export class LineDashScalar extends ScalarSpec<enums.LineDash | number[]> {}
+export class FontScalar extends ScalarSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
 export class FontSizeScalar extends ScalarSpec<string> {}
 export class FontStyleScalar extends ScalarSpec<enums.FontStyle> {}
 export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
@@ -378,6 +453,51 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       this.validate(this.spec.value)
   }
 
+  materialize(value: T): T {
+    return value
+  }
+
+  v_materialize(values: Arrayable<T>): Arrayable<T> {
+    return values
+  }
+
+  scalar(value: T, n: number): UniformScalar<T> {
+    return new UniformScalar(value, n)
+  }
+
+  vector(values: Arrayable<T>): UniformVector<T> {
+    return new UniformVector(values)
+  }
+
+  uniform(source: ColumnarDataSource): Uniform<T/*T_out!!!*/> {
+    const {field, expr, value, transform} = this.spec
+    const n = source.get_length() ?? 1
+    if (field != null) {
+      let array = source.get_column(field)
+      if (array != null) {
+        if (transform != null)
+          array = transform.v_compute(array)
+        array = this.v_materialize(array)
+        return this.vector(array)
+      } else {
+        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
+        return this.scalar(null as any, n)
+      }
+    } else if (expr != null) {
+      let array = (expr as VectorExpression<T>).v_compute(source)
+      if (transform != null)
+        array = transform.v_compute(array) as any
+      array = this.v_materialize(array)
+      return this.vector(array)
+    } else {
+      let result = value
+      if (transform != null)
+        result = transform.compute(result)
+      result = this.materialize(result as any)
+      return this.scalar(result, n)
+    }
+  }
+
   array(source: ColumnarDataSource): Arrayable<unknown> {
     let array: Arrayable
 
@@ -389,16 +509,16 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = this.normalize(column)
       else {
         logger.warn(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-        const missing = new NumberArray(length)
+        const missing = new Float64Array(length)
         missing.fill(NaN)
         array = missing
       }
     } else if (this.spec.expr != null) {
-      array = this.normalize(this.spec.expr.v_compute(source))
+      array = this.normalize((this.spec.expr as VectorExpression<T>).v_compute(source))
     } else {
-      const value = this.value(false) // don't apply any spec transform
+      const value = this._value(false) // don't apply any spec transform
       if (isNumber(value)) {
-        const values = new NumberArray(length)
+        const values = new Float64Array(length)
         values.fill(value)
         array = values
       } else
@@ -414,37 +534,40 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
 export abstract class DataSpec<T> extends VectorSpec<T> {}
 
 export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
-  readonly default_units: Units
-  readonly valid_units: Units[]
+  abstract get default_units(): Units
+  abstract get valid_units(): Units[]
+
+  spec: Spec<T> & {units?: Units}
 
   _update(attr_value: any): void {
     super._update(attr_value)
 
-    if (this.spec.units == null)
-      this.spec.units = this.default_units
-
-    const units = this.spec.units
-    if (!includes(this.valid_units, units))
+    const {units} = this.spec
+    if (units != null && !includes(this.valid_units, units)) {
       throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+    }
   }
 
   get units(): Units {
-    return this.spec.units as Units
+    return this.spec.units ?? this.default_units
   }
 
   set units(units: Units) {
-    this.spec.units = units
+    if (units != this.default_units)
+      this.spec.units = units
+    else
+      delete this.spec.units
   }
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
 export abstract class BaseCoordinateSpec<T> extends DataSpec<T> {
-  readonly dimension: "x" | "y"
+  abstract get dimension(): "x" | "y"
 }
 
 export abstract class CoordinateSpec extends BaseCoordinateSpec<number | Factor> {}
@@ -461,58 +584,149 @@ export class XCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly
 export class YCoordinateSeqSeqSeqSpec extends CoordinateSeqSeqSeqSpec { readonly dimension = "y" }
 
 export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
-  get default_units(): enums.AngleUnits { return "rad" as "rad" }
+  get default_units(): enums.AngleUnits { return "rad" }
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
-  normalize(values: Arrayable): Arrayable {
-    if (this.spec.units == "deg")
-      values = map(values, (x: number) => x * Math.PI/180.0)
-    values = map(values, (x: number) => -x)
-    return super.normalize(values)
+  materialize(value: number): number {
+    const coeff = -to_radians_coeff(this.units)
+    return value*coeff
+  }
+
+  v_materialize(values: Arrayable<number>): Float32Array {
+    const coeff = -to_radians_coeff(this.units)
+    const result = new Float32Array(values.length)
+    mul(values, coeff, result) // TODO: in-place?
+    return result
+  }
+
+  array(_source: ColumnarDataSource): Float32Array {
+    throw new Error("not supported")
   }
 }
 
 export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
-  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get default_units(): enums.SpatialUnits { return "data" }
   get valid_units(): enums.SpatialUnits[] { return [...enums.SpatialUnits] }
 }
 
+export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
+  materialize(value: number | null): number {
+    return value ?? NaN
+  }
+}
+
+export class ScreenDistanceSpec extends DistanceSpec {
+  get default_units(): enums.SpatialUnits { return "screen" }
+}
+
 export class BooleanSpec extends DataSpec<boolean> {
+  v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
+    return new Uint8Array(values as any) as any
+  }
+
   array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
 
 export class NumberSpec extends DataSpec<number> {
-  array(source: ColumnarDataSource): NumberArray {
-    return new NumberArray(super.array(source) as any)
+  v_materialize(values: Arrayable<number>): TypedArray {
+    return isTypedArray(values) ? values : new Float64Array(values)
+  }
+
+  array(source: ColumnarDataSource): FloatArray {
+    return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
-  array(source: ColumnarDataSource): ColorArray {
-    const colors = super.array(source)
-    const n = colors.length
-    const array = new ColorArray(n)
-    for (let i = 0; i < n; i++) {
-      const color = colors[i] as types.Color | number /* uint32 */ | null
-      if (isNumber(color))
-        array[i] = color
-      else {
-        const rgba = color2rgba(color)
-        array[i] = encode_rgba(rgba)
+  materialize(color: types.Color | null): uint32 {
+    return encode_rgba(color2rgba(color))
+  }
+
+  v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
+    if (is_NDArray(colors)) {
+      if (colors.dtype == "uint32" && colors.dimension == 1) {
+        return to_big_endian(colors)
+      } else if (colors.dtype == "uint8" && colors.dimension == 1) {
+        const [n] = colors.shape
+        const array = new RGBAArray(4*n)
+        let j = 0
+        for (const gray of colors) {
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = gray
+          array[j++] = 255
+        }
+        return new ColorArray(array.buffer)
+      } else if (colors.dtype == "uint8" && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 4) {
+          return new ColorArray(colors.buffer)
+        } else if (d == 3) {
+          const array = new RGBAArray(4*n)
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
+            array[j++] = colors[i++]
+            array[j++] = 255
+          }
+          return new ColorArray(array.buffer)
+        }
+      } else if ((colors.dtype == "float32" || colors.dtype == "float64") && colors.dimension == 2) {
+        const [n, d] = colors.shape
+        if (d == 3 || d == 4) {
+          const array = new RGBAArray(4*n)
+          for (let i = 0, j = 0; i < d*n;) {
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = colors[i++]*255
+            array[j++] = (d == 3 ? 1 : colors[i++])*255
+          }
+          return new ColorArray(array.buffer)
+        }
       }
+    } else {
+      const n = colors.length
+      const array = new RGBAArray(4*n)
+
+      let j = 0
+      for (const color of colors) {
+        const [r, g, b, a] = color2rgba(color)
+        array[j++] = r
+        array[j++] = g
+        array[j++] = b
+        array[j++] = a
+      }
+
+      return new ColorArray(array.buffer)
     }
-    return array
+
+    throw new Error("invalid color array")
+  }
+
+  vector(values: ColorArray): ColorUniformVector {
+    return new ColorUniformVector(values)
   }
 }
 
-export class FontSizeSpec extends DataSpec<string> {}
+export class NDArraySpec extends DataSpec<NDArray> {}
 
-export class MarkerSpec extends DataSpec<string> {}
-
+export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
-
 export class NullStringSpec extends DataSpec<string | null> {}
+export class ArraySpec extends DataSpec<any[]> {}
 
-export class NDArraySpec extends DataSpec<number> {}
+export class MarkerSpec extends DataSpec<enums.MarkerType> {}
+export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
+export class LineCapSpec extends DataSpec<enums.LineCap> {}
+export class LineDashSpec extends DataSpec<enums.LineDash | number[]> {}
+export class FontSpec extends DataSpec<string> {
+  _default_override(): string | undefined {
+    return settings.dev ? "Bokeh" : undefined
+  }
+}
+export class FontSizeSpec extends DataSpec<string> {}
+export class FontStyleSpec extends DataSpec<enums.FontStyle> {}
+export class TextAlignSpec extends DataSpec<enums.TextAlign> {}
+export class TextBaselineSpec extends DataSpec<enums.TextBaseline> {}

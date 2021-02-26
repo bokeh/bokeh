@@ -3,7 +3,7 @@ import {ButtonGroup, ButtonGroupView} from "./button_group"
 import {classes} from "core/dom"
 import * as p from "core/properties"
 
-import {bk_active} from "styles/mixins"
+import * as buttons from "styles/buttons.css"
 
 export class CheckboxButtonGroupView extends ButtonGroupView {
   model: CheckboxButtonGroup
@@ -22,7 +22,7 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
     const {active} = this
 
     this._buttons.forEach((button, i) => {
-      classes(button).toggle(bk_active, active.has(i))
+      classes(button).toggle(buttons.active, active.has(i))
     })
   }
 }
@@ -48,8 +48,8 @@ export class CheckboxButtonGroup extends ButtonGroup {
   static init_CheckboxButtonGroup(): void {
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define<CheckboxButtonGroup.Props>({
-      active: [ p.Array, [] ],
-    })
+    this.define<CheckboxButtonGroup.Props>(({Int, Array}) => ({
+      active: [ Array(Int), [] ],
+    }))
   }
 }

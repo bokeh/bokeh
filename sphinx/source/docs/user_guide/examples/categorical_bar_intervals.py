@@ -10,7 +10,7 @@ group = sprint.groupby('Year')
 source = ColumnDataSource(group)
 
 p = figure(y_range=group, x_range=(9.5,12.7), plot_width=400, plot_height=550, toolbar_location=None,
-           title="Time Spreads for Sprint Medalists (by Year)")
+           title="Time spreads for sprint medalists (by year)")
 p.hbar(y="Year", left='Time_min', right='Time_max', height=0.4, source=source)
 
 p.ygrid.grid_line_color = None

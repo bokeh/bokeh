@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -37,11 +37,11 @@ ALL = (
 class Test_Auto:
     def test_valid(self) -> None:
         prop = bcpa.Auto()
-        assert prop.is_valid(None)
         assert prop.is_valid("auto")
 
     def test_invalid(self) -> None:
         prop = bcpa.Auto()
+        assert not prop.is_valid(None)
         assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(0)

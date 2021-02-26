@@ -1,6 +1,6 @@
 import {LayoutProvider} from "./layout_provider"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Arrayable, NumberArray} from "core/types"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
@@ -21,16 +21,16 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static init_StaticLayoutProvider(): void {
-    this.define<StaticLayoutProvider.Props>({
-      graph_layout: [ p.Any, {} ],
-    })
+    this.define<StaticLayoutProvider.Props>(({Number, Tuple, Dict}) => ({
+      graph_layout: [ Dict(Tuple(Number, Number)), {} ],
+    }))
   }
 
-  get_node_coordinates(node_source: ColumnarDataSource): [NumberArray, NumberArray] {
-    const index = node_source.data.index
+  get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
+    const index = node_source.data.index ?? []
     const n = index.length
-    const xs = new NumberArray(n)
-    const ys = new NumberArray(n)
+    const xs = new Float64Array(n)
+    const ys = new Float64Array(n)
     for (let i = 0; i < n; i++) {
       const point = this.graph_layout[index[i]]
       const [x, y] = point ?? [NaN, NaN]
@@ -41,9 +41,9 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const starts = edge_source.data.start
-    const ends = edge_source.data.end
-    const n = starts.length
+    const starts = edge_source.data.start ?? []
+    const ends = edge_source.data.end ?? []
+    const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
     const has_paths = edge_source.data.xs != null && edge_source.data.ys != null

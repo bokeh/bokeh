@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from .doc import curdoc
-from .export import export_png, export_svgs
+from .export import export_png, export_svg, export_svgs
 from .notebook import install_jupyter_hooks, install_notebook_hook, push_notebook
 from .output import output_file, output_notebook, reset_output
 from .saving import save
@@ -33,6 +33,7 @@ from .showing import show
 __all__ = (
     'curdoc',
     'export_png',
+    'export_svg',
     'export_svgs',
     'install_notebook_hook',
     'push_notebook',
@@ -45,12 +46,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-
-
-
-
 
 #-----------------------------------------------------------------------------
 # Dev API

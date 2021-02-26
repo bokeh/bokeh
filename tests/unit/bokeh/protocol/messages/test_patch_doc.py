@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -22,7 +22,7 @@ import numpy as np
 
 # Bokeh imports
 import bokeh.document as document
-from bokeh.core.properties import Instance, Int
+from bokeh.core.properties import Instance, Int, Nullable
 from bokeh.document.events import (
     ColumnDataChangedEvent,
     ColumnsPatchedEvent,
@@ -53,7 +53,7 @@ class AnotherModelInTestPatchDoc(Model):
 
 class SomeModelInTestPatchDoc(Model):
     foo = Int(2)
-    child = Instance(Model)
+    child = Nullable(Instance(Model))
 
 
 class TestPatchDocument:

@@ -24,7 +24,6 @@ export abstract class BokehEvent {
 }
 
 export abstract class ModelEvent extends BokehEvent {
-
   origin: HasProps | null = null
 
   protected _to_json(): JSON {

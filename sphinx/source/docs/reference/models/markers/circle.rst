@@ -3,6 +3,4 @@
 bokeh.models.markers.Circle
 ---------------------------
 
-.. autoclass:: bokeh.models.markers.Circle
-    :members:
-    :inherited-members:
+.. autofunction:: bokeh.models.markers.Circle

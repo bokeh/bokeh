@@ -6,7 +6,7 @@ import {Rect} from "../../glyphs/rect"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
-import {bk_tool_icon_box_edit} from "styles/icons"
+import {tool_icon_box_edit} from "styles/icons.css"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -40,7 +40,9 @@ export class BoxEditToolView extends EditToolView {
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
-    const renderer_view = this.plot_view.renderer_views.get(renderer)!
+    const renderer_view = this.plot_view.renderer_view(renderer)
+    if (renderer_view == null)
+      return
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
@@ -160,14 +162,14 @@ export class BoxEditTool extends EditTool {
   static init_BoxEditTool(): void {
     this.prototype.default_view = BoxEditToolView
 
-    this.define<BoxEditTool.Props>({
-      dimensions: [ p.Dimensions, "both" ],
-      num_objects: [ p.Int, 0 ],
-    })
+    this.define<BoxEditTool.Props>(({Int}) => ({
+      dimensions:  [ Dimensions, "both" ],
+      num_objects: [ Int, 0 ],
+    }))
   }
 
   tool_name = "Box Edit Tool"
-  icon = bk_tool_icon_box_edit
+  icon = tool_icon_box_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }

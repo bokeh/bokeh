@@ -3,17 +3,12 @@ import {Context2d} from "core/util/canvas"
 import {GlyphView} from "../glyph"
 
 export abstract class BaseGLGlyph {
-
   protected nvertices: number = 0
   protected size_changed: boolean = false
   protected data_changed: boolean = false
   protected visuals_changed: boolean = false
 
-  constructor(readonly gl: WebGLRenderingContext, readonly glyph: GlyphView) {
-    this.init()
-  }
-
-  protected abstract init(): void
+  constructor(readonly gl: WebGLRenderingContext, readonly glyph: GlyphView) {}
 
   set_data_changed(): void {
     const {data_size} = this.glyph

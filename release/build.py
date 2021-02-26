@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2020, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -9,7 +9,7 @@
 """
 # Standard library imports
 import json
-from typing import List
+from typing import Any, Callable, Dict
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
@@ -40,6 +40,16 @@ def build_bokehjs(config: Config, system: System) -> ActionReturn:
         return PASSED("BokehJS build succeeded")
     except RuntimeError as e:
         return FAILED("BokehJS build did NOT succeed", details=e.args)
+
+
+def build_npm_packages(config: Config, system: System) -> ActionReturn:
+    try:
+        system.cd("bokehjs")
+        system.run("npm pack")
+        system.cd("..")
+        return PASSED("npm pack succeeded")
+    except RuntimeError as e:
+        return FAILED("npm pack did NOT succeed", details=e.args)
 
 
 def build_conda_packages(config: Config, system: System) -> ActionReturn:
@@ -87,11 +97,11 @@ def install_bokehjs(config: Config, system: System) -> ActionReturn:
 def npm_install(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("bokehjs")
-        system.run("npm install")
+        system.run("npm ci")
         system.cd("..")
-        return PASSED("npm install succeeded")
+        return PASSED("npm ci succeeded")
     except RuntimeError as e:
-        return FAILED("npm install did NOT succeed", details=e.args)
+        return FAILED("npm ci did NOT succeed", details=e.args)
 
 
 def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
@@ -99,6 +109,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         dirname = f"deployment-{config.version}"
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
+        system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
         system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-*.tar.gz {dirname}")  # TODO: handle .dev version variant better
         system.run(f"mkdir {dirname}/bokehjs")
@@ -113,17 +124,26 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
 
 
 def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
-    filenames: List[str] = [
-        "package.json",
-        "package-lock.json",
-    ]
+    def update_package_json(content: Dict[str, Any]) -> None:
+        content["version"] = config.js_version
+
+    def update_package_lock_json(content: Dict[str, Any]) -> None:
+        assert content["lockfileVersion"] == 2, "Expected lock file v2"
+        content["version"] = config.js_version
+        content["packages"][""]["version"] = config.js_version
+
+    files: Dict[str, Callable[[Dict[str, Any]], None]] = {
+        "package.json": update_package_json,
+        "package-lock.json": update_package_lock_json,
+    }
 
     system.pushd("bokehjs")
 
-    for filename in filenames:
+    for filename, action in files.items():
         content = json.load(open(filename))
         try:
-            content["version"] = config.js_version
+            action(content)
+
             with open(filename, "w") as f:
                 json.dump(content, f, indent=2)
                 f.write("\n")
@@ -132,7 +152,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
 
     system.popd()
 
-    return PASSED(f"Updated version to {config.js_version!r} in files: {filenames!r}")
+    return PASSED(f"Updated version to {config.js_version!r} in files: {list(files.keys())!r}")
 
 
 @skip_for_prerelease
