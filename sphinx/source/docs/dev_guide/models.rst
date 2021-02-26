@@ -56,20 +56,12 @@ Models contain properties, which are class attributes of type
 
     class IntProps(HasFields):
 
-        prop1 = Int
-        prop2 = Int()
-        prop3 = Int(10)
+        prop1 = Int()
+        prop2 = Int(10)
 
-The `IntProps` model represents objects that have three integer values,
-``prop1``, ``prop2``, and ``prop3``, that can be automatically serialized
-from Python, and unserialized by BokehJS.
-
-.. note::
-    Technically, ``prop1`` isn't an instance of ``Int``, but ``HasFields`` uses a
-    metaclass that automatically instantiates `Property` classes when necessary,
-    so ``prop1`` and ``prop2`` are equivalent (though independent) properties.
-    This is useful for readability; if you don't need to pass any arguments to
-    property's constructor, then prefer the former over the later.
+The `IntProps` model represents objects that have two integer values,
+``prop1`` and ``prop2``, that can be automatically serialized from Python,
+and unserialized by BokehJS.
 
 There is a wide variety of property types, ranging from primitive types such as:
 
@@ -143,7 +135,7 @@ case, as well::
     class IncludesExtends(HasProps, FillProps):
         """ `IncludesExtends` model. """
 
-        some = String
+        some = String()
         some_props = Include(FillProps)
 
 but note that this is equivalent to::
@@ -153,6 +145,6 @@ but note that this is equivalent to::
 
         fill_color = ColorSpec(default="gray")
         fill_alpha = DataSpec(default=1.0)
-        some = String
+        some = String()
         some_fill_color = ColorSpec(default="gray")
         some_fill_alpha = DataSpec(default=1.0)

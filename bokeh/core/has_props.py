@@ -64,7 +64,7 @@ def abstract(cls):
 
     '''
     if not issubclass(cls, HasProps):
-        raise TypeError("%s is not a subclass of HasProps" % cls.__name__)
+        raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
 
     # running python with -OO will discard docstrings -> __doc__ is None
     if cls.__doc__ is not None:
@@ -74,6 +74,36 @@ def abstract(cls):
 
 def is_DataModel(cls):
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False)
+
+def _overridden_defaults(class_dict):
+    overridden_defaults = {}
+    for name, prop in tuple(class_dict.items()):
+        if isinstance(prop, Override):
+            del class_dict[name]
+            if prop.default_overridden:
+                overridden_defaults[name] = prop.default
+    return overridden_defaults
+
+def _generators(class_dict):
+    generators = dict()
+    for name, generator in tuple(class_dict.items()):
+        if isinstance(generator, PropertyDescriptorFactory):
+            del class_dict[name]
+            generators[name] = generator
+    return generators
+
+def make_property(target_name, help):
+    fget = lambda self: getattr(self, target_name)
+    fset = lambda self, value: setattr(self, target_name, value)
+    return property(fget, fset, None, help)
+
+def _property_aliases(class_dict):
+    property_aliases = {}
+    for name, prop in tuple(class_dict.items()):
+        if isinstance(prop, Alias):
+            property_aliases[name] = prop.name
+            class_dict[name] = make_property(prop.name, prop.help)
+    return property_aliases
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
@@ -85,70 +115,24 @@ class MetaHasProps(type):
     .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses
 
     '''
+
     def __new__(meta_cls, class_name, bases, class_dict):
         '''
 
         '''
+        overridden_defaults = _overridden_defaults(class_dict)
+        property_aliases = _property_aliases(class_dict)
+        generators = _generators(class_dict)
+
         names_with_refs = set()
         container_names = set()
-
-        # Now handle all the Override
-        overridden_defaults = {}
-        aliased_properties = {}
-        for name, prop in class_dict.items():
-            if isinstance(prop, Alias):
-                aliased_properties[name] = prop
-            elif isinstance(prop, Override):
-                if prop.default_overridden:
-                    overridden_defaults[name] = prop.default
-
-        for name, default in overridden_defaults.items():
-            del class_dict[name]
-
-        def make_property(target_name, help):
-            fget = lambda self: getattr(self, target_name)
-            fset = lambda self, value: setattr(self, target_name, value)
-            return property(fget, fset, None, help)
-
-        property_aliases = {}
-        for name, alias in aliased_properties.items():
-            property_aliases[name] = alias.name
-            class_dict[name] = make_property(alias.name, alias.help)
-
-        generators = dict()
-        for name, generator in class_dict.items():
-            if isinstance(generator, PropertyDescriptorFactory):
-                generators[name] = generator
-            elif isinstance(generator, type) and issubclass(generator, PropertyDescriptorFactory):
-                # Support the user adding a property without using parens,
-                # i.e. using just the Property subclass instead of an
-                # instance of the subclass
-                generators[name] = generator.autocreate()
-
         dataspecs = {}
         new_class_attrs = {}
 
         for name, generator in generators.items():
             prop_descriptors = generator.make_descriptors(name)
-            replaced_self = False
             for prop_descriptor in prop_descriptors:
-                if prop_descriptor.name in generators:
-                    if generators[prop_descriptor.name] is generator:
-                        # a generator can replace itself, this is the
-                        # standard case like `foo = Int()`
-                        replaced_self = True
-                        prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
-                    else:
-                        # if a generator tries to overwrite another
-                        # generator that's been explicitly provided,
-                        # use the prop that was manually provided
-                        # and ignore this one.
-                        pass
-                else:
-                    prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
-            # if we won't overwrite ourselves anyway, delete the generator
-            if not replaced_self:
-                del class_dict[name]
+                prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
 
         class_dict.update(new_class_attrs)
 
@@ -156,50 +140,32 @@ class MetaHasProps(type):
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
         class_dict["__property_aliases__"] = property_aliases
-        if len(overridden_defaults) > 0:
-            class_dict["__overridden_defaults__"] = overridden_defaults
-        if dataspecs:
-            class_dict["__dataspecs__"] = dataspecs
-
-        if "__example__" in class_dict:
-            path = class_dict["__example__"]
-
-            # running python with -OO will discard docstrings -> __doc__ is None
-            if "__doc__" in class_dict and class_dict["__doc__"] is not None:
-                class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
+        class_dict["__overridden_defaults__"] = overridden_defaults
+        class_dict["__dataspecs__"] = dataspecs
 
         return super().__new__(meta_cls, class_name, bases, class_dict)
 
-    def __init__(cls, class_name, bases, nmspc):
-        if class_name == 'HasProps':
-            return
-        # Check for improperly overriding a Property attribute.
-        # Overriding makes no sense except through the Override
-        # class which can be used to tweak the default.
-        # Historically code also tried changing the Property's
-        # type or changing from Property to non-Property: these
-        # overrides are bad conceptually because the type of a
-        # read-write property is invariant.
-        cls_attrs = cls.__dict__.keys() # we do NOT want inherited attrs here
-        for attr in cls_attrs:
-            for base in bases:
-                if issubclass(base, HasProps) and attr in base.properties():
-                    warn(('Property "%s" in class %s was overridden by a class attribute ' + \
-                          '"%s" in class %s; it never makes sense to do this. ' + \
-                          'Either %s.%s or %s.%s should be removed, or %s.%s should not ' + \
-                          'be a Property, or use Override(), depending on the intended effect.') %
-                         (attr, base.__name__, attr, class_name,
-                          base.__name__, attr,
-                          class_name, attr,
-                          base.__name__, attr),
+    def __init__(cls, _, bases, __):
+        # Check for improperly redeclaring a Property attribute.
+        for base in bases:
+            if not issubclass(base, HasProps):
+                continue
+            base_properties = base.properties()
+            for attr in cls.__dict__: # we do NOT want inherited attrs here
+                if attr in base_properties:
+                    warn("Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
+                         "{attr!r} in class {class_name}; it never makes sense to do this. "
+                          "Either {base.__name__}.{attr} or {class_name}.{attr} should be removed,"
+                          "or Override() should be used to change a default value of a base class property.",
                          RuntimeWarning, stacklevel=2)
 
-        if "__overridden_defaults__" in cls.__dict__:
+        # Check for no-op Overrides
+        overridden_defaults = cls.__dict__["__overridden_defaults__"]
+        if overridden_defaults:
             our_props = cls.properties()
-            for key in cls.__dict__["__overridden_defaults__"].keys():
+            for key in overridden_defaults:
                 if key not in our_props:
-                    warn(('Override() of %s in class %s does not override anything.') % (key, class_name),
-                         RuntimeWarning, stacklevel=2)
+                    warn((f"Override() of {key} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
 
 def accumulate_from_superclasses(cls, propname):
     ''' Traverse the class hierarchy and accumulate the special sets of names
@@ -301,8 +267,7 @@ class HasProps(metaclass=MetaHasProps):
             if not matches:
                 matches, text = props, "possible"
 
-            raise AttributeError("unexpected attribute '%s' to %s, %s attributes are %s" %
-                (name, self.__class__.__name__, text, nice_join(matches)))
+            raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
     def __str__(self) -> str:
         name = self.__class__.__name__
@@ -744,17 +709,6 @@ _ABSTRACT_ADMONITION = '''
     .. note::
         This is an abstract base class used to help organize the hierarchy of Bokeh
         model types. **It is not useful to instantiate on its own.**
-
-'''
-
-# The "../../" is needed for bokeh-plot to construct the correct path to examples
-_EXAMPLE_TEMPLATE = '''
-
-    Example
-    -------
-
-    .. bokeh-plot:: ../../%(path)s
-        :source-position: below
 
 '''
 
