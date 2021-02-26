@@ -44,11 +44,10 @@ class Test_Include:
 
         class IncludesDelegateWithPrefix(HasProps):
             z = bcpi.Include(IsDelegate, use_prefix=True)
-            z_y = Int(57) # override the Include
 
         o = IncludesDelegateWithPrefix()
         assert o.z_x == 12
-        assert o.z_y == 57
+        assert o.z_y == "hello"
         assert not hasattr(o, 'z')
         assert not hasattr(o, 'x')
         assert not hasattr(o, 'y')
@@ -64,11 +63,10 @@ class Test_Include:
     def test_include_without_prefix(self) -> None:
         class IncludesDelegateWithoutPrefix(HasProps):
             z = bcpi.Include(IsDelegate, use_prefix=False)
-            y = Int(42) # override the Include
 
         o = IncludesDelegateWithoutPrefix()
         assert o.x == 12
-        assert o.y == 42
+        assert o.y == "hello"
         assert not hasattr(o, 'z')
 
         assert 'x' in o.properties_with_values(include_defaults=True)

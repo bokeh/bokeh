@@ -220,7 +220,7 @@ class TestModel:
         #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
 
         class U(self.pObjectClass):
-            a = Int
+            a = Int()
 
         class V(self.pObjectClass):
             u1 = Instance(U)

@@ -72,8 +72,8 @@ class Test_Instance:
 
     def test_from_json(self) -> None:
         class MapOptions(HasProps):
-            lat = Float
-            lng = Float
+            lat = Float()
+            lng = Float()
             zoom = Int(12)
 
         v1 = bcpi.Instance(MapOptions).from_json(dict(lat=1, lng=2))

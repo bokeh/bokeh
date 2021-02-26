@@ -186,11 +186,11 @@ class Surface3d(LayoutDOM):
     # The data will actually be stored in the ColumnDataSource, but these
     # properties let us specify the *name* of the column that should be
     # used for each field.
-    x = String
+    x = String()
 
-    y = String
+    y = String()
 
-    z = String
+    z = String()
 
 
 x = np.arange(0, 300, 10)
