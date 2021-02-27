@@ -86,7 +86,7 @@
     "es6-symbol": "^3.1.3",
     "es6-weak-map": "^2.0.2",
     "flatbush": "^3.2.1",
-    "flatpickr": "^4.6.9",
+    "flatpickr": "4.6.6",
     "hammerjs": "^2.0.4",
     "nouislider": "^14.6.3",
     "proj4": "^2.7.0",
