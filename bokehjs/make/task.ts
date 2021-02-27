@@ -214,7 +214,7 @@ export async function run(task: Task): Promise<Result> {
   }
 
   const result = await _run(task, false)
-  if (result.is_Success && failures.length != 0)
+  if (result.is_Success() && failures.length != 0)
     return fail(failures)
   else
     return result

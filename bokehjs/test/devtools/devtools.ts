@@ -33,7 +33,7 @@ process.on("exit", () => {
   rl?.close()
 })
 
-const url = argv._[0]
+const url = argv._[0] as string
 const port = parseInt(argv.port as string | undefined ?? "9222")
 
 interface CallFrame {
