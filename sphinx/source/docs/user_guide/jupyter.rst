@@ -90,11 +90,18 @@ Bokeh server is listening on. However, JupyterHub is acting as a reverse proxy
 between your browser and your JupyterLab container. Follow all the JupyterLab
 instructions above, then continue with the following steps:
 
-1. Install the ``nbserverproxy`` server extension as follows:
+1. Install the ``jupyter-server-proxy`` package and enable the server extension as follows:
 
    .. code:: sh
 
-    pip install nbserverproxy && jupyter serverextension enable --py nbserverproxy
+    pip install jupyter-server-proxy && jupyter serverextension enable --py jupyter-server-proxy
+    
+   If you intend to work with JupyterLab you need to install the corresponding extension, 
+   either from the GUI or with the following command:
+   
+   .. code:: sh
+    
+    jupyter labextension install @jupyterlab/server-proxy
 
 2. Define a function to help create the URL for the browser to connect to
    the Bokeh server.
@@ -137,8 +144,8 @@ instructions above, then continue with the following steps:
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
-Now the Bokeh graph should load and execute Python
-callbacks defined in your JupyterLab environment.
+You may need to restart your server after this, and then Bokeh content should load and 
+execute Python callbacks defined in your Jupyter environment.
 
 Trusting notebooks
 ~~~~~~~~~~~~~~~~~~
