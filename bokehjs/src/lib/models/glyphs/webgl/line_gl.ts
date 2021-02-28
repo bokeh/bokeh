@@ -6,9 +6,9 @@ import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
 
 
-const cap_lookup: {[key: string]: number} = {butt: 0, round: 1, square: 2}
+const cap_lookup = {butt: 0, round: 1, square: 2}
 
-const join_lookup: {[key: string]: number} = {miter: 0, round: 1, bevel: 2}
+const join_lookup = {miter: 0, round: 1, bevel: 2}
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
@@ -171,7 +171,7 @@ export class LineGL extends BaseGLGlyph {
     const line_visuals = this.glyph.visuals.line
 
     const color = color2rgba(line_visuals.line_color.value, line_visuals.line_alpha.value)
-    this._color = color.map(function(val) { return val/255 })
+    this._color = color.map((val) => val/255)
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
     this._dash_offset = line_visuals.line_dash_offset.value
