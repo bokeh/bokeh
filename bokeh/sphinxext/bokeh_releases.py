@@ -72,7 +72,7 @@ _SRI_SECTION_PRE = """
 .. raw:: html
 
     <div class="expander">
-        <a href="javascript:void(0)" class="expander-trigger expander-hidden">Table of SRI Hashes for version %s</a>
+        <a href="javascript:void(0)" class="expander-trigger expander-hidden">Table of SRI Hashes for version {version}</a>
         <div class="expander-content">
             <div style="font-size: small;">
 
@@ -106,7 +106,7 @@ class BokehReleases(BokehDirective):
             rst_text = f".. include:: releases/{v}.rst"
             try:
                 hashes = get_sri_hashes_for_version(v)
-                rst_text += _SRI_SECTION_PRE % v  # TODO (bev) get rid of old style string substituion
+                rst_text += _SRI_SECTION_PRE.format(version=v)
                 for key, val in sorted(hashes.items()):
                     rst_text += f"    ``{key}``, ``{val}``\n"
                 rst_text += _SRI_SECTION_POST
