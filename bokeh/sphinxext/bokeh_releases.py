@@ -99,7 +99,7 @@ class BokehReleases(BokehDirective):
 
         rst = []
 
-        versions = [x.rstrip(".rst") for x in listdir(join(app.srcdir, "docs", "releases"))]
+        versions = [x.rstrip(".rst") for x in listdir(join(app.srcdir, "docs", "releases")) if x.endswith(".rst")]
         versions.sort(key=V, reverse=True)
 
         for v in versions:
