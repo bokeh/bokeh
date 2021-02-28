@@ -26,7 +26,7 @@ exclude_patterns = ['docs/releases/*']
 extensions = [
     'sphinxext.opengraph',
     'sphinx_panels',
-    'sphinx_reredirects',
+#    'sphinx_reredirects',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -50,7 +50,6 @@ extensions = [
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
     'bokeh.sphinxext.collapsible_code_block',
-    'bokeh.sphinxext.theme',
 ]
 
 needs_sphinx = '1.8'
@@ -115,8 +114,24 @@ html_context = {
     'VERSION': version,
 }
 
-html_theme = 'bokeh'
+html_theme ='pydata_sphinx_theme'
 
-html_theme_path = ['.']
+html_theme_options = {
+    'external_links': [
+        {'name': 'Tutorial',  'url': 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'},
+        {'name': 'Community', 'url': 'https://discourse.bokeh.org'}
+    ],
+    'github_url': 'https://github.com/bokeh/bokeh',
+    'google_analytics_id': 'UA-27761864-7',
+#    'logo_link': 'https://static.bokeh.org/branding/logos/bokeh-logo.svg',
+    'show_toc_level': 2,
+    'twitter_url': 'https://twitter.com/bokeh',
+}
+
+html_sidebars = {
+  "gallery": [],
+  "gallery/*": [],
+  "index": [],
+}
 
 html_title = f"{project} {version} Documentation"
