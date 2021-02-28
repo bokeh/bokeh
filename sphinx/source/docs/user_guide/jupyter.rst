@@ -95,12 +95,12 @@ instructions above, then continue with the following steps:
    .. code:: sh
 
     pip install jupyter-server-proxy && jupyter serverextension enable --py jupyter-server-proxy
-    
-   If you intend to work with JupyterLab you need to install the corresponding extension, 
+
+   If you intend to work with JupyterLab you need to install the corresponding extension,
    either from the GUI or with the following command:
-   
+
    .. code:: sh
-    
+
     jupyter labextension install @jupyterlab/server-proxy
 
 2. Define a function to help create the URL for the browser to connect to
@@ -144,7 +144,7 @@ instructions above, then continue with the following steps:
 
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
-You may need to restart your server after this, and then Bokeh content should load and 
+You may need to restart your server after this, and then Bokeh content should load and
 execute Python callbacks defined in your Jupyter environment.
 
 Trusting notebooks
