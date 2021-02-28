@@ -47,18 +47,17 @@ export class LineGL extends BaseGLGlyph {
     this._debug_show_mesh = false
   }
 
-  draw(_indices: number[], mainGlyph: LineView, transform: Transform): void {
-    // _indices are currently ignored.
-    const mainGlGlyph = mainGlyph.glglyph!
+  draw(_indices: number[], _mainGlyph: LineView, transform: Transform): void {
+    // _indices and _mainGlyph are currently ignored.
 
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false
     }
 
-    if (mainGlGlyph.data_changed) {
-      mainGlGlyph._set_data()
-      mainGlGlyph.data_changed = false
+    if (this.data_changed) {
+      this._set_data()
+      this.data_changed = false
     }
 
     const line_visuals = this.glyph.visuals.line
