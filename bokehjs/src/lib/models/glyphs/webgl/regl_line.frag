@@ -163,7 +163,7 @@ void main()
         // Dashes in straight segments (outside of joins) are easily calculated.
         dist = dash_distance(v_coords.x);
 
-        if (!has_start_cap) {
+        if (!has_start_cap && cap_type == butt_cap) {
             if (v_coords.x < 0.5*u_antialias) {
                 // Outer of start join rendered solid color or not at all
                 // depending on whether corner point is in dash or gap, with
@@ -194,7 +194,7 @@ void main()
             }
         }
 
-        if (!has_end_cap) {
+        if (!has_end_cap && cap_type == butt_cap) {
             if (v_coords.x > v_segment_length - 0.5*u_antialias) {
                 // Similar for end join.
                 dist = (dash_distance(v_segment_length) > 0.0
