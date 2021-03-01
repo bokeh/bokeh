@@ -89,6 +89,8 @@ intersphinx_mapping = {
 
 napoleon_include_init_with_doc = True
 
+panels_add_bootstrap_css = False
+
 pygments_style = 'sphinx'
 
 redirects = {
