@@ -15,7 +15,7 @@ line = p.line(x, y, line_color="blue", line_width=2)
 
 # add box annotations
 low_box = BoxAnnotation(top=20, fill_alpha=0.1, fill_color="red")
-mid_box = BoxAnnotation(bottom=20, top=80, fill_alpha=0.1, fill_color="green")
+mid_box = BoxAnnotation(bottom=20, top=80, fill_alpha=0.1, fill_color="yellow")
 high_box = BoxAnnotation(bottom=80, fill_alpha=0.1, fill_color="red")
 
 # add boxes to existing figure

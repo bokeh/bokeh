@@ -14,7 +14,7 @@ p = figure(x_axis_type="datetime", tools=TOOLS)
 p.line(data.index.to_series(), data['glucose'], line_color="gray", line_width=1, legend_label="glucose")
 
 low_box = BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red')
-mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='green')
+mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='yellow')
 high_box = BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red')
 
 p.add_layout(low_box)

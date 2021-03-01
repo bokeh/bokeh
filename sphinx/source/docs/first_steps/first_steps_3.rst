@@ -102,7 +102,7 @@ the box's dimension to the edges of the plot:
 .. code-block:: python
 
     low_box = BoxAnnotation(top=80, fill_alpha=0.1, fill_color='red')
-    mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='green')
+    mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='yellow')
     high_box = BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red')
 
 Finally, you need to add the :class:`~bokeh.models.annotations.BoxAnnotation`
