@@ -126,8 +126,8 @@ class Test_autoload_static:
             print(x.get_attribute("src"))
         assert len(scripts) == 3
         for script in scripts:
-            assert script.get_attribute("crossorigin") == "anonymous"
-            assert script.get_attribute("integrity").startswith("sha384-")
+            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("integrity") == ""
 
     @pytest.mark.selenium
     def test_js_release_dev_cdn(self, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
@@ -148,8 +148,8 @@ class Test_autoload_static:
             print(x.get_attribute("src"))
         assert len(scripts) == 3
         for script in scripts:
-            assert script.get_attribute("crossorigin") == "anonymous"
-            assert script.get_attribute("integrity").startswith("sha384-")
+            assert script.get_attribute("crossorigin") == None
+            assert script.get_attribute("integrity") == ""
 
     @pytest.mark.selenium
     def test_js_release_server(self, monkeypatch, driver, test_file_path_and_url, test_plot) -> None:
