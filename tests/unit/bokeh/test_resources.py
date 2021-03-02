@@ -339,8 +339,8 @@ class TestResources:
         for script in scripts:
             if "src" not in script.attrs:
                 continue
-            assert script.attrs['crossorigin'] == "anonymous"
-            assert script.attrs['integrity'].startswith("sha384-")
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
     def test_render_js_cdn_dev_release(self, v, monkeypatch) -> None:
@@ -362,8 +362,8 @@ class TestResources:
         for script in scripts:
             if "src" not in script.attrs:
                 continue
-            assert script.attrs['crossorigin'] == "anonymous"
-            assert script.attrs['integrity'].startswith("sha384-")
+            assert "crossorigin" not in script.attrs
+            assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
     def test_render_js_inline(self, v, monkeypatch) -> None:
