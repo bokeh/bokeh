@@ -93,7 +93,7 @@ Follow these steps to recreate the example from above:
     .. code-block:: python
 
         range_slider = RangeSlider(
-            title="Adjust x-axis range" # a title to display above the slider
+            title="Adjust x-axis range", # a title to display above the slider
             start=0,  # set the minimum value for the slider
             end=10,  # set the maximum value for the slider
             step=1,  # increments for the slider
