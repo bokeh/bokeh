@@ -9,7 +9,7 @@ def datetime(x):
     return np.array(x, dtype=np.datetime64)
 
 p = figure(background_fill_color="#fafafa", x_axis_type="datetime",
-           plot_width=800, plot_height=350)
+           width=800, height=350)
 
 r = p.multi_line([datetime(AAPL['date']), datetime(MSFT['date'])],
                  [AAPL['adj_close'], MSFT['adj_close']],

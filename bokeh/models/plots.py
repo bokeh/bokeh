@@ -513,11 +513,11 @@ class Plot(LayoutDOM):
 
     height = Override(default=600)
 
-    plot_width: int = Alias("width", help="""
+    width: int = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
     """)
 
-    plot_height: int = Alias("height", help="""
+    height: int = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
     """)
 

@@ -15,7 +15,7 @@ for i in range(N):
 
 output_file("image_rgba.html")
 
-p = figure(plot_width=400, plot_height=400, x_range=(0, 10), y_range=(0, 10))
+p = figure(width=400, height=400, x_range=(0, 10), y_range=(0, 10))
 
 p.image_rgba(image=[img], x=[0], y=[0], dw=[10], dh=[10])
 

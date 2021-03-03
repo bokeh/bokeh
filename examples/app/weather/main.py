@@ -29,7 +29,7 @@ def get_dataset(src, name, distribution):
     return ColumnDataSource(data=df)
 
 def make_plot(source, title):
-    plot = figure(x_axis_type="datetime", plot_width=800, tools="", toolbar_location=None)
+    plot = figure(x_axis_type="datetime", width=800, tools="", toolbar_location=None)
     plot.title.text = title
 
     plot.quad(top='record_max_temp', bottom='record_min_temp', left='left', right='right',

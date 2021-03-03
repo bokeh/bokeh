@@ -25,7 +25,7 @@ layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
 fig = figure(x_range=(-180, -60), y_range=(15,75),
               x_axis_label="Longitude", y_axis_label="Latitude",
-              plot_width=800, plot_height=600, background_fill_color=Set3_12[4],
+              width=800, height=600, background_fill_color=Set3_12[4],
               background_fill_alpha=0.2, tools='box_zoom,reset')
 
 fig.patches(xs="lons", ys="lats", line_color='grey', line_width=1.0,

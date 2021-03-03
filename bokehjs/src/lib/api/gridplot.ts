@@ -6,8 +6,8 @@ export interface GridPlotOpts {
   toolbar_location?: Location | null
   merge_tools?: boolean
   sizing_mode?: SizingMode
-  plot_width?: number
-  plot_height?: number
+  width?: number
+  height?: number
 }
 
 function or_else<T>(value: T | undefined, default_value: T): T {
@@ -36,10 +36,10 @@ export function gridplot(children: (Plot | null)[][] | Matrix<Plot | null>, opti
       item.toolbar_location = null
     }
 
-    if (options.plot_width != null)
-      item.plot_width = options.plot_width
-    if (options.plot_height != null)
-      item.plot_height = options.plot_height
+    if (options.width != null)
+      item.width = options.width
+    if (options.height != null)
+      item.height = options.height
 
     items.push([item, row, col])
   }

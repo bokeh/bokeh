@@ -19,7 +19,7 @@ for start_node, end_node, _ in G.edges(data=True):
 nx.set_edge_attributes(G, edge_attrs, "edge_color")
 
 # Show with Bokeh
-plot = Plot(plot_width=400, plot_height=400,
+plot = Plot(width=400, height=400,
             x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
 plot.title.text = "Graph Interaction Demonstration"
 

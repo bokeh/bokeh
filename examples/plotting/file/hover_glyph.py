@@ -6,7 +6,7 @@ x = data.loc['2010-10-06'].index.to_series()
 y = data.loc['2010-10-06']['glucose']
 
 # Basic plot setup
-p = figure(plot_width=800, plot_height=400, x_axis_type="datetime",
+p = figure(width=800, height=400, x_axis_type="datetime",
            tools="", toolbar_location=None, title='Hover over points')
 p.ygrid.grid_line_color = None
 p.background_fill_color = "#fafafa"

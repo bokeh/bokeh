@@ -59,7 +59,7 @@ def rad(mic):
 big_angle = 2.0 * np.pi / (len(df) + 1)
 small_angle = big_angle / 7
 
-p = figure(plot_width=width, plot_height=height, title="",
+p = figure(width=width, height=height, title="",
     x_axis_type=None, y_axis_type=None,
     x_range=(-420, 420), y_range=(-420, 420),
     min_border=0, outline_line_color="black",

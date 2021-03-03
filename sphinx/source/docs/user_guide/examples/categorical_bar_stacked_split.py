@@ -17,7 +17,7 @@ imports = {'fruits' : fruits,
            '2016'   : [-2, -1, -3, -1, -2, -2],
            '2017'   : [-1, -2, -1, 0, -2, -2]}
 
-p = figure(y_range=fruits, plot_height=250, x_range=(-16, 16), title="Fruit import/export, by year",
+p = figure(y_range=fruits, height=250, x_range=(-16, 16), title="Fruit import/export, by year",
            toolbar_location=None)
 
 p.hbar_stack(years, y='fruits', height=0.9, color=GnBu3, source=ColumnDataSource(exports),

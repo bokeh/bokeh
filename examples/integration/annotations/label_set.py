@@ -6,7 +6,7 @@ source = ColumnDataSource(data=dict(text=['one', 'two', 'three'],
                                     x2=[60,240,420]))
 
 # Have to specify x/y range as labels aren't included in the plot area solver
-plot = Plot(plot_width=600, plot_height=600,
+plot = Plot(width=600, height=600,
             x_range=Range1d(0, 10), y_range=Range1d(0, 10),
             toolbar_location=None)
 

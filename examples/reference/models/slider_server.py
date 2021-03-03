@@ -14,7 +14,7 @@ df=pd.DataFrame({'x':x,'y':y})
 
 source = ColumnDataSource(data=dict(x=df.x, y=df.y))
 
-plot_figure = figure(title='Slider',plot_height=450, plot_width=600,
+plot_figure = figure(title='Slider',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.line('x', 'y', line_width=3, source=source)

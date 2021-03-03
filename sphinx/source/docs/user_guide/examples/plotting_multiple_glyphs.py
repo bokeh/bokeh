@@ -5,7 +5,7 @@ y = [6, 7, 8, 7, 3]
 
 output_file("multiple.html")
 
-p = figure(plot_width=400, plot_height=400)
+p = figure(width=400, height=400)
 
 # add both a line and circles on the same plot
 p.line(x, y, line_width=2)

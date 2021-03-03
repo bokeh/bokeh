@@ -5,7 +5,7 @@ from bokeh.plotting import figure
 
 output_file("styling_visible_annotation_with_interaction.html")
 
-p = figure(plot_width=600, plot_height=200, tools='')
+p = figure(width=600, height=200, tools='')
 p.line([1, 2, 3], [1, 2, 1], line_color="blue")
 pink_line = p.line([1, 2, 3], [2, 1, 2], line_color="pink")
 

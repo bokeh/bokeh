@@ -43,8 +43,8 @@ class Test_Plot:
 
         data = {}
         def modify_doc(doc):
-            p1 = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
-            p2 = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
+            p1 = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
+            p2 = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=10)
             button = Button(css_classes=['foo'])
             layout = column(p1, button)
             def cb(event):
@@ -83,9 +83,9 @@ class Test_Plot:
         def modify_doc(doc):
             x_range = Range1d(0, 4)
             y_range = Range1d(0, 4)
-            p1 = figure(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, lod_interval=200, lod_timeout=300)
+            p1 = figure(height=400, width=400, x_range=x_range, y_range=y_range, lod_interval=200, lod_timeout=300)
             p1.line([1, 2, 3], [1, 2, 3])
-            p2 = figure(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range, lod_interval=200, lod_timeout=300)
+            p2 = figure(height=400, width=400, x_range=x_range, y_range=y_range, lod_interval=200, lod_timeout=300)
             p2.line([1, 2, 3], [1, 2, 3])
             p1.on_event(LODStart, lambda: goodEvents.append("LODStart"))
             p1.on_event(LODEnd, lambda: goodEvents.append("LODEnd"))

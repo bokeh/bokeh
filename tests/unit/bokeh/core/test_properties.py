@@ -493,7 +493,7 @@ def test_HasProps_equals() -> None:
     assert v is False
 
 def test_HasProps_clone() -> None:
-    p1 = Plot(plot_width=1000)
+    p1 = Plot(width=1000)
     c1 = p1.properties_with_values(include_defaults=False)
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)

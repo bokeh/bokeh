@@ -197,7 +197,7 @@ def layout(*args, **kwargs):
     return _create_grid(children, sizing_mode, **kwargs)
 
 def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
-             plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
+             width=None, height=None, toolbar_options=None, merge_tools=True):
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -225,9 +225,9 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
-        plot_width (int, optional): The width you would like all your plots to be
+        width (int, optional): The width you would like all your plots to be
 
-        plot_height (int, optional): The height you would like all your plots to be.
+        height (int, optional): The height you would like all your plots to be.
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
@@ -245,7 +245,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     Examples:
 
         >>> gridplot([[plot_1, plot_2], [plot_3, plot_4]])
-        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, plot_width=200, plot_height=100)
+        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, width=200, height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
                 toolbar_location='right'
@@ -286,10 +286,10 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
                         plot.toolbar_location = None
 
                 if isinstance(item, Plot):
-                    if plot_width is not None:
-                        item.plot_width = plot_width
-                    if plot_height is not None:
-                        item.plot_height = plot_height
+                    if width is not None:
+                        item.width = width
+                    if height is not None:
+                        item.height = height
 
                 if sizing_mode is not None and _has_auto_sizing(item):
                     item.sizing_mode = sizing_mode

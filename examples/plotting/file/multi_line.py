@@ -24,7 +24,7 @@ for scale, mz in [(1.0, 83), (0.9, 55), (0.6, 98), (0.4, 43), (0.2, 39), (0.12, 
 
 mass_spec['color'] = Viridis6
 
-figure_opts = dict(plot_width=450, plot_height=300)
+figure_opts = dict(width=450, height=300)
 hover_opts = dict(
     tooltips=[('MZ', '@MZ_tip'), ('Rel Intensity', '@Intensity_tip')],
     show_arrow=False,

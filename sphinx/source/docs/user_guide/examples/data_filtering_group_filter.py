@@ -6,7 +6,7 @@ from bokeh.sampledata.iris import flowers
 source = ColumnDataSource(flowers)
 view1 = CDSView(source=source, filters=[GroupFilter(column_name='species', group='versicolor')])
 
-plot_size_and_tools = {'plot_height': 300, 'plot_width': 300,
+plot_size_and_tools = {'height': 300, 'width': 300,
                         'tools':['box_select', 'reset', 'help']}
 
 p1 = figure(title="Full data set", **plot_size_and_tools)

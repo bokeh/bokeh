@@ -31,7 +31,7 @@ columns = [
 data_table = DataTable(source=source, columns=columns, editable=True, width=1000,
                        index_position=-1, index_header="row index", index_width=60)
 
-plot = Plot(title=None, plot_width=1000, plot_height=300)
+plot = Plot(title=None, width=1000, height=300)
 
 # Set up x & y axis
 plot.add_layout(LinearAxis(), 'below')

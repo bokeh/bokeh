@@ -2108,7 +2108,7 @@
     - #4979 [component: bokehjs] [component: server] Cannot add renderers within a callback
     - #5063 [component: tests] Bokehjs tests are failing on regular basis
     - #5152 [component: examples] Wrong data shown in gapminder example app / slider update failing
-    - #5185 [layout] [starter] Reset tool fails when figure passed width instead of plot_width, etc.
+    - #5185 [layout] [starter] Reset tool fails when figure passed width instead of width, etc.
     - #5336 [component: bokehjs] Strange behaviour of rect-glyph
     - #5353 [component: bokehjs] Extensions do not render when using bokeh.embed.components / bokeh.embed.file_html apis
     - #5416 [component: bokehjs] Multiple model sync in one callback can fail
@@ -2318,7 +2318,7 @@
     - #5633 [component: build] [regression] Update .travis.yml
     - #5636 Patches incorrectly draws boundaries from geojsondatasource in latest development version on a bokeh server
     - #5645 Font-awesome custom example fails to run
-    - #5655 [component: bokehjs] [regression] 0.12.3 resize tool uses plot_width for initializing plot_height
+    - #5655 [component: bokehjs] [regression] 0.12.3 resize tool uses width for initializing height
     - #5661 [component: bokehjs] Tool labels appears empty on hover
   * features:
     - #1448 Gridplot could allow 1d child sequence together with (n, m) tuple
@@ -3943,7 +3943,7 @@
 2015-07-03    0.9.1:
 --------------------
   * bugfixes:
-    - #1254 [docs] Setting small plot_width or plot_height to categorical plot without min_border
+    - #1254 [docs] Setting small width or height to categorical plot without min_border
     - #1255 [docs] Bokeh.embed.components second parameter not optional
     - #1926 [docs] Tap_select tool is actually tap
     - #2040 Expose level parameter in python

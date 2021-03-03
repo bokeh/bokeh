@@ -9,7 +9,7 @@ p = figure(
     title="Toolbar autohide example",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # activate toolbar autohide

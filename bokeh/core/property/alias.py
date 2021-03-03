@@ -54,7 +54,7 @@ class Alias:
                 width = Int()
 
             class Child(Parent):
-                plot_width = Alias("width")
+                width = Alias("width")
 
     """
 

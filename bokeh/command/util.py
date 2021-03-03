@@ -45,7 +45,7 @@ __all__ = (
     'build_single_handler_applications',
     'die',
     'report_server_init_errors',
-    'set_single_plot_width_height',
+    'set_single_width_height',
 )
 
 #-----------------------------------------------------------------------------
@@ -215,7 +215,7 @@ def report_server_init_errors(address: Optional[str] = None, port: Optional[int]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
 
-def set_single_plot_width_height(doc: Document, width: Optional[int], height: Optional[int]) -> None:
+def set_single_width_height(doc: Document, width: Optional[int], height: Optional[int]) -> None:
     if width is not None or height is not None:
         layout = doc.roots
         if len(layout) != 1 or not isinstance(layout[0], Plot):
@@ -224,9 +224,9 @@ def set_single_plot_width_height(doc: Document, width: Optional[int], height: Op
             plot = layout[0]
             # TODO - below fails mypy check
             # unsure how to handle with typing. width is int base type and class property getter is typing.Int
-            # plot.plot_width  = width if width is not None else plot.plot_width  # doesnt solve problem
-            plot.plot_height = height or plot.plot_height
-            plot.plot_width  = width or plot.plot_width
+            # plot.width  = width if width is not None else plot.width  # doesnt solve problem
+            plot.height = height or plot.height
+            plot.width  = width or plot.width
 
 #-----------------------------------------------------------------------------
 # Dev API

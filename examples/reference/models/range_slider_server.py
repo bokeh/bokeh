@@ -10,7 +10,7 @@ df=data.copy()
 
 source = ColumnDataSource(data=dict(year=df.Year, population=df.Population,marriagep1000=df.Marriages_per_1000,divorcep1000=df.Divorces_per_1000))
 
-plot_figure = figure(title='Range Slider',plot_height=450, plot_width=600,
+plot_figure = figure(title='Range Slider',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.scatter('divorcep1000', 'marriagep1000', size=5, source=source)

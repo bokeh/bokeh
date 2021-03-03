@@ -12,7 +12,7 @@ text = [a[i*3:i*3+3] for i in range(N)]
 source = ColumnDataSource(dict(x=x, y=y, text=text))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Text(x="x", y="y", text="text", angle=0.3, text_color="#96deb3")

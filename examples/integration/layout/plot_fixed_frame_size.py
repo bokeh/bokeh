@@ -29,14 +29,14 @@ template = """
 
 V = np.arange(10)
 
-fig1 = figure(plot_width=300, plot_height=300)
+fig1 = figure(width=300, height=300)
 fig1.scatter(V, V*2)
 
 fig2 = figure(frame_width=150, frame_height=150)
 fig2.scatter(V, V*2)
 
 # TODO
-# fig3 = figure(plot_width=300, plot_height=300,
+# fig3 = figure(width=300, height=300,
 #               frame_width=150, frame_height=150,
 #               width_policy="fixed", height_policy="fixed")
 # fig3.scatter(V, V*2)

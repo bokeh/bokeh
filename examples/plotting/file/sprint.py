@@ -59,7 +59,7 @@ ydr = DataRange1d(range_padding=4, range_padding_units="absolute")
 
 plot = figure(
     x_range=xdr, y_range=ydr,
-    plot_width=1000, plot_height=600,
+    width=1000, height=600,
     toolbar_location=None,
     outline_line_color=None, y_axis_type=None)
 

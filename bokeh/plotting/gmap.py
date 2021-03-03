@@ -75,14 +75,14 @@ class GMap(GMapPlot):
 
     def __init__(self, **kw):
 
-        if 'plot_width' in kw and 'width' in kw:
-            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kw and 'height' in kw:
-            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
+        if 'width' in kw and 'width' in kw:
+            raise ValueError("Figure called with both 'width' and 'width' supplied, supply only one")
+        if 'height' in kw and 'height' in kw:
+            raise ValueError("Figure called with both 'height' and 'height' supplied, supply only one")
         if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
+            kw['height'] = kw.pop('height')
         if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
+            kw['width'] = kw.pop('width')
 
         opts = GMapFigureOptions(kw)
 
@@ -226,7 +226,7 @@ def gmap(google_api_key, map_options, **kwargs):
             Configuration specific to a Google Map
 
     In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
-    arguments (e.g. ``plot_width`` or ``sizing_mode``), the following
+    arguments (e.g. ``width`` or ``sizing_mode``), the following
     additional options can be passed as well:
 
     .. bokeh-options:: GMapFigureOptions
