@@ -8,8 +8,8 @@ import * as p from "core/properties"
 export class WaterfallRendererView extends RendererView {
   model: WaterfallRenderer
 
-  private canvas: HTMLCanvasElement[]
-  private image: Uint32Array[]
+  private canvases: HTMLCanvasElement[]
+  private images: Uint32Array[]
   private x: number[]
   private col: number
   private tile: number
@@ -24,11 +24,11 @@ export class WaterfallRendererView extends RendererView {
     const N = Math.ceil(this.model.num_grams/this.model.tile_width) + 1
     const [w, h] = [this.model.tile_width, this.model.gram_length]
 
-    this.canvas = []
-    this.image = []
+    this.canvases = []
+    this.images = []
     for (let i = 0; i < N; i++) {
-      this.canvas.push(canvas({width: w, height: h}))
-      this.image.push(new Uint32Array(w*h))
+      this.canvases.push(canvas({width: w, height: h}))
+      this.images.push(new Uint32Array(w*h))
     }
 
     this.x = new Array(N)
@@ -67,7 +67,7 @@ export class WaterfallRendererView extends RendererView {
     ctx.translate(0, -sy)
 
     for (let i = 0; i < sx.length; i++)
-      ctx.drawImage(this.canvas[i], sx[i], sy, sw, sh)
+      ctx.drawImage(this.canvases[i], sx[i], sy, sw, sh)
 
     ctx.translate(0, sy)
     ctx.scale(1, -1)
@@ -97,12 +97,12 @@ export class WaterfallRendererView extends RendererView {
     // apply the lastest column to the current tile image
     const buf32 = new Uint32Array(this.cmap.rgba_mapper.v_compute(this.model.latest).buffer)
     for (let i = 0; i < this.model.gram_length; i++)
-      this.image[this.tile][i*this.model.tile_width+this.col] = buf32[i]
+      this.images[this.tile][i*this.model.tile_width+this.col] = buf32[i]
 
     // update the tiles canvas with the image data
-    const cctx = this.canvas[this.tile].getContext('2d')!
+    const cctx = this.canvases[this.tile].getContext('2d')!
     const image = cctx.getImageData(0, 0, this.model.tile_width, this.model.gram_length)
-    image.data.set(new Uint8Array(this.image[this.tile].buffer))
+    image.data.set(new Uint8Array(this.images[this.tile].buffer))
     cctx.putImageData(image, 0, 0)
   }
 }
@@ -133,7 +133,7 @@ export class WaterfallRenderer extends Renderer {
     this.prototype.default_view = WaterfallRendererView
 
     this.define<WaterfallRenderer.Props>(({Int, Number, Color, Array}) => ({
-      latest:      [ Array(Number) ],
+      latest:      [ Array(Number), [] ],
       palette:     [ Array(Color) ],
       num_grams:   [ Int ],
       gram_length: [ Int ],
