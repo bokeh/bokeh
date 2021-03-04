@@ -71,11 +71,9 @@ Follow these steps to recreate this simple line chart:
 3. Use the :func:`~bokeh.plotting.figure` function to create your plot. Pass the
    following arguments:
 
-   * ``title``: the title of your line chart
-   * ``x_axis_label``: which data to use to generate labels for the chart's
-     x-axis
-   * ``y_axis_label``: which data to use to generate labels for the chart's
-     y-axis
+   * ``title``: the title of your line chart (optional)
+   * ``x_axis_label``: a text label to put on the chart's x-axis (optional)
+   * ``y_axis_label``: a text label to put on the chart's y-axis (optional)
 
     .. code-block:: python
 
@@ -86,8 +84,8 @@ Follow these steps to recreate this simple line chart:
    :func:`~bokeh.plotting.Figure.line` function. Pass the following arguments:
 
    * your lists ``x`` and ``y`` containing the data
-   * ``legend_label``: a string to label the line graph with
-   * ``line_width``: define the line width (in pixels)
+   * ``legend_label``: a string to label the line graph with (optional)
+   * ``line_width``: define the line width (in pixels, optional)
 
     .. code-block:: python
 
