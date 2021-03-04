@@ -8,7 +8,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {CDSView} from "../sources/cds_view"
 import {Color, Indices} from "core/types"
 import * as p from "core/properties"
-import {indexOf, filter} from "core/util/arrayable"
+import {filter} from "core/util/arrayable"
 import {difference} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import {HitTestResult} from "core/hittest"
@@ -419,25 +419,16 @@ export class GlyphRenderer extends DataRenderer {
   }
 
   get_reference_point(field: string | null, value?: any): number {
-    let index = 0
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        if (this.view == null) {
-          const i = indexOf(data, value)
-          if (i != -1)
-            index = i
-        } else {
-          for (const [k, v] of Object.entries(this.view.indices_map)) {
-            if (data[parseInt(k)] == value) {
-              index = v
-              break
-            }
-          }
+        for (const [key, index] of Object.entries(this.view.indices_map)) {
+          if (data[parseInt(key)] == value)
+            return index
         }
       }
     }
-    return index
+    return 0
   }
 
   get_selection_manager(): SelectionManager {
