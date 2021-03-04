@@ -122,7 +122,6 @@ DataSpec Properties
 .. autoclass:: AlphaSpec
 .. autoclass:: AngleSpec
 .. autoclass:: ColorSpec
-.. autoclass:: DataDistanceSpec
 .. autoclass:: DataSpec
 .. autoclass:: DistanceSpec
 .. autoclass:: FontSizeSpec
@@ -200,7 +199,6 @@ __all__ = (
     'ColumnData',
     'Complex',
     'DashPattern',
-    'DataDistanceSpec',
     'DataSpec',
     'Date',
     'Datetime',
@@ -288,7 +286,6 @@ from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
 from .property.dataspec import DashPatternSpec; DashPatternSpec
 from .property.dataspec import DataSpec; DataSpec
-from .property.dataspec import DataDistanceSpec; DataDistanceSpec
 from .property.dataspec import DistanceSpec; DistanceSpec
 from .property.dataspec import expr; expr
 from .property.dataspec import field; field

@@ -29,7 +29,6 @@ from bokeh.core.properties import (
     ColumnData,
     Complex,
     DashPattern,
-    DataDistanceSpec,
     Date,
     Datetime,
     Dict,
@@ -72,7 +71,6 @@ ALL = (
 SPECS = (
     AngleSpec,
     ColorSpec,
-    DataDistanceSpec,
     DistanceSpec,
     FontSizeSpec,
     NumberSpec,

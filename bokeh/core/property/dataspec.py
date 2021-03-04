@@ -44,7 +44,6 @@ __all__ = (
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
-    'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
@@ -528,14 +527,6 @@ class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
 
     """
     _units = "screen"
-
-class DataDistanceSpec(_FixedUnitsDistanceSpec):
-    """ A |DataSpec| property that accepts numeric fixed values for data-space
-    distances, and also provides an associated units property that reports
-    ``"data"`` as the units.
-
-    """
-    _units = "data"
 
 class ColorSpec(DataSpec):
     """ A |DataSpec| property that accepts |Color| fixed values.

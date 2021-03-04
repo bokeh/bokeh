@@ -39,7 +39,6 @@ ALL = (
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
-    'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
@@ -64,7 +63,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 def test_strict_dataspec_key_values() -> None:
-    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.DataDistanceSpec, bcpd.ScreenDistanceSpec):
+    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.ScreenDistanceSpec):
         class Foo(HasProps):
             x = typ("x")
         f = Foo()
@@ -267,17 +266,6 @@ class Test_ColorSpec:
         f.col = "field2"
         assert f.col == "field2"
         assert desc.serializable_value(f) == {"field": "field2"}
-
-class Test_DataDistanceSpec:
-    def test_basic(self) -> None:
-        assert issubclass(bcpd.DataDistanceSpec, bcpd.UnitsSpec)
-        class Foo(HasProps):
-            x = bcpd.DataDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
-        props = foo.properties_with_values(include_defaults=False)
-        assert "units" not in props['x']
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
 
 class Test_DistanceSpec:
     def test_default_value(self) -> None:

@@ -59,7 +59,6 @@ ALL = (
     'ColumnData',
     'Complex',
     'DashPattern',
-    'DataDistanceSpec',
     'DataSpec',
     'Date',
     'Datetime',
