@@ -15,7 +15,8 @@ uniform float u_cap_type;
 uniform vec4 u_color;
 #ifdef DASHED
 uniform sampler2D u_dash_tex;
-uniform vec3 u_dash_tex_info;
+uniform vec4 u_dash_tex_info;
+uniform float u_dash_scale;
 uniform float u_dash_offset;
 #endif
 
@@ -92,12 +93,20 @@ float dash_distance(in float x)
     // x is in direction of v_coords.x, i.e. along segment.
     float tex_length = u_dash_tex_info.x;
     float tex_offset = u_dash_tex_info.y;
-    float tex_scale = u_dash_tex_info.z;
+    float tex_dist_min = u_dash_tex_info.z;
+    float tex_dist_max = u_dash_tex_info.w;
 
-    x += v_length_so_far - tex_scale*tex_offset;
+    // Apply user-chosen offset.
+    x += v_length_so_far - u_dash_scale*tex_offset;
 
-    return tex_scale*texture2D(u_dash_tex,
-                               vec2(x / (tex_length*tex_scale), 0.0)).a;
+    // Interpolate within texture to obtain distance to dash.
+    float dist = texture2D(u_dash_tex,
+                           vec2(x / (tex_length*u_dash_scale), 0.0)).a;
+
+    // Scale distance within min and max limits.
+    dist = tex_dist_min + dist*(tex_dist_max - tex_dist_min);
+
+    return u_dash_scale*dist;
 }
 
 mat2 rotation_matrix(in float sign_start)

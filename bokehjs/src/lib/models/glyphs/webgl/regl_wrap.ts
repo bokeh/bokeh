@@ -1,6 +1,6 @@
 import createRegl from "regl"
-import {Regl, Texture2D} from "regl"
-import {DashCache} from "./dash_cache"
+import {Regl} from "regl"
+import {DashCache, DashReturn} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./markers.vert"
@@ -40,10 +40,7 @@ export class ReglWrapper {
       this._regl = createRegl({
         gl,
         extensions: [
-          "angle_instanced_arrays",
-          "oes_texture_float",
-          "oes_texture_float_linear",
-          "webgl_color_buffer_float",
+          "ANGLE_instanced_arrays",
         ],
       })
       this._regl_available = true
@@ -62,7 +59,7 @@ export class ReglWrapper {
     return this._dashed_line
   }
 
-  public get_dash(line_dash: number[]): [[number, number, number], Texture2D] {
+  public get_dash(line_dash: number[]): DashReturn {
     if (this._dash_cache === undefined)
       this._dash_cache = new DashCache(this._regl)
 
@@ -237,6 +234,7 @@ function regl_dashed_line(regl: any): ReglRenderFunction {
       u_cap_type: regl.prop('cap_type'),
       u_dash_tex: regl.prop('dash_tex'),
       u_dash_tex_info: regl.prop('dash_tex_info'),
+      u_dash_scale: regl.prop('dash_scale'),
       u_dash_offset: regl.prop('dash_offset'),
     },
 

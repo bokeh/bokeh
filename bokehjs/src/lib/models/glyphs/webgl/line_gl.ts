@@ -33,6 +33,7 @@ export class LineGL extends BaseGLGlyph {
   protected _length_so_far: Float32Array | undefined
   protected _dash_tex: Texture2D | undefined
   protected _dash_tex_info: number[] | undefined
+  protected _dash_scale: number | undefined
 
   protected _debug_show_mesh: boolean
 
@@ -81,6 +82,7 @@ export class LineGL extends BaseGLGlyph {
         length_so_far: this._length_so_far,
         dash_tex: this._dash_tex,
         dash_tex_info: this._dash_tex_info,
+        dash_scale: this._dash_scale,
         dash_offset: this._dash_offset,
       })
     else
@@ -177,7 +179,8 @@ export class LineGL extends BaseGLGlyph {
     this._dash_offset = line_visuals.line_dash_offset.value
 
     if (this._is_dashed()) {
-      [this._dash_tex_info, this._dash_tex] = this.regl_wrapper.get_dash(this._line_dash)
+      [this._dash_tex_info, this._dash_tex, this._dash_scale] =
+        this.regl_wrapper.get_dash(this._line_dash)
     }
   }
 }
