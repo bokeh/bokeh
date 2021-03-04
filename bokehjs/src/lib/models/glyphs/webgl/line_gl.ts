@@ -13,8 +13,8 @@ const join_lookup = {miter: 0, round: 1, bevel: 2}
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
-const missing_point = -1e10
-const missing_point_threshold = -1e9
+const missing_point = -10000.0
+const missing_point_threshold = -9000.0
 
 
 export class LineGL extends BaseGLGlyph {

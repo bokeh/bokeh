@@ -8,7 +8,7 @@ const int miter_join = 0;
 const int round_join = 1;
 const int bevel_join = 2;
 
-const float missing_point_threshold = -1e9;
+const float missing_point_threshold = -9000.0;
 
 attribute vec2 a_position;
 attribute vec2 a_point_prev;
