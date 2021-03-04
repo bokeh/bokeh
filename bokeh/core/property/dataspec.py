@@ -504,18 +504,11 @@ class NullDistanceSpec(DistanceSpec):
             pass
         return super().prepare_value(cls, name, value)
 
-class ScreenDistanceSpec(UnitsSpec):
-    """ A |DataSpec| property that accepts numeric fixed values for screen-space
-    distances, and also provides an associated units property that reports
-    ``"screen"`` as the units.
-
+class ScreenDistanceSpec(NumberSpec):
+    """ A |DataSpec| property that accepts non-negative numeric fixed values
+    for screen-space distances or strings that refer to columns in a
+    :class:`~bokeh.models.sources.ColumnDataSource`.
     """
-
-    def __init__(self, default=Undefined, help=None):
-        super().__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
-
-    def get_units(self, _obj, _name):
-        return "screen"
 
     def prepare_value(self, cls, name, value):
         try:

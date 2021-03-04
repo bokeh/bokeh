@@ -519,16 +519,6 @@ class Test_NumberSpec:
 
 
 class Test_UnitSpec:
-    def test_basic(self) -> None:
-        assert issubclass(bcpd.ScreenDistanceSpec, bcpd.UnitsSpec)
-        class Foo(HasProps):
-            x = bcpd.ScreenDistanceSpec("x")
-        foo = Foo(x=dict(field='foo'))
-        props = foo.properties_with_values(include_defaults=False)
-        assert "units" not in props['x']
-        assert props['x']['field'] == 'foo'
-        assert props['x'] is not foo.x
-
     def test_strict_key_values(self) -> None:
         class FooUnits(HasProps):
             x = bcpd.DistanceSpec("x")

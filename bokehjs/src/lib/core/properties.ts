@@ -615,9 +615,6 @@ export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
   }
 }
 
-export class ScreenDistanceSpec extends DistanceSpec {
-  get default_units(): enums.SpatialUnits { return "screen" }
-}
 
 export class BooleanSpec extends DataSpec<boolean> {
   v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
@@ -636,6 +633,12 @@ export class NumberSpec extends DataSpec<number> {
 
   array(source: ColumnarDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
+  }
+}
+
+export class ScreenDistanceSpec extends NumberSpec {
+  valid(value: unknown): boolean {
+    return isNumber(value) && value >= 0
   }
 }
 
