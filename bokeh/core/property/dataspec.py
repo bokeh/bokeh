@@ -55,7 +55,7 @@ __all__ = (
     'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
-    'ScreenDistanceSpec',
+    'ScreenSizeSpec',
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
@@ -475,7 +475,7 @@ class NullDistanceSpec(DistanceSpec):
             pass
         return super().prepare_value(cls, name, value)
 
-class ScreenDistanceSpec(NumberSpec):
+class ScreenSizeSpec(NumberSpec):
     """ A |DataSpec| property that accepts non-negative numeric fixed values
     for screen-space distances or strings that refer to columns in a
     :class:`~bokeh.models.sources.ColumnDataSource`.
@@ -483,8 +483,8 @@ class ScreenDistanceSpec(NumberSpec):
 
     def prepare_value(self, cls, name, value):
         try:
-            if value is not None and value < 0:
-                raise ValueError("Distances must be positive or None!")
+            if value < 0:
+                raise ValueError("Screen sizes must be positive")
         except TypeError:
             pass
         return super().prepare_value(cls, name, value)

@@ -636,7 +636,7 @@ export class NumberSpec extends DataSpec<number> {
   }
 }
 
-export class ScreenDistanceSpec extends NumberSpec {
+export class ScreenSizeSpec extends NumberSpec {
   valid(value: unknown): boolean {
     return isNumber(value) && value >= 0
   }

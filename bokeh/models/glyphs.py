@@ -73,7 +73,7 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
-    ScreenDistanceSpec,
+    ScreenSizeSpec,
     Size,
     String,
     StringSpec,
@@ -173,7 +173,7 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     tools.
     """)
 
-    size = ScreenDistanceSpec(default=4, help="""
+    size = ScreenSizeSpec(default=4, help="""
     The size (diameter) values for the markers in screen space units.
     """)
 

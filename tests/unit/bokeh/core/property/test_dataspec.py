@@ -50,7 +50,7 @@ ALL = (
     'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
-    'ScreenDistanceSpec',
+    'ScreenSizeSpec',
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
@@ -62,7 +62,7 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 def test_strict_dataspec_key_values() -> None:
-    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.ScreenDistanceSpec):
+    for typ in (bcpd.NumberSpec, bcpd.StringSpec, bcpd.FontSizeSpec, bcpd.ColorSpec, bcpd.ScreenSizeSpec):
         class Foo(HasProps):
             x = typ("x")
         f = Foo()

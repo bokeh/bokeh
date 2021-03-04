@@ -100,7 +100,7 @@ ALL = (
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
-    'ScreenDistanceSpec',
+    'ScreenSizeSpec',
     'Seq',
     'Size',
     'String',

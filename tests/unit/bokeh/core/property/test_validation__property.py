@@ -47,7 +47,7 @@ from bokeh.core.properties import (
     NumberSpec,
     Percent,
     Regex,
-    ScreenDistanceSpec,
+    ScreenSizeSpec,
     Seq,
     Size,
     String,
@@ -74,7 +74,7 @@ SPECS = (
     DistanceSpec,
     FontSizeSpec,
     NumberSpec,
-    ScreenDistanceSpec,
+    ScreenSizeSpec,
     StringSpec,
 )
 
