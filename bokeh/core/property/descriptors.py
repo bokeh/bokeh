@@ -1052,7 +1052,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         super().set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    """ A ``PropertyDecscriptor`` for Bokeh |PropertyUnitsSpec| properties that
+    """ A ``PropertyDescriptor`` for Bokeh |PropertyUnitsSpec| properties that
     contribute associated ``_units`` properties automatically as a side effect.
 
     """

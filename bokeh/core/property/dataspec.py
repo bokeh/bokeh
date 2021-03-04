@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ... import colors
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
+from ...util.string import nice_join
 from .. import enums
 from .color import Color
 from .container import Dict, List
@@ -384,14 +385,12 @@ class PropertyUnitsSpec(NumberSpec):
 
     """
 
-    def __init__(self, default, units_type, units_default, help=None):
+    def __init__(self, default, units_enum, units_default, help=None):
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
-        self._units_type = self._validate_type_param(units_type)
-
-        # TODO (bev) units_type was already constructed, so this really should not be needed
-        self._units_type.validate(units_default)
-        self._units_type._default = units_default
-        self._units_type._serialized = False
+        units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
+        Units to use for the associated property: {nice_join(units_enum)}
+        """)
+        self._units_type = self._validate_type_param(units_type, help_allowed=True)
 
     def __str__(self):
         units_default = self._units_type._default
@@ -440,7 +439,7 @@ class AngleSpec(PropertyUnitsSpec):
 
     """
     def __init__(self, default=Undefined, units_default="rad", help=None):
-        super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
@@ -450,7 +449,7 @@ class DistanceSpec(PropertyUnitsSpec):
 
     """
     def __init__(self, default=Undefined, units_default="data", help=None):
-        super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_enum=enums.SpatialUnits, units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
         try:
