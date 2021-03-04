@@ -504,13 +504,18 @@ class NullDistanceSpec(DistanceSpec):
             pass
         return super().prepare_value(cls, name, value)
 
-class _FixedUnitsDistanceSpec(UnitsSpec):
+class ScreenDistanceSpec(UnitsSpec):
+    """ A |DataSpec| property that accepts numeric fixed values for screen-space
+    distances, and also provides an associated units property that reports
+    ``"screen"`` as the units.
+
+    """
 
     def __init__(self, default=Undefined, help=None):
-        super().__init__(default=default, units_type=Enum(enums.enumeration(self._units)), units_default=self._units, help=help)
+        super().__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
 
     def get_units(self, _obj, _name):
-        return self._units
+        return "screen"
 
     def prepare_value(self, cls, name, value):
         try:
@@ -519,14 +524,6 @@ class _FixedUnitsDistanceSpec(UnitsSpec):
         except TypeError:
             pass
         return super().prepare_value(cls, name, value)
-
-class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
-    """ A |DataSpec| property that accepts numeric fixed values for screen-space
-    distances, and also provides an associated units property that reports
-    ``"screen"`` as the units.
-
-    """
-    _units = "screen"
 
 class ColorSpec(DataSpec):
     """ A |DataSpec| property that accepts |Color| fixed values.
