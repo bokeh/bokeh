@@ -59,7 +59,6 @@ __all__ = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
     'value',
 )
 
@@ -379,12 +378,12 @@ class MarkerSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, MarkerType, default=default, help=help)
 
-
-class UnitsSpec(NumberSpec):
+class PropertyUnitsSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
-    serializes associated units values.
+    provides an associated units property to store units information.
 
     """
+
     def __init__(self, default, units_type, units_default, help=None):
         super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
@@ -399,52 +398,13 @@ class UnitsSpec(NumberSpec):
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 
     def get_units(self, obj, name):
-        raise NotImplementedError()
-
-    def make_descriptors(self, base_name):
-        """ Return a list of ``PropertyDescriptor`` instances to install on a
-        class, in order to delegate attribute access to this property.
-
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
-        descriptors to install. In particular, descriptors for the base
-        property as well as the associated units property are returned.
-
-        Args:
-            name (str) : the name of the property these descriptors are for
-
-        Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        """
-        units_props = self._units_type.make_descriptors("unused")
-        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
-
-    def to_serializable(self, obj, name, val):
-        d = super().to_serializable(obj, name, val)
-        if d is not None and 'units' not in d:
-            # d is a PropertyValueDict at this point, we need to convert it to
-            # a plain dict if we are going to modify its value, otherwise a
-            # notify_change that should not happen will be triggered
-            units = self.get_units(obj, name)
-            if units != self._units_type._default:
-                d = dict(**d, units=units)
-        return d
-
-class PropertyUnitsSpec(UnitsSpec):
-    """ A |DataSpec| property that accepts numeric fixed values, and also
-    provides an associated units property to store units information.
-
-    """
-    def get_units(self, obj, name):
         return getattr(obj, name+"_units")
 
     def make_descriptors(self, base_name):
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        Unlike simpler property types, ``PropertyUnitsSpec`` returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -460,6 +420,17 @@ class PropertyUnitsSpec(UnitsSpec):
         units_name = base_name + "_units"
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
+
+    def to_serializable(self, obj, name, val):
+        d = super().to_serializable(obj, name, val)
+        if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            units = self.get_units(obj, name)
+            if units != self._units_type._default:
+                d = dict(**d, units=units)
+        return d
 
 class AngleSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also

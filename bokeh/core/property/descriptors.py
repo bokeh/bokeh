@@ -1052,8 +1052,8 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         super().set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    """ A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
-    associated ``_units`` properties automatically as a side effect.
+    """ A ``PropertyDecscriptor`` for Bokeh |PropertyUnitsSpec| properties that
+    contribute associated ``_units`` properties automatically as a side effect.
 
     """
 
@@ -1151,7 +1151,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
     def _extract_units(self, obj, value):
         """ Internal helper for dealing with units associated units properties
-        when setting values on |UnitsSpec| properties.
+        when setting values on |PropertyUnitsSpec| properties.
 
         When ``value`` is a dict, this function may mutate the value of the
         associated units property.

@@ -54,7 +54,6 @@ ALL = (
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
     'value',
 )
 

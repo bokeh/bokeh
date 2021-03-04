@@ -108,7 +108,6 @@ ALL = (
     'Struct',
     'TimeDelta',
     'Tuple',
-    'UnitsSpec',
     'expr',
     'field',
     'validate',

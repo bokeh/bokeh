@@ -130,7 +130,6 @@ DataSpec Properties
 .. autoclass:: PropertyUnitsSpec
 .. autoclass:: ScreenDistanceSpec
 .. autoclass:: StringSpec
-.. autoclass:: UnitsSpec
 
 Helpers
 ~~~~~~~
@@ -248,7 +247,6 @@ __all__ = (
     'Struct',
     'TimeDelta',
     'Tuple',
-    'UnitsSpec',
     'expr',
     'field',
     'validate',
@@ -304,7 +302,6 @@ from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
-from .property.dataspec import UnitsSpec; UnitsSpec
 from .property.dataspec import value; value
 
 from .property.datetime import Date; Date

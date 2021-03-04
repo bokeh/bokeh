@@ -64,7 +64,7 @@ rst_epilog = """
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
-.. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
+.. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
 """
