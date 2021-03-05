@@ -3,9 +3,9 @@ import {expect} from "assertions"
 import {FuncTickFormatter} from "@bokehjs/models/formatters/func_tick_formatter"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 
-describe("func_tick_formatter module", () => {
+describe("FuncTickFormatter", () => {
 
-  describe("FuncTickFormatter._make_func method", () => {
+  describe("_make_func method", () => {
     const formatter = new FuncTickFormatter({code: "return 10"})
 
     it("should return a Function", () => {
@@ -58,6 +58,23 @@ describe("func_tick_formatter module", () => {
       expect(labels0).to.be.equal(["-100.00", "-1.00", "0.00", "1.00", "100.00"])
       const labels1 = formatter.doFormat([-0.1, 0, 0.1], {loc: 0})
       expect(labels1).to.be.equal(["-10.00", "0.00", "10.00"])
+    })
+
+    it("should handle functions that return non-string values", () => {
+      const formatter = new FuncTickFormatter({
+        code: `
+          switch (true) {
+            case tick >= 1e9: return (tick / 1e9).toFixed(1) + " G"
+            case tick >= 1e6: return (tick / 1e6).toFixed(1) + " M"
+            case tick >= 1e3: return (tick / 1e3).toFixed(1) + " k"
+            default:
+              return tick
+          }
+        `,
+      })
+
+      const labels0 = formatter.doFormat([1.1e7, 2.2e8, 3.3e9, 0.9e2], {loc: 0})
+      expect(labels0).to.be.equal(["11.0 M", "220.0 M", "3.3 G", "90"])
     })
   })
 })
