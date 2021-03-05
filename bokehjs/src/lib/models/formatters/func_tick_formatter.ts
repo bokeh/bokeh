@@ -32,7 +32,7 @@ export class FuncTickFormatter extends TickFormatter {
     return keys(this.args)
   }
 
-  get values(): any[] {
+  get values(): unknown[] {
     return values(this.args)
   }
 
@@ -44,6 +44,6 @@ export class FuncTickFormatter extends TickFormatter {
   doFormat(ticks: number[], _opts: {loc: number}): string[] {
     const cache = {}
     const func = this._make_func().bind(cache)
-    return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...this.values))
+    return ticks.map((tick, index, ticks) => `${func(tick, index, ticks, ...this.values)}`)
   }
 }
