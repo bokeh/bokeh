@@ -859,6 +859,9 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
+    See :ref:`userguide_plotting_polygon_annotations` for information on
+    plotting polygon annotations.
+
     '''
 
     xs = Seq(Float, default=[], help="""
