@@ -279,6 +279,21 @@ plot area for the dimension you did not specify.
 .. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
     :source-position: above
 
+.. _userguide_plotting_polygon_annotations:
+
+Polygon annotations
+-------------------
+
+A |PolyAnnotation| is a polygon with vertices in either
+:ref:`data or screen coordinates <userguide_styling_units>`.
+
+To define the polygon's vertices, supply a series of coordinates to the
+``xs`` and ``ys`` properties. Bokeh automatically connects the last vertex
+to the first to create a closed shape.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_polygon_annotation.py
+    :source-position: above
+
 .. _userguide_plotting_labels:
 
 Labels
@@ -403,6 +418,7 @@ These are the most commonly used properties for this annotation:
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
 .. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
+.. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
