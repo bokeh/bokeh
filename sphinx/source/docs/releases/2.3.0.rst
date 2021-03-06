@@ -3,10 +3,49 @@
 2.3.0
 =====
 
-Bokeh Version ``2.3.0`` (**TODO** January 2021) is a minor-release.
+Bokeh Version ``2.3.0`` (February 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
 
-And several other bug fixes and docs additions. For full details see the
+* Multi-line axis and tick labels are now possible (:bokeh-issue:`8169`)
+* Log axes display using superscripts (:bokeh-issue:`8954`)
+* ``DataModel`` base class to define custom "properties-only" Bokeh subclasses
+  added (:bokeh-issue:`3674`)
+* Colorbar supports "eqhist" and categorical color mappings
+  (:bokeh-issue:`5618`,  :bokeh-issue:`10493`)
+* "Edges Only" inspection policy added for graphs (:bokeh-issue:`10637`)
+* Hatch patterns can be used with all fill-able glyphs and annotations
+  (:bokeh-issue:`10824`)
+* New "star" markers added (:bokeh-issue:`10836`)
+* Arrowheads and line-dash patterns can be vectorized
+  (:bokeh-issue:`6835`, :bokeh-issue:`10203`)
+* Tornado websocket compression options added (:bokeh-issue:`10798`)
+
+Important bug-fixes include:
+
+* A major bug with datetime precision causing several regressions was fixed
+  (:bokeh-issue:`10738`)
+* SVG export no longer flips images (:bokeh-issue:`10725`)
+* ``LabelSet`` and ``Whisker`` now work for categorical ranges
+  (:bokeh-issue:`10454`, :bokeh-issue:`10575`)
+* ``MultiLine`` hover fixed (:bokeh-issue:`10458`)
+* ``MultiChoice`` and ``MulitSelect`` disabling now works
+  (:bokeh-issue:`10452`, :bokeh-issue:`10507`)
+* Date sliders can use a ``TickFormatter`` (:bokeh-issue:`10458`)
+
+The documentation has also received renewed attention:
+
+* New `First steps <https://docs.bokeh.org/en/latest/docs/first_steps.html>`_
+  sections
+* Documentation updated to reflect
+  `new style guidelines <https://docs.bokeh.org/en/latest/docs/dev_guide/documentation.html#documentation-style-guidelines>`_
+* Basic OpenGraph metadata has been added to docs pages
+* New landing page on `docs.bokeh.org <https://docs.bokeh.org>`_
+
+As well as many other small issues were closed. For full details, see the
 :bokeh-tree:`CHANGELOG`.
+
+Please note that the next release level (2.4) will drop support for Python 3.6,
+and also be the final release level to support IE and other legacy browsers.
 
 .. _release-2-3-0-migration:
 
@@ -16,23 +55,23 @@ And several other bug fixes and docs additions. For full details see the
 Properties are non-nullable by default
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously all properties accepted ``None`` (``null`` in bokehjs) as a value.
-In this release this was changed and ``None`` is accepted only by properties
-marked as nullable, e.g. ``Nullable(Int)`` accepts integers and ``None``. All
-exsisting models and their properties were updated, so there will be no
-difference from users' perspetive. However, extensions' creators are affected,
-who will have to update their models.
+Previously, all properties accepted ``None`` (``null`` in BokehJS) as a value.
+As of this release, ``None`` is only accepted by properties explicitly marked
+as nullable, e.g.``Nullable(Int)`` accepts integers and ``None``. All current
+models and their properties were adjusted as needed, so there will be no
+difference from users' perspective. However, custom extensions may require
+updates if they relied on the old behavior.
 
 Primitive and derived properties have default values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously some of primitive and their derived properties didn't have
-sensible intrinsic default values (e.g. ``Int`` defaulted to ``None``). Now
-all such properties have default values, e.g. ``0`` for ``Int``, ``""`` for
-``String``, etc. A default value can be removed by marking a property as
-non-nullable, e.g. ``NonNullable(Int)``, making a property required to be
-set by a user. Such property's value is unset and an attempt to retrieve
-its value results in ``UnsetValueException``.
+Some properties did not have sensible intrinsic default values (``Int``
+defaulted to ``None``, for example). Now all properties have default values,
+such as ``0`` for ``Int``, or ``""`` for ``String``. You can remove a default
+value by marking a property as non-nullable, e.g. ``NonNullable(Int)``. In this
+case, a user is required to set a property value. An attempt to retrieve the
+value of a non-nullable property before it is set will raise an
+``UnsetValueException``.
 
 Use ``Readonly()`` to indicate readonly properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,15 +82,13 @@ removed in the future. Use ``Readonly(Int)`` instead.
 ``ArrowHead`` is not an annotation anymore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ArrowHead`` used to inherit from ``Annotation`` base class, but was never
-intended to work like one and didn't fully implement its protocol. After this
-change you won't be able to use properties like ``level``, ``x_range_name``,
-etc., but those wheren't respected by renderers anyway.
+``ArrowHead`` no longer inherits from the ``Annotation`` base class. This will
+pave the way for vectorizable arrowheads.
 
-Renamed bokeh's base models
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Four of Bokeh's base models are renamed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Certain base models were renamed to unify naming convention with bokehjs:
+Certain base models were renamed to unify naming convention with BokehJS:
 
 +---------------+-------------------+
 | Old name      | New name          |
@@ -65,104 +102,53 @@ Certain base models were renamed to unify naming convention with bokehjs:
 | ``Inspect``   | ``InspectTool``   |
 +---------------+-------------------+
 
-Old names are deprecated and will be removed in bokeh 3.0.
+Old names are retained for compatibility but are deprecated and will be removed
+in Bokeh 3.0.
 
 ``names`` properties were deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``DataRange.names``, ``SelectTool.names`` and ``HoverTool.names`` were deprecated
-and will be removed in bokeh 3.0. Use respective ``renderers`` properties instead,
-possibly in combination with ``plot.select(name="renderer name")``.
+``DataRange.names``, ``SelectTool.names``, and ``HoverTool.names`` are
+deprecated and will be removed in Bokeh 3.0. Use the ``renderers`` properties
+instead, possibly in combination with ``plot.select(name="renderer name")``.
 
-bokehjs' visuals have different semantics
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+BokehJS visuals have different semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously ``Line``, ``Fill``, ``Text`` and ``Hatch`` visuals were used in primitive,
-scalar and vector contexts. Those were split and now context-specific visuals, e.g.,
-``Line``, ``LineScalar`` and ``LineVector`` have to used in respective contexts. This
-aligns visuals with mixins, among other things.
+Previously ``Line``, ``Fill``, ``Text``, and ``Hatch`` visuals were used across
+primitive, scalar, and vector properties. Those are now split into more specific
+versions, e.g. ``Line``, ``LineScalar``, and ``LineVector``. This should only
+affect custom extensions that use visuals.
 
 Marker models are deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Models like ``Asterisk``, ``CircleX``, ``X``, etc. are deprecated in bokeh. Use
-``Scatter`` glyph with respective marker types instead, e.g. replace ``Asterisk()``
-with ``Scatter(marker="asterisk")``. Marker methods on ``Figure`` will default to
-use ``Scatter`` glyph. Marker models were removed from bokehjs.
+Marker models like ``Asterisk``, ``CircleX``, ``X``, etc. are deprecated. Use
+the ``Scatter`` glyph with a marker type instead, e.g. replace ``Asterisk()``
+with ``Scatter(marker="asterisk")``. Marker methods on ``Figure`` will default
+to use ``Scatter`` glyph. Marker models were removed from BokehJS.
 
-``EditTool.custom_tooltip``, ``HelpTool.help_tooltip`` and ``CustomAction.action_tooltip`` were deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tooltip deprecations
+~~~~~~~~~~~~~~~~~~~~
 
-Use ``Tool.description`` instead, which can also be used with all other types tools.
+``EditTool.custom_tooltip``, ``HelpTool.help_tooltip`` and
+``CustomAction.action_tooltip`` were deprecated Use ``Tool.description``, which
+can also be used with all other types tools, instead.
 
-``ColorBar``'s ``orientation``, ``ticker`` and ``formatter`` default to ``"auto"``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+New ``"auto"`` defaults for color bar properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously those properties had concrete defaults (``"vertical"``, ``BasicTicker()`` and
-``BasicTickFormatter()`` respectively). In most cases this shouldn't affect users' code.
-However, if you relied on setting e.g. ``color_bar.ticker.base = 60``, then the code will
-need to be repaced with ``color_bar.ticker = BasicTicker(base=60)``.
+``ColorBar`` properties ``orientation``, ``ticker``, and ``formatter`` now
+default to ``"auto"``. Previously, these properties had concrete defaults
+(``"vertical"``, ``BasicTicker()`` and ``BasicTickFormatter()`` respectively).
+In most cases, this will not affect user code. However, if you relied on setting
+e.g. ``color_bar.ticker.base = 60``, then the code will need to be replaced with
+``color_bar.ticker = BasicTicker(base=60)``.
 
 ``CartesianFrame`` is not a layout anymore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This only affects extension creators. ``CartesianFrame`` is now responsible only for maintaing
-the coordinate system of a plot. Use the plot's ``layout.center_panel`` to access any layout
-related capability. Note you can still use ``CartesianFrame.bbox``, so most code doesn't change.
-
-.. _release-2-3-0-bokehjs-usage:
-
-`BokehJS Usage Guide <releases.html#release-2-3-0-bokehjs-usage>`__
-
-BokehJS usage can differ from the Python equivalent in some cases. Here are some instances we have identified:
-
-Updating figure titles
-~~~~~~~~~~~~~~~~~~~~~~
-
-Calling ``var plot = new Bokeh.Plotting.figure({title:"some title"})`` replaces plot.title (a ``Bokeh.Title()``
-object by default) with the provided string. This makes it so the title cannot be dynamically updated later.
-In Python, the equivalent approach casts the string to the underlying Title() object.
-
-To preserve the ability to update the title later, use the following sequence instead:
-
-``var plot = new Bokeh.Plotting.figure()``
-``plot.title.text = "some title"``
-
-Using gridplot layouts
-~~~~~~~~~~~~~~~~~~~~~~
-
-``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots. To match the expected
-behavior from the Python equivalent, for example when using ``sizing_mode: 'stretch_width'``, the ``sizing_mode``
-must be explicitly stated for both the ``figure()`` and the ``gridplot()`` objects.
-
-Palette for ``Bokeh.Plotting`` objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``; to use with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the palette argument must be provided as a color string array, rather than as a string.
-
-Adjusting ``range_padding``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding`` to adjust whitespace around
-glyphs on X axis is not persistent across resets. To match expected behavior from Python output, where the preferences
-will hold across figure resets, set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_padding``.
-(Same for Y axis)
-
-Setting glyph names for ``HoverTool``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``renderer.glyph.name``, rather than
-``renderer.name``. The latter is used for HoverTool, under the special field ``$name``. To enable this special field in the HoverTool, consider passing the glyph name to the renderer:
-
-``plot.renderers[0].name = plot.renderers[0].glyph.name;``
-
-Using ``Div()`` in a ``gridplot()``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A ``Div()`` instance created by calling ``var mydiv = new Bokeh.Widgets.Div()`` does not include ``mydiv.toolbar.tools``
-to facilitate using in a custom ``Bokeh.Plotting.gridplot()``; or ``gridplot()`` fails to check whether the property
-exists before accessing. This throws ``Uncaught TypeError: Cannot read property 'tools' of undefined``
-
-To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's toolbar property, as follows:
-
-``mydiv.toolbar = {tools:[]}``
+This only affects extension creators. ``CartesianFrame`` is now responsible only
+for maintaining the coordinate system of a plot. Use the ``layout.center_panel``
+of a plot to access any layout-related capability. Note you can still use
+``CartesianFrame.bbox``, so most code doesn't have to change.
