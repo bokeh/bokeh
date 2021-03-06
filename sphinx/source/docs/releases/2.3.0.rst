@@ -153,10 +153,11 @@ for maintaining the coordinate system of a plot. Use the ``layout.center_panel``
 of a plot to access any layout-related capability. Note you can still use
 ``CartesianFrame.bbox``, so most code doesn't have to change.
 
-Figure sizing fixed
-~~~~~~~~~~~~~~~~~~~
+Figure sizing fixed in BokehJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously, setting `plot.frame_width` while using `sizing_mode:'fixed'` did not resize the
-canvas as expected; the figure would only resize after changing `plot.width` or `plot.plot_width`.
-This behavior has been fixed and now setting `plot.width` to trigger the resize is no longer needed.
+Previously, setting ``plot.frame_width`` while using ``sizing_mode:'fixed'``
+did not resize the canvas as expected; the figure would only resize after changing
+``plot.width`` or ``plot.plot_width``. This behavior has been fixed and now setting
+``plot.width`` to trigger the resize is no longer needed.
 

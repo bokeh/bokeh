@@ -282,8 +282,8 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 
 .. _userguide_bokehjs_differences:
 
-Usage : Comparison to Python
-----------------------------
+Usage: Differences to Python library
+------------------------------------
 
 While the BokehJS models generally match the Python equivalents, there are some cases
 where usage can differ significantly between BokehJS and the Python library. Some
@@ -294,48 +294,55 @@ instances we have identified are listed below.
 Updating figure titles
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Calling ``var plot = new Bokeh.Plotting.figure({title:"some title"})`` replaces plot.title (a ``Bokeh.Title()``
-object by default) with the provided string. This makes it so the title cannot be dynamically updated later.
-In Python, the equivalent approach casts the string to the underlying Title() object.
+Calling ``var plot = new Bokeh.Plotting.figure({title:"some title"})`` replaces
+plot.title (a ``Bokeh.Title()`` object by default) with the provided string.
+This makes it so the title cannot be dynamically updated later. In Python, the
+equivalent approach casts the string to the underlying Title() object.
 
 To preserve the ability to update the title later, use the following sequence instead:
 
-``var plot = new Bokeh.Plotting.figure()``
-``plot.title.text = "some title"``
+.. code-block:: javascript
+    var plot = new Bokeh.Plotting.figure()
+    plot.title.text = "some title"
 
 .. _userguide_bokehjs_differences_gridplots:
 
 Using ``sizing_mode`` in gridplot layouts
 ~~~~~~~~~~~~~~~~~~~~~~
 
-``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots. To match the expected
-behavior from the Python equivalent, for example when using ``sizing_mode: 'stretch_width'``, the ``sizing_mode``
-must be explicitly stated for both the ``figure()`` and the ``gridplot()`` objects.
+``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots.
+To match the expected behavior from the Python equivalent, for example when using
+``sizing_mode: 'stretch_width'``, the ``sizing_mode`` must be explicitly stated for both
+the ``figure()`` and the ``gridplot()`` objects.
 
 .. _userguide_bokehjs_differences_range_padding:
 
 Making axis range properties persitent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding`` to adjust whitespace around
-glyphs on an X axis (or the corresponding properties for a Y axis) is not persistent across resets. To match expected behavior from Python output, where the preferences
-will hold across figure resets, set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_padding``.
-(Same for Y axis)
+Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding``
+to adjust whitespace around glyphs on an X axis (or the corresponding properties for a
+Y axis) is not persistent across resets. In the Python library, the values for these
+properties are persistent when a figure is reset. To achieve similar behavior in BokehJS,
+set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_padding``.
 
 .. _userguide_bokehjs_differences_palette:
 
 Palettes for ``Bokeh.Plotting`` objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``. To use it with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the palette argument must be provided as a color string array, rather than as a string.
+The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``.
+To use it with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the
+palette argument must be provided as a color string array, rather than as a string.
 
 .. _userguide_bokehjs_differences_name_field:
 
 Setting glyph names for ``HoverTool``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``renderer.glyph.name``, rather than
-``renderer.name``. The latter is used for HoverTool, under the special field ``$name``. To enable this special field in the HoverTool, pass the glyph name to the renderer:
+Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``renderer.glyph.name``,
+rather than ``renderer.name``. The latter is used for HoverTool, under the special field
+``$name``. To enable this special field in the HoverTool, pass the glyph name to the renderer:
 
 .. code-block:: javascript
     plot.renderers[0].name = plot.renderers[0].glyph.name;
@@ -345,11 +352,14 @@ Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``r
 Using ``Div()`` in a ``gridplot()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A ``Div()`` instance created by calling ``var mydiv = new Bokeh.Widgets.Div()`` does not include ``mydiv.toolbar.tools``
-to facilitate using in a custom ``Bokeh.Plotting.gridplot()``; or ``gridplot()`` fails to check whether the property
-exists before accessing. This throws ``Uncaught TypeError: Cannot read property 'tools' of undefined``
+A ``Div()`` instance created by calling ``var mydiv = new Bokeh.Widgets.Div()``
+does not include ``mydiv.toolbar.tools`` to facilitate using in a custom
+``Bokeh.Plotting.gridplot()``; or ``gridplot()`` fails to check whether the
+property exists before accessing. This throws ``Uncaught TypeError: Cannot read
+property 'tools' of undefined``
 
-To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's toolbar property, as follows:
+To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's
+toolbar property, as follows:
 
 .. code-block:: javascript
     mydiv.toolbar = {tools:[]}
