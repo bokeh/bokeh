@@ -5,7 +5,8 @@ import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
-import {isString} from "@bokehjs/core/util/types"
+import {isString, isArray} from "@bokehjs/core/util/types"
+import {unreachable} from "@bokehjs/core/util/assert"
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -125,7 +126,7 @@ function description(suites: Suite[], test: Test, sep: string = " "): string {
   return descriptions(suites, test).join(sep)
 }
 
-export async function run_all(query?: string | RegExp): Promise<void> {
+export async function run_all(query?: string | string[] | RegExp): Promise<void> {
   for await (const result of yield_all(query)) {
     if (result.error != null) {
       console.error(result.error)
@@ -133,9 +134,19 @@ export async function run_all(query?: string | RegExp): Promise<void> {
   }
 }
 
-export async function* yield_all(query?: string | RegExp): AsyncGenerator<PartialResult> {
-  const matches: (d: string) => boolean =
-    query == null ? (_d) => true : (isString(query) ? (d) => d.includes(query) : (d) => d.match(query) != null)
+export async function* yield_all(query?: string | string[] | RegExp): AsyncGenerator<PartialResult> {
+  const matches = ((): (desc: string) => boolean => {
+    if (query == null)
+      return () => true
+    else if (isString(query))
+      return (desc) => desc.includes(query)
+    else if (isArray(query))
+      return (desc) => query.every((q) => desc.includes(q))
+    else if (query instanceof RegExp)
+      return (desc) => desc.match(query) != null
+    else
+      unreachable()
+  })()
 
   for (const [parents, test] of iter_tests()) {
     if (test.skip || !matches(description(parents, test))) {
@@ -192,6 +203,8 @@ export async function clear(seq: TestSeq): Promise<void> {
   _clear_test(test)
 }
 
+const container = document.querySelector(".container")!
+
 function _clear_test(test: Test): void {
   if (test.view != null) {
     const {model} = test.view
@@ -206,13 +219,16 @@ function _clear_test(test: Test): void {
     test.el.remove()
     test.el = undefined
   }
-  empty(document.body)
+  empty(container)
 }
 
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const {fn} = test
   const start = Date.now()
   let error: Error | null = null
+
+  const desc = div({class: "description"}, description(suites, test, " ⇒ "))
+  container.appendChild(desc)
 
   for (const suite of suites) {
     for (const {fn} of suite.before_each)
@@ -262,7 +278,7 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
       return viewport
     else {
       const {width, height} = _infer_viewport(obj)
-      if (width != Infinity && height != Infinity) {
+      if (isFinite(width) && isFinite(height)) {
         return [width + margin, height + margin]
       } else {
         throw new Error("unable to infer viewport size")
@@ -270,7 +286,7 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
     }
   })()
   const vp = div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
-  document.body.appendChild(vp)
+  container.appendChild(vp)
   const view = await show(obj, el ?? vp)
   current_test!.view = view
   current_test!.el = vp
@@ -280,6 +296,7 @@ export async function display<T extends LayoutDOM>(obj: T, viewport?: [number, n
 import {sum} from "@bokehjs/core/util/array"
 import {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
+import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
 
 function _infer_viewport(obj: LayoutDOM): Size {
   const {sizing_mode, width_policy, height_policy} = obj
@@ -316,8 +333,10 @@ function _infer_viewport(obj: LayoutDOM): Size {
         nrow = Math.max(nrow, row)
         ncol = Math.max(ncol, col)
       }
-      const widths = new Array(ncol)
-      const heights = new Array(nrow)
+      nrow += 1
+      ncol += 1
+      const widths = new Array(ncol).fill(0)
+      const heights = new Array(nrow).fill(0)
       for (const [child, row, col] of obj.children) {
         const size = _infer_viewport(child)
         widths[col] = Math.max(widths[col], size.width)
@@ -325,6 +344,19 @@ function _infer_viewport(obj: LayoutDOM): Size {
       }
       width = sum(widths)
       height = sum(heights)
+    } else if (obj instanceof ToolbarBox) {
+      switch (obj.toolbar_location) {
+        case "above":
+        case "below":
+          width = 0
+          height = 30
+          break
+        case "left":
+        case "right":
+          width = 30
+          height = 0
+          break
+      }
     } else {
       width = obj.width ?? Infinity
       height = obj.height ?? Infinity

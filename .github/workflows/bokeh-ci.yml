@@ -136,7 +136,7 @@ jobs:
       - name: Start chrome headless
         working-directory: ./bokehjs
         shell: bash -l {0}
-        run: node make test:run:headless # starts chrome in the background on port 9222
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
 
       - name: Cache sampledata
         uses: actions/cache@v1
@@ -437,6 +437,10 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-test-3.6.yml
 
+      - name: Install downstream packages
+        shell: bash -l {0}
+        run: bash ci/install_downstream_packages.sh
+
       - name: Download Bokehjs
         uses: actions/download-artifact@v1
         with:
@@ -464,10 +468,6 @@ jobs:
       - name: Install Bokeh package
         shell: bash -l {0}
         run: bash ci/install_bokeh_package.sh
-
-      - name: Install downstream packages
-        shell: bash -l {0}
-        run: bash ci/install_downstream_packages.sh
 
       - name: Run tests
         shell: bash -l {0}

@@ -1,6 +1,6 @@
 .. _userguide_interaction_widgets:
 
-Adding Widgets
+Adding widgets
 ==============
 
 Widgets are interactive controls that can be added to Bokeh applications to
@@ -8,7 +8,7 @@ provide a front end user interface to a visualization. They can drive new
 computations, update plots, and connect to other programmatic functionality.
 When used with the Bokeh server, widgets can run arbitrary Python code, enabling
 complex applications. Widgets can also be used without the Bokeh server in
-standalone HTML documents through the browser's Javascript runtime.
+standalone HTML documents through the browser's JavaScript runtime.
 
 .. _userguide_interaction_widgets_callbacks:
 
@@ -27,7 +27,7 @@ There are two ways to use a widget's functionality:
 Event handlers are Python functions that users can attach to widgets. These
 functions are then called when certain attributes on the widget are changed.
 The function signature of event handlers is determined by how they are attached
-to widgets (e.g. whether by ``.on_change`` or ``.on_click``).
+to widgets (whether by ``.on_change`` or ``.on_click``, for example).
 
 All widgets have an ``.on_change`` method that takes an attribute name and one
 or more event handlers as parameters. These handlers are expected to have the
@@ -71,7 +71,7 @@ Examples
 
 The sections below collect short but complete examples of using all the built-in
 widgets. Many of the examples print output that can be observed by looking at
-your browser Javascript console log.
+your browser JavaScript console log.
 
 Button
 ~~~~~~

@@ -160,6 +160,14 @@ class FileInput(Widget):
         A valid `IANA Media Type`_, with no parameters.
 
     .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+
+    .. note::
+        A bug in some versions of Chrome on macOS Big Sur may limit
+        how you can set a file input filter for those users. In those cases,
+        it is impossible to limit the user's selection to specific file
+        extensions - instead, the browser will limit users to predefined sets of
+        file types, such as ``Text/*`` or ``Image/*``. See :bokeh-issue:`10888`
+        for more information.
     """)
 
     multiple = Bool(default=False, help="""
@@ -327,11 +335,11 @@ class Select(InputWidget):
     value will be corresponding given label. Option groupings can be provided
     by supplying a dictionary object whose values are in the aforementioned
     list format
-    """)
+    """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
 
     value = String(default="", help="""
     Initial or selected value.
-    """)
+    """).accepts(Null, lambda _: "")
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.

@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
 import {MercatorTickFormatter} from "@bokehjs/models/formatters/mercator_tick_formatter"
+import {unicode_replace} from "@bokehjs/models/formatters/basic_tick_formatter"
 import {wgs84_mercator} from "@bokehjs/core/util/projections"
 
 describe("mercator_tick_formatter module", () => {
@@ -18,7 +19,7 @@ describe("mercator_tick_formatter module", () => {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
         const labels = obj.doFormat([mlat], {loc: mlon})
-        expect(labels[0]).to.be.equal(`${lat}`)
+        expect(labels[0]).to.be.equal(unicode_replace(`${lat}`))
       }
     }
   })
@@ -29,7 +30,7 @@ describe("mercator_tick_formatter module", () => {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
         const labels = obj.doFormat([mlon], {loc: mlat})
-        expect(labels[0]).to.be.equal(`${lon}`)
+        expect(labels[0]).to.be.equal(unicode_replace(`${lon}`))
       }
     }
   })

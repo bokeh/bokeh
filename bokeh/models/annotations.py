@@ -81,6 +81,7 @@ from ..core.validation.errors import (
 from ..model import Model
 from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter
+from .labeling import LabelingPolicy, NoOverlap
 from .mappers import ColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
@@ -413,6 +414,10 @@ class ColorBar(Annotation):
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
+    """)
+
+    major_label_policy = Instance(LabelingPolicy, default=lambda: NoOverlap(), help="""
+    Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
     color_mapper = Instance(ColorMapper, help="""
@@ -853,6 +858,9 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
 
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
+
+    See :ref:`userguide_plotting_polygon_annotations` for information on
+    plotting polygon annotations.
 
     '''
 

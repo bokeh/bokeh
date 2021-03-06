@@ -195,12 +195,14 @@ Fill properties
 
 .. include:: ../includes/fill_props.txt
 
-.. _userguide_styling_text_properties:
+.. _userguide_styling_hatch_properties:
 
 Hatch properties
 ~~~~~~~~~~~~~~~~
 
 .. include:: ../includes/hatch_props.txt
+
+.. _userguide_styling_text_properties:
 
 Text properties
 ~~~~~~~~~~~~~~~
@@ -243,7 +245,7 @@ Use one of these options to define colors in Bokeh:
 - A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``
   `color string <https://www.w3.org/TR/css-color-4/>`_, such as
   ``'rgb(0 127 0 / 1.0)'``, ``'rgba(255, 0, 127, 0.6)'``, or
-  ``hsl(60deg 100% 50% / 1.0)``.
+  ``'hsl(60deg 100% 50% / 1.0)'``.
 - A 3-tuple of integers ``(r, g, b)`` (where *r*, *g*, and *b* are integers
   between 0 and 255).
 - A 4-tuple of ``(r, g, b, a)`` (where *r*, *g*, and *b* are integers between 0
@@ -288,29 +290,6 @@ RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:
     ``fill_alpha``, ``line_color``, and ``line_alpha`` arguments as well. In
     this case, the former will take precedence.
 
-.. _userguide_styling_arrow_annotations:
-
-Arrow annotation property
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To change the design of :ref:`arrow annotations <userguide_plotting_arrows>`,
-use one of Bokeh's several :class:`~bokeh.models.arrow_heads.ArrowHead`
-designs.
-
-By default, an arrow annotation is basically a line with an arrowhead on one
-side. This means that Bokeh sets the ``start`` property of a standard arrow
-object to an ``ArrowHead`` object, while the ``end`` property is set to
-``None``.
-
-Correspondingly, if you want no arrowheads at all, set both ``start`` and
-``end`` to ``None``. Another option to make an arrowhead invisible is to set an
-``ArrowHead`` object's ``visible`` property to ``False``. To create a
-double-sided arrow, apply an ``ArrowHead`` to both ``start`` and
-``end``.
-
-.. bokeh-plot:: docs/user_guide/examples/styling_arrow_annotations.py
-    :source-position: none
-
 .. _userguide_styling_units:
 
 Screen units and data-space units
@@ -325,6 +304,15 @@ data-space units:
 Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, for example. A glyph that is one fifth as wide and tall as the graph
 would have a size of 80 screen units or 2 data-space units.
+
+
+Objects in Bokeh that support both screen units and data-space units usually
+have a dedicated property to choose which unit to use. This unit-setting
+property is the name of the property with an added ``_units``. For
+example: A :class:`~bokeh.models.annotations.Whisker`
+:ref:`annotation <userguide_plotting_whiskers>` has the property ``upper``. To
+define which unit to use, set the ``upper_units`` property to either
+``'screen'`` or ``'data'``.
 
 .. _userguide_styling_selecting:
 
@@ -653,7 +641,8 @@ Labels
 ~~~~~~
 
 To add or change the text of an axis' overall label, use the ``axis_label``
-property.
+property. To add line breaks to the text in an axis label, include ``\n`` in
+your string.
 
 To control the visual appearance of the label text, use
 `Text Properties`_ prefixed with ``axis_label_``. For instance, to set the text

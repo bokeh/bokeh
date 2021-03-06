@@ -36,9 +36,9 @@ export class TitleView extends TextAnnotationView {
       }
       case 'left': {
         switch (this.model.vertical_align) {
-          case 'top':    sx = bbox.left    - vmargin; break
+          case 'top':    sx = bbox.left    + vmargin; break
           case 'middle': sx = bbox.hcenter;           break
-          case 'bottom': sx = bbox.right   + vmargin; break
+          case 'bottom': sx = bbox.right   - vmargin; break
         }
 
         switch (this.model.align) {

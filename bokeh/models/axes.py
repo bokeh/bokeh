@@ -49,6 +49,7 @@ from .formatters import (
     MercatorTickFormatter,
     TickFormatter,
 )
+from .labeling import AllLabels, LabelingPolicy
 from .renderers import GuideRenderer
 from .tickers import (
     BasicTicker,
@@ -155,6 +156,10 @@ class Axis(GuideRenderer):
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
     Provide explicit tick label values for specific tick locations that
     override normal formatting.
+    """)
+
+    major_label_policy = Instance(LabelingPolicy, default=lambda: AllLabels(), help="""
+    Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
     major_label_props = Include(ScalarTextProps, help="""

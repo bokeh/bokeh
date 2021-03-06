@@ -3,7 +3,9 @@ import sinon from "sinon"
 import {expect} from "assertions"
 import {display, fig} from "./_util"
 
-import {HoverTool, BoxAnnotation, ColumnDataSource, CDSView, GlyphRenderer, Circle} from "@bokehjs/models"
+import {
+  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle, Legend, LegendItem,
+} from "@bokehjs/models"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -78,5 +80,26 @@ describe("Bug", () => {
     })
 
     // TODO: this should test WebDataSource
+  })
+
+  describe("in issue #10935", () => {
+    it("prevents to render a plot with a legend and an empty view", async () => {
+      const plot = fig([200, 200])
+      const filter = new BooleanFilter({booleans: [false, false]})
+      const view = new CDSView({filters: [filter]})
+      plot.square([1, 2], [3, 4], {fill_color: ["red", "green"], view, legend: "square"})
+      await display(plot)
+    })
+
+    it("prevents to render a plot with a legend and a subset of indices", async () => {
+      const plot = fig([200, 200])
+      const filter = new BooleanFilter({booleans: [true, true, false, false]})
+      const view = new CDSView({filters: [filter]})
+      const data_source = new ColumnDataSource({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
+      const r = plot.square('x', 'y', {fill_color: ["red", "red", "green", "green"], view, source: data_source})
+      const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
+      plot.add_layout(legend)
+      await display(plot)
+    })
   })
 })

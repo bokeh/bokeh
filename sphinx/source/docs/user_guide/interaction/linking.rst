@@ -1,6 +1,6 @@
 .. _userguide_interaction_linking:
 
-Linking Behavior
+Linking behavior
 ----------------
 
 It's often useful to link plots to add connected interactivity between plots.
@@ -8,7 +8,7 @@ This section shows an easy way to do this, using the |bokeh.plotting| interface.
 
 .. _userguide_interaction_linked_panning:
 
-Linked Panning
+Linked panning
 ~~~~~~~~~~~~~~
 
 It's often desired to link pan or zooming actions across many plots. All that is
@@ -23,7 +23,7 @@ Now you have learned how to link panning between multiple plots with the
 
 .. _userguide_interaction_linked_brushing:
 
-Linked Brushing
+Linked brushing
 ~~~~~~~~~~~~~~~
 
 Linked brushing in Bokeh is expressed by sharing data sources between glyph
@@ -40,7 +40,7 @@ two different |figure| calls.
 
 .. _userguide_interaction_linked_properties:
 
-Linked Properties
+Linked properties
 ~~~~~~~~~~~~~~~~~
 
 It is also possible to link values of Bokeh model properties together so that

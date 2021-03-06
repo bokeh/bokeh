@@ -20,13 +20,26 @@
         background-image: none;
       }
 
-      .bk-root {
+      .bk-root, input::-webkit-file-upload-button {
         -webkit-font-smoothing: antialiased;
         font-family: Bokeh;
       }
 
       .bk-root pre.bk {
         font-family: BokehMono;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      .description {
+        background: white;
+        font-weight: bold;
+        font-size: 14px;
+        height: 20px;
+        padding: 2px 0;
+        white-space: nowrap;
       }
     </style>
     <script type="text/javascript" src="{{ js('bokeh') }}"></script>
@@ -41,6 +54,7 @@
     </script>
   </head>
   <body>
+    <div class="container"></div>
     <!-- Preload fonts. Remove this when https://github.com/bokeh/bokeh/issues/9448 is fixed. -->
     <script type="text/javascript">
       async function preload_fonts() {
@@ -48,8 +62,13 @@
           await document.fonts.load(`normal ${i}px Bokeh`)
           await document.fonts.load(`bold ${i}px Bokeh`)
           await document.fonts.load(`italic normal ${i}px Bokeh`)
-          await document.fonts.load(`italic bold ${i}px Bokeh`)
           await document.fonts.load(`normal ${i}px BokehMono`)
+
+          await document.fonts.load(`normal ${i}px Stix`)
+          await document.fonts.load(`bold ${i}px Stix`)
+          await document.fonts.load(`italic normal ${i}px Stix`)
+          await document.fonts.load(`italic bold ${i}px Stix`)
+          await document.fonts.load(`normal ${i}px StixMath`)
         }
       }
     </script>
@@ -59,7 +78,7 @@
       (async () => {
         await preload_fonts()
         const params = new URLSearchParams(location.search)
-        await Tests.run_all(params.get("k"))
+        await Tests.run_all(params.getAll("k"))
       })()
     </script>
     {% else %}

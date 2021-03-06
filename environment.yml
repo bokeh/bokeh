@@ -6,7 +6,7 @@ dependencies:
 
   # build
   - setuptools
-  - nodejs>=10.13
+  - nodejs>=14
   - yaml
 
   # runtime
@@ -46,7 +46,7 @@ dependencies:
   - mypy <=0.782
   - nbconvert >=5.4
   - networkx
-  - nodejs >=10.13
+  - nodejs >=14
   - numba
   - pandas
   - psutil

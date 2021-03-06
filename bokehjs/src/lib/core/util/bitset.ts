@@ -52,7 +52,7 @@ export class BitSet implements Equatable {
     return new BitSet(size, 0)
   }
 
-  static from_indices(size: number, indices: number[]): BitSet {
+  static from_indices(size: number, indices: Iterable<number>): BitSet {
     const bits = new BitSet(size)
     for (const i of indices) {
       bits.set(i)
