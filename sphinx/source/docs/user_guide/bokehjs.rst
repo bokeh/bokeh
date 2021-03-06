@@ -286,7 +286,7 @@ Usage : Comparison to Python
 ----------------------------
 
 While the BokehJS models generally match the Python equivalents, there are some cases
-where usage can differ significantly between BokehJS and the Python equivalent. Some
+where usage can differ significantly between BokehJS and the Python library. Some
 instances we have identified are listed below.
 
 .. _userguide_bokehjs_differences_titles:
@@ -305,7 +305,7 @@ To preserve the ability to update the title later, use the following sequence in
 
 .. _userguide_bokehjs_differences_gridplots:
 
-Using gridplot layouts
+Using ``sizing_mode`` in gridplot layouts
 ~~~~~~~~~~~~~~~~~~~~~~
 
 ``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots. To match the expected
@@ -314,20 +314,20 @@ must be explicitly stated for both the ``figure()`` and the ``gridplot()`` objec
 
 .. _userguide_bokehjs_differences_range_padding:
 
-Adjusting ``range_padding``
+Making axis range properties persitent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding`` to adjust whitespace around
-glyphs on X axis is not persistent across resets. To match expected behavior from Python output, where the preferences
+glyphs on an X axis (or the corresponding properties for a Y axis) is not persistent across resets. To match expected behavior from Python output, where the preferences
 will hold across figure resets, set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_padding``.
 (Same for Y axis)
 
 .. _userguide_bokehjs_differences_palette:
 
-Palette for ``Bokeh.Plotting`` objects
+Palettes for ``Bokeh.Plotting`` objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``; to use with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the palette argument must be provided as a color string array, rather than as a string.
+The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``. To use it with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the palette argument must be provided as a color string array, rather than as a string.
 
 .. _userguide_bokehjs_differences_name_field:
 
@@ -335,9 +335,10 @@ Setting glyph names for ``HoverTool``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``renderer.glyph.name``, rather than
-``renderer.name``. The latter is used for HoverTool, under the special field ``$name``. To enable this special field in the HoverTool, consider passing the glyph name to the renderer:
+``renderer.name``. The latter is used for HoverTool, under the special field ``$name``. To enable this special field in the HoverTool, pass the glyph name to the renderer:
 
-``plot.renderers[0].name = plot.renderers[0].glyph.name;``
+.. code-block:: javascript
+    plot.renderers[0].name = plot.renderers[0].glyph.name;
 
 .. _userguide_bokehjs_differences_div_widget:
 
@@ -350,7 +351,8 @@ exists before accessing. This throws ``Uncaught TypeError: Cannot read property 
 
 To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's toolbar property, as follows:
 
-``mydiv.toolbar = {tools:[]}``
+.. code-block:: javascript
+    mydiv.toolbar = {tools:[]}
 
 Minimal example
 ---------------
