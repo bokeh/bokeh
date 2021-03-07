@@ -578,6 +578,8 @@ class DatetimeTickFormatter(TickFormatter):
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                         default=['%Y']).accepts(String, lambda fmt: [fmt])
 
+    timezone     = String(help="Timezone with which to display ticks")
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

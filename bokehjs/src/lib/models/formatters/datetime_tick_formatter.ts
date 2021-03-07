@@ -1,4 +1,7 @@
 import tz from "timezone"
+// Load all timezones and locales. Ideally we would load timezones
+// on-demand, but not sure how to accomplish this in ES6.
+import tz_loaded from "timezone/loaded"
 
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"
@@ -16,11 +19,15 @@ function _us(t: number): number {
   return Math.round(((t / 1000) % 1) * 1000000)
 }
 
-function _array(t: number): number[] {
-  return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10))
+function _array(t: number, timezone: string): number[] {
+  if (timezone) {
+    return tz_loaded(t, "%Y %m %d %H %M %S", timezone).split(/\s+/).map(e => parseInt(e, 10))
+  } else {
+    return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(e => parseInt(e, 10))
+  }
 }
 
-function _strftime(t: number, format: string | ((t: number) => string)): string {
+function _strftime(t: number, format: string | ((t: number) => string), timezone: string): string {
   if (isFunction(format)) {
     return format(t)
   } else {
@@ -39,7 +46,11 @@ function _strftime(t: number, format: string | ((t: number) => string)): string 
       return format
     }
 
-    return tz(t, format)
+    if (timezone) {
+      return tz_loaded(t, format, timezone)
+    } else {
+      return tz(t, format)
+    }
   }
 }
 
@@ -62,6 +73,7 @@ export namespace DatetimeTickFormatter {
     days: p.Property<string[]>
     months: p.Property<string[]>
     years: p.Property<string[]>
+    timezone: p.Property<string>
   }
 }
 
@@ -86,6 +98,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       days:         [ Array(String), ['%m/%d', '%a%d'] ],
       months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
       years:        [ Array(String), ['%Y'] ],
+      timezone:     [ String, '' ],
     }))
   }
 
@@ -103,7 +116,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     const now = +tz(new Date())
 
     const _widths = function(fmt_strings: string[]): [number[], string[]] {
-      const sizes = fmt_strings.map((fmt_string) => _strftime(now, fmt_string).length)
+      const sizes = fmt_strings.map((fmt_string) => _strftime(now, fmt_string, "").length)
       const sorted = sort_by(zip(sizes, fmt_strings), ([size]) => size)
       return unzip(sorted)
     }
@@ -186,8 +199,8 @@ export class DatetimeTickFormatter extends TickFormatter {
     for (const t of ticks) {
       let s, tm
       try {
-        tm = _array(t)
-        s = _strftime(t, format)
+        tm = _array(t, this.timezone)
+        s = _strftime(t, format, this.timezone)
       } catch (error: unknown) {
         logger.warn(`unable to format tick for timestamp value ${t}`)
         logger.warn(` - ${error}`)
@@ -212,7 +225,7 @@ export class DatetimeTickFormatter extends TickFormatter {
         if ((resol == "minsec" || resol == "hourmin") && !hybrid_handled) {
           if ((resol == "minsec" && tm[4] == 0 && tm[5] != 0) || (resol == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
             next_format = this._width_formats[format_order[resol_ndx-1]][1][0]
-            s = _strftime(t, next_format)
+            s = _strftime(t, next_format, this.timezone)
             break
           } else {
             hybrid_handled = true
@@ -220,7 +233,7 @@ export class DatetimeTickFormatter extends TickFormatter {
         }
 
         next_format = this._width_formats[format_order[next_ndx]][1][0]
-        s = _strftime(t, next_format)
+        s = _strftime(t, next_format, this.timezone)
       }
 
       // TODO: should expose this in api. %H, %d, etc use leading zeros and
