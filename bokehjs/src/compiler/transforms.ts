@@ -12,39 +12,39 @@ function is_require(node: ts.Node): node is ts.CallExpression {
          node.arguments.length === 1
 }
 
-export function relativize_modules(relativize: (file: string, module_path: string) => string | null) {
-  function relativize_specifier(source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
-    if (expr != null && ts.isStringLiteralLike(expr) && expr.text.length > 0) {
-      const relative = relativize(source.fileName, expr.text)
-      if (relative != null)
-        return ts.createLiteral(relative)
+export function rewrite_modules(rewrite: (file: string, module_path: string) => string | null) {
+  return (context: ts.TransformationContext): ts.CustomTransformer => {
+    const {factory} = context
+
+    function rewrite_specifier(source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
+      if (expr != null && ts.isStringLiteralLike(expr) && expr.text.length > 0) {
+        const rewritten = rewrite(source.fileName, expr.text)
+        if (rewritten != null)
+          return factory.createStringLiteral(rewritten)
+      }
+
+      return null
     }
 
-    return null
-  }
-
-  return (context: ts.TransformationContext): ts.CustomTransformer => {
     return {
       transformSourceFile(root: ts.SourceFile): ts.SourceFile {
-        const {factory} = context
-
         function visit(node: ts.Node): ts.Node {
           if (ts.isImportDeclaration(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            const moduleSpecifier = rewrite_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
               const {decorators, modifiers, importClause} = node
               return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
             }
           }
           if (ts.isExportDeclaration(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            const moduleSpecifier = rewrite_specifier(root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
               const {decorators, modifiers, isTypeOnly, exportClause} = node
               return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier)
             }
           }
           if (is_require(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.arguments[0])
+            const moduleSpecifier = rewrite_specifier(root, node.arguments[0])
             if (moduleSpecifier != null) {
               const {expression, typeArguments} = node
               return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])

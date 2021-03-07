@@ -1,7 +1,7 @@
 import chalk from "chalk"
 import * as ts from "typescript"
 
-import {basename, dirname, join, relative} from "path"
+import {basename, dirname, join, relative, resolve} from "path"
 
 import * as transforms from "./transforms"
 import {Path} from "./sys"
@@ -100,7 +100,7 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
 
   const base = options.baseUrl
   if (base != null) {
-    const relativize_modules = transforms.relativize_modules((file, module_path) => {
+    const relativize_modules = transforms.rewrite_modules((file, module_path) => {
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file) ||
@@ -116,6 +116,37 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
 
     transformers.after.push(relativize_modules)
     transformers.afterDeclarations.push(relativize_modules)
+
+    const normalize_modules = transforms.rewrite_modules((file, module_path) => {
+      if (module_path.startsWith(".")) {
+        const module_file = resolve(dirname(file), module_path)
+        if (ts.sys.fileExists(module_file)) {
+          if (module_file.endsWith(".ts") || module_file.endsWith(".js"))
+            return null
+          else
+            return `${module_path}.js`
+        }
+        if (ts.sys.fileExists(module_file + ".ts"))
+          return `${module_path}.js`
+        if (ts.sys.fileExists(join(module_file, "index.ts")))
+          return `${module_path}/index.js`
+
+        const {outDir} = options
+        if (outDir != null) {
+          const out_file = join(outDir, relative(base, file))
+          const module_file = resolve(dirname(out_file), module_path)
+          if (ts.sys.fileExists(module_file))
+            return null
+          if (ts.sys.fileExists(module_file + ".js"))
+            return `${module_path}.js`
+          if (ts.sys.fileExists(join(module_file, "index.js")))
+            return `${module_path}/index.js`
+        }
+      }
+      return null
+    })
+
+    transformers.after.push(normalize_modules)
   }
 
   return transformers

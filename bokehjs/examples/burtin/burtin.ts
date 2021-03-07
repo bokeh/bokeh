@@ -1,13 +1,15 @@
-import Bokeh from "/static/js/bokeh.esm.js"
-import "/static/js/bokeh-api.esm.js"
+//import Bokeh from "/static/js/bokeh.esm.js"
+//import "/static/js/bokeh-api.esm.js"
+
+import {range} from "/static/js/lib/core/util/array.js"
+import {values} from "/static/js/lib/core/util/object.js"
+import {figure, show} from "/static/js/lib/api/plotting.js"
+import {version, set_log_level, settings} from "/static/js/lib/index.js"
 
 export namespace Burtin {
-  import plt = Bokeh.Plotting
-  const {range, values} = Bokeh.LinAlg
-
-  console.log(`Bokeh ${Bokeh.version}`)
-  Bokeh.set_log_level("info")
-  Bokeh.settings.dev = true
+  console.log(`Bokeh ${version}`)
+  set_log_level("info")
+  settings.dev = true
 
   type Gram = "negative" | "positive"
 
@@ -80,7 +82,7 @@ export namespace Burtin {
   const big_angle = 2.0 * Math.PI / (df.length + 1)
   const small_angle = big_angle / 7
 
-  const p = plt.figure({
+  const p = figure({
     title: null,
     width, height,
     x_axis_type: null, y_axis_type: null,
@@ -151,5 +153,5 @@ export namespace Burtin {
     text_font_size: "12px", text_align: "left", text_baseline: "middle",
   })
 
-  plt.show(p)
+  show(p)
 }

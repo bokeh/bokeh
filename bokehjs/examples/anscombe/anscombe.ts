@@ -1,11 +1,17 @@
-import Bokeh from "/static/js/bokeh.esm.js"
-import "/static/js/bokeh-api.esm.js"
+//import Bokeh from "/static/js/bokeh.esm.js"
+//import "/static/js/bokeh-api.esm.js"
+
+import {Range1d, ColumnDataSource, Plot, LinearAxis, Grid, Line, Circle} from "/static/js/lib/models/index.js"
+import {transpose, linspace} from "/static/js/lib/core/util/array.js"
+import {Document} from "/static/js/lib/document/index.js"
+import {gridplot} from "/static/js/lib/api/plotting.js"
+import {add_document_standalone} from "/static/js/lib/embed/index.js"
 
 export namespace Anscombe {
-  console.log(`Bokeh ${Bokeh.version}`)
-  Bokeh.set_log_level("info")
+  //console.log(`Bokeh ${Bokeh.version}`)
+  //Bokeh.set_log_level("info")
 
-  const anscombe_quartet = Bokeh.LinAlg.transpose([
+  const anscombe_quartet = transpose([
     [10.0,  8.04, 10.0, 9.14, 10.0,  7.46,  8.0,  6.58],
     [ 8.0,  6.95,  8.0, 8.14,  8.0,  6.77,  8.0,  5.76],
     [13.0,  7.58, 13.0, 8.74, 13.0, 12.74,  8.0,  7.71],
@@ -18,7 +24,7 @@ export namespace Anscombe {
     [ 7.0,  4.82,  7.0, 7.26,  7.0,  6.42,  8.0,  7.91],
     [ 5.0,  5.68,  5.0, 4.74,  5.0,  5.73,  8.0,  6.89]])
 
-  const circles = new Bokeh.ColumnDataSource({
+  const circles = new ColumnDataSource({
     data: {
       xi: anscombe_quartet[0],
       yi: anscombe_quartet[1],
@@ -31,16 +37,16 @@ export namespace Anscombe {
     },
   })
 
-  const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10)
+  const x = linspace(-0.5, 20.5, 10)
   const y = x.map((v) => v*0.5 + 3.0)
 
-  const lines = new Bokeh.ColumnDataSource({data: {x, y}})
+  const lines = new ColumnDataSource({data: {x, y}})
 
-  const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5})
-  const ydr = new Bokeh.Range1d({start: -0.5, end: 20.5})
+  const xdr = new Range1d({start: -0.5, end: 20.5})
+  const ydr = new Range1d({start: -0.5, end: 20.5})
 
-  function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
-    const plot = new Bokeh.Plot({
+  function make_plot(title: string, xname: string, yname: string): Plot {
+    const plot = new Plot({
       x_range: xdr,
       y_range: ydr,
       title,
@@ -48,17 +54,17 @@ export namespace Anscombe {
       height: 400,
       background_fill_color: "#F2F2F7",
     })
-    const xaxis = new Bokeh.LinearAxis({axis_line_color: null})
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null})
+    const xaxis = new LinearAxis({axis_line_color: null})
+    const yaxis = new LinearAxis({axis_line_color: null})
     plot.add_layout(xaxis, "below")
     plot.add_layout(yaxis, "left")
-    const xgrid = new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0})
-    const ygrid = new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1})
+    const xgrid = new Grid({ticker: xaxis.ticker, dimension: 0})
+    const ygrid = new Grid({ticker: yaxis.ticker, dimension: 1})
     plot.add_layout(xgrid)
     plot.add_layout(ygrid)
-    const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
+    const line = new Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
     plot.add_glyph(line, lines)
-    const circle = new Bokeh.Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+    const circle = new Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
     plot.add_glyph(circle, circles)
 
     return plot
@@ -69,11 +75,11 @@ export namespace Anscombe {
   const III = make_plot("III", "xiii", "yiii")
   const IV  = make_plot("IV",  "xiv",  "yiv")
 
-  const grid = Bokeh.Plotting.gridplot([[I, II], [III, IV]], {toolbar_location: null})
+  const grid = gridplot([[I, II], [III, IV]], {toolbar_location: null})
 
-  const doc = new Bokeh.Document()
+  const doc = new Document()
   doc.add_root(grid)
 
   const div = document.getElementById("plot")!
-  Bokeh.embed.add_document_standalone(doc, div)
+  add_document_standalone(doc, div)
 }

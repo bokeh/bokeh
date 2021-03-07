@@ -29,6 +29,7 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
+      "/static/js/lib/*": ["../build/js/lib/*", "../build/js/types/*"],
       "*": ["../build/js/lib/*", "../build/js/types/*"]
     },
     "outDir": "../build/examples"
