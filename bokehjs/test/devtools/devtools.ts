@@ -425,16 +425,19 @@ async function run_tests(): Promise<boolean> {
                                 await write_image()
                               } else {
                                 status.reference = existing
-                                const diff_result = diff_image(existing, current)
-                                if (diff_result != null) {
-                                  may_retry = true
-                                  const {diff, pixels, percent} = diff_result
-                                  const threshold = test.threshold ?? 0
-                                  if (pixels > threshold) {
-                                    await write_image()
-                                    status.failure = true
-                                    status.image_diff = diff
-                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+
+                                if (!existing.equals(current)) {
+                                  const diff_result = diff_image(existing, current)
+                                  if (diff_result != null) {
+                                    may_retry = true
+                                    const {diff, pixels, percent} = diff_result
+                                    const threshold = test.threshold ?? 0
+                                    if (pixels > threshold) {
+                                      await write_image()
+                                      status.failure = true
+                                      status.image_diff = diff
+                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                    }
                                   }
                                 }
                               }
