@@ -302,6 +302,7 @@ equivalent approach casts the string to the underlying Title() object.
 To preserve the ability to update the title later, use the following sequence instead:
 
 .. code-block:: javascript
+
     var plot = new Bokeh.Plotting.figure()
     plot.title.text = "some title"
 
@@ -345,6 +346,7 @@ rather than ``renderer.name``. The latter is used for HoverTool, under the speci
 ``$name``. To enable this special field in the HoverTool, pass the glyph name to the renderer:
 
 .. code-block:: javascript
+
     plot.renderers[0].name = plot.renderers[0].glyph.name;
 
 .. _userguide_bokehjs_differences_div_widget:
@@ -362,6 +364,7 @@ To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's
 toolbar property, as follows:
 
 .. code-block:: javascript
+
     mydiv.toolbar = {tools:[]}
 
 Minimal example
