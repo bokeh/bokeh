@@ -309,7 +309,7 @@ To preserve the ability to update the title later, use the following sequence in
 .. _userguide_bokehjs_differences_gridplots:
 
 Using ``sizing_mode`` in gridplot layouts
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots.
 To match the expected behavior from the Python equivalent, for example when using
@@ -319,7 +319,7 @@ the ``figure()`` and the ``gridplot()`` objects.
 .. _userguide_bokehjs_differences_range_padding:
 
 Making axis range properties persitent
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding``
 to adjust whitespace around glyphs on an X axis (or the corresponding properties for a
@@ -330,7 +330,7 @@ set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_paddin
 .. _userguide_bokehjs_differences_palette:
 
 Palettes for ``Bokeh.Plotting`` objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``.
 To use it with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the
