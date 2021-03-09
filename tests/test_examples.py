@@ -181,6 +181,9 @@ def _print_webengine_output(result):
         info(msg, label="JS")
 
     for error in errors:
+        url = error.get("url", None)
+        if url is not None:
+            fail(f"@{url}", label="JS")
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
