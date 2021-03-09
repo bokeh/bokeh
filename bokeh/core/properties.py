@@ -128,7 +128,7 @@ DataSpec Properties
 .. autoclass:: MarkerSpec
 .. autoclass:: NumberSpec
 .. autoclass:: PropertyUnitsSpec
-.. autoclass:: ScreenSizeSpec
+.. autoclass:: SizeSpec
 .. autoclass:: StringSpec
 
 Helpers
@@ -239,9 +239,9 @@ __all__ = (
     'Regex',
     'RelativeDelta',
     'RestrictedDict',
-    'ScreenSizeSpec',
     'Seq',
     'Size',
+    'SizeSpec',
     'String',
     'StringSpec',
     'Struct',
@@ -298,7 +298,7 @@ from .property.dataspec import NullDistanceSpec; NullDistanceSpec
 from .property.dataspec import NullStringSpec; NullStringSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import PropertyUnitsSpec; PropertyUnitsSpec
-from .property.dataspec import ScreenSizeSpec; ScreenSizeSpec
+from .property.dataspec import SizeSpec; SizeSpec
 from .property.dataspec import StringSpec; StringSpec
 from .property.dataspec import TextAlignSpec; TextAlignSpec
 from .property.dataspec import TextBaselineSpec; TextBaselineSpec
