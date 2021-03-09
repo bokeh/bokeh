@@ -424,14 +424,14 @@ class ParameterizedProperty(Property):
     """
 
     @staticmethod
-    def _validate_type_param(type_param):
+    def _validate_type_param(type_param, *, help_allowed=False):
         if isinstance(type_param, type):
             if issubclass(type_param, Property):
                 return type_param()
             else:
                 type_param = type_param.__name__
         elif isinstance(type_param, Property):
-            if type_param._help is not None:
+            if type_param._help is not None and not help_allowed:
                 raise ValueError("setting 'help' on type parameters doesn't make sense")
 
             return type_param

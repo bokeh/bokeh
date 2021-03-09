@@ -193,7 +193,7 @@ export abstract class Marker extends XYGlyph {
   static init_Marker(): void {
     this.mixins<Marker.Mixins>([LineVector, FillVector, HatchVector])
     this.define<Marker.Props>(({Number}) => ({
-      size:  [ p.ScreenDistanceSpec, {value: 4} ],
+      size:  [ p.ScreenSizeSpec, {value: 4} ],
       angle: [ p.AngleSpec, 0  ],
       hit_dilation: [ Number, 1.0 ],
     }))

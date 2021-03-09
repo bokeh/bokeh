@@ -20,7 +20,9 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ... import colors
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
+from ...util.string import nice_join
 from .. import enums
 from .color import Color
 from .container import Dict, List
@@ -44,7 +46,6 @@ __all__ = (
     'ColorSpec',
     'DashPatternSpec',
     'DataSpec',
-    'DataDistanceSpec',
     'DistanceSpec',
     'expr',
     'field',
@@ -56,11 +57,10 @@ __all__ = (
     'LineJoinSpec',
     'MarkerSpec',
     'NumberSpec',
-    'ScreenDistanceSpec',
+    'SizeSpec',
     'StringSpec',
     'TextAlignSpec',
     'TextBaselineSpec',
-    'UnitsSpec',
     'value',
 )
 
@@ -380,64 +380,23 @@ class MarkerSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, MarkerType, default=default, help=help)
 
-
 class UnitsSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
-    serializes associated units values.
+    provides an associated units property to store units information.
 
     """
-    def __init__(self, default, units_type, units_default, help=None):
-        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
-        self._units_type = self._validate_type_param(units_type)
 
-        # TODO (bev) units_type was already constructed, so this really should not be needed
-        self._units_type.validate(units_default)
-        self._units_type._default = units_default
-        self._units_type._serialized = False
+    def __init__(self, default, units_enum, units_default, help=None):
+        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
+        units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
+        Units to use for the associated property: {nice_join(units_enum)}
+        """)
+        self._units_type = self._validate_type_param(units_type, help_allowed=True)
 
     def __str__(self):
         units_default = self._units_type._default
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 
-    def get_units(self, obj, name):
-        raise NotImplementedError()
-
-    def make_descriptors(self, base_name):
-        """ Return a list of ``PropertyDescriptor`` instances to install on a
-        class, in order to delegate attribute access to this property.
-
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
-        descriptors to install. In particular, descriptors for the base
-        property as well as the associated units property are returned.
-
-        Args:
-            name (str) : the name of the property these descriptors are for
-
-        Returns:
-            list[PropertyDescriptor]
-
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        """
-        units_props = self._units_type.make_descriptors("unused")
-        return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
-
-    def to_serializable(self, obj, name, val):
-        d = super().to_serializable(obj, name, val)
-        if d is not None and 'units' not in d:
-            # d is a PropertyValueDict at this point, we need to convert it to
-            # a plain dict if we are going to modify its value, otherwise a
-            # notify_change that should not happen will be triggered
-            units = self.get_units(obj, name)
-            if units != self._units_type._default:
-                d = dict(**d, units=units)
-        return d
-
-class PropertyUnitsSpec(UnitsSpec):
-    """ A |DataSpec| property that accepts numeric fixed values, and also
-    provides an associated units property to store units information.
-
-    """
     def get_units(self, obj, name):
         return getattr(obj, name+"_units")
 
@@ -445,7 +404,7 @@ class PropertyUnitsSpec(UnitsSpec):
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        Unlike simpler property types, ``PropertyUnitsSpec`` returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -462,6 +421,21 @@ class PropertyUnitsSpec(UnitsSpec):
         units_props = self._units_type.make_descriptors(units_name)
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
+    def to_serializable(self, obj, name, val):
+        d = super().to_serializable(obj, name, val)
+        if d is not None and 'units' not in d:
+            # d is a PropertyValueDict at this point, we need to convert it to
+            # a plain dict if we are going to modify its value, otherwise a
+            # notify_change that should not happen will be triggered
+            units = self.get_units(obj, name)
+            if units != self._units_type._default:
+                d = dict(**d, units=units)
+        return d
+
+# Deprecated
+class PropertyUnitsSpec(UnitsSpec):
+    pass
+
 class AngleSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store angle units.
@@ -470,7 +444,7 @@ class AngleSpec(PropertyUnitsSpec):
 
     """
     def __init__(self, default=Undefined, units_default="rad", help=None):
-        super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
 class DistanceSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
@@ -480,7 +454,7 @@ class DistanceSpec(PropertyUnitsSpec):
 
     """
     def __init__(self, default=Undefined, units_default="data", help=None):
-        super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_enum=enums.SpatialUnits, units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -505,37 +479,19 @@ class NullDistanceSpec(DistanceSpec):
             pass
         return super().prepare_value(cls, name, value)
 
-class _FixedUnitsDistanceSpec(UnitsSpec):
-
-    def __init__(self, default=Undefined, help=None):
-        super().__init__(default=default, units_type=Enum(enums.enumeration(self._units)), units_default=self._units, help=help)
-
-    def get_units(self, _obj, _name):
-        return self._units
+class SizeSpec(NumberSpec):
+    """ A |DataSpec| property that accepts non-negative numeric fixed values
+    for size values or strings that refer to columns in a
+    :class:`~bokeh.models.sources.ColumnDataSource`.
+    """
 
     def prepare_value(self, cls, name, value):
         try:
-            if value is not None and value < 0:
-                raise ValueError("Distances must be positive or None!")
+            if value < 0:
+                raise ValueError("Screen sizes must be positive")
         except TypeError:
             pass
         return super().prepare_value(cls, name, value)
-
-class ScreenDistanceSpec(_FixedUnitsDistanceSpec):
-    """ A |DataSpec| property that accepts numeric fixed values for screen-space
-    distances, and also provides an associated units property that reports
-    ``"screen"`` as the units.
-
-    """
-    _units = "screen"
-
-class DataDistanceSpec(_FixedUnitsDistanceSpec):
-    """ A |DataSpec| property that accepts numeric fixed values for data-space
-    distances, and also provides an associated units property that reports
-    ``"data"`` as the units.
-
-    """
-    _units = "data"
 
 class ColorSpec(DataSpec):
     """ A |DataSpec| property that accepts |Color| fixed values.
@@ -717,6 +673,15 @@ def value(val, transform=None):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def DataDistanceSpec(*args, **kw):
+    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
+    return SizeSpec(*args, **kw)
+
+def ScreenDistanceSpec(*args, **kw):
+    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
+    return SizeSpec(*args, **kw)
+
 
 #-----------------------------------------------------------------------------
 # Code
