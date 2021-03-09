@@ -1269,7 +1269,7 @@ class EditTool(GestureTool):
     the color column will be filled with the defined empty value.
     """)
 
-    custom_icon = Image(help="""
+    custom_icon = Nullable(Image, help="""
     An icon to display in the toolbar.
 
     The icon can provided as a string filename for an image, a PIL ``Image``
