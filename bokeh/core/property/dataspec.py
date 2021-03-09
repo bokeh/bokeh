@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ... import colors
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.string import nice_join
 from .. import enums
@@ -379,7 +380,7 @@ class MarkerSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, MarkerType, default=default, help=help)
 
-class PropertyUnitsSpec(NumberSpec):
+class UnitsSpec(NumberSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
     provides an associated units property to store units information.
 
@@ -430,6 +431,10 @@ class PropertyUnitsSpec(NumberSpec):
             if units != self._units_type._default:
                 d = dict(**d, units=units)
         return d
+
+# Deprecated
+class PropertyUnitsSpec(UnitsSpec):
+    pass
 
 class AngleSpec(PropertyUnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values, and also
@@ -668,6 +673,15 @@ def value(val, transform=None):
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def DataDistanceSpec(*args, **kw):
+    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
+    return SizeSpec(*args, **kw)
+
+def ScreenDistanceSpec(*args, **kw):
+    deprecated((2, 4, 0), "DataDistanceSpec()", "SizeSpec()")
+    return SizeSpec(*args, **kw)
+
 
 #-----------------------------------------------------------------------------
 # Code
