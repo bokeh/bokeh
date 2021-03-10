@@ -33,42 +33,26 @@ export class LineView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
     const {sx, sy} = data ?? this
 
-    let drawing = false
-    let last_index: number | null = null
+    let move = true
+    ctx.beginPath()
 
-    this.visuals.line.set_value(ctx)
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
 
-      if (drawing) {
-        if (!isFinite(sx_i + sy_i)) {
-          ctx.stroke()
-          ctx.beginPath()
-          drawing = false
-          last_index = i
-          continue
-        }
-
-        if (last_index != null && i - last_index > 1) {
-          ctx.stroke()
-          drawing = false
-        }
-      }
-
-      if (drawing)
-        ctx.lineTo(sx_i, sy_i)
+      if (!isFinite(sx_i + sy_i))
+        move = true
       else {
-        ctx.beginPath()
-        ctx.moveTo(sx_i, sy_i)
-        drawing = true
+        if (move) {
+          ctx.moveTo(sx_i, sy_i)
+          move = false
+        } else
+          ctx.lineTo(sx_i, sy_i)
       }
-
-      last_index = i
     }
 
-    if (drawing)
-      ctx.stroke()
+    this.visuals.line.set_value(ctx)
+    ctx.stroke()
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

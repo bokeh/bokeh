@@ -4,6 +4,7 @@
 
 - path: "examples/custom"
   slow: ["latex_extension_full"]
+  skip: ["gears", "latex_extension_base", "latex_extension_full"]
 
 - path: "examples/webgl"
 
