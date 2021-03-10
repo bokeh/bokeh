@@ -280,6 +280,18 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 
     plt.show(plt.gridplot([[p1, p2], [p3, p4]], {plot_width:350, plot_height:350}));
 
+.. _userguide_bokehjs_issues:
+
+Known Issues
+------------
+
+* :bokeh-issue:`11016` Figure name passed to `renderer.glyph.name` but not `renderer.name`
+* :bokeh-issue:`11034` Palettes not accessible by name for `ColorMapper` objects in BokehJS
+* :bokeh-issue:`11035` `Bokeh.Widgets.Div()` missing `tools`, required by `Bokeh.Plotting.gridplot()`
+* :bokeh-issue:`11036` Making axis range padding persistent requires changing `._initial_range_padding` as well
+* :bokeh-issue:`11037` Using `sizing_mode` in gridplot layouts requires explicit assignment
+* :bokeh-issue:`11038` Calling `figure({title:"some title"})` replaces Title object with string, prevents subsequent updates to title text
+
 Minimal example
 ---------------
 
