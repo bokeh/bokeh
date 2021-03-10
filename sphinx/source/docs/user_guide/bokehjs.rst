@@ -280,76 +280,17 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
 
     plt.show(plt.gridplot([[p1, p2], [p3, p4]], {plot_width:350, plot_height:350}));
 
-.. _userguide_bokehjs_differences:
+.. _userguide_bokehjs_issues:
 
-Usage: Differences to Python library
-------------------------------------
+Known Issues
+------------
 
-While the BokehJS models generally match the Python equivalents, there are some cases
-where usage can differ significantly between BokehJS and the Python library. Some
-instances we have identified are listed below.
-
-.. _userguide_bokehjs_differences_titles:
-
-Updating figure titles
-~~~~~~~~~~~~~~~~~~~~~~
-
-Calling ``var plot = new Bokeh.Plotting.figure({title:"some title"})`` replaces
-plot.title (a ``Bokeh.Title()`` object by default) with the provided string.
-This makes it so the title cannot be dynamically updated later. In Python, the
-equivalent approach casts the string to the underlying Title() object.
-
-To preserve the ability to update the title later, use the following sequence instead:
-
-.. code-block:: javascript
-
-    var plot = new Bokeh.Plotting.figure()
-    plot.title.text = "some title"
-
-.. _userguide_bokehjs_differences_gridplots:
-
-Using ``sizing_mode`` in gridplot layouts
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``Bokeh.Plotting.gridplot()`` does not inherit ``sizing_mode`` from the underlying plots.
-To match the expected behavior from the Python equivalent, for example when using
-``sizing_mode: 'stretch_width'``, the ``sizing_mode`` must be explicitly stated for both
-the ``figure()`` and the ``gridplot()`` objects.
-
-.. _userguide_bokehjs_differences_range_padding:
-
-Making axis range properties persitent
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Setting ``plot.x_range.start`` and ``plot.x_range.end``, or ``plot.x_range.range_padding``
-to adjust whitespace around glyphs on an X axis (or the corresponding properties for a
-Y axis) is not persistent across resets. In the Python library, the values for these
-properties are persistent when a figure is reset. To achieve similar behavior in BokehJS,
-set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_padding``.
-
-.. _userguide_bokehjs_differences_palette:
-
-Palettes for ``Bokeh.Plotting`` objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The color palette is available under ``Bokeh.Charts`` but not under color mapper
-objects used for ``Bokeh.Plotting``. To use it with ``Bokeh.Plotting`` objects
-such as ``Bokeh.Plotting.image()``, the palette argument must be provided to the
-color mapper object, such as ``Bokeh.LinearColorMapper``, in the form of a color
-string array, rather than as a string.
-
-.. _userguide_bokehjs_differences_name_field:
-
-Setting glyph names for ``HoverTool``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Calling ``plot.line([0,1],[0,1],{name:“the_name”})`` sets the name under ``renderer.glyph.name``,
-rather than ``renderer.name``. The latter is used for HoverTool, under the special field
-``$name``. To enable this special field in the HoverTool, pass the glyph name to the renderer:
-
-.. code-block:: javascript
-
-    plot.renderers[0].name = plot.renderers[0].glyph.name;
+* :bokeh-issue:`11016` Figure name passed to `renderer.glyph.name` but not `renderer.name`
+* :bokeh-issue:`11034` Palettes not accessible by name for `ColorMapper` objects in BokehJS
+* :bokeh-issue:`11035` `Bokeh.Widgets.Div()` missing `tools`, required by `Bokeh.Plotting.gridplot()`
+* :bokeh-issue:`11036` Making axis range padding persistent requires changing `._initial_range_padding` as well
+* :bokeh-issue:`11037` Using `sizing_mode` in gridplot layouts requires explicit assignment
+* :bokeh-issue:`11038` Calling `figure({title:"some title"})` replaces Title object with string, prevents subsequent updates to title text
 
 Minimal example
 ---------------
