@@ -20,6 +20,7 @@ import codecs
 import datetime as dt
 import json
 import os
+import platform
 import random
 
 # External imports
@@ -165,6 +166,7 @@ class TestSessionId:
         token = generate_jwt_token(session_id, signed=True, secret_key="abc")
         assert check_token_signature(token, secret_key="abc", signed=True)
 
+    @pytest.mark.skipif(platform.python_implementation() == "PyPy", reason="pypy doesn't like isinstance(obj, Mock(...))")
     def test_jwt_token_uses_utc_time(self) -> None:
         # django server generates token using UTC timezone
         token = generate_jwt_token("foo", expiration=0)

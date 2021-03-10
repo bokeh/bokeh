@@ -16,6 +16,7 @@ import pytest ; pytest
 
 # Standard library imports
 import logging
+import platform
 
 # External imports
 from mock import patch
@@ -168,8 +169,13 @@ class Test_Document_delete_modules:
         extra.append(mod)
         import gc
 
-        # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
-        assert len(gc.get_referrers(mod)) in (3,4)
+        n_referrers = len(gc.get_referrers(mod))
+
+        if platform.python_implementation() == "PyPy":
+            assert n_referrers == 5
+        else:
+            # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
+            assert n_referrers in (3, 4)
 
         with caplog.at_level(logging.ERROR):
             d.delete_modules()
