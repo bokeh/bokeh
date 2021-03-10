@@ -103,7 +103,7 @@ def report():
     with open(join(BASE_DIR, "examples-report.html"), "w") as f:
         f.write(html)
 
-def test_file_examples(file_example, example, report, config) -> None:
+def test_file_examples(file_example, example, report, config, bokeh_server) -> None:
     if config.option.verbose:
         print()
     (status, duration, out, err) = _run_example(example)
@@ -181,6 +181,9 @@ def _print_webengine_output(result):
         info(msg, label="JS")
 
     for error in errors:
+        url = error.get("url", None)
+        if url is not None:
+            fail(f"@{url}", label="JS")
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
@@ -237,7 +240,7 @@ with open(filename, 'rb') as example:
 
     env = os.environ.copy()
     env['BOKEH_IGNORE_FILENAME'] = 'true'
-    env['BOKEH_RESOURCES'] = 'relative'
+    env['BOKEH_RESOURCES'] = 'server-dev'
     env['BOKEH_MINIFIED'] = 'false'
     env['BOKEH_BROWSER'] = 'none'
 

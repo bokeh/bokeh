@@ -378,6 +378,20 @@ describe("Bug", () => {
 
       await display(row([p0, p1]))
     })
+
+    it("disallows to render multi-lines with NaNs using SVG backend", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([300, 200], {output_backend})
+        const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
+        p.multi_line({xs: [range(y.length)], ys: [y]})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+
+      await display(row([p0, p1]))
+    })
   })
 
   describe("in issue #10725", () => {
