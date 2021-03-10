@@ -174,11 +174,14 @@ export class LineGL extends BaseGLGlyph {
     this._color = color.map((val) => val/255)
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
-    this._dash_offset = line_visuals.line_dash_offset.value
+    if (this._line_dash.length == 1)
+      // Dash pattern of single number means gap is same length as dash.
+      this._line_dash.push(this._line_dash[0])
 
     if (this._is_dashed()) {
       [this._dash_tex_info, this._dash_tex, this._dash_scale] =
         this.regl_wrapper.get_dash(this._line_dash)
+      this._dash_offset = line_visuals.line_dash_offset.value
     }
   }
 }

@@ -1,4 +1,5 @@
 import {gcd, is_pow_2} from "./utils/math"
+import {map} from "core/util/arrayable"
 import {Regl, Texture2D} from "regl"
 
 
@@ -132,8 +133,8 @@ export class DashCache {
       const scale: number = gcd(pattern)
 
       if (scale > 1) {
-        for (let i = 0; i < pattern.length; i++)
-          pattern[i] /= scale
+        // Do not modify pattern in-place, create a new one.
+        pattern = map(pattern, (n) => (n / scale))
 
         // Get the simple pattern that can be reused when scaled up.
         cached = this._get_or_create(pattern)

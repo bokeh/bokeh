@@ -96,8 +96,8 @@ float dash_distance(in float x)
     float tex_dist_min = u_dash_tex_info.z;
     float tex_dist_max = u_dash_tex_info.w;
 
-    // Apply user-chosen offset.
-    x += v_length_so_far - u_dash_scale*tex_offset;
+    // Apply offset.
+    x += v_length_so_far - u_dash_scale*tex_offset + u_dash_offset;
 
     // Interpolate within texture to obtain distance to dash.
     float dist = texture2D(u_dash_tex,
