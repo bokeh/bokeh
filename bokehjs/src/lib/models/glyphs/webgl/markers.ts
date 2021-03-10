@@ -11,7 +11,7 @@ import {color2rgba} from "core/util/color"
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
-const missing_point = -1e10
+const missing_point = -10000
 
 
 type MarkerLikeView = ScatterView | CircleView
@@ -94,32 +94,32 @@ export class MarkerGL extends BaseGLGlyph {
     this._antialias = 0.8
   }
 
-  draw(indices: number[], _main_glyph: MarkerLikeView, transform: Transform): void {
+  draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
+    // The main glyph has the data, this glyph has the visuals.
+    const mainGlGlyph = main_glyph.glglyph!
+
+    // Temporary solution for circles to always force call to _set_data.
+    // Correct solution depends on keeping the webgl properties constant and
+    // only changing the indices, which in turn depends on the correct webgl
+    // instanced rendering.
+    if (mainGlGlyph.data_changed || this.glyph instanceof CircleView) {
+      mainGlGlyph._set_data(indices)
+      mainGlGlyph.data_changed = false
+    }
 
     if (this.visuals_changed) {
       this._set_visuals(indices)
       this.visuals_changed = false
     }
 
-    if (this.data_changed) {
-      this._set_data(indices)
-      this.data_changed = false
-    }
-
-    if (this._centers === undefined || this._sizes.length == 0) {
-      // This is needed (temporarily) to avoid problems with multiple circles.
-      console.log('aborting draw early', (this._centers === undefined), this._sizes.length)
-      return
-    }
-
     this.regl_wrapper.marker(this._marker_type)({
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
-      center: this._centers,
+      center: mainGlGlyph._centers,
+      size: mainGlGlyph._sizes,
+      angle: mainGlGlyph._angles,
       nmarkers: indices.length,
       antialias: this._antialias,
-      size: this._sizes,
-      angle: this._angles,
       linewidth: this._linewidths,
       fg_color: this._line_rgba,
       bg_color: this._fill_rgba,
@@ -143,8 +143,6 @@ export class MarkerGL extends BaseGLGlyph {
       }
     }
 
-    // If marker is a circle with radius specified, need to update here rather
-    // than in _set_visuals as need to respond to change of scale.
     if (this.glyph instanceof CircleView && this.glyph.radius != null) {
       this._sizes = new Float32Array(nmarkers)
 
@@ -152,19 +150,17 @@ export class MarkerGL extends BaseGLGlyph {
         const i = indices[j]
         this._sizes[j] = this.glyph.sradius[i]*2
       }
+    } else {
+      this._sizes = prop_as_array(this.glyph.size, indices)
     }
+
+    this._angles = prop_as_array(this.glyph.angle, indices)
   }
 
   protected _set_visuals(indices: number[]): void {
     const fill = this.glyph.visuals.fill
     const line = this.glyph.visuals.line
 
-    // If marker is a circle with radius specified, sizes are updated in
-    // _set_data instead.
-    if (!(this.glyph instanceof CircleView && this.glyph.radius != null))
-      this._sizes = prop_as_array(this.glyph.size, indices)
-
-    this._angles = prop_as_array(this.glyph.angle, indices)
     this._linewidths = prop_as_array(line.line_width, indices)
 
     // These create new Uint8Arrays each call.  Should reuse instead.

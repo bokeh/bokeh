@@ -20,7 +20,6 @@ const missing_point_threshold = -9000.0
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number
   protected _points: Float32Array
-  protected _projection: Float32Array
 
   protected _antialias: number
   protected _color: number[]
@@ -40,25 +39,24 @@ export class LineGL extends BaseGLGlyph {
   constructor(regl_wrapper: ReglWrapper, readonly glyph: LineView) {
     super(regl_wrapper, glyph)
 
-    this._projection = new Float32Array(16)
-
     this._antialias = 1.5   // Make this larger to test antialiasing at edges.
     this._miter_limit = 5.0 // Threshold for miters to be replaced by bevels.
 
     this._debug_show_mesh = false
   }
 
-  draw(_indices: number[], _mainGlyph: LineView, transform: Transform): void {
-    // _indices and _mainGlyph are currently ignored.
+  draw(_indices: number[], mainGlyph: LineView, transform: Transform): void {
+    // _indices are currently ignored.
+    const mainGlGlyph = mainGlyph.glglyph!
 
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false
     }
 
-    if (this.data_changed) {
-      this._set_data()
-      this.data_changed = false
+    if (mainGlGlyph.data_changed) {
+      mainGlGlyph._set_data()
+      mainGlGlyph.data_changed = false
     }
 
     const line_visuals = this.glyph.visuals.line
