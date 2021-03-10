@@ -61,22 +61,27 @@ export class MultiLineView extends GlyphView {
       const sx = sxs.get(i)
       const sy = sys.get(i)
 
-      this.visuals.line.set_vectorize(ctx, i)
-      for (let j = 0, end = sx.length; j < end; j++) {
+      const n = Math.min(sx.length, sy.length)
+
+      let move = true
+      ctx.beginPath()
+
+      for (let j = 0; j < n; j++) {
         const sx_j = sx[j]
         const sy_j = sy[j]
 
-        if (j == 0) {
-          ctx.beginPath()
-          ctx.moveTo(sx_j, sy_j)
-          continue
-        } else if (isNaN(sx_j + sy_j)) {
-          ctx.stroke()
-          ctx.beginPath()
-          continue
-        } else
-          ctx.lineTo(sx_j, sy_j)
+        if (!isFinite(sx_j + sy_j))
+          move = true
+        else {
+          if (move) {
+            ctx.moveTo(sx_j, sy_j)
+            move = false
+          } else
+            ctx.lineTo(sx_j, sy_j)
+        }
       }
+
+      this.visuals.line.set_vectorize(ctx, i)
       ctx.stroke()
     }
   }
