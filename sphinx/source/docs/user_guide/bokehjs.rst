@@ -332,9 +332,11 @@ set both ``plot.x_range.range_padding`` and ``plot.x_range._initial_range_paddin
 Palettes for ``Bokeh.Plotting`` objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The color palette is available under ``Bokeh.Charts`` but not under ``Bokeh.Plotting``.
-To use it with ``Bokeh.Plotting`` objects such as ``Bokeh.Plotting.image()``, the
-palette argument must be provided as a color string array, rather than as a string.
+The color palette is available under ``Bokeh.Charts`` but not under color mapper
+objects used for ``Bokeh.Plotting``. To use it with ``Bokeh.Plotting`` objects
+such as ``Bokeh.Plotting.image()``, the palette argument must be provided to the
+color mapper object, such as ``Bokeh.LinearColorMapper``, in the form of a color
+string array, rather than as a string.
 
 .. _userguide_bokehjs_differences_name_field:
 
