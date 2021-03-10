@@ -40,7 +40,7 @@ dependencies:
   - pydot
   - pygments
   - pytest
-  #- pytest-asyncio
+  #- pytest-asyncio           # https://github.com/conda-forge/pytest-asyncio-feedstock/pull/16
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
@@ -53,6 +53,7 @@ dependencies:
   - pip:
     - sphinxext-opengraph
     - sphinx-reredirects
+    - pytest-asyncio
 
   # examples
   - flask >=1.0
