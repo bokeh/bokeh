@@ -351,24 +351,6 @@ rather than ``renderer.name``. The latter is used for HoverTool, under the speci
 
     plot.renderers[0].name = plot.renderers[0].glyph.name;
 
-.. _userguide_bokehjs_differences_div_widget:
-
-Using ``Div()`` in a ``gridplot()``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A ``Div()`` instance created by calling ``var mydiv = new Bokeh.Widgets.Div()``
-does not include ``mydiv.toolbar.tools`` to facilitate using in a custom
-``Bokeh.Plotting.gridplot()``; or ``gridplot()`` fails to check whether the
-property exists before accessing. This throws ``Uncaught TypeError: Cannot read
-property 'tools' of undefined``
-
-To use a ``Div()`` inside a ``gridplot()``, make sure to first set the div's
-toolbar property, as follows:
-
-.. code-block:: javascript
-
-    mydiv.toolbar = {tools:[]}
-
 Minimal example
 ---------------
 
