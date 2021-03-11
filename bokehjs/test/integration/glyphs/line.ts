@@ -48,8 +48,8 @@ describe("Line glyph", () => {
 
       for (let i = 0; i < colors.length; i++) {
         for (let j = 0; j < linewidths.length; j++) {
-          let x2 = X()
-          let y2 = Y()
+          const x2 = X()
+          const y2 = Y()
           if (i == 0)
             x2[0] = NaN
           else if (i == 1)
@@ -80,7 +80,7 @@ describe("Line glyph", () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
 
-      let x = [0, 10, 10, 0, 0]
+      const x = [0, 10, 10, 0, 0]
       let y = 0
       const Y = () => [-(y+=1.5), -y, 1-y, 1-y, -y]
 
