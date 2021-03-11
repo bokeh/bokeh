@@ -12,12 +12,12 @@ plot.
 
 .. seealso::
     Extended examples of using `KaTeX`_ LaTeX with Bokeh labels are available
-    in :bokeh-tree:`examples/custom/wrapped_extension_base/` and
-    :bokeh-tree:`examples/custom/wrapped_extension_full/`.
+    in :bokeh-tree:`examples/custom/latex_extension_base/` and
+    :bokeh-tree:`examples/custom/latex_extension_full/`.
 
     A similar example using `MathJax`_ to render LaTeX in a Bokeh label is
     available in
-    :bokeh-tree:`examples/models/file/latex_extension_mathjax.py`
+    :bokeh-tree:`examples/models/file/latex_extension_with_mathjax.py`
 
 .. _KaTeX: https://khan.github.io/KaTeX/
 .. _MathJax: https://www.mathjax.org/
