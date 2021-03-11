@@ -24,7 +24,7 @@ class LatexLabel(Label):
     superclass implementation that requires setting `render_mode='css'`).
 
     Only the render method of LabelView is overwritten to perform the
-    text -> latex (via katex) conversion
+    text -> latex (via MathJax) conversion
     """
     __javascript__ = ["https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"]
     __implementation__ = TypeScript("""
