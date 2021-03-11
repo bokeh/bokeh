@@ -1,0 +1,22 @@
+.. _release-2-3-1:
+
+2.3.1
+=====
+
+Bokeh Version ``2.3.1`` (Mar 2021) is a patch-release that fixes bugs that
+affects downstream projects:
+
+
+For full details see the :bokeh-tree:`CHANGELOG`.
+
+
+.. _release-2-3-1-migration:
+
+`Migration Guide <releases.html#release-2-3-1-migration>`__
+-----------------------------------------------------------
+
+HSL class deprecated
+~~~~~~~~~~~~~~~~~~~~
+
+The class ``bokeh.colors.HSL`` is deprecated and will be removed in a future
+release. Use the ``RGB`` class, RGB(a) strings, or named colors instead.
