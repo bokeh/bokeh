@@ -218,7 +218,7 @@ Specifying default values
 If your properties have default values, you must provide the default value on
 both the Python side and on the JavaScript side (and the value should be the
 same on both sides). For efficiency reasons, Bokeh only transmits property
-values that are expicitly changed by users from their default values.
+values that a user has explicitly changed from their default values.
 
 As a concrete example, a boolean property ``flag`` with a default value of True
 should look like this on the Python side:
@@ -227,7 +227,7 @@ should look like this on the Python side:
 
     flag = Bool(default=True)
 
-And this on the BokehJS side:
+And it should look like this on the Bokeh side:
 
 .. code-block:: typescript
 
