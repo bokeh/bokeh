@@ -125,7 +125,7 @@ html_theme_options = {
     ],
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
-#    'logo_link': 'https://static.bokeh.org/branding/logos/bokeh-logo.svg',
+    'logo_link': 'https://static.bokeh.org/branding/logos/bokeh-logo.svg',
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
 }
@@ -137,3 +137,5 @@ html_sidebars = {
 }
 
 html_title = f"{project} {version} Documentation"
+
+templates_path = ['_templates']
