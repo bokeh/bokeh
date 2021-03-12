@@ -6,12 +6,12 @@ const build_dir = normalize(`${__dirname}/../..`) // build/test/codebase -> buil
 
 const LIMITS = new Map([
   // es2017
-  ["js/bokeh.min.js",                 800],
+  ["js/bokeh.min.js",                 950],
   ["js/bokeh-widgets.min.js",         300],
   ["js/bokeh-tables.min.js",          350],
   ["js/bokeh-api.min.js",              90],
   // legacy (es5)
-  ["js/bokeh.legacy.min.js",         1050],
+  ["js/bokeh.legacy.min.js",         1150],
   ["js/bokeh-widgets.legacy.min.js",  350],
   ["js/bokeh-tables.legacy.min.js",   350],
   ["js/bokeh-api.legacy.min.js",       90],

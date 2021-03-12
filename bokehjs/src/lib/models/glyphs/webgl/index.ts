@@ -11,5 +11,5 @@ Other locations where we work with GL, or prepare for GL-rendering:
 - glyph_renderer.ts
 */
 
-export * from "./line"
+export * from "./line_gl"
 export * from "./markers"
