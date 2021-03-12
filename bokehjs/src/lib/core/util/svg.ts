@@ -1118,11 +1118,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
             if (def instanceof Element) {
               const id = def.getAttribute("id")!
               this.__ids[id] = id
-              this.__defs.appendChild(def)
+              this.__defs.appendChild(def.cloneNode(true))
             }
           }
         } else {
-          scope.appendChild(child)
+          scope.appendChild(child.cloneNode(true))
         }
       }
     } else if (image instanceof HTMLImageElement || image instanceof SVGImageElement) {
@@ -1184,7 +1184,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     } else if (image instanceof SVGRenderingContext2D) {
       for (const child of [...image.__root.childNodes]) {
         if (!(child instanceof SVGDefsElement)) {
-          pattern.appendChild(child)
+          pattern.appendChild(child.cloneNode(true))
         }
       }
       //pattern.appendChild(image.__root.childNodes[1])
@@ -1192,7 +1192,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     } else if (image instanceof SVGSVGElement) {
       for (const child of [...image.childNodes]) {
         if (!(child instanceof SVGDefsElement)) {
-          pattern.appendChild(child)
+          pattern.appendChild(child.cloneNode(true))
         }
       }
       //pattern.appendChild(image.__root.childNodes[1])
