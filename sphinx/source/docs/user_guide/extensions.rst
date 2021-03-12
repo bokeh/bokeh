@@ -212,6 +212,29 @@ example:
 
         __implementation__ = JavaScript(" <JS code here> ")
 
+.. _userguide_extensions_specifying_default_values:
+
+Specifying default values
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your properties have default values, you must provide the default value on
+both the Python side and on the JavaScript side. The values you provide should
+be the same on both sides. For efficiency reasons, Bokeh only transmits property
+values that a user has explicitly changed from their default values.
+
+As a concrete example, a boolean property ``flag`` with a default value of True
+should look like this on the Python side:
+
+.. code-block:: python
+
+    flag = Bool(default=True)
+
+And it should look like this on the Bokeh side:
+
+.. code-block:: typescript
+
+    flag: [ Boolean, true ]
+
 .. _userguide_extensions_supplying_external_resources:
 
 Supplying external resources
