@@ -116,6 +116,10 @@ html_context = {
     'VERSION': version,
 }
 
+html_css_files = ['custom.css']
+
+html_static_path = ['_static']
+
 html_theme ='pydata_sphinx_theme'
 
 html_theme_options = {
@@ -125,7 +129,6 @@ html_theme_options = {
     ],
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
-    'logo_link': 'https://static.bokeh.org/branding/logos/bokeh-logo.svg',
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
 }
