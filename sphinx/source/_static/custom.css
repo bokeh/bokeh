@@ -55,3 +55,73 @@ img.gallery {
     width: 200px;
     height:200px
 }
+
+a { color: #CF462A; }
+
+code {
+    font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+    color: rgb(33, 37, 41);
+    padding: 2px 1px 0px 1px;
+    font-size: 80%;
+    background-color:#eef0f1;
+}
+
+/* Custom styles for documentation landing page (index.rst) and other pages
+using sphinx_panels */
+
+.bokeh-examples {
+    padding: 0px;
+}
+
+.bokeh-examples img {
+    width: 100%;
+    height: 100%;
+}
+
+.bg-bokeh-one {
+    background-color: rgba(246,169,27,0.3);
+}
+
+.bg-bokeh-two {
+    background-color: rgba(165,205,57,0.3);
+}
+
+.bg-bokeh-three {
+    background-color: rgba(0,170,174,0.3);
+}
+
+.bg-bokeh-four {
+    background-color: rgba(240,82,35,0.3);
+}
+
+.bg-bokeh-five {
+    background-color: rgba(138,40,137,0.3);
+}
+
+.bg-bokeh-six {
+    background-color: rgba(32,178,84,0.3);
+}
+
+.bg-bokeh-seven {
+    background-color: rgba(236,21,87,0.3);
+}
+
+.card-header p {
+    font-weight: 600;
+    font-size: 125%;
+}
+
+.card-text a {
+    font-weight: 600;
+}
+
+@media (max-width: 575px) {
+    .examples-container .d-flex {
+        width: 25%;
+    }
+}
+
+/* customize highlight color for sphinx code blocks */
+.highlight .hll {
+    background-color: rgba(246,169,27,0.3);
+}
