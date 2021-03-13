@@ -21,10 +21,12 @@ appreciated!* In addition to quick fixes, check the list of `Open Docs
 Issues`_ on GitHub. This list contains several projects as a starting
 point.
 
-This section describes Bokeh's `devguide_documentation_style_guidelines`_ for
-contributing to the documentation. This section also includes details on how to
-`devguide_documentation_build`_ and `devguide_documentation_edit`_ the
-documentation in your local development environment.
+This section describes Bokeh's
+:ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
+for contributing to the documentation. This section also includes details on how
+to :ref:`build <devguide_documentation_build>` and
+:ref:`edit <devguide_documentation_edit>` the documentation in your local
+development environment.
 
 .. _`devguide_documentation_style_guidelines`:
 
@@ -303,8 +305,8 @@ For information on how to format text using reStructuredText, see the
 reStructuredText website`_.
 
 For information on writing style, see Bokeh's
-`devguide_documentation_style_guidelines`_ and the
-`Google developer documentation style guide`_.
+:ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
+and the `Google developer documentation style guide`_.
 
 `Release Notes`_ are generally handled by the Bokeh core team as part of
 Bokeh's `release management`_. Each release should add a new file under
