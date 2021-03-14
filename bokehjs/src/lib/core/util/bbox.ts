@@ -134,6 +134,15 @@ export class BBox implements Rect, Equatable {
     }
   }
 
+  static from_rect({left, right, top, bottom}: {left: number, right: number, top: number, bottom: number}): BBox {
+    return new BBox({
+      x0: Math.min(left, right),
+      y0: Math.min(top, bottom),
+      x1: Math.max(left, right),
+      y1: Math.max(top, bottom),
+    })
+  }
+
   equals(that: Rect): boolean {
     return this.x0 == that.x0 && this.y0 == that.y0 &&
            this.x1 == that.x1 && this.y1 == that.y1
