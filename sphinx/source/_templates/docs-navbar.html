@@ -11,6 +11,12 @@
     {% set navbar_class, navbar_align = navbar_align_class() %}
     <div id="navbar-menu" class="{{ navbar_class }} collapse navbar-collapse">
       <ul id="navbar-main-elements" class="navbar-nav {{ navbar_align }}">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ VERSION }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="version-menu"></div>
+        </li>
         {{ generate_nav_html("navbar", maxdepth=1, collapse=True, includehidden=True, titles_only=True) }}
         {% for external_link in theme_external_links %}
         <li class="nav-item">
