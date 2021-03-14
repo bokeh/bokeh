@@ -165,6 +165,7 @@ export namespace Figure {
     y_axis_location: Location
     x_axis_label: string
     y_axis_label: string
+    math_jax_enabled: Boolean
     x_minor_ticks: number | "auto"
     y_minor_ticks: number | "auto"
     tools: (Tool | ToolName)[] | string
@@ -238,6 +239,21 @@ export class Figure extends Plot {
     delete attrs.y_scale
 
     super({...attrs, x_range, y_range, x_scale, y_scale})
+
+    console.log({ attrs });
+
+    if(attrs.math_jax_enabled) {
+      if (!window.MathJax) {
+        window.MathJax = {
+          tex: {
+            inlineMath: {'[+]': [['$', '$']]}
+          }
+        };
+      }
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+      document.head.appendChild(script);
+    }
 
     this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)

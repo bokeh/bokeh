@@ -8,6 +8,20 @@ import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
 
+declare global {
+  interface Window {
+    MathJax:
+      | {
+          tex2svg(input: string): any;
+        }
+      | any;
+  }
+}
+
+declare namespace MathJax {
+  function tex2svg(input: string): any
+}
+
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")!
@@ -362,6 +376,23 @@ export class TextBox extends GraphicsBox {
   }
 
   paint(ctx: Context2d): void {
+    if (this.text.startsWith("$$")) {
+      const svgElement = MathJax.tex2svg(this.text).children[0];
+      const outerHTML = svgElement.outerHTML,
+        blob = new Blob([outerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const URL = window.URL || window.webkitURL || window;
+      const blobURL = URL.createObjectURL(blob);
+      const image = new Image();
+
+      const { sx, sy } = this.position;
+
+      image.onload = () => {
+        ctx.drawImage(image, sx, sy, text_width(this.text, this.font), 8);
+      };
+
+      image.src = blobURL;
+    }
+
     const {font} = this
 
     const fmetrics = font_metrics(font)

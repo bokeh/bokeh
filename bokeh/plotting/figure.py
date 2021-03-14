@@ -30,6 +30,7 @@ from ..core.properties import (
     Seq,
     String,
     Tuple,
+    Bool,
 )
 from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs
 from ..models.tools import Drag, InspectTool, Scroll, Tap
@@ -1635,6 +1636,10 @@ class FigureOptions(Options):
 
     y_axis_label = Nullable(String, default="", help="""
     A label for the y-axis.
+    """)
+
+    math_jax_enabled = Nullable(Bool, default=False, help="""
+    Whether text should be rendered with MathJax latex engine
     """)
 
     active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
