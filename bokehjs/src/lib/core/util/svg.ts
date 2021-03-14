@@ -114,7 +114,8 @@ type StyleAttr =
   "shadowBlur" |
   "textAlign" |
   "textBaseline" |
-  "lineDash"
+  "lineDash" |
+  "lineDashOffset"
 
 type StyleState = {[key in StyleAttr]: Style}
 
@@ -188,6 +189,12 @@ const STYLES: StyleState = {
     svgAttr: "stroke-dasharray",
     canvas: [],
     svg: null,
+    apply: "stroke",
+  },
+  lineDashOffset: {
+    svgAttr: "stroke-dashoffset",
+    canvas: 0,
+    svg: 0,
     apply: "stroke",
   },
 }
@@ -290,6 +297,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   textAlign: CanvasTextAlign
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
+  lineDashOffset: number
 
   private _width: number
   private _height: number
