@@ -318,7 +318,7 @@ export class TileRendererView extends RendererView {
     }
 
     if (snap_back) {
-      this.x_range.setv({x_range: {start: extent[0], end: extent[2]}})
+      this.x_range.setv({start: extent[0], end: extent[2]})
       this.y_range.setv({start: extent[1], end: extent[3]})
     }
 
