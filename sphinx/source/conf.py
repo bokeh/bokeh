@@ -129,6 +129,7 @@ html_theme_options = {
     ],
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
+    "navbar_align": "left",
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
 }
