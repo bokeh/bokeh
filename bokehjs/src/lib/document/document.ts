@@ -649,6 +649,7 @@ export class Document {
     replacement.destructively_move(this)
   }
 
+  /** @deprecated */
   create_json_patch_string(events: DocumentChangedEvent[]): string {
     return JSON.stringify(this.create_json_patch(events))
   }
@@ -660,8 +661,17 @@ export class Document {
     }
 
     const serializer = new Serializer()
+    const events_repr = serializer.to_serializable(events)
+
+    // TODO: We need a proper differential serializer. For now just remove known
+    // definitions. We are doing this after a complete serialization, so that all
+    // new objects are recorded.
+    for (const model of this._all_models.values()) {
+      serializer.remove_def(model)
+    }
+
     return {
-      events: serializer.to_serializable(events),
+      events: events_repr,
       references: [...serializer.definitions],
     }
   }
