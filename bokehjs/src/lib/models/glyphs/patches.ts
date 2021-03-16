@@ -51,24 +51,6 @@ export class PatchesView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
-    for (let j = 0, end = sx.length; j < end; j++) {
-      if (j == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx[j], sy[j])
-        continue
-      } else if (isNaN(sx[j] + sy[j])) {
-        ctx.closePath()
-        func.apply(ctx)
-        ctx.beginPath()
-        continue
-      } else
-        ctx.lineTo(sx[j], sy[j])
-    }
-    ctx.closePath()
-    func.call(ctx)
-  }
-
   protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
     const {sxs, sys} = data ?? this
 
@@ -76,19 +58,41 @@ export class PatchesView extends GlyphView {
       const sx_i = sxs.get(i)
       const sy_i = sys.get(i)
 
+      let move = true
+      ctx.beginPath()
+
+      const n = Math.min(sx_i.length, sy_i.length)
+      for (let j = 0; j < n; j++) {
+        const sx_j = sx_i[j]
+        const sy_j = sy_i[j]
+
+        if (!isFinite(sx_j + sy_j)) {
+          ctx.closePath()
+          move = true
+        } else {
+          if (move) {
+            ctx.moveTo(sx_j, sy_j)
+            move = false
+          } else
+            ctx.lineTo(sx_j, sy_j)
+        }
+      }
+
+      ctx.closePath()
+
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
+        ctx.fill()
       }
 
       if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.fill)
+        ctx.fill()
       }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        this._inner_loop(ctx, sx_i, sy_i, ctx.stroke)
+        ctx.stroke()
       }
     }
   }
