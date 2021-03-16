@@ -122,48 +122,53 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _inner_loop(ctx: Context2d, sx: ScreenArray[][], sy: ScreenArray[][]): void {
-    ctx.beginPath()
-    for (let j = 0, endj = sx.length; j < endj; j++) {
-      for (let k = 0, endk = sx[j].length; k < endk; k++) {
-        const _sx = sx[j][k]
-        const _sy = sy[j][k]
-
-        for (let l = 0, endl = _sx.length; l < endl; l++) {
-          if (l == 0) {
-            ctx.moveTo(_sx[l], _sy[l])
-            continue
-          } else
-            ctx.lineTo(_sx[l], _sy[l])
-        }
-        ctx.closePath()
-      }
-    }
-  }
-
   protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
       const {sxs, sys} = data ?? this
 
       for (const i of indices) {
+        ctx.beginPath()
+
         const sx_i = sxs[i]
         const sy_i = sys[i]
 
+        const nj = Math.min(sx_i.length, sy_i.length)
+        for (let j = 0; j < nj; j++) {
+          const sx_ij = sx_i[j]
+          const sy_ij = sy_i[j]
+
+          const nk = Math.min(sx_ij.length, sy_ij.length)
+          for (let k = 0; k < nk; k++) {
+            const sx_ijk = sx_ij[k]
+            const sy_ijk = sy_ij[k]
+
+            const nl = Math.min(sx_ijk.length, sy_ijk.length)
+            for (let l = 0; l < nl; l++) {
+              const sx_ijkl = sx_ijk[l]
+              const sy_ijkl = sy_ijk[l]
+
+              if (l == 0)
+                ctx.moveTo(sx_ijkl, sy_ijkl)
+              else
+                ctx.lineTo(sx_ijkl, sy_ijkl)
+            }
+
+            ctx.closePath()
+          }
+        }
+
         if (this.visuals.fill.doit) {
           this.visuals.fill.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
         if (this.visuals.hatch.doit) {
           this.visuals.hatch.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
           ctx.fill("evenodd")
         }
 
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)
-          this._inner_loop(ctx, sx_i, sy_i)
           ctx.stroke()
         }
       }
