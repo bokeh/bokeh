@@ -72,6 +72,11 @@ export function color2hex(color: Color | null, alpha?: number): string {
   return a == 255 ? rgb : `${rgb}${hex(a)}`
 }
 
+export function color2hexrgb(color: Color | null): string {
+  const [r, g, b] = color2rgba(color)
+  return `#${hex(r)}${hex(g)}${hex(b)}`
+}
+
 /*
 let _last_color = "transparent"
 let _last_alpha = 1.0
