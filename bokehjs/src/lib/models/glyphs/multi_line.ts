@@ -58,23 +58,10 @@ export class MultiLineView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const xsi = this._xs.get(i)
-      if (xsi.length == 0) {
-        index.add_empty()
-        continue
-      }
-
       const ysi = this._ys.get(i)
-      if (ysi.length == 0) {
-        index.add_empty()
-        continue
-      }
 
       const [x0, x1, y0, y1] = minmax(xsi, ysi)
-
-      if (!isFinite(x0 + x1 + y0 + y1))
-        index.add_empty()
-      else
-        index.add(x0, y0, x1, y1)
+      index.add_rect(x0, y0, x1, y1)
     }
   }
 

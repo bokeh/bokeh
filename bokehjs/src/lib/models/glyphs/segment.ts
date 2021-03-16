@@ -43,11 +43,7 @@ export class SegmentView extends GlyphView {
       const x1 = _x1[i]
       const y0 = _y0[i]
       const y1 = _y1[i]
-
-      if (isNaN(x0 + x1 + y0 + y1))
-        index.add_empty()
-      else
-        index.add(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
+      index.add_rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
     }
   }
 

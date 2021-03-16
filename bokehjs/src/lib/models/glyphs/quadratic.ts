@@ -72,7 +72,7 @@ export class QuadraticView extends GlyphView {
         const [x0, x1] = _qbb(x0_i, cx_i, x1_i)
         const [y0, y1] = _qbb(y0_i, cy_i, y1_i)
 
-        index.add(x0, y0, x1, y1)
+        index.add_rect(x0, y0, x1, y1)
       }
     }
   }

@@ -31,11 +31,7 @@ export class HAreaView extends AreaView {
       const x1 = this._x1[i]
       const x2 = this._x2[i]
       const y = this._y[i]
-
-      if (isNaN(x1 + x2 + y) || !isFinite(x1 + x2 + y))
-        index.add_empty()
-      else
-        index.add(min(x1, x2), y, max(x1, x2), y)
+      index.add_rect(min(x1, x2), y, max(x1, x2), y)
     }
   }
 

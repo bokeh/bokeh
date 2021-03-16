@@ -98,10 +98,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(l, b, r, t)
+      index.add_rect(l, b, r, t)
     }
   }
 

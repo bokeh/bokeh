@@ -44,7 +44,7 @@ export class PatchesView extends GlyphView {
         const [x0, x1] = minmax(xsi)
         const [y0, y1] = minmax(ysi)
 
-        index.add(x0, y0, x1, y1)
+        index.add_rect(x0, y0, x1, y1)
       }
     }
   }

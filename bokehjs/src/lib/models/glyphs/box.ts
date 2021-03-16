@@ -60,10 +60,7 @@ export abstract class BoxView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(min(l, r), min(t, b), max(r, l), max(t, b))
+      index.add_rect(min(l, r), min(t, b), max(r, l), max(t, b))
     }
   }
 

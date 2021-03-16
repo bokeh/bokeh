@@ -65,10 +65,7 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
 
-      if (!isFinite(xi0 + xi1 + yi0 + yi1))
-        index.add_empty()
-      else
-        index.add(xi0, yi0, xi1, yi1)
+      index.add_rect(xi0, yi0, xi1, yi1)
     }
 
     this._hole_index = this._index_hole_data()
@@ -110,10 +107,7 @@ export class MultiPolygonsView extends GlyphView {
         }
       }
 
-      if (!isFinite(xi0 + xi1 + yi0 + yi1))
-        index.add_empty()
-      else
-        index.add(xi0, yi0, xi1, yi1)
+      index.add_rect(xi0, yi0, xi1, yi1)
     }
 
     index.finish()
