@@ -274,6 +274,7 @@ vec4 outline(float distance, float linewidth, float antialias, vec4 fg_color, ve
             discard;
         }
     }
+    frag_color.rgb *= frag_color.a;  // Premultiplied alpha.
     return frag_color;
 }
 
