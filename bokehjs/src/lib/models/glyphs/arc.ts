@@ -41,7 +41,7 @@ export class ArcView extends XYGlyphView {
         const start_angle_i = start_angle.get(i)
         const end_angle_i = end_angle.get(i)
 
-        if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
+        if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
           continue
 
         ctx.beginPath()

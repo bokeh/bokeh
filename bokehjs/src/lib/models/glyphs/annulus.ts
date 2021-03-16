@@ -46,7 +46,7 @@ export class AnnulusView extends XYGlyphView {
       const sinner_radius_i = sinner_radius[i]
       const souter_radius_i = souter_radius[i]
 
-      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i))
         continue
 
       // Because this visual has a whole in it, it proved "challenging"

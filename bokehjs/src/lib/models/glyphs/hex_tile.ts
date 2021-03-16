@@ -140,7 +140,7 @@ export class HexTileView extends GlyphView {
       const sy_i = sy[i]
       const scale_i = scale.get(i)
 
-      if (isNaN(sx_i + sy_i + scale_i))
+      if (!isFinite(sx_i + sy_i + scale_i))
         continue
 
       ctx.translate(sx_i, sy_i)

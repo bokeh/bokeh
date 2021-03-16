@@ -57,7 +57,7 @@ export class SegmentView extends GlyphView {
         const sx1_i = sx1[i]
         const sy1_i = sy1[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i))
           continue
 
         ctx.beginPath()

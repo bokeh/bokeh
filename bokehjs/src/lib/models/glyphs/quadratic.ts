@@ -66,7 +66,7 @@ export class QuadraticView extends GlyphView {
       const cx_i = _cx[i]
       const cy_i = _cy[i]
 
-      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()
       else {
         const [x0, x1] = _qbb(x0_i, cx_i, x1_i)
@@ -89,7 +89,7 @@ export class QuadraticView extends GlyphView {
         const scx_i = scx[i]
         const scy_i = scy[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
           continue
 
         ctx.beginPath()

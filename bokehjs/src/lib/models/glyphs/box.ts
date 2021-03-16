@@ -73,7 +73,7 @@ export abstract class BoxView extends GlyphView {
       const sright_i = sright[i]
       const sbottom_i = sbottom[i]
 
-      if (isNaN(sleft_i + stop_i + sright_i + sbottom_i))
+      if (!isFinite(sleft_i + stop_i + sright_i + sbottom_i))
         continue
 
       ctx.beginPath()
