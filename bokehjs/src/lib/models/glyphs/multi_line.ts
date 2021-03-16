@@ -3,37 +3,15 @@ import {inplace} from "core/util/projections"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
-import {Rect, Arrayable, RaggedArray, FloatArray, ScreenArray} from "core/types"
+import {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {minmax2} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
-
-function minmax(arr: Arrayable<number>, brr: Arrayable<number>): [number, number, number, number] {
-  let a: number
-  let b: number
-  let a_min = +Infinity
-  let a_max = -Infinity
-  let b_min = +Infinity
-  let b_max = -Infinity
-
-  const n = Math.min(arr.length, brr.length)
-  for (let i = 0; i < n; i++) {
-    a = arr[i]
-    b = brr[i]
-    if (!isNaN(a) && !isNaN(b)) {
-      if (a < a_min) a_min = a
-      if (a > a_max) a_max = a
-      if (b < b_min) b_min = b
-      if (b > b_max) b_max = b
-    }
-  }
-
-  return [a_min, a_max, b_min, b_max]
-}
 
 export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
   _xs: RaggedArray<FloatArray>
@@ -60,7 +38,7 @@ export class MultiLineView extends GlyphView {
       const xsi = this._xs.get(i)
       const ysi = this._ys.get(i)
 
-      const [x0, x1, y0, y1] = minmax(xsi, ysi)
+      const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)
     }
   }

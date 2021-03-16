@@ -1,7 +1,7 @@
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
-import {minmax, sum} from "core/util/arrayable"
+import {minmax2, sum} from "core/util/arrayable"
 import {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
@@ -38,14 +38,8 @@ export class PatchesView extends GlyphView {
       const xsi = this._xs.get(i)
       const ysi = this._ys.get(i)
 
-      if (xsi.length == 0)
-        index.add_empty()
-      else {
-        const [x0, x1] = minmax(xsi)
-        const [y0, y1] = minmax(ysi)
-
-        index.add_rect(x0, y0, x1, y1)
-      }
+      const [x0, x1, y0, y1] = minmax2(xsi, ysi)
+      index.add_rect(x0, y0, x1, y1)
     }
   }
 

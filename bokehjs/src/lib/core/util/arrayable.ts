@@ -202,6 +202,29 @@ export function minmax(array: Arrayable<number>): [number, number] {
   return [min, max]
 }
 
+export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number, number, number, number] {
+  let a: number
+  let b: number
+  let a_min = +Infinity
+  let a_max = -Infinity
+  let b_min = +Infinity
+  let b_max = -Infinity
+
+  const n = Math.min(arr.length, brr.length)
+  for (let i = 0; i < n; i++) {
+    a = arr[i]
+    b = brr[i]
+    if (!isNaN(a) && !isNaN(b)) {
+      if (a < a_min) a_min = a
+      if (a > a_max) a_max = a
+      if (b < b_min) b_min = b
+      if (b > b_max) b_max = b
+    }
+  }
+
+  return [a_min, a_max, b_min, b_max]
+}
+
 export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
   if (array.length == 0)
     throw new Error("min_by() called with an empty array")
