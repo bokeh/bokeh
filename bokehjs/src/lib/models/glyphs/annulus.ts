@@ -55,39 +55,34 @@ export class AnnulusView extends XYGlyphView {
       // it is unambiguous what part should be filled. The line is
       // better drawn in one go though, otherwise the part where the pieces
       // meet will not be fully closed due to aa.
-      function fill_path() {
-        ctx.beginPath()
-        if (is_ie) {
-          // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
-          for (const clockwise of [false, true]) {
-            ctx.arc(sx_i, sy_i, sinner_radius_i, 0, Math.PI, clockwise)
-            ctx.arc(sx_i, sy_i, souter_radius_i, Math.PI, 0, !clockwise)
-          }
-        } else {
-          // Draw donut in one go. Does not work on iE.
-          ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2 * Math.PI, true)
-          ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
+      ctx.beginPath()
+      if (is_ie) {
+        // Draw two halves of the donut. Works on IE, but causes an aa line on Safari.
+        for (const clockwise of [false, true]) {
+          ctx.moveTo(sx_i, sy_i)
+          ctx.arc(sx_i, sy_i, sinner_radius_i, 0, Math.PI, clockwise)
+          ctx.moveTo(sx_i + souter_radius_i, sy_i)
+          ctx.arc(sx_i, sy_i, souter_radius_i, Math.PI, 0, !clockwise)
         }
+      } else {
+        // Draw donut in one go. Does not work on iE.
+        ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2 * Math.PI, true)
+        ctx.moveTo(sx_i + souter_radius_i, sy_i)
+        ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
       }
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        fill_path()
         ctx.fill()
       }
 
       if (this.visuals.hatch.doit) {
         this.visuals.hatch.set_vectorize(ctx, i)
-        fill_path()
         ctx.fill()
       }
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.arc(sx_i, sy_i, sinner_radius_i, 0, 2*Math.PI)
-        ctx.moveTo(sx_i + souter_radius_i, sy_i)
-        ctx.arc(sx_i, sy_i, souter_radius_i, 0, 2*Math.PI)
         ctx.stroke()
       }
     }
