@@ -2,7 +2,7 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {Color} from "core/types"
 import {input} from "core/dom"
 import * as p from "core/properties"
-import {color2css} from "core/util/color"
+import {color2hexrgb} from "core/util/color"
 
 import * as inputs from "styles/widgets/inputs.css"
 
@@ -12,7 +12,7 @@ export class ColorPickerView extends InputWidgetView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
-    this.connect(this.model.properties.color.change, () => this.input_el.value = color2css(this.model.color))
+    this.connect(this.model.properties.color.change, () => this.input_el.value = color2hexrgb(this.model.color))
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }
 
