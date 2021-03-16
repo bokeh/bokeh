@@ -172,6 +172,7 @@ export class ImageURLView extends XYGlyphView {
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
+    ctx.beginPath()
     ctx.rect(
       frame.bbox.left+1, frame.bbox.top+1,
       frame.bbox.width-2, frame.bbox.height-2,
