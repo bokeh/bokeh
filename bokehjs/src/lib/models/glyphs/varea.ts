@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable, FloatArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -35,7 +35,9 @@ export class VAreaView extends AreaView {
     }
   }
 
-  protected _inner(ctx: Context2d, sx: Arrayable<number>, sy1: Arrayable<number>, sy2: Arrayable<number>, func: (this: Context2d) => void): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
+    const {sx, sy1, sy2} = data ?? this
+
     ctx.beginPath()
     for (let i = 0, end = sy1.length; i < end; i++) {
       ctx.lineTo(sx[i], sy1[i])
@@ -45,20 +47,15 @@ export class VAreaView extends AreaView {
       ctx.lineTo(sx[i], sy2[i])
     }
     ctx.closePath()
-    func.call(ctx)
-  }
-
-  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
-    const {sx, sy1, sy2} = data ?? this
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
-      this._inner(ctx, sx, sy1, sy2, ctx.fill)
+      ctx.fill()
     }
 
     if (this.visuals.hatch.doit) {
       this.visuals.hatch.set_value(ctx)
-      this._inner(ctx, sx, sy1, sy2, ctx.fill)
+      ctx.fill()
     }
   }
 
