@@ -70,8 +70,18 @@ export class SpatialIndex {
     }
   }
 
-  add(x0: number, y0: number, x1: number, y1: number): void {
-    this.index?.add(x0, y0, x1, y1)
+  add_rect(x0: number, y0: number, x1: number, y1: number): void {
+    if (!isFinite(x0 + y0 + x1 + y1))
+      this.add_empty()
+    else
+      this.index?.add(x0, y0, x1, y1)
+  }
+
+  add_point(x: number, y: number) {
+    if (!isFinite(x + y))
+      this.add_empty()
+    else
+      this.index?.add(x, y, x, y)
   }
 
   add_empty(): void {

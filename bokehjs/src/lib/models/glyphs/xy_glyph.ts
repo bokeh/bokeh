@@ -28,11 +28,7 @@ export abstract class XYGlyphView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const x = _x[i]
       const y = _y[i]
-
-      if (isNaN(x + y) || !isFinite(x + y))
-        index.add_empty()
-      else
-        index.add(x, y, x, y)
+      index.add_point(x, y)
     }
   }
 

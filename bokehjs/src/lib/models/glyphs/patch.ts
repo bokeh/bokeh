@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_scalar_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import * as visuals from "core/visuals"
-import {Arrayable, Rect} from "core/types"
+import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
 import * as mixins from "core/property_mixins"
@@ -17,43 +17,43 @@ export class PatchView extends XYGlyphView {
   model: Patch
   visuals: Patch.Visuals
 
-  protected _inner_loop(ctx: Context2d, indices: number[], sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
+  protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
+    const {sx, sy} = data ?? this
+
+    let move = true
+    ctx.beginPath()
+
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
 
-      if (i == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx_i, sy_i)
-        continue
-      } else if (isNaN(sx_i + sy_i)) {
+      if (!isFinite(sx_i + sy_i)) {
         ctx.closePath()
-        func.apply(ctx)
-        ctx.beginPath()
-        continue
-      } else
-        ctx.lineTo(sx_i, sy_i)
+        move = true
+      } else {
+        if (move) {
+          ctx.moveTo(sx_i, sy_i)
+          move = false
+        } else
+          ctx.lineTo(sx_i, sy_i)
+      }
     }
-    ctx.closePath()
-    func.call(ctx)
-  }
 
-  protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
-    const {sx, sy} = data ?? this
+    ctx.closePath()
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
-      this._inner_loop(ctx, indices, sx, sy, ctx.fill)
+      ctx.fill()
     }
 
     if (this.visuals.hatch.doit) {
       this.visuals.hatch.set_value(ctx)
-      this._inner_loop(ctx, indices, sx, sy, ctx.fill)
+      ctx.fill()
     }
 
     if (this.visuals.line.doit) {
       this.visuals.line.set_value(ctx)
-      this._inner_loop(ctx, indices, sx, sy, ctx.stroke)
+      ctx.stroke()
     }
   }
 

@@ -87,7 +87,6 @@ export abstract class GlyphView extends View {
         return
     }
 
-    ctx.beginPath()
     this._render(ctx, indices, data ?? this.base)
   }
 

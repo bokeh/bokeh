@@ -120,11 +120,11 @@ export class BezierView extends GlyphView {
       const cx1_i = _cx1[i]
       const cy1_i = _cy1[i]
 
-      if (isNaN(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
+      if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
         const [x0, y0, x1, y1] = _cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
-        index.add(x0, y0, x1, y1)
+        index.add_rect(x0, y0, x1, y1)
       }
     }
   }
@@ -143,7 +143,7 @@ export class BezierView extends GlyphView {
         const scx1_i = scx1[i]
         const scy1_i = scy1[i]
 
-        if (isNaN(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
+        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx0_i + scy0_i + scx1_i + scy1_i))
           continue
 
         ctx.beginPath()

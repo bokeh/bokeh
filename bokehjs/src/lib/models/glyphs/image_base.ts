@@ -49,7 +49,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       const sw_i = sw[i]
       const sh_i = sh[i]
 
-      if (image_data_i == null || isNaN(sx_i + sy_i + sw_i + sh_i))
+      if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i))
         continue
 
       const y_offset = sy_i
@@ -98,10 +98,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(l, b, r, t)
+      index.add_rect(l, b, r, t)
     }
   }
 

@@ -33,21 +33,26 @@ export class SplineView extends XYGlyphView {
   protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
     const {sxt: sx, syt: sy} = data ?? this
 
-    this.visuals.line.set_value(ctx)
+    let move = true
+    ctx.beginPath()
 
     const n = sx.length
     for (let j = 0; j < n; j++) {
-      if (j == 0) {
-        ctx.beginPath()
-        ctx.moveTo(sx[j], sy[j])
-        continue
-      } else if (isNaN(sx[j]) || isNaN(sy[j])) {
-        ctx.stroke()
-        ctx.beginPath()
-        continue
-      } else
-        ctx.lineTo(sx[j], sy[j])
+      const sx_i = sx[j]
+      const sy_i = sy[j]
+
+      if (!isFinite(sx_i + sy_i))
+        move = true
+      else {
+        if (move) {
+          ctx.moveTo(sx_i, sy_i)
+          move = false
+        } else
+          ctx.lineTo(sx_i, sy_i)
+      }
     }
+
+    this.visuals.line.set_value(ctx)
     ctx.stroke()
   }
 }

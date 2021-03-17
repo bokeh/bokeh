@@ -45,7 +45,7 @@ export class RayView extends XYGlyphView {
         const angle_i = angle.get(i)
         const slength_i = slength[i]
 
-        if (isNaN(sx_i + sy_i + angle_i + slength_i))
+        if (!isFinite(sx_i + sy_i + angle_i + slength_i))
           continue
 
         ctx.translate(sx_i, sy_i)

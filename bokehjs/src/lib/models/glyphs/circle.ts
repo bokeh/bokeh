@@ -118,7 +118,7 @@ export class CircleView extends XYGlyphView {
       const sy_i = sy[i]
       const sradius_i = sradius[i]
 
-      if (isNaN(sx_i + sy_i + sradius_i))
+      if (!isFinite(sx_i + sy_i + sradius_i))
         continue
 
       ctx.beginPath()

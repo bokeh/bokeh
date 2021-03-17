@@ -54,7 +54,7 @@ export class TextView extends XYGlyphView {
       const angle_i = angle.get(i)
       const text_i = text.get(i)
 
-      if (isNaN(sx_i + sy_i + x_offset_i + y_offset_i + angle_i) || text_i == null)
+      if (!isFinite(sx_i + sy_i + x_offset_i + y_offset_i + angle_i) || text_i == null)
         continue
 
       if (this.visuals.text.doit) {

@@ -6,7 +6,7 @@ import * as visuals from "core/visuals"
 import {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -36,21 +36,10 @@ export class MultiLineView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const xsi = this._xs.get(i)
-      if (xsi.length == 0) {
-        index.add_empty()
-        continue
-      }
-
       const ysi = this._ys.get(i)
-      if (ysi.length == 0) {
-        index.add_empty()
-        continue
-      }
 
-      const [x0, x1] = minmax(xsi)
-      const [y0, y1] = minmax(ysi)
-
-      index.add(x0, y0, x1, y1)
+      const [x0, x1, y0, y1] = minmax2(xsi, ysi)
+      index.add_rect(x0, y0, x1, y1)
     }
   }
 

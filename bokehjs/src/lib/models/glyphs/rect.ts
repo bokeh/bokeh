@@ -62,7 +62,7 @@ export class RectView extends CenterRotatableView {
       const sh_i = sh[i]
       const angle_i = angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
+      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
         continue
 
       if (sw_i == 0 || sh_i == 0)

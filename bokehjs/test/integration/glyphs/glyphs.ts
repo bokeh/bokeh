@@ -5,6 +5,8 @@ import {Direction, OutputBackend} from "@bokehjs/core/enums"
 import {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
+import {zip} from "@bokehjs/core/util/array"
+import {HatchPattern} from "@bokehjs/core/property_mixins"
 
 describe("Glyph models", () => {
   const x = [1, 2, 3]
@@ -69,8 +71,9 @@ describe("Glyph models", () => {
 
   it("should support Ellipse", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.ellipse({x, y, width: 0.5, height: 1})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.ellipse({x: [1, 2, 3], y, width: [1, 1.5, 2], height: [1.5, 2, 2.5], fill_color, alpha: 0.6})
+      p.ellipse({x: [3, 4, 5], y, width: [1, 1.5, 2], height: [1.5, 2, 2.5], fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
     await display(row([p("canvas"), p("svg")]))
@@ -161,8 +164,25 @@ describe("Glyph models", () => {
 
   it("should support Patch", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.patch({x, y})
+      const p = fig([300, 300], {x_range: [0, 7], y_range: [0, 6], output_backend, title: output_backend})
+
+      function patch(x: number, colors: Color[], hatches: (HatchPattern | null)[]) {
+        let y = 0
+        for (const [color, hatch] of zip(colors, hatches)) {
+          p.patch({
+            x: [x + 1.0, x + 2.0, x + 0.5, x + 3.5, x + 2.0],
+            y: [y + 0.5, y + 2.5, y + 3.5, y + 3.0, y + 1.0],
+            fill_color: color,
+            alpha: 0.6,
+            hatch_pattern: hatch,
+          })
+          y++
+        }
+      }
+
+      patch(0, fill_color, [null, null, null])
+      patch(3, fill_color, hatch_pattern)
+
       return p
     }
     await display(row([p("canvas"), p("svg")]))
@@ -170,8 +190,21 @@ describe("Glyph models", () => {
 
   it("should support Patches", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.patches({xs: [x], ys: [y]})
+      const p = fig([300, 300], {x_range: [0, 7], y_range: [0, 6], output_backend, title: output_backend})
+
+      function patches(x: number, colors: Color[], hatches?: HatchPattern[]) {
+        const xs = [], ys = []
+        for (let y = 0; y < 3; y++) {
+          xs.push([x + 1.0, x + 2.0, x + 0.5, x + 3.5, x + 2.0])
+          ys.push([y + 0.5, y + 2.5, y + 3.5, y + 3.0, y + 1.0])
+        }
+
+        p.patches({xs, ys, fill_color: colors, alpha: 0.6, hatch_pattern: hatches})
+      }
+
+      patches(0, fill_color)
+      patches(3, fill_color, hatch_pattern)
+
       return p
     }
     await display(row([p("canvas"), p("svg")]))
@@ -258,15 +291,15 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
-  it.allowing(2)("should support Wedge", async () => {
+  it("should support Wedge", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.wedge({x, y, radius: 0.25, start_angle: 0.4, end_angle: 4.8})
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.wedge({x: [1, 2, 3], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
+      p.wedge({x: [3, 4, 5], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
     await display(row([p("canvas"), p("svg")]))
   })
-
 
   it("should support fill with hatch patterns", async () => {
     function p(output_backend: OutputBackend) {
