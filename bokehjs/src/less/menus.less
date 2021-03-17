@@ -13,15 +13,15 @@
 
   .bk-context-menu {
     position: absolute;
-    .inline-flex();
-    .flex-wrap(nowrap);
+    display: inline-flex;
+    flex-wrap: nowrap;
     .no-user-select();
 
     &.bk-horizontal {
-      .flex-direction(row);
+      flex-direction: row;
     }
     &.bk-vertical {
-      .flex-direction(column);
+      flex-direction: column;
     }
 
     width: auto;
