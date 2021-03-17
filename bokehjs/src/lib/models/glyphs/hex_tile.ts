@@ -90,11 +90,7 @@ export class HexTileView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y = this._y[i]
-
-      if (isNaN(x + y) || !isFinite(x + y))
-        index.add_empty()
-      else
-        index.add(x - xsize, y - ysize, x + xsize, y + ysize)
+      index.add_rect(x - xsize, y - ysize, x + xsize, y + ysize)
     }
   }
 
@@ -144,7 +140,7 @@ export class HexTileView extends GlyphView {
       const sy_i = sy[i]
       const scale_i = scale.get(i)
 
-      if (isNaN(sx_i + sy_i + scale_i))
+      if (!isFinite(sx_i + sy_i + scale_i))
         continue
 
       ctx.translate(sx_i, sy_i)

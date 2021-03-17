@@ -36,7 +36,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       const sh_i = sh[i]
       const angle_i = angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sw_i + sh_i + angle_i))
+      if (!isFinite(sx_i + sy_i + sw_i + sh_i + angle_i))
         continue
 
       ctx.beginPath()

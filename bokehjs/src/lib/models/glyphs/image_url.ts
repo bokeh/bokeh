@@ -172,6 +172,7 @@ export class ImageURLView extends XYGlyphView {
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
+    ctx.beginPath()
     ctx.rect(
       frame.bbox.left+1, frame.bbox.top+1,
       frame.bbox.width-2, frame.bbox.height-2,
@@ -181,7 +182,7 @@ export class ImageURLView extends XYGlyphView {
     let finished = true
 
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + angle.get(i)))
+      if (!isFinite(sx[i] + sy[i] + angle.get(i)))
         continue
 
       const img = image[i]
@@ -223,8 +224,8 @@ export class ImageURLView extends XYGlyphView {
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
                           angle: p.Uniform<number>): void {
-    if (isNaN(sw[i])) sw[i] = image.width
-    if (isNaN(sh[i])) sh[i] = image.height
+    if (!isFinite(sw[i])) sw[i] = image.width
+    if (!isFinite(sh[i])) sh[i] = image.height
 
     const sw_i = sw[i]
     const sh_i = sh[i]

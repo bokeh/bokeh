@@ -1,5 +1,5 @@
 import {PointGeometry} from 'core/geometry'
-import {Arrayable, FloatArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -31,15 +31,13 @@ export class HAreaView extends AreaView {
       const x1 = this._x1[i]
       const x2 = this._x2[i]
       const y = this._y[i]
-
-      if (isNaN(x1 + x2 + y) || !isFinite(x1 + x2 + y))
-        index.add_empty()
-      else
-        index.add(min(x1, x2), y, max(x1, x2), y)
+      index.add_rect(min(x1, x2), y, max(x1, x2), y)
     }
   }
 
-  protected _inner(ctx: Context2d, sx1: Arrayable<number>, sx2: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
+    const {sx1, sx2, sy} = data ?? this
+
     ctx.beginPath()
     for (let i = 0, end = sx1.length; i < end; i++) {
       ctx.lineTo(sx1[i], sy[i])
@@ -49,20 +47,15 @@ export class HAreaView extends AreaView {
       ctx.lineTo(sx2[i], sy[i])
     }
     ctx.closePath()
-    func.call(ctx)
-  }
-
-  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
-    const {sx1, sx2, sy} = data ?? this
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
-      this._inner(ctx, sx1, sx2, sy, ctx.fill)
+      ctx.fill()
     }
 
     if (this.visuals.hatch.doit) {
       this.visuals.hatch.set_value(ctx)
-      this._inner(ctx, sx1, sx2, sy, ctx.fill)
+      ctx.fill()
     }
   }
 
