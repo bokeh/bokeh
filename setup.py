@@ -86,7 +86,6 @@ if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 REQUIRES = [
     'PyYAML >=3.10',
-    'python-dateutil >=2.1',
     'Jinja2 >=2.7',
     'numpy >=1.11.3',
     'pillow >=7.1.0',
