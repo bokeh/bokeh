@@ -22,6 +22,11 @@ This release raises the minimum version for some packages
 
 * Bokeh now requires Python 3.7 or higher.
 
+Runtime dependencies
+~~~~~~~~~~~~~~~~~~~~
+
+Bokeh no longer requires the package ``python-dateutil``.
+
 Deprecations
 ~~~~~~~~~~~~
 

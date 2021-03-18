@@ -21,9 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import datetime
 
-# External imports
-import dateutil.parser
-
 # Bokeh imports
 from ...util.serialization import (
     convert_date_to_datetime,
@@ -49,15 +46,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Date(Property):
-    """ Accept Date (but not DateTime) values.
+    """ Accept ISO format Date (but not DateTime) values.
 
     """
     def transform(self, value):
         value = super().transform(value)
 
-        if isinstance(value, str):
-            value = dateutil.parser.parse(value).date().isoformat()
-        elif isinstance(value, datetime.date):
+        if isinstance(value, datetime.date):
             value = value.isoformat()
 
         return value
@@ -74,13 +69,13 @@ class Date(Property):
             return
 
         try:
-            dateutil.parser.parse(value).date().isoformat()
+            datetime.datetime.fromisoformat(value)
         except Exception:
             msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
 class Datetime(Property):
-    """ Accept Datetime values.
+    """ Accept ISO format Datetime values.
 
     """
 
@@ -91,7 +86,7 @@ class Datetime(Property):
         value = super().transform(value)
 
         if isinstance(value, str):
-            value = dateutil.parser.parse(value)
+            value = datetime.datetime.fromisoformat(value)
 
         # Handled by serialization in protocol.py for now, except for Date
         if isinstance(value, datetime.date):
@@ -113,7 +108,7 @@ class Datetime(Property):
 
         if isinstance(value, str):
             try:
-                dateutil.parser.parse(value).date()
+                datetime.datetime.fromisoformat(value).date()
                 return
             except Exception:
                 pass
