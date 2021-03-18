@@ -145,7 +145,7 @@ class MetaHasProps(type):
 
         return super().__new__(meta_cls, class_name, bases, class_dict)
 
-    def __init__(cls, _, bases, __):
+    def __init__(cls, class_name, bases, __):
         # Check for improperly redeclaring a Property attribute.
         for base in bases:
             if not issubclass(base, HasProps):
@@ -153,10 +153,10 @@ class MetaHasProps(type):
             base_properties = base.properties()
             for attr in cls.__dict__: # we do NOT want inherited attrs here
                 if attr in base_properties:
-                    warn("Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
-                         "{attr!r} in class {class_name}; it never makes sense to do this. "
-                          "Either {base.__name__}.{attr} or {class_name}.{attr} should be removed,"
-                          "or Override() should be used to change a default value of a base class property.",
+                    warn(f"Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
+                         f"{attr!r} in class {class_name}; it never makes sense to do this. "
+                         f"Either {base.__name__}.{attr} or {class_name}.{attr} should be removed, "
+                         "or Override() should be used to change a default value of a base class property.",
                          RuntimeWarning, stacklevel=2)
 
         # Check for no-op Overrides
