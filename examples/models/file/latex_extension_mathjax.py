@@ -4,7 +4,6 @@ from scipy.special import jv
 from bokeh.models import Label
 from bokeh.palettes import Spectral4
 from bokeh.core.properties import (
-  Nullable,
   Float
 )
 from bokeh.plotting import figure, output_file, show
@@ -13,19 +12,21 @@ from bokeh.util.compiler import TypeScript
 output_file('latex_extension_with_mathjax.html')
 
 class LatexLabel(Label):
-    width = Nullable(Float, help="""
-    The gradient of the line, in data units
-    """)
-    height = Nullable(Float, help="""
-    The gradient of the line, in data units
-    """)
-    """A subclass of `Label` with all of the same class attributes except
+    """A subclass of `Label` with additional class attributes 'width' and 'height',
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
     superclass implementation that requires setting `render_mode='css'`).
 
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via MathJax) conversion
     """
+
+    width = Float(help="""
+    The width of the rendered label in pixels
+    """)
+    height = Float(help="""
+    The height of the rendered label in pixels
+    """)
+
     __javascript__ = ["https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"]
     __implementation__ = TypeScript("""
 import {Label, LabelView} from "models/annotations/label"
