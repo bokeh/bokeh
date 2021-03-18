@@ -153,7 +153,7 @@ class MetaHasProps(type):
             base_properties = base.properties()
             for attr in cls.__dict__: # we do NOT want inherited attrs here
                 if attr in base_properties:
-                    warn(f"Property {attr!r} in class {base.__name__} was redeclares by a class attribute "
+                    warn(f"Property {attr!r} in class {base.__name__} was redeclared by a class attribute "
                          f"{attr!r} in class {class_name}; it never makes sense to do this. "
                          f"Either {base.__name__}.{attr} or {class_name}.{attr} should be removed, "
                          "or Override() should be used to change a default value of a base class property.",
