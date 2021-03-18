@@ -100,7 +100,6 @@ For basic usage, Bokeh requires the following libraries:
 .. code::
 
     PyYAML>=3.10
-    python-dateutil>=2.1
     Jinja2>=2.7
     numpy>=1.11.3
     pillow>=7.1.0

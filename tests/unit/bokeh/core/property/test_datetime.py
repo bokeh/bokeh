@@ -96,7 +96,6 @@ class Test_Datetime:
         assert not prop.is_valid("")
         assert not prop.is_valid("02 01 2019")
         assert not prop.is_valid(False)
-        assert not prop.is_valid(False)
         assert not prop.is_valid(True)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())
