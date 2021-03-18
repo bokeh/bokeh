@@ -818,6 +818,23 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11006", () => {
+    it("prevents scaling of superscripts when using non-px font size units", async () => {
+      const p = fig([300, 50], {
+        x_range: new Range1d({start: 10**-2, end: 10**11}),
+        y_range: new Range1d({start: 0, end: 1}),
+        x_axis_type: "log",
+        y_axis_type: null,
+        min_border_top: 0,
+        min_border_bottom: 0,
+        min_border_left: 20,
+        min_border_right: 20,
+      })
+      p.xaxis.map((axis) => axis.major_label_text_font_size = "14pt")
+      await display(p)
+    })
+  })
+
   describe("in issue #10809", () => {
     it("prevents repaint of resized layoutable renderers", async () => {
       const p = fig([100, 100])
