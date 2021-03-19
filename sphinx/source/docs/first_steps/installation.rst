@@ -11,8 +11,8 @@ Supported platforms
 -------------------
 
 Bokeh is officially supported (and continuously tested) on CPython versions
-3.7+ only. It's possible that Bokeh does work on other versions of Python, but
-no guarantees or support are provided.
+:bokeh-minpy:`cpython` and later. It's possible that Bokeh does work on other
+versions of Python, but no guarantees or support are provided.
 
 Installing with ``conda`` or ``pip``
 ------------------------------------
@@ -97,15 +97,7 @@ Installing required dependencies
 
 For basic usage, Bokeh requires the following libraries:
 
-.. code::
-
-    PyYAML>=3.10
-    Jinja2>=2.7
-    numpy>=1.11.3
-    pillow>=7.1.0
-    packaging>=16.8
-    tornado>=5.1
-    typing_extensions >=3.7.4
+:bokeh-requires:`cpython`
 
 All those packages are automatically installed if you use ``conda`` or
 ``pip``.

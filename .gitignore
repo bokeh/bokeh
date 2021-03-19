@@ -31,9 +31,6 @@
 /.cache/
 /.pytest_cache/
 
-# auto-generated
-/bokeh/LICENSE.txt
-
 # dev files
 *.patch
 *.diff
