@@ -37,13 +37,6 @@ bokeh_gallery
 
 .. automodule:: bokeh.sphinxext.bokeh_gallery
 
-.. _bokeh.sphinxext.bokeh_github:
-
-bokeh_github
-------------
-
-.. automodule:: bokeh.sphinxext.bokeh_github
-
 .. _bokeh.sphinxext.bokeh_jinja:
 
 bokeh_jinja
@@ -99,6 +92,13 @@ bokeh_releases
 --------------
 
 .. automodule:: bokeh.sphinxext.bokeh_releases
+
+.. _bokeh.sphinxext.bokeh_roles:
+
+bokeh_roles
+-----------
+
+.. automodule:: bokeh.sphinxext.bokeh_roles
 
 .. _bokeh.sphinxext.bokeh_sitemap:
 

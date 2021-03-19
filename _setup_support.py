@@ -39,12 +39,18 @@ except ImportError:
 # Module global variables
 # -----------------------------------------------------------------------------
 
-ROOT = dirname(realpath(__file__))
-BOKEHJSROOT = join(ROOT, 'bokehjs')
-BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
-JS = join(BOKEHJSBUILD, 'js')
-SERVER = join(ROOT, 'bokeh/server')
-TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
+MIN_PYTHON_VERSION = (3, 7)
+
+# state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
+INSTALL_REQUIRES = [
+    'Jinja2 >=2.7',
+    'numpy >=1.11.3',
+    'packaging >=16.8',
+    'pillow >=7.1.0',
+    'PyYAML >=3.10',
+    'tornado >=5.1',
+    'typing_extensions >=3.7.4',
+]
 
 # -----------------------------------------------------------------------------
 # Helpers for command line operations
@@ -156,6 +162,9 @@ def build_or_install_bokehjs():
 def conda_rendering():
     return os.getenv("CONDA_BUILD_STATE" ,"junk") == "RENDER"
 
+def check_python():
+    if sys.version_info[:2] < MIN_PYTHON_VERSION:
+        raise RuntimeError("Bokeh requires python >= " + ".".join(str(x) for x in MIN_PYTHON_VERSION))
 
 def check_building_sdist():
     ''' Check for 'sdist' and ensure we always build or install BokehJS when
@@ -188,6 +197,8 @@ def fixup_for_packaged():
         None
 
     '''
+    ROOT = dirname(realpath(__file__))
+
     if exists(join(ROOT, 'PKG-INFO')):
         if "--build-js" in sys.argv or "--install-js" in sys.argv:
             print(SDIST_BUILD_WARNING)
@@ -296,6 +307,13 @@ def install_js():
         None
 
     '''
+    ROOT = dirname(realpath(__file__))
+    BOKEHJSROOT = join(ROOT, 'bokehjs')
+    BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
+    JS = join(BOKEHJSBUILD, 'js')
+    SERVER = join(ROOT, 'bokeh/server')
+    TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
+
     target_jsdir = join(SERVER, 'static', 'js')
     target_tslibdir = join(SERVER, 'static', 'lib')
 
