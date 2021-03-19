@@ -29,7 +29,7 @@ from . import TOP_PATH
 
 def test_license_set() -> None:
     ''' Ensure the top-level repo LICENSES.txt always matches the copy in
-    the Python package folder (needed there when gnerated packages).
+    the Python package folder (needed there when generating packages).
 
     '''
     chdir(TOP_PATH)
