@@ -164,7 +164,7 @@ def conda_rendering():
 
 def check_python():
     if sys.version_info[:2] < MIN_PYTHON_VERSION:
-        raise RuntimeError("Bokeh requires python >= " + ".".join(str(x) for x in MIN_PYTHON_VERSION))
+        raise RuntimeError("Bokeh requires Python >= " + ".".join(str(x) for x in MIN_PYTHON_VERSION))
 
 def check_building_sdist():
     ''' Check for 'sdist' and ensure we always build or install BokehJS when

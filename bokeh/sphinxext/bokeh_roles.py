@@ -160,7 +160,7 @@ def bokeh_pull(name, rawtext, text, lineno, inliner, options=None, content=None)
 
 
 def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Provide the minimum supported Python version from setup.py.
+    """Provide the minimum required Python version from setup.py.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
