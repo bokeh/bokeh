@@ -10,14 +10,13 @@ const float SIN_A = 0.5877852522924731; // sin(IN_ANGLE)
 const float COS_B = 0.5877852522924731; // cos(OUT_ANGLE)
 const float SIN_B = 0.8090169943749475; // sin(OUT_ANGLE)
 
-//
 uniform float u_antialias;
-//
-varying vec4  v_fg_color;
-varying vec4  v_bg_color;
+
+varying vec4 v_line_color;
+varying vec4 v_fill_color;
 varying float v_linewidth;
 varying float v_size;
-varying vec2  v_rotation;
+varying vec2 v_coords;
 
 #ifdef USE_ASTERISK
 // asterisk
@@ -246,7 +245,8 @@ float marker(vec2 P, float size)
 }
 #endif
 
-vec4 outline(float distance, float linewidth, float antialias, vec4 fg_color, vec4 bg_color)
+vec4 outline(float distance, float linewidth, float antialias, vec4 line_color,
+             vec4 fill_color)
 {
     vec4 frag_color;
     float t = linewidth/2.0 - antialias;
@@ -255,35 +255,32 @@ vec4 outline(float distance, float linewidth, float antialias, vec4 fg_color, ve
     float alpha = border_distance/antialias;
     alpha = exp(-alpha*alpha);
 
-    // If fg alpha is zero, it probably means no outline. To avoid a dark outline
-    // shining through due to aa, we set the fg color to the bg color. Avoid if (i.e. branching).
-    float select = float(bool(fg_color.a));
-    fg_color.rgb = select * fg_color.rgb + (1.0  - select) * bg_color.rgb;
-    // Similarly, if we want a transparent bg
-    select = float(bool(bg_color.a));
-    bg_color.rgb = select * bg_color.rgb + (1.0  - select) * fg_color.rgb;
+    // If line alpha is zero, it probably means no outline. To avoid a dark
+    // outline shining through due to antialiasing, we set the line color to the
+    // fill color.
+    float select = float(bool(line_color.a));
+    line_color.rgb = select*line_color.rgb + (1.0 - select)*fill_color.rgb;
+    // Similarly, if we want a transparent fill.
+    select = float(bool(fill_color.a));
+    fill_color.rgb = select*fill_color.rgb + (1.0 - select)*line_color.rgb;
 
-    if( border_distance < 0.0)
-        frag_color = fg_color;
-    else if( signed_distance < 0.0 ) {
-        frag_color = mix(bg_color, fg_color, sqrt(alpha));
-    } else {
-        if( abs(signed_distance) < (linewidth/2.0 + antialias) ) {
-            frag_color = vec4(fg_color.rgb, fg_color.a * alpha);
-        } else {
+    if (border_distance < 0.0)
+        frag_color = line_color;
+    else if (signed_distance < 0.0)
+        frag_color = mix(fill_color, line_color, sqrt(alpha));
+    else {
+        if (abs(signed_distance) < linewidth/2.0 + antialias)
+            frag_color = vec4(line_color.rgb, line_color.a*alpha);
+        else
             discard;
-        }
     }
-    frag_color.rgb *= frag_color.a;  // Premultiplied alpha.
     return frag_color;
 }
 
 void main()
 {
-    vec2 P = gl_PointCoord.xy - vec2(0.5, 0.5);
-    P = vec2(v_rotation.x*P.x - v_rotation.y*P.y,
-             v_rotation.y*P.x + v_rotation.x*P.y);
-    float point_size = SQRT_2*v_size  + 2.0 * (v_linewidth + 1.5*u_antialias);
-    float distance = marker(P*point_size, v_size);
-    gl_FragColor = outline(distance, v_linewidth, u_antialias, v_fg_color, v_bg_color);
+    float distance = marker(v_coords, v_size);
+    gl_FragColor = outline(
+        distance, v_linewidth, u_antialias, v_line_color, v_fill_color);
+    gl_FragColor.rgb *= gl_FragColor.a;  // Premultiplied alpha.
 }

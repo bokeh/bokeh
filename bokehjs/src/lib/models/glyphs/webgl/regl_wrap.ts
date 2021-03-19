@@ -325,12 +325,18 @@ function regl_line_mesh(regl: any): ReglRenderFunction {
 }
 
 
-// Return a dictionary for a regl attribute that is either one value per
-// instance or the same value for all instances in the same regl call.
-function one_each_or_constant(prop: any, nitems: number, norm: boolean): {[key: string]: any} {
+// Return a dictionary for a ReGL attribute that corresponds to one value for
+// each marker or the same value for all markers.  Instanced rendering supports
+// the former using 'divisor = 1', but does not support the latter directly.
+// We have to either repeat the attribute once for each marker, which is
+// wasteful for a large number of markers, or the solution used here which is to
+// repeat the value 4 times, once for each of the instanced vertices (using
+// 'divisor = 0').
+function one_each_or_constant(prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean): {[key: string]: any} {
+  const divisor = prop.length == nitems ? 0 : 1
   return {
-    buffer: prop,
-    divisor: prop.length == nitems ? 0 : 1,
+    buffer: divisor == 0 ? [prop, prop, prop, prop] : prop,
+    divisor,
     normalized: norm,
   }
 }
@@ -343,7 +349,7 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
 
     attributes: {
       a_position: {
-        buffer: [0.0, 0.0],  // Instanced geometry.
+        buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
       a_center: {
@@ -359,11 +365,11 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
       a_linewidth: (_: any, props: any) => {
         return one_each_or_constant(props.linewidth, 1, false)
       },
-      a_fg_color: (_: any, props: any) => {
-        return one_each_or_constant(props.fg_color, 4, true)
+      a_line_color: (_: any, props: any) => {
+        return one_each_or_constant(props.line_color, 4, true)
       },
-      a_bg_color: (_: any, props: any) => {
-        return one_each_or_constant(props.bg_color, 4, true)
+      a_fill_color: (_: any, props: any) => {
+        return one_each_or_constant(props.fill_color, 4, true)
       },
     },
 
@@ -373,8 +379,8 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
       u_antialias: regl.prop('antialias'),
     },
 
-    primitive: 'points',
-    count: 1,
+    count: 4,
+    primitive: 'triangle fan',
     instances: regl.prop('nmarkers'),
 
     blend: {

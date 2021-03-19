@@ -121,8 +121,8 @@ export class MarkerGL extends BaseGLGlyph {
       nmarkers: indices.length,
       antialias: this._antialias,
       linewidth: this._linewidths,
-      fg_color: this._line_rgba,
-      bg_color: this._fill_rgba,
+      line_color: this._line_rgba,
+      fill_color: this._fill_rgba,
     })
   }
 
