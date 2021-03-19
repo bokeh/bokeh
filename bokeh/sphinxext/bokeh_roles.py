@@ -55,6 +55,7 @@ log = logging.getLogger(__name__)
 import importlib.machinery
 import types
 from os.path import abspath, join, pardir, split
+import os
 
 # External imports
 from docutils import nodes, utils
@@ -76,7 +77,8 @@ __all__ = (
 
 BOKEH_GH = "https://github.com/bokeh/bokeh"
 
-TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
+# need REPO top (i.e. one up from where sphinx *runs*)
+TOP_PATH = abspath(join(os.curdir, pardir))
 
 # -----------------------------------------------------------------------------
 # General API
