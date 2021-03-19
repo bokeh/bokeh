@@ -5,7 +5,7 @@ markupsafe==1.1.1
 numpy==1.18.1
 packaging==20.0
 pandas==0.25.3
-pillow==7.0.0
+pillow==8.1.1
 pyparsing==2.4.6
 pytz==2019.3
 pyyaml==5.3
