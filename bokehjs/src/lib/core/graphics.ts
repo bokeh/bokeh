@@ -153,12 +153,12 @@ export class TextBox extends GraphicsBox {
 
     const {font_size_scale} = this
     if (font_size_scale != 1.0) {
-      const match = size.match(/^\s*(\d+(\.\d+)?)px\s*$/)
+      const match = size.match(/^\s*(\d+(\.\d+)?)(\w+)\s*$/)
       if (match != null) {
-        const [, px] = match
-        const npx = Number(px)
-        if (!isNaN(npx))
-          size = `${npx*font_size_scale}px`
+        const [, value,, unit] = match
+        const number = Number(value)
+        if (!isNaN(number))
+          size = `${number*font_size_scale}${unit}`
       }
     }
 
