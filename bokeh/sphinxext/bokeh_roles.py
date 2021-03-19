@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import importlib.machinery
 import types
-from os.path import abspath, join, pardir, split
+from os.path import abspath, join, pardir
 import os
 
 # External imports
