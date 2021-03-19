@@ -6,8 +6,8 @@
 # -----------------------------------------------------------------------------
 """ Simplify linking to Bokeh Github resources.
 
-This module proved four new roles that can be uses to easily link to various
-resources in the Bokeh Github repository:
+This module provides roles that can be used to easily reference information from
+various sources in the Bokeh project structure:
 
 ``:bokeh-commit:`` : link to a specific commit
 
