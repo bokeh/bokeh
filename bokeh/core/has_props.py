@@ -275,6 +275,14 @@ class HasProps(metaclass=MetaHasProps):
 
     __repr__ = __str__
 
+    # Unfortunately we cannot implement __eq__. We rely on the default __hash__
+    # based on object identity, in order to put HasProps instances in sets.
+    # Implementing __eq__ as structural equality would necessitate a __hash__
+    # that returns the same value different HasProps instances that compare
+    # equal [1], and this would break many things.
+    #
+    # [1] https://docs.python.org/3/reference/datamodel.html#object.__hash__
+    #
     def equals(self, other):
         ''' Structural equality of models.
 
@@ -285,12 +293,6 @@ class HasProps(metaclass=MetaHasProps):
             True, if properties are structurally equal, otherwise False
 
         '''
-
-        # NOTE: don't try to use this to implement __eq__. Because then
-        # you will be tempted to implement __hash__, which would interfere
-        # with mutability of models. However, not implementing __hash__
-        # will make bokeh unusable in Python 3, where proper implementation
-        # of __hash__ is required when implementing __eq__.
         if not isinstance(other, self.__class__):
             return False
         else:
