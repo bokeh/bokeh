@@ -33,6 +33,15 @@ export class Line extends VisualProperties {
     return !(color == null || alpha == 0 || width == 0)
   }
 
+  apply(ctx: Context2d): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.stroke()
+    }
+    return doit
+  }
+
   set_value(ctx: Context2d): void {
     const color = this.line_color.get_value()
     const alpha = this.line_alpha.get_value()
@@ -61,6 +70,15 @@ export class LineScalar extends VisualUniforms {
     const width = this.line_width.value
 
     return !(color == 0 || alpha == 0 || width == 0)
+  }
+
+  apply(ctx: Context2d): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.stroke()
+    }
+    return doit
   }
 
   set_value(ctx: Context2d): void {
@@ -96,6 +114,15 @@ export class LineVector extends VisualUniforms {
     if (line_width.is_Scalar() && line_width.value == 0)
       return false
     return true
+  }
+
+  apply(ctx: Context2d, i: number): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_vectorize(ctx, i)
+      ctx.stroke()
+    }
+    return doit
   }
 
   set_vectorize(ctx: Context2d, i: number): void {

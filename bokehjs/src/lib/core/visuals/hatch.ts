@@ -58,6 +58,15 @@ export class Hatch extends VisualProperties {
     return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
   }
 
+  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.fill(rule)
+    }
+    return doit
+  }
+
   set_value(ctx: Context2d): void {
     const pattern = this.pattern(ctx)
     ctx.fillStyle = pattern ?? "transparent"
@@ -153,6 +162,15 @@ export class HatchScalar extends VisualUniforms {
 
   get doit(): boolean {
     return this._static_doit
+  }
+
+  apply(ctx: Context2d, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_value(ctx)
+      ctx.fill(rule)
+    }
+    return doit
   }
 
   set_value(ctx: Context2d): void {
@@ -284,6 +302,15 @@ export class HatchVector extends VisualUniforms {
 
   get doit(): boolean {
     return this._static_doit
+  }
+
+  apply(ctx: Context2d, i: number, rule?: CanvasFillRule): boolean {
+    const {doit} = this
+    if (doit) {
+      this.set_vectorize(ctx, i)
+      ctx.fill(rule)
+    }
+    return doit
   }
 
   set_vectorize(ctx: Context2d, i: number): void {
