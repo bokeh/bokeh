@@ -71,20 +71,9 @@ export class AnnulusView extends XYGlyphView {
         ctx.arc(sx_i, sy_i, souter_radius_i, 2 * Math.PI, 0, false)
       }
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

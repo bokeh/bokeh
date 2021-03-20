@@ -109,15 +109,8 @@ export class LabelSetView extends TextAnnotationView {
 
     ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3])
 
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_vectorize(ctx, i)
-      ctx.fill()
-    }
-
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_vectorize(ctx, i)
-      ctx.stroke()
-    }
+    this.visuals.background_fill.apply(ctx, i)
+    this.visuals.border_line.apply(ctx, i)
 
     if (this.visuals.text.doit) {
       this.visuals.text.set_vectorize(ctx, i)
