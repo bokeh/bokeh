@@ -157,20 +157,9 @@ export class MultiPolygonsView extends GlyphView {
           }
         }
 
-        if (this.visuals.fill.doit) {
-          this.visuals.fill.set_vectorize(ctx, i)
-          ctx.fill("evenodd")
-        }
-
-        if (this.visuals.hatch.doit) {
-          this.visuals.hatch.set_vectorize(ctx, i)
-          ctx.fill("evenodd")
-        }
-
-        if (this.visuals.line.doit) {
-          this.visuals.line.set_vectorize(ctx, i)
-          ctx.stroke()
-        }
+        this.visuals.fill.apply(ctx, i, "evenodd")
+        this.visuals.hatch.apply(ctx, i, "evenodd")
+        this.visuals.line.apply(ctx, i)
       }
     }
   }
