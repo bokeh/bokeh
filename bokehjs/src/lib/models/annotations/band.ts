@@ -22,11 +22,7 @@ export class BandView extends UpperLowerView {
     }
 
     ctx.closePath()
-
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
+    this.visuals.fill.apply(ctx)
 
     // Draw the lower band edge
     ctx.beginPath()
@@ -35,10 +31,7 @@ export class BandView extends UpperLowerView {
       ctx.lineTo(this._lower_sx[i], this._lower_sy[i])
     }
 
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.line.apply(ctx)
 
     // Draw the upper band edge
     ctx.beginPath()
@@ -47,10 +40,7 @@ export class BandView extends UpperLowerView {
       ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
     }
 
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.line.apply(ctx)
   }
 }
 

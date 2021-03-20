@@ -41,15 +41,8 @@ export class GridView extends GuideRendererView {
       ctx.beginPath()
       ctx.rect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
 
-      if (this.visuals.band_fill.doit) {
-        this.visuals.band_fill.set_value(ctx)
-        ctx.fill()
-      }
-
-      if (this.visuals.band_hatch.doit) {
-        this.visuals.band_hatch.set_value(ctx)
-        ctx.fill()
-      }
+      this.visuals.band_fill.apply(ctx)
+      this.visuals.band_hatch.apply(ctx)
     }
   }
 

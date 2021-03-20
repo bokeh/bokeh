@@ -48,15 +48,8 @@ export class HAreaView extends AreaView {
     }
     ctx.closePath()
 
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      ctx.fill()
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {

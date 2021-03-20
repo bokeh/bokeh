@@ -102,15 +102,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     ctx.rect(bbox_dims[0], bbox_dims[1], bbox_dims[2], bbox_dims[3])
 
-    if (this.visuals.background_fill.doit) {
-      this.visuals.background_fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.background_fill.apply(ctx)
+    this.visuals.border_line.apply(ctx)
 
     if (this.visuals.text.doit) {
       this.visuals.text.set_value(ctx)

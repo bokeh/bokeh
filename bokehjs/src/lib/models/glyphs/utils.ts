@@ -11,23 +11,17 @@ export function generic_line_scalar_legend(visuals: {line: v.LineScalar},
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
   ctx.lineTo(x1, (y0 + y1) /2)
-  if (visuals.line.doit) {
-    visuals.line.set_value(ctx)
-    ctx.stroke()
-  }
+  visuals.line.apply(ctx)
   ctx.restore()
 }
 
 export function generic_line_vector_legend(visuals: {line: v.LineVector},
-    ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+    ctx: Context2d, {x0, x1, y0, y1}: Rect, i: number): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
   ctx.lineTo(x1, (y0 + y1) /2)
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, index)
-    ctx.stroke()
-  }
+  visuals.line.apply(ctx, i)
   ctx.restore()
 }
 
@@ -47,24 +41,13 @@ export function generic_area_scalar_legend(visuals: {line?: v.LineScalar, fill: 
   ctx.beginPath()
   ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
 
-  if (visuals.fill.doit) {
-    visuals.fill.set_value(ctx)
-    ctx.fill()
-  }
-
-  if (visuals.hatch?.doit) {
-    visuals.hatch.set_value(ctx)
-    ctx.fill()
-  }
-
-  if (visuals.line?.doit) {
-    visuals.line.set_value(ctx)
-    ctx.stroke()
-  }
+  visuals.fill.apply(ctx)
+  visuals.hatch?.apply(ctx)
+  visuals.line?.apply(ctx)
 }
 
 export function generic_area_vector_legend(visuals: {line?: v.LineVector, fill: v.FillVector, hatch?: v.HatchVector},
-    ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+    ctx: Context2d, {x0, x1, y0, y1}: Rect, i: number): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)
@@ -79,20 +62,9 @@ export function generic_area_vector_legend(visuals: {line?: v.LineVector, fill: 
   ctx.beginPath()
   ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0)
 
-  if (visuals.fill.doit) {
-    visuals.fill.set_vectorize(ctx, index)
-    ctx.fill()
-  }
-
-  if (visuals.hatch?.doit) {
-    visuals.hatch.set_vectorize(ctx, index)
-    ctx.fill()
-  }
-
-  if (visuals.line?.doit) {
-    visuals.line.set_vectorize(ctx, index)
-    ctx.stroke()
-  }
+  visuals.fill.apply(ctx, i)
+  visuals.hatch?.apply(ctx, i)
+  visuals.line?.apply(ctx, i)
 }
 
 export {generic_line_vector_legend as generic_line_legend}

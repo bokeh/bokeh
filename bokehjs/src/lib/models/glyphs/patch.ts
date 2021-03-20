@@ -41,20 +41,9 @@ export class PatchView extends XYGlyphView {
 
     ctx.closePath()
 
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
+    this.visuals.line.apply(ctx)
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
