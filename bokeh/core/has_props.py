@@ -256,16 +256,16 @@ class HasProps(metaclass=MetaHasProps):
             super().__setattr__(name, value)
             return
 
-        props = sorted(self.properties())
+        prop_names = self.properties()
         descriptor = getattr(self.__class__, name, None)
 
-        if name in props or (descriptor is not None and descriptor.fset is not None):
+        if name in prop_names or (descriptor is not None and descriptor.fset is not None):
             super().__setattr__(name, value)
         else:
-            matches, text = difflib.get_close_matches(name.lower(), props), "similar"
+            matches, text = difflib.get_close_matches(name.lower(), prop_names), "similar"
 
             if not matches:
-                matches, text = props, "possible"
+                matches, text = sorted(prop_names), "possible"
 
             raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
