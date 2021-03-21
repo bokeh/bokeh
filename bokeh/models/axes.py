@@ -135,7 +135,7 @@ class Axis(GuideRenderer):
     from the tick labels.
     """)
 
-    axis_label_props = Include(ScalarTextProps, help="""
+    axis_label_props = Include(ScalarTextProps, prefix="axis_label", help="""
     The %s of the axis label.
     """)
 
@@ -162,7 +162,7 @@ class Axis(GuideRenderer):
     Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
-    major_label_props = Include(ScalarTextProps, help="""
+    major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
     The %s of the major tick labels.
     """)
 
@@ -172,11 +172,11 @@ class Axis(GuideRenderer):
 
     major_label_text_font_size = Override(default="11px")
 
-    axis_props = Include(ScalarLineProps, help="""
+    axis_props = Include(ScalarLineProps, prefix="axis", help="""
     The %s of the axis line.
     """)
 
-    major_tick_props = Include(ScalarLineProps, help="""
+    major_tick_props = Include(ScalarLineProps,prefix="major_tick", help="""
     The %s of the major ticks.
     """)
 
@@ -190,7 +190,7 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    minor_tick_props = Include(ScalarLineProps, help="""
+    minor_tick_props = Include(ScalarLineProps, prefix="minor_tick", help="""
     The %s of the minor ticks.
     """)
 
@@ -251,7 +251,7 @@ class CategoricalAxis(Axis):
 
     formatter = Override(default=lambda: CategoricalTickFormatter())
 
-    separator_props = Include(ScalarLineProps, help="""
+    separator_props = Include(ScalarLineProps, prefix="separator", help="""
     The %s of the separator line between top-level categorical groups.
 
     This property always applies to factors in the outermost level of nesting.
@@ -260,7 +260,7 @@ class CategoricalAxis(Axis):
     separator_line_color = Override(default="lightgrey")
     separator_line_width = Override(default=2)
 
-    group_props = Include(ScalarTextProps, help="""
+    group_props = Include(ScalarTextProps, prefix="group", help="""
     The %s of the group categorical labels.
 
     This property always applies to factors in the outermost level of nesting.
@@ -282,7 +282,7 @@ class CategoricalAxis(Axis):
     group_text_font_style = Override(default="bold")
     group_text_color = Override(default="grey")
 
-    subgroup_props = Include(ScalarTextProps, help="""
+    subgroup_props = Include(ScalarTextProps, prefix="subgroup", help="""
     The %s of the subgroup categorical labels.
 
     This property always applies to factors in the middle level of nesting.

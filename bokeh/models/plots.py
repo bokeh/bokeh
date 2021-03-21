@@ -459,7 +459,7 @@ class Plot(LayoutDOM):
     will be rotated.
     """)
 
-    outline_props = Include(ScalarLineProps, help="""
+    outline_props = Include(ScalarLineProps, prefix="outline", help="""
     The %s for the plot border outline.
     """)
 
@@ -575,13 +575,13 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(ScalarFillProps, help="""
+    background_props = Include(ScalarFillProps, prefix="background", help="""
     The %s for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(ScalarFillProps, help="""
+    border_props = Include(ScalarFillProps, prefix="border", help="""
     The %s for the plot border style.
     """)
 

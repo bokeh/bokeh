@@ -56,7 +56,7 @@ class OpenHead(ArrowHead):
 
     '''
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, help="""
 
     The %s values for the arrow head outline.
     """)
@@ -66,11 +66,11 @@ class NormalHead(ArrowHead):
 
     '''
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(FillProps, help="""
     The %s values for the arrow head interior.
     """)
 
@@ -81,7 +81,7 @@ class TeeHead(ArrowHead):
 
     '''
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, help="""
     The %s values for the arrow head outline.
     """)
 
@@ -90,11 +90,11 @@ class VeeHead(ArrowHead):
 
     '''
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(LineProps, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(FillProps, help="""
     The %s values for the arrow head interior.
     """)
 
