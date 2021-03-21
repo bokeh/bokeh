@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 bokeh==1.4.0
-jinja2==2.10.3
+jinja2==2.11.3
 markupsafe==1.1.1
 numpy==1.18.1
 packaging==20.0
