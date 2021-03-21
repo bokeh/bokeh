@@ -101,6 +101,18 @@ def _property_aliases(class_dict):
             class_dict[name] = _make_alias_property(prop.name, prop.help)
     return property_aliases
 
+# These are to avoid circular imports and are just temporary until all the
+# explicit property caching in HasProps is replaced with memoized queries
+def _is_container_prop(x):
+    from .property.bases import ContainerProperty
+    from .property.descriptors import BasicPropertyDescriptor
+    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, ContainerProperty)
+
+def _is_dataspec_prop(x):
+    from .property.dataspec import DataSpec
+    from .property.descriptors import BasicPropertyDescriptor
+    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, DataSpec)
+
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -128,7 +140,19 @@ class MetaHasProps(type):
         for name, generator in generators.items():
             prop_descriptors = generator.make_descriptors(name)
             for prop_descriptor in prop_descriptors:
-                prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
+                name = prop_descriptor.name
+                if name in new_class_attrs:
+                    raise RuntimeError(f"Two property generators both created {class_name}.{name}")
+                new_class_attrs[name] = prop_descriptor
+
+                if prop_descriptor.has_ref:
+                    names_with_refs.add(name)
+
+                if _is_container_prop(prop_descriptor):
+                    container_names.add(name)
+
+                if _is_dataspec_prop(prop_descriptor):
+                    dataspecs[name] = prop_descriptor
 
         class_dict.update(new_class_attrs)
 

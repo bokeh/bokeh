@@ -115,14 +115,6 @@ class Test_PropertyDescriptor:
         d.serializable_value(f)
         assert result['foo'] == 10
 
-    def test_add_prop_descriptor_to_class_dupe_name(self) -> None:
-        d = bcpd.PropertyDescriptor("foo")
-        new_class_attrs = {'foo': 10}
-        with pytest.raises(RuntimeError) as e:
-            d.add_prop_descriptor_to_class("bar", new_class_attrs, [], [], {})
-        assert str(e.value).endswith("Two property generators both created bar.foo")
-
-
 class Test_BasicPropertyDescriptor:
     def test___init__(self) -> None:
         class Foo:
