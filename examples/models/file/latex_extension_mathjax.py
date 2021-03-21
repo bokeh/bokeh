@@ -9,8 +9,6 @@ from bokeh.core.properties import (
 from bokeh.plotting import figure, output_file, show
 from bokeh.util.compiler import TypeScript
 
-output_file('latex_extension_with_mathjax.html')
-
 class LatexLabel(Label):
     """A subclass of `Label` with additional class attributes 'width' and 'height',
     canvas mode isn't supported and DOM manipulation happens in the TypeScript
@@ -33,7 +31,7 @@ import {Label, LabelView} from "models/annotations/label"
 import * as p from "core/properties"
 
 declare namespace MathJax {
-  function tex2svg(input: string): any
+  function tex2svg(input: string): HTMLElement
 }
 
 export class LatexLabelView extends LabelView {
@@ -51,21 +49,22 @@ export class LatexLabelView extends LabelView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    const svgElement = MathJax.tex2svg(this.model.text).children[0]
+    const svg_element = MathJax.tex2svg(this.model.text).children[0] as SVGElement
 
-    let outerHTML = svgElement.outerHTML,
-      blob = new Blob([outerHTML],{type:'image/svg+xml;charset=utf-8'});
+    const outer_HTML = svg_element.outerHTML,
+      blob = new Blob([outer_HTML],{type:'image/svg+xml;charset=utf-8'})
 
-    let URL = window.URL || window.webkitURL || window;
-    let blobURL = URL.createObjectURL(blob);
+    const blob_URL = URL.createObjectURL(blob)
 
-    let image = new Image();
+    const image = new Image()
 
     image.onload = () => {
-      this.layer.ctx.drawImage(image, sx, sy, this.model.width, this.model.height);
-    };
+      this.layer.ctx.drawImage(image, sx, sy, this.model.width, this.model.height)
 
-    image.src = blobURL;
+      this.notify_finished()
+    }
+
+    image.src = blob_URL
   }
 }
 
