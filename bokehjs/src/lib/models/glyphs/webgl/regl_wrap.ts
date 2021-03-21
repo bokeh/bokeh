@@ -332,10 +332,10 @@ function regl_line_mesh(regl: any): ReglRenderFunction {
 // wasteful for a large number of markers, or the solution used here which is to
 // repeat the value 4 times, once for each of the instanced vertices (using
 // 'divisor = 0').
-function one_each_or_constant(prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean): {[key: string]: any} {
-  const divisor = prop.length == nitems ? 0 : 1
+function one_each_or_constant(prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean, nmarkers: number): {[key: string]: any} {
+  const divisor = prop.length == nitems && nmarkers > 1 ? 0 : 1
   return {
-    buffer: divisor == 0 ? [prop, prop, prop, prop] : prop,
+    buffer: divisor == 1 ? prop : [prop, prop, prop, prop],
     divisor,
     normalized: norm,
   }
@@ -357,19 +357,24 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
         divisor: 1,
       },
       a_size: (_: any, props: any) => {
-        return one_each_or_constant(props.size, 1, false)
+        return one_each_or_constant(props.size, 1, false, props.nmarkers)
       },
       a_angle: (_: any, props: any) => {
-        return one_each_or_constant(props.angle, 1, false)
+        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
       },
       a_linewidth: (_: any, props: any) => {
-        return one_each_or_constant(props.linewidth, 1, false)
+        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
       },
       a_line_color: (_: any, props: any) => {
-        return one_each_or_constant(props.line_color, 4, true)
+        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
       },
       a_fill_color: (_: any, props: any) => {
-        return one_each_or_constant(props.fill_color, 4, true)
+        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      },
+      a_show: {
+        buffer: regl.prop('show'),
+        normalized: true,
+        divisor: 1,
       },
     },
 

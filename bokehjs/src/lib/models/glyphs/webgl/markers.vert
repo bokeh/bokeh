@@ -7,6 +7,7 @@ attribute float a_angle;  // in radians
 attribute float a_linewidth;
 attribute vec4 a_line_color;
 attribute vec4 a_fill_color;
+attribute float a_show;
 
 uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
@@ -24,6 +25,12 @@ void main()
     v_linewidth = a_linewidth;
     v_line_color = a_line_color;
     v_fill_color = a_fill_color;
+
+    if (a_show < 0.5) {
+      // Do not show this marker.
+      gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
+      return;
+    }
 
     float enclosing_size = v_size + 2.0*v_linewidth + 3.0*u_antialias;
 
