@@ -32,6 +32,7 @@ from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from .util.serialization import make_id
+from .util.string import append_docstring
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -176,12 +177,7 @@ def _process_example(cls):
 
     '''
     if "__example__" in cls.__dict__:
-        path = cls.__dict__["__example__"]
-
-        # running python with -OO will discard docstrings -> __doc__ is None
-        if cls.__doc__ is not None:
-            cls.__doc__ += _EXAMPLE_TEMPLATE % dict(path=path)
-
+        cls.__doc__ = append_docstring(cls.__doc__, _EXAMPLE_TEMPLATE.format(path=cls.__dict__["__example__"]))
     return cls
 
 def _qualified_model(cls):
@@ -870,7 +866,7 @@ _EXAMPLE_TEMPLATE = '''
     Example
     -------
 
-    .. bokeh-plot:: ../../%(path)s
+    .. bokeh-plot:: ../../{path}
         :source-position: below
 
 '''

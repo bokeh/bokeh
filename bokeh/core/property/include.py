@@ -24,7 +24,6 @@ from copy import copy
 # Bokeh imports
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
-from .descriptors import BasicPropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

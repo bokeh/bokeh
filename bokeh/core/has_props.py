@@ -31,7 +31,7 @@ from typing import Any, Dict, Optional
 from warnings import warn
 
 # Bokeh imports
-from ..util.string import nice_join
+from ..util.string import append_docstring, nice_join
 from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
@@ -65,11 +65,7 @@ def abstract(cls):
     '''
     if not issubclass(cls, HasProps):
         raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
-
-    # running python with -OO will discard docstrings -> __doc__ is None
-    if cls.__doc__ is not None:
-        cls.__doc__ += _ABSTRACT_ADMONITION
-
+    cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
 
 def is_DataModel(cls):
