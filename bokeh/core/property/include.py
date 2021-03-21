@@ -67,7 +67,7 @@ class Include(PropertyDescriptorFactory):
 
         # it would be better if we kept the original generators from
         # the delegate and built our Include props from those, perhaps.
-        for subpropname in delegate.properties(with_bases=False):
+        for subpropname in delegate.properties():
             fullpropname = prefix + subpropname
             subprop_descriptor = delegate.lookup(subpropname)
             if isinstance(subprop_descriptor, BasicPropertyDescriptor):

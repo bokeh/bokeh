@@ -485,7 +485,7 @@ class HasProps(metaclass=MetaHasProps):
         return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
-    def properties(cls, with_bases=True):
+    def properties(cls):
         ''' Collect the names of properties on this class.
 
         This method *optionally* traverses the class hierarchy and includes
@@ -500,10 +500,7 @@ class HasProps(metaclass=MetaHasProps):
            set[str] : property names
 
         '''
-        if with_bases:
-            return accumulate_from_superclasses(cls, "__properties__")
-        else:
-            return set(cls.__properties__)
+        return accumulate_from_superclasses(cls, "__properties__")
 
     @classmethod
     def dataspecs(cls):
