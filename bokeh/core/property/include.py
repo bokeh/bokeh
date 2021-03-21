@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 from copy import copy
 
 # Bokeh imports
@@ -59,14 +58,9 @@ class Include(PropertyDescriptorFactory):
 
         for prop_name in self.delegate.properties():
             prop_descriptor = self.delegate.lookup(prop_name)
-            if isinstance(prop_descriptor, BasicPropertyDescriptor):
-                prop = copy(prop_descriptor.property)
-                if "%s" in self.help:
-                    doc = self.help % prop_name.replace('_', ' ')  # TODO (bev) get rid of old-style string formatting
-                else:
-                    doc = self.help
-                prop.__doc__ = doc
-                descriptors += prop.make_descriptors(self.prefix + prop_name)
+            prop = copy(prop_descriptor.property)
+            prop.__doc__ = self.help.format(prop=prop_name.replace('_', ' '))
+            descriptors += prop.make_descriptors(self.prefix + prop_name)
 
         return descriptors
 
