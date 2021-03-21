@@ -88,7 +88,7 @@ def _generators(class_dict):
             generators[name] = generator
     return generators
 
-def make_property(target_name, help):
+def _make_alias_property(target_name, help):
     fget = lambda self: getattr(self, target_name)
     fset = lambda self, value: setattr(self, target_name, value)
     return property(fget, fset, None, help)
@@ -98,7 +98,7 @@ def _property_aliases(class_dict):
     for name, prop in tuple(class_dict.items()):
         if isinstance(prop, Alias):
             property_aliases[name] = prop.name
-            class_dict[name] = make_property(prop.name, prop.help)
+            class_dict[name] = _make_alias_property(prop.name, prop.help)
     return property_aliases
 
 class MetaHasProps(type):
