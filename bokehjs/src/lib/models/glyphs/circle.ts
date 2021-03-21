@@ -118,26 +118,15 @@ export class CircleView extends XYGlyphView {
       const sy_i = sy[i]
       const sradius_i = sradius[i]
 
-      if (isNaN(sx_i + sy_i + sradius_i))
+      if (!isFinite(sx_i + sy_i + sradius_i))
         continue
 
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sradius_i, 0, 2*Math.PI, false)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

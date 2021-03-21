@@ -46,7 +46,7 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.bbox = new BBox({
+    this.bbox = BBox.from_rect({
       left:   _calc_dim(left,   this.model.left_units,   xscale, frame.bbox.xview, frame.bbox.left),
       right:  _calc_dim(right,  this.model.right_units,  xscale, frame.bbox.xview, frame.bbox.right),
       top:    _calc_dim(top,    this.model.top_units,    yscale, frame.bbox.yview, frame.bbox.top),
@@ -64,20 +64,9 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.beginPath()
     ctx.rect(left, top, width, height)
 
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.hatch.doit) {
-      this.visuals.hatch.set_value(ctx)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.fill.apply(ctx)
+    this.visuals.hatch.apply(ctx)
+    this.visuals.line.apply(ctx)
 
     ctx.restore()
   }

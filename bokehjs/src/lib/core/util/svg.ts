@@ -580,7 +580,10 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     // See also: https://html.spec.whatwg.org/multipage/scripting.html#current-default-path
     this.__currentDefaultPath = ""
     this.__currentPosition = null
+    this.__init_element()
+  }
 
+  protected __init_element(): void {
     const path = this.__createElement("path", {}, true)
     this.__root.appendChild(path)
     this.__currentElement = path
@@ -790,14 +793,12 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
     * Sets fill properties on the current element
     */
   fill(fill_rule?: CanvasFillRule): void {
-    if (this.__currentElement.nodeName === "path") {
-      this.__currentElement.setAttribute("paint-order", "stroke")
-    }
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {
-      const path = this.__currentElement.cloneNode(true) as SVGElement
-      this.__root.appendChild(path)
-      this.__currentElement = path
+      this.__init_element()
+    }
+    if (this.__currentElement.nodeName === "path") {
+      this.__currentElement.setAttribute("paint-order", "stroke")
     }
     this.__applyCurrentDefaultPath()
     this.__applyStyleToCurrentElement("fill")

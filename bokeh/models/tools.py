@@ -1269,7 +1269,7 @@ class EditTool(GestureTool):
     the color column will be filled with the defined empty value.
     """)
 
-    custom_icon = Image(help="""
+    custom_icon = Nullable(Image, help="""
     An icon to display in the toolbar.
 
     The icon can provided as a string filename for an image, a PIL ``Image``
@@ -1658,6 +1658,7 @@ Tool.register_alias("line_edit", lambda: LineEditTool())
 Tool.register_alias("point_draw", lambda: PointDrawTool())
 Tool.register_alias("poly_draw", lambda: PolyDrawTool())
 Tool.register_alias("poly_edit", lambda: PolyEditTool())
+Tool.register_alias("freehand_draw", lambda: FreehandDrawTool())
 Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("index", "$index"),
     ("data (x, y)", "($x, $y)"),

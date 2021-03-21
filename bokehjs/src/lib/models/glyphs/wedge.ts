@@ -43,7 +43,7 @@ export class WedgeView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sradius_i + start_angle_i + end_angle_i))
         continue
 
       ctx.beginPath()
@@ -51,20 +51,9 @@ export class WedgeView extends XYGlyphView {
       ctx.lineTo(sx_i, sy_i)
       ctx.closePath()
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

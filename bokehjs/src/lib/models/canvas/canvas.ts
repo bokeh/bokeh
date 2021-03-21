@@ -32,7 +32,7 @@ const global_webgl: WebGLState | undefined = (() => {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const canvas = document.createElement("canvas")
-  const gl = canvas.getContext("webgl", {premultipliedAlpha: false})
+  const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
 
   // If WebGL is available, we store a reference to the gl canvas on
   // the ctx object, because that's what gets passed everywhere.
@@ -139,9 +139,6 @@ export class CanvasView extends DOMView {
       const vy = yview.compute(sy + h)
       const ratio = this.pixel_ratio
       gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
-      // Setup blending
-      gl.enable(gl.BLEND)
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
       this._clear_webgl()
     }
   }

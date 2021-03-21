@@ -60,10 +60,7 @@ export abstract class BoxView extends GlyphView {
 
     for (let i = 0; i < data_size; i++) {
       const [l, r, t, b] = this._lrtb(i)
-      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
-        index.add_empty()
-      else
-        index.add(min(l, r), min(t, b), max(r, l), max(t, b))
+      index.add_rect(min(l, r), min(t, b), max(r, l), max(t, b))
     }
   }
 
@@ -76,34 +73,15 @@ export abstract class BoxView extends GlyphView {
       const sright_i = sright[i]
       const sbottom_i = sbottom[i]
 
-      if (isNaN(sleft_i + stop_i + sright_i + sbottom_i))
+      if (!isFinite(sleft_i + stop_i + sright_i + sbottom_i))
         continue
 
-      // XXX: this is needed for SVG canvas, because fill and hatch visuals
-      // share Context2d.fillStyle, which gets overriden in SVG, instead of
-      // causing overpaint (as in canvas).
-      function path() {
-        ctx.beginPath()
-        ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
-      }
+      ctx.beginPath()
+      ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        path()
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        path()
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        path()
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

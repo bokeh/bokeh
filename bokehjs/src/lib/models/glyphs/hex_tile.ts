@@ -90,11 +90,7 @@ export class HexTileView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const x = this._x[i]
       const y = this._y[i]
-
-      if (isNaN(x + y) || !isFinite(x + y))
-        index.add_empty()
-      else
-        index.add(x - xsize, y - ysize, x + xsize, y + ysize)
+      index.add_rect(x - xsize, y - ysize, x + xsize, y + ysize)
     }
   }
 
@@ -144,7 +140,7 @@ export class HexTileView extends GlyphView {
       const sy_i = sy[i]
       const scale_i = scale.get(i)
 
-      if (isNaN(sx_i + sy_i + scale_i))
+      if (!isFinite(sx_i + sy_i + scale_i))
         continue
 
       ctx.translate(sx_i, sy_i)
@@ -155,20 +151,9 @@ export class HexTileView extends GlyphView {
       ctx.closePath()
       ctx.translate(-sx_i, -sy_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

@@ -54,7 +54,7 @@ export class AnnularWedgeView extends XYGlyphView {
       const start_angle_i = start_angle.get(i)
       const end_angle_i = end_angle.get(i)
 
-      if (isNaN(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
+      if (!isFinite(sx_i + sy_i + sinner_radius_i + souter_radius_i + start_angle_i + end_angle_i))
         continue
 
       const angle_i = end_angle_i - start_angle_i
@@ -73,20 +73,9 @@ export class AnnularWedgeView extends XYGlyphView {
       ctx.rotate(-angle_i - start_angle_i)
       ctx.translate(-sx_i, -sy_i)
 
-      if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.hatch.doit) {
-        this.visuals.hatch.set_vectorize(ctx, i)
-        ctx.fill()
-      }
-
-      if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      this.visuals.fill.apply(ctx, i)
+      this.visuals.hatch.apply(ctx, i)
+      this.visuals.line.apply(ctx, i)
     }
   }
 

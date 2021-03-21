@@ -235,12 +235,8 @@ export class LegendView extends AnnotationView {
   protected _draw_legend_box(ctx: Context2d, bbox: BBox): void {
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
-    this.visuals.background_fill.set_value(ctx)
-    ctx.fill()
-    if (this.visuals.border_line.doit) {
-      this.visuals.border_line.set_value(ctx)
-      ctx.stroke()
-    }
+    this.visuals.background_fill.apply(ctx)
+    this.visuals.border_line.apply(ctx)
   }
 
   protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {

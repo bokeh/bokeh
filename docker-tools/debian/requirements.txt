@@ -1,13 +1,12 @@
 -i https://pypi.org/simple
 bokeh==1.4.0
-jinja2==2.10.3
+jinja2==2.11.3
 markupsafe==1.1.1
 numpy==1.18.1
 packaging==20.0
 pandas==0.25.3
-pillow==7.0.0
+pillow==8.1.1
 pyparsing==2.4.6
-python-dateutil==2.8.1
 pytz==2019.3
 pyyaml==5.3
 scipy==1.4.1

@@ -103,13 +103,13 @@
   .bk-btn-group {
     height: 100%;
 
-    .flex();
-    .flex-wrap(nowrap);
-    .align-items(center);
-    .flex-direction(row);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    flex-direction: row;
 
     & > .bk-btn {
-      .flex-grow(1);
+      flex-grow: 1;
     }
 
     & > .bk-btn + .bk-btn {
@@ -131,7 +131,7 @@
     }
 
     .bk-dropdown-toggle {
-      .item-flex(0, 0, 0);
+      flex: 0 0 0;
       padding: @padding-vertical (@padding-horizontal ./ 2);
     }
   }

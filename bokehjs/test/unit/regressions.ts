@@ -90,10 +90,8 @@ describe("Bug", () => {
       plot.square([1, 2], [3, 4], {fill_color: ["red", "green"], view, legend: "square"})
       await display(plot)
     })
-  })
 
-  describe("in issue #10935 (2)", () => {
-    it("prevents to render a legend and an empty view", async () => {
+    it("prevents to render a plot with a legend and a subset of indices", async () => {
       const plot = fig([200, 200])
       const filter = new BooleanFilter({booleans: [true, true, false, false]})
       const view = new CDSView({filters: [filter]})

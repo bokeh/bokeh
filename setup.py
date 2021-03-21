@@ -59,41 +59,24 @@ an sdist. They will be ignored, and warning printed.
 
 '''
 import sys
-from shutil import copy
 
 from setuptools import find_packages, setup
 
 import versioneer
 
 from _setup_support import ( # isort:skip
-    build_or_install_bokehjs, check_building_sdist, conda_rendering,
-    fixup_for_packaged, install_js, show_bokehjs, show_help,
+    build_or_install_bokehjs, check_building_sdist, check_python,
+    conda_rendering, fixup_for_packaged, install_js, show_bokehjs, show_help,
+    INSTALL_REQUIRES,
 )
 
-# immediately bail on unsupported Python versions
-if sys.version_info[:2] < (3, 7):
-    raise RuntimeError("Bokeh requires python >= 3.7")
-
-# we want to have the license at the top level of the GitHub repo, but setup
-# can't include it from there, so copy it to the package directory first thing
-copy("LICENSE.txt", "bokeh/")
+# bail on unsupported Python versions
+check_python()
 
 # immediately handle lightweight "python setup.py --install-js"
 if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
     install_js()
     sys.exit()
-
-# state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
-REQUIRES = [
-    'PyYAML >=3.10',
-    'python-dateutil >=2.1',
-    'Jinja2 >=2.7',
-    'numpy >=1.11.3',
-    'pillow >=7.1.0',
-    'packaging >=16.8',
-    'tornado >=5.1',
-    'typing_extensions >=3.7.4',
-]
 
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
@@ -116,7 +99,7 @@ setup(
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
-    install_requires=REQUIRES,
+    install_requires=INSTALL_REQUIRES,
     python_requires=">=3.7",
     packages=find_packages(include=["bokeh", "bokeh.*"]),
     include_package_data=True,
