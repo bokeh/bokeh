@@ -6,7 +6,7 @@ from bokeh.palettes import Spectral4
 from bokeh.core.properties import (
   Float
 )
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
 class LatexLabel(Label):
