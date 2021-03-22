@@ -31,7 +31,6 @@ export function draw_mathjax_svg(
     const width = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('width'))
 
     image.onload = () => {
-      console.log({ angle })
       if (angle) {
         // known error: everything gets scaled down at half for some reason.
         // Maybe because the canvas is set to 1200x1200 and the div above it to 600x600
