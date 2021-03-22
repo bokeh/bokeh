@@ -11,7 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging # isort:skip
+import logging
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ from urllib.parse import quote_plus
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'append_docstring',
     'format_docstring',
     'indent',
     'nice_join',
@@ -79,7 +81,7 @@ def nice_join(seq: Sequence[str], sep: str = ", ", conjuction: str = "or") -> st
     if len(seq) <= 1 or conjuction is None:
         return sep.join(seq)
     else:
-        return "%s %s %s" % (sep.join(seq[:-1]), conjuction, seq[-1])
+        return f"{sep.join(seq[:-1])} {conjuction} {seq[-1]}"
 
 
 def snakify(name: str, sep: str = "_") -> str:
@@ -88,6 +90,22 @@ def snakify(name: str, sep: str = "_") -> str:
     name = re.sub("([a-z\\d])([A-Z])", r"\1%s\2" % sep, name)
     return name.lower()
 
+def append_docstring(docstring: Optional[str], extra: str) -> Optional[str]:
+    ''' Safely append to docstrings.
+
+    When Python is executed with the ``-OO`` option, doc strings are removed and
+    replaced the value ``None``. This function guards against appending the
+    extra content in that case.
+
+    Args:
+        docstring (str or None) : The docstring to format, or None
+        extra (str): the content to append if docstring is not None
+
+    Returns:
+        str or None
+
+    '''
+    return None if docstring is None else docstring + extra
 
 def format_docstring(docstring: Optional[str], *args: Any, **kwargs: Any) -> Optional[str]:
     ''' Safely format docstrings.

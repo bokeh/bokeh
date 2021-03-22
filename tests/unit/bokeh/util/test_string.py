@@ -28,6 +28,13 @@ import bokeh.util.string as bus # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
+class Test_append_docstring:
+    def test_None(self) -> None:
+        assert bus.append_docstring(None, "stuff") is None
+
+    def test_not_None(self) -> None:
+        assert bus.append_docstring('hello ', 'world') == "hello world"
+
 class Test_format_docstring:
     def test_no_argument(self) -> None:
         doc__ = "hello world"

@@ -71,10 +71,6 @@ class Either(ParameterizedProperty):
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
 
-    # TODO (bev) get rid of this?
-    def __or__(self, other):
-        return self.__class__(*(self.type_params + [other]), default=self._default, help=self.help)
-
     def __str__(self):
         class_name = self.__class__.__name__
         item_types = ", ".join(str(x) for x in self.type_params)

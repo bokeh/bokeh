@@ -43,7 +43,7 @@ class Test_Include:
     def test_include_with_prefix(self) -> None:
 
         class IncludesDelegateWithPrefix(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=True)
+            z = bcpi.Include(IsDelegate, prefix="z")
 
         o = IncludesDelegateWithPrefix()
         assert o.z_x == 12
@@ -62,7 +62,7 @@ class Test_Include:
 
     def test_include_without_prefix(self) -> None:
         class IncludesDelegateWithoutPrefix(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=False)
+            z = bcpi.Include(IsDelegate)
 
         o = IncludesDelegateWithoutPrefix()
         assert o.x == 12
@@ -77,7 +77,7 @@ class Test_Include:
 
     def test_include_without_prefix_using_override(self) -> None:
         class IncludesDelegateWithoutPrefixUsingOverride(HasProps):
-            z = bcpi.Include(IsDelegate, use_prefix=False)
+            z = bcpi.Include(IsDelegate)
             y = Override(default="world") # override the Include changing just the default
 
         o = IncludesDelegateWithoutPrefixUsingOverride()

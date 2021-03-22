@@ -181,16 +181,16 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angles to rotate the markers.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the markers.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the markers.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the markers.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the markers.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the markers.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the markers.
     """)
 
 class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -230,16 +230,16 @@ class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the annular wedges.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the annular wedges.
     """)
 
 class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -267,16 +267,16 @@ class Annulus(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The outer radii of the annuli.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the annuli.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the annuli.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the annuli.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the annuli.
     """)
 
 class Arc(XYGlyph, LineGlyph):
@@ -312,8 +312,8 @@ class Arc(XYGlyph, LineGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the arcs.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the arcs.
     """)
 
 class Bezier(LineGlyph):
@@ -361,8 +361,8 @@ class Bezier(LineGlyph):
     The y-coordinates of second control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the Bezier curves.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the Bezier curves.
     """)
 
 class Circle(Marker):
@@ -431,16 +431,16 @@ class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angle the ellipses are rotated from horizontal. [rad]
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the ellipses.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the ellipses.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the ellipses.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the ellipses.
     """)
 
 class HArea(LineGlyph, FillGlyph, HatchGlyph):
@@ -465,12 +465,12 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates for the points of the area.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the horizontal directed area.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the horizontal directed area.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal directed area.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the horizontal directed area.
     """)
 
 class HBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -499,16 +499,16 @@ class HBar(LineGlyph, FillGlyph, HatchGlyph):
     The x-coordinates of the right edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the horizontal bars.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the horizontal bars.
     """)
 
 class HexTile(LineGlyph, FillGlyph, HatchGlyph):
@@ -551,18 +551,18 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
 
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
     line_color = Override(default=None)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the hex tiles.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the hex tiles.
     """)
 
 class Image(XYGlyph):
@@ -794,8 +794,8 @@ class Line(ConnectedXYGlyph, LineGlyph):
     The y-coordinates for the points of the line.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the line.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the line.
     """)
 
 class MultiLine(LineGlyph):
@@ -818,8 +818,8 @@ class MultiLine(LineGlyph):
     The y-coordinates for all the lines, given as a "list of lists".
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the lines.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the lines.
     """)
 
 class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
@@ -856,16 +856,16 @@ class MultiPolygons(LineGlyph, FillGlyph, HatchGlyph):
         one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the multipolygons.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the multipolygons.
     """)
 
 class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -905,16 +905,16 @@ class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angle the ovals are rotated from horizontal. [rad]
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the ovals.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the ovals.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the ovals.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the ovals.
     """)
 
 class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -947,16 +947,16 @@ class Patch(ConnectedXYGlyph, LineGlyph, FillGlyph, HatchGlyph):
         values in the sequence.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the patch.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the patch.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the patch.
     """)
 
-    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
-    The %s values for the patch.
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the patch.
     """)
 
 class Patches(LineGlyph, FillGlyph, HatchGlyph):
@@ -992,16 +992,16 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
         values in the sublists.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the patches.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the patches.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the patches.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the patches.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the patches.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the patches.
     """)
 
 class Quad(LineGlyph, FillGlyph, HatchGlyph):
@@ -1029,16 +1029,16 @@ class Quad(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the top edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the quads.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the quads.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the quads.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the quads.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the quads.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the quads.
     """)
 
 class Quadratic(LineGlyph):
@@ -1074,8 +1074,8 @@ class Quadratic(LineGlyph):
     The y-coordinates of the control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the parabolas.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the parabolas.
     """)
 
 class Ray(XYGlyph, LineGlyph):
@@ -1104,8 +1104,8 @@ class Ray(XYGlyph, LineGlyph):
     to data units (measured in the x-direction).
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rays.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the rays.
     """)
 
 class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -1146,16 +1146,16 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     flush.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the rectangles.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the rectangles.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the rectangles.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the rectangles.
     """)
 
 class Scatter(Marker):
@@ -1242,8 +1242,8 @@ class Segment(LineGlyph):
     The y-coordinates of the ending points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the segments.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the segments.
     """)
 
 class Step(XYGlyph, LineGlyph):
@@ -1269,8 +1269,8 @@ class Step(XYGlyph, LineGlyph):
     The y-coordinates for the steps.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the steps.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the steps.
     """)
 
     mode = Enum(StepMode, default="before", help="""
@@ -1321,8 +1321,8 @@ class Text(XYGlyph, TextGlyph):
     distance in screen units from a given data position.
     """)
 
-    text_props = Include(TextProps, use_prefix=False, help="""
-    The %s values for the text.
+    text_props = Include(TextProps, help="""
+    The {prop} values for the text.
     """)
 
 class VArea(FillGlyph, HatchGlyph):
@@ -1347,12 +1347,12 @@ class VArea(FillGlyph, HatchGlyph):
     The y-coordinates for the points of the other side of the area.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the vertical directed area.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the vertical directed area.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the vertical directed area.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical directed area.
     """)
 
 class VBar(LineGlyph, FillGlyph, HatchGlyph):
@@ -1380,16 +1380,16 @@ class VBar(LineGlyph, FillGlyph, HatchGlyph):
     The y-coordinates of the top edges.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the vertical bars.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical bars.
     """)
 
 class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -1425,16 +1425,16 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     Which direction to stroke between the start and end angles.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the wedges.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the wedges.
     """)
 
-    hatch_props = Include(HatchProps, use_prefix=False, help="""
-    The %s values for the wedges.
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the wedges.
     """)
 
 #-----------------------------------------------------------------------------

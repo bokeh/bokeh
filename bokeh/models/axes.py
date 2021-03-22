@@ -135,8 +135,8 @@ class Axis(GuideRenderer):
     from the tick labels.
     """)
 
-    axis_label_props = Include(ScalarTextProps, help="""
-    The %s of the axis label.
+    axis_label_props = Include(ScalarTextProps, prefix="axis_label", help="""
+    The {prop} of the axis label.
     """)
 
     axis_label_text_font_size = Override(default="13px")
@@ -162,8 +162,8 @@ class Axis(GuideRenderer):
     Allows to filter out labels, e.g. declutter labels to avoid overlap.
     """)
 
-    major_label_props = Include(ScalarTextProps, help="""
-    The %s of the major tick labels.
+    major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
+    The {prop} of the major tick labels.
     """)
 
     major_label_text_align = Override(default="center")
@@ -172,12 +172,12 @@ class Axis(GuideRenderer):
 
     major_label_text_font_size = Override(default="11px")
 
-    axis_props = Include(ScalarLineProps, help="""
-    The %s of the axis line.
+    axis_props = Include(ScalarLineProps, prefix="axis", help="""
+    The {prop} of the axis line.
     """)
 
-    major_tick_props = Include(ScalarLineProps, help="""
-    The %s of the major ticks.
+    major_tick_props = Include(ScalarLineProps,prefix="major_tick", help="""
+    The {prop} of the major ticks.
     """)
 
     major_tick_in = Int(default=2, help="""
@@ -190,8 +190,8 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    minor_tick_props = Include(ScalarLineProps, help="""
-    The %s of the minor ticks.
+    minor_tick_props = Include(ScalarLineProps, prefix="minor_tick", help="""
+    The {prop} of the minor ticks.
     """)
 
     minor_tick_in = Int(default=0, help="""
@@ -251,8 +251,8 @@ class CategoricalAxis(Axis):
 
     formatter = Override(default=lambda: CategoricalTickFormatter())
 
-    separator_props = Include(ScalarLineProps, help="""
-    The %s of the separator line between top-level categorical groups.
+    separator_props = Include(ScalarLineProps, prefix="separator", help="""
+    The {prop} of the separator line between top-level categorical groups.
 
     This property always applies to factors in the outermost level of nesting.
     """)
@@ -260,8 +260,8 @@ class CategoricalAxis(Axis):
     separator_line_color = Override(default="lightgrey")
     separator_line_width = Override(default=2)
 
-    group_props = Include(ScalarTextProps, help="""
-    The %s of the group categorical labels.
+    group_props = Include(ScalarTextProps, prefix="group", help="""
+    The {prop} of the group categorical labels.
 
     This property always applies to factors in the outermost level of nesting.
     If the list of categorical factors is flat (i.e. no nesting) then this
@@ -282,8 +282,8 @@ class CategoricalAxis(Axis):
     group_text_font_style = Override(default="bold")
     group_text_color = Override(default="grey")
 
-    subgroup_props = Include(ScalarTextProps, help="""
-    The %s of the subgroup categorical labels.
+    subgroup_props = Include(ScalarTextProps, prefix="subgroup", help="""
+    The {prop} of the subgroup categorical labels.
 
     This property always applies to factors in the middle level of nesting.
     If the list of categorical factors is has only zero or one levels of nesting,

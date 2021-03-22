@@ -18,7 +18,7 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.properties import Alias, Either, Int, List, Nullable, NumberSpec, Override, String
+from bokeh.core.properties import Alias, AngleSpec, Either, Int, List, Nullable, NumberSpec, Override, String
 from bokeh.core.property.dataspec import field, value
 from bokeh.core.property.descriptors import (
     BasicPropertyDescriptor,
@@ -472,6 +472,17 @@ def test_HasProps_apply_theme_func_default() -> None:
     c.apply_theme(theme)
     c.foo = 50
     assert c.foo == 50
+
+def test_has_props_dupe_prop() -> None:
+    try:
+        class DupeProps(hp.HasProps):
+            bar = AngleSpec()
+            bar_units = String()
+    except RuntimeError as e:
+        assert str(e) == "Two property generators both created DupeProps.bar_units"
+    else:
+        assert False
+
 
 #-----------------------------------------------------------------------------
 # Private API

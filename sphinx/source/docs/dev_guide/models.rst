@@ -36,26 +36,19 @@ Models and Properties
 The primary components of the low-level API are models, which are objects
 that have attributes that can be automatically serialized in a way that
 lets them be reconstituted as BokehJS models. Technically, models are classes
-that inherit from `HasProps` at some point::
+that inherit from `HasProps` at some point:
 
-    from bokeh.core.properties import HasProps, Int
+.. code-block:: python
 
     class Whatever(HasProps):
         """ `Whatever` model. """
 
-Models can derive from other models as well as mixins that provide common
-sets of properties (e.g. see :class:`~bokeh.core.property_mixins.LineProps`,
-etc. in :ref:`bokeh.core.property_mixins`).
-An example might look like this::
-
-    class Another(Whatever, LineProps):
-        """ `Another` model. """
-
 Models contain properties, which are class attributes of type
-:class:`~bokeh.core.properties.Property`, e.g::
+:class:`~bokeh.core.properties.Property`, e.g:
 
-    class IntProps(HasFields):
+.. code-block:: python
 
+    class IntProps(HasProps):
         prop1 = Int()
         prop2 = Int(10)
 
@@ -93,58 +86,52 @@ invalid type or value.
 
 See :ref:`bokeh.core.properties` for full details.
 
-An example of a more complex, realistic model might look like this::
+An example of a more complex, realistic model might look like this:
 
-    class Sample(HasProps, FillProps):
-        """ `Sample` model. """
+.. code-block:: python
 
+    class Sample(HasProps):
         prop1 = Int(127)
         prop2 = Either(Int, List(Int), Dict(String, List(Int)))
         prop3 = Enum("x", "y", "z")
         prop4 = Range(Float, 0.0, 1.0)
         prop5 = List(Instance(Range1d))
 
+Include
+~~~~~~~
+
 There is a special property-like type named :class:`~bokeh.core.properties.Include`
-that makes it simpler to mix in properties from a mixin using a prefix, e.g.::
+that makes it simpler to mix in properties from a mixin using a prefix, e.g.:
+
+.. code-block:: python
 
     class Includes(HasProps):
-        """ `Includes` model. """
-
-        some_props = Include(FillProps)
+        some_props = Include(FillProps, prefix="some")
 
 In this case, there is a placeholder property `some_props`, that will be removed
 and automatically replaced with all the properties from :class:`~bokeh.core.property_mixins.FillProps`,
 each with `some_` appended as a prefix.
 
-.. note::
-    The prefix can be a valid identifier. If it ends with ``_props``, then ``props``
-    will be removed. Adding ``_props`` isn't necessary, but can be useful if a
-    property ``some`` already exists in parallel (see ``Plot.title`` as an example).
+Using :class:`~bokeh.core.properties.Include` as above is equivalent to writing:
 
-Using :class:`~bokeh.core.properties.Include` is equivalent to writing::
+.. code-block:: python
 
     class ExplicitIncludes(HasProps):
-        """ `ExplicitIncludes` model. """
-
         some_fill_color = ColorSpec(default="gray")
         some_fill_alpha = DataSpec(default=1.0)
 
-Note that you could inherit from :class:`~bokeh.core.property_mixins.FillProps` in this
-case, as well::
+It is possible to leave off the ``prefix`` value:
 
-    class IncludesExtends(HasProps, FillProps):
-        """ `IncludesExtends` model. """
+.. code-block:: python
 
-        some = String()
+    class Includes(HasProps):
         some_props = Include(FillProps)
 
-but note that this is equivalent to::
+In this case the mixin properties simply have the base property names. The above
+code is equivalen to:
 
-    class ExplicitIncludesExtends(HasProps):
-        """ `ExplicitIncludesExtends` model. """
+.. code-block:: python
 
+    class ExplicitIncludes(HasProps):
         fill_color = ColorSpec(default="gray")
         fill_alpha = DataSpec(default=1.0)
-        some = String()
-        some_fill_color = ColorSpec(default="gray")
-        some_fill_alpha = DataSpec(default=1.0)

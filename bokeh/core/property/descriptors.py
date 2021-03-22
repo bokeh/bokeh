@@ -215,57 +215,6 @@ class PropertyDescriptor:
         """
         raise NotImplementedError("Implement __delete__")
 
-    # This would probably be cleaner with some form of multiple dispatch
-    # on (descriptor, property). Currently this method has to know about
-    # various other classes, and that is annoying.
-    def add_prop_descriptor_to_class(self, class_name, new_class_attrs, names_with_refs, container_names, dataspecs):
-        """ ``MetaHasProps`` calls this during class creation as it iterates
-        over properties to add, to update its registry of new properties.
-
-        The parameters passed in are mutable and this function is expected to
-        update them accordingly.
-
-        Args:
-            class_name (str) :
-                name of the class this descriptor is added to
-
-            new_class_attrs(dict[str, PropertyDescriptor]) :
-                mapping of attribute names to PropertyDescriptor that this
-                function will update
-
-            names_with_refs (set[str]) :
-                set of all property names for properties that also have
-                references, that this function will update
-
-            container_names (set[str]) :
-                set of all property names for properties that are
-                container props, that this function will update
-
-            dataspecs(dict[str, PropertyDescriptor]) :
-                mapping of attribute names to PropertyDescriptor for DataSpec
-                properties that this function will update
-
-        Return:
-            None
-
-        """
-        from .bases import ContainerProperty
-        from .dataspec import DataSpec
-        name = self.name
-        if name in new_class_attrs:
-            raise RuntimeError(f"Two property generators both created {class_name}.{name}")
-        new_class_attrs[name] = self
-
-        if self.has_ref:
-            names_with_refs.add(name)
-
-        if isinstance(self, BasicPropertyDescriptor):
-            if isinstance(self.property, ContainerProperty):
-                container_names.add(name)
-
-            if isinstance(self.property, DataSpec):
-                dataspecs[name] = self
-
     def class_default(self, cls):
         """ The default as computed for a certain class, ignoring any
         per-instance theming.

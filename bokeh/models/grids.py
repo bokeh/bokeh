@@ -76,28 +76,28 @@ class Grid(GuideRenderer):
     A Ticker to use for computing locations for the Grid lines.
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
-    grid_props = Include(ScalarLineProps, help="""
-    The %s of the Grid lines.
+    grid_props = Include(ScalarLineProps, prefix="grid", help="""
+    The {prop} of the Grid lines.
     """)
 
     grid_line_color = Override(default='#e5e5e5')
 
-    minor_grid_props = Include(ScalarLineProps, help="""
-    The %s of the minor Grid lines.
+    minor_grid_props = Include(ScalarLineProps, prefix="minor_grid", help="""
+    The {prop} of the minor Grid lines.
     """)
 
     minor_grid_line_color = Override(default=None)
 
-    band_fill_props = Include(ScalarFillProps, use_prefix="band", help="""
-    The %s of alternating bands between Grid lines.
+    band_fill_props = Include(ScalarFillProps, prefix="band", help="""
+    The {prop} of alternating bands between Grid lines.
     """)
 
     band_fill_alpha = Override(default=0)
 
     band_fill_color = Override(default=None)
 
-    band_hatch_props = Include(ScalarHatchProps, use_prefix="band", help="""
-    The %s of alternating bands between Grid lines.
+    band_hatch_props = Include(ScalarHatchProps, prefix="band", help="""
+    The {prop} of alternating bands between Grid lines.
     """)
 
     level = Override(default="underlay")
