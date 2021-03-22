@@ -23,8 +23,8 @@ varying vec2 v_coords;
 float marker(vec2 P, float size)
 {
     // Masks
-    float diamond = max(abs(SQRT_2 / 2.0 * (P.x - P.y)), abs(SQRT_2 / 2.0 * (P.x + P.y))) - size / (2.0 * SQRT_2);
-    float square = max(abs(P.x), abs(P.y)) - size / (2.0 * SQRT_2);
+    float diamond = max(abs(SQRT_2 / 2.0 * (P.x - P.y)), abs(SQRT_2 / 2.0 * (P.x + P.y))) - size / 2.0;
+    float square = max(abs(P.x), abs(P.y)) - size / 2.0;
     // Shapes
     float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
     float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
@@ -113,7 +113,7 @@ float marker(vec2 P, float size)
 // cross
 float marker(vec2 P, float size)
 {
-    float square = max(abs(P.x), abs(P.y)) - size / 2.5;   // 2.5 is a tweak
+    float square = max(abs(P.x), abs(P.y)) - size / 2.0;   // 2.0 is a tweak
     float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
     return max(square, cross);
 }
@@ -189,7 +189,7 @@ float marker(vec2 P, float size)
 // x
 float marker(vec2 P, float size)
 {
-    float circle = length(P) - size / 1.6;
+    float circle = length(P) - size / 2.0;
     float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
     return max(circle, X);
 }
@@ -214,11 +214,7 @@ float marker(vec2 P, float size)
     float c3 = max(circle, s3);
     float c4 = max(circle, s4);
     // Union
-    float almost = min(min(min(c1, c2), c3), c4);
-    // In this case, the X is also outside of the main shape
-    float Xmask = length(P) - size / 1.6;  // a circle
-    float X = min(abs(P.x - P.y), abs(P.x + P.y)) - size / 100.0;  // bit of "width" for aa
-    return min(max(X, Xmask), almost);
+    return min(min(min(c1, c2), c3), c4);
 }
 #endif
 
