@@ -7,20 +7,7 @@ import {isNumber} from "./util/types"
 import {Rect, AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
 import * as visuals from "./visuals"
-
-declare global {
-  interface Window {
-    MathJax:
-      | {
-          tex2svg(input: string): any;
-        }
-      | any;
-  }
-}
-
-declare namespace MathJax {
-  function tex2svg(input: string): any
-}
+import { draw_mathjax_svg } from "./util/mathjax"
 
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")
@@ -376,23 +363,6 @@ export class TextBox extends GraphicsBox {
   }
 
   paint(ctx: Context2d): void {
-    if (this.text.startsWith("$$")) {
-      const svgElement = MathJax.tex2svg(this.text).children[0];
-      const outerHTML = svgElement.outerHTML,
-        blob = new Blob([outerHTML], { type: "image/svg+xml;charset=utf-8" });
-      const URL = window.URL || window.webkitURL || window;
-      const blobURL = URL.createObjectURL(blob);
-      const image = new Image();
-
-      const { sx, sy } = this.position;
-
-      image.onload = () => {
-        ctx.drawImage(image, sx, sy, text_width(this.text, this.font), 8);
-      };
-
-      image.src = blobURL;
-    }
-
     const {font} = this
 
     const fmetrics = font_metrics(font)
@@ -453,7 +423,11 @@ export class TextBox extends GraphicsBox {
         const word_widths = words.map((word) => text_width(word, font))
         const word_spacing = (width - sum(word_widths))/(nwords - 1)
         for (let j = 0; j < nwords; j++) {
-          ctx.fillText(words[j], xij, y)
+          if (lines[i].startsWith("$$")) {
+            draw_mathjax_svg(lines[i].substring(2), xij, y, angle, sx, sy, ctx)
+          } else {
+            ctx.fillText(words[j], xij, y)
+          }
           xij += word_widths[j] + word_spacing
         }
         y += /*heights[i]*/ text_line.height + line_spacing
@@ -469,7 +443,15 @@ export class TextBox extends GraphicsBox {
         })()
 
         ctx.fillStyle = this.color
-        ctx.fillText(lines[i], xi, y + /*ascents[i]*/ text_line.ascent)
+
+        // for testing purpose, string must start with $$ for it to rendered with mathjax
+        // in the future it would be flagged with a mathjax property of some kind
+        // including $$ after a breakline will also render the new line as latex
+        if (lines[i].startsWith("$$")) {
+          draw_mathjax_svg(lines[i].substring(2), xi, y + text_line.ascent, angle, sx, sy, ctx)
+        } else {
+          ctx.fillText(lines[i], xi, y + /*ascents[i]*/ text_line.ascent)
+        }
         y += /*heights[i]*/ text_line.height + line_spacing
       }
     }
