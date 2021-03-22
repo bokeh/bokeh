@@ -242,8 +242,8 @@ class Legend(Annotation):
     The title text to render.
     """)
 
-    title_props = Include(ScalarTextProps, help="""
-    The %s values for the title text.
+    title_props = Include(ScalarTextProps, prefix="title", help="""
+    The {prop} values for the title text.
     """)
 
     title_text_font_size = Override(default="13px")
@@ -254,20 +254,20 @@ class Legend(Annotation):
     The distance (in pixels) to separate the title from the legend.
     """)
 
-    border_props = Include(ScalarLineProps, help="""
-    The %s for the legend border outline.
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the legend border outline.
     """)
 
     border_line_color = Override(default="#e5e5e5")
 
     border_line_alpha = Override(default=0.5)
 
-    background_props = Include(ScalarFillProps, help="""
-    The %s for the legend background style.
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the legend background style.
     """)
 
-    inactive_props = Include(ScalarFillProps, help="""
-    The %s for the legend item style when inactive. These control an overlay
+    inactive_props = Include(ScalarFillProps, prefix="inactive", help="""
+    The {prop} for the legend item style when inactive. These control an overlay
     on the item that can be used to obscure it when the corresponding glyph
     is inactive (e.g. by making it semi-transparent).
     """)
@@ -284,8 +284,8 @@ class Legend(Annotation):
 
     inactive_fill_alpha = Override(default=0.7)
 
-    label_props = Include(ScalarTextProps, help="""
-    The %s for the legend labels.
+    label_props = Include(ScalarTextProps, prefix="label", help="""
+    The {prop} for the legend labels.
     """)
 
     label_text_baseline = Override(default='middle')
@@ -391,8 +391,8 @@ class ColorBar(Annotation):
     The title text to render.
     """)
 
-    title_props = Include(ScalarTextProps, help="""
-    The %s values for the title text.
+    title_props = Include(ScalarTextProps, prefix="title", help="""
+    The {prop} values for the title text.
     """)
 
     title_text_font_size = Override(default="13px")
@@ -439,8 +439,8 @@ class ColorBar(Annotation):
     Amount of padding (in pixels) between the color scale and color bar border.
     """)
 
-    major_label_props = Include(ScalarTextProps, help="""
-    The %s of the major tick labels.
+    major_label_props = Include(ScalarTextProps, prefix="major_label", help="""
+    The {prop} of the major tick labels.
     """)
 
     major_label_text_font_size = Override(default="11px")
@@ -449,8 +449,8 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the tick labels from the color bar.
     """)
 
-    major_tick_props = Include(ScalarLineProps, help="""
-    The %s of the major ticks.
+    major_tick_props = Include(ScalarLineProps, prefix="major_tick", help="""
+    The {prop} of the major ticks.
     """)
 
     major_tick_line_color = Override(default="#ffffff")
@@ -465,8 +465,8 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    minor_tick_props = Include(ScalarLineProps, help="""
-    The %s of the minor ticks.
+    minor_tick_props = Include(ScalarLineProps, prefix="minor_tick", help="""
+    The {prop} of the minor ticks.
     """)
 
     minor_tick_line_color = Override(default=None)
@@ -481,20 +481,20 @@ class ColorBar(Annotation):
     main plot area.
     """)
 
-    bar_props = Include(ScalarLineProps, help="""
-    The %s for the color scale bar outline.
+    bar_props = Include(ScalarLineProps, prefix="bar", help="""
+    The {prop} for the color scale bar outline.
     """)
 
     bar_line_color = Override(default=None)
 
-    border_props = Include(ScalarLineProps, help="""
-    The %s for the color bar border outline.
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the color bar border outline.
     """)
 
     border_line_color = Override(default=None)
 
-    background_props = Include(ScalarFillProps, help="""
-    The %s for the color bar background style.
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the color bar background style.
     """)
 
     background_fill_color = Override(default="#ffffff")
@@ -542,8 +542,8 @@ class Arrow(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    body_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the arrow body.
+    body_props = Include(LineProps, help="""
+    The {prop} values for the arrow body.
     """)
 
 class BoxAnnotation(Annotation):
@@ -601,16 +601,16 @@ class BoxAnnotation(Annotation):
     by default.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the box.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the box.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the box.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the box.
     """)
 
-    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
-    The %s values for the box.
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the box.
     """)
 
     line_alpha = Override(default=0.3)
@@ -657,16 +657,16 @@ class Band(DataAnnotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the band.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the band.
     """)
 
     line_alpha = Override(default=0.3)
 
     line_color = Override(default="#cccccc")
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the band.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
     """)
 
     fill_alpha = Override(default=0.4)
@@ -749,18 +749,18 @@ class Label(TextAnnotation):
     distance in screen units from a given data position.
     """)
 
-    text_props = Include(ScalarTextProps, use_prefix=False, help="""
-    The %s values for the text.
+    text_props = Include(ScalarTextProps, help="""
+    The {prop} values for the text.
     """)
 
-    background_props = Include(ScalarFillProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    border_props = Include(ScalarLineProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
     """)
 
     border_line_color = Override(default=None)
@@ -836,18 +836,18 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     distance in screen units from a given data position.
     """)
 
-    text_props = Include(TextProps, use_prefix=False, help="""
-    The %s values for the text.
+    text_props = Include(TextProps, help="""
+    The {prop} values for the text.
     """)
 
-    background_props = Include(FillProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    background_props = Include(FillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    border_props = Include(LineProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    border_props = Include(LineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
     """)
 
     border_line_color = Override(default=None)
@@ -882,16 +882,16 @@ class PolyAnnotation(Annotation):
     by default.
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the polygon.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the polygon.
     """)
 
-    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the polygon.
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the polygon.
     """)
 
-    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
-    The %s values for the polygon.
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the polygon.
     """)
 
     line_alpha = Override(default=0.3)
@@ -917,8 +917,8 @@ class Slope(Annotation):
     The y intercept of the line, in data units
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the line.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the line.
     """)
 
 class Span(Annotation):
@@ -958,8 +958,8 @@ class Span(Annotation):
 
     """)
 
-    line_props = Include(ScalarLineProps, use_prefix=False, help="""
-    The %s values for the span.
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the span.
     """)
 
 class Title(TextAnnotation):
@@ -1028,14 +1028,14 @@ class Title(TextAnnotation):
     An alpha value to use to fill text with.
     """)
 
-    background_props = Include(ScalarFillProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    border_props = Include(ScalarLineProps, use_prefix=True, help="""
-    The %s values for the text bounding box.
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
     """)
 
     border_line_color = Override(default=None)
@@ -1100,8 +1100,8 @@ class Whisker(DataAnnotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
-    The %s values for the whisker body.
+    line_props = Include(LineProps, help="""
+    The {prop} values for the whisker body.
     """)
 
     level = Override(default="underlay")

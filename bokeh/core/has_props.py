@@ -31,7 +31,7 @@ from typing import Any, Dict, Optional
 from warnings import warn
 
 # Bokeh imports
-from ..util.string import nice_join
+from ..util.string import append_docstring, nice_join
 from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
@@ -65,11 +65,7 @@ def abstract(cls):
     '''
     if not issubclass(cls, HasProps):
         raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
-
-    # running python with -OO will discard docstrings -> __doc__ is None
-    if cls.__doc__ is not None:
-        cls.__doc__ += _ABSTRACT_ADMONITION
-
+    cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
 
 def is_DataModel(cls):
@@ -92,7 +88,7 @@ def _generators(class_dict):
             generators[name] = generator
     return generators
 
-def make_property(target_name, help):
+def _make_alias_property(target_name, help):
     fget = lambda self: getattr(self, target_name)
     fset = lambda self, value: setattr(self, target_name, value)
     return property(fget, fset, None, help)
@@ -102,8 +98,20 @@ def _property_aliases(class_dict):
     for name, prop in tuple(class_dict.items()):
         if isinstance(prop, Alias):
             property_aliases[name] = prop.name
-            class_dict[name] = make_property(prop.name, prop.help)
+            class_dict[name] = _make_alias_property(prop.name, prop.help)
     return property_aliases
+
+# These are to avoid circular imports and are just temporary until all the
+# explicit property caching in HasProps is replaced with memoized queries
+def _is_container_prop(x):
+    from .property.bases import ContainerProperty
+    from .property.descriptors import BasicPropertyDescriptor
+    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, ContainerProperty)
+
+def _is_dataspec_prop(x):
+    from .property.dataspec import DataSpec
+    from .property.descriptors import BasicPropertyDescriptor
+    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, DataSpec)
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
@@ -132,7 +140,19 @@ class MetaHasProps(type):
         for name, generator in generators.items():
             prop_descriptors = generator.make_descriptors(name)
             for prop_descriptor in prop_descriptors:
-                prop_descriptor.add_prop_descriptor_to_class(class_name, new_class_attrs, names_with_refs, container_names, dataspecs)
+                name = prop_descriptor.name
+                if name in new_class_attrs:
+                    raise RuntimeError(f"Two property generators both created {class_name}.{name}")
+                new_class_attrs[name] = prop_descriptor
+
+                if prop_descriptor.has_ref:
+                    names_with_refs.add(name)
+
+                if _is_container_prop(prop_descriptor):
+                    container_names.add(name)
+
+                if _is_dataspec_prop(prop_descriptor):
+                    dataspecs[name] = prop_descriptor
 
         class_dict.update(new_class_attrs)
 
@@ -256,16 +276,16 @@ class HasProps(metaclass=MetaHasProps):
             super().__setattr__(name, value)
             return
 
-        props = sorted(self.properties())
+        prop_names = self.properties()
         descriptor = getattr(self.__class__, name, None)
 
-        if name in props or (descriptor is not None and descriptor.fset is not None):
+        if name in prop_names or (descriptor is not None and descriptor.fset is not None):
             super().__setattr__(name, value)
         else:
-            matches, text = difflib.get_close_matches(name.lower(), props), "similar"
+            matches, text = difflib.get_close_matches(name.lower(), prop_names), "similar"
 
             if not matches:
-                matches, text = props, "possible"
+                matches, text = sorted(prop_names), "possible"
 
             raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
@@ -275,6 +295,14 @@ class HasProps(metaclass=MetaHasProps):
 
     __repr__ = __str__
 
+    # Unfortunately we cannot implement __eq__. We rely on the default __hash__
+    # based on object identity, in order to put HasProps instances in sets.
+    # Implementing __eq__ as structural equality would necessitate a __hash__
+    # that returns the same value different HasProps instances that compare
+    # equal [1], and this would break many things.
+    #
+    # [1] https://docs.python.org/3/reference/datamodel.html#object.__hash__
+    #
     def equals(self, other):
         ''' Structural equality of models.
 
@@ -285,12 +313,6 @@ class HasProps(metaclass=MetaHasProps):
             True, if properties are structurally equal, otherwise False
 
         '''
-
-        # NOTE: don't try to use this to implement __eq__. Because then
-        # you will be tempted to implement __hash__, which would interfere
-        # with mutability of models. However, not implementing __hash__
-        # will make bokeh unusable in Python 3, where proper implementation
-        # of __hash__ is required when implementing __eq__.
         if not isinstance(other, self.__class__):
             return False
         else:
@@ -483,7 +505,7 @@ class HasProps(metaclass=MetaHasProps):
         return accumulate_from_superclasses(cls, "__container_props__")
 
     @classmethod
-    def properties(cls, with_bases=True):
+    def properties(cls):
         ''' Collect the names of properties on this class.
 
         This method *optionally* traverses the class hierarchy and includes
@@ -498,10 +520,7 @@ class HasProps(metaclass=MetaHasProps):
            set[str] : property names
 
         '''
-        if with_bases:
-            return accumulate_from_superclasses(cls, "__properties__")
-        else:
-            return set(cls.__properties__)
+        return accumulate_from_superclasses(cls, "__properties__")
 
     @classmethod
     def dataspecs(cls):
