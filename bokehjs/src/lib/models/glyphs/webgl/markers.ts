@@ -68,18 +68,31 @@ export class MarkerGL extends BaseGLGlyph {
       case "asterisk":
       case "circle":
       case "circle_cross":
+      case "circle_dot":
       case "circle_x":
+      case "circle_y":
       case "cross":
+      case "dash":
       case "diamond":
       case "diamond_cross":
+      case "diamond_dot":
+      case "dot":
       case "hex":
+      case "hex_dot":
       case "inverted_triangle":
+      case "plus":
       case "square":
       case "square_cross":
+      case "square_dot":
+      case "square_pin":
       case "square_x":
       case "star":
+      case "star_dot":
       case "triangle":
+      case "triangle_dot":
+      case "triangle_pin":
       case "x":
+      case "y":
         return true
       default:
         return false
