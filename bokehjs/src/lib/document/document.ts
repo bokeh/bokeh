@@ -368,10 +368,9 @@ export class Document {
   static _resolve_refs(value: unknown, old_references: RefMap, new_references: RefMap, buffers: Buffers): unknown {
     function resolve_ref(v: unknown): unknown {
       if (is_ref(v)) {
-        if (old_references.has(v.id))
-          return old_references.get(v.id)
-        else if (new_references.has(v.id))
-          return new_references.get(v.id)
+        const obj = old_references.get(v.id) ?? new_references.get(v.id)
+        if (obj != null)
+          return obj
         else
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (is_NDArray_ref(v)) {
@@ -705,12 +704,10 @@ export class Document {
     }
 
     // split references into old and new so we know whether to initialize or update
-    const old_references: RefMap = new Map()
+    const old_references: RefMap = new Map(this._all_models)
     const new_references: RefMap = new Map()
     for (const [id, value] of references) {
-      if (this._all_models.has(id))
-        old_references.set(id, value)
-      else
+      if (!old_references.has(id))
         new_references.set(id, value)
     }
 
