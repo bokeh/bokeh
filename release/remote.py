@@ -69,7 +69,7 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
                     _upload_file_to_cdn(local_path, cdn_path, content_type, bucket)
         return PASSED("Uploaded BokehJS to CDN")
     except Exception as e:
-        return FAILED("BokehJS CDN upload failed", details=e.args)
+        return FAILED(f"BokehJS CDN upload failed: {e}", details=e.args)
 
 
 def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
@@ -77,4 +77,4 @@ def upload_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"aws s3 cp deployment-{config.version}.tgz s3://bokeh-deployments/")
         return PASSED("Uploaded deployment tarball")
     except RuntimeError as e:
-        return FAILED("Could NOT upload deployment tarball", details=e.args)
+        return FAILED(f"Could NOT upload deployment tarball: {e}", details=e.args)
