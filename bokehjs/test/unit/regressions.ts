@@ -4,8 +4,12 @@ import {expect} from "assertions"
 import {display, fig} from "./_util"
 
 import {
-  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle, Legend, LegendItem,
+  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
+  Legend, LegendItem, Title, Row, Column, GridBox,
 } from "@bokehjs/models"
+import {Div} from "@bokehjs/models/widgets"
+import {assert} from "@bokehjs/core/util/assert"
+import {gridplot} from "@bokehjs/api/gridplot"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -100,6 +104,47 @@ describe("Bug", () => {
       const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)
+    })
+  })
+
+  describe("in issue #11038", () => {
+    it("doesn't allow for setting plot.title.text when string title was previously set", async () => {
+      const plot = fig([200, 200])
+      function set_title() {
+        plot.title = "some title"
+      }
+      set_title()                         // indirection to deal with type narrowing to string
+      assert(plot.title instanceof Title) // expect() can't narrow types
+      plot.title.text = "other title"
+      expect(plot.title).to.be.instanceof(Title)
+      expect(plot.title.text).to.be.equal("other title")
+    })
+  })
+
+  describe("in issue #11035", () => {
+    it("doesn't allow to use non-Plot models in gridplot()", async () => {
+      const p0 = fig([200, 200])
+      const p1 = new Div({text: "some text"})
+      const grid0 = gridplot([[p0, p1]], {merge_tools: true, toolbar_location: "above"})
+      expect(grid0).to.be.instanceof(Column)
+      const grid1 = gridplot([[p0, p1]], {merge_tools: true, toolbar_location: "below"})
+      expect(grid1).to.be.instanceof(Column)
+      const grid2 = gridplot([[p0, p1]], {merge_tools: true, toolbar_location: "left"})
+      expect(grid2).to.be.instanceof(Row)
+      const grid3 = gridplot([[p0, p1]], {merge_tools: true, toolbar_location: "right"})
+      expect(grid3).to.be.instanceof(Row)
+      const grid4 = gridplot([[p0, p1]], {merge_tools: true, toolbar_location: null})
+      expect(grid4).to.be.instanceof(GridBox)
+      const grid5 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: "above"})
+      expect(grid5).to.be.instanceof(GridBox)
+      const grid6 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: "below"})
+      expect(grid6).to.be.instanceof(GridBox)
+      const grid7 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: "left"})
+      expect(grid7).to.be.instanceof(GridBox)
+      const grid8 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: "right"})
+      expect(grid8).to.be.instanceof(GridBox)
+      const grid9 = gridplot([[p0, p1]], {merge_tools: false, toolbar_location: null})
+      expect(grid9).to.be.instanceof(GridBox)
     })
   })
 })

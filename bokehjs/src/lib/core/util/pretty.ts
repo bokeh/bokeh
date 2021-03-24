@@ -18,12 +18,20 @@ export type PrinterOptions = {
 
 export class Printer {
   readonly precision?: number
+  protected readonly visited: Set<object> = new Set()
 
   constructor(options?: PrinterOptions) {
     this.precision = options?.precision
   }
 
   to_string(obj: unknown): string {
+    if (isObject(obj)) {
+      if (this.visited.has(obj))
+        return "<circular>"
+      else
+        this.visited.add(obj)
+    }
+
     if (is_Printable(obj))
       return obj[pretty](this)
     else if (isBoolean(obj))

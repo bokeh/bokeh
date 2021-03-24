@@ -30,9 +30,12 @@ export function size(obj: PlainObject): number {
   return Object.keys(obj).length
 }
 
-export function isEmpty(obj: PlainObject): boolean {
+export function is_empty(obj: PlainObject): boolean {
   return size(obj) == 0
 }
+
+/** @deprecated */
+export const isEmpty = is_empty
 
 export function to_object<T>(map: Iterable<[string | number, T]>): PlainObject<T> {
   const obj: PlainObject<T> = {}

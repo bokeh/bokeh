@@ -6,10 +6,9 @@ import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, ColorSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
 import {Location, MarkerType, RenderLevel} from "../core/enums"
-import {startsWith} from "../core/util/string"
 import {is_equal} from "../core/util/eq"
-import {some, includes} from "../core/util/array"
-import {clone, keys, entries} from "../core/util/object"
+import {includes} from "../core/util/array"
+import {clone, keys, entries, is_empty} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {ViewOf} from "core/view"
 import {dom_ready} from "core/dom"
@@ -62,11 +61,13 @@ export type ColorAlpha = {
   selection_color: ColorArg
   nonselection_color: ColorArg
   hover_color: ColorArg
+  muted_color: ColorArg
 
   alpha: AlphaArg
   selection_alpha: AlphaArg
   nonselection_alpha: AlphaArg
   hover_alpha: AlphaArg
+  muted_alpha: AlphaArg
 }
 
 export type AuxFill = {
@@ -76,6 +77,8 @@ export type AuxFill = {
   nonselection_fill_alpha: AlphaArg
   hover_fill_color: ColorArg
   hover_fill_alpha: AlphaArg
+  muted_fill_color: ColorArg
+  muted_fill_alpha: AlphaArg
 }
 
 export type AuxLine = {
@@ -85,6 +88,8 @@ export type AuxLine = {
   nonselection_line_alpha: AlphaArg
   hover_line_color: ColorArg
   hover_line_alpha: AlphaArg
+  muted_line_color: ColorArg
+  muted_line_alpha: AlphaArg
 }
 
 export type AuxText = {
@@ -94,6 +99,8 @@ export type AuxText = {
   nonselection_text_alpha: AlphaArg
   hover_text_color: ColorArg
   hover_text_alpha: AlphaArg
+  muted_text_color: ColorArg
+  muted_text_alpha: AlphaArg
 }
 
 export type AuxGlyph = {
@@ -101,6 +108,10 @@ export type AuxGlyph = {
   view: CDSView
   legend: string
   level: RenderLevel
+  name: string
+  visible: boolean
+  x_range_name: string
+  y_range_name: string
 }
 
 export type ArgsOf<P> = {
@@ -733,11 +744,11 @@ export class Figure extends Plot {
 
     const _split_feature_trait = function(ft: string): string[] {
       const fta: string[] = ft.split('_', 2)
-      if (fta.length==2) { return fta } else { return fta.concat(['']) }
+      return fta.length == 2 ? fta : fta.concat([''])
     }
     const _is_visual = function(ft: string): boolean {
       const [feature, trait] = _split_feature_trait(ft)
-      return includes(['line', 'fill', 'text', 'global'], feature) && (trait!=='')
+      return includes(['line', 'fill', 'text', 'global'], feature) && trait !== ""
     }
 
     defaults = {...defaults}
@@ -748,7 +759,7 @@ export class Figure extends Plot {
     if (!hasOwnProperty.call(trait_defaults, 'color')) {
       trait_defaults.color = _default_color
     }
-    if (!hasOwnProperty.call(trait_defaults, 'alpha')){
+    if (!hasOwnProperty.call(trait_defaults, 'alpha')) {
       trait_defaults.alpha = _default_alpha
     }
 
@@ -757,11 +768,11 @@ export class Figure extends Plot {
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
         const trait = _split_feature_trait(pname)[1]
-        if (hasOwnProperty.call(props, prefix+pname)) {
-          result[pname] = props[prefix+pname]
-          delete props[prefix+pname]
-        } else if (!hasOwnProperty.call(cls.prototype._props, trait) && hasOwnProperty.call(props, prefix+trait)) {
-          result[pname] = props[prefix+trait]
+        if (hasOwnProperty.call(props, prefix + pname)) {
+          result[pname] = props[prefix + pname]
+          delete props[prefix + pname]
+        } else if (!hasOwnProperty.call(cls.prototype._props, trait) && hasOwnProperty.call(props, prefix + trait)) {
+          result[pname] = props[prefix + trait]
         } else if (hasOwnProperty.call(override_defaults, trait)) {
           result[pname] = override_defaults[trait]
         } else if (hasOwnProperty.call(defaults, pname)) {
@@ -774,9 +785,10 @@ export class Figure extends Plot {
         }
       }
     }
-    traits.forEach(function(_key, val, _obj) {
-      delete props[prefix+val]
-    })
+
+    for (const name of traits) {
+      delete props[prefix + name]
+    }
 
     return result
   }
@@ -865,21 +877,32 @@ export class Figure extends Plot {
     const legend = this._process_legend(attrs.legend, source)
     delete attrs.legend
 
+    const name = attrs.name
+    delete attrs.name
+
     const level = attrs.level
     delete attrs.level
 
-    const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
-    const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
+    const visible = attrs.visible
+    delete attrs.visible
 
-    const glyph_ca   = this._pop_visuals(cls, attrs)
-    const nsglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {alpha: 0.1})
-    const sglyph_ca  = has_sglyph ? this._pop_visuals(cls, attrs, "selection_", glyph_ca) : {}
-    const hglyph_ca  = has_hglyph ? this._pop_visuals(cls, attrs, "hover_", glyph_ca) : {}
+    const x_range_name = attrs.x_range_name
+    delete attrs.x_range_name
 
-    this._fixup_values(cls, data,   glyph_ca)
-    this._fixup_values(cls, data, nsglyph_ca)
-    this._fixup_values(cls, data,  sglyph_ca)
-    this._fixup_values(cls, data,  hglyph_ca)
+    const y_range_name = attrs.y_range_name
+    delete attrs.y_range_name
+
+    const glyph_ca  = this._pop_visuals(cls, attrs)
+    const nglyph_ca = this._pop_visuals(cls, attrs, "nonselection_", glyph_ca, {alpha: 0.1})
+    const sglyph_ca = this._pop_visuals(cls, attrs, "selection_", glyph_ca)
+    const hglyph_ca = this._pop_visuals(cls, attrs, "hover_", glyph_ca)
+    const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca)
+
+    this._fixup_values(cls, data,  glyph_ca)
+    this._fixup_values(cls, data, nglyph_ca)
+    this._fixup_values(cls, data, sglyph_ca)
+    this._fixup_values(cls, data, hglyph_ca)
+    this._fixup_values(cls, data, mglyph_ca)
 
     this._fixup_values(cls, data, attrs)
 
@@ -889,19 +912,25 @@ export class Figure extends Plot {
       return new cls({...attrs, ...extra_attrs})
     }
 
-    const glyph   = _make_glyph(cls, attrs,   glyph_ca)
-    const nsglyph = _make_glyph(cls, attrs, nsglyph_ca)
-    const sglyph  = has_sglyph ? _make_glyph(cls, attrs, sglyph_ca) : undefined
-    const hglyph  = has_hglyph ? _make_glyph(cls, attrs, hglyph_ca) : undefined
+    const glyph  = _make_glyph(cls, attrs, glyph_ca)
+    const nglyph = !is_empty(nglyph_ca) ? _make_glyph(cls, attrs, nglyph_ca) : "auto"
+    const sglyph = !is_empty(sglyph_ca) ? _make_glyph(cls, attrs, sglyph_ca) : "auto"
+    const hglyph = !is_empty(hglyph_ca) ? _make_glyph(cls, attrs, hglyph_ca) : undefined
+    const mglyph = !is_empty(mglyph_ca) ? _make_glyph(cls, attrs, mglyph_ca) : undefined
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,
       view,
       glyph,
-      nonselection_glyph: nsglyph,
+      nonselection_glyph: nglyph,
       selection_glyph:    sglyph,
       hover_glyph:        hglyph,
+      muted_glyph:        mglyph,
+      name,
       level,
+      visible,
+      x_range_name,
+      y_range_name,
     })
 
     if (legend != null) {

@@ -38,5 +38,12 @@ describe("core/util/pretty module", () => {
       expect(to_string({})).to.be.equal("{}")
       expect(to_string(new Map([[1, true], [2, false], [3, true]]))).to.be.equal("Map([[1, true], [2, false], [3, true]])")
     })
+
+    it("that supports circular objects", () => {
+      type X = {y: number, z?: X}
+      const x: X = {y: 1}
+      x.z = x
+      expect(to_string(x)).to.be.equal("{y: 1, z: <circular>}")
+    })
   })
 })
