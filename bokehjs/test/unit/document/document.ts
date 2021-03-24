@@ -968,4 +968,43 @@ describe("Document", () => {
     expect(Object.keys(root1.dict_of_list_prop).length).to.be.equal(1)
     expect(values(root1.dict_of_list_prop)[0].length).to.be.equal(1)
   })
+
+  it("computes minimum patch for objects referencing known objects", () => {
+    const doc = new Document()
+    expect(doc.roots().length).to.be.equal(0)
+    expect(doc._all_models.size).to.be.equal(0)
+
+    const child = new SomeModel()
+    const root = new SomeModel({child})
+    doc.add_root(root)
+
+    const obj = new SomeModel({foo: 11})
+
+    const event = new ev.MessageSentEvent(doc, "ping", {model: root, companion_model: obj})
+    const patch = doc.create_json_patch([event])
+    expect(patch).to.be.equal({
+      events: [{
+        kind: "MessageSent",
+        msg_type: "ping",
+        msg_data: {
+          model: {id: root.id},
+          companion_model: {id: obj.id},
+        },
+      }],
+      references: [{
+        type: "SomeModel",
+        id: obj.id,
+        attributes: {
+          tags: [],
+          name: null,
+          js_property_callbacks: {},
+          js_event_callbacks: {},
+          subscribed_events: [],
+          syncable: true,
+          foo: 11,
+          child: null,
+        },
+      }],
+    })
+  })
 })
