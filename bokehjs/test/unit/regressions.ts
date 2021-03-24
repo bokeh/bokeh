@@ -4,8 +4,10 @@ import {expect} from "assertions"
 import {display, fig} from "./_util"
 
 import {
-  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle, Legend, LegendItem,
+  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
+  Legend, LegendItem, Title,
 } from "@bokehjs/models"
+import {assert} from "@bokehjs/core/util/assert"
 
 describe("Bug", () => {
   describe("in issue #10612", () => {
@@ -100,6 +102,20 @@ describe("Bug", () => {
       const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)
+    })
+  })
+
+  describe("in issue #11038", () => {
+    it("doesn't allow for setting plot.title.text when string title was previously set", async () => {
+      const plot = fig([200, 200])
+      function set_title() {
+        plot.title = "some title"
+      }
+      set_title()                         // indirection to deal with type narrowing to string
+      assert(plot.title instanceof Title) // expect() can't narrow types
+      plot.title.text = "other title"
+      expect(plot.title).to.be.instanceof(Title)
+      expect(plot.title.text).to.be.equal("other title")
     })
   })
 })

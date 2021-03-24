@@ -66,6 +66,7 @@ export type DefaultsOf<P> = {
 
 export type PropertyOptions<T> = {
   internal?: boolean
+  convert?(value: T): T | undefined
   on_update?(value: T, obj: HasProps): void
 }
 
@@ -111,6 +112,7 @@ export abstract class Property<T = unknown> {
 
   /*readonly*/ internal: boolean
 
+  convert?(value: T): T | undefined
   on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
@@ -122,6 +124,7 @@ export abstract class Property<T = unknown> {
     this.change = new Signal0(this.obj, "change")
 
     this.internal = options.internal ?? false
+    this.convert = options.convert
     this.on_update = options.on_update
 
     let attr_value: T
@@ -149,6 +152,11 @@ export abstract class Property<T = unknown> {
 
   protected _update(attr_value: T): void {
     this.validate(attr_value)
+    if (this.convert != null) {
+      const converted = this.convert(attr_value)
+      if (converted !== undefined)
+        attr_value = converted
+    }
     this.spec = {value: attr_value}
     this.on_update?.(attr_value, this.obj)
   }
