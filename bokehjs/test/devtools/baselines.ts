@@ -26,13 +26,13 @@ export function create_baseline(items: State[]): string {
   return baseline
 }
 
-export function load_baseline(baseline_path: string): string | null {
-  const proc = cp.spawnSync("git", ["show", `:./${baseline_path}`], {encoding: "utf-8"})
+export function load_baseline(baseline_path: string, ref: string): string | null {
+  const proc = cp.spawnSync("git", ["show", `${ref}:./${baseline_path}`], {encoding: "utf-8"})
   return proc.status == 0 ? proc.stdout : null
 }
 
-export function load_baseline_image(image_path: string): Buffer | null {
-  const proc = cp.spawnSync("git", ["show", `:./${image_path}`], {encoding: "buffer"})
+export function load_baseline_image(image_path: string, ref: string): Buffer | null {
+  const proc = cp.spawnSync("git", ["show", `${ref}:./${image_path}`], {encoding: "buffer"})
   return proc.status == 0 ? proc.stdout : null
 }
 
@@ -40,8 +40,8 @@ function git(...args: string[]): cp.SpawnSyncReturns<string> {
   return cp.spawnSync("git", [...args], {encoding: "utf8"})
 }
 
-export function diff_baseline(baseline_path: string): string {
-  const proc = git("diff", "--color", "--exit-code", baseline_path)
+export function diff_baseline(baseline_path: string, ref: string): string {
+  const proc = git("diff", "--color", "--exit-code", ref, "--", baseline_path)
   if (proc.status == 0) {
     const proc = git("diff", "--color", "/dev/null", baseline_path)
     return proc.stdout

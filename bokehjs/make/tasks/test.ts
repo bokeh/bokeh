@@ -221,6 +221,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     `--port=${devtools_port}`,
     opt("k", argv.k),
     opt("grep", argv.grep),
+    opt("ref", argv.ref),
     opt("baselines-root", baselines_root),
     `--screenshot=${argv.screenshot ?? "test"}`,
   ]

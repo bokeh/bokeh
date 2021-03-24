@@ -35,6 +35,7 @@ process.on("exit", () => {
 
 const url = argv._[0] as string
 const port = parseInt(argv.port as string | undefined ?? "9222")
+const ref = (argv.ref ?? "HEAD") as string
 
 interface CallFrame {
   name: string
@@ -393,12 +394,12 @@ async function run_tests(): Promise<boolean> {
                         await fs.promises.writeFile(baseline_file, baseline)
                         status.baseline = baseline
 
-                        const existing = load_baseline(baseline_file)
+                        const existing = load_baseline(baseline_file, ref)
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
                           }
-                          const diff = diff_baseline(baseline_file)
+                          const diff = diff_baseline(baseline_file, ref)
                           status.failure = true
                           status.baseline_diff = diff
                           status.errors.push(diff)
@@ -414,7 +415,7 @@ async function run_tests(): Promise<boolean> {
 
                           const image_file = `${baseline_path}.png`
                           const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file)
+                          const existing = load_baseline_image(image_file, ref)
 
                           switch (argv.screenshot) {
                             case undefined:
