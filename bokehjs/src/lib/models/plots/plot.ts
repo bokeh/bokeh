@@ -5,7 +5,7 @@ import {Signal0} from "core/signaling"
 import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
 import {values} from "core/util/object"
-import {isArray} from "core/util/types"
+import {isArray, isString} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -135,7 +135,10 @@ export class Plot extends LayoutDOM {
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
 
-      title:             [ Or(Ref(Title), String, Null), () => new Title({text: ""}) ],
+      // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
+      title:             [ Or(Ref(Title), String, Null), "", {
+        convert: (title) => isString(title) ? new Title({text: title}) : title,
+      }],
       title_location:    [ Nullable(Location), "above" ],
 
       above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],

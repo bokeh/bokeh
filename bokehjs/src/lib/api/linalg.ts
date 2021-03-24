@@ -1,4 +1,4 @@
-export * from "../core/util/object"
+export {keys, values, entries, size, extend} from "../core/util/object"
 export * from "../core/util/array"
 export * from "../core/util/string"
 export * from "../core/util/random"
