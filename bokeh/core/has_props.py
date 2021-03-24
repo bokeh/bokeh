@@ -73,7 +73,8 @@ def abstract(cls):
     return cls
 
 def is_DataModel(cls):
-    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False)
+    from ..model import DataModel
+    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
