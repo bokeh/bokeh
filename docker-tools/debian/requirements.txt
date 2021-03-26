@@ -8,7 +8,7 @@ pandas==0.25.3
 pillow==8.1.1
 pyparsing==2.4.6
 pytz==2019.3
-pyyaml==5.3
+pyyaml==5.4
 scipy==1.4.1
 six==1.14.0
 tornado==6.0.3
