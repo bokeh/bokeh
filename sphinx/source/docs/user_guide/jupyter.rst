@@ -26,7 +26,7 @@ Standalone Bokeh content doesn't require a Bokeh server and can be embedded
 directly in classic Jupyter notebooks as well as in JupyterLab.
 
 Classic notebooks
-+++++++++++++++++
+'''''''''''''''''
 
 To display Bokeh plots inline in a classic Jupyter notebook, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
@@ -46,7 +46,7 @@ multiple times in the input cell. The plots will display in order.
     :align: center
 
 JupyterLab
-++++++++++
+''''''''''
 
 To use JupyterLab with Bokeh, you should at least use version 3.0 of JupyterLab.
 Enabling Bokeh visualizations in JupyterLab also requires the
@@ -103,7 +103,7 @@ a Jupyter notebook, refer to the following notebook:
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 
 JupyterHub
-++++++++++
+''''''''''
 
 When running notebooks from your own JupyterHub instance, some additional
 steps are necessary to embed Bokeh server applications and to enable network
