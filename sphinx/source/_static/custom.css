@@ -3,33 +3,33 @@
 }
 
 .version-alert a {
-  text-decoration: underline;
-  color: #ddd;
+    text-decoration: underline;
+    color: #ddd;
 }
 
 #banner .version-alert {
-  background-color: #CF462A;
-  padding: 1em;
-  color: #fff;
-  font-family: "Work Sans", sans-serif;
-  font-weight: 600; font-size: 16px;
+    background-color: #CF462A;
+    padding: 1em;
+    color: #fff;
+    font-family: "Work Sans", sans-serif;
+    font-weight: 600; font-size: 16px;
 }
 
 .version-alert a {
-  text-decoration: underline;
-  color: #ddd;
+    text-decoration: underline;
+    color: #ddd;
 }
 
 #banner .news-alert {
-  background-color: #ECD078;
-  padding: 1em;
-  font-family: "Work Sans", sans-serif;
-  font-weight: 600; font-size: 16px;
+    background-color: #ECD078;
+    padding: 1em;
+    font-family: "Work Sans", sans-serif;
+    font-weight: 600; font-size: 16px;
 }
 
 .news-alert a {
-  text-decoration: underline;
-  color: #444;
+    text-decoration: underline;
+    color: #444;
 }
 
 .btn { font-family: "Lato", sans-serif; }
@@ -126,7 +126,7 @@ using sphinx_panels */
     background-color: rgba(246,169,27,0.3);
 }
 
-/* style footer */
+/* style links */
 .links {
     background-color: #542437;
     color: #fff;
@@ -146,6 +146,8 @@ using sphinx_panels */
 }
 
 .links-item { margin-top: 30px; }
+
+/* style footer */
 
 .footer-copy {
     background-color: #242729;
