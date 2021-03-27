@@ -41,16 +41,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..core.enums import Direction
 from ..core.has_props import abstract
 from ..core.properties import (
+    AngleSpec,
     AnyRef,
     Bool,
     Dict,
+    DistanceSpec,
     Float,
+    Instance,
     NonNullable,
     Nullable,
     Seq,
     String,
+    field,
 )
 from ..model import Model
 
@@ -62,6 +67,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'PolarTransform',
     'Stack',
 )
 
@@ -194,3 +200,40 @@ class Maximum(ScalarExpression):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+class PolarTransform(Expression):
+    """ Transform from polar to cartesian coordinates. """
+
+    radius = DistanceSpec(default=field("radius"), help="""
+    The radial coordinate (i.e. the distance from the origin).
+    """)
+
+    angle = AngleSpec(default=field("angle"), help="""
+    The angular coordinate (i.e. the angle from the reference direction).
+    """)
+
+    # origin = Tuple(Number, Number)
+    # ref_dir = Angle
+
+    direction = Enum(Direction, default=Direction.anticlock, help="""
+
+    """)
+
+    @property
+    def x(self):
+        return XComponent(transform=self)
+
+    @property
+    def y(self):
+        return YComponent(transform=self)
+
+class XYComponent(Expression):
+    """ """
+
+    transform = Instance(PolarTransform)
+
+class XComponent(XYComponent):
+    """X-component of a coordinate system transform to cartesian coordinates. """
+
+class YComponent(XYComponent):
+    """Y-component of a coordinate system transform to cartesian coordinates. """

@@ -6,3 +6,5 @@ export {CumSum}       from "./cumsum"
 export {ScalarExpression} from "./expression"
 export {Minimum} from "./minimum"
 export {Maximum} from "./maximum"
+
+export {PolarTransform, XComponent, YComponent} from "./polar"
