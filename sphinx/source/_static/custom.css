@@ -148,7 +148,6 @@ using sphinx_panels */
 .links-item { margin-top: 30px; }
 
 /* style footer */
-
 .footer-copy {
     background-color: #242729;
     color: #eee;
@@ -158,4 +157,9 @@ using sphinx_panels */
 .footer-copy p {
     padding: 0;
     margin: 0;
+}
+
+footer.links h6 {
+    margin: 0px;
+    padding-bottom: 8px;
 }
