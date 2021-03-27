@@ -139,7 +139,7 @@ void main()
         bool miter_too_large = sign_at_start > 0.0 ? miter_too_large_start : miter_too_large_end;
 
         if (abs(a_position.x) > 1.5) {
-            // Outer point, meets prev segment.
+            // Outer point, meets prev/next segment.
             float factor;  // multiplied by halfwidth...
 
             if (join_type == bevel_join || (join_type == miter_join && miter_too_large))
@@ -154,8 +154,18 @@ void main()
             v_coords.y = turn_sign*halfwidth*factor / miter_factor;
         }
         else if (turn_sign*a_position.y < 0.0) {
-            // Inner point, meets prev segment.
-            xy = point - point_right*(halfwidth*a_position.y*miter_factor);
+            // Inner point, meets prev/next segment.
+            float len = halfwidth*miter_factor;
+            float segment_len = v_segment_length;
+            float adjacent_len = distance(point, adjacent_point);
+
+            if (len <= min(segment_len, adjacent_len))
+                // Normal behaviour.
+                xy = point - point_right*(len*a_position.y);
+            else
+                // For short wide line segments the inner point using the above
+                // calculation can be outside of the line.  Here clipping it.
+                xy = point + segment_right*(halfwidth*turn_sign);
         }
         else {
             // Point along outside edge.
