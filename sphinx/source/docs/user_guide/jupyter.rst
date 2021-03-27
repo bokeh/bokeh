@@ -50,8 +50,7 @@ JupyterLab
 
 To use JupyterLab with Bokeh, you should at least use version 3.0 of JupyterLab.
 Enabling Bokeh visualizations in JupyterLab also requires the
-`jupyter_bokeh <https://github.com/bokeh/jupyter_bokeh>`_ extension to be
-installed.
+`jupyter_bokeh`_ extension to be installed.
 
 After installing JupyterLab, you can use either ``pip`` or ``conda`` to install
 jupyter_bokeh:
@@ -80,9 +79,7 @@ jupyter_bokeh:
         pip install jupyter_bokeh
 
 For instructions on installing jupyter_bokeh with versions of JupyterLab
-older than 3.0, see the
-`README <https://github.com/bokeh/jupyter_bokeh/blob/main/README.md>`_ in the
-`GitHub repository of jupyter_bokeh <https://github.com/bokeh/jupyter_bokeh>`_.
+older than 3.0, see the `README`_ in the GitHub repository of `jupyter_bokeh`_.
 
 Once you have jupyter_bokeh installed, you can use Bokeh just like you would
 with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
@@ -90,6 +87,11 @@ with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
 .. image:: /_images/joyplot_jupyter_lab.png
     :scale: 25 %
     :align: center
+
+.. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
+.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _README: https://github.com/bokeh/jupyter_bokeh/blob/main/README.md
 
 Bokeh server applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -393,8 +395,6 @@ You can build on the above to create more complex layouts and include advanced w
 such as `ipyleaflet`_ and `ipyvolume`_. For more examples, see ``examples/howto/ipywidgets``
 in the Bokeh repository.
 
-.. _Anaconda: https://www.anaconda.com/products/individual#Downloads
-.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _IPyWidgets: https://ipywidgets.readthedocs.io
 .. _ipywidgets_bokeh: https://github.com/bokeh/ipywidgets_bokeh
 .. _ipyleaflet: https://jupyter.org/widgets#ipyleaflet
