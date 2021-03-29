@@ -103,7 +103,7 @@ for i, n in enumerate([0, 1, 4, 7]):
 
 text = ("x = {-b \pm \sqrt{b^2-4ac} \over 2a}")
 
-latex = LatexLabel(text=text,x=4.5, y=250, x_units='data', y_units='screen',
+latex = LatexLabel(text=text, x=4.5, y=250, x_units='data', y_units='screen',
                    render_mode='css', text_font_size='11px', width=300, height=75,
                    background_fill_color="white", border_line_color="lightgrey")
 
