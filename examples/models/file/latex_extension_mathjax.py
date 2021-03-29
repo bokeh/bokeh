@@ -50,10 +50,8 @@ export class LatexLabelView extends LabelView {
     sy -= this.model.y_offset
 
     const svg_element = MathJax.tex2svg(this.model.text).children[0] as SVGElement
-
-    const outer_HTML = svg_element.outerHTML,
-      blob = new Blob([outer_HTML],{type:'image/svg+xml;charset=utf-8'})
-
+    const outer_HTML = svg_element.outerHTML
+    const blob = new Blob([outer_HTML],{type:'image/svg+xml;charset=utf-8'})
     const blob_URL = URL.createObjectURL(blob)
 
     const image = new Image()
