@@ -41,8 +41,8 @@ def rose(k: Fraction, A: float = 1) -> Plot:
     return plot
 
 def grid(N: int, D: int):
-    for n in range(1, N + 1):
-        for d in range(1, D + 1):
+    for d in range(1, D + 1):
+        for n in range(1, N + 1):
             yield rose(Fraction(n, d))
 
 plot = gridplot(list(grid(9, 9)), ncols=9)
