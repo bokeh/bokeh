@@ -26,6 +26,11 @@ export class CategoricalScale extends Scale {
     return (x) => factor*range.synthetic(x) + offset
   }
 
+  get s_invert(): (sx: number) => number {
+    const [factor, offset] = this._linear_compute_state()
+    return (sx) => (sx - offset) / factor
+  }
+
   compute(x: any): number {
     return super._linear_compute(this.source_range.synthetic(x))
   }

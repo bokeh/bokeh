@@ -22,6 +22,11 @@ export class LinearScale extends ContinuousScale {
     return (x) => factor*x + offset
   }
 
+  get s_invert(): (sx: number) => number {
+    const [factor, offset] = this._linear_compute_state()
+    return (sx) => (sx - offset) / factor
+  }
+
   compute(x: number): number {
     return this._linear_compute(x)
   }

@@ -31,6 +31,8 @@ export abstract class Scale extends Transform {
 
   abstract get s_compute(): (x: number) => number
 
+  abstract get s_invert(): (sx: number) => number
+
   abstract compute(x: number): number
 
   abstract v_compute(xs: Arrayable<number>): ScreenArray

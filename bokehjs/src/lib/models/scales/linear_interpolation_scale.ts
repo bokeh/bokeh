@@ -30,6 +30,10 @@ export class LinearInterpolationScale extends Scale {
     throw new Error("not implemented")
   }
 
+  get s_invert(): (sx: number) => number {
+    throw new Error("not implemented")
+  }
+
   compute(x: number): number {
     return x
   }

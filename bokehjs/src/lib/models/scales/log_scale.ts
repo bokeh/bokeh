@@ -29,6 +29,14 @@ export class LogScale extends ContinuousScale {
     }
   }
 
+  get s_invert(): (x: number) => number {
+    const [factor, offset, inter_factor, inter_offset] = this._compute_state()
+    return (xprime) => {
+      const value = (xprime - offset) / factor
+      return Math.exp(inter_factor*value + inter_offset)
+    }
+  }
+
   compute(x: number): number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 
