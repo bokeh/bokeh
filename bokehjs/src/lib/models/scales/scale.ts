@@ -1,4 +1,4 @@
-import {Transform} from "../transforms"
+import {Transform} from "../transforms/transform"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {Arrayable, ScreenArray, FloatArray} from "core/types"
