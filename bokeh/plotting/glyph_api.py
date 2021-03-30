@@ -38,6 +38,18 @@ __all__ = (
 class GlyphAPI:
     """ """
 
+    @property
+    def plot(self):
+        return self._parent
+
+    @property
+    def coordinates(self):
+        return self._coordinates
+
+    def __init__(self, parent=None, coordinates=None) -> None:
+        self._parent = parent
+        self._coordinates = coordinates
+
     @glyph_method(glyphs.AnnularWedge)
     def annular_wedge(self, **kwargs):
         pass

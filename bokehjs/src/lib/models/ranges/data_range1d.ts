@@ -1,6 +1,6 @@
 import {DataRange} from "./data_range"
-import {Renderer} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
+import type {Renderer} from "../renderers/renderer"
+import type {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
 import {concat} from "core/util/array"
