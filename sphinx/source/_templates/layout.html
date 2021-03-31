@@ -56,30 +56,31 @@
       <div class="row">
           {% block docs_sidebar %}
             {% if sidebars %}
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <!-- Only show if we have sidebars configured -->
             <div class="col-12 col-md-3 bd-sidebar">
                 {%- for sidebartemplate in sidebars %}
                 {%- include sidebartemplate %}
                 {%- endfor %}
             </div>
-            {% else %}
-            <div class="col-12 col-md-1 col-xl-2 bd-sidebar no-sidebar"></div>
             {% endif %}
           {% endblock %}
 
           {% block docs_toc %}
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-              {% if not (meta is not none and 'notoc' in meta) %}
-                {%- include "docs-toc.html" %}
-              {% endif %}
-          </div>
+            <!-- Only show if we have sidebars configured -->
+            {% if sidebars %}
+            <div class="d-none d-xl-block col-xl-2 bd-toc">
+                {% if not (meta is not none and 'notoc' in meta) %}
+                  {%- include "docs-toc.html" %}
+                {% endif %}
+            </div>
+            {% endif %}
           {% endblock %}
 
           {% block docs_main %}
           {% if sidebars %}
             {% set content_col_class = "col-md-9 col-xl-7" %}
           {% else %}
-            {% set content_col_class = "col-md-11 col-xl-8" %}
+            {% set content_col_class = "col-md-12" %}
           {% endif %}
           <main class="col-12 {{ content_col_class }} py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
               {% block docs_body %}

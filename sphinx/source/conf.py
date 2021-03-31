@@ -135,8 +135,8 @@ html_theme_options = {
 }
 
 html_sidebars = {
-  "gallery": [],
-  "gallery/**": [],
+  "docs/gallery": [],
+  "docs/gallery/**": [],
   "index": [],
 }
 
