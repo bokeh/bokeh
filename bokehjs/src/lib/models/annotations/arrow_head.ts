@@ -1,44 +1,10 @@
-import {Model} from "model"
-import {View} from "core/view"
+import {Marking, MarkingView} from "../graphics/marking"
 import * as visuals from "core/visuals"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import {RendererView} from "../renderers/renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export abstract class ArrowHeadView extends View implements visuals.Renderable {
-  override model: ArrowHead
-  visuals: ArrowHead.Visuals
-  override parent: RendererView
-
-  size: p.Uniform<number>
-
-  override initialize(): void {
-    super.initialize()
-    this.visuals = new visuals.Visuals(this)
-  }
-
-  request_render(): void {
-    this.parent.request_render()
-  }
-
-  get canvas() {
-    return this.parent.canvas
-  }
-
-  set_data(source: ColumnarDataSource): void {
-    const self = this as any
-    for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
-        continue
-      const uniform = prop.uniform(source)
-      self[`${prop.attr}`] = uniform
-    }
-  }
-
-  abstract render(ctx: Context2d, i: number): void
-
+export abstract class ArrowHeadView extends MarkingView implements visuals.Renderable {
   // This method should not begin or close a path
   abstract clip(ctx: Context2d, i: number): void
 }
@@ -46,7 +12,7 @@ export abstract class ArrowHeadView extends View implements visuals.Renderable {
 export namespace ArrowHead {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = Marking.Props & {
     size: p.NumberSpec
   }
 
@@ -55,7 +21,7 @@ export namespace ArrowHead {
 
 export interface ArrowHead extends ArrowHead.Attrs {}
 
-export abstract class ArrowHead extends Model {
+export abstract class ArrowHead extends Marking {
   override properties: ArrowHead.Props
   override __view_type__: ArrowHeadView
 

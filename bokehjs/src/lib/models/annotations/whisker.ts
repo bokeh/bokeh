@@ -1,6 +1,7 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
 import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import {Indices} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
@@ -26,8 +27,9 @@ export class WhiskerView extends UpperLowerView {
 
   override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
-    this.lower_head?.set_data(source)
-    this.upper_head?.set_data(source)
+    const indices = Indices.all_set(this._lower_sx.length)
+    this.lower_head?.set_data(source, indices)
+    this.upper_head?.set_data(source, indices)
   }
 
   paint(ctx: Context2d): void {

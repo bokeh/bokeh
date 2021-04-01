@@ -32,8 +32,10 @@ from inspect import Parameter
 
 # Bokeh imports
 from ..core.has_props import abstract
+from ..core.properties import Instance, List
 from ..core.property._sphinx import type_link
 from ..model import Model
+from .graphics import Decoration
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,6 +56,8 @@ class Glyph(Model):
     ''' Base class for all glyph models.
 
     '''
+
+    decorations = List(Instance(Decoration), default=[])
 
     # a canonical order for positional args that can be
     # used for any functions derived from this class

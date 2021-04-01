@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from ...core.enums import SpatialUnits
 from ...core.has_props import abstract
 from ...core.properties import (
+    Bool,
     Enum,
     Include,
     Instance,
@@ -33,7 +34,7 @@ from ...core.properties import (
     field,
 )
 from ...core.property_mixins import FillProps, LineProps
-from ...model import Model
+from ..graphics import Marking
 from .annotation import DataAnnotation
 
 #-----------------------------------------------------------------------------
@@ -54,7 +55,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class ArrowHead(Model):
+class ArrowHead(Marking):
     ''' Base class for arrow heads.
 
     '''
@@ -62,6 +63,8 @@ class ArrowHead(Model):
     size = NumberSpec(default=25, help="""
     The size, in pixels, of the arrow head.
     """)
+
+    reversed = Bool(default=False)
 
 class OpenHead(ArrowHead):
     ''' Render an open-body arrow head.
