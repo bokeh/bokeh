@@ -64,7 +64,7 @@ def clustering(X, algorithm, n_clusters):
     model.fit(X)
 
     if hasattr(model, 'labels_'):
-            y_pred = model.labels_.astype(np.int)
+            y_pred = model.labels_.astype(int)
     else:
             y_pred = model.predict(X)
 

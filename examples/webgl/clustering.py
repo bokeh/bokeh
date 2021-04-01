@@ -44,7 +44,7 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     # predict cluster memberships
     algorithm.fit(X)
     if hasattr(algorithm, 'labels_'):
-        y_pred = algorithm.labels_.astype(np.int)
+        y_pred = algorithm.labels_.astype(int)
     else:
         y_pred = algorithm.predict(X)
 
