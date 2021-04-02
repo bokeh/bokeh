@@ -466,8 +466,8 @@ class WheelZoomTool(Scroll):
 
     maintain_focus = Bool(default=True, help="""
     Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    allows zoom-out to happen even at the boundaries of the graph by applying
+    necessary panning in addition to the zoom out, respecting the boundaries.
     """)
 
     zoom_on_axis = Bool(default=True, help="""
@@ -734,11 +734,11 @@ class ZoomInTool(ActionTool):
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    Whether or not zooming tool maintains a centered focus position. Setting to
+    False allows zoom-out to happen even at the boundaries of the graph by
+    applying necessary panning in addition to the zoom out, respecting the
+    boundaries.
     """)
-
 
 class ZoomOutTool(ActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
@@ -762,9 +762,10 @@ class ZoomOutTool(ActionTool):
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    Whether or not zooming tool maintains a centered focus position. Setting to
+    False allows zoom-out to happen even at the boundaries of the graph by
+    applying necessary panning in addition to the zoom out, respecting the
+    boundaries.
     """)
 
 class BoxSelectTool(Drag, SelectTool):
