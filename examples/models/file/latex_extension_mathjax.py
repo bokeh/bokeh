@@ -18,17 +18,11 @@ class LatexLabel(Label):
     text -> latex (via MathJax) conversion
     """
 
-    width = Float(help="""
-    The width of the rendered label in pixels
-    """)
-    height = Float(help="""
-    The height of the rendered label in pixels
-    """)
-
     __javascript__ = ["https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"]
     __implementation__ = TypeScript("""
 import {Label, LabelView} from "models/annotations/label"
 import * as p from "core/properties"
+import {ImageLoader} from "core/util/image"
 
 declare namespace MathJax {
   function tex2svg(input: string): HTMLElement
@@ -36,43 +30,58 @@ declare namespace MathJax {
 
 export class LatexLabelView extends LabelView {
   model: LatexLabel
+  image: HTMLImageElement | undefined
+  width: number
+  height: number
 
-  protected _render(): void {
-    const panel = this.layout != null ? this.layout : this.plot_view.frame
+  initialize(): void {
+    super.initialize()
+    const mathjax_element = MathJax.tex2svg(this.model.text)
 
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
+    mathjax_element.setAttribute('style', 'visibility: hidden;')
+    document.body.appendChild(mathjax_element)
 
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
-
-    sx += this.model.x_offset
-    sy -= this.model.y_offset
-
-    const svg_element = MathJax.tex2svg(this.model.text).children[0] as SVGElement
+    const svg_element = mathjax_element.children[0] as SVGElement
     const outer_HTML = svg_element.outerHTML
     const blob = new Blob([outer_HTML],{type:'image/svg+xml;charset=utf-8'})
-    const blob_URL = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob)
 
-    const image = new Image()
+    this.height = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('height'))
+    this.width = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('width'))
 
-    image.onload = () => {
-      this.layer.ctx.drawImage(image, sx, sy, this.model.width, this.model.height)
+    document.getElementsByClassName('MathJax')[0].remove()
+
+    new ImageLoader(url, {
+      loaded: (image) => {
+        this.image = image
+        this.request_render()
+      },
+    })
+  }
+
+  protected _render(): void {
+    if(this.image) {
+      const panel = this.layout != null ? this.layout : this.plot_view.frame
+
+      const xscale = this.coordinates.x_scale
+      const yscale = this.coordinates.y_scale
+
+      let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.bbox.xview.compute(this.model.x)
+      let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.bbox.yview.compute(this.model.y)
+
+      sx += this.model.x_offset
+      sy -= this.model.y_offset
+      this.layer.ctx.drawImage(this.image, sx, sy, this.width, this.height)
 
       this.notify_finished()
     }
-
-    image.src = blob_URL
   }
 }
 
 export namespace LatexLabel {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Label.Props & {
-    width: p.Property<number>
-    height: p.Property<number>
-  }
+  export type Props = Label.Props
 }
 
 export interface LatexLabel extends LatexLabel.Attrs {}
@@ -83,11 +92,6 @@ export class LatexLabel extends Label {
 
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
-
-    this.define<LatexLabel.Props>(({Number}) => ({
-      width: [ Number ],
-      height: [ Number ],
-    }))
   }
 }
 """)
@@ -104,7 +108,7 @@ for i, n in enumerate([0, 1, 4, 7]):
 text = ("x = {-b \pm \sqrt{b^2-4ac} \over 2a}")
 
 latex = LatexLabel(text=text, x=4.5, y=250, x_units='data', y_units='screen',
-                   render_mode='css', text_font_size='11px', width=300, height=75,
+                   render_mode='css', text_font_size='11px',
                    background_fill_color="white", border_line_color="lightgrey")
 
 p.add_layout(latex)
