@@ -55,6 +55,7 @@ export class LatexLabelView extends LabelView {
       loaded: (image) => {
         this.image = image
         this.request_render()
+        URL.revokeObjectURL(url)
       },
     })
   }
