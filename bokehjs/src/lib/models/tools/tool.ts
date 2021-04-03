@@ -8,6 +8,7 @@ import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Plot, PlotView} from "../plots/plot"
 import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
+import {RangesUpdate} from "core/bokeh_events"
 
 import type {PanTool} from "./gestures/pan_tool"
 import type {WheelPanTool} from "./gestures/wheel_pan_tool"
@@ -89,6 +90,12 @@ export abstract class ToolView extends View {
 
   // deactivate is triggered by toolbar ui actions
   deactivate(): void {}
+
+  // this is just here to avoid duplicating it on many various tools
+  _trigger_ranges_update(): void {
+    const {x_range, y_range} = this.plot_model
+    this.plot_model.trigger_event(new RangesUpdate(x_range.start, x_range.end, y_range.start, y_range.end))
+  }
 
   _pan_start?(e: PanEvent): void
   _pan?(e: PanEvent): void

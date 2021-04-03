@@ -55,7 +55,7 @@ export class MenuItemClick extends ModelEvent {
 }
 
 // A UIEvent is an event originating on a canvas this includes.
-// DOM events such as keystrokes as well as hammer events and LOD events.
+// DOM events such as keystrokes as well as hammer, LOD, and range events.
 export abstract class UIEvent extends ModelEvent {}
 
 @event("lodstart")
@@ -63,6 +63,20 @@ export class LODStart extends UIEvent {}
 
 @event("lodend")
 export class LODEnd extends UIEvent {}
+
+@event("rangesupdate")
+export class RangesUpdate extends UIEvent {
+
+  constructor(readonly x0: number, readonly x1: number, readonly y0: number, readonly y1: number) {
+    super()
+  }
+
+  protected _to_json(): JSON {
+    const {x0, x1, y0, y1} = this
+    return {...super._to_json(), x0, x1, y0, y1}
+  }
+
+}
 
 @event("selectiongeometry")
 export class SelectionGeometry extends UIEvent {

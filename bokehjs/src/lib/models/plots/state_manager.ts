@@ -21,7 +21,7 @@ export class StateManager {
   protected history: {type: string, state: StateInfo}[] = []
   protected index: number = -1
 
-  protected _do_state_change(index: number): void {
+  protected _do_state_change(index: number): StateInfo {
     const state = this.history[index] != null ? this.history[index].state : this.initial_state
 
     if (state.range != null)
@@ -29,6 +29,8 @@ export class StateManager {
 
     if (state.selection != null)
       this.parent.update_selection(state.selection)
+
+    return state
   }
 
   push(type: string, new_state: Partial<StateInfo>): void {
@@ -50,20 +52,24 @@ export class StateManager {
     this.changed.emit()
   }
 
-  undo(): void {
+  undo(): StateInfo|null {
     if (this.can_undo) {
       this.index -= 1
-      this._do_state_change(this.index)
+      const state = this._do_state_change(this.index)
       this.changed.emit()
+      return state
     }
+    return null
   }
 
-  redo(): void {
+  redo(): StateInfo|null {
     if (this.can_redo) {
       this.index += 1
-      this._do_state_change(this.index)
+      const state = this._do_state_change(this.index)
       this.changed.emit()
+      return state
     }
+    return null
   }
 
   get can_undo(): boolean {

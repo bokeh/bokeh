@@ -118,6 +118,8 @@ export class BoxZoomToolView extends GestureToolView {
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
     this._base_point = null
+
+    this._trigger_ranges_update()
   }
 
   _update([sx0, sx1]: [number, number], [sy0, sy1]: [number, number]): void {

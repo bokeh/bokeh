@@ -2,7 +2,7 @@ import {PanEvent} from "core/ui_events"
 import {BoxAnnotation, EDGE_TOLERANCE} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
-import {Scale} from '../../scales/scale'
+import {Scale} from "../../scales/scale"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
@@ -203,6 +203,7 @@ export class RangeToolView extends GestureToolView {
 
   _pan_end(_ev: PanEvent): void {
     this.side = Side.None
+    this._trigger_ranges_update()
   }
 }
 
