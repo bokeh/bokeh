@@ -52,7 +52,7 @@ widgets with ``.on_click``, the handler is passed the new attribute value.
 .. code-block:: python
 
     def my_radio_handler(new):
-        print 'Radio button option ' + str(new) + ' selected.'
+        print('Radio button option ' + str(new) + ' selected.')
 
     radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
     radio_group.on_click(my_radio_handler)
