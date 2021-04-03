@@ -3,9 +3,6 @@ from scipy.special import jv
 
 from bokeh.models import Label
 from bokeh.palettes import Spectral4
-from bokeh.core.properties import (
-  Float
-)
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
