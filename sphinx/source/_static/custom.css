@@ -124,8 +124,8 @@ code {
 
 /* Customize search box */
 #search-input {
-	border: 1px solid rgb(206, 212, 218);
-	border-radius: 1.5px;
+    border: 1px solid rgb(206, 212, 218);
+    border-radius: 1.5px;
 }
 
 /* Custom styles for documentation landing page (index.rst) and other pages
