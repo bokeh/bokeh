@@ -17,8 +17,7 @@ export abstract class ZoomBaseToolView extends ActionToolView {
     const zoom_info = scale_range(frame, this.model.sign*this.model.factor, h_axis, v_axis)
 
     this.plot_view.state.push("zoom_out", {range: zoom_info})
-    const {maintain_focus} = this.model
-    this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus})
+    this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus: this.model.get_maintain_focus()})
 
     this.model.document?.interactive_start(this.plot_model)
   }
@@ -30,7 +29,6 @@ export namespace ZoomBaseTool {
   export type Props = ActionTool.Props & {
     factor: p.Property<number>
     dimensions: p.Property<Dimensions>
-    maintain_focus: p.Property<boolean>
   }
 }
 
@@ -45,10 +43,9 @@ export abstract class ZoomBaseTool extends ActionTool {
   }
 
   static init_ZoomBaseTool(): void {
-    this.define<ZoomBaseTool.Props>(({Boolean, Percent}) => ({
+    this.define<ZoomBaseTool.Props>(({Percent}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],
-      maintain_focus: [ Boolean, true ],
     }))
   }
 
@@ -57,4 +54,5 @@ export abstract class ZoomBaseTool extends ActionTool {
   get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+  abstract get_maintain_focus() : boolean;
 }

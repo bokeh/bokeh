@@ -23,6 +23,11 @@ export class ZoomInTool extends ZoomBaseTool {
     this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
   }
 
+  get_maintain_focus() : boolean {
+    // Constant as it makes no difference when zooming in
+    return true
+  }
+
   sign = 1 as 1
   tool_name = "Zoom In"
   icon = tool_icon_zoom_in

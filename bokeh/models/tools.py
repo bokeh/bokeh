@@ -733,13 +733,6 @@ class ZoomInTool(ActionTool):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-    maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains a centered focus position. Setting to
-    False allows zoom-out to happen even at the boundaries of the graph by
-    applying necessary panning in addition to the zoom out, respecting the
-    boundaries.
-    """)
-
 class ZoomOutTool(ActionTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
