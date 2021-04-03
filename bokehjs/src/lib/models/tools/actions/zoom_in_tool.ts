@@ -23,7 +23,7 @@ export class ZoomInTool extends ZoomBaseTool {
     this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
   }
 
-  get_maintain_focus() : boolean {
+  get_maintain_focus(): boolean {
     // Constant as it makes no difference when zooming in
     return true
   }
