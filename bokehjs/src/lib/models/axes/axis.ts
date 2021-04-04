@@ -17,9 +17,9 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import { CanvasImage } from "models/glyphs/image_url"
-import { ImageLoader } from "core/util/image"
-import { color2css } from "core/util/color"
+import {CanvasImage} from "models/glyphs/image_url"
+import {ImageLoader} from "core/util/image"
+import {color2css} from "core/util/color"
 
 const {abs} = Math
 
@@ -183,7 +183,7 @@ export class AxisView extends GuideRendererView {
     svg_element.setAttribute('stroke', color)
 
     const outer_HTML = svg_element.outerHTML
-    const blob = new Blob([outer_HTML],{type:'image/svg+xml;charset=utf-8'})
+    const blob = new Blob([outer_HTML], {type: 'image/svg+xml;charset=utf-8'})
     const url = URL.createObjectURL(blob)
 
     this.latex_image_height = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('height'))
@@ -246,7 +246,7 @@ export class AxisView extends GuideRendererView {
 
       const {x, y} = this._computed_position({
         width: this.latex_image_width,
-        height: this.latex_image_height
+        height: this.latex_image_height,
       }, position)
 
       ctx.drawImage(this.latex_image, x, y, this.latex_image_width, this.latex_image_height)
@@ -261,7 +261,7 @@ export class AxisView extends GuideRendererView {
     if (!text || this.model.fixed_location != null)
       return
 
-    if(text.startsWith('$$')) {
+    if (text.startsWith('$$')) {
       const {text_color, text_alpha} = this.visuals.axis_label_text
       const color = text_color.get_value()
       const alpha = text_alpha.get_value()
