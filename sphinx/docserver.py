@@ -16,6 +16,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
 
+from bokeh.settings import settings
 from bokeh.util.tornado import fixup_windows_event_loop_policy
 
 IOLOOP = None
@@ -28,6 +29,11 @@ app = flask.Flask(__name__, static_folder="/unused")
 @app.route("/")
 def root():
     return redirect(url_for("en/latest/index.html"))
+
+
+@app.route("/alert.html") # type: ignore
+def alert():
+    return settings.docs_alert() or ""
 
 
 @app.route("/versions.json")
