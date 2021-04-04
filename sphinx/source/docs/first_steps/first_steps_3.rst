@@ -124,16 +124,3 @@ This is what the finished code looks like:
 .. seealso::
     To find out more about the different kinds of annotations in Bokeh, see
     :ref:`userguide_annotations` in the user guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_2.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_4.html
-        :text: Next
-        :classes: stretched-link

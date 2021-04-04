@@ -114,16 +114,3 @@ Once the requirements are installed, you can use the
 .. seealso::
     For information on how to export PNG and SVG files, see
     :ref:`userguide_export` in the user guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_6.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_8.html
-        :text: Next
-        :classes: stretched-link

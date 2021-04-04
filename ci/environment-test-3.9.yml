@@ -49,6 +49,7 @@ dependencies:
   - sphinx-panels
   - pip
   - pip:
+    - pydata_sphinx_theme
     - isort <5.0
     - sphinxext-opengraph
     - sphinx-reredirects

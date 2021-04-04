@@ -88,19 +88,6 @@ Then assign your color mapper to the ``color`` parameter of your renderer:
    palettes and the various ways you can make those palettes available to your
    plots.
 
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_4.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_6.html
-        :text: Next
-        :classes: stretched-link
-
 .. _Brewer: http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 .. _D3: https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#categorical-colors
 .. _Matplotlib: https://matplotlib.org/examples/color/colormaps_reference.html

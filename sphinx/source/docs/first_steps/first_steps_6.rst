@@ -58,16 +58,3 @@ of the browser window, assign ``scale_width`` to ``sizing_mode``:
 .. seealso::
     For more information on sizing modes, see
     :ref:`userguide_layout_sizing_mode` in the user guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_5.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_7.html
-        :text: Next
-        :classes: stretched-link

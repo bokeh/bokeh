@@ -156,16 +156,3 @@ outputting the plot:
     Each type of glyph has different properties. Refer to
     :func:`~bokeh.plotting.figure` in the reference guide to see all available
     properties for each glyph method.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_1.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_3.html
-        :text: Next
-        :classes: stretched-link

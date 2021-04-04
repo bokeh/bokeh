@@ -1,3 +1,5 @@
+:notoc:
+
 .. _about:
 
 Bokeh documentation
