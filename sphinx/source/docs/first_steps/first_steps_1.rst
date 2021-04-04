@@ -174,15 +174,6 @@ Bokeh's |bokeh.plotting| interface require:
     These functions either save your plot to an HTML file or display it in a
     browser.
 
-.. panels::
-    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_2.html
-        :text: Next
-        :classes: stretched-link
-
 .. |pan_tool| image:: /_images/icons/Pan.png
     :alt: Icon representing the pan tool
     :height: 19px

@@ -116,16 +116,3 @@ first, the third, and the fifth value of your original list:
    :ref:`userguide_data_filtering` in the user guide. More information is also
    available in the entries for :class:`~bokeh.models.sources.CDSView` and
    :class:`~bokeh.models.filters.Filter` in the reference guide.
-
-.. panels::
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
-
-    .. link-button:: first_steps_7.html
-        :text: Previous
-        :classes: stretched-link
-
-    ---
-    :card: + text-right
-    .. link-button:: first_steps_9.html
-        :text: Next
-        :classes: stretched-link
