@@ -55,6 +55,8 @@ extensions = [
 needs_sphinx = '1.8'
 
 rst_epilog = """
+.. |bokeh.models|       replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
 .. |Document|           replace:: :py:class:`~bokeh.document.Document`

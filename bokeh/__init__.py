@@ -4,15 +4,27 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Bokeh is a Python interactive visualization library that targets modern
-web browsers for presentation.
+''' Bokeh is a Python library for creating interactive visualizations for modern
+web browsers.
 
-Its goal is to provide elegant, concise construction of versatile graphics,
-and also deliver this capability with high-performance interactivity over large
-or streaming datasets. Bokeh can help anyone who would like to quickly and
-easily create interactive plots, dashboards, and data applications.
+Bokeh helps you build beautiful graphics, ranging from simple plots to complex
+dashboards with streaming datasets. With Bokeh you can create JavaScript-powered
+visualizations without writing any JavaScript yourself.
 
-For full documentation, please visit: https://docs.bokeh.org
+Most of the functionality of Bokeh is accessed through submodules such as
+|bokeh.plotting| and |bokeh.models|.
+
+For full documentation, please visit https://docs.bokeh.org
+
+----
+
+The top-level ``bokeh`` module itself contains a few useful functions and
+attributes:
+
+.. attribute:: __version__
+  :annotation: = currently installed version of Bokeh
+
+.. autofunction:: bokeh.license
 
 '''
 
