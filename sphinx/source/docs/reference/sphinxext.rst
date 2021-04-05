@@ -23,6 +23,13 @@ bokeh_color
 
 .. automodule:: bokeh.sphinxext.bokeh_color
 
+.. _bokeh.sphinxext.bokeh_dataframe:
+
+bokeh_dataframe
+---------------
+
+.. automodule:: bokeh.sphinxext.bokeh_dataframe
+
 .. _bokeh.sphinxext.bokeh_enum:
 
 bokeh_enum
