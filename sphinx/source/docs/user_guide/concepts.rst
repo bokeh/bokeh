@@ -1,6 +1,6 @@
 .. _userguide_concepts:
 
-Defining Key Concepts
+Defining key concepts
 =====================
 
 .. _userguide_glossary:
