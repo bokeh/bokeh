@@ -46,6 +46,7 @@ _expected_settings = (
     'browser',
     'cdn_version',
     'cookie_secret',
+    'docs_alert',
     'docs_cdn',
     'docs_version',
     'ignore_filename',
