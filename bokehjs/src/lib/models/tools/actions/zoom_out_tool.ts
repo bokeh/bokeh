@@ -35,10 +35,8 @@ export class ZoomOutTool extends ZoomBaseTool {
     this.register_alias("xzoom_out", () => new ZoomOutTool({dimensions: "width"}))
     this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: "height"}))
   }
-  get_maintain_focus(): boolean {
-    return this.properties.maintain_focus.get_value()
-  }
 
+  get _maintain_focus(): boolean { return this.properties.maintain_focus.get_value() }
 
   sign = -1 as -1
   tool_name = "Zoom Out"
