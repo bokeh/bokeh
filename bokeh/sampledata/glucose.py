@@ -4,7 +4,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' A CSV timeseries of blood glucose measurements.
+
+This module contains one pandas Dataframe: ``data``.
+
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.glucose.data`
 
 '''
 

@@ -4,10 +4,21 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' This modules exposes per-county unemployment data for Unites States in
-2009. It exposes a dictionary ``data`` which is indexed by the two-tuple
-containing ``(state_id, county_id)`` and has the unemployment rate (2009) as
-the associated value.
+''' Per-county unemployment data for Unites States in 2009.
+
+This module contains one dict: ``data``.
+
+
+The dict is indexed by the two-tuples containing ``(state_id, county_id)`` and
+has the unemployment rate (2009) as the value.
+
+.. code-block:: ipython
+
+    {
+        (1, 1): 9.7,
+        (1, 3): 9.1,
+        ...
+    }
 
 '''
 #-----------------------------------------------------------------------------

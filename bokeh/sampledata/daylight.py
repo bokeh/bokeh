@@ -4,7 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide 2013 Warsaw daylight hours from http://www.sunrisesunset.com
+''' Provide 2013 Warsaw daylight hours.
+
+Sourced from http://www.sunrisesunset.com
+
+This module contains one pandas Dataframe: ``daylight_warsaw_2013``.
+
+.. rubric:: ``daylight_warsaw_2013``
+
+:bokeh-dataframe:`bokeh.sampledata.daylight.daylight_warsaw_2013`
 
 '''
 

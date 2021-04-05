@@ -4,7 +4,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Route data (including atltitde) for a bike race in eastern Europe.
+
+This module contains one pandas Dataframe: ``obiszow_mtb_xcm``.
+
+.. rubric:: ``obiszow_mtb_xcm``
+
+:bokeh-dataframe:`bokeh.sampledata.mtb.obiszow_mtb_xcm`
 
 '''
 
