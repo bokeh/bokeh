@@ -225,12 +225,3 @@ the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.
 Finally, on the `Bokeh community page <https://bokeh.org/community/>`_, you can
 find links and information about asking for help and contributing to Bokeh and
 the Bokeh community.
-
-.. panels::
-    :column: col-lg-12 col-md-12 col-sm-12 col-xs-12 p-2
-
-    ---
-    :card: + text-left
-    .. link-button:: first_steps_8.html
-        :text: Previous
-        :classes: stretched-link

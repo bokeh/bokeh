@@ -1,0 +1,36 @@
+<div class="container-xl">
+
+    <a class="navbar-brand" href="{{ pathto(master_doc) }}">
+      <img src="https://static.bokeh.org/branding/logos/bokeh-logo.svg" class="logo" alt="The Bokeh logo">
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    {% set navbar_class, navbar_align = navbar_align_class() %}
+    <div id="navbar-menu" class="{{ navbar_class }} collapse navbar-collapse">
+      <ul id="navbar-main-elements" class="navbar-nav {{ navbar_align }}">
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ VERSION }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="version-menu"></div>
+        </li>
+        {{ generate_nav_html("navbar", maxdepth=1, collapse=True, includehidden=True, titles_only=True) }}
+        {% for external_link in theme_external_links %}
+        <li class="nav-item">
+            <a class="nav-link nav-external" href="{{ external_link.url }}">{{ external_link.name }}<i class="fas fa-external-link-alt"></i></a>
+        </li>
+        {% endfor %}
+      </ul>
+
+      {% if theme_search_bar_position == 'navbar' %}
+        {%- include "search-field.html" %}
+      {% endif %}
+
+      {%- block icon_links -%}
+      {%- include "icon-links.html" with context -%}
+      {%- endblock %}
+    </div>
+</div>
