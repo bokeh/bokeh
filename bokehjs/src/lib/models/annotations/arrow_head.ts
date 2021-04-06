@@ -52,15 +52,12 @@ export class OpenHeadView extends ArrowHeadView {
   }
 
   render(ctx: Context2d, i: number): void {
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_vectorize(ctx, i)
-      const size_i = this.size.get(i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*size_i, size_i)
-      ctx.lineTo(0, 0)
-      ctx.lineTo(-0.5*size_i, size_i)
-      ctx.stroke()
-    }
+    const size_i = this.size.get(i)
+    ctx.beginPath()
+    ctx.moveTo(0.5*size_i, size_i)
+    ctx.lineTo(0, 0)
+    ctx.lineTo(-0.5*size_i, size_i)
+    this.visuals.line.apply(ctx, i)
   }
 }
 
@@ -106,26 +103,15 @@ export class NormalHeadView extends ArrowHeadView {
   }
 
   render(ctx: Context2d, i: number): void {
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_vectorize(ctx, i)
-      this._normal(ctx, i)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_vectorize(ctx, i)
-      this._normal(ctx, i)
-      ctx.stroke()
-    }
-  }
-
-  protected _normal(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, size_i)
     ctx.lineTo(0, 0)
     ctx.lineTo(-0.5*size_i, size_i)
     ctx.closePath()
+
+    this.visuals.fill.apply(ctx, i)
+    this.visuals.line.apply(ctx, i)
   }
 }
 
@@ -176,20 +162,6 @@ export class VeeHeadView extends ArrowHeadView {
   }
 
   render(ctx: Context2d, i: number): void {
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_vectorize(ctx, i)
-      this._vee(ctx, i)
-      ctx.fill()
-    }
-
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_vectorize(ctx, i)
-      this._vee(ctx, i)
-      ctx.stroke()
-    }
-  }
-
-  protected _vee(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
     ctx.beginPath()
     ctx.moveTo(0.5*size_i, size_i)
@@ -197,6 +169,9 @@ export class VeeHeadView extends ArrowHeadView {
     ctx.lineTo(-0.5*size_i, size_i)
     ctx.lineTo(0, 0.5*size_i)
     ctx.closePath()
+
+    this.visuals.fill.apply(ctx, i)
+    this.visuals.line.apply(ctx, i)
   }
 }
 
@@ -236,14 +211,11 @@ export class TeeHeadView extends ArrowHeadView {
   override visuals: TeeHead.Visuals
 
   render(ctx: Context2d, i: number): void {
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_vectorize(ctx, i)
-      const size_i = this.size.get(i)
-      ctx.beginPath()
-      ctx.moveTo(0.5*size_i, 0)
-      ctx.lineTo(-0.5*size_i, 0)
-      ctx.stroke()
-    }
+    const size_i = this.size.get(i)
+    ctx.beginPath()
+    ctx.moveTo(0.5*size_i, 0)
+    ctx.lineTo(-0.5*size_i, 0)
+    this.visuals.line.apply(ctx, i)
   }
 
   clip(_ctx: Context2d, _i: number): void {}
