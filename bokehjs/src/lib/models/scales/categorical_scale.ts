@@ -1,11 +1,12 @@
 import {Scale} from "./scale"
+import {LinearScale} from "./linear_scale"
 import {FactorRange} from "../ranges/factor_range"
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import * as p from "core/properties"
+
+const {_linear_compute_state} = LinearScale.prototype
 
 export namespace CategoricalScale {
   export type Attrs = p.AttrsOf<Props>
-
   export type Props = Scale.Props
 }
 
@@ -21,29 +22,13 @@ export class CategoricalScale extends Scale {
   source_range: FactorRange
 
   get s_compute(): (x: number) => number {
-    const [factor, offset] = this._linear_compute_state()
+    const [factor, offset] = _linear_compute_state.call(this)
     const range = this.source_range
     return (x) => factor*range.synthetic(x) + offset
   }
 
   get s_invert(): (sx: number) => number {
-    const [factor, offset] = this._linear_compute_state()
+    const [factor, offset] = _linear_compute_state.call(this)
     return (sx) => (sx - offset) / factor
-  }
-
-  compute(x: any): number {
-    return super._linear_compute(this.source_range.synthetic(x))
-  }
-
-  v_compute(xs: Arrayable<any>): ScreenArray {
-    return super._linear_v_compute(this.source_range.v_synthetic(xs))
-  }
-
-  invert(xprime: number): number {
-    return this._linear_invert(xprime)
-  }
-
-  v_invert(xprimes: Arrayable<number>): FloatArray {
-    return this._linear_v_invert(xprimes)
   }
 }

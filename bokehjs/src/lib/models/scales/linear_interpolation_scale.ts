@@ -1,7 +1,10 @@
 import {Scale} from "./scale"
+import {LinearScale} from "./linear_scale"
 import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map, left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
+
+const {v_compute: _linear_v_compute} = LinearScale.prototype
 
 export namespace LinearInterpolationScale {
   export type Attrs = p.AttrsOf<Props>
@@ -66,7 +69,7 @@ export class LinearInterpolationScale extends Scale {
       return m0 + c*(m1 - m0)
     })
 
-    return this._linear_v_compute(vvs)
+    return _linear_v_compute.call(this, vvs)
   }
 
   invert(xprime: number): number {
