@@ -36,8 +36,6 @@ export class ZoomOutTool extends ZoomBaseTool {
     this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: "height"}))
   }
 
-  get _maintain_focus(): boolean { return this.properties.maintain_focus.get_value() }
-
   sign = -1 as -1
   tool_name = "Zoom Out"
   icon = tool_icon_zoom_out
