@@ -342,8 +342,16 @@ export abstract class LayoutDOMView extends DOMView {
         const {padding: {left, right, top, bottom}} = extents(measuring)
         const {width, height} = measuring.getBoundingClientRect()
 
+        // height-wise we are looking for empty space to fit into
+        let children_height = 0
+        for (const child of measuring.children) {
+          const {height} = child.getBoundingClientRect()
+          const {margin: {top, bottom}} = extents(child as HTMLElement)
+          children_height += height + top + bottom
+        }
+
         const inner_width = Math.ceil(width - left - right)
-        const inner_height = Math.ceil(height - top - bottom)
+        const inner_height = Math.ceil(height - top - bottom - children_height)
 
         if (inner_width > 0 || inner_height > 0)
           return {
