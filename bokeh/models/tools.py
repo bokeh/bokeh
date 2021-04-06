@@ -465,9 +465,10 @@ class WheelZoomTool(Scroll):
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
     """)
 
     zoom_on_axis = Bool(default=True, help="""
@@ -752,6 +753,13 @@ class ZoomOutTool(ActionTool):
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
+    """)
+
+    maintain_focus = Bool(default=True, help="""
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
     """)
 
 class BoxSelectTool(Drag, SelectTool):
