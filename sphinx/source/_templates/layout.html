@@ -45,6 +45,15 @@
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
 {%- endblock %}
 {%- block content %}
+    <script>
+      window.addEventListener('DOMContentLoaded', function () {
+        if (window.location.pathname.endsWith("releases.html")) {
+          [].forEach.call(document.querySelectorAll('.toc-h3'), function (el) {
+            el.parentElement.remove()
+          });
+        }
+      })
+    </script>
     <div class="container-fluid" id="banner"></div>
     {% block docs_navbar %}
     <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
@@ -112,6 +121,7 @@
     <script async src='https://www.google-analytics.com/analytics.js'></script>
     <!-- End Google Analytics -->
     {% endif %}
+
     <script>
       const BOKEH_CURRENT_VERSION = "{{ VERSION }}"
 
@@ -147,6 +157,7 @@
         })
       })
     </script>
+
 {%- endblock %}
 
 {%- block footer %}
