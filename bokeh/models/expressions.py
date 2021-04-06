@@ -49,8 +49,10 @@ from ..core.properties import (
     Bool,
     Dict,
     DistanceSpec,
+    Enum,
     Float,
     Instance,
+    IntSpec,
     NonNullable,
     Nullable,
     Seq,
@@ -67,6 +69,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'IndexTransform',
     'PolarTransform',
     'Stack',
 )
@@ -201,7 +204,19 @@ class Maximum(ScalarExpression):
 # Code
 #-----------------------------------------------------------------------------
 
-class PolarTransform(Expression):
+@abstract
+class CoordinateTransform(Expression):
+
+
+    @property
+    def x(self):
+        return XComponent(transform=self)
+
+    @property
+    def y(self):
+        return YComponent(transform=self)
+
+class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
 
     radius = DistanceSpec(default=field("radius"), help="""
@@ -219,18 +234,16 @@ class PolarTransform(Expression):
 
     """)
 
-    @property
-    def x(self):
-        return XComponent(transform=self)
+class IndexTransform(CoordinateTransform):
 
-    @property
-    def y(self):
-        return YComponent(transform=self)
+    index = IntSpec(default=field("index"))
+
+    target = Instance("bokeh.models.renderers.Renderer")
 
 class XYComponent(Expression):
     """ """
 
-    transform = Instance(PolarTransform)
+    transform = Instance(CoordinateTransform)
 
 class XComponent(XYComponent):
     """X-component of a coordinate system transform to cartesian coordinates. """

@@ -7,4 +7,6 @@ export {ScalarExpression} from "./expression"
 export {Minimum} from "./minimum"
 export {Maximum} from "./maximum"
 
-export {PolarTransform, XComponent, YComponent} from "./polar"
+export {XComponent, YComponent} from "./coordinate_transform"
+export {PolarTransform} from "./polar"
+export {IndexTransform} from "./index_transform"
