@@ -1,4 +1,4 @@
-import {Models} from "../base"
+import {ModelResolver} from "../base"
 import {Model} from "../model"
 import * as kinds from "core/kinds"
 import {isString} from "core/util/types"
@@ -41,7 +41,7 @@ export type OverrideDef = {
   default: unknown
 }
 
-export function resolve_defs(defs: ModelDef[]): void {
+export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
   function qualified(ref: ModelRef): string {
     return ref.module != null ? `${ref.module}.${ref.name}` : ref.name
   }
@@ -94,7 +94,7 @@ export function resolve_defs(defs: ModelDef[]): void {
         }
         case "Ref": {
           const [, modelref] = ref
-          const model = Models.get(qualified(modelref))
+          const model = resolver.get(qualified(modelref))
           if (model != null)
             return kinds.Ref(model)
           else
@@ -112,7 +112,7 @@ export function resolve_defs(defs: ModelDef[]): void {
       if (def.extends == null)
         return Model
       else {
-        const base = Models.get(qualified(def.extends))
+        const base = resolver.get(qualified(def.extends))
         if (base != null)
           return base
         else
@@ -134,6 +134,6 @@ export function resolve_defs(defs: ModelDef[]): void {
       model.override<any>({[prop.name]: prop.default})
     }
 
-    Models.register_models([model])
+    resolver.register(model)
   }
 }

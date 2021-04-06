@@ -60,6 +60,31 @@ export const register_models = Models.register_models
 
 Models.registered_names = () => [..._all_models.keys()]
 
+export class ModelResolver {
+  protected _known_models: Map<string, typeof HasProps> = new Map()
+
+  get(name: string): typeof HasProps
+  get<T>(name: string, or_else: T): (typeof HasProps) | T
+
+  get<T>(name: string, or_else?: T): (typeof HasProps) | T {
+    const model = Models.get(name) ?? this._known_models.get(name)
+    if (model != null)
+      return model
+    else if (or_else !== undefined)
+      return or_else
+    else
+      throw new Error(`Model '${name}' does not exist. This could be due to a widget or a custom model not being registered before first usage.`)
+  }
+
+  register(model: typeof HasProps): void {
+    const name = model.__qualified__
+    if (this.get(name, null) == null)
+      this._known_models.set(name, model)
+    else
+      console.warn(`Model '${name}' was already registered with this resolver`)
+  }
+}
+
 // TODO: this doesn't belong here, but it's easier this way for backwards compatibility
 import * as AllModels from "./models"
 register_models(AllModels)
