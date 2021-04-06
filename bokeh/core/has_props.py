@@ -69,7 +69,8 @@ def abstract(cls):
     return cls
 
 def is_DataModel(cls):
-    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False)
+    from ..model import DataModel
+    return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
 def _overridden_defaults(class_dict):
     overridden_defaults = {}
@@ -156,7 +157,7 @@ class MetaHasProps(type):
 
         class_dict.update(new_class_attrs)
 
-        class_dict["__properties__"] = set(new_class_attrs)
+        class_dict["__properties__"] = list(new_class_attrs)
         class_dict["__properties_with_refs__"] = names_with_refs
         class_dict["__container_props__"] = container_names
         class_dict["__property_aliases__"] = property_aliases
@@ -346,7 +347,7 @@ class HasProps(metaclass=MetaHasProps):
         overrides = []
 
         # TODO: don't use unordered sets
-        for prop_name in list(cls.__properties__):
+        for prop_name in cls.__properties__:
             descriptor = cls.lookup(prop_name)
             kind = None # TODO: serialize kinds
             default = descriptor.property._default # TODO: private member
