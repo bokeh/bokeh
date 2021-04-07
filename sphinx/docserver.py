@@ -4,6 +4,32 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+""" Basic webserver for developing Bokeh documention locally.
+
+Executing this script will automatically open a browser tab to the locally
+built documentation index page.
+
+This script can be run manually:
+
+    python docserver.py
+
+or more commonly via executing ``make serve`` in this directory. It is possible
+to combine this usage with other make targets in a single invovation, e.g.
+
+    make clean html serve
+
+will clean any previous docs output, build all the documentation from scratch,
+and then run this script to serve and display the results.
+
+To preview how an alert banner would appear in the built documentation, set the
+environment variable ``BOKEH_DOCS_ALERT`` to the desired alert string.
+
+For more information about building Bokeh's documentation, see the Developer's
+Guide:
+
+    https://docs.bokeh.org/en/latest/docs/dev_guide.html
+
+"""
 
 import threading
 import time
@@ -31,7 +57,7 @@ def root():
     return redirect(url_for("en/latest/index.html"))
 
 
-@app.route("/alert.html") # type: ignore
+@app.route("/alert.html")  # type: ignore
 def alert():
     return settings.docs_alert() or ""
 
