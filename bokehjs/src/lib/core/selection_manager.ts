@@ -1,4 +1,3 @@
-import {HasProps} from "./has_props"
 import {Geometry} from "./geometry"
 import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
@@ -6,7 +5,6 @@ import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import type {GlyphRendererView} from "models/renderers/glyph_renderer"
 import type {GraphRendererView} from "models/renderers/graph_renderer"
-import * as p from "./properties"
 
 // XXX: this is needed to cut circular dependency between this, models/renderers/* and models/sources/*
 function is_GlyphRendererView(renderer_view: DataRendererView): renderer_view is GlyphRendererView {
@@ -16,28 +14,8 @@ function is_GraphRendererView(renderer_view: DataRendererView): renderer_view is
   return renderer_view.model.type == "GraphRenderer"
 }
 
-export namespace SelectionManager {
-  export type Props = HasProps.Props & {
-    source: p.Property<ColumnarDataSource>
-  }
-
-  export type Attrs = p.AttrsOf<Props>
-}
-
-export interface SelectionManager extends SelectionManager.Attrs {}
-
-export class SelectionManager extends HasProps {
-  properties: SelectionManager.Props
-
-  constructor(attrs?: Partial<SelectionManager.Attrs>) {
-    super(attrs)
-  }
-
-  static init_SelectionManager(): void {
-    this.internal<SelectionManager.Props>(({AnyRef}) => ({
-      source: [ AnyRef() ],
-    }))
-  }
+export class SelectionManager {
+  constructor(readonly source: ColumnarDataSource) {}
 
   inspectors: Map<DataRenderer, Selection> = new Map()
 
