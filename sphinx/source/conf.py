@@ -85,6 +85,14 @@ intersphinx_mapping = {
 
 napoleon_include_init_with_doc = True
 
+ogp_site_url = 'https://docs.bokeh.org/en/latest/'
+ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta property="twitter:site" content="@bokeh" />',
+    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
+]
+
 panels_add_bootstrap_css = False
 
 pygments_style = 'sphinx'
@@ -93,15 +101,6 @@ redirects = {
     "docs/installation": "first_steps/installation.html",
     "docs/user_guide/quickstart": "../first_steps.html",
 }
-
-# configuration for sphinxext.opengraph
-ogp_site_url = 'https://docs.bokeh.org/en/latest/'
-ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
-ogp_custom_meta_tags = [
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta property="twitter:site" content="@bokeh" />',
-    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
-]
 
 # -- Options for HTML output ---------------------------------------------------
 
