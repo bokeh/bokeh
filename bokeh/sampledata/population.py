@@ -4,7 +4,19 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Historical and projected population data by age, gender, and country.
+
+Sourced from: https://population.un.org/wpp/Download/Standard/Population/
+
+Data is licenced `CC BY 3.0 IGO`_.
+
+This module contains one pandas Dataframe: ``data``.
+
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.population.data`
+
+.. _CC BY 3.0 IGO: https://creativecommons.org/licenses/by/3.0/igo/
 
 '''
 

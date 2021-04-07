@@ -11,8 +11,6 @@ subdirectory, and includes them in *reverse version order*. Typical usage:
 
 .. code-block:: rest
 
-    :tocdepth: 1
-
     .. toctree::
 
     .. bokeh-releases::

@@ -1,0 +1,44 @@
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    if (window.location.pathname.endsWith("releases.html")) {
+      [].forEach.call(document.querySelectorAll('.toc-h3'), function (el) {
+        el.parentElement.remove()
+      });
+    }
+  })
+</script>
+
+<script>
+  const BOKEH_CURRENT_VERSION = "{{ VERSION }}"
+
+  $(document).ready(function () {
+    const randid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    $.getJSON('/versions.json?v=' + randid , function (data) {
+        if (BOKEH_CURRENT_VERSION != data.latest) {
+          let msg
+          if (data.all.indexOf(BOKEH_CURRENT_VERSION) < 0 ) {
+            msg = "DEVELOPMENT / PRE-RELEASE"
+          } else {
+            msg = "PREVIOUS RELEASE"
+          }
+          const content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
+          $('#banner').append(content);
+        }
+        for (let i = 0; i < data.menu.length; i++) {
+          const link = "https://docs.bokeh.org/en/" + data.menu[i]
+          $('#version-menu').append('<a class="dropdown-item" href="' + link + '">' + data.menu[i] + '</a>')
+        }
+    })
+  })
+</script>
+
+<script>
+  $(document).ready(function () {
+    $.get('/alert.html', function (data) {
+        if (data.length > 0) {
+          const content = $('<div class="news-alert">' + data + '</div>')
+          $('#banner').prepend(content);
+        }
+    })
+  })
+</script>

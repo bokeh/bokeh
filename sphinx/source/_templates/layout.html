@@ -1,25 +1,4 @@
-{%- extends "basic/layout.html" %}
-{%- import "static/webpack-macros.html" as _webpack with context %}
-
-{# prev/next buttons #}
-{% macro prev_next(prev, next, prev_title='', next_title='') %}
- {%- if prev %}
-    <a class='left-prev' id="prev-link" href="{{ prev.link|e }}" title="{{ _('previous page')}}">{{ prev_title or prev.title }}</a>
- {%- endif %}
- {%- if next %}
-    <a class='right-next' id="next-link" href="{{ next.link|e }}" title="{{ _('next page')}}">{{ next_title or next.title }}</a>
- {%- endif %}
-{% endmacro %}
-
-{%- block css %}
-    {{ _webpack.head_pre_bootstrap() }}
-    {{ _webpack.head_pre_icons() }}
-    {% block fonts %}
-      {{ _webpack.head_pre_fonts() }}
-    {% endblock %}
-    {{- css() }}
-    {{ _webpack.head_js_preload() }}
-{%- endblock %}
+{% extends "pydata_sphinx_theme/layout.html" %}
 
 {%- block extrahead %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,120 +14,54 @@
     <link rel="icon" type="image/png" sizes="16x16" href="https://static.bokeh.org/favicon/favicon-16x16.png">
 {%- endblock %}
 
-{# Silence the sidebar's, relbar's #}
-{% block header %}{% endblock %}
-{% block relbar1 %}{% endblock %}
-{% block relbar2 %}{% endblock %}
-{% block sidebarsourcelink %}{% endblock %}
-
 {% block body_tag %}
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <div class="container-fluid" id="banner"></div>
 {%- endblock %}
-{%- block content %}
-    <div class="container-fluid" id="banner"></div>
-    {% block docs_navbar %}
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main">
-      {%- include "docs-navbar.html" %}
-    </nav>
-    {% endblock %}
 
-    <div class="container-xl">
-      <div class="row">
-          {% block docs_sidebar %}
-            {% if sidebars %}
-            <!-- Only show if we have sidebars configured -->
-            <div class="col-12 col-md-3 bd-sidebar">
-                {%- for sidebartemplate in sidebars %}
-                {%- include sidebartemplate %}
-                {%- endfor %}
-            </div>
-            {% endif %}
-          {% endblock %}
+{% block docs_sidebar %}
+  {% if sidebars %}
+  <!-- Only show if we have sidebars configured -->
+  <div class="col-12 col-md-3 bd-sidebar">
+      {%- for sidebartemplate in sidebars %}
+      {%- include sidebartemplate %}
+      {%- endfor %}
+  </div>
+  {% endif %}
+{% endblock %}
 
-          {% block docs_toc %}
-            <!-- Only show if we have sidebars configured -->
-            {% if sidebars %}
-            <div class="d-none d-xl-block col-xl-2 bd-toc">
-                {% if not (meta is not none and 'notoc' in meta) %}
-                  {%- include "docs-toc.html" %}
-                {% endif %}
-            </div>
-            {% endif %}
-          {% endblock %}
+{% block docs_toc %}
+  <!-- Only show if we have sidebars configured -->
+  {% if sidebars %}
+  <div class="d-none d-xl-block col-xl-2 bd-toc">
+      {% if not (meta is not none and 'notoc' in meta) %}
+        {%- include "docs-toc.html" %}
+      {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}
 
-          {% block docs_main %}
-          {% if sidebars %}
-            {% set content_col_class = "col-md-9 col-xl-7" %}
-          {% else %}
-            {% set content_col_class = "col-md-12" %}
-          {% endif %}
-          <main class="col-12 {{ content_col_class }} py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-              {% block docs_body %}
-              <div>
-                {% block body %} {% endblock %}
-              </div>
-              {% endblock %}
-              {% if theme_show_prev_next %}
-              <div class='prev-next-bottom'>
-                {{ prev_next(prev, next) }}
-              </div>
-              {% endif %}
-          </main>
-          {% endblock %}
-
-      </div>
+{% block docs_main %}
+{% if sidebars %}
+  {% set content_col_class = "col-md-9 col-xl-7" %}
+{% else %}
+  {% set content_col_class = "col-md-12" %}
+{% endif %}
+<main class="col-12 {{ content_col_class }} py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+    {% block docs_body %}
+    <div>
+      {% block body %} {% endblock %}
     </div>
-
-    {{ _webpack.body_post() }}
-
-    {% if theme_google_analytics_id %}
-    <!-- Google Analytics -->
-    <script>
-      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-      ga('create', '{{ theme_google_analytics_id }}', 'auto');
-      ga('set', 'anonymizeIp', true);
-      ga('send', 'pageview');
-    </script>
-    <script async src='https://www.google-analytics.com/analytics.js'></script>
-    <!-- End Google Analytics -->
+    {% endblock %}
+    {% if theme_show_prev_next %}
+    <div class='prev-next-bottom'>
+      {{ prev_next(prev, next) }}
+    </div>
     {% endif %}
-    <script>
-      const BOKEH_CURRENT_VERSION = "{{ VERSION }}"
-
-      $(document).ready(function () {
-        const randid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        $.getJSON('/versions.json?v=' + randid , function (data) {
-            if (BOKEH_CURRENT_VERSION != data.latest) {
-              let msg
-              if (data.all.indexOf(BOKEH_CURRENT_VERSION) < 0 ) {
-                msg = "DEVELOPMENT / PRE-RELEASE"
-              }
-              else {
-                msg = "PREVIOUS RELEASE"
-              }
-              const content = $('<div class="version-alert">This page is documentation for a ' + msg + ' version. For the latest release, go to <a href="https://docs.bokeh.org/en/latest/">https://docs.bokeh.org/en/latest/</a></div>')
-              $('#banner').append(content);
-            }
-            for (let i = 0; i < data.menu.length; i++) {
-              const link = "https://docs.bokeh.org/en/" + data.menu[i]
-              $('#version-menu').append('<a class="dropdown-item" href="' + link + '">' + data.menu[i] + '</a>')
-            }
-        })
-      })
-    </script>
-
-    <script>
-      $(document).ready(function () {
-        $.get('/alert.html', function (data) {
-            if (data.length > 0) {
-              const content = $('<div class="news-alert">' + data + '</div>')
-              $('#banner').prepend(content);
-            }
-        })
-      })
-    </script>
-{%- endblock %}
+</main>
+{% endblock %}
 
 {%- block footer %}
+{%- include "scripts.html" %}
 {%- include "footer.html" %}
 {%- endblock %}

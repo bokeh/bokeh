@@ -4,27 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a table of data regarding bachelors degrees earned by women,
-broken down by field for any given year. It exposes an attribute ``data`` which
-is a pandas DataFrame with the following fields:
+''' Provide a table of data regarding bachelor's degrees earned by women.
 
-    Year
-    Agriculture
-    Architecture
-    Art and Performance
-    Biology
-    Business
-    Communications and Journalism
-    Computer Science,Education
-    Engineering
-    English
-    Foreign Languages
-    Health Professions
-    Math and Statistics
-    Physical Sciences
-    Psychology
-    Public Administration
-    Social Sciences and History
+The data is broken down by field for any given year.
+
+This module contains one pandas Dataframe: ``data``.
+
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.degrees.data`
 
 '''
 

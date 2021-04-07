@@ -39,9 +39,6 @@ of Bokeh models, or mark methods on Models as warning or error checks.
 
 .. autofunction:: bokeh.core.validation.decorators.warning
 
-.. |bokeh.models| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`

@@ -4,13 +4,19 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' The data in airports.csv and routes.csv is a subset (limited to US airports)
-of data available from OpenFlights.org. The complete data was collected on
-September 07, 2017 and is available from:
+''' Airport routes data from OpenFlights.org.
 
-.. code-block:: none
+Sourced from https://openflights.org/data.html on September 07, 2017.
 
-    https://openflights.org/data.html
+This module contains two pandas Dataframes: ``airports`` and ``routes``.
+
+.. rubric:: ``airports``
+
+:bokeh-dataframe:`bokeh.sampledata.airport_routes.airports`
+
+.. rubric:: ``routes``
+
+:bokeh-dataframe:`bokeh.sampledata.airport_routes.routes`
 
 '''
 

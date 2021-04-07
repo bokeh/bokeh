@@ -1117,8 +1117,6 @@ You can see a complete example with output in the section
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 
 .. |bokeh.models.formatters| replace:: :ref:`bokeh.models.formatters <bokeh.models.formatters>`

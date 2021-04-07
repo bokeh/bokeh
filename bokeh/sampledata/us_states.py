@@ -4,15 +4,23 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-This modules exposes geometry data for Unites States. It exposes a dictionary 'data' which is
-indexed by the two letter state code (e.g., 'CA', 'TX') and has the following dictionary as the
-associated value:
+''' Geometry data for US States.
 
-    data['CA']['name']
-    data['CA']['region']
-    data['CA']['lats']
-    data['CA']['lons']
+This module contains one dict: ``data``.
+
+The data is indexed by the two letter state code (e.g., 'CA', 'TX') and has the
+following structure:
+
+.. code-block:: python
+
+    In [4]: data["OR"]
+    Out[4]:
+    {
+        'name': 'Oregon',
+        'region': 'Northwest',
+        'lats': [46.29443, ..., 46.26068],
+        'lons': [-124.03622, ..., -124.15935]
+    }
 
 '''
 
