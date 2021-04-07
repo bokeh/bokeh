@@ -16,8 +16,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os import chdir
-from subprocess import run
+import json
 
 # Bokeh imports
 from . import TOP_PATH
@@ -26,13 +25,27 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-def test_eslint() -> None:
-    ''' Assures that the BokehJS codebase passes configured eslint checks
+paths = [
+    "bokeh/_sri.json",
+    "bokeh/util/sampledata.json",
+    "sphinx/source/docs/gallery.json",
+    "sphinx/versions.json",
+]
+
+def test_json() -> None:
+    ''' Assures that JSON files are properly formatted
 
     '''
-    chdir(TOP_PATH/"bokehjs")
-    proc = run(["node", "make", "lint"], capture_output=True)
-    assert proc.returncode == 0, f"eslint issues:\n{proc.stdout.decode('utf-8')}"
+    bad = []
+
+    for path in paths:
+        f = open(TOP_PATH/path)
+        try:
+            json.load(f)
+        except Exception:
+            bad.append(path)
+
+    assert len(bad) == 0, "Malformed JSON detected:\n" + ",".join(bad)
 
 #-----------------------------------------------------------------------------
 # Support

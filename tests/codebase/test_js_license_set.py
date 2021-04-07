@@ -17,7 +17,7 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-from subprocess import PIPE, Popen
+from subprocess import run
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -42,11 +42,6 @@ def test_js_license_set() -> None:
 
     '''
     os.chdir('bokehjs')
-    proc = Popen([
-        "npx", "license-checker", "--production", "--summary", "--onlyAllow", "%s" % ";".join(LICENSES)
-    ],stdout=PIPE)
-    proc.communicate()
-    proc.wait()
-    os.chdir('..')
-    if proc.returncode != 0:
-        assert False
+    cmd = ["npx", "license-checker", "--production", "--summary", "--onlyAllow", ";".join(LICENSES)]
+    proc = run(cmd)
+    assert proc.returncode == 0, "New BokehJS licenses detected"

@@ -7,12 +7,16 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import abspath, join, pardir, split
+from pathlib import Path
 from subprocess import run
 from typing import List
 
-TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
+TOP_PATH = Path(__file__).resolve().parent.parent.parent
 
 def ls_files(*patterns: str) -> List[str]:
     proc = run(["git", "ls-files", "--", *patterns], capture_output=True)
     return proc.stdout.decode("utf-8").split("\n")
+
+def verify_clean_imports(target: str, modules: List[str]) -> str:
+    imports =  ";".join(f"import {m}" for m in modules)
+    return f"import sys; {imports}; sys.exit(1 if any({target!r} in x for x in sys.modules.keys()) else 0)"
