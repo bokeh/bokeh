@@ -6,6 +6,8 @@ import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./markers.vert"
 import marker_fragment_shader from "./markers.frag"
 import {MarkerType} from "core/enums"
+import rect_vertex_shader from "./rect.vert"
+import rect_fragment_shader from "./rect.frag"
 
 
 // All access to regl is performed via the get_regl() function that returns a
@@ -34,6 +36,7 @@ export class ReglWrapper {
   private _dashed_line: ReglRenderFunction
   private _line_mesh: ReglRenderFunction
   private _marker_map: Map<MarkerType, ReglRenderFunction>
+  private _rect: ReglRenderFunction
 
   constructor(gl: WebGLRenderingContext) {
     try {
@@ -82,6 +85,12 @@ export class ReglWrapper {
       this._marker_map.set(marker_type, func)
     }
     return func
+  }
+
+  public rect(): ReglRenderFunction {
+    if (this._rect === undefined)
+      this._rect = regl_rect(this._regl)
+    return this._rect
   }
 
   public solid_line(): ReglRenderFunction {
@@ -358,6 +367,69 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
       },
       a_size: (_: any, props: any) => {
         return one_each_or_constant(props.size, 1, false, props.nmarkers)
+      },
+      a_angle: (_: any, props: any) => {
+        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
+      },
+      a_linewidth: (_: any, props: any) => {
+        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
+      },
+      a_line_color: (_: any, props: any) => {
+        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
+      },
+      a_fill_color: (_: any, props: any) => {
+        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      },
+      a_show: {
+        buffer: regl.prop('show'),
+        normalized: true,
+        divisor: 1,
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
+      u_antialias: regl.prop('antialias'),
+    },
+
+    count: 4,
+    primitive: 'triangle fan',
+    instances: regl.prop('nmarkers'),
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   'one',
+        srcAlpha: 'one',
+        dstRGB:   'one minus src alpha',
+        dstAlpha: 'one minus src alpha',
+      },
+    },
+    depth: {enable: false},
+  })
+}
+
+
+function regl_rect(regl: any): ReglRenderFunction {
+  return regl({
+    vert: rect_vertex_shader,
+    frag: rect_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
+        divisor: 0,
+      },
+      a_center: {
+        buffer: regl.prop('center'),
+        divisor: 1,
+      },
+      a_width: (_: any, props: any) => {
+        return one_each_or_constant(props.width, 1, false, props.nmarkers)
+      },
+      a_height: (_: any, props: any) => {
+        return one_each_or_constant(props.height, 1, false, props.nmarkers)
       },
       a_angle: (_: any, props: any) => {
         return one_each_or_constant(props.angle, 1, false, props.nmarkers)

@@ -1,10 +1,7 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
-import type {GlyphView} from "../glyph"
-import type {ScatterView} from "../scatter"
-import type {CircleView} from "../circle"
 import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
-import {MarkerType} from "core/enums"
+import {RectView} from "../rect"
 
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -13,22 +10,12 @@ import {MarkerType} from "core/enums"
 const missing_point = -10000
 
 
-type MarkerLikeView = ScatterView | CircleView
-
-// XXX: this is needed to cut circular dependency between this and models/glyphs/circle
-function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
-  return glyph_view.model.type == "Circle"
-}
-
-// Base class for markers. All markers share the same GLSL, except for one
-// function in the fragment shader that defines the marker geometry and is
-// enabled through a #define.
-export class MarkerGL extends BaseGLGlyph {
-  protected _marker_type: MarkerType
+export class RectGL extends BaseGLGlyph {
   protected _antialias: number
 
   protected _centers: Float32Array
-  protected _sizes: number[] | Float32Array
+  protected _widths: Float32Array
+  protected _heights: Float32Array
   protected _angles: number[] | Float32Array
   protected _linewidths: number[] | Float32Array
   protected _line_rgba: Uint8Array
@@ -36,59 +23,19 @@ export class MarkerGL extends BaseGLGlyph {
   protected _show: Uint8Array
   protected _show_all: boolean
 
-  static is_supported(marker_type: MarkerType): boolean {
-    switch (marker_type) {
-      case "asterisk":
-      case "circle":
-      case "circle_cross":
-      case "circle_dot":
-      case "circle_x":
-      case "circle_y":
-      case "cross":
-      case "dash":
-      case "diamond":
-      case "diamond_cross":
-      case "diamond_dot":
-      case "dot":
-      case "hex":
-      case "hex_dot":
-      case "inverted_triangle":
-      case "plus":
-      case "square":
-      case "square_cross":
-      case "square_dot":
-      case "square_pin":
-      case "square_x":
-      case "star":
-      case "star_dot":
-      case "triangle":
-      case "triangle_dot":
-      case "triangle_pin":
-      case "x":
-      case "y":
-        return true
-      default:
-        return false
-    }
-  }
-
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+  constructor(regl_wrapper: ReglWrapper, readonly glyph: RectView) {
     super(regl_wrapper, glyph)
 
-    this._marker_type = marker_type
-    this._antialias = 0.8
-    this._show_all = false
+    this._antialias = 1.5
   }
 
-  draw(indices: number[], main_glyph: MarkerLikeView, transform: Transform): void {
+  draw(indices: number[], main_glyph: RectView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
     const mainGlGlyph = main_glyph.glglyph!
 
-    // Temporary solution for circles to always force call to _set_data.
-    // Correct solution depends on keeping the webgl properties constant and
-    // only changing the indices, which in turn depends on the correct webgl
-    // instanced rendering.
-    if (mainGlGlyph.data_changed || is_CircleView(this.glyph)) {
+    console.log(indices, main_glyph, transform)
+
+    if (mainGlGlyph.data_changed) {
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
@@ -119,11 +66,12 @@ export class MarkerGL extends BaseGLGlyph {
         this._show[i] = 255
     }
 
-    this.regl_wrapper.marker(this._marker_type)({
+    this.regl_wrapper.rect()({
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
       center: mainGlGlyph._centers,
-      size: mainGlGlyph._sizes,
+      width: mainGlGlyph._widths,
+      height: mainGlGlyph._heights,
       angle: mainGlGlyph._angles,
       nmarkers,
       antialias: this._antialias,
@@ -150,13 +98,8 @@ export class MarkerGL extends BaseGLGlyph {
       }
     }
 
-    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
-      this._sizes = new Float32Array(nmarkers)
-      for (let i = 0; i < nmarkers; i++)
-        this._sizes[i] = this.glyph.sradius[i]*2
-    } else
-      this._sizes = prop_as_array(this.glyph.size)
-
+    this._widths = this.glyph.sw
+    this._heights = this.glyph.sh
     this._angles = prop_as_array(this.glyph.angle)
   }
 
