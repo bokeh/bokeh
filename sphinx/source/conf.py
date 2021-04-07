@@ -53,7 +53,7 @@ extensions = [
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
-needs_sphinx = '1.8'
+needs_sphinx = '3.5'
 
 rst_epilog = """
 .. |bokeh.models|       replace:: :ref:`bokeh.plotting <bokeh.plotting>`
