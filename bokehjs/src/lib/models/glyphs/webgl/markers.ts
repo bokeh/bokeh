@@ -1,7 +1,8 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
-import {ScatterView} from "../scatter"
-import {CircleView} from "../circle"
+import type {GlyphView} from "../glyph"
+import type {ScatterView} from "../scatter"
+import type {CircleView} from "../circle"
 import {MarkerType} from "core/enums"
 import {uint32} from "core/types"
 import {Uniform} from "core/uniforms"
@@ -16,6 +17,10 @@ const missing_point = -10000
 
 type MarkerLikeView = ScatterView | CircleView
 
+// XXX: this is needed to cut circular dependency between this and models/glyphs/circle
+function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
+  return glyph_view.model.type == "Circle"
+}
 
 function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): Uint8Array {
   const ncolors: number = Math.max(color_prop.length, alpha_prop.length)
@@ -115,7 +120,7 @@ export class MarkerGL extends BaseGLGlyph {
     // Correct solution depends on keeping the webgl properties constant and
     // only changing the indices, which in turn depends on the correct webgl
     // instanced rendering.
-    if (mainGlGlyph.data_changed || this.glyph instanceof CircleView) {
+    if (mainGlGlyph.data_changed || is_CircleView(this.glyph)) {
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
@@ -177,7 +182,7 @@ export class MarkerGL extends BaseGLGlyph {
       }
     }
 
-    if (this.glyph instanceof CircleView && this.glyph.radius != null) {
+    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
       this._sizes = new Float32Array(nmarkers)
       for (let i = 0; i < nmarkers; i++)
         this._sizes[i] = this.glyph.sradius[i]*2

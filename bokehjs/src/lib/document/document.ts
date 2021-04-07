@@ -8,6 +8,7 @@ import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
+import {ndarray} from "core/util/ndarray"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
@@ -376,7 +377,8 @@ export class Document {
         else
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (is_NDArray_ref(v)) {
-        return decode_NDArray(v, buffers)
+        const {buffer, dtype, shape} = decode_NDArray(v, buffers)
+        return ndarray(buffer, {dtype, shape})
       } else if (isArray(v))
         return resolve_array(v)
       else if (isPlainObject(v))

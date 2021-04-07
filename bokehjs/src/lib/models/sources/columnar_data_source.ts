@@ -22,7 +22,6 @@ export namespace ColumnarDataSource {
   export type Props = DataSource.Props & {
     data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
     selection_policy: p.Property<SelectionPolicy>
-    selection_manager: p.Property<SelectionManager>
     inspected: p.Property<Selection>
   }
 }
@@ -51,6 +50,8 @@ export abstract class ColumnarDataSource extends DataSource {
   streaming: Signal0<this>
   patching: Signal<number[], this>
 
+  readonly selection_manager = new SelectionManager(this)
+
   constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
     super(attrs)
   }
@@ -61,7 +62,6 @@ export abstract class ColumnarDataSource extends DataSource {
     }))
 
     this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
-      selection_manager: [ AnyRef(), (self) => new SelectionManager({source: self as ColumnarDataSource}) ],
       inspected:         [ AnyRef(), () => new Selection() ],
     }))
   }

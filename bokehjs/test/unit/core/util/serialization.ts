@@ -20,7 +20,10 @@ describe("serialization module", () => {
     })
     expect(buffers0).to.be.equal(new Map([["0", nd0.buffer]]))
 
-    const deref0_0 = decode_NDArray(ref0_0, buffers0)
+    const deref0_0 = (() => {
+      const {buffer, dtype, shape} = decode_NDArray(ref0_0, buffers0)
+      return ndarray(buffer, {dtype, shape})
+    })()
     expect(deref0_0).to.be.equal(nd0)
     expect(() => decode_NDArray(ref0_0, new Map())).to.throw()
 
@@ -32,7 +35,10 @@ describe("serialization module", () => {
       shape: [2, 3],
     })
 
-    const deref0_1 = decode_NDArray(ref0_1, new Map())
+    const deref0_1 = (() => {
+      const {buffer, dtype, shape} = decode_NDArray(ref0_1, new Map())
+      return ndarray(buffer, {dtype, shape})
+    })()
     expect(deref0_1).to.be.equal(nd0)
   })
 })

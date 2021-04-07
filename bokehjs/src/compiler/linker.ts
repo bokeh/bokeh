@@ -296,7 +296,7 @@ export class Linker {
     this.plugin = opts.plugin ?? false
 
     this.shims = new Set(opts.shims ?? [])
-    this.detect_cycles = opts.detect_cycles ?? false
+    this.detect_cycles = opts.detect_cycles ?? true
   }
 
   is_external(dep: string): boolean {
