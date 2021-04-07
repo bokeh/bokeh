@@ -1,10 +1,9 @@
+import {DataType, TypedArray} from "../types"
 import {isObject, isArray} from "./types"
 import {unreachable} from "./assert"
 import {equals, Equatable, Comparator} from "./eq"
 import {serialize, Serializable, Serializer} from "../serializer"
 import {encode_NDArray} from "./serialization"
-
-export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
 
 const __ndarray__ = Symbol("__ndarray__")
 
@@ -192,12 +191,6 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
     return encode_NDArray(this)
   }
 }
-
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
 
 export type NDArray =
   Uint8NDArray   | Int8NDArray    |

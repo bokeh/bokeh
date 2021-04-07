@@ -1,4 +1,4 @@
-import {TypedArray} from "../types"
+import {DataType} from "../types"
 
 export function buffer_to_base64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
@@ -16,12 +16,10 @@ export function base64_to_buffer(base64: string): ArrayBuffer {
   return bytes.buffer
 }
 
-type Array16 = Int16Array | Uint16Array
-type Array32 = Int32Array | Uint32Array | Float32Array
-type Array64 = Float64Array
+// NOTE: swap{16,32,64} assume byteOffset == 0
 
-function swap16(a: Array16): void {
-  const x = new Uint8Array(a.buffer, a.byteOffset, a.length * 2)
+function swap16(buffer: ArrayBuffer): void {
+  const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 2) {
     const t = x[i]
     x[i] = x[i + 1]
@@ -29,8 +27,8 @@ function swap16(a: Array16): void {
   }
 }
 
-function swap32(a: Array32): void {
-  const x = new Uint8Array(a.buffer, a.byteOffset, a.length * 4)
+function swap32(buffer: ArrayBuffer): void {
+  const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 4) {
     let t = x[i]
     x[i] = x[i + 3]
@@ -41,8 +39,8 @@ function swap32(a: Array32): void {
   }
 }
 
-function swap64(a: Array64): void {
-  const x = new Uint8Array(a.buffer, a.byteOffset, a.length * 8)
+function swap64(buffer: ArrayBuffer): void {
+  const x = new Uint8Array(buffer)
   for (let i = 0, end = x.length; i < end; i += 8) {
     let t = x[i]
     x[i] = x[i + 7]
@@ -59,16 +57,19 @@ function swap64(a: Array64): void {
   }
 }
 
-export function swap(array: TypedArray): void {
-  switch (array.BYTES_PER_ELEMENT) {
-    case 2:
-      swap16(array as Array16)
+export function swap(buffer: ArrayBuffer, dtype: DataType): void {
+  switch (dtype) {
+    case "uint16":
+    case "int16":
+      swap16(buffer)
       break
-    case 4:
-      swap32(array as Array32)
+    case "uint32":
+    case "int32":
+    case "float32":
+      swap32(buffer)
       break
-    case 8:
-      swap64(array as Array64)
+    case "float64":
+      swap64(buffer)
       break
   }
 }
