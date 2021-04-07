@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Route data (including atltitde) for a bike race in eastern Europe.
+''' Route data (including altitude) for a bike race in Eastern Europe.
 
 This module contains one pandas Dataframe: ``obiszow_mtb_xcm``.
 

@@ -11,7 +11,7 @@ Sourced from https://www.gapminder.org/data/
 Licensed under `CC-BY`_.
 
 This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
-``population`` and ``regions``.
+``population``, and ``regions``.
 
 .. rubric:: ``fertility``
 

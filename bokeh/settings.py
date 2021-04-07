@@ -473,7 +473,7 @@ class Settings:
     """)
 
     docs_alert = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
-    Text for an alert banner to dispay when locally building the docs (for
+    Text for an alert banner to display when building the docs locally (for
     testing the alert banner capability).
     """)
 

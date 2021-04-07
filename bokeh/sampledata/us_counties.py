@@ -8,7 +8,7 @@
 
 This module contains one dict: ``data``.
 
-The data is indexed by two-tuples of `` (state_id, county_id)`` two-tuples that
+The data is indexed by two-tuples of `` (state_id, county_id)`` that
 have the following dictionaries as values:
 
 .. code-block:: ipython

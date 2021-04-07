@@ -59,10 +59,10 @@ __all__ = (
 
 
 def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Generate an inline visual representations of a single color palette.
+    """Generate an inline visual representation of a single color palette.
 
-    If evaluating the dataframe HTML repr fails, then a SphinxError is raised to
-    terminate the build.
+    If the HTML representation of the dataframe can not be created, a
+    SphinxError is raised to terminate the build.
 
     For details on the arguments to this function, consult the Docutils docs:
 

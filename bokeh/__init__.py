@@ -8,7 +8,7 @@
 web browsers.
 
 Bokeh helps you build beautiful graphics, ranging from simple plots to complex
-dashboards with streaming datasets. With Bokeh you can create JavaScript-powered
+dashboards with streaming datasets. With Bokeh, you can create JavaScript-powered
 visualizations without writing any JavaScript yourself.
 
 Most of the functionality of Bokeh is accessed through submodules such as

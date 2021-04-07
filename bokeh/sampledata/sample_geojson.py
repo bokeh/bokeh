@@ -6,9 +6,12 @@
 #-----------------------------------------------------------------------------
 ''' Provide geojson data for the UK NHS England area teams.
 
-Sourced from https://github.com/JeniT/nhs-choices
+Sourced from https://github.com/JeniT/nhs-choices with data licensed under the
+`Open Government Licence`_.
 
 A snapshot of data available from NHS Choices on November 14th, 2015.
+
+.. _Open Government Licence: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/
 
 '''
 

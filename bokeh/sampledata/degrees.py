@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a table of data regarding bachelors degrees earned by women.
+''' Provide a table of data regarding bachelor's degrees earned by women.
 
 The data is broken down by field for any given year.
 

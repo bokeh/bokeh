@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' A calendar file of US Holidays from Mozilla provided by `icalendar`_.
+''' Calendar file of US Holidays from Mozilla provided by `icalendar`_.
 
 Sourced from: https://www.mozilla.org/en-US/projects/calendar/holidays/
 
