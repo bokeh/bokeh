@@ -151,7 +151,8 @@ use with Bokeh. Because this sample data is rather large, it is not included in
 Bokeh's installation packages.
 
 In `Bokeh's GitHub repository`_, you can find a number of examples. Those
-examples also use this sample data.
+examples also use this sample data. See :ref:`bokeh.sampledata` for more
+information on the data sets included in Bokeh's sample data.
 
 After installing Bokeh, you can automatically download and install the
 sample data with this command:

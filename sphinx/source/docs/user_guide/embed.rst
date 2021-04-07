@@ -596,9 +596,6 @@ Here's a full template with all the sections that you can override:
     </html>
 
 
-.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`

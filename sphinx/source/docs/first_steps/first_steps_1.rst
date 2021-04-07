@@ -193,7 +193,6 @@ Bokeh's |bokeh.plotting| interface require:
     :height: 19px
     :alt: Help symbol
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`

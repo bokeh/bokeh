@@ -4,7 +4,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Time series of commits for a GitHub user between 2012 and 2016.
+
+This module contains one pandas Dataframe: ``data``.
+
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.commits.data`
 
 '''
 

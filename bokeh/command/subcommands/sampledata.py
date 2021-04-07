@@ -22,6 +22,9 @@ Executing this command is equivalent to running the Python code
 
     bokeh.sampledata.download()
 
+See :ref:`bokeh.sampledata` for more information on the specific data sets
+included in Bokeh's sample data.
+
 '''
 
 #-----------------------------------------------------------------------------

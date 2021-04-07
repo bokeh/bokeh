@@ -4,7 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' A version of the Auto MPG data set.
+
+Derived from https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+This module contains one pandas Dataframe: ``autompg``.
+
+.. rubric:: ``autompg2``
+
+:bokeh-dataframe:`bokeh.sampledata.autompg2.autompg2`
 
 '''
 

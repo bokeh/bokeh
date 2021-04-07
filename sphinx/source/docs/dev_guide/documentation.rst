@@ -100,7 +100,8 @@ Bokeh uses Sphinx_ to generate the HTML files displayed at docs.bokeh.org_. The
 documentation is written in reStructuredText_ (ReST).
 
 HTML is the only output format supported by Bokeh's documentation. Many pages
-use dynamic content and rely heavily on JavaScript.
+use dynamic content and rely heavily on JavaScript. Bokeh's documentation also
+uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
 
 Preparing your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

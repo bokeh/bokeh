@@ -278,8 +278,6 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 
-.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`

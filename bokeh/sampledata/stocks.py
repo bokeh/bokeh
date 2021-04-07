@@ -4,12 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide recorded stock data for the following stocks:
+''' Provide historical ticker data for selected stocks.
 
-    AAPL, FB, GOOG, IBM, MSFT
+This module contains five dicts: ``AAPL``, ``FB``, ``GOOG``, ``IBM``, and ``MSFT``.
 
-Each eries is available as an attribute on the module (e.g., ``stocks.AAPL``)
-and the value is a dictionary with the structure:
+Each dictionary has the structure:
 
 .. code-block:: python
 

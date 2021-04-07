@@ -4,7 +4,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Time series of historical average sea surface temperatures.
+
+This module contains one pandas Dataframe: ``sea_surface_temperature``.
+
+.. rubric:: ``sea_surface_temperature``
+
+:bokeh-dataframe:`bokeh.sampledata.sea_surface_temperature.sea_surface_temperature`
 
 '''
 

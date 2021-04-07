@@ -1,11 +1,6 @@
-# Makefile for Sphinx documentation
-
-# You can set these variables from the command line.
-SPHINXBUILD = sphinx-build
-BUILDDIR    = build
-
-# Internal variables.
-ALLSPHINXOPTS = -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source -W
+# These variables can be set from the command line.
+BUILDDIR = build
+SPHINXOPTS =
 
 .PHONY: help clean html serve
 
@@ -23,7 +18,7 @@ clean:
 	-rm -rf source/docs/gallery/*
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	sphinx-build -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source -W $(BUILDDIR)/html
 	cp -r ../bokeh/server/static $(BUILDDIR)/html/
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

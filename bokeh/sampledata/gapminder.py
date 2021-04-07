@@ -4,10 +4,32 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a pandas DataFrame instance of four of the datasets from
-gapminder.org. The data sets in this module are:
+''' Four of the datasets from Gapminder.
 
-    fertility, life_expectancy, population, regions
+Sourced from https://www.gapminder.org/data/
+
+Licensed under `CC-BY`_.
+
+This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
+``population``, and ``regions``.
+
+.. rubric:: ``fertility``
+
+:bokeh-dataframe:`bokeh.sampledata.gapminder.fertility`
+
+.. rubric:: ``life_expectancy``
+
+:bokeh-dataframe:`bokeh.sampledata.gapminder.life_expectancy`
+
+.. rubric:: ``population``
+
+:bokeh-dataframe:`bokeh.sampledata.gapminder.population`
+
+.. rubric:: ``life_expectancy``
+
+:bokeh-dataframe:`bokeh.sampledata.gapminder.regions`
+
+.. _CC-BY: https://creativecommons.org/licenses/by/2.0/
 
 '''
 

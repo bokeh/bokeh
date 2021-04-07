@@ -4,14 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' The data in airports.json is a subset of US airports with field
-elevations > 1500 meters. The query result was taken from
+''' US airports with field elevations > 1500 meters.
 
-.. code-block:: none
+Sourced from http://services.nationalmap.gov on October 15, 2015.
 
-    http://services.nationalmap.gov/arcgis/rest/services/GlobalMap/GlobalMapWFS/MapServer/10/query
+This module contains one pandas Dataframe: ``data``.
 
-on October 15, 2015.
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.airports.data`
 
 '''
 
@@ -61,7 +62,7 @@ def _read_data():
         content = f.read()
         airports = json.loads(content)
         schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
-        data = pd.io.json.json_normalize(airports['features'], meta=schema)
+        data = pd.json_normalize(airports['features'], meta=schema)
         data.rename(columns={'attributes.nam': 'name', 'attributes.zv3': 'elevation'}, inplace=True)
         data.rename(columns={'geometry.x': 'x', 'geometry.y': 'y'}, inplace=True)
     return data
