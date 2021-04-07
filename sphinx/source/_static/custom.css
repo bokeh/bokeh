@@ -43,9 +43,6 @@
 
 .links-item { margin-top: 30px; }
 
-.footer-copy p { background-color: #242729; color: #eee; font-family: "Lato", sans-serif; font-size: 12px; padding: 10px 0; }
-.footer-copy p { color: #eee; padding: 0; margin: 0; }
-
 ul.gallery li {
     list-style-type: none;
     float:left
@@ -212,14 +209,17 @@ using sphinx_panels */
 /* style footer */
 .footer-copy {
     background-color: #242729;
+    font-family: "Lato", sans-serif;
     color: #eee;
     font-size: 12px;
-    padding: 10px 0; }
+    padding: 5px 0; }
+
 
 .footer-copy p {
     padding: 0;
     margin: 0;
 }
+
 
 footer.links h6 {
     margin: 0px;
