@@ -6,9 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide a Haar cascade file for face recognition.
 
-This modules contains an attribute ``frontalface_default_path`` that contains
-the path to a Haar cascade for frontal face recognition that can be used by
-OpenCV.
+This module contains an attribute ``frontalface_default_path`` . Use this
+attribute to obtain the path to a Haar cascade file for frontal face
+recognition that can be used by OpenCV.
 
 '''
 
