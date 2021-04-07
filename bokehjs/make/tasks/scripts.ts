@@ -124,7 +124,7 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
     target: "ES2017",
     exports: ["tslib"],
-    detect_cycles: argv.detectCycles === true,
+    detect_cycles: argv.detectCycles as boolean | undefined,
   })
 
   if (!argv.rebuild) linker.load_cache()

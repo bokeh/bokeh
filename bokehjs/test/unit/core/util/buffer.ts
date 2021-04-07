@@ -18,7 +18,7 @@ describe("serialization module", () => {
       swapped[1] = 0
       swapped[2] = 3
       swapped[3] = 2
-      swap(b)
+      swap(b.buffer, "uint16")
       expect(a).to.be.equal(swapped)
     })
 
@@ -38,7 +38,7 @@ describe("serialization module", () => {
       swapped[5] = 6
       swapped[6] = 5
       swapped[7] = 4
-      swap(b)
+      swap(b.buffer, "float32")
       expect(a).to.be.equal(swapped)
     })
 
@@ -66,7 +66,7 @@ describe("serialization module", () => {
       swapped[13] = 10
       swapped[14] = 9
       swapped[15] = 8
-      swap(b)
+      swap(b.buffer, "float64")
       expect(a).to.be.equal(swapped)
     })
   })
