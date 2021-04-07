@@ -23,11 +23,13 @@ import base64
 import datetime  # lgtm [py/import-and-import-from]
 import re
 from io import BytesIO
+from pathlib import Path
 
 # External imports
 import PIL.Image
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
@@ -143,6 +145,8 @@ class Image(Property):
 
     This property can be configured with:
 
+    * A ``pathlib.Path`` image file path
+    * A data URL encoded image string
     * A string filename to be loaded with ``PIL.Image.open``
     * An RGB(A) NumPy array, will be converted to PNG
     * A ``PIL.Image.Image`` object
@@ -154,7 +158,7 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        if isinstance(value, (str, PIL.Image.Image)):
+        if isinstance(value, (str, Path, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -169,7 +173,14 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
+        if isinstance(value, str) and value.startswith("data:image/"):
+            return value
+
         if isinstance(value, str):
+            deprecated((2, 4, 0), "raw string path", "pathlib.Path")
+            value = Path(value)
+
+        if isinstance(value, Path):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):

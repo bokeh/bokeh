@@ -49,3 +49,8 @@ Units properties must now be configured with an ``units_enum`` that is an
     units_type=Enum(SpatialUnits) # NOT this
 
 This is only of potential interest to custom extensions.
+
+Raw string paths in ``Image`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``pathlib.Path`` instead.

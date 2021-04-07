@@ -18,6 +18,7 @@ import pytest ; pytest
 import base64
 import datetime
 from io import BytesIO
+from pathlib import Path
 
 # External imports
 import numpy as np
@@ -220,9 +221,17 @@ class Test_Image:
         prop = bcpv.Image()
         assert not prop.is_valid(None)
 
-    def test_validate_string(self) -> None:
+    def test_validate_data_url(self) -> None:
         prop = bcpv.Image()
-        assert prop.is_valid("string")
+        assert prop.is_valid("data:image/png;base64,")
+
+    def test_validate_Path(self) -> None:
+        prop = bcpv.Image()
+        assert prop.is_valid(Path("some/path"))
+
+    def test_validate_raw_path(self) -> None:
+        prop = bcpv.Image()
+        assert prop.is_valid("some/path")
 
     @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
     def test_validate_PIL(self, typ) -> None:
@@ -258,6 +267,11 @@ class Test_Image:
 
         data = np.zeros((50, 50), dtype=np.uint8)
         assert not prop.is_valid(data)
+
+    def test_transform_data_url(self) -> None:
+        prop = bcpv.Image()
+        image = "data:image/png;base64,"
+        assert prop.transform(image) == image
 
     def test_transform_numpy(self) -> None:
         data = np.zeros((50, 50, 3), dtype=np.uint8)
