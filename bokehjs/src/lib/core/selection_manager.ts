@@ -4,9 +4,17 @@ import {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
 import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
-import {GlyphRendererView} from "models/renderers/glyph_renderer"
-import {GraphRendererView} from "models/renderers/graph_renderer"
+import type {GlyphRendererView} from "models/renderers/glyph_renderer"
+import type {GraphRendererView} from "models/renderers/graph_renderer"
 import * as p from "./properties"
+
+// XXX: this is needed to cut circular dependency between this, models/renderers/* and models/sources/*
+function is_GlyphRendererView(renderer_view: DataRendererView): renderer_view is GlyphRendererView {
+  return renderer_view.model.type == "GlyphRenderer"
+}
+function is_GraphRendererView(renderer_view: DataRendererView): renderer_view is GraphRendererView {
+  return renderer_view.model.type == "GraphRenderer"
+}
 
 export namespace SelectionManager {
   export type Props = HasProps.Props & {
@@ -38,9 +46,9 @@ export class SelectionManager extends HasProps {
     const glyph_renderer_views: GlyphRendererView[] = []
     const graph_renderer_views: GraphRendererView[] = []
     for (const r of renderer_views) {
-      if (r instanceof GlyphRendererView)
+      if (is_GlyphRendererView(r))
         glyph_renderer_views.push(r)
-      else if (r instanceof GraphRendererView)
+      else if (is_GraphRendererView(r))
         graph_renderer_views.push(r)
     }
 
@@ -63,7 +71,7 @@ export class SelectionManager extends HasProps {
   inspect(renderer_view: DataRendererView, geometry: Geometry): boolean {
     let did_hit = false
 
-    if (renderer_view instanceof GlyphRendererView) {
+    if (is_GlyphRendererView(renderer_view)) {
       const hit_test_result = renderer_view.hit_test(geometry)
       if (hit_test_result != null) {
         did_hit = !hit_test_result.is_empty()
@@ -72,7 +80,7 @@ export class SelectionManager extends HasProps {
         this.source.setv({inspected: inspection}, {silent: true})
         this.source.inspect.emit([renderer_view.model, {geometry}])
       }
-    } else if (renderer_view instanceof GraphRendererView) {
+    } else if (is_GraphRendererView(renderer_view)) {
       const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
       did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, "replace")
     }
