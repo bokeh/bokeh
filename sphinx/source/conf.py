@@ -31,6 +31,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'autoclasstoc',
     'sphinxext.opengraph',
     'sphinx_panels',
 #    'sphinx_reredirects',
@@ -65,6 +66,11 @@ needs_sphinx = '3.5'
 rst_epilog = open("rst_epilogue.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
+
+autoclasstoc_sections = [
+        'public-attrs',
+        'public-methods',
+]
 
 autodoc_member_order = 'groupwise'
 
