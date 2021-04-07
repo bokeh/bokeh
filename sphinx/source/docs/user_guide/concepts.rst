@@ -145,7 +145,7 @@ in the Python code, in a YAML configuration file, or with environment variables,
 for example. A full list of all available settings and how to change them is
 available at :ref:`bokeh.settings`.
 
-Some of most commonly used settings are:
+Some of most useful settings are:
 
 * ``browser`` (environment variable ``BOKEH_BROWSER``): Set this configuration
   value to the browser you want Bokeh to use (for example when calling

@@ -454,7 +454,7 @@ class Settings:
     browser = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
     The default browser that Bokeh should use to show documents with.
 
-    Valid values are any of the predefined browser names understood of the
+    Valid values are any of the predefined browser names understood by the
     Python standard library webbrowser_ module.
 
     .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
