@@ -4,11 +4,8 @@ import {ReglWrapper} from "./regl_wrap"
 import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
+import {cap_lookup, join_lookup} from "./webgl_utils"
 
-
-const cap_lookup = {butt: 0, round: 1, square: 2}
-
-const join_lookup = {miter: 0, round: 1, bevel: 2}
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative

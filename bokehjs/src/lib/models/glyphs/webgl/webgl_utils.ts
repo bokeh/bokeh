@@ -1,6 +1,14 @@
+import {LineJoin} from "core/enums"
 import {Uniform} from "core/uniforms"
 import {color2rgba} from "core/util/color"
 import {uint32} from "core/types"
+
+
+// WebGL shaders use integers for caps, joins and hatching.
+export const cap_lookup = {butt: 0, round: 1, square: 2}
+
+export const join_lookup = {miter: 0, round: 1, bevel: 2}
+
 
 export function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): Uint8Array {
   const ncolors: number = Math.max(color_prop.length, alpha_prop.length)
@@ -25,6 +33,19 @@ export function prop_as_array(prop: Uniform<number>): number[] | Float32Array {
     const array = new Float32Array(prop.length)
     for (let i = 0; i < prop.length; i++)
       array[i] = prop.get(i)
+    return array
+  }
+}
+
+export function line_join_prop_as_array(prop: Uniform<LineJoin>): number[] | Float32Array {
+  if (prop === undefined)
+    return []
+  else if (prop.is_Scalar())
+    return [join_lookup[prop.value]]
+  else {
+    const array = new Float32Array(prop.length)
+    for (let i = 0; i < prop.length; i++)
+      array[i] = join_lookup[prop.get(i)]
     return array
   }
 }

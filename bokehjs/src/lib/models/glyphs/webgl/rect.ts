@@ -1,6 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
-import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
+import {color_to_uint8_array, prop_as_array, line_join_prop_as_array} from "./webgl_utils"
 import {RectView} from "../rect"
 
 
@@ -20,6 +20,7 @@ export class RectGL extends BaseGLGlyph {
   protected _linewidths: number[] | Float32Array
   protected _line_rgba: Uint8Array
   protected _fill_rgba: Uint8Array
+  protected _line_joins: number[] | Float32Array
   protected _show: Uint8Array
   protected _show_all: boolean
 
@@ -32,8 +33,6 @@ export class RectGL extends BaseGLGlyph {
   draw(indices: number[], main_glyph: RectView, transform: Transform): void {
     // The main glyph has the data, this glyph has the visuals.
     const mainGlGlyph = main_glyph.glglyph!
-
-    console.log(indices, main_glyph, transform)
 
     if (mainGlGlyph.data_changed) {
       mainGlGlyph._set_data()
@@ -78,6 +77,7 @@ export class RectGL extends BaseGLGlyph {
       linewidth: this._linewidths,
       line_color: this._line_rgba,
       fill_color: this._fill_rgba,
+      line_join: this._line_joins,
       show: this._show,
     })
   }
@@ -108,6 +108,7 @@ export class RectGL extends BaseGLGlyph {
     const line = this.glyph.visuals.line
 
     this._linewidths = prop_as_array(line.line_width)
+    this._line_joins = line_join_prop_as_array(line.line_join)
 
     // These create new Uint8Arrays each call.  Should reuse instead.
     this._line_rgba = color_to_uint8_array(line.line_color, line.line_alpha)

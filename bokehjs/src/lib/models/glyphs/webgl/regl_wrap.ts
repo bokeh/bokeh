@@ -443,6 +443,9 @@ function regl_rect(regl: any): ReglRenderFunction {
       a_fill_color: (_: any, props: any) => {
         return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
       },
+      a_line_join: (_: any, props: any) => {
+        return one_each_or_constant(props.line_join, 1, false, props.nmarkers)
+      },
       a_show: {
         buffer: regl.prop('show'),
         normalized: true,
