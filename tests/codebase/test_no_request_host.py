@@ -16,11 +16,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import relpath
 from subprocess import check_output
-
-# Bokeh imports
-from . import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -63,4 +59,4 @@ def collect_errors():
         with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [ msg.format(path=relpath(fname, TOP_PATH), line_no=line_no) for (msg, fname, line_no) in errors ]
+    return [ msg.format(path=fname, line_no=line_no) for (msg, fname, line_no) in errors ]

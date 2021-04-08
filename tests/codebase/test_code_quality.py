@@ -18,7 +18,7 @@ import pytest ; pytest
 # Standard library imports
 import subprocess
 from os import pardir
-from os.path import abspath, basename, join, relpath, split, splitext
+from os.path import abspath, basename, join, split, splitext
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -122,7 +122,7 @@ def collect_errors():
         with open(path, "r", encoding="utf-8") as file:
             test_this_file(path, file)
 
-    return [ msg.format(path=relpath(fname, TOP_PATH), line_no=line_no) for (msg, fname, line_no) in errors ]
+    return [ msg.format(path=fname, line_no=line_no) for (msg, fname, line_no) in errors ]
 
 def bad_files():
     return " ".join(sorted({file for (_, file, _) in collect_errors()}))
