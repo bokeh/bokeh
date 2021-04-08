@@ -42,8 +42,8 @@ def test_json() -> None:
         f = open(TOP_PATH/path)
         try:
             json.load(f)
-        except Exception:
-            bad.append(path)
+        except Exception as e:
+            bad.append(f"{path}: {e}" )
 
     assert len(bad) == 0, "Malformed JSON detected:\n" + ",".join(bad)
 
