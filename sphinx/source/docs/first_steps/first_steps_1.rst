@@ -194,7 +194,6 @@ Bokeh's |bokeh.plotting| interface require:
     :alt: Help symbol
 
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`

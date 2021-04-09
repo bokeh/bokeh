@@ -331,7 +331,5 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
-
-.. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
