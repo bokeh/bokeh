@@ -58,8 +58,7 @@ Setting width and height
 
 To set the size of your plot, use the attributes
 :class:`~bokeh.models.plots.Plot.plot_height` and
-:class:`~bokeh.models.plots.Plot.plot_width` when calling the
-:func:`~bokeh.plotting.figure` function:
+:class:`~bokeh.models.plots.Plot.plot_width` when calling the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_size.py
    :language: python
@@ -138,8 +137,7 @@ a y-axis that ranges from a little below 2 to a little above 17.
 To define the range for your axes manually, use the
 :func:`~bokeh.models.plots.Plot.y_range` function or the
 :func:`~bokeh.models.plots.Plot.y_range` properties of your
-:class:`~bokeh.models.plots.Plot` object when you call the
-:func:`~bokeh.plotting.figure` function:
+:class:`~bokeh.models.plots.Plot` object when you call the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
    :language: python
@@ -375,7 +373,7 @@ For example:
     from bokeh.models.tools import BoxZoomTool, ResetTool
 
 Next, define which tools to use when creating a new figure by passing the
-``tools`` attribute to the :func:`~bokeh.plotting.figure` function.
+``tools`` attribute to the |figure| function.
 
 The ``tools`` attribute accepts a list of tools. This example enables only the
 :class:`~bokeh.models.tools.BoxZoomTool` and
@@ -436,10 +434,10 @@ There are several ways to enable tooltips in Bokeh. This is the quickest:
    :class:`bokeh.models.tools`.
 
 2. Include ``HoverTool()`` in the list passed to the ``tools`` argument when
-   calling the :func:`~bokeh.plotting.figure` function.
+   calling the |figure| function.
 
 3. Include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument when
-   calling the :func:`~bokeh.plotting.figure` function.
+   calling the |figure| function.
 
 The ``tooltips`` argument accepts a string with a special syntax. Use the "@"
 symbol to include the name of the source for the data you want Bokeh to display.
