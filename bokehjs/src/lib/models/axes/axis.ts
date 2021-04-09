@@ -58,6 +58,7 @@ export class AxisView extends GuideRendererView {
   latex_image: CanvasImage
   latex_image_height: number
   latex_image_width: number
+  mathjax_instantiated = false
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -172,6 +173,15 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _load_latex_image(text: string, color: string) {
+    console.log({mathjax_instantiated: this.mathjax_instantiated})
+    if (!this.mathjax_instantiated) {
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'
+      script.async = false
+      document.head.appendChild(script)
+      script.onload = () => this.request_render()
+      this.mathjax_instantiated = true
+    }
     if (typeof MathJax === 'undefined') return
 
     const mathjax_element = MathJax.tex2svg(text)
@@ -193,7 +203,6 @@ export class AxisView extends GuideRendererView {
 
     new ImageLoader(url, {
       loaded: (image) => {
-        console.log('shit got called already man')
         this.latex_image = image
         this.request_render()
       },
