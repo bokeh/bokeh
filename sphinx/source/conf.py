@@ -63,7 +63,7 @@ extensions = [
 
 needs_sphinx = '3.5'
 
-rst_epilog = open("rst_epilogue.txt").read()
+rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
 
