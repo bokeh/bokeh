@@ -20,7 +20,7 @@ CALIBER
 
     output_file("caliber.html")
     curdoc().theme = 'caliber'
-    p = figure(title='caliber', plot_width=300, plot_height=300)
+    p = figure(title='caliber', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -38,7 +38,7 @@ DARK_MINIMAL
 
     output_file("dark_minimal.html")
     curdoc().theme = 'dark_minimal'
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
+    p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -57,7 +57,7 @@ LIGHT_MINIMAL
 
     output_file("light_minimal.html")
     curdoc().theme = 'light_minimal'
-    p = figure(title='light_minimal', plot_width=300, plot_height=300)
+    p = figure(title='light_minimal', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -75,7 +75,7 @@ NIGHT_SKY
 
     output_file("night_sky.html")
     curdoc().theme = 'night_sky'
-    p = figure(title='night_sky', plot_width=300, plot_height=300)
+    p = figure(title='night_sky', width=300, height=300)
     p.line(x, y)
     show(p)
 
@@ -93,7 +93,7 @@ CONTRAST
 
     output_file("contrast.html")
     curdoc().theme = 'contrast'
-    p = figure(title='contrast', plot_width=300, plot_height=300)
+    p = figure(title='contrast', width=300, height=300)
     p.line(x, y)
     show(p)
 

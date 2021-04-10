@@ -56,9 +56,8 @@ influence the way your plot looks.
 Setting width and height
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To set the size of your plot, use the attributes
-:class:`~bokeh.models.plots.Plot.plot_height` and
-:class:`~bokeh.models.plots.Plot.plot_width` when calling the |figure| function:
+To set the size of your plot, use the attributes ``width`` and ``height`` when
+calling the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_size.py
    :language: python

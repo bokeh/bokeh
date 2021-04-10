@@ -19,7 +19,7 @@ from bokeh.transform import cumsum
 dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
-p = figure(plot_height=110, tools="", toolbar_location=None, #name="line",
+p = figure(height=110, tools="", toolbar_location=None, #name="line",
            x_axis_type="datetime", x_range=(dates[1500], dates[2500]), sizing_mode="scale_width")
 
 p.line('date', 'close', source=source, line_width=2, alpha=0.7)
@@ -27,7 +27,7 @@ p.yaxis.axis_label = 'Traffic'
 p.background_fill_color="#f5f5f5"
 p.grid.grid_line_color="white"
 
-select = figure(plot_height=50, plot_width=800, y_range=p.y_range,
+select = figure(height=50, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
                 tools="", toolbar_location=None, sizing_mode="scale_width")
 
@@ -57,7 +57,7 @@ data = pd.DataFrame.from_dict(dict(x), orient='index').reset_index().rename(inde
 data['angle'] = data['value']/sum(x.values()) * 2*pi
 data['color'] = Spectral11
 
-region = figure(plot_height=350, toolbar_location=None, outline_line_color=None, sizing_mode="scale_both", name="region", x_range=(-0.4, 1))
+region = figure(height=350, toolbar_location=None, outline_line_color=None, sizing_mode="scale_both", name="region", x_range=(-0.4, 1))
 
 region.annular_wedge(x=-0, y=1, inner_radius=0.2, outer_radius=0.32,
                   start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
@@ -77,7 +77,7 @@ curdoc().add_root(region)
 
 plats = ("IOS", "Android", "OSX", "Windows", "Other")
 values = (35, 22, 13, 26, 4)
-platform = figure(plot_height=350, toolbar_location=None, outline_line_color=None, sizing_mode="scale_both", name="platform",
+platform = figure(height=350, toolbar_location=None, outline_line_color=None, sizing_mode="scale_both", name="platform",
                   y_range=list(reversed(plats)), x_axis_location="above")
 platform.x_range.start = 0
 platform.ygrid.grid_line_color = None

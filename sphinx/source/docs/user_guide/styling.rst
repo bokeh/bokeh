@@ -62,7 +62,7 @@ For example:
 
     curdoc().theme = 'dark_minimal'
 
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
+    p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
 
     show(p)

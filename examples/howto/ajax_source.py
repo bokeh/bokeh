@@ -19,7 +19,7 @@ adapter = CustomJS(code="""
 source = AjaxDataSource(data_url='http://localhost:5050/data',
                         polling_interval=100, adapter=adapter)
 
-p = figure(plot_height=300, plot_width=800, background_fill_color="lightgrey",
+p = figure(height=300, width=800, background_fill_color="lightgrey",
            title="Streaming Noisy sin(x) via Ajax")
 p.circle('x', 'y', source=source)
 
