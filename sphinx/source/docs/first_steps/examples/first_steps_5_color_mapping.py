@@ -11,7 +11,7 @@ y = [i**2 for i in x]
 mapper = linear_cmap(field_name="y", palette=Turbo256, low=min(y), high=max(y))
 
 # create plot
-p = figure(plot_width=500, plot_height=250)
+p = figure(width=500, height=250)
 
 # create circle renderer with color mapper
 p.circle(x, y, color=mapper, size=10)

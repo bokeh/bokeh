@@ -7,11 +7,11 @@ from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Dropdown, Slider
 from bokeh.plotting import figure, output_file, show
 
-p1 = figure(title="Canvas", plot_width=400, plot_height= 400, output_backend="canvas")
+p1 = figure(title="Canvas", width=400, height= 400, output_backend="canvas")
 
-p2 = figure(title="SVG", plot_width=400, plot_height= 400, output_backend="svg")
+p2 = figure(title="SVG", width=400, height= 400, output_backend="svg")
 
-p3 = figure(title="WebGL", plot_width=400, plot_height= 400, output_backend="webgl")
+p3 = figure(title="WebGL", width=400, height= 400, output_backend="webgl")
 
 ys = 10  # yscale, to increase anisotropy
 

@@ -2,7 +2,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("line.html")
 
-p = figure(plot_width=400, plot_height=400)
+p = figure(width=400, height=400)
 
 # add a line renderer with a NaN
 nan = float('nan')

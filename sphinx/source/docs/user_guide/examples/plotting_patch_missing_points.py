@@ -2,7 +2,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("patch.html")
 
-p = figure(plot_width=400, plot_height=400)
+p = figure(width=400, height=400)
 
 # add a patch renderer with a NaN value
 nan = float('nan')

@@ -22,7 +22,7 @@ elements['melting_colors'] = [palette[i] for i in melting_point_inds]
 TITLE = "Density vs Atomic Weight of Elements (colored by melting point)"
 TOOLS = "hover,pan,wheel_zoom,box_zoom,reset,save"
 
-p = figure(tools=TOOLS, toolbar_location="above", plot_width=1200, title=TITLE)
+p = figure(tools=TOOLS, toolbar_location="above", width=1200, title=TITLE)
 p.toolbar.logo = "grey"
 p.background_fill_color = "#dddddd"
 p.xaxis.axis_label = "atomic weight (amu)"
