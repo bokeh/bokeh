@@ -14,30 +14,17 @@
     <link rel="icon" type="image/png" sizes="16x16" href="https://static.bokeh.org/favicon/favicon-16x16.png">
 {%- endblock %}
 
-{% block body_tag %}
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-  <div class="container-fluid" id="banner"></div>
-{%- endblock %}
-
 {% block docs_sidebar %}
-  {% if sidebars %}
   <!-- Only show if we have sidebars configured -->
-  <div class="col-12 col-md-3 bd-sidebar">
-      {%- for sidebartemplate in sidebars %}
-      {%- include sidebartemplate %}
-      {%- endfor %}
-  </div>
+  {% if sidebars %}
+  {{ super() }}
   {% endif %}
 {% endblock %}
 
 {% block docs_toc %}
   <!-- Only show if we have sidebars configured -->
   {% if sidebars %}
-  <div class="d-none d-xl-block col-xl-2 bd-toc">
-      {% if not (meta is not none and 'notoc' in meta) %}
-        {%- include "docs-toc.html" %}
-      {% endif %}
-  </div>
+  {{ super() }}
   {% endif %}
 {% endblock %}
 
@@ -61,7 +48,7 @@
 </main>
 {% endblock %}
 
-{%- block footer %}
+{%- block scripts_end %}
+{{ super() }}
 {%- include "scripts.html" %}
-{%- include "footer.html" %}
 {%- endblock %}
