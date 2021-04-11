@@ -36,7 +36,8 @@ export class ReglWrapper {
   private _dashed_line: ReglRenderFunction
   private _line_mesh: ReglRenderFunction
   private _marker_map: Map<MarkerType, ReglRenderFunction>
-  private _rect: ReglRenderFunction
+  private _rect_no_hatch: ReglRenderFunction
+  private _rect_hatch: ReglRenderFunction
 
   constructor(gl: WebGLRenderingContext) {
     try {
@@ -87,10 +88,16 @@ export class ReglWrapper {
     return func
   }
 
-  public rect(): ReglRenderFunction {
-    if (this._rect === undefined)
-      this._rect = regl_rect(this._regl)
-    return this._rect
+  public rect_no_hatch(): ReglRenderFunction {
+    if (this._rect_no_hatch === undefined)
+      this._rect_no_hatch = regl_rect_no_hatch(this._regl)
+    return this._rect_no_hatch
+  }
+
+  public rect_hatch(): ReglRenderFunction {
+    if (this._rect_hatch === undefined)
+      this._rect_hatch = regl_rect_hatch(this._regl)
+    return this._rect_hatch
   }
 
   public solid_line(): ReglRenderFunction {
@@ -411,7 +418,7 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
 }
 
 
-function regl_rect(regl: any): ReglRenderFunction {
+function regl_rect_no_hatch(regl: any): ReglRenderFunction {
   return regl({
     vert: rect_vertex_shader,
     frag: rect_fragment_shader,
@@ -450,6 +457,84 @@ function regl_rect(regl: any): ReglRenderFunction {
         buffer: regl.prop('show'),
         normalized: true,
         divisor: 1,
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop('canvas_size'),
+      u_pixel_ratio: regl.prop('pixel_ratio'),
+      u_antialias: regl.prop('antialias'),
+    },
+
+    count: 4,
+    primitive: 'triangle fan',
+    instances: regl.prop('nmarkers'),
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   'one',
+        srcAlpha: 'one',
+        dstRGB:   'one minus src alpha',
+        dstAlpha: 'one minus src alpha',
+      },
+    },
+    depth: {enable: false},
+  })
+}
+
+
+function regl_rect_hatch(regl: any): ReglRenderFunction {
+  return regl({
+    vert: '#define HATCH\n\n' + rect_vertex_shader,
+    frag: '#define HATCH\n\n' + rect_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
+        divisor: 0,
+      },
+      a_center: {
+        buffer: regl.prop('center'),
+        divisor: 1,
+      },
+      a_width: (_: any, props: any) => {
+        return one_each_or_constant(props.width, 1, false, props.nmarkers)
+      },
+      a_height: (_: any, props: any) => {
+        return one_each_or_constant(props.height, 1, false, props.nmarkers)
+      },
+      a_angle: (_: any, props: any) => {
+        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
+      },
+      a_linewidth: (_: any, props: any) => {
+        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
+      },
+      a_line_color: (_: any, props: any) => {
+        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
+      },
+      a_fill_color: (_: any, props: any) => {
+        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      },
+      a_line_join: (_: any, props: any) => {
+        return one_each_or_constant(props.line_join, 1, false, props.nmarkers)
+      },
+      a_show: {
+        buffer: regl.prop('show'),
+        normalized: true,
+        divisor: 1,
+      },
+      a_hatch_pattern: (_: any, props: any) => {
+        return one_each_or_constant(props.hatch_pattern, 1, false, props.nmarkers)
+      },
+      a_hatch_scale: (_: any, props: any) => {
+        return one_each_or_constant(props.hatch_scale, 1, false, props.nmarkers)
+      },
+      a_hatch_weight: (_: any, props: any) => {
+        return one_each_or_constant(props.hatch_weight, 1, false, props.nmarkers)
+      },
+      a_hatch_color: (_: any, props: any) => {
+        return one_each_or_constant(props.hatch_color, 4, true, props.nmarkers)
       },
     },
 

@@ -1,6 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
-import {color_to_uint8_array, prop_as_array, line_join_prop_as_array} from "./webgl_utils"
+import {color_to_uint8_array, prop_as_array, hatch_pattern_prop_as_array, line_join_prop_as_array} from "./webgl_utils"
 import {RectView} from "../rect"
 
 
@@ -23,6 +23,13 @@ export class RectGL extends BaseGLGlyph {
   protected _line_joins: number[] | Float32Array
   protected _show: Uint8Array
   protected _show_all: boolean
+
+  // Only needed if have hatch pattern.
+  protected _have_hatch: boolean
+  protected _hatch_patterns: number[] | Float32Array
+  protected _hatch_scales: number[] | Float32Array
+  protected _hatch_weights: number[] | Float32Array
+  protected _hatch_rgba: Uint8Array
 
   constructor(regl_wrapper: ReglWrapper, readonly glyph: RectView) {
     super(regl_wrapper, glyph)
@@ -65,21 +72,43 @@ export class RectGL extends BaseGLGlyph {
         this._show[i] = 255
     }
 
-    this.regl_wrapper.rect()({
-      canvas_size: [transform.width, transform.height],
-      pixel_ratio: transform.pixel_ratio,
-      center: mainGlGlyph._centers,
-      width: mainGlGlyph._widths,
-      height: mainGlGlyph._heights,
-      angle: mainGlGlyph._angles,
-      nmarkers,
-      antialias: this._antialias,
-      linewidth: this._linewidths,
-      line_color: this._line_rgba,
-      fill_color: this._fill_rgba,
-      line_join: this._line_joins,
-      show: this._show,
-    })
+    if (this._have_hatch) {
+      this.regl_wrapper.rect_hatch()({
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
+        center: mainGlGlyph._centers,
+        width: mainGlGlyph._widths,
+        height: mainGlGlyph._heights,
+        angle: mainGlGlyph._angles,
+        nmarkers,
+        antialias: this._antialias,
+        linewidth: this._linewidths,
+        line_color: this._line_rgba,
+        fill_color: this._fill_rgba,
+        line_join: this._line_joins,
+        show: this._show,
+        hatch_pattern: this._hatch_patterns,
+        hatch_scale: this._hatch_scales,
+        hatch_weight: this._hatch_weights,
+        hatch_color: this._hatch_rgba,
+      })
+    } else {
+      this.regl_wrapper.rect_no_hatch()({
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
+        center: mainGlGlyph._centers,
+        width: mainGlGlyph._widths,
+        height: mainGlGlyph._heights,
+        angle: mainGlGlyph._angles,
+        nmarkers,
+        antialias: this._antialias,
+        linewidth: this._linewidths,
+        line_color: this._line_rgba,
+        fill_color: this._fill_rgba,
+        line_join: this._line_joins,
+        show: this._show,
+      })
+    }
   }
 
   protected _set_data(): void {
@@ -113,5 +142,15 @@ export class RectGL extends BaseGLGlyph {
     // These create new Uint8Arrays each call.  Should reuse instead.
     this._line_rgba = color_to_uint8_array(line.line_color, line.line_alpha)
     this._fill_rgba = color_to_uint8_array(fill.fill_color, fill.fill_alpha)
+
+    this._have_hatch = this.glyph.visuals.hatch.doit
+    if (this._have_hatch) {
+      const hatch = this.glyph.visuals.hatch
+
+      this._hatch_patterns = hatch_pattern_prop_as_array(hatch.hatch_pattern)
+      this._hatch_scales = prop_as_array(hatch.hatch_scale)
+      this._hatch_weights = prop_as_array(hatch.hatch_weight)
+      this._hatch_rgba = color_to_uint8_array(hatch.hatch_color, hatch.hatch_alpha)
+    }
   }
 }
