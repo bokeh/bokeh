@@ -119,7 +119,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
         and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
 
-    .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+    .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
 
     '''
     state = curstate()
