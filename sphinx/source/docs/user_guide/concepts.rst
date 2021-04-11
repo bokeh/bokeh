@@ -70,9 +70,8 @@ throughout Bokeh's documentation:
         Containers that hold all the various objects (such as
         :term:`renderers<Renderer>`, :term:`glyphs<Glyph>`, or
         :term:`annotations<Annotation>`) of a visualization. The
-        :ref:`userguide_interfaces_plotting` interface provides the
-        :func:`~bokeh.plotting.figure` function to help with assembling all the
-        necessary objects.
+        :ref:`userguide_interfaces_plotting` interface provides the |figure|
+        function to help with assembling all the necessary objects.
 
     Renderer
         General term for any method or function that draws elements of the plot.
@@ -332,6 +331,5 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
-.. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

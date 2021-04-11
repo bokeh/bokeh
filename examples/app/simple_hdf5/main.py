@@ -23,7 +23,7 @@ data_select = Select(title="Distribution:", value=options[0],
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
 
-p = figure(plot_height=600, plot_width=800, title="", toolbar_location=None)
+p = figure(height=600, width=800, title="", toolbar_location=None)
 p.line(x="x", y="y", source=source, line_width=2)
 p.background_fill_color = "#efefef"
 

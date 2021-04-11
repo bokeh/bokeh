@@ -9,3 +9,7 @@ bokeh.core.json_encoder
 
     .. autoclass:: BokehJSONEncoder
         :members:
+        :show-inheritance:
+        :inherited-members:
+
+        .. autoclasstoc::

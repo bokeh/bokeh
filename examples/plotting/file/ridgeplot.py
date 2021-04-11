@@ -20,7 +20,7 @@ x = linspace(-20,110, 500)
 
 source = ColumnDataSource(data=dict(x=x))
 
-p = figure(y_range=cats, plot_width=900, x_range=(-5, 105), toolbar_location=None)
+p = figure(y_range=cats, width=900, x_range=(-5, 105), toolbar_location=None)
 
 for i, cat in enumerate(reversed(cats)):
     pdf = gaussian_kde(probly[cat])

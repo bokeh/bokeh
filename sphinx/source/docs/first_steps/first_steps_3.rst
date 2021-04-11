@@ -51,7 +51,7 @@ Customizing headlines
 ---------------------
 
 Most of the examples so far have included a headline. You did this by passing
-the ``title`` argument to the :func:`~bokeh.plotting.figure` figure function:
+the ``title`` argument to the |figure| function:
 
 .. code-block:: python
 

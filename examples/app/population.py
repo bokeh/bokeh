@@ -26,7 +26,7 @@ gender_transform = CustomJSTransform(args=dict(source=ages), func="", v_func="""
     return val
 """)
 
-pyramid = figure(plot_width=600, plot_height=500, toolbar_location=None, y_range=groups,
+pyramid = figure(width=600, height=500, toolbar_location=None, y_range=groups,
                  title="Population Breakdown by Age Group and Gender",
                  x_axis_label="Population (Millions)",y_axis_label="Age Group")
 pyramid.hbar(y="AgeGrp", height=1, right=transform('Value', gender_transform),
@@ -43,7 +43,7 @@ pyramid.xaxis.formatter = FuncTickFormatter(code="""
 known = ColumnDataSource(data=dict(x=[], y=[]))
 predicted = ColumnDataSource(data=dict(x=[], y=[]))
 
-population = figure(plot_width=600, plot_height=180, toolbar_location=None,
+population = figure(width=600, height=180, toolbar_location=None,
                     title="Total Population by Year",
                     x_axis_label="Year",y_axis_label="Population")
 population.line("x", "y", color="violet", line_width=2, source=known, legend_label="known")

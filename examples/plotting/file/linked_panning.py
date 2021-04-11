@@ -8,7 +8,7 @@ y1 = np.sin(x)
 y2 = np.cos(x)
 y3 = np.sin(x) + np.cos(x)
 
-s1 = figure(plot_width=350, plot_height=350)
+s1 = figure(width=350, height=350)
 
 s1.circle(x, y1, color="navy", size=8, alpha=0.5)
 
@@ -19,7 +19,7 @@ s2 = figure(plot_width=350, plot_height=350,
 s2.circle(x, y2, color="firebrick", size=8, alpha=0.5)
 
 # it is possible to share just one range or the other
-s3 = figure(plot_width=350, plot_height=350, x_range=s1.x_range)
+s3 = figure(width=350, height=350, x_range=s1.x_range)
 
 s3.circle(x, y3, color="olive", size=8, alpha=0.5)
 

@@ -4,7 +4,7 @@ from bokeh.sampledata.autompg import autompg as df
 
 colors = ["red", "olive", "darkred", "goldenrod", "skyblue", "orange", "salmon"]
 
-p = figure(plot_width=600, plot_height=300, title="Years vs mpg with Quartile Ranges")
+p = figure(width=600, height=300, title="Years vs mpg with Quartile Ranges")
 
 base, lower, upper = [], [], []
 

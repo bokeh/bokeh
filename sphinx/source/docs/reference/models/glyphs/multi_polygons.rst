@@ -5,4 +5,7 @@ bokeh.models.glyphs.MultiPolygons
 
 .. autoclass:: bokeh.models.glyphs.MultiPolygons
     :members:
+    :show-inheritance:
     :inherited-members:
+
+    .. autoclasstoc:

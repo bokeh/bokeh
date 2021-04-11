@@ -5,7 +5,7 @@ from bokeh.plotting import figure
 
 source = ColumnDataSource(data=dict(x=[.5], y=[.5]))
 
-p = figure(plot_width=400, plot_height=400,
+p = figure(width=400, height=400,
            tools='tap', title='Click Below',
            x_range=(0.0, 1.0), y_range=(0.0, 1.0))
 

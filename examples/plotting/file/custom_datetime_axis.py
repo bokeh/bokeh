@@ -8,7 +8,7 @@ df = pd.DataFrame(MSFT)[:51]
 inc = df.close > df.open
 dec = df.open > df.close
 
-p = figure(plot_width=1000, title="MSFT Candlestick with Custom X-Axis")
+p = figure(width=1000, title="MSFT Candlestick with Custom X-Axis")
 
 # map dataframe indices to date strings and use as label overrides
 p.xaxis.major_label_overrides = {

@@ -2,7 +2,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("axes.html")
 
-p = figure(plot_width=400, plot_height=400)
+p = figure(width=400, height=400)
 r = p.circle([1,2,3,4,5], [2,5,8,2,7])
 
 glyph = r.glyph

@@ -989,8 +989,6 @@ or zooming, for example). There are four properties on |Plot| objects that contr
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
 .. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
 

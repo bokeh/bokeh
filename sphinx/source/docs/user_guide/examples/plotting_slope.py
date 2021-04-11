@@ -13,7 +13,7 @@ y_intercept = 10
 xpts = np.arange(0, 20)
 ypts = gradient * xpts + y_intercept + np.random.normal(0, 4, 20)
 
-p = figure(plot_width=450, plot_height=450, y_range=(0, 1.1 * max(ypts)))
+p = figure(width=450, height=450, y_range=(0, 1.1 * max(ypts)))
 
 p.circle(xpts, ypts, size=5, color="skyblue")
 

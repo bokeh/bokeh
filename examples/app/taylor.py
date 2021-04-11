@@ -28,7 +28,7 @@ def taylor(fx, xs, order, x_range=(0, 1), n=200):
 
 source = ColumnDataSource(data=dict(x=[], fy=[], ty=[]))
 
-p = figure(x_range=(-7,7), y_range=(-100, 200), plot_width=800, plot_height=400)
+p = figure(x_range=(-7,7), y_range=(-100, 200), width=800, height=400)
 line_f = p.line(x="x", y="fy", line_color="navy", line_width=2, source=source)
 line_t = p.line(x="x", y="ty", line_color="firebrick", line_width=2, source=source)
 

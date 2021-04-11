@@ -10,11 +10,11 @@ x = [random() for x in range(500)]
 y = [random() for y in range(500)]
 
 s1 = ColumnDataSource(data=dict(x=x, y=y))
-p1 = figure(plot_width=400, plot_height=400, tools="lasso_select", title="Select Here")
+p1 = figure(width=400, height=400, tools="lasso_select", title="Select Here")
 p1.circle('x', 'y', source=s1, alpha=0.6)
 
 s2 = ColumnDataSource(data=dict(x=[], y=[]))
-p2 = figure(plot_width=400, plot_height=400, x_range=(0, 1), y_range=(0, 1),
+p2 = figure(width=400, height=400, x_range=(0, 1), y_range=(0, 1),
             tools="", title="Watch Here")
 p2.circle('x', 'y', source=s2, alpha=0.6)
 
