@@ -8,7 +8,7 @@ from bokeh.palettes import Spectral4
 from bokeh.plotting import figure
 from latex_label import LatexLabel
 
-p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
+p = figure(title="LaTex Extension Demonstration", width=800, height=350,
            background_fill_color="#fafafa")
 p.x_range.range_padding = 0
 

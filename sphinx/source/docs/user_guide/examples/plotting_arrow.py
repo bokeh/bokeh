@@ -3,7 +3,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("arrow.html", title="arrow.py example")
 
-p = figure(plot_width=600, plot_height=600)
+p = figure(width=600, height=600)
 
 p.circle(x=[0, 1, 0.5], y=[0, 0, 0.7], radius=0.1,
          color=["navy", "yellow", "red"], fill_alpha=0.1)

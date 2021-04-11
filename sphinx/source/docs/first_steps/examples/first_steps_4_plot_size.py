@@ -7,8 +7,8 @@ y = [4, 5, 5, 7, 2]
 # create a new plot with a specific size
 p = figure(
     title="Plot sizing example",
-    plot_width=350,
-    plot_height=250,
+    width=350,
+    height=250,
     x_axis_label="x",
     y_axis_label="y",
 )

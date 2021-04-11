@@ -31,7 +31,7 @@ The ``bokeh-plot`` directive can be used by either supplying:
      x = [1, 2, 3, 4, 5]
      y = [6, 7, 6, 4, 5]
 
-     p = figure(title="example", plot_width=300, plot_height=300)
+     p = figure(title="example", width=300, height=300)
      p.line(x, y, line_width=2)
      p.circle(x, y, size=10, fill_color="white")
 
@@ -63,7 +63,7 @@ The inline example code above produces the following output:
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 6, 4, 5]
 
-    p = figure(title="example", plot_width=300, plot_height=300)
+    p = figure(title="example", width=300, height=300)
     p.line(x, y, line_width=2)
     p.circle(x, y, size=10, fill_color="white")
 

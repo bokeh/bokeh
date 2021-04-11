@@ -9,7 +9,7 @@ y = [4, 5, 5, 7, 2]
 curdoc().theme = "dark_minimal"
 
 # create a plot
-p = figure(sizing_mode="stretch_width", max_width=500, plot_height=250)
+p = figure(sizing_mode="stretch_width", max_width=500, height=250)
 
 # add a renderer
 p.line(x, y)

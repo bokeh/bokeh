@@ -1,6 +1,6 @@
 from bokeh.plotting import figure, output_file, show
 
-p = figure(plot_width=300, plot_height=300)
+p = figure(width=300, height=300)
 p.circle([1,2], [3,4])
 
 # configure visual properties on a plot's title attribute

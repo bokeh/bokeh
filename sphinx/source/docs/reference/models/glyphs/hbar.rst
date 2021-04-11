@@ -5,4 +5,7 @@ bokeh.models.glyphs.HBar
 
 .. autoclass:: bokeh.models.glyphs.HBar
     :members:
+    :show-inheritance:
     :inherited-members:
+
+    .. autoclasstoc:

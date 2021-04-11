@@ -7,9 +7,14 @@ bokeh.model
 .. huge actual reverse map contents in the rendered docs
 
 .. automodule:: bokeh.model
-  :members:
+    :members:
 
     .. autoclass: Model
+        :members:
+        :show-inheritance:
+        :inherited-members:
+
+        .. autoclasstoc::
 
         .. autodata:: model_class_reverse_map
             :annotation: = {}

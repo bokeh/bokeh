@@ -5,4 +5,7 @@ bokeh.models.glyphs.Segment
 
 .. autoclass:: bokeh.models.glyphs.Segment
     :members:
+    :show-inheritance:
     :inherited-members:
+
+    .. autoclasstoc:

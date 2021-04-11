@@ -6,6 +6,8 @@
     :show-inheritance:
     :inherited-members:
 
+    .. autoclasstoc::
+
 .. _{{ name }}.json:
 
 .. collapsible-code-block:: javascript

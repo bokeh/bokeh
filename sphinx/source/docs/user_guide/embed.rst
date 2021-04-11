@@ -307,13 +307,13 @@ Here's an example of how you could use a multiple plot generator:
     yr2 = Range1d(start=0, end=30)
 
     # build the figures
-    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p1 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
     p1.scatter(x1, y1, size=12, color="red", alpha=0.5)
 
-    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, plot_width=300, plot_height=300)
+    p2 = figure(x_range=xr1, y_range=yr1, tools=TOOLS, width=300, height=300)
     p2.scatter(x2, y2, size=12, color="blue", alpha=0.5)
 
-    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, plot_width=300, plot_height=300)
+    p3 = figure(x_range=xr2, y_range=yr2, tools=TOOLS, width=300, height=300)
     p3.scatter(x3, y3, size=12, color="green", alpha=0.5)
 
     # plots can be a single Bokeh model, a list/tuple, or even a dictionary

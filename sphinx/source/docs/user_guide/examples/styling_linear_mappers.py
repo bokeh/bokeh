@@ -13,7 +13,7 @@ mapper = linear_cmap(field_name='y', palette=Spectral6 ,low=min(y) ,high=max(y))
 
 source = ColumnDataSource(dict(x=x,y=y))
 
-p = figure(plot_width=300, plot_height=300, title="Linear Color Map Based on Y")
+p = figure(width=300, height=300, title="Linear Color Map Based on Y")
 
 p.circle(x='x', y='y', line_color=mapper,color=mapper, fill_alpha=1, size=12, source=source)
 

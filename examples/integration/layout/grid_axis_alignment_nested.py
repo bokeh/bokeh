@@ -14,7 +14,7 @@ for location in ["above", "right", "left", "below"]:
     for ycoeff in coeffs:
         row = []
         for xcoeff in coeffs:
-            fig = figure(plot_height=200, plot_width=200)
+            fig = figure(height=200, width=200)
             fig.xaxis.formatter.use_scientific = False
             fig.yaxis.formatter.use_scientific = False
             fig.xaxis.major_label_orientation = "vertical"

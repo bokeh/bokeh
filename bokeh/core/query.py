@@ -113,12 +113,12 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
     .. code-block:: python
 
         >>> from bokeh.plotting import figure
-        >>> p = figure(plot_width=400)
+        >>> p = figure(width=400)
 
-        >>> match(p, {'plot_width': {EQ: 400}})
+        >>> match(p, {'width': {EQ: 400}})
         True
 
-        >>> match(p, {'plot_width': {GT: 500}})
+        >>> match(p, {'width': {GT: 500}})
         False
 
     There are two selector keys that are handled especially. The first

@@ -62,7 +62,7 @@ For example:
 
     curdoc().theme = 'dark_minimal'
 
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
+    p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
 
     show(p)
@@ -1114,8 +1114,6 @@ You can see a complete example with output in the section
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 .. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
-
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 

@@ -9,7 +9,7 @@ y = np.sin(x)
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-plot = figure(y_range=(-10, 10), plot_width=400, plot_height=200, background_fill_color="#fafafa", sizing_mode="scale_width")
+plot = figure(y_range=(-10, 10), width=400, height=200, background_fill_color="#fafafa", sizing_mode="scale_width")
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 

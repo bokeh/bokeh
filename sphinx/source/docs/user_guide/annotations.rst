@@ -408,8 +408,6 @@ These are the most commonly used properties for this annotation:
 
 .. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`

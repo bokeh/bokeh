@@ -6,7 +6,7 @@ from bokeh.plotting import figure
 x = np.linspace(0, 6*np.pi, 100)
 y = np.sin(x)
 
-p = figure(plot_height=250, sizing_mode="stretch_width", x_range=(0, 6*np.pi), tools="", toolbar_location=None)
+p = figure(height=250, sizing_mode="stretch_width", x_range=(0, 6*np.pi), tools="", toolbar_location=None)
 p.line(x, y)
 
 ticks = np.linspace(0, 6*np.pi, 13)

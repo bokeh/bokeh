@@ -3,7 +3,7 @@ from bokeh.plotting import figure, output_file, show
 
 output_file("formatter.html")
 
-p = figure(plot_width=500, plot_height=500)
+p = figure(width=500, height=500)
 p.circle([0, 2, 4, 6, 8, 10], [6, 2, 4, 10, 8, 0], size=30)
 
 p.yaxis.formatter = FuncTickFormatter(code="""

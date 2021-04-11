@@ -8,7 +8,7 @@ y = [4, 5, 5, 7, 2]
 output_file(filename="custom_filename.html", title="Static HTML file")
 
 # create a new plot with a specific size
-p = figure(sizing_mode="stretch_width", max_width=500, plot_height=250)
+p = figure(sizing_mode="stretch_width", max_width=500, height=250)
 
 # add a circle renderer
 circle = p.circle(x, y, fill_color="red", size=15)

@@ -26,7 +26,7 @@ for year in years:
 
 source = ColumnDataSource(data=data[years[0]])
 
-plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', plot_height=300)
+plot = figure(x_range=(1, 9), y_range=(20, 100), title='Gapminder Data', height=300)
 plot.xaxis.ticker = SingleIntervalTicker(interval=1)
 plot.xaxis.axis_label = "Children per woman (total fertility)"
 plot.yaxis.ticker = SingleIntervalTicker(interval=20)

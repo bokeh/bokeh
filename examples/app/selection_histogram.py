@@ -34,7 +34,7 @@ y = np.concatenate((y1, y2, y3))
 TOOLS="pan,wheel_zoom,box_select,lasso_select,reset"
 
 # create the scatter plot
-p = figure(tools=TOOLS, plot_width=600, plot_height=600, min_border=10, min_border_left=50,
+p = figure(tools=TOOLS, width=600, height=600, min_border=10, min_border_left=50,
            toolbar_location="above", x_axis_location=None, y_axis_location=None,
            title="Linked Histograms")
 p.background_fill_color = "#fafafa"
@@ -50,7 +50,7 @@ hmax = max(hhist)*1.1
 
 LINE_ARGS = dict(color="#3A5785", line_color=None)
 
-ph = figure(toolbar_location=None, plot_width=p.plot_width, plot_height=200, x_range=p.x_range,
+ph = figure(toolbar_location=None, width=p.width, height=200, x_range=p.x_range,
             y_range=(-hmax, hmax), min_border=10, min_border_left=50, y_axis_location="right")
 ph.xgrid.grid_line_color = None
 ph.yaxis.major_label_orientation = np.pi/4
@@ -65,7 +65,7 @@ vhist, vedges = np.histogram(y, bins=20)
 vzeros = np.zeros(len(vedges)-1)
 vmax = max(vhist)*1.1
 
-pv = figure(toolbar_location=None, plot_width=200, plot_height=p.plot_height, x_range=(-vmax, vmax),
+pv = figure(toolbar_location=None, width=200, height=p.height, x_range=(-vmax, vmax),
             y_range=p.y_range, min_border=10, y_axis_location="right")
 pv.ygrid.grid_line_color = None
 pv.xaxis.major_label_orientation = np.pi/4

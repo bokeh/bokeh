@@ -5,4 +5,7 @@ bokeh.models.glyphs.Text
 
 .. autoclass:: bokeh.models.glyphs.Text
     :members:
+    :show-inheritance:
     :inherited-members:
+
+    .. autoclasstoc:
