@@ -84,6 +84,7 @@ export class Document {
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
+  protected _interactive_finalize: (() => void)| null
 
   constructor(options?: {resolver?: ModelResolver}) {
     documents.push(this)
@@ -134,20 +135,25 @@ export class Document {
     }
   }
 
-  interactive_start(plot: Model): void {
+  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())
     }
+    this._interactive_finalize = finalize
     this._interactive_timestamp = Date.now()
   }
 
   interactive_stop(): void {
     if (this._interactive_plot != null) {
       this._interactive_plot.trigger_event(new LODEnd())
+      if (this._interactive_finalize != null) {
+        this._interactive_finalize()
+      }
     }
     this._interactive_plot = null
     this._interactive_timestamp = null
+    this._interactive_finalize = null
   }
 
   interactive_duration(): number {

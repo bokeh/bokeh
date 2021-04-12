@@ -17,6 +17,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh._testing.util.selenium import RECORD
+from bokeh.events import RangesUpdate
 from bokeh.models import (
     Circle,
     ColumnDataSource,
@@ -132,5 +133,38 @@ class Test_ResetTool:
         assert results['indices'] == []
         assert results['line_indices'] == []
         assert results['multiline_indices'] == {}
+
+        assert page.has_no_console_errors()
+
+    def test_ranges_udpate(self, single_plot_page) -> None:
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot.add_glyph(source, Rect(x='x', y='y', width=0.9, height=0.9))
+        plot.add_tools(ResetTool(), ZoomInTool())
+        code = RECORD("event_name", "cb_obj.event_name", final=False) + \
+               RECORD("x0", "cb_obj.x0", final=False) + \
+               RECORD("x1", "cb_obj.x1", final=False) + \
+               RECORD("y0", "cb_obj.y0", final=False) + \
+               RECORD("y1", "cb_obj.y1")
+        plot.js_on_event(RangesUpdate, CustomJS(code=code))
+        plot.add_tools(CustomAction(callback=CustomJS(code="")))
+        plot.toolbar_sticky = False
+
+        page = single_plot_page(plot)
+
+        button = page.get_toolbar_button('zoom-in')
+        button.click()
+
+        button = page.get_toolbar_button('reset')
+        button.click()
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results['event_name'] == "rangesupdate"
+        assert results['x0'] == 0
+        assert results['x1'] == 1
+        assert results['y0'] == 0
+        assert results['y1'] == 1
 
         assert page.has_no_console_errors()

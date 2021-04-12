@@ -438,7 +438,7 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start({...e, type: "panstart"})
       ui_event_bus._pan_end(e)
 
-      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_plot.callCount).to.be.equal(3) // Also RangesUpdate event
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
