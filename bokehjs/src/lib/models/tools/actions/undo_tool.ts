@@ -11,7 +11,11 @@ export class UndoToolView extends ActionToolView {
   }
 
   doit(): void {
-    this.plot_view.state.undo()
+    const state = this.plot_view.state.undo()
+
+    if (state?.range != null) {
+      this.plot_view.trigger_ranges_update_event()
+    }
   }
 }
 

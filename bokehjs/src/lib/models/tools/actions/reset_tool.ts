@@ -6,6 +6,7 @@ export class ResetToolView extends ActionToolView {
   model: ResetTool
 
   doit(): void {
+    // reset() issues the RangesUpdate event
     this.plot_view.reset()
   }
 }

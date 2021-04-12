@@ -22,7 +22,7 @@ import time
 from flaky import flaky
 
 # Bokeh imports
-from bokeh.events import LODEnd, LODStart
+from bokeh.events import LODEnd, LODStart, RangesUpdate
 from bokeh.layouts import column
 from bokeh.models import Button, Plot, Range1d
 from bokeh.plotting import figure
@@ -110,3 +110,27 @@ class Test_Plot:
         time.sleep(0.3)
         assert goodEvents == ["LODStart", "LODEnd"]
         assert badEvents == []
+
+    @flaky(max_runs=10)
+    def test_ranges_update_event_trigger_on_pan(self, bokeh_server_page) -> None:
+        events = []
+        def modify_doc(doc):
+            x_range = Range1d(0, 4)
+            y_range = Range1d(0, 4)
+            p = figure(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range)
+            p.line([1, 2, 3], [1, 2, 3])
+            p.on_event(RangesUpdate, lambda evt: events.append(("RangesUpdate", evt.x0, evt.x1, evt.y0, evt.y1)))
+            doc.add_root(p)
+
+        page = bokeh_server_page(modify_doc)
+
+        # This can only be called once - calling it multiple times appears to have no effect
+        page.drag_canvas_at_position(100, 100, 200, 200)
+
+        # Wait for drag to happen
+        time.sleep(0.2)
+        assert events[0][0] == "RangesUpdate"
+        assert events[0][1] < -2.3
+        assert events[0][2] < 1.7
+        assert events[0][3] > 2.1
+        assert events[0][4] > 6.1
