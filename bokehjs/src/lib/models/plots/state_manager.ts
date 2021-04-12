@@ -52,7 +52,7 @@ export class StateManager {
     this.changed.emit()
   }
 
-  undo(): StateInfo|null {
+  undo(): StateInfo | null {
     if (this.can_undo) {
       this.index -= 1
       const state = this._do_state_change(this.index)
@@ -62,7 +62,7 @@ export class StateManager {
     return null
   }
 
-  redo(): StateInfo|null {
+  redo(): StateInfo | null {
     if (this.can_redo) {
       this.index += 1
       const state = this._do_state_change(this.index)
