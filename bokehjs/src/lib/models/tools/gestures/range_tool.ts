@@ -203,7 +203,7 @@ export class RangeToolView extends GestureToolView {
 
   _pan_end(_ev: PanEvent): void {
     this.side = Side.None
-    this._trigger_ranges_update()
+    this.plot_view.trigger_ranges_update_event()
   }
 }
 

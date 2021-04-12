@@ -14,7 +14,7 @@ export class RedoToolView extends ActionToolView {
     const state = this.plot_view.state.redo()
 
     if (state?.range != null) {
-      this._trigger_ranges_update()
+      this.plot_view.trigger_ranges_update_event()
     }
   }
 }

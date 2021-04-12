@@ -406,6 +406,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   reset_range(): void {
     this.update_range(null)
+    this.trigger_ranges_update_event()
+  }
+
+  trigger_ranges_update_event(): void {
     const {x_range, y_range} = this.model
     this.model.trigger_event(new RangesUpdate(x_range.start, x_range.end, y_range.start, y_range.end))
   }
