@@ -52,7 +52,7 @@ export class RectGL extends BaseGLGlyph {
     }
 
     const nmarkers = mainGlGlyph._centers.length / 2
-    if (this._show === undefined)
+    if (this._show == null)
       this._show = new Uint8Array(nmarkers)
 
     if (indices.length < nmarkers) {
@@ -114,7 +114,7 @@ export class RectGL extends BaseGLGlyph {
   protected _set_data(): void {
     const nmarkers = this.glyph.sx.length
 
-    if (this._centers === undefined || this._centers.length != nmarkers*2)
+    if (this._centers == null || this._centers.length != nmarkers*2)
       this._centers = new Float32Array(nmarkers*2)
 
     for (let i = 0; i < nmarkers; i++) {

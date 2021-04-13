@@ -17,7 +17,7 @@ import rect_fragment_shader from "./rect.frag"
 let regl_wrapper: ReglWrapper
 
 export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
-  if (regl_wrapper === undefined)
+  if (regl_wrapper == null)
     regl_wrapper = new ReglWrapper(gl)
   return regl_wrapper
 }
@@ -58,30 +58,30 @@ export class ReglWrapper {
   }
 
   public dashed_line(): ReglRenderFunction {
-    if (this._dashed_line === undefined)
+    if (this._dashed_line == null)
       this._dashed_line = regl_dashed_line(this._regl)
     return this._dashed_line
   }
 
   public get_dash(line_dash: number[]): DashReturn {
-    if (this._dash_cache === undefined)
+    if (this._dash_cache == null)
       this._dash_cache = new DashCache(this._regl)
 
     return this._dash_cache.get(line_dash)
   }
 
   public line_mesh(): ReglRenderFunction {
-    if (this._line_mesh === undefined)
+    if (this._line_mesh == null)
       this._line_mesh = regl_line_mesh(this._regl)
     return this._line_mesh
   }
 
   public marker(marker_type: MarkerType): ReglRenderFunction {
-    if (this._marker_map === undefined)
+    if (this._marker_map == null)
       this._marker_map = new Map<MarkerType, ReglRenderFunction>()
 
     let func = this._marker_map.get(marker_type)
-    if (func === undefined) {
+    if (func == null) {
       func = regl_marker(this._regl, marker_type)
       this._marker_map.set(marker_type, func)
     }
@@ -89,19 +89,19 @@ export class ReglWrapper {
   }
 
   public rect_no_hatch(): ReglRenderFunction {
-    if (this._rect_no_hatch === undefined)
+    if (this._rect_no_hatch == null)
       this._rect_no_hatch = regl_rect_no_hatch(this._regl)
     return this._rect_no_hatch
   }
 
   public rect_hatch(): ReglRenderFunction {
-    if (this._rect_hatch === undefined)
+    if (this._rect_hatch == null)
       this._rect_hatch = regl_rect_hatch(this._regl)
     return this._rect_hatch
   }
 
   public solid_line(): ReglRenderFunction {
-    if (this._solid_line === undefined)
+    if (this._solid_line == null)
       this._solid_line = regl_solid_line(this._regl)
     return this._solid_line
   }

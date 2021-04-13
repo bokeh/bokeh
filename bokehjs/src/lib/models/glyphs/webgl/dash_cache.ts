@@ -129,7 +129,7 @@ export class DashCache {
   public _get_or_create(pattern: number[]): DashReturn {
     const key = this._get_key(pattern)
     let cached = this._map.get(key)
-    if (cached === undefined) {
+    if (cached == null) {
       const scale: number = gcd(pattern)
 
       if (scale > 1) {

@@ -33,12 +33,12 @@ const hatch_pattern_lookup: {[key: string]: number} = {
 
 
 function hatch_pattern_to_index(pattern: HatchPattern): number {
-  return hatch_pattern_lookup[hatch_aliases[pattern] ?? pattern] | 0
+  return hatch_pattern_lookup[hatch_aliases[pattern] ?? pattern] ?? 0
 }
 
 export function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): Uint8Array {
-  const ncolors: number = Math.max(color_prop.length, alpha_prop.length)
-  const rgba: Uint8Array = new Uint8Array(4*ncolors)
+  const ncolors = color_prop.is_Scalar() && alpha_prop.is_Scalar() ? 1 : color_prop.length
+  const rgba = new Uint8Array(4*ncolors)
 
   for (let i = 0; i < ncolors; i++) {
     const [r, g, b, a] = color2rgba(color_prop.get(i), alpha_prop.get(i))
@@ -51,7 +51,7 @@ export function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Un
 }
 
 export function prop_as_array(prop: Uniform<number>): number[] | Float32Array {
-  if (prop === undefined)
+  if (prop == null)
     return []
   else if (prop.is_Scalar())
     return [prop.value]
@@ -64,7 +64,7 @@ export function prop_as_array(prop: Uniform<number>): number[] | Float32Array {
 }
 
 export function hatch_pattern_prop_as_array(prop: Uniform<HatchPattern>): number[] | Float32Array {
-  if (prop === undefined)
+  if (prop == null)
     return []
   else if (prop.is_Scalar())
     return [hatch_pattern_to_index(prop.value)]
@@ -77,7 +77,7 @@ export function hatch_pattern_prop_as_array(prop: Uniform<HatchPattern>): number
 }
 
 export function line_join_prop_as_array(prop: Uniform<LineJoin>): number[] | Float32Array {
-  if (prop === undefined)
+  if (prop == null)
     return []
   else if (prop.is_Scalar())
     return [join_lookup[prop.value]]
