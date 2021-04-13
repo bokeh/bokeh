@@ -8,6 +8,8 @@ import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
+import {get_regl, ReglWrapper} from "./webgl/regl_wrap"
+import {RectGL} from "./webgl/rect"
 
 export type RectData = CenterRotatableData & {
   sx0: ScreenArray
@@ -20,6 +22,21 @@ export interface RectView extends RectData {}
 export class RectView extends CenterRotatableView {
   model: Rect
   visuals: Rect.Visuals
+
+  /** @internal */
+  glglyph?: RectGL
+
+  initialize(): void {
+    super.initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null) {
+      const regl_wrapper: ReglWrapper = get_regl(webgl.gl)
+      if (regl_wrapper.has_webgl) {
+        this.glglyph = new RectGL(regl_wrapper, this)
+      }
+    }
+  }
 
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")

@@ -3,10 +3,8 @@ import {ReglWrapper} from "./regl_wrap"
 import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
+import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
 import {MarkerType} from "core/enums"
-import {uint32} from "core/types"
-import {Uniform} from "core/uniforms"
-import {color2rgba} from "core/util/color"
 
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -22,41 +20,11 @@ function is_CircleView(glyph_view: GlyphView): glyph_view is CircleView {
   return glyph_view.model.type == "Circle"
 }
 
-function color_to_uint8_array(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): Uint8Array {
-  const ncolors: number = Math.max(color_prop.length, alpha_prop.length)
-  const rgba: Uint8Array = new Uint8Array(4*ncolors)
-
-  for (let i = 0; i < ncolors; i++) {
-    const [r, g, b, a] = color2rgba(color_prop.get(i), alpha_prop.get(i))
-    rgba[4*i  ] = r
-    rgba[4*i+1] = g
-    rgba[4*i+2] = b
-    rgba[4*i+3] = a
-  }
-  return rgba
-}
-
-
-function prop_as_array(prop: Uniform<number>): number[] | Float32Array {
-  if (prop === undefined)
-    return []
-  else if (prop.is_Scalar())
-    return [prop.value]
-  else {
-    const array = new Float32Array(prop.length)
-    for (let i = 0; i < prop.length; i++)
-      array[i] = prop.get(i)
-    return array
-  }
-}
-
-
 // Base class for markers. All markers share the same GLSL, except for one
 // function in the fragment shader that defines the marker geometry and is
 // enabled through a #define.
 export class MarkerGL extends BaseGLGlyph {
   protected _marker_type: MarkerType
-  protected _linewidth: number
   protected _antialias: number
 
   protected _centers: Float32Array
@@ -131,7 +99,7 @@ export class MarkerGL extends BaseGLGlyph {
     }
 
     const nmarkers = mainGlGlyph._centers.length / 2
-    if (this._show === undefined)
+    if (this._show == null)
       this._show = new Uint8Array(nmarkers)
 
     if (indices.length < nmarkers) {
@@ -169,7 +137,7 @@ export class MarkerGL extends BaseGLGlyph {
   protected _set_data(): void {
     const nmarkers = this.glyph.sx.length
 
-    if (this._centers === undefined || this._centers.length != nmarkers*2)
+    if (this._centers == null || this._centers.length != nmarkers*2)
       this._centers = new Float32Array(nmarkers*2)
 
     for (let i = 0; i < nmarkers; i++) {

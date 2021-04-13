@@ -4,11 +4,8 @@ import {ReglWrapper} from "./regl_wrap"
 import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
+import {cap_lookup, join_lookup} from "./webgl_utils"
 
-
-const cap_lookup = {butt: 0, round: 1, square: 2}
-
-const join_lookup = {miter: 0, round: 1, bevel: 2}
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
@@ -120,14 +117,14 @@ export class LineGL extends BaseGLGlyph {
     const npoints = this.glyph.sx.length
     this._nsegments = npoints-1
 
-    if (this._is_closed === undefined) {
+    if (this._is_closed == null) {
       this._is_closed = (this.glyph.sx[0] == this.glyph.sx[npoints-1] &&
                          this.glyph.sy[0] == this.glyph.sy[npoints-1] &&
                          isFinite(this.glyph.sx[0]) &&
                          isFinite(this.glyph.sy[0]))
     }
 
-    if (this._points === undefined)
+    if (this._points == null)
       this._points = new Float32Array((npoints+2)*2)
 
     for (let i = 1; i < npoints+1; i++) {
@@ -153,7 +150,7 @@ export class LineGL extends BaseGLGlyph {
     }
 
     if (this._is_dashed()) {
-      if (this._length_so_far === undefined)
+      if (this._length_so_far == null)
         this._length_so_far = new Float32Array(this._nsegments)
 
       let length = 0.0
