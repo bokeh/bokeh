@@ -54,6 +54,7 @@ const style = {
 
 export class CanvasView extends DOMView {
   model: Canvas
+  el: HTMLElement
 
   bbox: BBox = new BBox()
 

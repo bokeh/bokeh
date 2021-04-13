@@ -20,6 +20,8 @@ export abstract class LayoutDOMView extends DOMView {
   root: LayoutDOMView
   readonly parent: LayoutDOMView
 
+  el: HTMLElement
+
   protected _idle_notified: boolean = false
 
   protected _child_views: Map<LayoutDOM, LayoutDOMView>
@@ -157,7 +159,7 @@ export abstract class LayoutDOMView extends DOMView {
     this._viewport = this._viewport_size()
   }
 
-  renderTo(element: HTMLElement): void {
+  renderTo(element: Node): void {
     element.appendChild(this.el)
     this._offset_parent = this.el.offsetParent
     this.compute_viewport()
