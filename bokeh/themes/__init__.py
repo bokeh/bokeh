@@ -6,6 +6,9 @@
 #-----------------------------------------------------------------------------
 ''' Provide access to built-in themes:
 
+Built-in themes
+---------------
+
 CALIBER
 ~~~~~~~
 
@@ -62,7 +65,7 @@ LIGHT_MINIMAL
     show(p)
 
 NIGHT_SKY
-~~~~~~~~~~~~~
+~~~~~~~~~
 
 .. bokeh-plot::
 
@@ -80,7 +83,7 @@ NIGHT_SKY
     show(p)
 
 CONTRAST
-~~~~~~~~~~~~~
+~~~~~~~~
 
 .. bokeh-plot::
 
@@ -97,7 +100,8 @@ CONTRAST
     p.line(x, y)
     show(p)
 
-as well as the ``Theme`` class that can be used to create new Themes.
+Theme
+-----
 
 .. autoclass:: Theme
 
