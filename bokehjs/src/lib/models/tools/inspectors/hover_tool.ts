@@ -18,7 +18,7 @@ import {color2hex, color2css} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
-import {build_views, remove_views} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
@@ -27,6 +27,7 @@ import {tool_icon_hover} from "styles/icons.css"
 import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
 import * as styles from "styles/tooltips.css"
+import {Template, TemplateView} from "../../dom"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -67,6 +68,7 @@ export class HoverToolView extends InspectToolView {
   protected _ttviews: Map<Tooltip, TooltipView>
   protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
+  protected _template_view?: TemplateView
 
   initialize(): void {
     super.initialize()
@@ -77,9 +79,16 @@ export class HoverToolView extends InspectToolView {
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._update_ttmodels()
+
+    const {tooltips} = this.model
+    if (tooltips instanceof Template) {
+      this._template_view = await build_view(tooltips, {parent: this})
+      this._template_view.render()
+    }
   }
 
   remove(): void {
+    this._template_view?.remove()
     remove_views(this._ttviews)
     super.remove()
   }
@@ -513,6 +522,8 @@ export class HoverToolView extends InspectToolView {
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
+    } else if (tooltips instanceof Template) {
+      return this._template_view!.el
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
       return this._render_template(template, tooltips, ds, i, vars)
@@ -525,7 +536,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | Template | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<DataRenderer[] | "auto">
     /** @deprecated */
@@ -555,7 +566,7 @@ export class HoverTool extends InspectTool {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
-      tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
+      tooltips: [ Nullable(Or(Ref(Template), String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
