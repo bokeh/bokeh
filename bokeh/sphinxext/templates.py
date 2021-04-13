@@ -32,8 +32,6 @@ from jinja2 import Environment, FileSystemLoader
 __all__ = (
     "BJS_CODEPEN_INIT",
     "BJS_HTML",
-    "CCB_PROLOGUE",
-    "CCB_EPILOGUE",
     "COLOR_DETAIL",
     "ENUM_DETAIL",
     "GALLERY_PAGE",

@@ -62,8 +62,6 @@ from sphinx.directives.code import CodeBlock
 __all__ = (
     "collapsible_code_block",
     "CollapsibleCodeBlock",
-    "html_depart_collapsible_code_block",
-    "html_visit_collapsible_code_block",
     "setup",
 )
 
@@ -77,7 +75,6 @@ __all__ = (
 
 
 class collapsible_code_block(nodes.General, nodes.Element):
-
     @staticmethod
     def visit_html(visitor, node):
         heading = node["heading"]
@@ -85,9 +82,10 @@ class collapsible_code_block(nodes.General, nodes.Element):
 
     @staticmethod
     def depart_html(visitor, _node):
-        visitor.body.append('</details>')
+        visitor.body.append("</details>")
 
     html = visit_html.__func__, depart_html.__func__
+
 
 class CollapsibleCodeBlock(CodeBlock):
 
@@ -114,6 +112,7 @@ class CollapsibleCodeBlock(CodeBlock):
         node.children.append(cb[0])
 
         return [target_node, node]
+
 
 def setup(app):
     """ Required Sphinx extension setup function. """

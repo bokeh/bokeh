@@ -14,5 +14,3 @@
         {{ model_json|indent(8) }}
 
     .. autoclasstoc::
-
-
