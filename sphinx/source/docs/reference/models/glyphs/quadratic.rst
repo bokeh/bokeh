@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.Quadratic:
 
-bokeh.models.glyphs.Quadratic
------------------------------
-
-.. autoclass:: bokeh.models.glyphs.Quadratic
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
+.. bokeh-model:: Quadratic
+    :module: bokeh.models.glyphs

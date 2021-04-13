@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.ImageURL:
 
-bokeh.models.glyphs.ImageURL
-----------------------------
-
-.. autoclass:: bokeh.models.glyphs.ImageURL
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
+.. bokeh-model:: ImageURL
+    :module: bokeh.models.glyphs

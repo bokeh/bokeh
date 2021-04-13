@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.HArea:
 
-bokeh.models.glyphs.HArea
--------------------------
-
-.. autoclass:: bokeh.models.glyphs.HArea
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
+.. bokeh-model:: HArea
+    :module: bokeh.models.glyphs

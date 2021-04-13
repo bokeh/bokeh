@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.Segment:
 
-bokeh.models.glyphs.Segment
----------------------------
-
-.. autoclass:: bokeh.models.glyphs.Segment
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
+.. bokeh-model:: Segment
+    :module: bokeh.models.glyphs

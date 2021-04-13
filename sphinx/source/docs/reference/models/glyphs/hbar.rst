@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.HBar:
 
-bokeh.models.glyphs.HBar
-------------------------
-
-.. autoclass:: bokeh.models.glyphs.HBar
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc::
+.. bokeh-model:: HBar
+    :module: bokeh.models.glyphs
