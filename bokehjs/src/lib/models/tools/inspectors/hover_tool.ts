@@ -523,6 +523,7 @@ export class HoverToolView extends InspectToolView {
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips instanceof Template) {
+      this._template_view!.update(ds, i, vars)
       return this._template_view!.el
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))

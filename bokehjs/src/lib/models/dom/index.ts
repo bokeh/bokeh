@@ -8,6 +8,9 @@ import {isString} from "core/util/types"
 import {entries} from "core/util/object"
 import * as styles from "styles/tooltips.css"
 
+import {Index as DataIndex, _get_column_value} from "core/util/templating"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+
 export namespace Style {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {}
@@ -93,6 +96,8 @@ export class Text extends DOMNode {
 export abstract class PlaceholderView extends DOMNodeView {
   model: Placeholder
   static tag_name = "span" as const
+
+  abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
 }
 
 export namespace Placeholder {
@@ -117,6 +122,10 @@ export abstract class Placeholder extends DOMNode {
 
 export class IndexView extends PlaceholderView {
   model: Index
+
+  update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+    this.el.textContent = i.toString()
+  }
 }
 
 export namespace Index {
@@ -142,6 +151,12 @@ export class Index extends Placeholder {
 
 export class ValueRefView extends PlaceholderView {
   model: ValueRef
+
+  update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+    const value = _get_column_value(this.model.field, source, i)
+    const text = value == null ? "???" : `${value}` //.toString()
+    this.el.textContent = text
+  }
 }
 
 export namespace ValueRef {
@@ -180,6 +195,15 @@ export class ColorRefView extends ValueRefView {
 
     this.value_el = span()
     this.swatch_el = span({class: styles.tooltip_color_block}, " ")
+
+    this.el.appendChild(this.value_el)
+    this.el.appendChild(this.swatch_el)
+  }
+
+  update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+    const value = _get_column_value(this.model.field, source, i)
+    const text = value == null ? "???" : `${value}` //.toString()
+    this.el.textContent = text
   }
 }
 
@@ -283,6 +307,20 @@ export abstract class HTML extends DOMNode {
 export class TemplateView extends HTMLView {
   model: Template
   static tag_name = "div" as const
+
+  update(source: ColumnarDataSource, i: DataIndex, vars: object = {}/*, formatters?: Formatters*/): void {
+    function descend(obj: HTMLView): void {
+      for (const child of obj.child_views.values()) {
+        if (child instanceof PlaceholderView) {
+          child.update(source, i, vars)
+        } else if (child instanceof HTMLView) {
+          descend(child)
+        }
+      }
+    }
+
+    descend(this)
+  }
 }
 export class Template extends HTML {
   __view_type__: TemplateView
@@ -290,7 +328,6 @@ export class Template extends HTML {
     this.prototype.default_view = TemplateView
   }
 }
-
 
 export class SpanView extends HTMLView {
   model: Span
