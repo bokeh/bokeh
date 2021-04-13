@@ -8,4 +8,4 @@ bokeh.models.glyphs.Quadratic
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

@@ -8,4 +8,4 @@ bokeh.models.glyphs.Text
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

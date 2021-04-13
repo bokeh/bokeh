@@ -8,4 +8,4 @@ bokeh.models.glyphs.Patches
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

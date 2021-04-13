@@ -8,4 +8,4 @@ bokeh.models.glyphs.Quad
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

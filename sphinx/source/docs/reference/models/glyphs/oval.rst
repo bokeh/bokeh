@@ -8,4 +8,4 @@ bokeh.models.glyphs.Oval
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

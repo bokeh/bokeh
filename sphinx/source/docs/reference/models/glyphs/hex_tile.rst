@@ -8,4 +8,4 @@ bokeh.models.glyphs.HexTile
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

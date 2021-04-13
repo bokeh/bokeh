@@ -8,4 +8,4 @@ bokeh.models.glyphs.HBar
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

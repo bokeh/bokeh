@@ -8,4 +8,4 @@ bokeh.models.glyphs.ImageURL
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

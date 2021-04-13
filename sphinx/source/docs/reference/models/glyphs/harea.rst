@@ -8,4 +8,4 @@ bokeh.models.glyphs.HArea
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

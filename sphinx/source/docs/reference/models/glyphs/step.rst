@@ -8,4 +8,4 @@ bokeh.models.glyphs.Step
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

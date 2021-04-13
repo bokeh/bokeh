@@ -8,4 +8,4 @@ bokeh.models.glyphs.Ray
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

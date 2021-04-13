@@ -8,4 +8,4 @@ bokeh.models.glyphs.Annulus
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

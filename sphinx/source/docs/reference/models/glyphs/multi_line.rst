@@ -8,4 +8,4 @@ bokeh.models.glyphs.MultiLine
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

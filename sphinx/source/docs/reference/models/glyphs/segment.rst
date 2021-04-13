@@ -8,4 +8,4 @@ bokeh.models.glyphs.Segment
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

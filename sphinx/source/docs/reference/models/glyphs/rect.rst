@@ -8,4 +8,4 @@ bokeh.models.glyphs.Rect
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::

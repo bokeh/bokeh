@@ -8,4 +8,4 @@ bokeh.models.glyphs.Bezier
     :show-inheritance:
     :inherited-members:
 
-    .. autoclasstoc:
+    .. autoclasstoc::
