@@ -37,47 +37,47 @@ varying vec2 v_hatch_coords;
 
 void main()
 {
-    if (a_show < 0.5) {
-        // Do not show this rect.
-        gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
-        return;
-    }
+  if (a_show < 0.5) {
+    // Do not show this rect.
+    gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
+    return;
+  }
 
-    v_size = vec2(a_width, a_height);
-    v_linewidth = a_linewidth;
-    v_line_color = a_line_color;
-    v_fill_color = a_fill_color;
-    v_line_join = a_line_join;
+  v_size = vec2(a_width, a_height);
+  v_linewidth = a_linewidth;
+  v_line_color = a_line_color;
+  v_fill_color = a_fill_color;
+  v_line_join = a_line_join;
 
-    if (v_linewidth < 1.0) {
-        // Linewidth less than 1 is implemented as 1 but with reduced alpha.
-        v_line_color.a *= v_linewidth;
-        v_linewidth = 1.0;
-    }
+  if (v_linewidth < 1.0) {
+    // Linewidth less than 1 is implemented as 1 but with reduced alpha.
+    v_line_color.a *= v_linewidth;
+    v_linewidth = 1.0;
+  }
 
 #ifdef HATCH
-    v_hatch_pattern = a_hatch_pattern;
-    v_hatch_scale = a_hatch_scale;
-    v_hatch_weight = a_hatch_weight;
-    v_hatch_color = a_hatch_color;
+  v_hatch_pattern = a_hatch_pattern;
+  v_hatch_scale = a_hatch_scale;
+  v_hatch_weight = a_hatch_weight;
+  v_hatch_color = a_hatch_color;
 #endif
 
-    vec2 enclosing_size = v_size + v_linewidth + u_antialias;
+  vec2 enclosing_size = v_size + v_linewidth + u_antialias;
 
-    // Coordinates in rotated frame with respect to center of marker, used for
-    // distance functions in fragment shader.
-    v_coords = a_position*enclosing_size;
+  // Coordinates in rotated frame with respect to center of marker, used for
+  // distance functions in fragment shader.
+  v_coords = a_position*enclosing_size;
 
-    float c = cos(-a_angle);
-    float s = sin(-a_angle);
-    mat2 rotation = mat2(c, -s, s, c);
+  float c = cos(-a_angle);
+  float s = sin(-a_angle);
+  mat2 rotation = mat2(c, -s, s, c);
 
-    vec2 pos = a_center + rotation*v_coords;
+  vec2 pos = a_center + rotation*v_coords;
 #ifdef HATCH
-    // Coordinates for hatching in unrotated frame of reference.
-    v_hatch_coords = pos - 0.5;
+  // Coordinates for hatching in unrotated frame of reference.
+  v_hatch_coords = pos - 0.5;
 #endif
-    pos += 0.5; // Make up for Bokeh's offset.
-    pos /= u_canvas_size / u_pixel_ratio; // 0 to 1.
-    gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
+  pos += 0.5; // Make up for Bokeh's offset.
+  pos /= u_canvas_size / u_pixel_ratio; // 0 to 1.
+  gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
 }
