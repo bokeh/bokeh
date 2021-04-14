@@ -31,7 +31,7 @@ By definition, all markers accept the following set of properties:
 * ``angle``
 
 The ``asterisk``, ``cross``, ``dash``, ``dot``, ``x``, and ``y`` only render
-line coponents. Those markers ignore any values that are passed to the ``fill``
+line components. Those markers ignore any values that are passed to the ``fill``
 and ``hatch`` properties.
 
 .. note::
