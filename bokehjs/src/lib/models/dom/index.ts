@@ -2,8 +2,9 @@ import {Model} from "../../model"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Style} from "./style"
 import {span} from "core/dom"
+import {View} from "core/view"
 import {DOMView} from "core/dom_view"
-import {build_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 import {entries} from "core/util/object"
@@ -299,9 +300,48 @@ export abstract class HTML extends DOMNode {
   }
 }
 
+export abstract class ActionView extends View {
+  model: Action
+
+  abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
+}
+
+export namespace Action {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & {}
+}
+
+export interface Action extends Action.Attrs {}
+
+export abstract class Action extends Model {
+  properties: Action.Props
+  __view_type__: ActionView
+  static __module__ = "bokeh.models.dom"
+
+  constructor(attrs?: Partial<Action.Attrs>) {
+    super(attrs)
+  }
+
+  static init_Action(): void {
+    this.define<Action.Props>(({}) => ({}))
+  }
+}
+
 export class TemplateView extends HTMLView {
   model: Template
   static tag_name = "div" as const
+
+  action_views: Map<Action, ActionView> = new Map()
+
+  async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    await build_views(this.action_views, this.model.actions, {parent: this})
+  }
+
+  remove(): void {
+    remove_views(this.action_views)
+    super.remove()
+  }
 
   update(source: ColumnarDataSource, i: DataIndex, vars: object = {}/*, formatters?: Formatters*/): void {
     function descend(obj: HTMLView): void {
@@ -315,12 +355,31 @@ export class TemplateView extends HTMLView {
     }
 
     descend(this)
+
+    for (const action of this.action_views.values()) {
+      action.update(source, i, vars)
+    }
   }
 }
+
+export namespace Template {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HTML.Props & {
+    actions: p.Property<Action[]>
+  }
+}
+
+export interface Template extends Template.Attrs {}
+
 export class Template extends HTML {
+  properties: Template.Props
   __view_type__: TemplateView
+
   static init_Template(): void {
     this.prototype.default_view = TemplateView
+    this.define<Template.Props>(({Array, Ref}) => ({
+      actions: [ Array(Ref(Action)), [] ],
+    }))
   }
 }
 
@@ -401,6 +460,47 @@ export class HBox extends HTML {
     this.prototype.default_view = HBoxView
   }
 }
+
+/////
+
+import {RendererGroup} from "../renderers/renderer"
+import {enumerate} from "core/util/iterator"
+
+export class ToggleGroupView extends ActionView {
+  model: ToggleGroup
+
+  update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+    for (const [group, j] of enumerate(this.model.groups)) {
+      group.visible = i == j
+    }
+  }
+}
+
+export namespace ToggleGroup {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Action.Props & {
+    groups: p.Property<RendererGroup[]>
+  }
+}
+
+export interface ToggleGroup extends ToggleGroup.Attrs {}
+
+export class ToggleGroup extends Action {
+  properties: ToggleGroup.Props
+  __view_type__: ToggleGroupView
+
+  constructor(attrs?: Partial<ToggleGroup.Attrs>) {
+    super(attrs)
+  }
+
+  static init_ToggleGroup(): void {
+    this.prototype.default_view = ToggleGroupView
+    this.define<ToggleGroup.Props>(({Array, Ref}) => ({
+      groups: [ Array(Ref(RendererGroup)), [] ],
+    }))
+  }
+}
+
 
 /*
 export namespace X {
