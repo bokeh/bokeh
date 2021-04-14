@@ -58,6 +58,12 @@ export abstract class RendererView extends View implements visuals.Renderable {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
+    const {group} = this.model
+    if (group != null) {
+      this.on_change(group.properties.visible, () => {
+        this.model.visible = group.visible
+      })
+    }
   }
 
   protected _initialize_coordinates(): CoordinateTransform {
@@ -112,13 +118,15 @@ export abstract class RendererView extends View implements visuals.Renderable {
     return false
   }
 
+  /*
   get visible(): boolean {
     const {visible, group} = this.model
     return !visible ? false : (group?.visible ?? true)
   }
+  */
 
   render(): void {
-    if (this.visible) {
+    if (this.model.visible) {
       this._render()
     }
     this._has_finished = true
