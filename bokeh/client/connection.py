@@ -60,7 +60,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class ClientConnection:
-    ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
+    ''' A low-level class used to connect to a Bokeh server.
+
+    .. autoclasstoc::
 
     '''
 

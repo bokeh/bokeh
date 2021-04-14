@@ -78,6 +78,8 @@ class FunctionHandler(Handler):
     This handler could be configured on an Application, and the Application
     would run this function every time a new session is created.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, func, *, trap_exceptions=False):

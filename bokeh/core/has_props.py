@@ -239,6 +239,8 @@ def accumulate_dict_from_superclasses(cls, propname):
 class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
+    .. autoclasstoc::
+
     '''
     _initialized: bool = False
 

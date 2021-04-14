@@ -202,6 +202,9 @@ class BokehTornado(TornadoApplication):
             (default: {DEFAULT_SESSION_TOKEN_EXPIRATION})
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
+
+    .. autoclasstoc::
+
     '''
 
     def __init__(self,

@@ -47,6 +47,8 @@ __all__ = (
 class ServerLifecycleHandler(LifecycleHandler):
     ''' Load a script which contains server lifecycle callbacks.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, *args, **kwargs):
