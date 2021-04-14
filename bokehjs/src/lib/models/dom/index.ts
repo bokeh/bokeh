@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {Style} from "./style"
 import {span} from "core/dom"
 import {DOMView} from "core/dom_view"
 import {build_views} from "core/build_views"
@@ -11,25 +12,7 @@ import * as styles from "styles/tooltips.css"
 import {Index as DataIndex, _get_column_value} from "core/util/templating"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export namespace Style {
-  export type Attrs = p.AttrsOf<Props>
-  export type Props = Model.Props & {}
-}
-
-export interface Style extends Style.Attrs {}
-
-export class Style extends Model {
-  properties: Style.Props
-  static __module__ = "bokeh.models.dom"
-
-  constructor(attrs?: Partial<Style.Attrs>) {
-    super(attrs)
-  }
-
-  static init_Style(): void {
-    this.define<Style.Props>(({}) => ({}))
-  }
-}
+export {Style}
 
 export abstract class DOMNodeView extends DOMView {
   model: DOMNode
@@ -258,9 +241,23 @@ export abstract class HTMLView extends DOMNodeView {
       //this.el.style[key as Key] = value
       */
 
-      for (const [key, value] of entries(style)) {
-        const normalized_key = key.replace(/_/g, "-")
-        this.el.style.setProperty(normalized_key, value)
+      if (style instanceof Style) {
+        for (const prop of style) {
+          const value = prop.get_value()
+          if (isString(value)) {
+            const name = prop.attr.replace(/_/g, "-")
+            if (this.el.style.hasOwnProperty(name)) {
+              this.el.style.setProperty(name, value as string)
+            }
+          }
+        }
+      } else {
+        for (const [key, value] of entries(style)) {
+          const name = key.replace(/_/g, "-")
+          if (this.el.style.hasOwnProperty(name)) {
+            this.el.style.setProperty(name, value)
+          }
+        }
       }
     }
 
@@ -279,8 +276,7 @@ export abstract class HTMLView extends DOMNodeView {
 export namespace HTML {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
-    //style: p.Property<Style | null>
-    style: p.Property<{[key: string]: string} | null>
+    style: p.Property<Style | {[key: string]: string} | null>
     children: p.Property<(string | DOMNode | LayoutDOM)[]>
   }
 }
@@ -297,8 +293,7 @@ export abstract class HTML extends DOMNode {
 
   static init_HTML(): void {
     this.define<HTML.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
-      //style: [ Nullable(Ref(Style)), null ],
-      style: [ Nullable(Dict(String)), null ],
+      style: [ Nullable(Or(Ref(Style), Dict(String))), null ],
       children: [ Array(Or(String, Ref(DOMNode), Ref(LayoutDOM))), [] ],
     }))
   }

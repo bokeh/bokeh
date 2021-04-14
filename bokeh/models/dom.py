@@ -1,16 +1,14 @@
 from ..core.properties import Bool, String, Nullable, NonNullable, Dict, List, Tuple, Either, Instance
 from ..model import Model, Qualified
 from .layouts import LayoutDOM
+from .style import Style
 
 class DOMNode(Model, Qualified):
     pass
 class Text(DOMNode):
     content = String(default="")
-class Style(Model):
-    pass
 class HTML(DOMNode):
-    #style = Nullable(Instance(Style))
-    style = Nullable(Dict(String, String))
+    style = Nullable(Either(Instance(Style), Dict(String, String)))
     children = List(Either(String, Instance(DOMNode), Instance(LayoutDOM)))
 class Template(HTML):
     pass

@@ -81,24 +81,35 @@ def f():
         #print(sc)
         bohr_diagram.circle(x=0, y=0, radius=list(range(1, n+1)), fill_color=None, line_color="black")
         # electrons
+        xs = np.array([])
+        ys = np.array([])
         for i, c in enumerate(sc):
             da = 360/c
             r = i + 1
             A = np.radians(np.arange(0, 360, da))
             x = r*np.cos(A)
             y = r*np.sin(A)
-            bohr_diagram.circle(x=x, y=y)
+            xs = np.append(xs, x)
+            ys = np.append(ys, y)
+            #bohr_diagram.circle(x=x, y=y)
             #bohr_diagram.polar.circle(r=i+1, phi=list(range(0, 360, da)), phi_units="deg")
+        bohr_diagram.circle(x=xs, y=ys)
         fs.append(bohr_diagram)
 #f()
     return fs
 
-from bokeh.models.dom import Style, Template, Table, TableRow, Div, Span, Index, ValueRef, ColorRef, VBox
+from bokeh.models.dom import Style, Template, Table, TableRow, Div, Span, Index, ValueRef, ColorRef, CollectionRef, VBox
 
 def g():
     bohr_diagram = f()
 
-    grid = Div(style=dict(display="grid", grid_template_columns="auto auto"))
+    #grid = Div(style=dict(display="grid", grid_template_columns="auto auto", column_gap="10px"))
+    style = Style(
+        display="grid",
+        grid_template_columns="auto auto",
+        column_gap="10px",
+    )
+    grid = Div(style=style)
     grid.children = [
         Span(),                     Span(children=["#", Index()]),
         "Name",                     Span(style=dict(font_weight="bold"), children=[ValueRef(field="name")]),
