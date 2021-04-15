@@ -106,13 +106,13 @@ def _property_aliases(class_dict):
 # explicit property caching in HasProps is replaced with memoized queries
 def _is_container_prop(x):
     from .property.bases import ContainerProperty
-    from .property.descriptors import BasicPropertyDescriptor
-    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, ContainerProperty)
+    from .property.descriptors import PropertyDescriptor
+    return isinstance(x, PropertyDescriptor) and isinstance(x.property, ContainerProperty)
 
 def _is_dataspec_prop(x):
     from .property.dataspec import DataSpec
-    from .property.descriptors import BasicPropertyDescriptor
-    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, DataSpec)
+    from .property.descriptors import PropertyDescriptor
+    return isinstance(x, PropertyDescriptor) and isinstance(x.property, DataSpec)
 
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
@@ -125,7 +125,7 @@ class MetaHasProps(type):
 
     '''
 
-    def __new__(meta_cls, class_name, bases, class_dict):
+    def __new__(cls, class_name, bases, class_dict):
         '''
 
         '''
@@ -164,7 +164,7 @@ class MetaHasProps(type):
         class_dict["__overridden_defaults__"] = overridden_defaults
         class_dict["__dataspecs__"] = dataspecs
 
-        return super().__new__(meta_cls, class_name, bases, class_dict)
+        return super().__new__(cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, __):
         # Check for improperly redeclaring a Property attribute.

@@ -99,7 +99,6 @@ from .wrappers import PropertyValueColumnData, PropertyValueContainer
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'BasicPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
@@ -119,273 +118,7 @@ class UnsetValueError(ValueError):
     """ Represents state in which descriptor without value was accessed. """
 
 class PropertyDescriptor:
-    """ Base class for a python descriptor that delegates access for a named
-    attribute to a Bokeh |Property| instance.
-
-    """
-
-    def __init__(self, name):
-        """ Create a descriptor for a hooking up a named Bokeh property
-        as an attribute on a |HasProps| class.
-
-        Args:
-            name (str) : the attribute name that this descriptor is for
-
-        """
-        self.name = name
-
-    def __str__(self):
-        """ Basic string representation of ``PropertyDescriptor``.
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        return f"PropertyDescriptor({self.name})"
-
-    def __get__(self, obj, owner):
-        """ Implement the getter for the Python `descriptor protocol`_.
-
-        Args:
-            obj (HasProps or None) :
-                The instance to set a new property value on (for instance
-                attribute access), or None (for class attribute access)
-
-            owner (obj) :
-                The new value to set the property to
-
-        Returns:
-            None
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement __get__")
-
-    def __set__(self, obj, value, setter=None):
-        """ Implement the setter for the Python `descriptor protocol`_.
-
-        .. note::
-            An optional argument ``setter`` has been added to the standard
-            setter arguments. When needed, this value should be provided by
-            explicitly invoking ``__set__``. See below for more information.
-
-        Args:
-            obj (HasProps) :
-                The instance to set a new property value on
-
-            value (obj) :
-                The new value to set the property to
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement __set__")
-
-    def __delete__(self, obj):
-        """ Implement the deleter for the Python `descriptor protocol`_.
-
-        Args:
-            obj (HasProps) : An instance to delete this property from
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement __delete__")
-
-    def class_default(self, cls):
-        """ The default as computed for a certain class, ignoring any
-        per-instance theming.
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement class_default()")
-
-    def serializable_value(self, obj):
-        """ Produce the value as it should be serialized.
-
-        Sometimes it is desirable for the serialized value to differ from
-        the ``__get__`` in order for the ``__get__`` value to appear simpler
-        for user or developer convenience.
-
-        Args:
-            obj (HasProps) : the object to get the serialized attribute for
-
-        Returns:
-            JSON-like
-
-        """
-        value = self.__get__(obj, obj.__class__)
-        return self.property.serialize_value(value)
-
-    def set_from_json(self, obj, json, models=None, setter=None):
-        """Sets the value of this property from a JSON value.
-
-        Args:
-            obj: (HasProps) : instance to set the property value on
-
-            json: (JSON-value) : value to set to the attribute to
-
-            models (dict or None, optional) :
-                Mapping of model ids to models (default: None)
-
-                This is needed in cases where the attributes to update also
-                have values that have references.
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        self._internal_set(obj, json, setter=setter)
-
-    def trigger_if_changed(self, obj, old):
-        """ Send a change event notification if the property is set to a
-        value is not equal to ``old``.
-
-        Args:
-            obj (HasProps)
-                The object the property is being set on.
-
-            old (obj) :
-                The previous value of the property to compare
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement trigger_if_changed()")
-
-    @property
-    def has_ref(self):
-        """ Whether the property can refer to another ``HasProps`` instance.
-
-        This is typically True for container properties, ``Instance``, etc.
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement has_ref()")
-
-    @property
-    def readonly(self):
-        """ Whether this property is read-only.
-
-        Read-only properties may only be modified by the client (i.e., by
-        BokehJS, in the browser). Read only properties are useful for
-        quantities that originate or that can only be computed in the
-        browser, for instance the "inner" plot dimension of a plot area,
-        which depend on the current layout state. It is useful for Python
-        callbacks to be able to know these values, but they can only be
-        computed in the actual browser.
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement readonly()")
-
-    @property
-    def serialized(self):
-        """ Whether the property should be serialized when serializing
-        an object.
-
-        This would be False for a "virtual" or "convenience" property that
-        duplicates information already available in other properties, for
-        example.
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement serialized()")
-
-    def _internal_set(self, obj, value, hint=None, setter=None):
-        """ Internal implementation to set property values, that is used
-        by __set__, set_from_json, etc.
-
-        Args:
-            obj (HasProps)
-                The object the property is being set on.
-
-            old (obj) :
-                The previous value of the property to compare
-
-            hint (event hint or None, optional)
-                An optional update event hint, e.g. ``ColumnStreamedEvent``
-                (default: None)
-
-                Update event hints are usually used at times when better
-                update performance can be obtained by special-casing in
-                some way (e.g. streaming or patching column data sources)
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Raises:
-            NotImplementedError
-
-        **Subclasses must implement this to serve their specific needs.**
-
-        """
-        raise NotImplementedError("Implement _internal_set()")
-
-class BasicPropertyDescriptor(PropertyDescriptor):
-    """ A ``PropertyDescriptor`` for basic Bokeh properties (e.g, ``Int``,
-    ``String``, ``Float``, etc.) with simple get/set and serialization
+    """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
 
     """
@@ -398,12 +131,12 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             property (Property) : A basic property to create a descriptor for
 
         """
-        super().__init__(name)
+        self.name = name
         self.property = property
         self.__doc__ = self.property.__doc__
 
     def __str__(self):
-        """ Basic string representation of ``BasicPropertyDescriptor``.
+        """ Basic string representation of ``PropertyDescriptor``.
 
         Delegates to ``self.property.__str__``
 
@@ -441,7 +174,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
                 # class attribute access, returns the property descriptor
                 >>> Range1d.start
-                <bokeh.core.property.descriptors.BasicPropertyDescriptor at 0x1148b3390>
+                <bokeh.core.property.descriptors.PropertyDescriptor at 0x1148b3390>
 
         """
         if obj is not None:
@@ -498,7 +231,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
-        self._internal_set(obj, value, setter=setter)
+        value = self.property.prepare_value(obj, self.name, value)
+        old = self._get(obj)
+        self._set(obj, old, value, setter=setter)
 
     def __delete__(self, obj):
         """ Implement the deleter for the Python `descriptor protocol`_.
@@ -542,17 +277,36 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         """
         return self.property.themed_default(obj.__class__, self.name, obj.themed_values())
 
-    def set_from_json(self, obj, json, models=None, setter=None):
-        """ Sets the value of this property from a JSON value.
+    def serializable_value(self, obj):
+        """ Produce the value as it should be serialized.
 
-        This method first
+        Sometimes it is desirable for the serialized value to differ from
+        the ``__get__`` in order for the ``__get__`` value to appear simpler
+        for user or developer convenience.
 
         Args:
-            obj (HasProps) :
+            obj (HasProps) : the object to get the serialized attribute for
 
-            json (JSON-dict) :
+        Returns:
+            JSON-like
 
-            models(seq[Model], optional) :
+        """
+        value = self.__get__(obj, obj.__class__)
+        return self.property.serialize_value(value)
+
+    def set_from_json(self, obj, json, models=None, setter=None):
+        """Sets the value of this property from a JSON value.
+
+        Args:
+            obj: (HasProps) : instance to set the property value on
+
+            json: (JSON-value) : value to set to the attribute to
+
+            models (dict or None, optional) :
+                Mapping of model ids to models (default: None)
+
+                This is needed in cases where the attributes to update also
+                have values that have references.
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -569,7 +323,9 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         """
-        return super().set_from_json(obj, self.property.from_json(json, models), models, setter)
+        value = self.property.prepare_value(obj, self.name, self.property.from_json(json, models))
+        old = self._get(obj)
+        self._set(obj, old, value, setter=setter)
 
     def trigger_if_changed(self, obj, old):
         """ Send a change event notification if the property is set to a
@@ -624,7 +380,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
     def _get(self, obj):
         """ Internal implementation of instance attribute access for the
-        ``BasicPropertyDescriptor`` getter.
+        ``PropertyDescriptor`` getter.
 
         If the value has not been explicitly set by a user, return that
         value. Otherwise, return the default.
@@ -693,48 +449,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
         obj._property_values[self.name] = value
 
-    def _internal_set(self, obj, value, hint=None, setter=None):
-        """ Internal implementation to set property values, that is used
-        by __set__, set_from_json, etc.
-
-        Delegate to the |Property| instance to prepare the value appropriately,
-        then `set.
-
-        Args:
-            obj (HasProps)
-                The object the property is being set on.
-
-            old (obj) :
-                The previous value of the property to compare
-
-            hint (event hint or None, optional)
-                An optional update event hint, e.g. ``ColumnStreamedEvent``
-                (default: None)
-
-                Update event hints are usually used at times when better
-                update performance can be obtained by special-casing in
-                some way (e.g. streaming or patching column data sources)
-
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
-        Returns:
-            None
-
-        """
-        value = self.property.prepare_value(obj, self.name, value)
-        old = self._get(obj)
-        self._real_set(obj, old, value, hint=hint, setter=setter)
-
-    def _real_set(self, obj, old, value, hint=None, setter=None):
+    def _set(self, obj, old, value, hint=None, setter=None):
         """ Internal implementation helper to set property values.
 
         This function handles bookkeeping around noting whether values have
@@ -832,7 +547,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         # in some cases this could give us a new object for the value
         value = self.property.prepare_value(obj, self.name, value)
 
-        self._real_set(obj, old, value, hint=hint)
+        self._set(obj, old, value, hint=hint)
 
     def _trigger(self, obj, old, value, hint=None, setter=None):
         """ Unconditionally send a change event notification for the property.
@@ -883,7 +598,7 @@ If you need to copy set from one CDS to another, make a shallow copy by
 calling dict: s1.data = dict(s2.data)
 """
 
-class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
+class ColumnDataPropertyDescriptor(PropertyDescriptor):
     """ A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
 
     """
@@ -943,9 +658,11 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         else:
             hint = None
 
-        self._internal_set(obj, value, hint=hint, setter=setter)
+        value = self.property.prepare_value(obj, self.name, value)
+        old = self._get(obj)
+        self._set(obj, old, value, hint=hint, setter=setter)
 
-class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
+class DataSpecPropertyDescriptor(PropertyDescriptor):
     """ A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
     field/value dictionaries.
 

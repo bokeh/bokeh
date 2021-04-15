@@ -37,7 +37,7 @@ from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
-from .descriptors import BasicPropertyDescriptor
+from .descriptors import PropertyDescriptor
 from .singletons import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
@@ -136,19 +136,19 @@ class Property(PropertyDescriptorFactory):
         return self._sphinx_prop_link()
 
     def make_descriptors(self, base_name):
-        """ Return a list of ``BasicPropertyDescriptor`` instances to install
+        """ Return a list of ``PropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[BasicPropertyDescriptor]
+            list[PropertyDescriptor]
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
         """
-        return [ BasicPropertyDescriptor(base_name, self) ]
+        return [ PropertyDescriptor(base_name, self) ]
 
     def _may_have_unstable_default(self):
         """ False if we have a default that is immutable, and will be the
