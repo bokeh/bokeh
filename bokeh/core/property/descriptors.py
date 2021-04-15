@@ -179,17 +179,15 @@ class PropertyDescriptor:
         """
         if obj is not None:
             value = self._get(obj)
-
-            if value is not Undefined:
-                return value
-            else:
+            if value is Undefined:
                 raise UnsetValueError(f"{obj}.{self.name} doesn't have a value set")
+            return value
+
         elif owner is not None:
             return self
-        else:
-            # This should really never happen. If it does, it means we've
-            # called __get__ explicitly but in a bad way.
-            raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
+
+        # This should really never happen. If it does, __get__ was called in a bad way.
+        raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
     def __set__(self, obj, value, setter=None):
         """ Implement the setter for the Python `descriptor protocol`_.
@@ -421,10 +419,7 @@ class PropertyDescriptor:
 
         default = self.instance_default(obj)
 
-        if is_themed:
-            unstable_dict = obj._unstable_themed_values
-        else:
-            unstable_dict = obj._unstable_default_values
+        unstable_dict = obj._unstable_themed_values if is_themed else obj._unstable_default_values
 
         if self.name in unstable_dict:
             return unstable_dict[self.name]
@@ -499,10 +494,7 @@ class PropertyDescriptor:
         # "old" is the logical old value, but it may not be the actual current
         # attribute value if our value was mutated behind our back and we got
         # _notify_mutated.
-        if was_set:
-            old_attr_value = obj._property_values[self.name]
-        else:
-            old_attr_value = old
+        old_attr_value = obj._property_values[self.name] if was_set else old
 
         if old_attr_value is not value:
             if isinstance(old_attr_value, PropertyValueContainer):
@@ -653,10 +645,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
 
         from ...document.events import ColumnDataChangedEvent
 
-        if obj.document:
-            hint = ColumnDataChangedEvent(obj.document, obj, setter=setter)
-        else:
-            hint = None
+        hint = ColumnDataChangedEvent(obj.document, obj, setter=setter) if obj.document else None
 
         value = self.property.prepare_value(obj, self.name, value)
         old = self._get(obj)

@@ -473,12 +473,9 @@ class HasProps(metaclass=MetaHasProps):
         '''
         resolved_name = cls._property_aliases().get(name, name)
         attr = getattr(cls, resolved_name, None)
-        if attr is not None:
+        if attr is not None or (attr is None and not raises):
             return attr
-        elif not raises:
-            return None
-        else:
-            raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
+        raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @classmethod
     def properties_with_refs(cls):
