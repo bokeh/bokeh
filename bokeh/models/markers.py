@@ -8,7 +8,7 @@
 can be associated with data columns from
 :class:`~bokeh.models.sources.ColumnDataSource` objects.
 
-.. note::
+.. warning::
     The individual marker classes in this module are **deprecated since Bokeh
     2.3.0.** Please replace all occurrences of ``Marker`` models with
     :class:`~bokeh.models.glyphs.Scatter` glyphs. For example: instead of
@@ -20,34 +20,8 @@ can be associated with data columns from
 
 The full list of markers accessible through this module:
 
-* :func:`~bokeh.models.markers.Asterisk`
-* :class:`~bokeh.models.markers.Circle`
-* :func:`~bokeh.models.markers.CircleCross`
-* :func:`~bokeh.models.markers.CircleDot`
-* :func:`~bokeh.models.markers.CircleY`
-* :func:`~bokeh.models.markers.CircleX`
-* :func:`~bokeh.models.markers.Cross`
-* :func:`~bokeh.models.markers.Dash`
-* :func:`~bokeh.models.markers.Diamond`
-* :func:`~bokeh.models.markers.DiamondCross`
-* :func:`~bokeh.models.markers.DiamondDot`
-* :func:`~bokeh.models.markers.Dot`
-* :func:`~bokeh.models.markers.Hex`
-* :func:`~bokeh.models.markers.HexDot`
-* :func:`~bokeh.models.markers.InvertedTriangle`
-* :func:`~bokeh.models.markers.Plus`
-* :func:`~bokeh.models.markers.Square`
-* :func:`~bokeh.models.markers.SquareCross`
-* :func:`~bokeh.models.markers.SquareDot`
-* :func:`~bokeh.models.markers.SquarePin`
-* :func:`~bokeh.models.markers.SquareX`
-* :func:`~bokeh.models.markers.Star`
-* :func:`~bokeh.models.markers.StarDot`
-* :func:`~bokeh.models.markers.Triangle`
-* :func:`~bokeh.models.markers.TriangleDot`
-* :func:`~bokeh.models.markers.TrianglePin`
-* :func:`~bokeh.models.markers.X`
-* :func:`~bokeh.models.markers.Y`
+.. toctree::
+   :maxdepth: 2
 
 By definition, all markers accept the following set of properties:
 
@@ -56,9 +30,9 @@ By definition, all markers accept the following set of properties:
 * ``line``, ``fill``, and ``hatch`` properties
 * ``angle``
 
-The ``asterisk``, ``cross``, ``dash`, ``dot``, ``x``, and ``y`` are rendered as
-lines. Therefore, those markers ignore any values that are passed to the
-``fill`` and ``hatch`` properties.
+The ``asterisk``, ``cross``, ``dash``, ``dot``, ``x``, and ``y`` only render
+line components. Those markers ignore any values that are passed to the ``fill``
+and ``hatch`` properties.
 
 .. note::
     When you draw ``circle`` markers with ``Scatter``, you can only assign a
@@ -67,9 +41,6 @@ lines. Therefore, those markers ignore any values that are passed to the
     the radius of circles in :ref:`data units <userguide_styling_units>`,
     use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
     ``Scatter`` glyph with a ``circle`` marker.
-
-.. autoclass:: Marker
-    :members:
 
 '''
 

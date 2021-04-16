@@ -64,6 +64,8 @@ __all__ = (
 class State:
     ''' Manage state related to controlling Bokeh output.
 
+    .. autoclasstoc::
+
     '''
     def __init__(self):
         self.last_comms_handle = None

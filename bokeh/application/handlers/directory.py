@@ -79,6 +79,8 @@ __all__ = (
 class DirectoryHandler(Handler):
     ''' Load an application directory which modifies a Document.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, *args, **kwargs):

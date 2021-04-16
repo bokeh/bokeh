@@ -54,6 +54,8 @@ __all__ = (
 class Application:
     ''' An Application is a factory for Document instances.
 
+    .. autoclasstoc::
+
     '''
 
     # This is so that bokeh.io.show can check if a passed in object is an

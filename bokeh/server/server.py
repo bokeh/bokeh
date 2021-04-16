@@ -78,6 +78,8 @@ class BaseServer:
     ``http_server`` must have been previously created and initialized with the
     ``BokehTornado`` instance.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, io_loop, tornado_app, http_server):
@@ -323,6 +325,8 @@ class Server(BaseServer):
     not possible to set an explicit ``io_loop`` and ``num_procs`` other than 1
     at the same time. To do that, it is necessary to use ``BaseServer`` and
     coordinate the three components above explicitly.
+
+    .. autoclasstoc::
 
     '''
 

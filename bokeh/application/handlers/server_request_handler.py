@@ -47,6 +47,8 @@ __all__ = (
 class ServerRequestHandler(RequestHandler):
     ''' Load a script which contains server request handler callbacks.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, *args, **kwargs):

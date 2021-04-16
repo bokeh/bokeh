@@ -7,43 +7,20 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-The full list of glyphs built into Bokeh is given below:
 
-* :class:`~bokeh.models.glyphs.AnnularWedge`
-* :class:`~bokeh.models.glyphs.Annulus`
-* :class:`~bokeh.models.glyphs.Arc`
-* :class:`~bokeh.models.glyphs.Bezier`
-* :class:`~bokeh.models.glyphs.Circle`
-* :class:`~bokeh.models.glyphs.Ellipse`
-* :class:`~bokeh.models.glyphs.HArea`
-* :class:`~bokeh.models.glyphs.HBar`
-* :class:`~bokeh.models.glyphs.HexTile`
-* :class:`~bokeh.models.glyphs.Image`
-* :class:`~bokeh.models.glyphs.ImageRGBA`
-* :class:`~bokeh.models.glyphs.ImageURL`
-* :class:`~bokeh.models.glyphs.Line`
-* :class:`~bokeh.models.glyphs.MultiLine`
-* :class:`~bokeh.models.glyphs.MultiPolygons`
-* :class:`~bokeh.models.glyphs.Oval`
-* :class:`~bokeh.models.glyphs.Patch`
-* :class:`~bokeh.models.glyphs.Patches`
-* :class:`~bokeh.models.glyphs.Quad`
-* :class:`~bokeh.models.glyphs.Quadratic`
-* :class:`~bokeh.models.glyphs.Ray`
-* :class:`~bokeh.models.glyphs.Rect`
-* :class:`~bokeh.models.glyphs.Scatter`
-* :class:`~bokeh.models.glyphs.Segment`
-* :class:`~bokeh.models.glyphs.Step`
-* :class:`~bokeh.models.glyphs.Text`
-* :class:`~bokeh.models.glyphs.VArea`
-* :class:`~bokeh.models.glyphs.VBar`
-* :class:`~bokeh.models.glyphs.Wedge`
 
-All these glyphs share a minimal common interface through their base class
-``Glyph``:
+The full list of glyphs is below:
 
-.. autoclass:: Glyph
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   glyphs/*
+
+All glyphs share a minimal common interface through the base class ``Glyph``:
+
+.. bokeh-model:: Glyph
+    :module: bokeh.models.glyphs
 
 '''
 

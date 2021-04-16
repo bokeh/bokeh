@@ -95,6 +95,8 @@ def current_time():
 class ServerSession:
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, session_id, document, io_loop=None, token=None):

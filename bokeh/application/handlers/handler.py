@@ -40,19 +40,18 @@ based off information in some database:
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
-
-
-
-# Standard library imports
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-# Globals and constants
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 import sys
 import traceback
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 __all__ = (
     'Handler',
@@ -70,6 +69,7 @@ class Handler:
     ''' Provide a mechanism for Bokeh applications to build up new Bokeh
     Documents.
 
+    .. autoclasstoc::
 
     '''
 

@@ -118,9 +118,6 @@ def _try_create_chromium_webdriver() -> Optional[WebDriver]:
         return None
 
 class _WebdriverState:
-    '''
-
-    '''
 
     reuse: bool
     kind: Optional[DriverKind]

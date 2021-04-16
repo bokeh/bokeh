@@ -263,3 +263,8 @@ using sphinx_panels */
  table.dataframe tbody tr:hover {
    background: rgba(66, 165, 245, 0.2);
  }
+
+ .autoclasstoc td {
+     padding: 0.15rem;
+     line-height: normal;
+ }

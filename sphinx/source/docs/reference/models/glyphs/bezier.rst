@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.Bezier:
 
-bokeh.models.glyphs.Bezier
---------------------------
-
-.. autoclass:: bokeh.models.glyphs.Bezier
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc:
+.. bokeh-model:: Bezier
+    :module: bokeh.models.glyphs

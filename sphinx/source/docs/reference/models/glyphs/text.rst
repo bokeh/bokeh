@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.Text:
 
-bokeh.models.glyphs.Text
-------------------------
-
-.. autoclass:: bokeh.models.glyphs.Text
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc:
+.. bokeh-model:: Text
+    :module: bokeh.models.glyphs

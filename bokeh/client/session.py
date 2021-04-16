@@ -239,6 +239,8 @@ class ClientSession:
     If you do not use ``ClientSession`` in this way, it is up to you to ensure
     that ``mysession.close()`` is called.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None, max_message_size=20*1024*1024):

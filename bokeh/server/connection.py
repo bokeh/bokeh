@@ -35,6 +35,9 @@ __all__ = (
 
 class ServerConnection:
     ''' Wraps a websocket connection to a client.
+
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, protocol, socket, application_context, session):
