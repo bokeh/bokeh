@@ -32,8 +32,6 @@ from jinja2 import Environment, FileSystemLoader
 __all__ = (
     "BJS_CODEPEN_INIT",
     "BJS_HTML",
-    "CCB_PROLOGUE",
-    "CCB_EPILOGUE",
     "COLOR_DETAIL",
     "ENUM_DETAIL",
     "GALLERY_PAGE",
@@ -60,9 +58,6 @@ _env = Environment(loader=FileSystemLoader(_templates_path))
 # -----------------------------------------------------------------------------
 # Dev API
 # -----------------------------------------------------------------------------
-
-CCB_PROLOGUE = _env.get_template("collapsible_code_block_prologue.html")
-CCB_EPILOGUE = _env.get_template("collapsible_code_block_epilogue.html")
 
 BJS_PROLOGUE = _env.get_template("bokehjs_content_prologue.html")
 BJS_EPILOGUE = _env.get_template("bokehjs_content_epilogue.html")

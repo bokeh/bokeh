@@ -49,6 +49,8 @@ __all__ = (
 class CodeRunner:
     ''' Compile and run Python source code.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, source, path, argv, package=None):

@@ -1,11 +1,4 @@
 .. _bokeh.models.glyphs.VBar:
 
-bokeh.models.glyphs.VBar
-------------------------
-
-.. autoclass:: bokeh.models.glyphs.VBar
-    :members:
-    :show-inheritance:
-    :inherited-members:
-
-    .. autoclasstoc:
+.. bokeh-model:: VBar
+    :module: bokeh.models.glyphs

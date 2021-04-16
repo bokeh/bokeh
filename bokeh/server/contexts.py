@@ -134,6 +134,9 @@ class ApplicationContext:
     ''' Server-side holder for ``bokeh.application.Application`` plus any associated data.
         This holds data that's global to all sessions, while ``ServerSession`` holds
         data specific to an "instance" of the application.
+
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, application, io_loop=None, url=None, logout_url=None):
