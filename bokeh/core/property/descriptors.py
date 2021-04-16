@@ -189,7 +189,7 @@ class PropertyDescriptor:
         # This should really never happen. If it does, __get__ was called in a bad way.
         raise ValueError("both 'obj' and 'owner' are None, don't know what to do")
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value, *, setter=None):
         """ Implement the setter for the Python `descriptor protocol`_.
 
         .. note::
@@ -292,7 +292,7 @@ class PropertyDescriptor:
         value = self.__get__(obj, obj.__class__)
         return self.property.serialize_value(value)
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, *, models=None, setter=None):
         """Sets the value of this property from a JSON value.
 
         Args:
@@ -321,7 +321,7 @@ class PropertyDescriptor:
             None
 
         """
-        value = self.property.prepare_value(obj, self.name, self.property.from_json(json, models))
+        value = self.property.prepare_value(obj, self.name, self.property.from_json(json, models=models))
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
@@ -444,7 +444,7 @@ class PropertyDescriptor:
 
         obj._property_values[self.name] = value
 
-    def _set(self, obj, old, value, hint=None, setter=None):
+    def _set(self, obj, old, value, *, hint=None, setter=None):
         """ Internal implementation helper to set property values.
 
         This function handles bookkeeping around noting whether values have
@@ -541,7 +541,7 @@ class PropertyDescriptor:
 
         self._set(obj, old, value, hint=hint)
 
-    def _trigger(self, obj, old, value, hint=None, setter=None):
+    def _trigger(self, obj, old, value, *, hint=None, setter=None):
         """ Unconditionally send a change event notification for the property.
 
         Args:
@@ -595,7 +595,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
 
     """
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value, *, setter=None):
         """ Implement the setter for the Python `descriptor protocol`_.
 
         This method first separately extracts and removes any ``units`` field
@@ -663,7 +663,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
         """
         return self.property.to_serializable(obj, self.name, getattr(obj, self.name))
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, *, models=None, setter=None):
         """ Sets the value of this property from a JSON value.
 
         This method first
@@ -704,7 +704,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super().set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models=models, setter=setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     """ A ``PropertyDescriptor`` for Bokeh |PropertyUnitsSpec| properties that
@@ -729,7 +729,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
         super().__init__(name, property)
         self.units_prop = units_property
 
-    def __set__(self, obj, value, setter=None):
+    def __set__(self, obj, value, *, setter=None):
         """ Implement the setter for the Python `descriptor protocol`_.
 
         This method first separately extracts and removes any ``units`` field
@@ -765,9 +765,9 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         """
         value = self._extract_units(obj, value)
-        super().__set__(obj, value, setter)
+        super().__set__(obj, value, setter=setter)
 
-    def set_from_json(self, obj, json, models=None, setter=None):
+    def set_from_json(self, obj, json, *, models=None, setter=None):
         """ Sets the value of this property from a JSON value.
 
         This method first separately extracts and removes any ``units`` field
@@ -802,7 +802,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         """
         json = self._extract_units(obj, json)
-        super().set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models=models, setter=setter)
 
     def _extract_units(self, obj, value):
         """ Internal helper for dealing with units associated units properties

@@ -65,9 +65,9 @@ class Seq(ContainerProperty):
     def type_params(self):
         return [self.item_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
+            return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 
@@ -169,9 +169,9 @@ class Dict(ContainerProperty):
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, dict):
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
+            return { self.keys_type.from_json(key, models=models): self.values_type.from_json(value, models=models) for key, value in json.items() }
         else:
             raise DeserializationError(f"{self} expected a dict, got {json}")
 
@@ -230,14 +230,14 @@ class ColumnData(Dict):
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         """ Decodes column source data encoded as lists or base64 strings.
         """
         if not isinstance(json, dict):
             raise DeserializationError(f"{self} expected a dict, got {json}")
         new_data = {}
         for key, value in json.items():
-            key = self.keys_type.from_json(key, models)
+            key = self.keys_type.from_json(key, models=models)
             if isinstance(value, dict) and '__ndarray__' in value:
                 new_data[key] = decode_base64_dict(value)
             elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
@@ -250,7 +250,7 @@ class ColumnData(Dict):
                     new_list.append(el)
                 new_data[key] = new_list
             else:
-                new_data[key] = self.values_type.from_json(value, models)
+                new_data[key] = self.values_type.from_json(value, models=models)
         return new_data
 
     def serialize_value(self, value):
@@ -284,9 +284,9 @@ class Tuple(ContainerProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
+            return tuple(type_param.from_json(item, models=models) for type_param, item in zip(self.type_params, json))
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 

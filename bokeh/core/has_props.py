@@ -367,7 +367,7 @@ class HasProps(metaclass=MetaHasProps):
     def to_serializable(self, serializer):
         pass # TODO: new serializer, hopefully in near future
 
-    def set_from_json(self, name, json, models=None, setter=None):
+    def set_from_json(self, name, json, *, models=None, setter=None):
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -398,7 +398,7 @@ class HasProps(metaclass=MetaHasProps):
         if name in self.properties():
             log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
-            descriptor.set_from_json(self, json, models, setter)
+            descriptor.set_from_json(self, json, models=models, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -429,7 +429,7 @@ class HasProps(metaclass=MetaHasProps):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, models=None, setter=None):
+    def update_from_json(self, json_attributes, *, models=None, setter=None):
         ''' Updates the object's properties from a JSON attributes dictionary.
 
         Args:
@@ -456,7 +456,7 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         for k, v in json_attributes.items():
-            self.set_from_json(k, v, models, setter)
+            self.set_from_json(k, v, models=models, setter=setter)
 
     @classmethod
     def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor]:

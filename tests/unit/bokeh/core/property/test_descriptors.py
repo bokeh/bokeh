@@ -47,7 +47,7 @@ ALL = (
 class Foo:
     def prepare_value(self, owner, name, value):
         return value
-    def from_json(self, x, y=None):
+    def from_json(self, x, models=None, setter=None):
         return 10
 
 class Test_PropertyDescriptor:
@@ -72,7 +72,7 @@ class Test_PropertyDescriptor:
     def test_set_from_json(self, mock_get, mock_set) -> None:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)
-        d.set_from_json(f, "bar", 10)
+        d.set_from_json(f, "bar", models=10)
         assert mock_get.called_once_with((f, "bar", 10), {})
         assert mock_set.called_once_with((f, "bar", 10), {})
 

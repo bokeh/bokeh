@@ -252,7 +252,7 @@ class Property(PropertyDescriptorFactory):
         except ValueError:
             return False
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         """ Convert from JSON-compatible values into a value for this property.
 
         JSON-compatible values are: list, dict, number, string, bool, None
@@ -468,7 +468,7 @@ class SingleParameterizedProperty(ParameterizedProperty):
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         return self.type_param.from_json(json, models=models)
 
     def transform(self, value):
@@ -512,7 +512,7 @@ class PrimitiveProperty(Property):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, self._underlying_type):
             return json
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])

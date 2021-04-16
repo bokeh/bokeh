@@ -80,10 +80,10 @@ class Either(ParameterizedProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         for tp in self.type_params:
             try:
-                return tp.from_json(json, models)
+                return tp.from_json(json, models=models)
             except DeserializationError:
                 pass
         raise DeserializationError(f"{self} couldn't deserialize {json}")

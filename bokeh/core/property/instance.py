@@ -78,7 +78,7 @@ class Instance(Property):
 
         return self._instance_type
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
@@ -96,7 +96,7 @@ class Instance(Property):
 
                 for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
-                    attrs[name] = prop_descriptor.from_json(value, models)
+                    attrs[name] = prop_descriptor.from_json(value, models=models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
                 # Serialization dict must carry type information to resolve this.

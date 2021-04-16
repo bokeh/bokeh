@@ -249,8 +249,8 @@ def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
     c = Child()
     c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
     assert mock_set.called
-    assert mock_set.call_args[0] == ('lst1', [1, 2], 'foo', 'bar')
-    assert mock_set.call_args[1] == {}
+    assert mock_set.call_args[0] == ('lst1', [1, 2])
+    assert mock_set.call_args[1] == {'models': 'foo', 'setter': 'bar'}
 
 def test_HasProps_set() -> None:
     c = Child()
