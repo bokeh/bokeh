@@ -210,7 +210,8 @@ class DataSpec(Either):
         return dict(val)
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 class IntSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):

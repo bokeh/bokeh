@@ -110,30 +110,13 @@ class Property(PropertyDescriptorFactory):
     def __str__(self):
         return self.__class__.__name__
 
-    @classmethod
-    def _sphinx_prop_link(cls):
-        """ Generate a sphinx :class: link to this property.
-
-        """
-        # (double) escaped space at the end is to appease Sphinx
-        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return f":class:`~bokeh.core.properties.{cls.__name__}`\\ "
-
-    @staticmethod
-    def _sphinx_model_link(name):
-        """ Generate a sphinx :class: link to given named model.
-
-        """
-        # (double) escaped space at the end is to appease Sphinx
-        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return f":class:`~{name}`\\ "
-
     def _sphinx_type(self):
         """ Generate a Sphinx-style reference to this type for documentation
         automation purposes.
 
         """
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
     def make_descriptors(self, base_name):
         """ Return a list of ``PropertyDescriptor`` instances to install
@@ -462,7 +445,8 @@ class SingleParameterizedProperty(ParameterizedProperty):
         return f"{self.__class__.__name__}({self.type_param})"
 
     def _sphinx_type(self):
-        return f"{self._sphinx_prop_link()}({self.type_param._sphinx_type()})"
+        from ...util._sphinx import property_link
+        return f"{property_link(self)}({self.type_param._sphinx_type()})"
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)
@@ -520,7 +504,8 @@ class PrimitiveProperty(Property):
         raise DeserializationError(msg)
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 class ContainerProperty(ParameterizedProperty):
     """ A base class for Container-like type properties.

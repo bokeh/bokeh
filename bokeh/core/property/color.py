@@ -142,7 +142,8 @@ class Color(Either):
         return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 
 class ColorHex(Color):

@@ -111,9 +111,9 @@ class Either(ParameterizedProperty):
     #     return any(tp._may_have_unstable_default() for tp in self.type_params)
 
     def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
+        from ...util._sphinx import property_link
         subtypes = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{prop_link}({subtypes})"
+        return f"{property_link(self)}({subtypes})"
 
 #-----------------------------------------------------------------------------
 # Dev API

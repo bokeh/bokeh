@@ -103,9 +103,8 @@ class Seq(ContainerProperty):
         return value
 
     def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        item_type = self.item_type._sphinx_type()
-        return f"{prop_link}({item_type})"
+        from ...util._sphinx import property_link
+        return f"{property_link(self)}({self.item_type._sphinx_type()})"
 
 class List(Seq):
     """ Accept Python list values.
@@ -199,10 +198,10 @@ class Dict(ContainerProperty):
             return value
 
     def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
+        from ...util._sphinx import property_link
         key_type = self.keys_type._sphinx_type()
         value_type = self.values_type._sphinx_type()
-        return f"{prop_link}({key_type}, {value_type})"
+        return f"{property_link(self)}({key_type}, {value_type})"
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -313,9 +312,9 @@ class Tuple(ContainerProperty):
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
     def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
+        from ...util._sphinx import property_link
         item_types = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{prop_link}({item_types})"
+        return f"{property_link(self)}({item_types})"
 
 
 

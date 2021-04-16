@@ -105,7 +105,8 @@ class DashPattern(Either):
             return value
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 class FontSize(String):
 
@@ -138,7 +139,8 @@ class HatchPatternType(Either):
         return self.__class__.__name__
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 class Image(Property):
     """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
@@ -245,7 +247,8 @@ class MinMaxBounds(Either):
         raise ValueError(msg)
 
     def _sphinx_type(self):
-        return self._sphinx_prop_link()
+        from ...util._sphinx import property_link
+        return property_link(self)
 
 class MarkerType(Enum):
     """

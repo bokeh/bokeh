@@ -4,71 +4,55 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Provide the Auto property.
+''' Functions useful for string manipulations or encoding.
 
-"""
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging # isort:skip
+import logging
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from .enum import Enum
+# Standard library imports
+from inspect import isclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Auto',
+    'model_link',
+    'property_link',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Auto(Enum):
-    """ Accepts only the string "auto".
-
-    Useful for properties that can be configured to behave "automatically".
-
-    Example:
-
-        This property is often most useful in conjunction with the
-        :class:`~bokeh.core.properties.Either` property.
-
-        .. code-block:: python
-
-            >>> class AutoModel(HasProps):
-            ...     prop = Either(Float, Auto)
-            ...
-
-            >>> m = AutoModel()
-
-            >>> m.prop = 10.2
-
-            >>> m.prop = "auto"
-
-            >>> m.prop = "foo"      # ValueError !!
-
-            >>> m.prop = [1, 2, 3]  # ValueError !!
+def model_link(fullname):
+    """ Generate a sphinx :class: link to given named model.
 
     """
-    def __init__(self):
-        super().__init__("auto")
+    # (double) escaped space at the end is to appease Sphinx
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+    return f":class:`~{fullname}`\\ "
 
-    def __str__(self):
-        return self.__class__.__name__
+def property_link(cls_or_obj):
+    """ Generate a sphinx :class: link to a property.
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
+    """
+    # (double) escaped space at the end is to appease Sphinx
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+    if isclass(cls_or_obj):
+        return f":class:`~bokeh.core.properties.{cls_or_obj.__name__}`\\ "
+    else:
+        return f":class:`~bokeh.core.properties.{cls_or_obj.__class__.__name__}`\\ "
 
 #-----------------------------------------------------------------------------
 # Dev API

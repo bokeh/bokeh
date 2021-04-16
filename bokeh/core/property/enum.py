@@ -73,15 +73,17 @@ class Enum(String):
         raise ValueError(msg)
 
     def _sphinx_type(self):
+        from ...util._sphinx import model_link, property_link
+
         # try to return a link to a proper enum in bokeh.core.enums if possible
         if self._enum in enums.__dict__.values():
             for name, obj in enums.__dict__.items():
                 if self._enum is obj:
-                    val = self._sphinx_model_link(f"{self._enum.__module__}.{name}")
-                    return f"{self._sphinx_prop_link()}({val})"
+                    fullname = f"{self._enum.__module__}.{name}"
+                    return f"{property_link(self)}({model_link(fullname)})"
 
         # otherwise just a basic str name format
-        return f"{self._sphinx_prop_link()}({self._enum})"
+        return f"{property_link(self)}({self._enum})"
 
 #-----------------------------------------------------------------------------
 # Dev API

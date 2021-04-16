@@ -65,11 +65,19 @@ class Nullable(SingleParameterizedProperty):
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
         raise ValueError(msg)
 
+    def _sphinx_type(self):
+        from ...util._sphinx import property_link
+        return f"{property_link(self)}({self.type_param._sphinx_type()})"
+
 class NonNullable(SingleParameterizedProperty):
     """ A property accepting a value of some other type while having undefined default. """
 
     def __init__(self, type_param, *, default=Undefined, help=None, serialized=None, readonly=False):
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+
+    def _sphinx_type(self):
+        from ...util._sphinx import property_link
+        return f"{property_link(self)}({self.type_param._sphinx_type()})"
 
 #-----------------------------------------------------------------------------
 # Dev API

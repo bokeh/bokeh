@@ -120,8 +120,9 @@ class Instance(Property):
         return True
 
     def _sphinx_type(self):
+        from ...util._sphinx import model_link, property_link
         fullname = f"{self.instance_type.__module__}.{self.instance_type.__name__}"
-        return f"{self._sphinx_prop_link()}({self._sphinx_model_link(fullname)})"
+        return f"{property_link(self)}({model_link(fullname)}"
 
 #-----------------------------------------------------------------------------
 # Dev API
