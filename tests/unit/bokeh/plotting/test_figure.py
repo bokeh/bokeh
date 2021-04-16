@@ -67,6 +67,14 @@ class TestFigure:
         assert p.plot_width == 100
         assert p.plot_height == 120
 
+        p = bpf.figure(width=100, height=120)
+        assert p.plot_width == 100
+        assert p.plot_height == 120
+
+        p = bpf.figure(plot_width=100, plot_height=120)
+        assert p.width == 100
+        assert p.height == 120
+
         with pytest.raises(ValueError):
             bpf.figure(plot_width=100, width=120)
 
