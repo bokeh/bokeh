@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # Bokeh imports
+from ._sphinx import model_link, property_link, register_type_link
 from .bases import DeserializationError, Property
 from .singletons import Undefined
 
@@ -119,11 +120,6 @@ class Instance(Property):
         # because the instance value is mutable
         return True
 
-    def _sphinx_type(self):
-        from ...util._sphinx import model_link, property_link
-        fullname = f"{self.instance_type.__module__}.{self.instance_type.__name__}"
-        return f"{property_link(self)}({model_link(fullname)}"
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -135,3 +131,8 @@ class Instance(Property):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Instance)
+def _sphinx_type_link(obj):
+    fullname = f"{obj.instance_type.__module__}.{obj.instance_type.__name__}"
+    return f"{property_link(obj)}({model_link(fullname)}"

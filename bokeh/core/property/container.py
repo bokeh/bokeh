@@ -23,6 +23,7 @@ from collections.abc import Container, Iterable, Mapping, Sequence, Sized
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
@@ -101,10 +102,6 @@ class Seq(ContainerProperty):
 
     def _new_instance(self, value):
         return value
-
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return f"{property_link(self)}({self.item_type._sphinx_type()})"
 
 class List(Seq):
     """ Accept Python list values.
@@ -196,12 +193,6 @@ class Dict(ContainerProperty):
                 return PropertyValueDict(value)
         else:
             return value
-
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        key_type = self.keys_type._sphinx_type()
-        value_type = self.values_type._sphinx_type()
-        return f"{property_link(self)}({key_type}, {value_type})"
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -311,13 +302,6 @@ class Tuple(ContainerProperty):
         """
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        item_types = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{property_link(self)}({item_types})"
-
-
-
 class RelativeDelta(Dict):
     """ Accept RelativeDelta dicts for time delta values.
 
@@ -360,3 +344,16 @@ class RestrictedDict(Dict):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Dict)
+def _sphinx_type_dict(obj):
+    return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
+
+@register_type_link(Seq)
+def _sphinx_type_seq(obj):
+    return f"{property_link(obj)}({type_link(obj.item_type)})"
+
+@register_type_link(Tuple)
+def _sphinx_type_tuple(obj):
+    item_types = ", ".join(type_link(x) for x in obj.type_params)
+    return f"{property_link(obj)}({item_types})"

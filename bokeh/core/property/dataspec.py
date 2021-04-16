@@ -209,10 +209,6 @@ class DataSpec(Either):
         # Must be dict, return a new dict
         return dict(val)
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
-
 class IntSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super().__init__(key_type, Int, default=default, help=help)

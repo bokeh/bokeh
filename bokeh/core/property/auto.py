@@ -66,10 +66,6 @@ class Auto(Enum):
     def __str__(self):
         return self.__class__.__name__
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

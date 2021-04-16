@@ -36,6 +36,7 @@ import numpy as np
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from ..has_props import HasProps
+from ._sphinx import property_link, register_type_link, type_link
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import PropertyDescriptor
 from .singletons import Intrinsic, Undefined
@@ -109,14 +110,6 @@ class Property(PropertyDescriptorFactory):
 
     def __str__(self):
         return self.__class__.__name__
-
-    def _sphinx_type(self):
-        """ Generate a Sphinx-style reference to this type for documentation
-        automation purposes.
-
-        """
-        from ...util._sphinx import property_link
-        return property_link(self)
 
     def make_descriptors(self, base_name):
         """ Return a list of ``PropertyDescriptor`` instances to install
@@ -444,10 +437,6 @@ class SingleParameterizedProperty(ParameterizedProperty):
     def __str__(self):
         return f"{self.__class__.__name__}({self.type_param})"
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return f"{property_link(self)}({self.type_param._sphinx_type()})"
-
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
@@ -503,10 +492,6 @@ class PrimitiveProperty(Property):
         msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
         raise DeserializationError(msg)
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
-
 class ContainerProperty(ParameterizedProperty):
     """ A base class for Container-like type properties.
 
@@ -532,3 +517,7 @@ def validation_on():
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(SingleParameterizedProperty)
+def _sphinx_type(obj):
+    return f"{property_link(obj)}({type_link(obj.type_param)})"

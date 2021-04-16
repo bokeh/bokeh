@@ -104,10 +104,6 @@ class DashPattern(Either):
         else:
             return value
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
-
 class FontSize(String):
 
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
@@ -137,10 +133,6 @@ class HatchPatternType(Either):
 
     def __str__(self):
         return self.__class__.__name__
-
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
 
 class Image(Property):
     """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
@@ -245,10 +237,6 @@ class MinMaxBounds(Either):
 
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
         raise ValueError(msg)
-
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        return property_link(self)
 
 class MarkerType(Enum):
     """

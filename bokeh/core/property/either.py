@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...util.string import nice_join
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import DeserializationError, ParameterizedProperty
 from .singletons import Intrinsic
 
@@ -110,11 +111,6 @@ class Either(ParameterizedProperty):
     # def _may_have_unstable_default(self):
     #     return any(tp._may_have_unstable_default() for tp in self.type_params)
 
-    def _sphinx_type(self):
-        from ...util._sphinx import property_link
-        subtypes = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{property_link(self)}({subtypes})"
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -126,3 +122,8 @@ class Either(ParameterizedProperty):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Either)
+def _sphinx_type_link(obj):
+    subtypes = ", ".join(type_link(x) for x in obj.type_params)
+    return f"{property_link(obj)}({subtypes})"
