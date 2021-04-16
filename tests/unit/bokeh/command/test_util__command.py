@@ -78,7 +78,7 @@ def test_build_single_handler_application_main_py(mock_warn) -> None:
     assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY,)
     os.remove(f.name)
 
-_SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
+_SIZE_WARNING = "Width/height arguments will be ignored for this multiple layout. Size values only apply when exporting single plots)."
 
 class Test_set_single_plot_width_height:
     def test_neither(self) -> None:

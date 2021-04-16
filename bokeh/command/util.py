@@ -219,7 +219,7 @@ def set_single_plot_width_height(doc: Document, width: Optional[int], height: Op
     if width is not None or height is not None:
         layout = doc.roots
         if len(layout) != 1 or not isinstance(layout[0], Plot):
-            warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
+            warnings.warn("Width/height arguments will be ignored for this multiple layout. Size values only apply when exporting single plots).")
         else:
             plot = layout[0]
             # TODO - below fails mypy check
