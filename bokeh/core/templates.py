@@ -39,7 +39,8 @@ import sys
 from os.path import dirname, join
 
 # External imports
-from jinja2 import Environment, FileSystemLoader, Markup
+from jinja2 import Environment, FileSystemLoader
+from markupsafe import Markup
 
 #-----------------------------------------------------------------------------
 # Globals and constants

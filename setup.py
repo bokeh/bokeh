@@ -88,6 +88,7 @@ REQUIRES = [
     'PyYAML >=3.10',
     'python-dateutil >=2.1',
     'Jinja2 >=2.7',
+    'markupsafe >=1.1.1',
     'numpy >=1.11.3',
     'pillow >=7.1.0',
     'packaging >=16.8',
