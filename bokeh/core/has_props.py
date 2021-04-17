@@ -104,11 +104,6 @@ def _property_aliases(class_dict):
 
 # These are to avoid circular imports and are just temporary until all the
 # explicit property caching in HasProps is replaced with memoized queries
-def _is_container_prop(x):
-    from .property.bases import ContainerProperty
-    from .property.descriptors import PropertyDescriptor
-    return isinstance(x, PropertyDescriptor) and isinstance(x.property, ContainerProperty)
-
 def _is_dataspec_prop(x):
     from .property.dataspec import DataSpec
     from .property.descriptors import PropertyDescriptor
@@ -134,7 +129,6 @@ class MetaHasProps(type):
         generators = _generators(class_dict)
 
         names_with_refs = set()
-        container_names = set()
         dataspecs = {}
         new_class_attrs = {}
 
@@ -149,9 +143,6 @@ class MetaHasProps(type):
                 if prop_descriptor.has_ref:
                     names_with_refs.add(name)
 
-                if _is_container_prop(prop_descriptor):
-                    container_names.add(name)
-
                 if _is_dataspec_prop(prop_descriptor):
                     dataspecs[name] = prop_descriptor
 
@@ -159,7 +150,6 @@ class MetaHasProps(type):
 
         class_dict["__properties__"] = list(new_class_attrs)
         class_dict["__properties_with_refs__"] = names_with_refs
-        class_dict["__container_props__"] = container_names
         class_dict["__property_aliases__"] = property_aliases
         class_dict["__overridden_defaults__"] = overridden_defaults
         class_dict["__dataspecs__"] = dataspecs
@@ -195,9 +185,6 @@ def accumulate_from_superclasses(cls, propname):
     Args:
         name (str) : name of the special attribute to collect.
 
-            Typically meaningful values are: ``__container_props__``,
-            ``__properties__``, ``__properties_with_refs__``
-
     '''
     cachename = "__cached_all" + propname
     # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
@@ -217,9 +204,6 @@ def accumulate_dict_from_superclasses(cls, propname):
 
     Args:
         name (str) : name of the special attribute to collect.
-
-            Typically meaningful values are: ``__dataspecs__``,
-            ``__overridden_defaults__``
 
     '''
     cachename = "__cached_all" + propname
@@ -492,29 +476,11 @@ class HasProps(metaclass=MetaHasProps):
         return accumulate_from_superclasses(cls, "__properties_with_refs__")
 
     @classmethod
-    def properties_containers(cls):
-        ''' Collect the names of all container properties on this class.
-
-        This method *always* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Returns:
-            set[str] : names of container properties
-
-        '''
-        return accumulate_from_superclasses(cls, "__container_props__")
-
-    @classmethod
     def properties(cls):
         ''' Collect the names of properties on this class.
 
         This method *optionally* traverses the class hierarchy and includes
         properties defined on any parent classes.
-
-        Args:
-            with_bases (bool, optional) :
-                Whether to include properties defined on parent classes in
-                the results. (default: True)
 
         Returns:
            set[str] : property names

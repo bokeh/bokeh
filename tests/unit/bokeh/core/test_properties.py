@@ -240,22 +240,18 @@ class Basictest:
 
         b = Base()
         assert {"child"} == b.properties_with_refs()
-        assert {"container"} == b.properties_containers()
         assert {"num", "container", "child"} == b.properties()
 
         m = Mixin()
         assert m.properties_with_refs() == {"mixin_child"}
-        assert m.properties_containers() == {"mixin_container"}
         assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
 
         s = Sub()
         assert s.properties_with_refs() == {"child", "sub_child", "mixin_child"}
-        assert s.properties_containers() == {"container", "sub_container", "mixin_container"}
         assert s.properties() == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
-        assert s.properties_containers() is s.properties_containers()
         assert s.properties() is s.properties()
 
     def test_accurate_dataspecs(self) -> None:
