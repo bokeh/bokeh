@@ -43,7 +43,7 @@ export class TapToolView extends SelectToolView {
         if (did_hit && callback != null) {
           const x = r_views[0].coordinates.x_scale.invert(geometry.sx)
           const y = r_views[0].coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source, tap_type: this.model.behavior}
+          const data = {geometries: {...geometry, x, y}, source: sm.source, behavior: this.model.behavior}
           callback.execute(this.model, data)
         }
       }
@@ -62,7 +62,7 @@ export class TapToolView extends SelectToolView {
         if (did_hit && callback != null) {
           const x = rv.coordinates.x_scale.invert(geometry.sx)
           const y = rv.coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source, tap_type: this.model.behavior}
+          const data = {geometries: {...geometry, x, y}, source: sm.source, behavior: this.model.behavior}
           callback.execute(this.model, data)
         }
       }
@@ -79,7 +79,7 @@ export namespace TapTool {
     callback: p.Property<CallbackLike1<TapTool, {
       geometries: PointGeometry & {x: number, y: number}
       source: ColumnarDataSource
-      tap_type: TapBehavior
+      behavior: TapBehavior
     }> | null>
   }
 }

@@ -44,28 +44,14 @@ export class OpenURL extends Callback {
       this.navigate(url)
     }
 
-    if (source.data.tap_type == "select")
-    {
-      const {selected} = source
+    const selected = source.data.behavior == "select" ? source.selected : source.inspected
 
-      for (const i of selected.indices)
+    for (const i of selected.indices)
         open_url(i)
   
       for (const i of selected.line_indices)
         open_url(i)
   
       // TODO: multiline_indices: {[key: string]: number[]}
-    } else {
-      const {inspected} = source
-
-      for (const i of inspected.indices)
-        open_url(i)
-  
-      for (const i of inspected.line_indices)
-        open_url(i)
-  
-      // TODO: multiline_indices: {[key: string]: number[]}
-    }
-    
   }
 }
