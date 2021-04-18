@@ -20,7 +20,7 @@ xdr = Range1d(start=-100, end=200)
 ydr = Range1d(start=-100, end=200)
 
 plot = Plot(
-    title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
+    title=None, x_range=xdr, y_range=ydr, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center")

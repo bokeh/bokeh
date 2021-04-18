@@ -17,7 +17,7 @@ p.line('date', 'close', source=source)
 p.yaxis.axis_label = 'Price'
 
 select = figure(title="Drag the middle and edges of the selection box to change the range above",
-                plot_height=130, plot_width=800, y_range=p.y_range,
+                height=130, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
                 tools="", toolbar_location=None, background_fill_color="#efefef")
 
