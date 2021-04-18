@@ -141,7 +141,7 @@ class AliasPropertyDescriptor:
         return setattr(obj, self.aliased_name, value)
 
     @property
-    def readonly():
+    def readonly(self):
         return self.property.readonly
 
 class PropertyDescriptor:

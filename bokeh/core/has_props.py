@@ -122,26 +122,22 @@ class MetaHasProps(type):
         return super().__new__(cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, __):
-        # Check for improperly redeclaring a Property attribute.
-        for base in bases:
-            if not issubclass(base, HasProps):
-                continue
-            base_properties = base.properties()
-            for attr in cls.__dict__: # we do NOT want inherited attrs here
-                if attr in base_properties:
-                    warn(f"Property {attr!r} in class {base.__name__} was redeclared by a class attribute "
-                         f"{attr!r} in class {class_name}; it never makes sense to do this. "
-                         f"Either {base.__name__}.{attr} or {class_name}.{attr} should be removed, "
-                         "or Override() should be used to change a default value of a base class property.",
-                         RuntimeWarning, stacklevel=2)
+        # Check for improperly redeclared a Property attribute.
+        base_properties = {}
+        for base in (x for x in bases if issubclass(x, HasProps)):
+            base_properties.update(base.properties())
+        own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
+        redeclared = own_properties.keys() & base_properties.keys()
+        if redeclared:
+            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on"
+                 "the parent class. Override() can be used to change a default value of a base class property.",
+                 RuntimeWarning, stacklevel=2)
 
         # Check for no-op Overrides
-        overridden_defaults = cls.__dict__["__overridden_defaults__"]
-        if overridden_defaults:
-            our_props = cls.properties()
-            for key in overridden_defaults:
-                if key not in our_props:
-                    warn((f"Override() of {key} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
+        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties().keys()
+        if unused_overrides:
+            warn((f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
 
 class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
@@ -180,24 +176,50 @@ class HasProps(metaclass=MetaHasProps):
             None
 
         '''
-        # self.properties() below can be expensive so avoid it
-        # if we're just setting a private underscore field
         if name.startswith("_"):
-            super().__setattr__(name, value)
-            return
+            return super().__setattr__(name, value)
 
-        prop_names = self.properties()
+        properties = self.properties()
         descriptor = getattr(self.__class__, name, None)
 
-        if name in prop_names or isinstance(descriptor, property):
-            super().__setattr__(name, value)
-        else:
-            matches, text = difflib.get_close_matches(name.lower(), prop_names), "similar"
+        if name in properties or isinstance(descriptor, property): # Python property
+            return super().__setattr__(name, value)
 
-            if not matches:
-                matches, text = sorted(prop_names), "possible"
+        self._raise_attribute_error_with_matches(name, properties)
 
-            raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
+    def __getattr__(self, name):
+        ''' Intercept attribute setting on HasProps in order to special case
+        a few situations:
+
+        * short circuit all property machinery for ``_private`` attributes
+        * suggest similar attribute names on attribute errors
+
+        Args:
+            name (str) : the name of the attribute to set on this object
+            value (obj) : the value to set
+
+        Returns:
+            None
+
+        '''
+        if name.startswith("_"):
+            return super().__getattr__(name)
+
+        properties = self.properties()
+        descriptor = getattr(self.__class__, name, None)
+
+        if name in properties or isinstance(descriptor, property): # Python property
+            return super().__getattr__(name)
+
+        self._raise_attribute_error_with_matches(name, properties)
+
+    def _raise_attribute_error_with_matches(self, name, properties):
+        matches, text = difflib.get_close_matches(name.lower(), properties), "similar"
+
+        if not matches:
+            matches, text = sorted(properties), "possible"
+
+        raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
     def __str__(self) -> str:
         name = self.__class__.__name__
@@ -576,7 +598,8 @@ class HasProps(metaclass=MetaHasProps):
         # Emit any change notifications that result
         for k, v in old_values.items():
             descriptor = self.lookup(k)
-            descriptor.trigger_if_changed(self, v)
+            if isinstance(descriptor, PropertyDescriptor):
+                descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self):
         ''' Remove any themed values and restore defaults.

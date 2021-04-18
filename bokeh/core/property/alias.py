@@ -41,7 +41,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property):
+class Alias(Property): # lgtm [py/missing-call-to-init]
     """
     Alias another property of a model.
 
@@ -65,6 +65,8 @@ class Alias(Property):
     name: str
     help: Optional[str]
 
+    # Alias is somewhat a quasi-property
+    readonly = False
     serialized = False
     _default = None
 
