@@ -3,6 +3,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {replace_placeholders} from "core/util/templating"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
+import { TapBehavior } from "core/enums"
 
 export namespace OpenURL {
   export type Attrs = p.AttrsOf<Props>
@@ -36,7 +37,7 @@ export class OpenURL extends Callback {
       window.open(url)
   }
 
-  execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
+  execute(_cb_obj: unknown, {source, behavior}: {source: ColumnarDataSource, behavior: TapBehavior}): void {
     const open_url = (i: number) => {
       const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURI)
       if (!isString(url))
@@ -44,14 +45,14 @@ export class OpenURL extends Callback {
       this.navigate(url)
     }
 
-    const selected = source.data.behavior == "select" ? source.selected : source.inspected
+    const selected = behavior == "select" ? source.selected : source.inspected
 
     for (const i of selected.indices)
         open_url(i)
-  
-      for (const i of selected.line_indices)
+
+    for (const i of selected.line_indices)
         open_url(i)
-  
-      // TODO: multiline_indices: {[key: string]: number[]}
+
+    // TODO: multiline_indices: {[key: string]: number[]}
   }
 }
