@@ -140,6 +140,10 @@ class AliasPropertyDescriptor:
     def __set__(self, obj, value):
         return setattr(obj, self.aliased_name, value)
 
+    @property
+    def readonly():
+        return self.property.readonly
+
 class PropertyDescriptor:
     """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
