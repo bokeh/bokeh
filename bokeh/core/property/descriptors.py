@@ -99,6 +99,7 @@ from .wrappers import PropertyValueColumnData, PropertyValueContainer
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'AliasPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
@@ -116,6 +117,28 @@ __all__ = (
 
 class UnsetValueError(ValueError):
     """ Represents state in which descriptor without value was accessed. """
+
+class AliasPropertyDescriptor:
+    """
+
+    """
+
+    serialized = False
+
+    def __init__(self, name, aliased_name, property):
+        self.name = name
+        self.aliased_name = aliased_name
+        self.property = property
+        self.__doc__ = f"This is a compatibility alias for the ``{aliased_name}`` property"
+
+    def __get__(self, obj, owner):
+        if obj is not None:
+            return getattr(obj, self.aliased_name)
+        elif owner is not None:
+            return self
+
+    def __set__(self, obj, value):
+        return setattr(obj, self.aliased_name, value)
 
 class PropertyDescriptor:
     """ A base class for Bokeh properties with simple get/set and serialization

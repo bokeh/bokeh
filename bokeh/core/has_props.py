@@ -27,12 +27,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
+from functools import lru_cache
 from typing import Any, Dict, Optional
 from warnings import warn
 
 # Bokeh imports
 from ..util.string import append_docstring, nice_join
-from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -45,8 +45,6 @@ from .property.wrappers import PropertyValueContainer
 
 __all__ = (
     'abstract',
-    'accumulate_dict_from_superclasses',
-    'accumulate_from_superclasses',
     'HasProps',
     'MetaHasProps',
 )
@@ -89,26 +87,6 @@ def _generators(class_dict):
             generators[name] = generator
     return generators
 
-def _make_alias_property(target_name, help):
-    fget = lambda self: getattr(self, target_name)
-    fset = lambda self, value: setattr(self, target_name, value)
-    return property(fget, fset, None, help)
-
-def _property_aliases(class_dict):
-    property_aliases = {}
-    for name, prop in tuple(class_dict.items()):
-        if isinstance(prop, Alias):
-            property_aliases[name] = prop.name
-            class_dict[name] = _make_alias_property(prop.name, prop.help)
-    return property_aliases
-
-# These are to avoid circular imports and are just temporary until all the
-# explicit property caching in HasProps is replaced with memoized queries
-def _is_dataspec_prop(x):
-    from .property.dataspec import DataSpec
-    from .property.descriptors import PropertyDescriptor
-    return isinstance(x, PropertyDescriptor) and isinstance(x.property, DataSpec)
-
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -125,34 +103,21 @@ class MetaHasProps(type):
 
         '''
         overridden_defaults = _overridden_defaults(class_dict)
-        property_aliases = _property_aliases(class_dict)
         generators = _generators(class_dict)
 
-        names_with_refs = set()
-        dataspecs = {}
-        new_class_attrs = {}
+        properties = {}
 
         for name, generator in generators.items():
-            prop_descriptors = generator.make_descriptors(name)
-            for prop_descriptor in prop_descriptors:
-                name = prop_descriptor.name
-                if name in new_class_attrs:
+            descriptors = generator.make_descriptors(name)
+            for descriptor in descriptors:
+                name = descriptor.name
+                if name in class_dict:
                     raise RuntimeError(f"Two property generators both created {class_name}.{name}")
-                new_class_attrs[name] = prop_descriptor
+                class_dict[name] = descriptor
+                properties[name] = descriptor.property
 
-                if prop_descriptor.has_ref:
-                    names_with_refs.add(name)
-
-                if _is_dataspec_prop(prop_descriptor):
-                    dataspecs[name] = prop_descriptor
-
-        class_dict.update(new_class_attrs)
-
-        class_dict["__properties__"] = list(new_class_attrs)
-        class_dict["__properties_with_refs__"] = names_with_refs
-        class_dict["__property_aliases__"] = property_aliases
+        class_dict["__properties__"] = properties
         class_dict["__overridden_defaults__"] = overridden_defaults
-        class_dict["__dataspecs__"] = dataspecs
 
         return super().__new__(cls, class_name, bases, class_dict)
 
@@ -177,48 +142,6 @@ class MetaHasProps(type):
             for key in overridden_defaults:
                 if key not in our_props:
                     warn((f"Override() of {key} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
-
-def accumulate_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special sets of names
-    ``MetaHasProps`` stores on classes:
-
-    Args:
-        name (str) : name of the special attribute to collect.
-
-    '''
-    cachename = "__cached_all" + propname
-    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
-    # classes, and the cache must be separate for each class
-    if cachename not in cls.__dict__:
-        s = set()
-        for c in cls.__mro__:
-            if issubclass(c, HasProps) and hasattr(c, propname):
-                base = getattr(c, propname)
-                s.update(base)
-        setattr(cls, cachename, s)
-    return cls.__dict__[cachename]
-
-def accumulate_dict_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special dicts
-    ``MetaHasProps`` stores on classes:
-
-    Args:
-        name (str) : name of the special attribute to collect.
-
-    '''
-    cachename = "__cached_all" + propname
-    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
-    # classes, and the cache must be separate for each class
-    if cachename not in cls.__dict__:
-        d = dict()
-        for c in cls.__mro__:
-            if issubclass(c, HasProps) and hasattr(c, propname):
-                base = getattr(c, propname)
-                for k,v in base.items():
-                    if k not in d:
-                        d[k] = v
-        setattr(cls, cachename, d)
-    return cls.__dict__[cachename]
 
 class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
@@ -266,7 +189,7 @@ class HasProps(metaclass=MetaHasProps):
         prop_names = self.properties()
         descriptor = getattr(self.__class__, name, None)
 
-        if name in prop_names or (descriptor is not None and descriptor.fset is not None):
+        if name in prop_names or isinstance(descriptor, property):
             super().__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), prop_names), "similar"
@@ -455,13 +378,30 @@ class HasProps(metaclass=MetaHasProps):
             PropertyDescriptor : descriptor for property named ``name``
 
         '''
-        resolved_name = cls._property_aliases().get(name, name)
-        attr = getattr(cls, resolved_name, None)
+        attr = getattr(cls, name, None)
         if attr is not None or (attr is None and not raises):
             return attr
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @classmethod
+    @lru_cache(None)
+    def properties(cls):
+        ''' Collect the names of properties on this class.
+
+        This method *optionally* traverses the class hierarchy and includes
+        properties defined on any parent classes.
+
+        Returns:
+           set[str] : property names
+
+        '''
+        props = dict()
+        for c in cls.__mro__:
+            props.update(getattr(c, "__properties__", {}))
+        return props
+
+    @classmethod
+    @lru_cache(None)
     def properties_with_refs(cls):
         ''' Collect the names of all properties on this class that also have
         references.
@@ -473,22 +413,10 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of properties that have references
 
         '''
-        return accumulate_from_superclasses(cls, "__properties_with_refs__")
+        return {k: v for k, v in cls.properties().items() if v.has_ref}
 
     @classmethod
-    def properties(cls):
-        ''' Collect the names of properties on this class.
-
-        This method *optionally* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Returns:
-           set[str] : property names
-
-        '''
-        return accumulate_from_superclasses(cls, "__properties__")
-
-    @classmethod
+    @lru_cache(None)
     def dataspecs(cls):
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
@@ -499,21 +427,8 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of ``DataSpec`` properties
 
         '''
-        return set(cls.dataspecs_with_props().keys())
-
-    @classmethod
-    def dataspecs_with_props(cls):
-        ''' Collect a dict mapping the names of all ``DataSpec`` properties
-        on this class to the associated properties.
-
-        This method *always* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Returns:
-            dict[str, DataSpec] : mapping of names and ``DataSpec`` properties
-
-        '''
-        return accumulate_dict_from_superclasses(cls, "__dataspecs__")
+        from .property.dataspec import DataSpec # avoid circular import
+        return {k: v for k, v in cls.properties().items() if isinstance(v, DataSpec)}
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
@@ -547,16 +462,10 @@ class HasProps(metaclass=MetaHasProps):
             This is an implementation detail of ``Property``.
 
         '''
-        return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
-
-    @classmethod
-    def _property_aliases(cls) -> Dict[str, str]:
-        ''' Returns a dictionary of aliased properties.
-
-        .. note::
-            This is an implementation detail of ``Property``.
-        '''
-        return accumulate_dict_from_superclasses(cls, "__property_aliases__")
+        defaults = dict()
+        for c in reversed(cls.__mro__):
+            defaults.update(getattr(c, "__overridden_defaults__", {}))
+        return defaults
 
     def query_properties_with_values(self, query, *, include_defaults: bool = True, include_undefined: bool = False):
         ''' Query the properties values of |HasProps| instances with a

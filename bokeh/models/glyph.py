@@ -90,7 +90,7 @@ class Glyph(Model):
 
         kwarg_params = []
 
-        kws = cls.properties() - set(cls._args) - omissions
+        kws = set(cls.properties()) - set(cls._args) - omissions
         for kw in kws:
             descriptor = cls.lookup(kw)
             param = Parameter(

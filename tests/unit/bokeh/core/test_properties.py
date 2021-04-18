@@ -21,6 +21,7 @@ import numpy as np
 from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
+    Alias,
     Dict,
     Enum,
     Float,
@@ -480,6 +481,23 @@ def test_HasProps_clone() -> None:
     p2 = p1._clone()
     c2 = p2.properties_with_values(include_defaults=False)
     assert c1 == c2
+
+def test_Alias() -> None:
+    class Foo(HasProps):
+        x = Int(12)
+        ax = Alias('x')
+
+    f = Foo(x=10)
+    assert f.x == 10
+    assert f.ax == 10
+
+    f.x = 20
+    assert f.x == 20
+    assert f.ax == 20
+
+    f.ax = 30
+    assert f.x == 30
+    assert f.ax == 30
 
 #-----------------------------------------------------------------------------
 # Dev API

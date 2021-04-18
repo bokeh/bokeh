@@ -30,6 +30,7 @@ import bokeh.core.property.descriptors as bcpd # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'AliasPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
@@ -237,6 +238,18 @@ class Test_UnitSpecDescriptor:
         assert d.property == f
         assert d.__doc__ == f.__doc__
         assert d.units_prop == g
+
+class Test_AliasSpecDescriptor:
+    def test___init__(self) -> None:
+        class Foo:
+            '''doc'''
+            pass
+        f = Foo()
+        d = bcpd.AliasPropertyDescriptor("foo", "bar", f)
+        assert d.name == "foo"
+        assert d.aliased_name == "bar"
+        assert d.property == f
+        assert d.__doc__ == "This is a compatibility alias for the ``bar`` property"
 
 #-----------------------------------------------------------------------------
 # Private API

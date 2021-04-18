@@ -269,7 +269,7 @@ def _pop_renderer_args(kwargs):
 
 def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     incompatible_literal_spec_values = []
-    dataspecs = glyphclass.dataspecs_with_props()
+    dataspecs = glyphclass.dataspecs()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
@@ -289,11 +289,11 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
+        if (isinstance(dataspecs[var], ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
             continue
 
         if isinstance(val, np.ndarray):
-            if isinstance(dataspecs[var].property, ColorSpec):
+            if isinstance(dataspecs[var], ColorSpec):
                 if val.dtype == "uint32" and val.ndim == 1:   # 0xRRGGBBAA
                     pass # TODO: handle byteorder
                 elif val.dtype == "uint8" and val.ndim == 1:  # greys
