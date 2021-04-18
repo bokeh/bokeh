@@ -82,40 +82,40 @@ _SIZE_WARNING = "Width/height arguments will be ignored for this multiple layout
 
 class Test_set_single_plot_width_height:
     def test_neither(self) -> None:
-        p = figure(plot_width=200, plot_height=300)
+        p = figure(width=200, height=300)
         d = Document()
         d.add_root(p)
         util.set_single_plot_width_height(d, None, None)
-        assert p.plot_width == 200
-        assert p.plot_height == 300
+        assert p.width == 200
+        assert p.height == 300
 
     def test_width(self) -> None:
-        p = figure(plot_width=200, plot_height=300)
+        p = figure(width=200, height=300)
         d = Document()
         d.add_root(p)
         util.set_single_plot_width_height(d, 400, None)
-        assert p.plot_width == 400
-        assert p.plot_height == 300
+        assert p.width == 400
+        assert p.height == 300
 
     def test_height(self) -> None:
-        p = figure(plot_width=200, plot_height=300)
+        p = figure(width=200, height=300)
         d = Document()
         d.add_root(p)
         util.set_single_plot_width_height(d, None, 400)
-        assert p.plot_width == 200
-        assert p.plot_height == 400
+        assert p.width == 200
+        assert p.height == 400
 
     def test_both(self) -> None:
-        p = figure(plot_width=200, plot_height=300)
+        p = figure(width=200, height=300)
         d = Document()
         d.add_root(p)
         util.set_single_plot_width_height(d, 400, 500)
-        assert p.plot_width == 400
-        assert p.plot_height == 500
+        assert p.width == 400
+        assert p.height == 500
 
     def test_multiple_roots(self) -> None:
-        p1 = figure(plot_width=200, plot_height=300)
-        p2 = figure(plot_width=200, plot_height=300)
+        p1 = figure(width=200, height=300)
+        p2 = figure(width=200, height=300)
         d = Document()
         d.add_root(p1)
         d.add_root(p2)
@@ -125,7 +125,7 @@ class Test_set_single_plot_width_height:
             assert warns[0].message.args[0] == _SIZE_WARNING
 
     def test_layout(self) -> None:
-        p = figure(plot_width=200, plot_height=300)
+        p = figure(width=200, height=300)
         d = Document()
         d.add_root(row(p))
         with pytest.warns(UserWarning) as warns:

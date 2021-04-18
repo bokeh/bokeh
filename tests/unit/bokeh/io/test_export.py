@@ -134,7 +134,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svg(layout)
@@ -181,7 +181,7 @@ def test_get_svg_with_svg_present(webdriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svgs(layout)

@@ -3,7 +3,7 @@ from bokeh.plotting import output_file, show
 
 p = Plot(
     title=None, toolbar_location=None,
-    plot_width=800, plot_height=800,
+    width=800, height=800,
     min_border=30,
     background_fill_color="#F0F0F0",
     border_fill_color="lightgray")
