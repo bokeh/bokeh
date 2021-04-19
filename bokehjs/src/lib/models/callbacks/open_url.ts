@@ -3,7 +3,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {replace_placeholders} from "core/util/templating"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
-import { TapBehavior } from "core/enums"
+import {TapBehavior} from "core/enums"
 
 export namespace OpenURL {
   export type Attrs = p.AttrsOf<Props>
@@ -48,10 +48,10 @@ export class OpenURL extends Callback {
     const selected = behavior == "select" ? source.selected : source.inspected
 
     for (const i of selected.indices)
-        open_url(i)
+      open_url(i)
 
     for (const i of selected.line_indices)
-        open_url(i)
+      open_url(i)
 
     // TODO: multiline_indices: {[key: string]: number[]}
   }
