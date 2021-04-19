@@ -14,8 +14,8 @@ p = figure(
 )
 
 # chage plot size
-p.plot_width = 450
-p.plot_height = 150
+p.width = 450
+p.height = 150
 
 # add circle renderer
 circle = p.circle(x, y, fill_color="red", size=15)
