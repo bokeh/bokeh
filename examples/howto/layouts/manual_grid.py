@@ -12,11 +12,11 @@ y = np.sin(x)
 options = dict(tools="", toolbar_location=None, height=300, width=300, sizing_mode="fixed")
 
 p1 = figure(title="Line (300 x 100)", **options)
-p1.plot = 100
+p1.height = 100
 p1.line(x, y)
 
 p2 = figure(title="Annular wedge (100 x 300)", title_location='right', **options)
-p2.plot = 200
+p2.width = 200
 p2.annular_wedge(x, y, 10, 20, 0.6, 4.1, inner_radius_units="screen", outer_radius_units="screen")
 
 p3 = figure(title="Bezier (300 x 300)", **options)
