@@ -25,7 +25,7 @@ be especially useful.
     information about every property of each model.
 
 :ref:`bokeh.plotting`
-    The ``bokeh.plotting`` API is centered around the
+    The |bokeh.plotting| API is centered around the
     |figure| command, and the associated glyph functions such as
     :func:`~bokeh.plotting.Figure.circle`,
     :func:`~bokeh.plotting.Figure.wedge`, etc.

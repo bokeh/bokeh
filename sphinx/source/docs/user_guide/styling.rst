@@ -110,7 +110,7 @@ Using palettes
 Palettes are sequences of RGB(A) hex strings that define a colormap. The
 sequences you use for defining colormaps can be either lists or tuples. Once you
 have created a colormap, you can use it with the ``color`` attribute of many
-plot objects from ``bokeh.plotting``.
+plot objects from |bokeh.plotting|.
 
 Bokeh includes several pre-defined palettes, such as the standard Brewer
 palettes. To use one of those pre-defined palettes, import it from the
@@ -934,7 +934,7 @@ Inside the plot area
 ''''''''''''''''''''
 
 For legends in the central layout area, such as those created
-automatically by ``bokeh.plotting``, set ``location`` to one of the following
+automatically by |bokeh.plotting|, set ``location`` to one of the following
 values:
 
 ``"top_left"``

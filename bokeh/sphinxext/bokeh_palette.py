@@ -89,7 +89,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
 
     This function evaluates the expression ``f"palette = {text}"``, in the
     context of a ``globals`` namespace that has previously imported all of
-    ``bokeh.plotting``. The resulting value for ``palette`` is used to
+    |bokeh.plotting|. The resulting value for ``palette`` is used to
     construct a sequence of HTML ``<span>`` elements for each color.
 
     If evaluating the palette expression fails or does not produce a list or
