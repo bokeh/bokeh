@@ -21,11 +21,6 @@ import tempfile
 # External imports
 from mock import patch
 
-# Bokeh imports
-from bokeh.document import Document
-from bokeh.layouts import row
-from bokeh.plotting import figure
-
 # Module under test
 import bokeh.command.util as util # isort:skip
 

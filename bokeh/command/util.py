@@ -33,8 +33,6 @@ from bokeh.application.handlers import (
     NotebookHandler,
     ScriptHandler,
 )
-from bokeh.document import Document
-from bokeh.models import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
