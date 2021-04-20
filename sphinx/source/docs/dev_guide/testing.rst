@@ -175,7 +175,7 @@ tests should follow these general guidelines:
 
 * Be as simple as possible (only include things under test and nothing extra)
 
-* Prefer the ``bokeh.models`` API
+* Prefer the |bokeh.models| API
 
 Once a new test is written, a base image for comparison is needed. To create
 a new base image, add ``--set-new-base-screenshot`` to your the standard

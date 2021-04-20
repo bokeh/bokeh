@@ -62,7 +62,7 @@ custom widgets, or wrap different third party widget libraries by creating
 custom extensions as described in :ref:`userguide_extensions`.
 
 For more information about the attributes to watch using ``.on_change``, see the
-:ref:`refguide`. (Information about widgets is found under :ref:`bokeh.models`.)
+:ref:`refguide`. (Information about widgets is found under |bokeh.models|.)
 
 .. _userguide_interaction_widgets_examples:
 

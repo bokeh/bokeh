@@ -523,7 +523,7 @@ prefixed by ``"selection_"`` or ``"nonselection_"``:
 .. bokeh-plot:: docs/user_guide/examples/styling_glyph_selections_plotting_params.py
     :source-position: above
 
-If you use the :ref:`bokeh.models` interface, use the
+If you use the |bokeh.models| interface, use the
 :func:`~bokeh.models.plots.Plot.add_glyph` function:
 
 .. code-block:: python

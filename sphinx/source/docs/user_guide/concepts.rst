@@ -308,7 +308,7 @@ interfaces ultimately produce collections of Bokeh models, this lets you
 style and configure plots and widgets the same way regardless of the
 interface.
 
-For more information on Bokeh models, consult the :ref:`refguide`.
+For more information on Bokeh models, see |bokeh.models| in the :ref:`refguide`.
 
 .. note::
 

@@ -1,5 +1,5 @@
-.. |bokeh.models|       replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting <bokeh.plotting>`
+.. |bokeh.models|       replace:: :ref:`bokeh.models`
+.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
 .. |Document|           replace:: :py:class:`~bokeh.document.Document`
