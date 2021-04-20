@@ -44,8 +44,8 @@ p = figure(title="Les Mis Occurrences",
            x_range=list(reversed(names)), y_range=names,
            tooltips = [('names', '@yname, @xname'), ('count', '@count')])
 
-p.plot_width = 800
-p.plot_height = 800
+p.width = 800
+p.height = 800
 p.grid.grid_line_color = None
 p.axis.axis_line_color = None
 p.axis.major_tick_line_color = None

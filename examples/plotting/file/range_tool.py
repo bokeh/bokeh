@@ -9,7 +9,7 @@ from bokeh.sampledata.stocks import AAPL
 dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
-p = figure(plot_height=300, plot_width=800, tools="xpan", toolbar_location=None,
+p = figure(height=300, width=800, tools="xpan", toolbar_location=None,
            x_axis_type="datetime", x_axis_location="above",
            background_fill_color="#efefef", x_range=(dates[1500], dates[2500]))
 
@@ -17,7 +17,7 @@ p.line('date', 'close', source=source)
 p.yaxis.axis_label = 'Price'
 
 select = figure(title="Drag the middle and edges of the selection box to change the range above",
-                plot_height=130, plot_width=800, y_range=p.y_range,
+                height=130, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
                 tools="", toolbar_location=None, background_fill_color="#efefef")
 

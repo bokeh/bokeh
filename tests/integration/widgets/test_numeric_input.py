@@ -42,7 +42,7 @@ pytest_plugins = (
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
     plot.add_glyph(source, Circle(x='x', y='y'))
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
@@ -143,7 +143,7 @@ class Test_NumericInput(object):
 
     def test_js_on_change_executes(self, single_plot_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
         num_input = NumericInput(css_classes=['foo'])
         num_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
@@ -173,7 +173,7 @@ class Test_NumericInput(object):
 
     def test_low_high(self, single_plot_page) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
         num_input = NumericInput(value=4, low=-1, high=10, css_classes=['foo'])
         num_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
@@ -200,7 +200,7 @@ class Test_NumericInput(object):
                             10, 10, -13, -15, None]
 
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
         num_input = NumericInput(css_classes=['foo'], high=10)
         num_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
@@ -226,7 +226,7 @@ class Test_NumericInput(object):
                             1e-6, 10, -1e3, -1e-5, None]
 
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
         plot.add_glyph(source, Circle(x='x', y='y', size=20))
         num_input = NumericInput(css_classes=['foo'], high=10, mode="float")
         num_input.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))

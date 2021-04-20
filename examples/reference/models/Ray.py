@@ -11,7 +11,7 @@ l = x*5 + 25
 source = ColumnDataSource(dict(x=x, y=y, l=l))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Ray(x="x", y="y", length="l", angle=-2.0, line_color="#fb8072", line_width=3)

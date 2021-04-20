@@ -10,7 +10,7 @@ y = x**2
 source = ColumnDataSource(dict(x=x, y=y))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Line(x="x", y="y", line_color="#f46d43", line_width=6, line_alpha=0.6)

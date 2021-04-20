@@ -5,7 +5,7 @@ from bokeh.plotting import figure, output_file, show
 x = np.linspace(-6, 6, 500)
 y = 8*np.sin(x)*np.sinc(x)
 
-p = figure(plot_width=800, plot_height=300, title="", tools="",
+p = figure(width=800, height=300, title="", tools="",
            toolbar_location=None, match_aspect=True)
 
 p.line(x, y, color="navy", alpha=0.4, line_width=4)

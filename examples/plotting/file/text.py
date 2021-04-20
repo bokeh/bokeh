@@ -5,7 +5,7 @@ from bokeh.plotting import figure, output_file, show
 aligns    = ["left", "center", "right"]
 baselines = ["bottom", "middle", "top" ]
 
-p = figure(x_range=aligns, y_range=baselines, plot_width=800, plot_height=600,
+p = figure(x_range=aligns, y_range=baselines, width=800, height=600,
            title="Variations of multi-line text", toolbar_location=None)
 
 p.background_fill_color = "lightgrey"

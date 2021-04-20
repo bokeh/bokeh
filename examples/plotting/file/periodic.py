@@ -36,7 +36,7 @@ TOOLTIPS = [
     ("Electronic configuration", "@{electronic configuration}"),
 ]
 
-p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, plot_height=450,
+p = figure(title="Periodic Table (omitting LA and AC Series)", width=1000, height=450,
            x_range=groups, y_range=list(reversed(periods)),
            tools="hover", toolbar_location=None, tooltips=TOOLTIPS)
 

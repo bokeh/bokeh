@@ -12,8 +12,8 @@ const plot = new Bokeh.Plot({
     title: "BokehJS Plot",
     x_range: xdr,
     y_range: ydr,
-    plot_width: 400,
-    plot_height: 400,
+    width: 400,
+    height: 400,
     background_fill_color: "#F2F2F7"
 });
 

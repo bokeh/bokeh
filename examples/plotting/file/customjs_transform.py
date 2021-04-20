@@ -11,7 +11,7 @@ def datetime(x):
     return np.array(x, dtype=np.datetime64)
 
 plot = figure(x_axis_type="datetime", title="Normalized Stock Closing Prices",
-              plot_width=800, plot_height=350)
+              width=800, height=350)
 plot.background_fill_color = "#f0f0f0"
 plot.xgrid.grid_line_color = None
 plot.ygrid.grid_line_color = "black"

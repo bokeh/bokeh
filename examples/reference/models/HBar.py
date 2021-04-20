@@ -10,7 +10,7 @@ x = y**2
 source = ColumnDataSource(dict(y=y, right=x,))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = HBar(y="y", right="right", left=0, height=0.5, fill_color="#b3de69")

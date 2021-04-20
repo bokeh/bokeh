@@ -16,7 +16,7 @@ source = ColumnDataSource(dict(
 )
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Quad(left="left", right="right", top="top", bottom="bottom", fill_color="#b3de69")
