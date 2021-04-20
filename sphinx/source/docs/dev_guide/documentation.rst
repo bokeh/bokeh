@@ -309,6 +309,10 @@ For information on writing style, see Bokeh's
 :ref:`documentation style guidelines <devguide_documentation_style_guidelines>`
 and the `Google developer documentation style guide`_.
 
+You can find many common substitutions in the file
+:bokeh-tree:`sphinx/source/rst_epilog.txt`. This file is loaded as the
+`epilog.rst environments variable`_ for Bokeh's Sphinx configuration.
+
 `Release Notes`_ are generally handled by the Bokeh core team as part of
 Bokeh's `release management`_. Each release should add a new file under
 ``sphinx/source/docs/releases`` that briefly describes the changes in the
@@ -338,5 +342,6 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _`reStructuredText primer on the Sphinx website`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
+.. _epilog.rst environments variable: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-rst_epilog
 .. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
 .. _`release management`: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
