@@ -50,7 +50,7 @@ text_source = ColumnDataSource(dict(
     texts = ["CST (UTC+1)", "CEST (UTC+2)", "CST (UTC+1)"],
 ))
 
-plot = Plot(plot_width=800, plot_height=400)
+plot = Plot(width=800, height=400)
 plot.title.text = "Daylight Hours 2013 - Warsaw, Poland"
 plot.toolbar_location = None
 plot.x_range.range_padding = 0

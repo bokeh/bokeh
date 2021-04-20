@@ -49,7 +49,7 @@ def hover_plot():
     x = data.loc['2010-10-06'].index.to_series()
     y = data.loc['2010-10-06']['glucose']
     p = figure(
-        plot_width=800, plot_height=400, x_axis_type="datetime",
+        width=800, height=400, x_axis_type="datetime",
         tools="", toolbar_location=None, title='Hover over points'
     )
     p.line(x, y, line_dash="4 4", line_width=1, color='gray')

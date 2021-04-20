@@ -17,7 +17,7 @@ source = ColumnDataSource(dict(
 )
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Quadratic(x0="x", y0="y", x1="xp02", y1="y", cx="xp01", cy="yp01", line_color="#4daf4a", line_width=3)

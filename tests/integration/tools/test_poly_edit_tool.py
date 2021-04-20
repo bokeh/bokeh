@@ -49,7 +49,7 @@ def _make_plot():
     data = {"xs": [[1, 2], [1.6, 2.45]],
             "ys": [[1, 1], [1.5, 0.75]]}
     source = ColumnDataSource(data)
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys', line_width=10))
     tool = PolyEditTool(renderers=[renderer])
     psource = ColumnDataSource(dict(x=[], y=[]))
@@ -67,7 +67,7 @@ def _make_server_plot(expected):
             "ys": [[1, 1], [1.5, 0.75]]}
     source = ColumnDataSource(data)
     def modify_doc(doc):
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
         tool = PolyEditTool(renderers=[renderer])
         psource = ColumnDataSource(dict(x=[], y=[]))

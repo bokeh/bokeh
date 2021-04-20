@@ -28,7 +28,7 @@ for county_id in counties:
 
 p = figure(title="US Unemployment 2009",
            x_axis_location=None, y_axis_location=None,
-           plot_width=1000, plot_height=600)
+           width=1000, height=600)
 p.grid.grid_line_color = None
 
 p.patches(county_xs, county_ys,

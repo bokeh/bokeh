@@ -9,8 +9,8 @@ from bokeh.sampledata.stocks import GOOG
 output_file("polyannotation.html", title="polannotation example")
 
 p = figure(
-    plot_width=800,
-    plot_height=250,
+    width=800,
+    height=250,
     x_axis_type="datetime",
     title="Google stock",
 )

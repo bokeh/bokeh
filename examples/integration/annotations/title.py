@@ -9,7 +9,7 @@ source = ColumnDataSource(data=dict(x=[1, 2], y=[1, 2]))
 
 def make_plot(location, title_align, two_axes=True):
     plot = Plot(
-        plot_width=400, plot_height=200,
+        width=400, height=200,
         x_range=Range1d(0, 2), y_range=Range1d(0, 2),
         toolbar_location=None,
         title_location=location,

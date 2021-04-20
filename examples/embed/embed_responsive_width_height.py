@@ -13,7 +13,7 @@ import random
 from bokeh.io import output_file, show
 from bokeh.plotting import figure
 
-PLOT_OPTIONS = dict(plot_width=600, plot_height=400)
+PLOT_OPTIONS = dict(width=600, height=400)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]

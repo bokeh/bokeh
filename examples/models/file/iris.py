@@ -20,7 +20,7 @@ source = ColumnDataSource(
     )
 )
 
-plot = Plot(plot_width=800, plot_height=400)
+plot = Plot(width=800, height=400)
 plot.title.text = "Iris Data"
 
 circle = Circle(

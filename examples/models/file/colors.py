@@ -27,7 +27,7 @@ xdr = FactorRange(factors=list(css3_colors.Group.unique()))
 ydr = FactorRange(factors=list(reversed(css3_colors.Name)))
 x_scale, y_scale = CategoricalScale(), CategoricalScale()
 
-plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale, plot_width=600, plot_height=2000)
+plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale, width=600, height=2000)
 plot.title.text = "CSS3 Color Names"
 
 rect = Rect(x="groups", y="names", width=1, height=1, fill_color="colors", line_color=None)

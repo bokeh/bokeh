@@ -16,7 +16,7 @@ ydr = DataRange1d()
 
 plot = Plot(
     x_range=xdr, y_range=ydr,
-    plot_width=1000, plot_height=600,
+    width=1000, height=600,
     min_border=0,
     toolbar_location=None,
     background_fill_color='#F0F0F0',

@@ -14,7 +14,7 @@ TOOLTIPS = [
     ("desc", "@desc"),
 ]
 
-p = figure(plot_width=400, plot_height=400, tooltips=TOOLTIPS,
+p = figure(width=400, height=400, tooltips=TOOLTIPS,
            title="Mouse over the dots")
 
 p.circle('x', 'y', size=20, source=source)

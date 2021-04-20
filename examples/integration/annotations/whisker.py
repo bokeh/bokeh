@@ -5,7 +5,7 @@ x_range = Range1d(0, 10)
 y_range = Range1d(0, 10)
 
 # Have to specify x/y range as labels aren't included in the plot area solver
-plot = Plot(plot_width=600, plot_height=600,
+plot = Plot(width=600, height=600,
             x_range=x_range, y_range=y_range, toolbar_location=None)
 
 source = ColumnDataSource(data=dict(

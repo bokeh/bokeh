@@ -66,7 +66,7 @@ for vendor_name in Vendors:
 
     plot[idx] = figure( x_range=x_range, y_range=y_range,
                         x_axis_type="mercator", y_axis_type="mercator",
-                        plot_height=200, plot_width=300, title=vendor_name)
+                        height=200, width=300, title=vendor_name)
 
     plot[idx].add_tile(tile_provider)
     idx += 1

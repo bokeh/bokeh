@@ -226,7 +226,7 @@ def gmap(google_api_key, map_options, **kwargs):
             Configuration specific to a Google Map
 
     In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
-    arguments (e.g. ``plot_width`` or ``sizing_mode``), the following
+    arguments (e.g. ``width`` or ``sizing_mode``), the following
     additional options can be passed as well:
 
     .. bokeh-options:: GMapFigureOptions

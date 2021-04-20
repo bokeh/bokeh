@@ -15,7 +15,7 @@ def plot(tile_source):
     # create plot and add tools
     p = figure(tools='hover,wheel_zoom,pan,reset', x_range=x_range, y_range=y_range, title=title,
                tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")],
-               plot_width=400, plot_height=400)
+               width=400, height=400)
     p.axis.visible = False
     p.add_tile(tile_source)
 

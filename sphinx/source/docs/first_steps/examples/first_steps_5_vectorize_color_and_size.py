@@ -16,7 +16,7 @@ p = figure(
     title="Vectorized colors and radii example",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # add circle renderer

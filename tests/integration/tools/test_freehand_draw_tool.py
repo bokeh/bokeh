@@ -46,7 +46,7 @@ pytest_plugins = (
 
 def _make_plot(num_objects=0):
     source = ColumnDataSource(dict(xs=[], ys=[]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
     tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
     plot.add_tools(tool)
@@ -59,7 +59,7 @@ def _make_plot(num_objects=0):
 def _make_server_plot(expected, num_objects=0):
     def modify_doc(doc):
         source = ColumnDataSource(dict(xs=[], ys=[]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
         tool = FreehandDrawTool(num_objects=num_objects, renderers=[renderer])
         plot.add_tools(tool)

@@ -19,7 +19,7 @@ source = ColumnDataSource(dict(
 )
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#d95f02", line_width=2)

@@ -277,13 +277,13 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
         else:
             resize = True
 
-            old_width = obj.plot_width
-            old_height = obj.plot_height
+            old_width = obj.width
+            old_height = obj.height
 
             if width is not None:
-                obj.plot_width = width
+                obj.width = width
             if height is not None:
-                obj.plot_height = height
+                obj.height = height
 
     template = r"""\
     {% block preamble %}
@@ -306,8 +306,8 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
     finally:
         if resize:
             assert isinstance(obj, Plot)
-            obj.plot_width = old_width
-            obj.plot_height = old_height
+            obj.width = old_width
+            obj.height = old_height
 
     return html
 

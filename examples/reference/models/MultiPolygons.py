@@ -21,7 +21,7 @@ ys = [[[p['exterior'], *p['holes']] for p in mp] for mp in ys_dict]
 source = ColumnDataSource(dict(xs=xs, ys=ys))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = MultiPolygons(xs="xs", ys="ys", line_width=2)

@@ -12,7 +12,7 @@ markers = list(MarkerType)
 source = ColumnDataSource(dict(x=x, y=y, markers=markers))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Scatter(x="x", y="y", size=20, fill_color="#74add1", marker="markers")

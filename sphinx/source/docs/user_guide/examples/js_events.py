@@ -35,7 +35,7 @@ p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset")
 p.scatter(x, y, radius=np.random.random(size=4000) * 1.5,
           fill_color=colors, fill_alpha=0.6, line_color=None)
 
-div = Div(width=400, height=p.plot_height, height_policy="fixed")
+div = Div(width=400, height=p.height, height_policy="fixed")
 button = Button(label="Button", button_type="success")
 layout = column(button, row(p, div))
 

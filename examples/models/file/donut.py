@@ -15,7 +15,7 @@ df = browsers_nov_2013
 xdr = Range1d(start=-2, end=2)
 ydr = Range1d(start=-2, end=2)
 
-plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=800)
+plot = Plot(x_range=xdr, y_range=ydr, width=800, height=800)
 plot.title.text = "Web browser market share (November 2013)"
 plot.toolbar_location = None
 

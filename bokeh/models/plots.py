@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing import Optional
 import warnings
 
 # Bokeh imports
@@ -509,15 +510,15 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width = Override(default=600)
+    width: Optional[int] = Override(default=600)
 
-    height = Override(default=600)
+    height: Optional[int] = Override(default=600)
 
-    plot_width: int = Alias("width", help="""
+    plot_width: Optional[int] = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
     """)
 
-    plot_height: int = Alias("height", help="""
+    plot_height: Optional[int] = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
     """)
 

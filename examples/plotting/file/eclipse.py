@@ -21,7 +21,7 @@ states["trend"] = trends["solar eclipse"]
 upath17 = shp.Reader("eclipse_data/upath17")
 (totality_path,) = upath17.shapes()
 
-p = figure(plot_width=1000, plot_height=600, background_fill_color="#333344",
+p = figure(width=1000, height=600, background_fill_color="#333344",
            tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None)
 
 p.grid.grid_line_color = None

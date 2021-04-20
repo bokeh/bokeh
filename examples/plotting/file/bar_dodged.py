@@ -15,7 +15,7 @@ data = {'fruits' : fruits,
 
 source = ColumnDataSource(data=data)
 
-p = figure(x_range=fruits, y_range=(0, 10), plot_height=350, title="Fruit Counts by Year",
+p = figure(x_range=fruits, y_range=(0, 10), height=350, title="Fruit Counts by Year",
            toolbar_location=None, tools="")
 
 p.vbar(x=dodge('fruits', -0.25, range=p.x_range), top='2015', width=0.2, source=source,

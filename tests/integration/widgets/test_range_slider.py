@@ -182,7 +182,7 @@ class Test_RangeSlider:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             slider = RangeSlider(start=0, end=10, value=(1, 9), title="bar", css_classes=["foo"], width=300)
@@ -234,7 +234,7 @@ class Test_RangeSlider:
     def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", css_classes=["foo"], width=300)
 
             def cb(attr, old, new):

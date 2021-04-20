@@ -16,7 +16,7 @@ source = ColumnDataSource(data={
     'volume'    : AAPL['volume'][::10],
 })
 
-p = figure(plot_height=250, x_axis_type="datetime", tools="", toolbar_location=None,
+p = figure(height=250, x_axis_type="datetime", tools="", toolbar_location=None,
            title="Hover Tooltip Formatting", sizing_mode="scale_width")
 p.background_fill_color="#f5f5f5"
 p.grid.grid_line_color="white"

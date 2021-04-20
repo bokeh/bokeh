@@ -12,7 +12,7 @@ factors = [
 
 ]
 
-p = figure(x_range=FactorRange(*factors), plot_height=250,
+p = figure(x_range=FactorRange(*factors), height=250,
            toolbar_location=None, tools="")
 
 x = [ 10, 12, 16, 9, 10, 8, 12, 13, 14, 14, 12, 16 ]

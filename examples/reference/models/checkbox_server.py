@@ -10,7 +10,7 @@ y=[7,1,3,4,1,6]
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-plot_figure = figure(title='Checkbox',plot_height=450, plot_width=600,
+plot_figure = figure(title='Checkbox',height=450, width=600,
               tools="save,reset",toolbar_location="below")
 
 plot_figure.scatter('x', 'y', source=source, size=10)

@@ -42,7 +42,7 @@ source = ColumnDataSource(data=dict(color=[hex_color], text_color=[text_color]))
 
 # create first plot, as a rect() glyph and centered text label, with fill and text color taken from source
 p1 = figure(x_range=(-8, 8), y_range=(-4, 4),
-            plot_width=600, plot_height=300,
+            width=600, height=300,
             title='move sliders to change', tools='')
 
 p1.rect(0, 0, width=18, height=10, fill_color='color',
@@ -99,7 +99,7 @@ crsource = ColumnDataSource(data=dict(x=crx, y=cry, crcolor=crcolor, RGBs=crRGBs
 
 # create second plot
 p2 = figure(x_range=(0,1000), y_range=(0,10),
-            plot_width=600, plot_height=150,
+            width=600, height=150,
             tools='hover', title='hover over color')
 
 color_range1 = p2.rect(x='x', y='y', width=1, height=10,

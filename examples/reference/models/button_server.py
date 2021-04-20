@@ -10,7 +10,7 @@ y=[7,1,3,4,1,6]
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-plot_figure = figure(plot_height=450, plot_width=600,
+plot_figure = figure(height=450, width=600,
               tools="save,reset",
               x_range=[0,14], y_range=[0,12],toolbar_location="below")
 

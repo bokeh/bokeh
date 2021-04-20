@@ -14,7 +14,7 @@ y = np.hstack((y1, y2))
 source = ColumnDataSource(dict(x=x, y=y))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = Patch(x="x", y="y", fill_color="#a6cee3")

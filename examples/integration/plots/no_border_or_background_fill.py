@@ -9,7 +9,7 @@ template ="""
 {% endblock %}
 """
 
-plot = Plot(plot_width=600, plot_height=600,
+plot = Plot(width=600, height=600,
             x_range=Range1d(0, 10), y_range=Range1d(0, 10),
             toolbar_location=None)
 

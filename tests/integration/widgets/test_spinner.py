@@ -47,7 +47,7 @@ pytest_plugins = (
 
 def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
 
     plot.add_glyph(source, Circle(x='x', y='y'))
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))

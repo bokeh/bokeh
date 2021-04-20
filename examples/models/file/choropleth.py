@@ -31,7 +31,7 @@ county_source = ColumnDataSource(
     )
 )
 
-plot = Plot(min_border=0, border_fill_color="white", plot_width=1300, plot_height=700)
+plot = Plot(min_border=0, border_fill_color="white", width=1300, height=700)
 plot.title.text = "2009 Unemployment Data"
 plot.toolbar_location = None
 

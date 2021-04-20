@@ -18,7 +18,7 @@ tile_options['url'] = 'http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
 tile_source = WMTSTileSource(**tile_options)
 
 # instantiate plot and add tile source
-p = Plot(x_range=x_range, y_range=y_range, plot_height=800, plot_width=800)
+p = Plot(x_range=x_range, y_range=y_range, height=800, width=800)
 p.add_tools(WheelZoomTool(), PanTool(), BoxZoomTool(match_aspect=True))
 
 tile_renderer_options = {}

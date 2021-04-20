@@ -8,12 +8,12 @@ source = ColumnDataSource(autompg)
 
 TOOLS = "save,box_select,lasso_select"
 
-s1 = figure(tools=TOOLS, plot_width=400, plot_height=400,
+s1 = figure(tools=TOOLS, width=400, height=400,
             x_axis_label='# Cylinders', y_axis_label='MPG')
 
 s1.circle(jitter('cyl', 0.5), 'mpg', source=source)
 
-s2 = figure(tools=TOOLS, plot_width=400, plot_height=400,
+s2 = figure(tools=TOOLS, width=400, height=400,
             x_axis_label='Acceleration', y_axis_label='MPG')
 
 # linked brushing is expressed by sharing data sources between renderers

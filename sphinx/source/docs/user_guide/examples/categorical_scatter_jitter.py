@@ -10,7 +10,7 @@ DAYS = ['Sun', 'Sat', 'Fri', 'Thu', 'Wed', 'Tue', 'Mon']
 
 source = ColumnDataSource(data)
 
-p = figure(plot_width=800, plot_height=300, y_range=DAYS, x_axis_type='datetime', toolbar_location=None,
+p = figure(width=800, height=300, y_range=DAYS, x_axis_type='datetime', toolbar_location=None,
            title="Commits by time of day (US/Central) 2012—2016")
 
 p.circle(x='time', y=jitter('day', width=0.6, range=p.y_range),  source=source, alpha=0.3)

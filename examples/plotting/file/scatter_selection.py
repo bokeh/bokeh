@@ -18,7 +18,7 @@ fully customizable.</p>
 <p>Make selections on the plots below to see these possibilities.</p>
 """)
 
-opts = dict(tools=TOOLS, plot_width=350, plot_height=350)
+opts = dict(tools=TOOLS, width=350, height=350)
 
 p1 = figure(title="selection on mouseup", **opts)
 p1.circle(x, y, color="navy", size=6, alpha=0.6)
