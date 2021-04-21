@@ -132,7 +132,7 @@
 
 {% block autoload_init %}
   if (typeof (root._bokeh_timeout) === "undefined" || force === true) {
-    root._bokeh_timeout = Date.now() + {{ timeout|default(0)|json }};
+    root._bokeh_timeout = Date.now() + {{ timeout|default(0)|tojson }};
     root._bokeh_failed_load = false;
   }
 
@@ -153,7 +153,7 @@
      "</div>"}};
 
   function display_loaded() {
-    const el = document.getElementById({{ elementid|json }});
+    const el = document.getElementById({{ elementid|tojson }});
     if (el != null) {
       el.textContent = "BokehJS is loading...";
     }
@@ -181,7 +181,7 @@
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     } else if (force !== true) {
-      const cell = $(document.getElementById({{ elementid|json }})).parents('.cell').data().cell;
+      const cell = $(document.getElementById({{ elementid|tojson }})).parents('.cell').data().cell;
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
 {% endblock %}

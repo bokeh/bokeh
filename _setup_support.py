@@ -43,7 +43,7 @@ MIN_PYTHON_VERSION = (3, 7)
 
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 INSTALL_REQUIRES = [
-    'Jinja2 >=2.7',
+    'Jinja2 >=2.9',
     'numpy >=1.11.3',
     'packaging >=16.8',
     'pillow >=7.1.0',
