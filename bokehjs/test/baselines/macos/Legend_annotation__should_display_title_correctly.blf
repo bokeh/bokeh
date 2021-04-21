@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 600, 600]
+  LinearAxis bbox=[29, 0, 542, 22]
+  LinearAxis bbox=[29, 578, 542, 22]
+  LinearAxis bbox=[0, 22, 29, 556]
+  LinearAxis bbox=[571, 22, 29, 556]
