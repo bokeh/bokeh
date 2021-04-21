@@ -48,4 +48,28 @@ describe("Legend annotation", () => {
 
     await display(p)
   })
+
+  it(`should display title correctly`, async () => {
+    const random = new Random(1)
+
+    const p = fig([600, 600])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = range(0, 10)
+    const y = random.floats(10)
+    const cr = p.circle(x, y, { fill_color: "red" })
+
+    const items = [new LegendItem({ label: "#0", renderers: [cr] })]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "center_left",
+      orientation: "vertical",
+      title: "title"
+    }))
+
+    await display(p)
+  })
 })
