@@ -608,8 +608,15 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
-    Whether validation checks should be strict (i.e. raise errors).
+    validation_exceptions = PrioritizedSetting("validation_exceptions", "BOKEH_VALIDATION_EXCEPTIONS", default="none", help="""
+    Whether validation checks should log or raise exceptions on errors and warnings.
+
+    Valid values are:
+
+    - ``none``: no exceptions raised (default)
+    - ``errors``: exception raised on errors (but not on warnings)
+    - ``all``: exception raised on both errors and warnings
+
     """)
 
     xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""

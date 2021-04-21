@@ -971,6 +971,10 @@ class Document:
             refs = r.references()
             check_integrity(refs)
 
+            # Currently not sure how to access messages inside this function
+            if len(messages['error']) or (len(messages['warning']) and settings.strict()):
+                raise RuntimeError("Errors encountered during validation (see log output)")
+
     # Private methods ---------------------------------------------------------
 
     def _add_session_callback(self, callback_obj, callback, one_shot, originator):
