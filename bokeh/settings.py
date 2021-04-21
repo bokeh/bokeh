@@ -455,9 +455,8 @@ class Settings:
     The default browser that Bokeh should use to show documents with.
 
     Valid values are any of the predefined browser names understood by the
-    Python standard library webbrowser_ module.
-
-    .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
+    Python standard library :doc:`webbrowser <python:library/webbrowser>`
+    module.
     """)
 
     cdn_version = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""

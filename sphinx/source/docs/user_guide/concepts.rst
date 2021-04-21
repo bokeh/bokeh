@@ -148,7 +148,8 @@ Some of most useful settings are:
 ``browser`` (environment variable ``BOKEH_BROWSER``)
     Set this configuration value to the browser you want Bokeh to use (for
     example when calling :func:`~bokeh.io.show`). Valid values are any of the
-    predefined browser names of the Python webbrowser_ module. For example:
+    predefined browser names of the Python
+    :doc:`webbrowser <python:library/webbrowser>` module. For example:
     ``chromium-browser`` or ``windows-default``. You can also set this variable
     to the full path of your browser. For example:
 
@@ -174,8 +175,6 @@ Some of most useful settings are:
     You can combine some of the values for this variable with other
     configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
     ``rootdir`` (``BOKEH_ROOTDIR``). See :ref:`bokeh.settings` for details.
-
-.. _webbrowser: https://docs.python.org/3/library/webbrowser.html
 
 Interfaces
 ----------

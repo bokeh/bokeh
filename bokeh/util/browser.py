@@ -66,11 +66,11 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
     Args:
         browser (str or None) : browser name, or ``None`` (default: ``None``)
             If passed the string ``'none'``, a dummy web browser controller
-            is returned
+            is returned.
 
             Otherwise, use the value to select an appropriate controller using
-            the ``webbrowser`` standard library module. In the value is
-            ``None`` then a system default is used.
+            the :doc:`webbrowser <python:library/webbrowser>` standard library
+            module. If the value is ``None``, a system default is used.
 
     Returns:
         controller : a web browser controller
