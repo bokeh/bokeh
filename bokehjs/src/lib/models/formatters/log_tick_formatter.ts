@@ -53,8 +53,7 @@ export class LogTickFormatter extends TickFormatter {
           const b = new TextBox({text: unicode_replace(`${base**expo}`)})
           const e = new TextBox({text: ''})
           return new BaseExpo(b, e)
-        }
-        else {
+        } else {
           const b = new TextBox({text: unicode_replace(`${base}`)})
           const e = new TextBox({text: unicode_replace(`${expo}`)})
           return new BaseExpo(b, e)
@@ -91,6 +90,6 @@ export class LogTickFormatter extends TickFormatter {
           return unicode_replace(`${base**expo}`)
         else
           return unicode_replace(`${base}^${expo}`)
-    })
+      })
   }
 }
