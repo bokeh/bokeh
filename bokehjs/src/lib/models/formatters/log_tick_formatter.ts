@@ -4,14 +4,14 @@ import {LogTicker} from "../tickers/log_ticker"
 import {GraphicsBox, BaseExpo, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
-const {min, max, log, round} = Math
+const {abs, log, round} = Math
 
 export namespace LogTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
     ticker: p.Property<LogTicker | null>
-    min_exponent: p.Property<number[] | number>
+    min_exponent: p.Property<number>
   }
 }
 
@@ -25,9 +25,9 @@ export class LogTickFormatter extends TickFormatter {
   }
 
   static init_LogTickFormatter(): void {
-    this.define<LogTickFormatter.Props>(({Or, Int, Array, Ref, Nullable}) => ({
+    this.define<LogTickFormatter.Props>(({Int, Ref, Nullable}) => ({
       ticker: [ Nullable(Ref(LogTicker)), null ],
-      min_exponent: [ Or(Array(Int), Int), 0 ],
+      min_exponent: [ Int, 0 ],
     }))
   }
 
@@ -48,10 +48,8 @@ export class LogTickFormatter extends TickFormatter {
     if (expos == null)
       return this.basic_formatter.format_graphics(ticks, opts)
     else {
-      let _low = (this.min_exponent.constructor === Array) ? min(...this.min_exponent) : -this.min_exponent
-      let _high = (this.min_exponent.constructor === Array) ? max(...this.min_exponent) : this.min_exponent
       return expos.map((expo) => {
-        if (_low<expo && expo<_high){
+        if (abs(expo)<this.min_exponent){
             const b = new TextBox({text: unicode_replace(`${base**expo}`)})
             const e = new TextBox({text: ''})
             return new BaseExpo(b, e)
@@ -87,11 +85,8 @@ export class LogTickFormatter extends TickFormatter {
     if (expos == null)
       return this.basic_formatter.doFormat(ticks, opts)
     else
-      console.log(this.min_exponent)
-      let _low = (this.min_exponent.constructor === Array) ?  min(...this.min_exponent) : -this.min_exponent
-      let _high = (this.min_exponent.constructor === Array) ?  max(...this.min_exponent) : this.min_exponent
       return expos.map((expo) => {
-        if (_low<expo && expo<_high)
+        if (abs(expo)<this.min_exponent)
           return unicode_replace(`${base**expo}`)
         else
           return unicode_replace(`${base}^${expo}`)
