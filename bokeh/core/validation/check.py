@@ -85,24 +85,24 @@ def silenced(warning: int) -> None:
         silence(warning, False)
 
 def check_integrity(models):
-    ''' Apply validation and integrity checks to a collection of Bokeh models.
+    ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:
         models (seq[Model]) : a collection of Models to test
 
     Returns:
-        None
+        A dictionary of all warning and error messages
 
-    This function will emit log warning and error messages for all error or
-    warning conditions that are detected. For example, layouts without any
-    children will trigger a warning:
+    This function will return a dictionary containing all errors or 
+    warning conditions that are detected. For example, layouts without
+    any children will add a warning to the dictionary:
 
     .. code-block:: python
 
         >>> empty_row = Row
 
         >>> check_integrity([empty_row])
-        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+        dict()
 
     '''
     messages = dict(error=[], warning=[])
@@ -117,10 +117,31 @@ def check_integrity(models):
         for func in validators:
             messages[func.validator_type].extend(func())
 
-    for msg in sorted(messages['error']):
+    return messages
+
+def process_validations(validations):
+    ''' Log warning and error messages for a dictionary containing warnings and error messages.
+
+    Args:
+        validations (dict(error=[], warning=[])) : A dictionary of all warning and error messages
+
+    Returns:
+        None
+
+    This function will emit log warning and error messages for all error or
+    warning conditions in the dictionary. For example, a dictionary 
+    containing a warning for empty layout will trigger a warning:
+
+    .. code-block:: python
+
+        >>> process_validation(validations)
+        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+
+    '''
+    for msg in sorted(validations['error']):
         log.error("E-%d (%s): %s: %s" % msg)
 
-    for msg in sorted(messages['warning']):
+    for msg in sorted(validations['warning']):
         code, name, desc, obj = msg
         if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)

@@ -96,7 +96,7 @@ RuntimeError will be raised.
 
 API
 ~~~
-
+d
 There are a few methods on the ``settings`` object:
 
 .. autoclass:: Settings
@@ -608,12 +608,12 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    validation_exceptions = PrioritizedSetting("validation_exceptions", "BOKEH_VALIDATION_EXCEPTIONS", default="none", help="""
+    validation_level = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none",help="""
     Whether validation checks should log or raise exceptions on errors and warnings.
 
     Valid values are:
 
-    - ``none``: no exceptions raised (default)
+    - ``none``: no exceptions raised (default).
     - ``errors``: exception raised on errors (but not on warnings)
     - ``all``: exception raised on both errors and warnings
 

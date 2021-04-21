@@ -48,9 +48,10 @@ from ..core.has_props import is_DataModel
 from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
-from ..core.validation import check_integrity
+from ..core.validation import check_integrity, process_validations
 from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
+from ..settings import settings
 from ..themes import Theme, built_in_themes
 from ..themes import default as default_theme
 from ..util.callback_manager import _check_callback
@@ -969,11 +970,16 @@ class Document:
         '''
         for r in self.roots:
             refs = r.references()
-            check_integrity(refs)
+            validations = check_integrity(refs) 
 
-            # Currently not sure how to access messages inside this function
-            if len(messages['error']) or (len(messages['warning']) and settings.strict()):
-                raise RuntimeError("Errors encountered during validation (see log output)")
+            process_validations(validations)
+
+            if settings.validation_level() == "errors":
+                if len(validations['error']):
+                    raise RuntimeError("Errors encountered during validation (see log output)")
+            elif settings.validation_level() == "all":
+                if len(validations['error']) or len(validations['warning']):
+                    raise RuntimeError("Errors encountered during validation (see log output)")
 
     # Private methods ---------------------------------------------------------
 
