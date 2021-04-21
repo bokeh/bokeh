@@ -50,13 +50,14 @@ export class LogTickFormatter extends TickFormatter {
     else {
       return expos.map((expo) => {
         if (abs(expo)<this.min_exponent){
-            const b = new TextBox({text: unicode_replace(`${base**expo}`)})
-            const e = new TextBox({text: ''})
-            return new BaseExpo(b, e)
-        }else{
-            const b = new TextBox({text: unicode_replace(`${base}`)})
-            const e = new TextBox({text: unicode_replace(`${expo}`)})
-            return new BaseExpo(b, e)
+          const b = new TextBox({text: unicode_replace(`${base**expo}`)})
+          const e = new TextBox({text: ''})
+          return new BaseExpo(b, e)
+        }
+        else {
+          const b = new TextBox({text: unicode_replace(`${base}`)})
+          const e = new TextBox({text: unicode_replace(`${expo}`)})
+          return new BaseExpo(b, e)
         }
       })
     }
@@ -90,7 +91,6 @@ export class LogTickFormatter extends TickFormatter {
           return unicode_replace(`${base**expo}`)
         else
           return unicode_replace(`${base}^${expo}`)
-      }
-    )
+    })
   }
 }
