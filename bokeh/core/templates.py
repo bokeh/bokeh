@@ -34,12 +34,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
 import sys
 from os.path import dirname, join
 
 # External imports
-from jinja2 import Environment, FileSystemLoader, Markup
+from jinja2 import Environment, FileSystemLoader
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -84,7 +83,6 @@ def get_env():
 #-----------------------------------------------------------------------------
 
 _env = get_env()
-_env.filters['json'] = lambda obj: Markup(json.dumps(obj))
 
 #-----------------------------------------------------------------------------
 # General API

@@ -20,7 +20,7 @@ calls it with the rendered model.
     return new Date();
   }
 
-  var force = {{ force|default(False)|json }};
+  var force = {{ force|default(False)|tojson }};
 
   if (typeof root._bokeh_onload_callbacks === "undefined" || force === true) {
     root._bokeh_onload_callbacks = [];
@@ -32,7 +32,7 @@ calls it with the rendered model.
 
   {% block autoload_init %}
     {%- if elementid -%}
-    var element = document.getElementById({{ elementid|json }});
+    var element = document.getElementById({{ elementid|tojson }});
     if (element == null) {
       console.warn("Bokeh: autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found.")
     }
@@ -91,7 +91,7 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
-    const hashes = {{ bundle.hashes|json }};
+    const hashes = {{ bundle.hashes|tojson }};
 
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
@@ -116,17 +116,17 @@ calls it with the rendered model.
   }
 
   {% if bundle %}
-  var js_urls = {{ bundle.js_urls|json }};
-  var css_urls = {{ bundle.css_urls|json }};
+  var js_urls = {{ bundle.js_urls|tojson }};
+  var css_urls = {{ bundle.css_urls|tojson }};
   {% else %}
-  var js_urls = {{ js_urls|json }};
-  var css_urls = {{ css_urls|json }};
+  var js_urls = {{ js_urls|tojson }};
+  var css_urls = {{ css_urls|tojson }};
   {% endif %}
 
   var inline_js = [
     {%- for css in (bundle.css_raw if bundle else css_raw) %}
     function(Bokeh) {
-      inject_raw_css({{ css|json }});
+      inject_raw_css({{ css|tojson }});
     },
     {%- endfor %}
     {%- for js in (bundle.js_raw if bundle else js_raw) %}
