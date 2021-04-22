@@ -593,9 +593,6 @@ adding new glyph methods as well as when adding new axis objects with the
 
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.Figure.annular_wedge`
 .. |annulus|           replace:: :func:`~bokeh.plotting.Figure.annulus`
 .. |arc|               replace:: :func:`~bokeh.plotting.Figure.arc`

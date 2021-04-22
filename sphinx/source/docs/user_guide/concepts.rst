@@ -320,12 +320,9 @@ For more information on Bokeh models, see |bokeh.models| in the :ref:`refguide`.
 
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 
-.. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

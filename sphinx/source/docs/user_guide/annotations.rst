@@ -404,10 +404,6 @@ These are the most commonly used properties for this annotation:
 .. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
     :source-position: above
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
-
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`

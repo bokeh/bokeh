@@ -457,9 +457,9 @@ to all sides as a convenience. The ``min_border`` default value is 40px.
 Outline
 ~~~~~~~
 
-Bokeh :class:`~bokeh.models.plots.Plot` objects have various
-`line properties <Line properties>`_. To change the appearance of outlines, use
-those line properties that are prefixed with ``outline_``.
+Bokeh |Plot| objects have various `line properties <Line properties>`_. To
+change the appearance of outlines, use those line properties that are prefixed
+with ``outline_``.
 
 For example, to set the color of the outline, use ``outline_line_color``:
 
@@ -1110,7 +1110,6 @@ the render level ``"image"`` to the ``level`` argument when calling your
 You can see a complete example with output in the section
 :ref:`userguide_plotting_images_colormapped`.
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 .. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`

@@ -60,8 +60,8 @@ __all__ = (
 class Figure(Plot):
     ''' Create a new Figure for plotting.
 
-    A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
-    creation with default axes, grids, tools, etc.
+    A subclass of |Plot| that simplifies plot creation with default axes, grids,
+    tools, etc.
 
     Figure objects have many glyph methods that can be used to draw
     vectorized graphical glyphs:

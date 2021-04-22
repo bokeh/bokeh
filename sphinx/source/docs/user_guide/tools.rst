@@ -972,7 +972,8 @@ performance. In order to accommodate large data sizes, Bokeh plots offer
 
 To maintain performance while handling large data sizes, the plot only draws
 a small fraction of data points during interactive operations (panning
-or zooming, for example). There are four properties on |Plot| objects that control LOD behavior:
+or zooming, for example). There are four properties on |Plot| objects that
+control LOD behavior:
 
 .. bokeh-prop:: Plot.lod_factor
     :module: bokeh.models.plots
@@ -986,8 +987,6 @@ or zooming, for example). There are four properties on |Plot| objects that contr
 .. bokeh-prop:: Plot.lod_timeout
     :module: bokeh.models.plots
 
-
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
 .. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`

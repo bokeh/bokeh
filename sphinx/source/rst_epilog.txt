@@ -10,12 +10,11 @@
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
 .. |Document|           replace:: :py:class:`~bokeh.document.Document`
+.. |Figure|             replace:: :py:class:`~bokeh.plotting.Figure`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
+.. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
 .. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
-
-
-|Figure|
