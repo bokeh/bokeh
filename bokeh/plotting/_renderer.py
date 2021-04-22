@@ -289,7 +289,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var], ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
+        if isinstance(dataspecs[var], ColorSpec) and dataspecs[var].is_color_tuple_shape(val):
             continue
 
         if isinstance(val, np.ndarray):

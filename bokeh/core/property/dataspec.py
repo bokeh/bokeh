@@ -550,6 +550,21 @@ class ColorSpec(DataSpec):
         return isinstance(val, str) and \
                ((len(val) == 7 and val[0] == "#") or val in enums.NamedColor)
 
+    @classmethod
+    def is_color_tuple_shape(cls, val):
+        """ Whether the value is the correct shape to be a color tuple
+
+        Checks for a 3 or 4-tuple of numbers
+
+        Args:
+            val (str) : the value to check
+
+        Returns:
+            True, if the value could be a color tuple
+
+        """
+        return isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)
+
     def to_serializable(self, obj, name, val):
         if val is None:
             return dict(value=None)
@@ -585,7 +600,7 @@ class ColorSpec(DataSpec):
         # at this point, since Color is very strict about only accepting
         # tuples of (integer) bytes. This conditions tuple values to only
         # have integer RGB components
-        if isinstance(value, tuple) and len(value) in (3, 4) and all(isinstance(v, (float, int)) for v in value):
+        if self.is_color_tuple_shape(value):
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
         return super().prepare_value(cls, name, value)
 
