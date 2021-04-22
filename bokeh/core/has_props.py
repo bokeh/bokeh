@@ -180,9 +180,11 @@ class HasProps(metaclass=MetaHasProps):
             return super().__setattr__(name, value)
 
         properties = self.properties()
-        descriptor = getattr(self.__class__, name, None)
+        if name in properties:
+            return super().__setattr__(name, value)
 
-        if name in properties or isinstance(descriptor, property): # Python property
+        descriptor = getattr(self.__class__, name, None)
+        if isinstance(descriptor, property): # Python property
             return super().__setattr__(name, value)
 
         self._raise_attribute_error_with_matches(name, properties)
@@ -206,9 +208,11 @@ class HasProps(metaclass=MetaHasProps):
             return super().__getattr__(name)
 
         properties = self.properties()
-        descriptor = getattr(self.__class__, name, None)
+        if name in properties:
+            return super().__getattr__(name)
 
-        if name in properties or isinstance(descriptor, property): # Python property
+        descriptor = getattr(self.__class__, name, None)
+        if isinstance(descriptor, property): # Python property
             return super().__getattr__(name)
 
         self._raise_attribute_error_with_matches(name, properties)
