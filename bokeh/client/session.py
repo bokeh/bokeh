@@ -194,9 +194,8 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
-                "opera", "windows-default" (see the
-                :doc:`webbrowser <python:library/webbrowser>` module
-                documentation in the standard lib for more details).
+                "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
+                module documentation in the standard lib for more details).
 
             new (str, optional) : new file output mode (default: "tab")
                 For file-based output, opens or raises the browser window
@@ -456,9 +455,8 @@ class ClientSession:
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
-                "opera", "windows-default" (see the
-                :doc:`webbrowser <python:library/webbrowser>` module
-                documentation in the standard lib for more details).
+                "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
+                module documentation in the standard lib for more details).
 
             new (str, optional) : new file output mode (default: "tab")
                 For file-based output, opens or raises the browser window
