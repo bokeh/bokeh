@@ -5,22 +5,22 @@ import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
 
 describe("FuncTickFormatter", () => {
   describe("doFormat method", () => {
-    it("should format numerical ticks appropriately", () => {
+    it("should format numerical ticks appropriately with min_exponent equals 0 by default", () => {
       const formatter = new LogTickFormatter()
       const labels = formatter.doFormat([0.001, 0.1, 1, 10, 100], {loc: 0})
-      expect(labels).to.be.equal(["10^\u22123", "10^\u22121", "10^0", "10^1", "10^2"])
+      expect(labels).to.be.equal(["10^−3", "10^−1", "10^0", "10^1", "10^2"])
     })
 
     it("should format numerical ticks appropriately with min_exponent equals 1", () => {
       const formatter = new LogTickFormatter({min_exponent: 1})
       const labels = formatter.doFormat([0.001, 0.1, 1, 10, 100], {loc: 0})
-      expect(labels).to.be.equal(["10^\u22123", "10^\u22121", "1", "10^1", "10^2"])
+      expect(labels).to.be.equal(["10^−3", "10^−1", "1", "10^1", "10^2"])
     })
 
     it("should format numerical ticks appropriately with min_exponent equals 2", () => {
       const formatter = new LogTickFormatter({min_exponent: 2})
       const labels = formatter.doFormat([0.001, 0.1, 1, 10, 100], {loc: 0})
-      expect(labels).to.be.equal(["10^\u22123", "0.1", "1", "10", "10^2"])
+      expect(labels).to.be.equal(["10^−3", "0.1", "1", "10", "10^2"])
     })
 
     it("should format numerical ticks appropriately with min_exponent equals 3 and base 2", () => {
