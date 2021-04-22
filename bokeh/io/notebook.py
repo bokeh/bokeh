@@ -201,9 +201,9 @@ def push_notebook(*, document=None, state=None, handle=None):
 
     Args:
 
-        document (Document, optional) :
-            A :class:`~bokeh.document.Document` to push from. If None,
-            uses ``curdoc()``. (default: None)
+        document (Document, optional):
+            A |Document| to push from. If None uses ``curdoc()``. (default:
+            None)
 
         state (State, optional) :
             A :class:`State` object. If None, then the current default

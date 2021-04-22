@@ -31,11 +31,10 @@ Python models
 ~~~~~~~~~~~~~
 
 For the most part, Python Bokeh models are completely declarative classes.
-You can create custom extensions by making a subclass from
-:class:`~bokeh.model.Model` and including special class attributes to declare
-the properties to be mirrored on the JavaScript side. For all of the available
-property types, see the :ref:`bokeh.core.properties` section of the reference
-guide.
+You can create custom extensions by making a subclass from |Model| and including
+special class attributes to declare the properties to be mirrored on the
+JavaScript side. For all of the available property types, see the
+:ref:`bokeh.core.properties` section of the reference guide.
 
 Here's a simple example that creates a custom readout for a slider:
 

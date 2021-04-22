@@ -14,7 +14,7 @@
 
 Generating output for Bokeh plots requires coordinating several things:
 
-:class:`~bokeh.document.Document`
+|Document|
     Groups together Bokeh models that may be shared between plots (e.g.,
     range or data source objects) into one common structure.
 
@@ -76,8 +76,7 @@ class State:
 
     @property
     def document(self):
-        ''' A default :class:`~bokeh.document.Document` to use for all
-        output operations.
+        ''' A default |Document| to use for al output operations.
 
         '''
         return self._document

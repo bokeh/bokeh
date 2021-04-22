@@ -324,8 +324,8 @@ class ClientSession:
 
     @property
     def document(self):
-        ''' A :class:`~bokeh.document.Document` that will be kept in sync with
-        the corresponding Document on the server.
+        ''' A |Document| that will be kept in sync with the corresponding
+        ``Document`` on the server.
 
         This value is initialized when :func:`pull` or :func:`push` succeeds.
         It will be ``None`` until then.
@@ -413,7 +413,7 @@ class ClientSession:
             Automatically calls :func:`~connect` before pushing.
 
         Args:
-            document (:class:`~bokeh.document.Document`, optional) :
+            document (|Document|, optional) :
                 The document which will be kept in sync with the server document.
                 None to use session.document or create a new document.
 

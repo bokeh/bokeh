@@ -292,8 +292,8 @@ use the various ``fill_color`` attributes of your |Plot| object:
     :source-position: none
 
 .. seealso::
-    For more information on colors in Bokeh, see the entry for
-    :class:`~bokeh.core.properties.Color` in the reference guide.
+    For more information on colors in Bokeh, see the entry for |Color| in the
+    reference guide.
 
 .. _first_steps_4_toolbar:
 

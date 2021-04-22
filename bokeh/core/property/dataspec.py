@@ -596,7 +596,7 @@ class ColorSpec(DataSpec):
 
 def expr(expression, transform=None):
     """ Convenience function to explicitly return an "expr" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         expression (Expression) : a computed expression for a
@@ -619,7 +619,7 @@ def expr(expression, transform=None):
 
 def field(name, transform=None):
     """ Convenience function to explicitly return a "field" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         name (str) : name of a data source field to reference for a
@@ -641,7 +641,7 @@ def field(name, transform=None):
 
 def value(val, transform=None):
     """ Convenience function to explicitly return a "value" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         val (any) : a fixed value to specify for a ``DataSpec`` property.
