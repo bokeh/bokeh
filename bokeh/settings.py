@@ -259,11 +259,10 @@ def convert_validation(value):
         ValueError
 
     '''
-
-    if value.lower() == "none" or value.lower() == "errors" or value.lower() = "all":
+    if value.lower() == "none" or value.lower() == "errors" or value.lower() == "all":
         return value.lower()
 
-    raise ValueError("Cannot convert {} to validation level string, valid values are: none, errors, all".format(value)
+    raise ValueError("Cannot convert {} to validation level string, valid values are: none, errors, all".format(value))
 
 class _Unset: pass
 

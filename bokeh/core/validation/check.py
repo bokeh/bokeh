@@ -23,7 +23,7 @@ import contextlib
 from typing import Set
 
 # Bokeh imports
-from ..settings import settings
+from ...settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -148,7 +148,6 @@ def process_validation_issues(issues):
         code, name, desc, obj = msg
         if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)
-
     if settings.validation_level() == "errors":
         if len(issues['error']):
             raise RuntimeError("Errors encountered during validation (see log output)")
