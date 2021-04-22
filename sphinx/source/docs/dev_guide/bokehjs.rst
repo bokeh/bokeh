@@ -76,7 +76,7 @@ Requirements
 
 * node 14.*
 * npm 7.4+ (most recent version)
-* chrome/chromium browser 88+ or equivalent
+* chrome/chromium browser 90+ or equivalent
 
 You can install nodejs with conda:
 
