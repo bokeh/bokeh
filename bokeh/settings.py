@@ -243,6 +243,28 @@ def convert_logging(value):
 
     raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
 
+def convert_validation(value):
+    '''Convert a string to a validation level string
+
+    If a validation level string is passed in, it is returned as-is.
+
+    Args:
+        value (str):
+            A string value to convert to a validation level string
+
+    Returns:
+        string
+
+    Raises:
+        ValueError
+
+    '''
+
+    if value.lower() == "none" or value.lower() == "errors" or value.lower() = "all":
+        return value.lower()
+
+    raise ValueError("Cannot convert {} to validation level string, valid values are: none, errors, all".format(value)
+
 class _Unset: pass
 
 def is_dev():
@@ -401,6 +423,7 @@ class PrioritizedSetting:
         if self._convert is convert_bool: return "Bool"
         if self._convert is convert_logging: return "Log Level"
         if self._convert is convert_str_seq: return "List[String]"
+        if self._convert is convert_validation: return "Validation Level String"
 
 _config_user_locations = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),
@@ -608,7 +631,7 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    validation_level = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none",help="""
+    validation_level = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none", convert=convert_validation, help="""
     Whether validation checks should log or raise exceptions on errors and warnings.
 
     Valid values are:

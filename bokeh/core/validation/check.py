@@ -22,6 +22,9 @@ log = logging.getLogger(__name__)
 import contextlib
 from typing import Set
 
+# Bokeh imports
+from ..settings import settings
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -91,9 +94,9 @@ def check_integrity(models):
         models (seq[Model]) : a collection of Models to test
 
     Returns:
-        A dictionary of all warning and error messages
+        dict(error=[], warning=[]): A dictionary of all warning and error messages
 
-    This function will return a dictionary containing all errors or 
+    This function will return a dictionary containing all errors or
     warning conditions that are detected. For example, layouts without
     any children will add a warning to the dictionary:
 
@@ -102,7 +105,7 @@ def check_integrity(models):
         >>> empty_row = Row
 
         >>> check_integrity([empty_row])
-        dict()
+        dict(warning = [(1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...))])
 
     '''
     messages = dict(error=[], warning=[])
@@ -119,33 +122,43 @@ def check_integrity(models):
 
     return messages
 
-def process_validations(validations):
+def process_validation_issues(issues):
     ''' Log warning and error messages for a dictionary containing warnings and error messages.
 
     Args:
-        validations (dict(error=[], warning=[])) : A dictionary of all warning and error messages
+        issues (dict(error=[], warning=[])) : A dictionary of all warning and error messages
 
     Returns:
         None
 
     This function will emit log warning and error messages for all error or
-    warning conditions in the dictionary. For example, a dictionary 
+    warning conditions in the dictionary. For example, a dictionary
     containing a warning for empty layout will trigger a warning:
 
     .. code-block:: python
 
-        >>> process_validation(validations)
+        >>> process_validation_issues(validations)
         W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
 
     '''
-    for msg in sorted(validations['error']):
+    for msg in sorted(issues['error']):
         log.error("E-%d (%s): %s: %s" % msg)
 
-    for msg in sorted(validations['warning']):
+    for msg in sorted(issues['warning']):
         code, name, desc, obj = msg
         if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)
 
+    if settings.validation_level() == "errors":
+        if len(issues['error']):
+            raise RuntimeError("Errors encountered during validation (see log output)")
+    elif settings.validation_level() == "all":
+        if len(issues['error']) or len(issues['warning']):
+            raise RuntimeError("Errors encountered during validation (see log output)")
+    # Is this correct for discerning between raising exceptions for warnings vs errors?
+    # Is there a way for RuntimeError to occur on each warning and error specifically?
+    # We're a little confused on how to use silencers if RunTimeError just automatically
+    # raises exceptions on all errors and warnings
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
