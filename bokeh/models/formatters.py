@@ -287,7 +287,9 @@ class LogTickFormatter(TickFormatter):
     """)
 
     min_exponent = Int(0, help="""
-    Minimum exponent to format in scientific notation.
+    Minimum exponent to format in scientific notation. If not zero
+    all ticks in range from base^-min_expont to base^min_exponent 
+    are printet without exponential notation.
     """)
 
 class CategoricalTickFormatter(TickFormatter):
