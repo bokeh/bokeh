@@ -22,7 +22,7 @@ describe("FuncTickFormatter", () => {
       const labels = formatter.doFormat([0.001, 0.1, 1, 10, 100], {loc: 0})
       expect(labels).to.be.equal(["10^-3", "0.1", "1", "10", "10^2"])
     })
-      
+
     it("should format numerical ticks appropriately with min_exponent equals 3 and base 2", () => {
       const ticker = new LogTicker({base: 2})
       const formatter = new LogTickFormatter({ticker: ticker, min_exponent: 3})
