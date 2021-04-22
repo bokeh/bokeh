@@ -14,9 +14,8 @@ Titles
 Use |Title| annotations to add descriptive text which is rendered around
 the edges of a plot.
 
-If you use the :ref:`bokeh.plotting <userguide_interfaces_plotting>` interface,
-the quickest way to add a basic title is to pass the text as the ``title``
-parameter to |Figure|:
+If you use the |plotting interface|, the quickest way to add a basic title is to
+pass the text as the ``title`` parameter to |Figure|:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
     :source-position: above

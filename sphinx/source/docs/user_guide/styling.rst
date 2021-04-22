@@ -171,7 +171,7 @@ Customizing visual properties
 -----------------------------
 
 To style the visual attributes of Bokeh plots, you need to know what the
-available properties are. The full :ref:`refguide` contains all properties of
+available properties are. The full |reference guide| contains all properties of
 every object individually. However, there are three groups of properties that
 many objects have in common. They are:
 
@@ -756,7 +756,7 @@ to control the text formatting of axis ticks.
     :source-position: above
 
 Many additional formats are available. See the full |NumeralTickFormatter|
-documentation in the :ref:`refguide`.
+documentation in the |reference guide|.
 
 ``PrintfTickFormatter``
 '''''''''''''''''''''''
@@ -769,7 +769,7 @@ format strings.
     :source-position: above
 
 For full details about formats, see the full |PrintfTickFormatter|
-documentation in the :ref:`refguide`.
+documentation in the |reference guide|.
 
 ``FuncTickFormatter``
 '''''''''''''''''''''
@@ -800,7 +800,7 @@ that gives the angle (in radians) to rotate from the horizontal:
     There are more properties that you can use to configure Bokeh axes. For a
     complete list of all the various attributes that you can set on different
     types of Bokeh axes, see the :ref:`bokeh.models.axes` section of the
-    :ref:`refguide`.
+    |reference guide|.
 
 .. _userguide_styling_grids:
 
@@ -899,7 +899,7 @@ To set explicit bounds that limit where grids are drawn, use a 2-tuple of
     There are other properties that Bokeh grids support configuring. For a
     complete listing of all the various attributes that can be set on Bokeh
     plot grids, consult the :ref:`bokeh.models.grids` section of the
-    :ref:`refguide`.
+    |reference guide|.
 
 .. _userguide_styling_legends:
 

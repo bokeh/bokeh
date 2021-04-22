@@ -23,9 +23,9 @@ loads any additional JavaScript code from Bokeh's CDN (content delivery
 network).
 
 Bokeh's documentation consists of several elements, including the
-:ref:`user guide <userguide>` with detailed explanations and examples and the
-:ref:`reference guide <refguide>` that systematically describes every element of
-Bokeh. In this guide, you will find links to both those resources.
+|user guide| with detailed explanations and examples and the |reference guide|
+that systematically describes every element of Bokeh. In this guide, you will
+find links to both those resources.
 
 .. _first_steps_1_line_chart:
 

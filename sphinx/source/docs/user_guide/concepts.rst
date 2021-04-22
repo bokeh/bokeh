@@ -16,7 +16,7 @@ throughout Bokeh's documentation:
     Annotation
         Visual aids that make reading the plot easier. This includes titles,
         legends, labels, or bands, for example. See :ref:`userguide_annotations`
-        in the :ref:`userguide` for more information and examples.
+        in the |user guide| for more information and examples.
 
     Application
         A Bokeh application is a recipe for generating Bokeh
@@ -40,38 +40,37 @@ throughout Bokeh's documentation:
     Embedding
         Various methods that help with including Bokeh :term:`plots<Plot>` and
         :term:`widgets<Widget>` in web apps, web pages, or Jupyter notebooks.
-        See :ref:`userguide_embed` in the :ref:`userguide` for more details.
+        See :ref:`userguide_embed` in the |user guide| for more details.
 
     Glyph
         API objects that draw vectorized graphics to represent data. Glyphs are
         the basic visual building blocks of Bokeh :term:`plots<Plot>`. This
         includes elements such as lines, rectangles, squares, wedges, or the
-        circles of a scatter plot. The :ref:`userguide_interfaces_plotting`
-        interface provides a convenient way to create plots centered around
-        glyphs. See :ref:`userguide_plotting` in the :ref:`userguide` for more
-        information.
+        circles of a scatter plot. The |plotting interface| provides a
+        convenient way to create plots centered around glyphs. See
+        :ref:`userguide_plotting` in the |user guide| for more information.
 
     Layout
         A collection of Bokeh objects. This can be several :term:`plots<Plot>`
         and :term:`widgets<Widget>`, arranged in nested rows and columns. See
-        :ref:`userguide_layout` in the :ref:`userguide` for more information and
+        :ref:`userguide_layout` in the |user guide| for more information and
         examples.
 
     Model
         The lowest-level objects that Bokeh visualizations consist of. Bokeh's
-        models are part of the :ref:`userguide_interfaces_models` interface.
-        Most users will not use this level of interface to assemble plots
-        directly. However, ultimately all Bokeh plots consist of collections of
-        models. It is helpful to understand them enough to configure their
-        attributes and properties. See :ref:`userguide_styling` in the
-        :ref:`userguide` for more information.
+        models are part of the |models interface|. Most users will not use this
+        level of interface to assemble plots directly. However, ultimately all
+        Bokeh plots consist of collections of models. It is helpful to
+        understand them enough to configure their attributes and properties.
+        See :ref:`userguide_styling` in the |user guide| for more
+        information.
 
     Plot
         Containers that hold all the various objects (such as
         :term:`renderers<Renderer>`, :term:`glyphs<Glyph>`, or
         :term:`annotations<Annotation>`) of a visualization. The
-        :ref:`userguide_interfaces_plotting` interface provides the |figure|
-        function to help with assembling all the necessary objects.
+        |plotting interface| provides the |figure| function to help with
+        assembling all the necessary objects.
 
     Renderer
         General term for any method or function that draws elements of the plot.
@@ -83,7 +82,7 @@ throughout Bokeh's documentation:
         to share and publish Bokeh plots and apps, to handle streaming of large
         data sets, or to enable complex user interactions based on
         :term:`widgets<Widget>` and selections. See :ref:`userguide_server` in
-        the :ref:`userguide` for more information and examples.
+        the |user guide| for more information and examples.
 
     Widget
         User interface elements that are not directly part of a Bokeh
@@ -92,7 +91,7 @@ throughout Bokeh's documentation:
         use input from widgets to update you Bokeh plot itself. You can use
         widgets in standalone :term:`applications<Application>` or with the
         Bokeh :term:`server<Server>`. For examples and information, see
-        :ref:`userguide_interaction` in the :ref:`userguide`.
+        :ref:`userguide_interaction` in the |user guide|.
 
 .. _userguide_output_methods:
 
@@ -234,7 +233,7 @@ create an customize your visualization. For example:
 * adding more data renderers
 * arranging multiple plots and widgets into layouts
 
-The :ref:`userguide_plotting` section of this :ref:`userguide` will walk you
+The :ref:`userguide_plotting` section of this |user guide| will walk you
 through many more examples and common use cases for the |bokeh.plotting|
 interface.
 
@@ -261,7 +260,7 @@ browser-based visualizations. Behind the scenes, Bokeh consists of two
 libraries:
 
 * BokehJS, the JavaScript library
-    BokehJS runs in the browser. This library handles rendering and user
+    :term:`BokehJS` runs in the browser. This library handles rendering and user
     interactions. It takes a collection of declarative JSON objects as its input
     and uses them as instructions on how to handle the various aspects of your
     visualization in a browser. For example:
@@ -306,7 +305,7 @@ interfaces ultimately produce collections of Bokeh models, this lets you
 style and configure plots and widgets the same way regardless of the
 interface.
 
-For more information on Bokeh models, see |bokeh.models| in the :ref:`refguide`.
+For more information on Bokeh models, see |bokeh.models| in the |reference guide|.
 
 .. note::
 

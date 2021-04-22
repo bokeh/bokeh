@@ -1,5 +1,10 @@
 .. |bokeh.models|       replace:: :ref:`bokeh.models`
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
+.. |plotting interface| replace:: :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`
+.. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`
+.. |user guide|         replace:: :ref:`user guide <userguide>`
+.. |reference guide|    replace:: :ref:`reference guide <refguide>`
+.. |developers guide|   replace:: :ref:`developers guide <devguide>`
 
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
