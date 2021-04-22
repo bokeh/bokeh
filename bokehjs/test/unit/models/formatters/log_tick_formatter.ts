@@ -24,7 +24,8 @@ describe("FuncTickFormatter", () => {
     })
       
     it("should format numerical ticks appropriately with min_exponent equals 3 and base 2", () => {
-      const formatter = new LogTickFormatter({ticker: LogTicker({base: 2}), min_exponent: 3})
+      const ticker = new LogTicker({base: 2})
+      const formatter = new LogTickFormatter({ticker: ticker, min_exponent: 3})
       const labels = formatter.doFormat([1, 4, 16, 64, 256], {loc: 0})
       expect(labels).to.be.equal(["1", "4", "2^4", "2^6", "2^8"])
     })
