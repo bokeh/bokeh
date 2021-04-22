@@ -108,8 +108,8 @@ two functions are the most common:
 :func:`~bokeh.io.output_notebook`
     Display Bokeh visualizations in Jupyter/Zeppelin notebooks.
 
-These output functions are usually used together with :func:`~bokeh.io.show`
-or :func:`~bokeh.io.save`. Here's an example:
+These output functions are usually used together with |show| or |save|. Here's
+an example:
 
 .. code-block:: python
 
@@ -147,11 +147,10 @@ Some of most useful settings are:
 
 ``browser`` (environment variable ``BOKEH_BROWSER``)
     Set this configuration value to the browser you want Bokeh to use (for
-    example when calling :func:`~bokeh.io.show`). Valid values are any of the
-    predefined browser names of the Python
-    :doc:`webbrowser <python:library/webbrowser>` module. For example:
-    ``chromium-browser`` or ``windows-default``. You can also set this variable
-    to the full path of your browser. For example:
+    example when calling |show|). Valid values are any of the predefined browser
+    names of the Python :doc:`webbrowser <python:library/webbrowser>` module.
+    For example: ``chromium-browser`` or ``windows-default``. You can also set
+    this variable to the full path of your browser. For example:
 
     .. code-block:: PowerShell
 
@@ -225,7 +224,7 @@ add data renderers to your plot object, call a glyph method such as
 |Figure.circle|. You don't have to worry about axes and grids (although you can
 configure them if you want to), and you only need to list the tools you want to
 add. To display your visualization in a browser, in most cases, all you need to
-do is call the output function :func:`~bokeh.io.show`.
+do is call the output function |show|.
 
 With the *bokeh.plotting* interface, you have many more possibilities to
 create an customize your visualization. For example:
@@ -327,8 +326,6 @@ For more information on Bokeh models, see |bokeh.models| in the :ref:`refguide`.
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`
 
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

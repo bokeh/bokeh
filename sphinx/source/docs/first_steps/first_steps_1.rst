@@ -91,7 +91,7 @@ Follow these steps to recreate this simple line chart:
         # add a line renderer with legend and line thickness to the plot
         p.line(x, y, legend_label="Temp.", line_width=2)
 
-5. Finally, use the :func:`~bokeh.io.show` function to generate your graph and
+5. Finally, use the |show| function to generate your graph and
    open a web browser to display the generated HTML file.
 
     .. code-block:: python
@@ -195,5 +195,3 @@ Bokeh's |bokeh.plotting| interface require:
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`

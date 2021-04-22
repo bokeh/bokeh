@@ -277,7 +277,6 @@ notebook below:
 
 .. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
-.. |show| replace:: :func:`~bokeh.io.show`
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 .. _Reveal.js: http://lab.hakim.se/reveal-js/#/

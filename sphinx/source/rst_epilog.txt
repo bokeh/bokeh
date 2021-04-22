@@ -3,6 +3,8 @@
 
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
+.. |save|               replace:: :py:func:`~bokeh.io.save`
+.. |show|               replace:: :py:func:`~bokeh.io.show`
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
 
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
@@ -14,3 +16,6 @@
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
 .. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
+
+
+|Figure|
