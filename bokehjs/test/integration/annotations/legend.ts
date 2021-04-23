@@ -50,26 +50,235 @@ describe("Legend annotation", () => {
   })
 
   it(`should display title correctly`, async () => {
-    const random = new Random(1)
-
-    const p = fig([600, 600])
+    const p = fig([225, 125])
     p.add_layout(new LinearAxis(), "above")
     p.add_layout(new LinearAxis(), "right")
 
-    const x = range(0, 10)
-    const y = random.floats(10)
-    const cr = p.circle(x, y, { fill_color: "red" })
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
 
-    const items = [new LegendItem({ label: "#0", renderers: [cr] })]
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
 
     p.add_layout(new Legend({
       items,
       background_fill_alpha: 0.7,
-      location: "center_left",
+      location: "top_left",
       orientation: "vertical",
-      title: "title"
+      title: "title",
     }))
 
     await display(p)
   })
+
+  it(`should display title standoff correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      title_standoff: 20,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display label standoff correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      label_standoff: 20,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display glyph_height correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      glyph_height: 50,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display glyph_width correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      glyph_width: 50,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display label_height correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      label_height: 50,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display label_width correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      label_width: 50,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display margin correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      margin: 0,
+    }))
+
+    await display(p)
+  })
+
+  it(`should display padding correctly`, async () => {
+    const p = fig([225, 125])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
+
+    const x = 2
+    const y = 1
+    const cr = p.circle(x, y, {fill_color: "red"})
+
+    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      title: "title",
+      padding: 5,
+    }))
+
+    await display(p)
+  })
+
+  // it(`should display spacing correctly`, async () => {
+  //   const p = fig([225, 125])
+  //   p.add_layout(new LinearAxis(), "above")
+  //   p.add_layout(new LinearAxis(), "right")
+
+  //   const x = 2
+  //   const y = 1
+  //   const cr0 = p.circle(x, y, {fill_color: "red"})
+  //   const cr1 = p.circle(x, y + 1, {fill_color: "blue"})
+
+  //   const items = [
+  //     new LegendItem({label: "#0", renderers: [cr0]}),
+  //     new LegendItem({label: "#1", renderers: [cr1]})
+  //   ]
+
+  //   p.add_layout(new Legend({
+  //     items,
+  //     background_fill_alpha: 0.7,
+  //     location: "top_left",
+  //     orientation: "vertical",
+  //     title: "title",
+  //     spacing: 50,
+  //   }))
+
+  //   await display(p)
+  // })
 })
