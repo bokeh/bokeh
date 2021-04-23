@@ -30,8 +30,8 @@ right of a plot. For example:
     :source-position: above
 
 Use your plot's ``.title`` property to customize the default |Title|. Use the
-:ref:`standard text properties <userguide_styling_text_properties>` to define
-visual properties such as font, border, and background.
+standard |text properties| to define visual properties such as font, border, and
+background.
 
 This example uses the ``.title`` property to set the font and background
 properties as well as the title text and title alignment:
@@ -45,8 +45,8 @@ the ``align`` property to ``"left"`` means your text is rendered in the lower
 left corner.
 
 To add more titles to your document, you need to create additional |Title|
-objects. Use the :func:`~bokeh.models.plots.Plot.add_layout` method of your plot
-to include those additional |Title| objects in your document:
+objects. Use the |add layout| method of your plot to include those additional
+|Title| objects in your document:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_title_additional.py
     :source-position: above
@@ -70,8 +70,8 @@ The easiest way to add a legend to your plot is to include any of the
 :ref:`legend_label <userguide_plotting_legends_legend_label>`,
 :ref:`legend_group <userguide_plotting_legends_legend_group>`,
 or :ref:`legend_field <userguide_plotting_legends_legend_field>` properties
-when calling glyph methods. Bokeh then creates a
-|Legend| object for you automatically.
+when calling glyph methods. Bokeh then creates a |Legend| object for you
+automatically.
 
 For more advanced control over a plot's legend, access the |Legend| object
 :ref:`directly <userguide_plotting_legends_manual>`.
@@ -178,13 +178,13 @@ You can use legends as interactive elements to control some aspects of the
 appearance of your plot. Clicking or tapping on interactive legend entries
 controls the visibility of the glyphs associated with the legend entry.
 
-See :ref:`userguide_interaction_legends` in the User Guide for more
-information and examples.
+See |interactive legends| in the user guide for more information and examples.
 
 .. note::
-    :ref:`userguide_interaction_legends` features currently work on the first,
-    "per-glyph" style legends. Legends that are created by specifying a column
-    to automatically group do not yet support interactive features.
+    The features of |interactive legends| currently only work on the basic
+    legend labels described :ref:`above <userguide_plotting_legends_legend_label>`.
+    Legends that are created by specifying a column to automatically group do
+    not yet support interactive features.
 
 .. _userguide_plotting_color_bars:
 
@@ -196,7 +196,7 @@ palette.
 
 Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to
-the plot using the :func:`~bokeh.models.plots.Plot.add_layout` method.
+the plot using the |add layout| method.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
     :source-position: above
@@ -309,9 +309,8 @@ important properties for this annotation:
   space units).
 * ``x_offset`` and ``y_offset`` properties to specify where to place the label
   in relation to its ``x`` and ``y`` coordinates.
-* The standard :ref:`text properties <userguide_styling_text_properties>` as
-  well as other styling parameters such as ``border_line`` and
-  ``background_fill`` properties.
+* The standard |text properties| as well as other styling parameters such as
+* ``border_line`` and ``background_fill`` properties.
 
 .. code-block:: python
 

@@ -42,8 +42,8 @@ customize the legend. For example:
     :class:`~bokeh.models.annotations.Legend` in the reference guide contains a
     list of all available attributes for legends.
 
-    See :ref:`userguide_interaction_legends` in the user guide to learn about
-    using legends to hide or mute glyphs in a plot.
+    See |interactive legends| in the user guide to learn about using legends to
+    hide or mute glyphs in a plot.
 
 .. _first_steps_3_headlines:
 
@@ -106,8 +106,7 @@ the box's dimension to the edges of the plot:
     high_box = BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red')
 
 Finally, you need to add the :class:`~bokeh.models.annotations.BoxAnnotation`
-objects to your existing figure. Use the
-:func:`~bokeh.models.plots.Plot.add_layout` method to add your boxes:
+objects to your existing figure. Use the |add layout| method to add your boxes:
 
 .. code-block:: python
 

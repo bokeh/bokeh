@@ -1,11 +1,14 @@
 .. |bokeh.models|       replace:: :ref:`bokeh.models`
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
-.. |plotting interface| replace:: :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`
-.. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`
-.. |user guide|         replace:: :ref:`user guide <userguide>`
-.. |reference guide|    replace:: :ref:`reference guide <refguide>`
 .. |developers guide|   replace:: :ref:`developers guide <devguide>`
+.. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`
+.. |plotting interface| replace:: :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`
+.. |reference guide|    replace:: :ref:`reference guide <refguide>`
+.. |text properties|    replace:: :ref:`text properties <userguide_styling_text_properties>`
+.. |user guide|         replace:: :ref:`user guide <userguide>`
+.. |interactive legends|    replace:: :ref:`interactive legends <userguide_interaction_legends>`
 
+.. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
 .. |save|               replace:: :py:func:`~bokeh.io.save`

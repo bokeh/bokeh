@@ -410,7 +410,7 @@ Title
 To style the title of your plot, use the |Title| annotation, which is available
 as the ``.title`` property of the |Plot|.
 
-You can use most of the standard `Text Properties`_. However, ``text_align`` and
+You can use most of the standard |text properties|. However, ``text_align`` and
 ``text_baseline`` do not apply. To position the title relative to the entire
 plot, use the properties :class:`~bokeh.models.annotations.Title.align` and
 :class:`~bokeh.models.annotations.Title.offset` instead.
@@ -644,8 +644,8 @@ To add or change the text of an axis' overall label, use the ``axis_label``
 property. To add line breaks to the text in an axis label, include ``\n`` in
 your string.
 
-To control the visual appearance of the label text, use
-`Text Properties`_ prefixed with ``axis_label_``. For instance, to set the text
+To control the visual appearance of the label text, use any of the standard
+|text properties| prefixed with ``axis_label_``. For instance, to set the text
 color of the label, set ``axis_label_text_color``.
 
 To change the distance between the axis label and the major tick labels, set the
@@ -982,8 +982,8 @@ To add or change a legend's title, use its ``title`` property:
 
     plot.legend.title = "Division"
 
-To control the visual appearance of the legend title, use a collection of
-`Text Properties`_, prefixed with ``title_``. For instance, to set the font
+To control the visual appearance of the legend title, use any of the standard
+|text properties| prefixed with ``title_``. For instance, to set the font
 style of the legend, use ``title_text_font_style``.
 
 To set the distance between the title and the rest of the legend (in pixels),
@@ -1009,8 +1009,8 @@ The default orientation is ``"vertical"``.
 Label text
 ~~~~~~~~~~
 
-To control the visual appearance of the legend labels, use a collection of
-`Text Properties`_, prefixed with ``label_``. For instance, to set the font
+To control the visual appearance of the legend labels, use any of the standard
+|text properties| prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_label_text.py
