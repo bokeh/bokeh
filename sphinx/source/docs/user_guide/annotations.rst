@@ -99,9 +99,9 @@ combined into a single legend item with that label.
 Automatic grouping (Python-side)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If your data is in the form of a :ref:`ColumnDataSource <userguide_data_cds>`,
-Bokeh can generate legend entries from strings in one of the ColumnDataSource's
-columns. This way, you can create legend entries based on groups of glyphs.
+If your data is in the form of a |ColumnDataSource|, Bokeh can generate legend
+entries from strings in one of the ColumnDataSource's columns. This way, you can
+create legend entries based on groups of glyphs.
 
 To use data from a column of a ColumnDataSource to generate your plot's legend,
 pass the column name as the ``legend_group`` keyword argument to a glyph method:
@@ -150,17 +150,15 @@ Manual legends
 ~~~~~~~~~~~~~~
 
 To build a legend by hand, don't use any of the ``legend`` arguments and instead
-assign values to the various properties of a
-:class:`~bokeh.models.annotations.Legend` object directly.
+assign values to the various properties of a |Legend| object directly.
 
 See :bokeh-tree:`examples/models/file/legends.py` for an example.
 
 Explicit index
 ~~~~~~~~~~~~~~
 
-To explicitly specify which index into a
-:ref:`ColumnDataSource <userguide_data_cds>` to use in a legend, set the
-``index`` property of a ``LegendItem``.
+To explicitly specify which index into a |ColumnDataSource| to use in a legend,
+set the ``index`` property of a ``LegendItem``.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
@@ -405,12 +403,10 @@ These are the most commonly used properties for this annotation:
 .. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
 .. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
-.. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
 .. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
 .. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
 .. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`

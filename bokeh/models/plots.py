@@ -200,7 +200,7 @@ class Plot(LayoutDOM):
 
     @property
     def legend(self):
-        ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
+        ''' Splattable list of |Legend| objects.
 
         '''
         panels = self.above + self.below + self.left + self.right + self.center

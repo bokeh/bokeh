@@ -25,8 +25,7 @@ Bokeh automatically adds a legend to your plot if you include the
 
 This adds a legend with the entry "Objects" to your plot.
 
-Use the properties of the :class:`~bokeh.models.annotations.Legend` object to
-customize the legend. For example:
+Use the properties of the |Legend|object to customize the legend. For example:
 
 .. literalinclude:: examples/first_steps_3_legend.py
    :language: python
@@ -38,9 +37,8 @@ customize the legend. For example:
 .. seealso::
     To learn more about legends, see :ref:`userguide_plotting_legends` in the
     annotations section and :ref:`userguide_styling_legends` in the styling
-    section of the user guide. The entry
-    :class:`~bokeh.models.annotations.Legend` in the reference guide contains a
-    list of all available attributes for legends.
+    section of the user guide. The entry |Legend| in the reference guide
+    contains a list of all available attributes for legends.
 
     See |interactive legends| in the user guide to learn about using legends to
     hide or mute glyphs in a plot.
@@ -88,16 +86,15 @@ certain areas of your plot:
     :source-position: none
 
 To add box annotations to your plot, you first need to import the
-:class:`~bokeh.models.annotations.BoxAnnotation` class from Bokeh's
-:class:`~bokeh.models` collection:
+|BoxAnnotation| class from |bokeh.models|:
 
 .. code-block:: python
 
     from bokeh.models import BoxAnnotation
 
-Next, create the :class:`~bokeh.models.annotations.BoxAnnotation` objects. If
-you do not pass a value for ``bottom`` or ``top``, Bokeh automatically extends
-the box's dimension to the edges of the plot:
+Next, create the |BoxAnnotation| objects. If you do not pass a value for
+``bottom`` or ``top``, Bokeh automatically extends the box's dimension to the
+edges of the plot:
 
 .. code-block:: python
 
@@ -105,8 +102,8 @@ the box's dimension to the edges of the plot:
     mid_box = BoxAnnotation(bottom=80, top=180, fill_alpha=0.1, fill_color='green')
     high_box = BoxAnnotation(bottom=180, fill_alpha=0.1, fill_color='red')
 
-Finally, you need to add the :class:`~bokeh.models.annotations.BoxAnnotation`
-objects to your existing figure. Use the |add layout| method to add your boxes:
+Finally, you need to add the |BoxAnnotation| objects to your existing figure.
+Use the |add layout| method to add your boxes:
 
 .. code-block:: python
 

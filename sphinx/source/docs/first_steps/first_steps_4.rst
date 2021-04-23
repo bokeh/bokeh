@@ -159,7 +159,7 @@ To display dollar amounts instead of just numbers on your y-axis, use the
 :class:`~bokeh.models.formatters.NumeralTickFormatter`:
 
 First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
-Bokeh's :class:`~bokeh.models` collection:
+|bokeh.models|:
 
 .. code-block:: python
 

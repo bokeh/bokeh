@@ -254,7 +254,7 @@ Use one of these options to define colors in Bokeh:
   byte order pattern, such as ``0xffff00ff`` or ``0xff0000ff``.
 
 To define a series of colors, use an array of color data such as a list or the
-column of a :ref:`ColumnDataSource <userguide_data_cds>`. This also includes
+column of a |ColumnDataSource|. This also includes
 `NumPy arrays <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
 
 For example:
@@ -1112,7 +1112,6 @@ You can see a complete example with output in the section
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-.. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 

@@ -515,8 +515,7 @@ either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` needs to return a
-JSON dict that matches the standard
-:ref:`ColumnDataSource format <userguide_data_cds>`:
+JSON dict that matches the standard |ColumnDataSource| format:
 
 .. code-block:: python
 

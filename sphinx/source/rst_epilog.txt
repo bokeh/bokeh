@@ -1,8 +1,9 @@
 .. |bokeh.models|       replace:: :ref:`bokeh.models`
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
+.. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <userguide_data_cds>`
 .. |developers guide|   replace:: :ref:`developers guide <devguide>`
 .. |fill properties|    replace:: :ref:`fill properties <userguide_styling_fill_properties>`
-.. |interactive legends|    replace:: :ref:`interactive legends <userguide_interaction_legends>`
+.. |interactive legends| replace:: :ref:`interactive legends <userguide_interaction_legends>`
 .. |line properties|    replace:: :ref:`line properties <userguide_styling_line_properties>`
 .. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`
 .. |plotting interface| replace:: :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`
@@ -17,11 +18,13 @@
 .. |show|               replace:: :py:func:`~bokeh.io.show`
 .. |value|              replace:: :py:func:`~bokeh.core.properties.value`
 
+.. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`
 .. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
 .. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
 .. |Document|           replace:: :py:class:`~bokeh.document.Document`
 .. |Figure|             replace:: :py:class:`~bokeh.plotting.Figure`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Legend|             replace:: :py:class:`~bokeh.models.annotations.Legend`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
 .. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
