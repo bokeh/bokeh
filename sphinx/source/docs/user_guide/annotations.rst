@@ -224,14 +224,12 @@ The available arrowheads are:
 Control the appearance of an arrowhead with these properties:
 
 * use the ``size`` property to control the size of any arrowheads
-* use the :ref:`standard line properties <userguide_styling_line_properties>`
-  such as ``line_color`` and ``line_alpha`` to control the appearance of the
-  outline of the arrowhead.
+* use the standard |line properties| such as ``line_color`` and ``line_alpha``
+  to control the appearance of the outline of the arrowhead.
 * use ``fill_color`` and ``fill_alpha`` to control the appearance of the
   arrowhead's inner surface, if applicable.
 
-|Arrow| objects themselves have the
-:ref:`standard line properties <userguide_styling_line_properties>`. Set those
+|Arrow| objects themselves have the standard |line properties|. Set those
 properties to control the color and appearance of the arrow shaft. For example:
 
 .. code-block:: python
@@ -346,7 +344,7 @@ These are the most commonly used properties for this annotation:
 
 * ``gradient``: The gradient of the line, in data units.
 * ``y_intercept``: The y intercept of the line, in data units.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
     :source-position: above
@@ -370,7 +368,7 @@ These are the most commonly used properties for this annotation:
   ``dimension``.
 * ``location_units``: The :ref:`unit type <userguide_styling_units>` for the
   location property. The default is to use "data space" units.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
     :source-position: above
@@ -397,7 +395,7 @@ These are the most commonly used properties for this annotation:
   axis.
 * ``base``: The location of the whisker along the dimension specified with
   ``dimension``.
-* The standard :ref:`line properties <userguide_styling_line_properties>`.
+* The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
     :source-position: above

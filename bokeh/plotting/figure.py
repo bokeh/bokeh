@@ -1097,7 +1097,7 @@ Examples:
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 
-            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+            **kwargs: |line properties| and |fill properties|
 
         Examples:
 
@@ -1556,7 +1556,7 @@ Examples:
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
 
-            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+            **kwargs: |line properties| and |fill properties|
 
         '''
         kw = get_graph_kwargs(node_source, edge_source, **kwargs)
