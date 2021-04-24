@@ -267,7 +267,7 @@ describe("Legend annotation", () => {
 
     const items = [
       new LegendItem({label: "#0", renderers: [cr0]}),
-      new LegendItem({label: "#1", renderers: [cr1]})
+      new LegendItem({label: "#1", renderers: [cr1]}),
     ]
 
     p.add_layout(new Legend({
