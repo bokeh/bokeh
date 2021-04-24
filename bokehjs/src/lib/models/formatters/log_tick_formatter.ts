@@ -4,13 +4,14 @@ import {LogTicker} from "../tickers/log_ticker"
 import {GraphicsBox, BaseExpo, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
-const {log, round} = Math
+const {abs, log, round} = Math
 
 export namespace LogTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
     ticker: p.Property<LogTicker | null>
+    min_exponent: p.Property<number>
   }
 }
 
@@ -24,8 +25,9 @@ export class LogTickFormatter extends TickFormatter {
   }
 
   static init_LogTickFormatter(): void {
-    this.define<LogTickFormatter.Props>(({Ref, Nullable}) => ({
+    this.define<LogTickFormatter.Props>(({Int, Ref, Nullable}) => ({
       ticker: [ Nullable(Ref(LogTicker)), null ],
+      min_exponent: [ Int, 0 ],
     }))
   }
 
@@ -47,9 +49,15 @@ export class LogTickFormatter extends TickFormatter {
       return this.basic_formatter.format_graphics(ticks, opts)
     else {
       return expos.map((expo) => {
-        const b = new TextBox({text: unicode_replace(`${base}`)})
-        const e = new TextBox({text: unicode_replace(`${expo}`)})
-        return new BaseExpo(b, e)
+        if (abs(expo)<this.min_exponent){
+          const b = new TextBox({text: unicode_replace(`${base**expo}`)})
+          const e = new TextBox({text: ''})
+          return new BaseExpo(b, e)
+        } else {
+          const b = new TextBox({text: unicode_replace(`${base}`)})
+          const e = new TextBox({text: unicode_replace(`${expo}`)})
+          return new BaseExpo(b, e)
+        }
       })
     }
   }
@@ -74,10 +82,14 @@ export class LogTickFormatter extends TickFormatter {
 
     const base = this.ticker?.base ?? 10
     const expos = this._exponents(ticks, base)
-
     if (expos == null)
       return this.basic_formatter.doFormat(ticks, opts)
     else
-      return expos.map((expo) => unicode_replace(`${base}^${expo}`))
+      return expos.map((expo) => {
+        if (abs(expo)<this.min_exponent)
+          return unicode_replace(`${base**expo}`)
+        else
+          return unicode_replace(`${base}^${expo}`)
+      })
   }
 }

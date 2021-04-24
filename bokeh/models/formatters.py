@@ -286,6 +286,12 @@ class LogTickFormatter(TickFormatter):
     base to use. If unset, the formatter will use base 10 as a default.
     """)
 
+    min_exponent = Int(0, help="""
+    Minimum exponent to format in scientific notation. If not zero
+    all ticks in range from base^-min_expont to base^min_exponent
+    are displayed without exponential notation.
+    """)
+
 class CategoricalTickFormatter(TickFormatter):
     ''' Display tick values from categorical ranges as string
     values.
