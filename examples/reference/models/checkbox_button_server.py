@@ -13,7 +13,7 @@ z=['red','red','red','blue','blue','blue']
 source = ColumnDataSource(data=dict(x=x, y=y,z=z))
 color_mapper = CategoricalColorMapper(factors=['red','blue'], palette=[RdBu3[2], RdBu3[0]])
 
-plot_figure = figure(title='Checkbox Button Group',plot_height=450, plot_width=600,
+plot_figure = figure(title='Checkbox Button Group',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.scatter('x', 'y', source=source, size=10,color={'field': 'z', 'transform': color_mapper})

@@ -9,7 +9,7 @@ p = figure(
     title="Customized axes example",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=350,
+    height=350,
 )
 
 # add a renderer

@@ -52,7 +52,7 @@ def make_calendar(year, month, firstweekday="Mon"):
     x_scale, y_scale = CategoricalScale(), CategoricalScale()
 
     plot = Plot(x_range=xdr, y_range=ydr, x_scale=x_scale, y_scale=y_scale,
-                plot_width=300, plot_height=300, outline_line_color=None)
+                width=300, height=300, outline_line_color=None)
     plot.title.text = month_names[month]
     plot.title.text_font_size = "16px"
     plot.title.text_color = "darkolivegreen"

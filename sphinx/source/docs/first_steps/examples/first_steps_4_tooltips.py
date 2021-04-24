@@ -12,7 +12,7 @@ p = figure(
     tooltips="Data point @x has the value @y",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # add renderers

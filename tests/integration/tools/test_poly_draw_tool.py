@@ -47,7 +47,7 @@ pytest_plugins = (
 
 def _make_plot(num_objects=0, drag=True, vertices=False):
     source = ColumnDataSource(dict(xs=[[1, 2]], ys=[[1, 1]]))
-    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+    plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
     renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
     tool = PolyDrawTool(num_objects=num_objects, drag=drag, renderers=[renderer])
     if vertices:
@@ -64,7 +64,7 @@ def _make_plot(num_objects=0, drag=True, vertices=False):
 def _make_server_plot(expected):
     def modify_doc(doc):
         source = ColumnDataSource(dict(xs=[[1, 2]], ys=[[1, 1]]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+        plot = Plot(height=400, width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, MultiLine(xs='xs', ys='ys'))
         tool = PolyDrawTool(renderers=[renderer])
         plot.add_tools(tool)

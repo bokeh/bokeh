@@ -11,7 +11,7 @@ r = x/12.0+0.4
 source = ColumnDataSource(dict(x=x, y=y, r=r))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = AnnularWedge(x="x", y="y", inner_radius=.2, outer_radius="r", start_angle=0.6, end_angle=4.1, fill_color="#8888ee")

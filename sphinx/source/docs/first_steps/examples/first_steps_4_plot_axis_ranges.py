@@ -10,7 +10,7 @@ p = figure(
     title="Axis range example",
     sizing_mode="stretch_width",
     max_width=500,
-    plot_height=250,
+    height=250,
 )
 
 # add circle renderer with additional arguments

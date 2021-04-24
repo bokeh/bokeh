@@ -13,7 +13,7 @@ s1 = figure(width=350, height=350)
 s1.circle(x, y1, color="navy", size=8, alpha=0.5)
 
 # linked panning is expressed by sharing ranges between plots.
-s2 = figure(plot_width=350, plot_height=350,
+s2 = figure(width=350, height=350,
             x_range=s1.x_range, y_range=s1.y_range)
 
 s2.circle(x, y2, color="firebrick", size=8, alpha=0.5)

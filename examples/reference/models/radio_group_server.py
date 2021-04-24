@@ -14,7 +14,7 @@ df=pd.DataFrame({'x':x,'y':y,'label':label})
 
 source = ColumnDataSource(data=dict(x=df.x, y=df.y,label=df.label))
 
-plot_figure = figure(title='Radio Group',plot_height=450, plot_width=600,
+plot_figure = figure(title='Radio Group',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.scatter('x', 'y',color='label', source=source, size=10)
