@@ -244,13 +244,13 @@ def convert_logging(value):
     raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
 
 def convert_validation(value):
-    '''Convert a string to a validation level string
+    '''Convert a string to a validation level
 
-    If a validation level string is passed in, it is returned as-is.
+    If a validation level is passed in, it is returned as-is.
 
     Args:
         value (str):
-            A string value to convert to a validation level string
+            A string value to convert to a validation level
 
     Returns:
         string
@@ -259,10 +259,13 @@ def convert_validation(value):
         ValueError
 
     '''
-    if value.lower() == "none" or value.lower() == "errors" or value.lower() == "all":
-        return value.lower()
+    VALID_LEVELS = {"none", "errors", "all"}
 
-    raise ValueError("Cannot convert {} to validation level string, valid values are: none, errors, all".format(value))
+    lowered = value.lower()
+    if lowered in VALID_LEVELS:
+        return lowered
+
+    raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
 
 class _Unset: pass
 

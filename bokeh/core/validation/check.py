@@ -105,7 +105,13 @@ def check_integrity(models):
         >>> empty_row = Row
 
         >>> check_integrity([empty_row])
-        dict(warning = [(1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...))])
+        {
+            "warning": [
+                (1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...),
+                ...
+            ],
+            "error": [...]
+        }
 
     '''
     messages = dict(error=[], warning=[])
@@ -154,10 +160,7 @@ def process_validation_issues(issues):
     elif settings.validation_level() == "all":
         if len(issues['error']) or len(issues['warning']):
             raise RuntimeError("Errors encountered during validation (see log output)")
-    # Is this correct for discerning between raising exceptions for warnings vs errors?
-    # Is there a way for RuntimeError to occur on each warning and error specifically?
-    # We're a little confused on how to use silencers if RunTimeError just automatically
-    # raises exceptions on all errors and warnings
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
