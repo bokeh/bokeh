@@ -42,7 +42,7 @@ describe("TapTool", () => {
     ui_event_bus._trigger(ui_event_bus.doubletap, event, new Event("mousemove"))
   }
 
-  describe("should support 'tap' gesture", () => {
+  describe("should support 'tap' gesture with behavior 'select'", () => {
     it("and trigger on 'tap' event", async () => {
       let called = false
       const callback = {execute() { called = true }}
@@ -74,7 +74,7 @@ describe("TapTool", () => {
     })
   })
 
-  describe("should support 'doubletap' gesture", () => {
+  describe("should support 'doubletap' gesture with behavior 'select'", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
       const callback = {execute() { called = true }}
@@ -99,6 +99,70 @@ describe("TapTool", () => {
       let called = false
       const callback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
+      const plot_view = await test_case(tool)
+
+      doubletap(plot_view, 150, 50)
+      expect(called).to.be.false
+    })
+  })
+
+  describe("should support 'tap' gesture with behavior 'inspect'", () => {
+    it("and trigger on 'tap' event", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
+      const plot_view = await test_case(tool)
+
+      tap(plot_view, 50, 50)
+      expect(called).to.be.true
+    })
+
+    it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
+      const plot_view = await test_case(tool)
+
+      tap(plot_view, 150, 50)
+      expect(called).to.be.false
+    })
+
+    it("and not trigger on 'doubletap' event", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
+      const plot_view = await test_case(tool)
+
+      doubletap(plot_view, 50, 50)
+      expect(called).to.be.false
+    })
+  })
+
+  describe("should support 'doubletap' gesture with behavior 'select'", () => {
+    it("and not trigger on 'tap' event", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
+      const plot_view = await test_case(tool)
+
+      tap(plot_view, 50, 50)
+      expect(called).to.be.false
+    })
+
+    it("and trigger on 'doubletap' event", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
+      const plot_view = await test_case(tool)
+
+      doubletap(plot_view, 50, 50)
+      expect(called).to.be.true
+    })
+
+    it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
+      let called = false
+      const callback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 150, 50)
