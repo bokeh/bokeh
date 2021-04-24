@@ -3,6 +3,7 @@ import {expect} from "assertions"
 import {Serializer} from "@bokehjs/core/serializer"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as p from "@bokehjs/core/properties"
+import {wildcard} from "@bokehjs/core/util/eq"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BYTE_ORDER} from "@bokehjs/core/util/platform"
 
@@ -92,7 +93,7 @@ describe("core/serializer module", () => {
 
       expect(to_serializable(nd0)).to.be.equal({
         repr: {
-          __ndarray__: "AQAAAAIAAAADAAAA",
+          __ndarray__: {toJSON: wildcard},
           order: BYTE_ORDER,
           dtype: "int32",
           shape: [1, 3],

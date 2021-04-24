@@ -14,7 +14,7 @@ export type BufferRef = {
 }
 
 export type NDArrayRef = {
-  __ndarray__: string
+  __ndarray__: string | {toJSON(): string}
   order: ByteOrder
   dtype: DataType
   shape: Shape
@@ -37,7 +37,7 @@ export function decode_NDArray(ref: BufferRef | NDArrayRef, buffers: Buffers): {
     else
       throw new Error(`buffer for ${ref.__buffer__} not found`)
   } else {
-    bytes = base64_to_buffer(ref.__ndarray__)
+    bytes = base64_to_buffer(ref.__ndarray__ as string)
   }
 
   if (order !== BYTE_ORDER) {
@@ -59,7 +59,11 @@ export function encode_NDArray(array: NDArray, buffers?: Buffers): BufferRef | N
     buffers.set(__buffer__, array.buffer)
     return {__buffer__, ...data}
   } else {
-    const __ndarray__ = buffer_to_base64(array.buffer)
+    const __ndarray__ = {
+      toJSON(): string {
+        return buffer_to_base64(array.buffer)
+      },
+    }
     return {__ndarray__, ...data}
   }
 }
