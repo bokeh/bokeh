@@ -33,6 +33,34 @@ const test = (main: string, title: string) => {
   }
 }
 
+type Base64 = string
+type Report = {
+  results: [string[], {failure: boolean, image?: Base64, image_diff?: Base64, reference?: Base64}][]
+  metrics: {[key: string]: number[]}
+}
+
+function using_report(fn: (report: Report, req: express.Request, res: express.Response) => void) {
+  return async (req: express.Request, res: express.Response) => {
+    const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
+    switch (platform) {
+      case "linux":
+      case "macos":
+      case "windows": {
+        const report_path = join("test", "baselines", platform, "report.json")
+        try {
+          const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
+          fn(JSON.parse(json), req, res)
+        } catch {
+          res.status(404).send("Report unavailable")
+        }
+        break
+      }
+      default:
+        res.status(404).send("Invalid platform specifier")
+    }
+  }
+}
+
 const unit = test("unit.js", "Unit Tests")
 const defaults = test("defaults.js", "Defaults Tests")
 const integration = test("integration.js", "Integration Tests")
@@ -45,25 +73,13 @@ app.get("/unit/run", unit(true))
 app.get("/defaults/run", defaults(true))
 app.get("/integration/run", integration(true))
 
-app.get("/integration/report", async (req, res) => {
-  const platform = typeof req.query.platform == "string" ? req.query.platform : sys.platform
-  switch (platform) {
-    case "linux":
-    case "macos":
-    case "windows": {
-      const report_path = join("test", "baselines", platform, "report.json")
-      try {
-        const json = await fs.promises.readFile(report_path, {encoding: "utf-8"})
-        res.render("test/devtools/report.html", {title: "Integration Tests Report", tests: JSON.parse(json)})
-      } catch {
-        res.status(404).send("Report unavailable")
-      }
-      break
-    }
-    default:
-      res.status(404).send("Invalid platform specifier")
-  }
-})
+app.get("/integration/report", using_report(({results}, _, res) => {
+  res.render("test/devtools/report.html", {title: "Integration Tests Report", results})
+}))
+
+app.get("/integration/metrics", using_report(({metrics}, _, res) => {
+  res.render("test/devtools/metrics.html", {title: "Integration Tests Metrics", metrics, js: js_path})
+}))
 
 app.get("/examples", async (_req, res) => {
   const dir = await fs.promises.opendir("examples")

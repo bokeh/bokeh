@@ -58,7 +58,7 @@
       <div class="header">Current</div>
       <div class="header">Diff</div>
       <div class="header">Reference</div>
-    {%- for description, status in tests %}
+    {%- for description, status in results %}
       {%- if status.failure %}
       <div class="description">{{ description | join(" ⇒ ") }}</div>
       <img src="data:image/png;base64,{{ status.image }}"></img>
