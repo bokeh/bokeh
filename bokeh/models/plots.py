@@ -666,7 +666,7 @@ class Plot(LayoutDOM):
     match_aspect = Bool(default=False, help="""
     Specify the aspect ratio behavior of the plot. Aspect ratio is defined as
     the ratio of width over height. This property controls whether Bokeh should
-    attempt the match the (width/height) of *data space* to the (width/height)
+    attempt to match the (width/height) of *data space* to the (width/height)
     in pixels of *screen space*.
 
     Default is ``False`` which indicates that the *data* aspect ratio and the
@@ -683,7 +683,7 @@ class Plot(LayoutDOM):
 
     .. warning::
         This setting is incompatible with linking dataranges across multiple
-        plots. Doing so may result in undefined behaviour.
+        plots. Doing so may result in undefined behavior.
     """)
 
     aspect_scale = Float(default=1, help="""

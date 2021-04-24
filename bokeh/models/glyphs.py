@@ -350,7 +350,7 @@ class Circle(Marker):
     _args = ('x', 'y')
 
     radius = NullDistanceSpec(help="""
-    The radius values for circle markers (in "data space" units, by default).
+    The radius values for circle markers (in |data units|, by default).
 
     .. note::
         Circle markers are slightly unusual in that they support specifying
@@ -498,7 +498,7 @@ class HexTile(LineGlyph, FillGlyph, HatchGlyph):
     _args = ('q', 'r')
 
     size = Float(1.0, help="""
-    The radius (in data space units) of the hex tiling.
+    The radius (in |data units|) of the hex tiling.
 
     The radius is always measured along the cartesian y-axis for "pointy_top"
     orientation, and along the cartesian x-axis for "flat_top" orientation. If
@@ -1078,7 +1078,7 @@ class Ray(XYGlyph, LineGlyph):
 
     length = DistanceSpec(default=0, help="""
     The length to extend the ray. Note that this ``length`` defaults
-    to data units (measured in the x-direction).
+    to |data units| (measured in the x-direction).
     """)
 
     line_props = Include(LineProps, help="""
@@ -1177,11 +1177,10 @@ class Scatter(Marker):
 
     .. note::
         When you draw ``circle`` markers with ``Scatter``, you can only assign a
-        size in :ref:`screen units <userguide_styling_units>` (by passing a
-        number of pixels to the ``size`` argument). In case you want to define
-        the radius of circles in :ref:`data units <userguide_styling_units>`,
-        use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
-        ``Scatter`` glyph.
+        size in |screen units| (by passing a number of pixels to the ``size``
+        property). In case you want to define the radius of circles in
+        |data units|, use the :class:`~bokeh.models.glyphs.Circle` glyph instead
+        of the ``Scatter`` glyph.
 
     '''
 
@@ -1288,14 +1287,14 @@ class Text(XYGlyph, TextGlyph):
     Offset values to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     y_offset = NumberSpec(default=0, help="""
     Offset values to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     text_props = Include(TextProps, help="""

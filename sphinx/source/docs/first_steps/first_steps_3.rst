@@ -25,7 +25,7 @@ Bokeh automatically adds a legend to your plot if you include the
 
 This adds a legend with the entry "Objects" to your plot.
 
-Use the properties of the |Legend|object to customize the legend. For example:
+Use the properties of the |Legend| object to customize the legend. For example:
 
 .. literalinclude:: examples/first_steps_3_legend.py
    :language: python

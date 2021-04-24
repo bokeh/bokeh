@@ -81,8 +81,7 @@ define aspects like the color or diameter of the circles:
 * ``fill_alpha``: the transparency of the fill color (any value between ``0``
   and ``1``)
 * ``line_color``: the fill color of the circles' outlines
-* ``size``: the size of the circles (in
-  :ref:`screen space or data-space units<userguide_styling_units>`)
+* ``size``: the size of the circles (in |screen units| or |data units|)
 * ``legend_label``: legend entry for the circles
 
 In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several

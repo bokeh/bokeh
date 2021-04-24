@@ -251,8 +251,7 @@ A |Band| annotation is a colored stripe that is dimensionally linked to the data
 in a plot. One common use for the band annotation is to indicate uncertainty
 related to a series of measurements.
 
-To define a band, use either
-:ref:`screen units or data-space units <userguide_styling_units>`.
+To define a band, use either |screen units| or |data units|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_band.py
     :source-position: above
@@ -262,9 +261,9 @@ To define a band, use either
 Box annotations
 ---------------
 
-A |BoxAnnotation| is a rectangular box that you can link to either
-:ref:`data or screen coordinates <userguide_styling_units>` in order
-to highlight specific plot regions.
+A |BoxAnnotation| is a rectangular box that you can use to highlight specific
+plot regions. Use either |screen units| or |data units| to position a box
+annotation.
 
 To define the bounds of these boxes, use the ``left``/``right`` or ``top``/
 ``bottom`` properties. If you provide only one bound (for example, a ``left``
@@ -279,8 +278,8 @@ plot area for the dimension you did not specify.
 Polygon annotations
 -------------------
 
-A |PolyAnnotation| is a polygon with vertices in either
-:ref:`data or screen coordinates <userguide_styling_units>`.
+A |PolyAnnotation| is a polygon with vertices in either |screen units| or
+|data units|.
 
 To define the polygon's vertices, supply a series of coordinates to the
 ``xs`` and ``ys`` properties. Bokeh automatically connects the last vertex
@@ -301,8 +300,8 @@ To create a single text label, use the |Label| annotation. Those are the most
 important properties for this annotation:
 
 * A ``text`` property containing the text to display inside the label.
-* ``x`` and ``y`` properties to set the position (in screen or data
-  space units).
+* ``x`` and ``y`` properties to set the position (in |screen units| or
+  |data units|).
 * ``x_offset`` and ``y_offset`` properties to specify where to place the label
   in relation to its ``x`` and ``y`` coordinates.
 * The standard |text properties| as well as other styling parameters such as
@@ -340,8 +339,8 @@ another at a specific angle.
 
 These are the most commonly used properties for this annotation:
 
-* ``gradient``: The gradient of the line, in data units.
-* ``y_intercept``: The y intercept of the line, in data units.
+* ``gradient``: The gradient of the line, in |data units|.
+* ``y_intercept``: The y intercept of the line, in |data units|.
 * The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
@@ -364,8 +363,8 @@ These are the most commonly used properties for this annotation:
   axis.
 * ``location``: The location of the span along the axis specified with
   ``dimension``.
-* ``location_units``: The :ref:`unit type <userguide_styling_units>` for the
-  location property. The default is to use "data space" units.
+* ``location_units``: The |unit| type for the ``location`` property. The default
+  is to use |data units|.
 * The standard |line properties|.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_span.py
@@ -377,8 +376,7 @@ Whiskers
 --------
 
 A |Whisker| annotation is a "stem" that is dimensionally linked to the data in
-the plot. You can define this annotation using
-:ref:`data or screen units <userguide_styling_units>`.
+the plot. You can define this annotation using |data units| or |screen units|.
 
 A common use for whisker annotations is to indicate error margins or
 uncertainty for measurements at a single point.

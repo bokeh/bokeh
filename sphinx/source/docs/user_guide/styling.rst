@@ -305,7 +305,6 @@ Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, for example. A glyph that is one fifth as wide and tall as the graph
 would have a size of 80 screen units or 2 data-space units.
 
-
 Objects in Bokeh that support both screen units and data-space units usually
 have a dedicated property to choose which unit to use. This unit-setting
 property is the name of the property with an added ``_units``. For
@@ -369,7 +368,7 @@ Dimensions
 ~~~~~~~~~~
 
 To change the width and height of a |Plot|, use its ``plot_width`` and
-``plot_height`` attributes. Those two attributes use screen units. They
+``plot_height`` attributes. Those two attributes use |screen units|. They
 control the size of the entire canvas area, including any axes or titles (but
 not the toolbar).
 
@@ -439,7 +438,7 @@ Border
 
 To adjust the border fill style, use the ``border_fill_color`` and
 ``border_fill_alpha`` properties of the |Plot| object. You can also set the
-minimum border on each side (in screen units) with these properties:
+minimum border on each side (in |screen units|) with these properties:
 
 * ``min_border_left``
 * ``min_border_right``
@@ -713,7 +712,7 @@ For instance, to set the color of the major ticks, use
 
 Additionally, to control how far in and out of the plotting area the ticks
 extend, use the properties ``major_tick_in``/``major_tick_out`` and
-``minor_tick_in``/``minor_tick_out``. These values are in screen units.
+``minor_tick_in``/``minor_tick_out``. These values are in |screen units|.
 Therefore, you can use negative values.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_tick_lines.py

@@ -585,7 +585,6 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`userguide_graph` and :ref:`userguide_geo`.
 
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`

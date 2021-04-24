@@ -74,10 +74,9 @@ on the corresponding glyph method in the following list:
     * |y|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
-:ref:`screen units <userguide_styling_units>`), and ``angle`` (in radians by
-default). The |circle| marker is an exception: this method accepts an additional
-``radius`` property that you can use with
-:ref:`data-space units <userguide_styling_units>`.
+|screen units|), and ``angle`` (in radians by default). The |circle| marker is
+an exception: this method accepts an additional ``radius`` property that you can
+use with |data units|.
 
 .. _userguide_plotting_line_glyphs:
 
@@ -408,18 +407,17 @@ Segments and rays
 To draw multiple individual line segments use the |segment| and |ray| glyph
 methods.
 
-The |segment| method accepts start points ``x0`` and ``y0`` and end points
-``x1`` and ``y1`` and renders segments between them.
+The |segment| method accepts the starting points ``x0`` and ``y0`` and end
+points ``x1`` and ``y1``. It renders segments between those points.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_segments.py
     :source-position: above
 
-The |ray| method accepts start points ``x`` and ``y`` with a ``length``
-(in :ref:`screen units <userguide_styling_units>`) and an ``angle``. The
-``angle_units`` parameter defaults to ``"rad"`` but can you can also set it to
-``"deg"`` to have the angle measured in degrees instead of radians. To have an
-"infinite" ray that always extends to the edge of the plot, set ``length`` to
-``0``.
+The |ray| method accepts the starting points ``x`` and ``y`` with a ``length``
+(in |screen units|) and an ``angle``. The ``angle_units`` parameter defaults to
+``"rad"`` but you can also set it to ``"deg"`` to have the angle measured in
+degrees instead of radians. To have an "infinite" ray that always extends to the
+edge of the plot, set ``length`` to ``0``.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_ray.py
     :source-position: above
