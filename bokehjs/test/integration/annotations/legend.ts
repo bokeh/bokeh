@@ -255,30 +255,29 @@ describe("Legend annotation", () => {
     await display(p)
   })
 
-  // it(`should display spacing correctly`, async () => {
-  //   const p = fig([225, 125])
-  //   p.add_layout(new LinearAxis(), "above")
-  //   p.add_layout(new LinearAxis(), "right")
+  it(`should display spacing correctly`, async () => {
+    const p = fig([200, 150])
+    p.add_layout(new LinearAxis(), "above")
+    p.add_layout(new LinearAxis(), "right")
 
-  //   const x = 2
-  //   const y = 1
-  //   const cr0 = p.circle(x, y, {fill_color: "red"})
-  //   const cr1 = p.circle(x, y + 1, {fill_color: "blue"})
+    const x = 2
+    const y = 1
+    const cr0 = p.circle(x, y, {fill_color: "red"})
+    const cr1 = p.circle(x, y + 1, {fill_color: "blue"})
 
-  //   const items = [
-  //     new LegendItem({label: "#0", renderers: [cr0]}),
-  //     new LegendItem({label: "#1", renderers: [cr1]})
-  //   ]
+    const items = [
+      new LegendItem({label: "#0", renderers: [cr0]}),
+      new LegendItem({label: "#1", renderers: [cr1]})
+    ]
 
-  //   p.add_layout(new Legend({
-  //     items,
-  //     background_fill_alpha: 0.7,
-  //     location: "top_left",
-  //     orientation: "vertical",
-  //     title: "title",
-  //     spacing: 50,
-  //   }))
+    p.add_layout(new Legend({
+      items,
+      background_fill_alpha: 0.7,
+      location: "top_left",
+      orientation: "vertical",
+      spacing: 20,
+    }))
 
-  //   await display(p)
-  // })
+    await display(p)
+  })
 })
