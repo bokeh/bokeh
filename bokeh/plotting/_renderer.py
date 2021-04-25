@@ -205,7 +205,7 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
     trait_defaults.setdefault('alpha', 1.0)
 
     result, traits = dict(), set()
-    glyphprops = glyphclass.properties()
+    glyphprops = list(glyphclass.properties())
     for pname in filter(is_visual, glyphprops):
         _, trait = split_feature_trait(pname)
 

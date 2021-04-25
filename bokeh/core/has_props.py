@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 from functools import lru_cache
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 from warnings import warn
 
 # Bokeh imports
@@ -125,7 +125,7 @@ class MetaHasProps(type):
         # Check for improperly redeclared a Property attribute.
         base_properties = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
-            base_properties.update(base.properties())
+            base_properties.update(base.properties(_with_props=True))
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
@@ -135,7 +135,7 @@ class MetaHasProps(type):
                  RuntimeWarning, stacklevel=2)
 
         # Check for no-op Overrides
-        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties().keys()
+        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
         if unused_overrides:
             warn((f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
 
@@ -179,7 +179,7 @@ class HasProps(metaclass=MetaHasProps):
         if name.startswith("_"):
             return super().__setattr__(name, value)
 
-        properties = self.properties()
+        properties = self.properties(_with_props=True)
         if name in properties:
             return super().__setattr__(name, value)
 
@@ -207,7 +207,7 @@ class HasProps(metaclass=MetaHasProps):
         if name.startswith("_"):
             return super().__getattr__(name)
 
-        properties = self.properties()
+        properties = self.properties(_with_props=True)
         if name in properties:
             return super().__getattr__(name)
 
@@ -328,7 +328,7 @@ class HasProps(metaclass=MetaHasProps):
             None
 
         '''
-        if name in self.properties():
+        if name in self.properties(_with_props=True):
             log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models=models, setter=setter)
@@ -411,19 +411,25 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties(cls):
+    def properties(cls, *, _with_props: bool = False) -> Union[List[str], Dict[str, PropertyDescriptorFactory]]:
         ''' Collect the names of properties on this class.
 
-        This method *optionally* traverses the class hierarchy and includes
-        properties defined on any parent classes.
+        .. warning::
+            In a future version of Bokeh, this method will return a dictionary
+            mapping property names to property objects. To future-proof this
+            current usage of this method, wrap the return value in ``list``.
 
         Returns:
-           set[str] : property names
+            property names
 
         '''
         props = dict()
         for c in cls.__mro__:
             props.update(getattr(c, "__properties__", {}))
+
+        if not _with_props:
+            return list(props)
+
         return props
 
     @classmethod
@@ -439,7 +445,7 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of properties that have references
 
         '''
-        return {k: v for k, v in cls.properties().items() if v.has_ref}
+        return {k: v for k, v in cls.properties(_with_props=True).items() if v.has_ref}
 
     @classmethod
     @lru_cache(None)
@@ -454,7 +460,7 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         from .property.dataspec import DataSpec # avoid circular import
-        return {k: v for k, v in cls.properties().items() if isinstance(v, DataSpec)}
+        return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
@@ -513,7 +519,7 @@ class HasProps(metaclass=MetaHasProps):
         themed_keys = set()
         result = dict()
         if include_defaults:
-            keys = self.properties()
+            keys = self.properties(_with_props=True)
         else:
             # TODO (bev) For now, include unstable default values. Things rely on Instances
             # always getting serialized, even defaults, and adding unstable defaults here

@@ -29,6 +29,7 @@ from bokeh.core.properties import (
     Int,
     List,
     NumberSpec,
+    Nullable,
     Override,
     String,
 )
@@ -123,14 +124,14 @@ ALL = (
 # TODO (bev) These tests should be moved to better places
 
 
-class Basictest:
+class TestBasic:
     def test_simple_class(self) -> None:
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
             z = List(Int, [1, 2, 3])
             zz = Dict(String, Int)
-            s = String(None)
+            s = Nullable(String(None))
 
         f = Foo()
         assert f.x == 12
@@ -139,7 +140,7 @@ class Basictest:
         assert f.s is None
 
 
-        assert {"x", "y", "z", "zz", "s"} == f.properties()
+        assert {"x", "y", "z", "zz", "s"} == set(f.properties())
         with_defaults = f.properties_with_values(include_defaults=True)
         assert dict(x=12, y="hello", z=[1,2,3], zz={}, s=None) == with_defaults
         without_defaults = f.properties_with_values(include_defaults=False)
@@ -214,15 +215,6 @@ class Basictest:
         with pytest.raises(ValueError):
             f.update(y="orange")
 
-    def test_no_parens(self) -> None:
-        class Foo(HasProps):
-            x = Int
-            y = Int()
-        f = Foo()
-        assert f.x == f.y
-        f.x = 13
-        assert f.x == 13
-
     def test_accurate_properties_sets(self) -> None:
         class Base(HasProps):
             num = Int(12)
@@ -240,16 +232,16 @@ class Basictest:
             sub_child = Instance(HasProps)
 
         b = Base()
-        assert {"child"} == b.properties_with_refs()
-        assert {"num", "container", "child"} == b.properties()
+        assert {"child"} == set(b.properties_with_refs())
+        assert {"num", "container", "child"} == set(b.properties())
 
         m = Mixin()
-        assert m.properties_with_refs() == {"mixin_child"}
-        assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
+        assert set(m.properties_with_refs()) == {"mixin_child"}
+        assert set(m.properties()) == {"mixin_num", "mixin_container", "mixin_child"}
 
         s = Sub()
-        assert s.properties_with_refs() == {"child", "sub_child", "mixin_child"}
-        assert s.properties() == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
+        assert set(s.properties_with_refs()) == {"child", "sub_child", "mixin_child"}
+        assert set(s.properties()) == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()
@@ -270,13 +262,9 @@ class Basictest:
         mixin = Mixin()
         sub = Sub()
 
-        assert {"num"} == base.dataspecs()
-        assert {"mixin_num"} == mixin.dataspecs()
-        assert {"num", "mixin_num", "sub_num"} == sub.dataspecs()
-
-        assert dict(num=base.lookup("num")) ==  base.dataspecs_with_props()
-        assert dict(mixin_num=mixin.lookup("mixin_num")) == mixin.dataspecs_with_props()
-        assert dict(num=sub.lookup("num"), mixin_num=sub.lookup("mixin_num"), sub_num=sub.lookup("sub_num")) == sub.dataspecs_with_props()
+        assert {"num"} == set(base.dataspecs())
+        assert {"mixin_num"} == set(mixin.dataspecs())
+        assert {"num", "mixin_num", "sub_num"} == set(sub.dataspecs())
 
     def test_not_serialized(self) -> None:
         class NotSerialized(HasProps):
@@ -310,7 +298,7 @@ class Basictest:
     def test_readonly(self) -> None:
         class Readonly(HasProps):
             x = Int(12, readonly=True)    # with default
-            y = Int(readonly=True)        # without default
+            y = Nullable(Int(), readonly=True)        # without default
             z = String("hello")
 
         o = Readonly()
@@ -323,10 +311,10 @@ class Basictest:
         assert 'y' in o.properties()
         assert 'z' in o.properties()
 
-        # but they aren't in the dict of props with values
-        assert 'x' not in o.properties_with_values(include_defaults=True)
-        assert 'y' not in o.properties_with_values(include_defaults=True)
+        assert 'x' in o.properties_with_values(include_defaults=True)
+        assert 'y' in o.properties_with_values(include_defaults=True)
         assert 'z' in o.properties_with_values(include_defaults=True)
+
         assert 'x' not in o.properties_with_values(include_defaults=False)
         assert 'y' not in o.properties_with_values(include_defaults=False)
         assert 'z' not in o.properties_with_values(include_defaults=False)
