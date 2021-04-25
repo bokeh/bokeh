@@ -2,6 +2,7 @@ import type * as p from "core/properties"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
+import {isField} from "core/vectorization"
 import {includes} from "core/util/array"
 import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
@@ -49,6 +50,7 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return null
     }
+
     const renderer_view = this.plot_view.renderer_view(renderer)
     if (renderer_view == null)
       return null
@@ -103,33 +105,27 @@ export abstract class EditToolView extends GestureToolView {
   }
 
   _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[], dim: Dimensions = "both"): void {
-    if (this._basepoint == null)
-      return
-    const [bx, by] = this._basepoint
+    const {sx, sy} = ev
     for (const renderer of renderers) {
-      const basepoint = this._map_drag(bx, by, renderer)
-      const point = this._map_drag(ev.sx, ev.sy, renderer)
-      if (point == null || basepoint == null) {
+      const point = this._map_drag(sx, sy, renderer)
+      if (point == null)
         continue
-      }
       const [x, y] = point
-      const [px, py] = basepoint
-      const [dx, dy] = [x-px, y-py]
-      // Type once dataspecs are typed
-      const glyph: any = renderer.glyph
+      const glyph = renderer.glyph
       const cds = renderer.data_source
-      const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+      const x_array = isField(glyph.x) ? cds.data[glyph.x.field] : null
+      const y_array = isField(glyph.y) ? cds.data[glyph.y.field] : null
       for (const index of cds.selected.indices) {
-        if (xkey && (dim == "width" || dim == "both")) {
-          cds.data[xkey][index] += dx
+        if (x_array != null && (dim == "width" || dim == "both")) {
+          x_array[index] = x
         }
-        if (ykey && (dim == "height" || dim == "both")) {
-          cds.data[ykey][index] += dy
+        if (y_array != null && (dim == "height" || dim == "both")) {
+          y_array[index] = y
         }
       }
       cds.change.emit()
     }
-    this._basepoint = [ev.sx, ev.sy]
+    this._basepoint = [sx, sy]
   }
 
   _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
