@@ -19,7 +19,7 @@ import mock
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.validation import check_integrity
+from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     CategoricalScale,
     CustomJS,
@@ -135,7 +135,8 @@ class TestPlotValidation:
         p = figure()
         p.renderers = []
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.warning.call_count == 1
         assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
 
@@ -161,7 +162,8 @@ class TestPlotValidation:
         p = figure()
         p.xaxis.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
             "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
@@ -171,7 +173,8 @@ class TestPlotValidation:
         p.extra_x_ranges['foo'] = Range1d()
         p.grid.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
             "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [Grid"
@@ -186,7 +189,8 @@ class TestPlotValidation:
         dep.grid.x_range_name="foo"
         p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-            check_integrity([p])
+            issues = check_integrity([p])
+            process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 def test_plot_add_layout_raises_error_if_not_render() -> None:
