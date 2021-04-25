@@ -41,4 +41,4 @@ p2.legend.location = "top_left"
 
 output_file("stocks.html", title="stocks.py example")
 
-show(gridplot([[p1,p2]], plot_width=400, plot_height=400))  # open a browser
+show(gridplot([[p1,p2]], width=400, height=400))  # open a browser

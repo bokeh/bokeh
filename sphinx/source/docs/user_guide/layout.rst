@@ -53,7 +53,7 @@ number of columns you want in your grid. For example:
 
     gridplot([s1, s2, s3], ncols=2)
 
-You can also pass in ``plot_width`` and ``plot_height`` arguments.
+You can also pass in ``width`` and ``height`` arguments.
 These dimensions will then apply to all your plots.
 
 By default, |gridplot| merges all child plot tools into a single
