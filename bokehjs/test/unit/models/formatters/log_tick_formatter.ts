@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {LogTickFormatter} from "@bokehjs/models/formatters/log_tick_formatter"
 import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
 
-describe("FuncTickFormatter", () => {
+describe("LogTickFormatter", () => {
   describe("doFormat method", () => {
     it("should format numerical ticks appropriately with min_exponent equals 0 by default", () => {
       const formatter = new LogTickFormatter()
