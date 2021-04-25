@@ -6,6 +6,7 @@ import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
+import {join} from "core/util/iterator"
 import {values} from "core/util/object"
 import {isString} from "core/util/types"
 import {CanvasLayer} from "core/util/canvas"
@@ -143,11 +144,11 @@ export class ToolbarBaseView extends DOMView {
     bars.push(this.model.actions.map(el))
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
 
-    for (const bar of bars) {
-      if (bar.length !== 0) {
-        const el = div({class: toolbars.button_bar}, bar)
-        this.el.appendChild(el)
-      }
+    const non_empty = bars.filter((bar) => bar.length != 0)
+    const separator = () => div({class: toolbars.tool_separator})
+
+    for (const el of join<HTMLElement>(non_empty, separator)) {
+      this.el.appendChild(el)
     }
   }
 
