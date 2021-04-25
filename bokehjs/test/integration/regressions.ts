@@ -226,6 +226,7 @@ describe("Bug", () => {
 
       const glyph = r.selection_glyph as Circle
       glyph.line_color = "black"
+      glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
 
       await view.ready
