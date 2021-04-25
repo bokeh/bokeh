@@ -887,6 +887,18 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11154", () => {
+    it("does not allow the plotting API to consider hatch visuals", async () => {
+      const p = fig([200, 200])
+      const r = p.rect({
+        x: [0, 1, 2], y: 3, width: 0.7, height: 0.7, angle: [0.0, 0.3, 0.6],
+        hatch_pattern: "x", fill_color: "orange",
+      })
+      r.data_source.selected.indices = [1]
+      await display(p)
+    })
+  })
+
   describe("in issue #10407", () => {
     it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
       const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})

@@ -748,12 +748,15 @@ export class Figure extends Plot {
     }
     const _is_visual = function(ft: string): boolean {
       const [feature, trait] = _split_feature_trait(ft)
-      return includes(['line', 'fill', 'text', 'global'], feature) && trait !== ""
+      return includes(['line', 'fill', 'hatch', 'text', 'global'], feature) && trait !== ""
     }
 
     defaults = {...defaults}
     if (!hasOwnProperty.call(defaults, 'text_color')) {
       defaults.text_color = 'black'
+    }
+    if (!hasOwnProperty.call(defaults, 'hatch_color')) {
+      defaults.hatch_color = 'black'
     }
     const trait_defaults: Attrs = {}
     if (!hasOwnProperty.call(trait_defaults, 'color')) {
