@@ -9,7 +9,6 @@ import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Quad} from "@bokehjs/models/glyphs"
 import {TapEvent} from "@bokehjs/core/ui_events"
-import { TapBehavior } from "@bokehjs/core/enums"
 
 describe("TapTool", () => {
   async function test_case(tool: Tool): Promise<PlotView> {
