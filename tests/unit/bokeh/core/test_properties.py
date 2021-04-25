@@ -140,7 +140,7 @@ class TestBasic:
         assert f.s is None
 
 
-        assert {"x", "y", "z", "zz", "s"} == set(f.properties())
+        assert {"x", "y", "z", "zz", "s"} == f.properties()
         with_defaults = f.properties_with_values(include_defaults=True)
         assert dict(x=12, y="hello", z=[1,2,3], zz={}, s=None) == with_defaults
         without_defaults = f.properties_with_values(include_defaults=False)
@@ -233,15 +233,15 @@ class TestBasic:
 
         b = Base()
         assert {"child"} == set(b.properties_with_refs())
-        assert {"num", "container", "child"} == set(b.properties())
+        assert {"num", "container", "child"} == b.properties()
 
         m = Mixin()
         assert set(m.properties_with_refs()) == {"mixin_child"}
-        assert set(m.properties()) == {"mixin_num", "mixin_container", "mixin_child"}
+        assert m.properties() == {"mixin_num", "mixin_container", "mixin_child"}
 
         s = Sub()
         assert set(s.properties_with_refs()) == {"child", "sub_child", "mixin_child"}
-        assert set(s.properties()) == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
+        assert s.properties() == {"num", "container", "child", "mixin_num", "mixin_container", "mixin_child", "sub_num", "sub_container", "sub_child"}
 
         # verify caching
         assert s.properties_with_refs() is s.properties_with_refs()

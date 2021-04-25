@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Set, Union
 from warnings import warn
 
 # Bokeh imports
@@ -411,7 +411,7 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: bool = False) -> Union[List[str], Dict[str, PropertyDescriptorFactory]]:
+    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, PropertyDescriptorFactory]]:
         ''' Collect the names of properties on this class.
 
         .. warning::
@@ -428,7 +428,7 @@ class HasProps(metaclass=MetaHasProps):
             props.update(getattr(c, "__properties__", {}))
 
         if not _with_props:
-            return list(props)
+            return set(props)
 
         return props
 
