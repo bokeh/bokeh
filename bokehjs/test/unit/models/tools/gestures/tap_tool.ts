@@ -9,6 +9,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Quad} from "@bokehjs/models/glyphs"
 import {TapEvent} from "@bokehjs/core/ui_events"
+import { TapBehavior } from "@bokehjs/core/enums"
 
 describe("TapTool", () => {
   async function test_case(tool: Tool): Promise<PlotView> {
@@ -51,6 +52,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 50, 50)
       expect(called).to.be.true
+      expect(tool.behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
@@ -61,6 +63,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 150, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'doubletap' event", async () => {
@@ -71,6 +74,7 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("select")
     })
   })
 
@@ -83,6 +87,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 50, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("select")
     })
 
     it("and trigger on 'doubletap' event", async () => {
@@ -93,6 +98,7 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.true
+      expect(tool.behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
@@ -103,6 +109,7 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 150, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("select")
     })
   })
 
@@ -115,6 +122,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 50, 50)
       expect(called).to.be.true
+      expect(tool.behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
@@ -125,6 +133,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 150, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'doubletap' event", async () => {
@@ -135,10 +144,11 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("inspect")
     })
   })
 
-  describe("should support 'doubletap' gesture with behavior 'select'", () => {
+  describe("should support 'doubletap' gesture with behavior 'inspect'", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
       const callback = {execute() { called = true }}
@@ -147,6 +157,7 @@ describe("TapTool", () => {
 
       tap(plot_view, 50, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("inspect")
     })
 
     it("and trigger on 'doubletap' event", async () => {
@@ -157,6 +168,7 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.true
+      expect(tool.behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
@@ -167,6 +179,7 @@ describe("TapTool", () => {
 
       doubletap(plot_view, 150, 50)
       expect(called).to.be.false
+      expect(tool.behavior).to.be.equal("inspect")
     })
   })
 })
