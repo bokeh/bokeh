@@ -346,7 +346,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _oriented_labels_extent(labels: GraphicsBoxes, orient: Orient | number, standoff: number, visuals: visuals.Text): number {
-    if (labels.length == 0)
+    if (labels.length == 0 || !visuals.doit)
       return 0
 
     const angle = this.panel.get_label_angle_heuristic(orient)
