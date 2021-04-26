@@ -234,9 +234,9 @@ class TestFigure:
             p.circle(x='x', y=[1,2,3], line_color=["red", "green", "blue"], source=source)
         with pytest.raises(RuntimeError) as e:
             p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
-        m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
+        m = re.search (r"Expected y, (.+), (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
-        assert set(m.groups()) == {"fill_color", "line_color"}
+        assert set(m.groups()) == {"fill_color", "hatch_color", "line_color"}
 
 
 class TestMarkers:

@@ -15,7 +15,7 @@ describe("Glyph models", () => {
   const fill_color = ["red", "orange", "green"]
   const hatch_pattern = ["/", ">", "@"]
 
-  it("should support AnnularWedge", async () => {
+  it.allowing(1)("should support AnnularWedge", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
       p.annular_wedge({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})

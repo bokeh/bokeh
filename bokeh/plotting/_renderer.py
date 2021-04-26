@@ -156,8 +156,8 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         props (dict) :
             Maps properties and prefixed properties to their values.
             Keys in `props` matching `glyphclass` visual properties (those of
-            'line_', 'fill_' or 'text_') with added `prefix` will get popped,
-            other keys will be ignored.
+            'line_', 'fill_', 'hatch_' or 'text_') with added `prefix` will get
+            popped, other keys will be ignored.
             Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
               must not contain underscores.
             Keys of the form '{prefix}{trait}' work as lower precedence aliases
@@ -190,6 +190,7 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
 
     defaults = defaults.copy()
     defaults.setdefault('text_color', 'black')
+    defaults.setdefault('hatch_color', 'black')
 
     trait_defaults = {}
     trait_defaults.setdefault('color', get_default_color())
@@ -312,7 +313,7 @@ def _split_feature_trait(ft):
 def _is_visual(ft):
     """Whether a feature trait name is visual"""
     feature, trait = _split_feature_trait(ft)
-    return feature in ('line', 'fill', 'text', 'global') and trait is not None
+    return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None
 
 _GLYPH_SOURCE_MSG = """
 
