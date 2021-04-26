@@ -48,7 +48,7 @@ from ..core.has_props import is_DataModel
 from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
-from ..core.validation import check_integrity
+from ..core.validation import check_integrity, process_validation_issues
 from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
 from ..themes import Theme, built_in_themes
@@ -969,7 +969,9 @@ class Document:
         '''
         for r in self.roots:
             refs = r.references()
-            check_integrity(refs)
+            issues = check_integrity(refs)
+
+            process_validation_issues(issues)
 
     # Private methods ---------------------------------------------------------
 

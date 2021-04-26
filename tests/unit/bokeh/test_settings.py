@@ -65,7 +65,7 @@ _expected_settings = (
     'ssl_certfile',
     'ssl_keyfile',
     'ssl_password',
-    'strict',
+    'validation_level',
     'xsrf_cookies',
 )
 
@@ -90,10 +90,11 @@ class TestSettings:
         assert bs.settings.minified.convert_type == "Bool"
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.simple_ids.convert_type == "Bool"
-        assert bs.settings.strict.convert_type == "Bool"
         assert bs.settings.xsrf_cookies.convert_type == "Bool"
 
         assert bs.settings.py_log_level.convert_type == "Log Level"
+
+        assert bs.settings.validation_level.convert_type == "Validation Level"
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
@@ -103,7 +104,7 @@ class TestSettings:
             'minified',
             'perform_document_validation',
             'simple_ids',
-            'strict',
+            'validation_level',
             'py_log_level',
             'allowed_ws_origin',
             'xsrf_cookies',
@@ -157,6 +158,14 @@ class TestConverters:
     def test_convert_logging_bad(self) -> None:
         with pytest.raises(ValueError):
             bs.convert_logging("junk")
+
+    @pytest.mark.parametrize("value", ["none", "errors", "all"])
+    def test_convert_validation_good(self, value) -> None:
+        assert bs.convert_validation(value) == value
+
+    def test_convert_validation_bad(self) -> None:
+        with pytest.raises(ValueError):
+            bs.convert_validation("junk")
 
 class TestPrioritizedSetting:
     def test_env_var_property(self) -> None:
