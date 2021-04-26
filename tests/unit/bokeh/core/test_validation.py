@@ -214,7 +214,6 @@ def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_e
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
 def test_process_validation_issues_pass(mock_warn, mock_error) -> None:
-    m = Mod()
     issues = {'error': [], 'warning': []}
     v.process_validation_issues(issues)
     assert not mock_error.called
@@ -223,7 +222,6 @@ def test_process_validation_issues_pass(mock_warn, mock_error) -> None:
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
 def test_process_validation_issues_warn(mock_warn, mock_error) -> None:
-    m = Mod(foo=10)
     issues = {'error': [(9999, 'EXT:E', 'Custom extension reports error', 'err')], 'warning': []}
     v.process_validation_issues(issues)
     assert mock_error.called
@@ -232,7 +230,6 @@ def test_process_validation_issues_warn(mock_warn, mock_error) -> None:
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
 def test_process_validation_issues_error(mock_warn, mock_error) -> None:
-    m = Mod(foo=-10)
     issues = {'error': [], 'warning': [(9999, 'EXT:W', 'Custom extension reports warning', 'wrn')]}
     v.process_validation_issues(issues)
     assert not mock_error.called
