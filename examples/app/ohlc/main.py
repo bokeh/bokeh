@@ -94,6 +94,6 @@ def update(t):
 
     source.stream(new_data, 300)
 
-curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
+curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", width=1000)))
 curdoc().add_periodic_callback(update, 50)
 curdoc().title = "OHLC"

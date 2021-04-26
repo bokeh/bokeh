@@ -73,4 +73,4 @@ p4 = make_plot("Weibull Distribution (λ=1, k=1.25)", hist, edges, x, pdf, cdf)
 
 output_file('histogram.html', title="histogram.py example")
 
-show(gridplot([p1,p2,p3,p4], ncols=2, plot_width=400, plot_height=400, toolbar_location=None))
+show(gridplot([p1,p2,p3,p4], ncols=2, width=400, height=400, toolbar_location=None))
