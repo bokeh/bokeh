@@ -31,7 +31,6 @@ dependencies:
 
   # tests
   - beautifulsoup4
-  - black
   - channels
   - click
   - colorama
