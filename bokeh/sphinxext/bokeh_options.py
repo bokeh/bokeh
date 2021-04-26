@@ -57,6 +57,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from bokeh.core.property._sphinx import type_link
 from bokeh.util.options import Options
 
 # Bokeh imports
@@ -118,7 +119,7 @@ class BokehOptionsDirective(BokehDirective):
             opts.append(
                 dict(
                     name=prop_name,
-                    type=descriptor.property._sphinx_type(),
+                    type=type_link(descriptor.property),
                     default=repr(descriptor.instance_default(options_obj)),
                     doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__.rstrip()),
                 )

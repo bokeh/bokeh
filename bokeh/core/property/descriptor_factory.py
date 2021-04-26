@@ -96,7 +96,7 @@ class PropertyDescriptorFactory:
 
         # The class itself has had a descriptor for 'foo' installed
         >>> getattr(SomeModel, 'foo')
-        <bokeh.core.property.descriptors.BasicPropertyDescriptor at 0x1065ffb38>
+        <bokeh.core.property.descriptors.PropertyDescriptor at 0x1065ffb38>
 
         # which is used when 'foo' is accessed on instances
         >>> m.foo

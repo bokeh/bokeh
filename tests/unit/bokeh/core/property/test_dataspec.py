@@ -266,6 +266,25 @@ class Test_ColorSpec:
         assert f.col == "field2"
         assert desc.serializable_value(f) == {"field": "field2"}
 
+    def test_isconst(self) -> None:
+        assert bcpd.ColorSpec.isconst("red")
+        assert bcpd.ColorSpec.isconst("#ff1234")
+
+        assert not bcpd.ColorSpec.isconst(None)
+        assert not bcpd.ColorSpec.isconst(10)
+        assert not bcpd.ColorSpec.isconst((1, 2, 3, 0.5))
+
+    def test_is_color_tuple_shape(self) -> None:
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1.0, 2, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2.0, 3, 0.5))
+        assert bcpd.ColorSpec.is_color_tuple_shape((1, 2, 3.0, 0.5))
+
+        assert not bcpd.ColorSpec.is_color_tuple_shape("red")
+        assert not bcpd.ColorSpec.is_color_tuple_shape("#ff1234")
+        assert not bcpd.ColorSpec.is_color_tuple_shape(None)
+        assert not bcpd.ColorSpec.is_color_tuple_shape(10)
+
 class Test_DistanceSpec:
     def test_default_value(self) -> None:
         class Foo(HasProps):

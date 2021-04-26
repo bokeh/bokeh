@@ -153,7 +153,7 @@ class TestModel:
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert testObject.properties() == {
+        assert set(testObject.properties()) == {
             "name",
             "tags",
             "js_property_callbacks",

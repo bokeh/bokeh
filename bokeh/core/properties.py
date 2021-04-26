@@ -142,6 +142,8 @@ Special Properties
 ------------------
 
 .. autoclass:: Include
+.. autoclass:: Nullable
+.. autoclass:: NonNullable
 .. autoclass:: Override
 
 Validation-only Properties

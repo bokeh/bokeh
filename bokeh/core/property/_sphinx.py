@@ -4,39 +4,56 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Functions useful for generating rich sphinx links for properties
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+import logging
+
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Bokeh imports
-from bokeh._testing.util.api import verify_all
-
-# Module under test
-import bokeh.core.property.alias as bcpa # isort:skip
-
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-ALL = (
-    "Alias",
+__all__ = (
+    'model_link',
+    'property_link',
+    'register_type_link',
+    'type_link',
 )
+
+_type_links = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Alias:
-    def test_create_default(self) -> None:
-        alias = bcpa.Alias("width", help="Object's width")
-        assert alias.aliased_name == "width"
-        assert alias.help == "Object's width"
+def model_link(fullname):
+    # (double) escaped space at the end is to appease Sphinx
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+    return f":class:`~{fullname}`\\ "
+
+def property_link(obj):
+    # (double) escaped space at the end is to appease Sphinx
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
+    return f":class:`~bokeh.core.properties.{obj.__class__.__name__}`\\ "
+
+def register_type_link(cls):
+    def decorator(func):
+        _type_links[cls] = func
+        return func
+    return decorator
+
+def type_link(obj):
+    return _type_links.get(obj.__class__, property_link)(obj)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -49,5 +66,3 @@ class Test_Alias:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-Test___all__ = verify_all(bcpa, ALL)

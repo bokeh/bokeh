@@ -61,6 +61,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
+from bokeh.core.property._sphinx import type_link
 from bokeh.util.warnings import BokehDeprecationWarning
 
 # Bokeh imports
@@ -123,7 +124,7 @@ class BokehPropDirective(BokehDirective):
             name=prop_name,
             module=self.options["module"],
             default=repr(descriptor.instance_default(model_obj)),
-            type_info=descriptor.property._sphinx_type(),
+            type_info=type_link(descriptor.property),
             doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__),
         )
 

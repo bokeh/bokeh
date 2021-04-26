@@ -30,7 +30,7 @@ import bokeh.core.property.descriptors as bcpd # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'BasicPropertyDescriptor',
+    'AliasPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
@@ -45,58 +45,37 @@ ALL = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
+class Foo:
+    def prepare_value(self, owner, name, value):
+        return value
+    def from_json(self, x, models=None, setter=None):
+        return 10
 
 class Test_PropertyDescriptor:
+
     def test___init__(self) -> None:
-        d = bcpd.PropertyDescriptor("foo")
+        class Foo:
+            '''doc'''
+            pass
+        f = Foo()
+        d = bcpd.PropertyDescriptor("foo", f)
         assert d.name == "foo"
+        assert d.property == f
+        assert d.__doc__ == f.__doc__
 
     def test___str__(self) -> None:
-        d = bcpd.PropertyDescriptor("foo")
-        assert str(d) == "PropertyDescriptor(foo)"
-
-    def test_abstract(self) -> None:
-        d = bcpd.PropertyDescriptor("foo")
-        class Foo:
-            pass
         f = Foo()
-        with pytest.raises(NotImplementedError):
-            d.__get__(f, f.__class__)
+        d = bcpd.PropertyDescriptor("foo", f)
+        assert str(d) == str(f)
 
-        with pytest.raises(NotImplementedError):
-            d.__set__(f, 11)
-
-        with pytest.raises(NotImplementedError):
-            d.__delete__(f)
-
-        with pytest.raises(NotImplementedError):
-            d.class_default(f)
-
-        with pytest.raises(NotImplementedError):
-            d.serialized
-
-        with pytest.raises(NotImplementedError):
-            d.readonly
-
-        with pytest.raises(NotImplementedError):
-            d.has_ref
-
-        with pytest.raises(NotImplementedError):
-            d.trigger_if_changed(f, 11)
-
-        with pytest.raises(NotImplementedError):
-            d._internal_set(f, 11)
-
-    @patch('bokeh.core.property.descriptors.PropertyDescriptor._internal_set')
-    def test_set_from_json(self, mock_iset) -> None:
-        class Foo:
-            pass
-
+    @patch('bokeh.core.property.descriptors.PropertyDescriptor._get')
+    @patch('bokeh.core.property.descriptors.PropertyDescriptor._set')
+    def test_set_from_json(self, mock_get, mock_set) -> None:
         f = Foo()
-        d = bcpd.PropertyDescriptor("foo")
-        d.set_from_json(f, "bar", 10)
-        assert mock_iset.called_once_with((f, "bar", 10), {})
+        d = bcpd.PropertyDescriptor("foo", f)
+        d.set_from_json(f, "bar", models=10)
+        assert mock_get.called_once_with((f, "bar", 10), {})
+        assert mock_set.called_once_with((f, "bar", 10), {})
 
     def test_erializable_value(self) -> None:
         result = {}
@@ -106,7 +85,7 @@ class Test_PropertyDescriptor:
         f = Foo()
         f.foo = 10
 
-        d = bcpd.PropertyDescriptor("foo")
+        d = bcpd.PropertyDescriptor("foo", f)
         d.property = Foo()
 
         # simulate the __get__ a subclass would have
@@ -115,41 +94,16 @@ class Test_PropertyDescriptor:
         d.serializable_value(f)
         assert result['foo'] == 10
 
-class Test_BasicPropertyDescriptor:
-    def test___init__(self) -> None:
-        class Foo:
-            '''doc'''
-            pass
-        f = Foo()
-        d = bcpd.BasicPropertyDescriptor("foo", f)
-        assert d.name == "foo"
-        assert d.property == f
-        assert d.__doc__ == f.__doc__
-
-    def test___str__(self) -> None:
-        class Foo:
-            pass
-
-        f = Foo()
-        d = bcpd.BasicPropertyDescriptor("foo", f)
-        assert str(d) == str(f)
-
     def test___get__improper(self) -> None:
-        class Foo:
-            pass
-
         f = Foo()
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         with pytest.raises(ValueError) as e:
             d.__get__(None, None)
         assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
     def test___set__improper(self) -> None:
-        class Foo:
-            pass
-
         f = Foo()
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         with pytest.raises(RuntimeError) as e:
             d.__set__("junk", None)
         assert str(e.value).endswith("Cannot set a property value 'foo' on a str instance before HasProps.__init__")
@@ -219,7 +173,7 @@ class Test_BasicPropertyDescriptor:
                 result['called'] = True
         f = Foo()
         f.readonly = "stuff"
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         d.class_default(d)
         assert result['called']
 
@@ -229,7 +183,7 @@ class Test_BasicPropertyDescriptor:
 
         f = Foo()
         f.serialized = "stuff"
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         assert d.serialized == "stuff"
 
     def test_readonly(self) -> None:
@@ -238,7 +192,7 @@ class Test_BasicPropertyDescriptor:
 
         f = Foo()
         f.readonly = "stuff"
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         assert d.readonly == "stuff"
 
     def test_has_ref(self) -> None:
@@ -247,10 +201,10 @@ class Test_BasicPropertyDescriptor:
 
         f = Foo()
         f.has_ref = "stuff"
-        d = bcpd.BasicPropertyDescriptor("foo", f)
+        d = bcpd.PropertyDescriptor("foo", f)
         assert d.has_ref == "stuff"
 
-    @patch('bokeh.core.property.descriptors.BasicPropertyDescriptor._trigger')
+    @patch('bokeh.core.property.descriptors.PropertyDescriptor._trigger')
     def test__trigger(self, mock_trigger) -> None:
         class Foo:
             _property_values = dict(foo=10, bar=20)
@@ -262,8 +216,8 @@ class Test_BasicPropertyDescriptor:
             def matches(*args, **kw): return False
         m = Match()
         nm = NoMatch()
-        d1 = bcpd.BasicPropertyDescriptor("foo", m)
-        d2 = bcpd.BasicPropertyDescriptor("bar", nm)
+        d1 = bcpd.PropertyDescriptor("foo", m)
+        d2 = bcpd.PropertyDescriptor("bar", nm)
 
         d1.trigger_if_changed(Foo, "junk")
         assert not mock_trigger.called
@@ -284,6 +238,18 @@ class Test_UnitSpecDescriptor:
         assert d.property == f
         assert d.__doc__ == f.__doc__
         assert d.units_prop == g
+
+class Test_AliasSpecDescriptor:
+    def test___init__(self) -> None:
+        class Foo:
+            '''doc'''
+            pass
+        f = Foo()
+        d = bcpd.AliasPropertyDescriptor("foo", "bar", f)
+        assert d.name == "foo"
+        assert d.aliased_name == "bar"
+        assert d.property == f
+        assert d.__doc__ == "This is a compatibility alias for the ``bar`` property"
 
 #-----------------------------------------------------------------------------
 # Private API
