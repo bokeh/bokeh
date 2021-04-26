@@ -100,17 +100,17 @@ class Mod(Model):
 def test_check_integrity_pass() -> None:
     m = Mod()
     issues = {'error': [], 'warning': []}
-    assert v.check_integrity([m]) == issues    
+    assert v.check_integrity([m]) == issues
 
 def test_check_integrity_error() -> None:
     m = Mod(foo = 10)
     issues = {'error': [(9999, 'EXT:E', 'Custom extension reports error', 'err')], 'warning': []}
-    assert v.check_integrity([m]) == issues 
+    assert v.check_integrity([m]) == issues
 
 def test_check_integrity_warning() -> None:
     m = Mod(foo = -10)
     issues = {'error': [], 'warning': [(9999, 'EXT:W', 'Custom extension reports warning', 'wrn')]}
-    assert v.check_integrity([m]) == issues 
+    assert v.check_integrity([m]) == issues
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
@@ -135,7 +135,7 @@ def test_check_error(mock_warn, mock_error) -> None:
 @patch('bokeh.core.validation.check.log.warning')
 def test_check_warn(mock_warn, mock_error) -> None:
     m = Mod(foo=-10)
-    issues = v.check_integrity([m])    
+    issues = v.check_integrity([m])
     v.process_validation_issues(issues)
     assert not mock_error.called
     assert mock_warn.called
@@ -236,7 +236,7 @@ def test_process_validation_issues_error(mock_warn, mock_error) -> None:
     issues = {'error': [], 'warning': [(9999, 'EXT:W', 'Custom extension reports warning', 'wrn')]}
     v.process_validation_issues(issues)
     assert not mock_error.called
-    assert mock_warn.called    
+    assert mock_warn.called
 
 #-----------------------------------------------------------------------------
 # Private API
