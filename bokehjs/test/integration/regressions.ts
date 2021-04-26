@@ -13,7 +13,7 @@ import {
   Plot,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -916,6 +916,15 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11203", () => {
+    it("doesn't allow to set RadioGroup.active = null", async () => {
+      const widget = new RadioGroup({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
+      const {view} = await display(widget, [250, 50])
+      widget.active = null
+      await view.ready
+    })
+  })
+
   describe("in issue holoviews#4589", () => {
     it("disallows rendering two glyphs sharing a source and view", async () => {
       const source = new ColumnDataSource({
@@ -952,6 +961,23 @@ describe("Bug", () => {
         title: null, toolbar_location: null,
         renderers: [circle_renderer, quad_renderer],
       })
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11162", () => {
+    it("makes axis allocate space for invisible tick labels", async () => {
+      const p = fig([200, 200])
+      p.line([0, 1], [0, 1])
+
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
+
+      p.axis.map((ax) => ax.major_tick_in = 10)
+      p.axis.map((ax) => ax.major_tick_out = 0)
+      p.axis.map((ax) => ax.minor_tick_in = 5)
+      p.axis.map((ax) => ax.minor_tick_out = 0)
 
       await display(p)
     })

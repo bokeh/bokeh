@@ -67,12 +67,6 @@ class TestFigure:
         assert p.width == p.plot_width == 100
         assert p.height == p.plot_height == 120
 
-        with pytest.raises(ValueError):
-            bpf.figure(plot_width=100, width=120)
-
-        with pytest.raises(ValueError):
-            bpf.figure(plot_height=100, height=120)
-
     def test_xaxis(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
