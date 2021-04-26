@@ -20,7 +20,7 @@ from datetime import date, datetime
 
 # Bokeh imports
 from bokeh.core.properties import UnsetValueError
-from bokeh.core.validation.check import check_integrity
+from bokeh.core.validation.check import check_integrity, process_validation_issues
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.serialization import convert_date_to_datetime, convert_datetime_type
 
@@ -76,7 +76,8 @@ class TestRangeSlider:
         with caplog.at_level(logging.ERROR):
             assert len(caplog.records) == 0
             s.end = 0
-            check_integrity([s])
+            issues = check_integrity([s])
+            process_validation_issues(issues)
             assert len(caplog.records) == 1
 
 class TestDateSlider:
