@@ -89,10 +89,7 @@ def is_silenced(warning):
         bool
 
     '''
-    if len(warning) > 0:
-        code = warning[0]
-        return code in __silencers__
-    return False
+    return code[0] in __silencers__
 
 @contextlib.contextmanager
 def silenced(warning: int) -> None:
@@ -173,7 +170,7 @@ def process_validation_issues(issues):
 
     error_messages = []
     for code, name, desc, obj in sorted(errors):
-        msg = f"W-{code} ({name}): {desc}: {obj}"
+        msg = f"E-{code} ({name}): {desc}: {obj}"
         error_messages.append(msg)
         log.error(msg)
 
@@ -182,7 +179,7 @@ def process_validation_issues(issues):
             raise RuntimeError(f"Errors encountered during validation: {error_messages}")
     elif settings.validation_level() == "all":
         if len(errors) or len(warnings):
-            raise RuntimeError(f"Errors encountered during validation: {error_messages} {warning_messages}")
+            raise RuntimeError(f"Errors encountered during validation: {error_messages+warning_messages}")
 
 #-----------------------------------------------------------------------------
 # Dev API
