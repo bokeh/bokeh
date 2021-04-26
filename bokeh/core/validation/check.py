@@ -89,7 +89,7 @@ def is_silenced(warning):
         bool
 
     '''
-    return code[0] in __silencers__
+    return warning[0] in __silencers__
 
 @contextlib.contextmanager
 def silenced(warning: int) -> None:
