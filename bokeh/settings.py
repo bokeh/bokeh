@@ -425,7 +425,7 @@ class PrioritizedSetting:
         if self._convert is convert_bool: return "Bool"
         if self._convert is convert_logging: return "Log Level"
         if self._convert is convert_str_seq: return "List[String]"
-        if self._convert is convert_validation: return "Validation Level String"
+        if self._convert is convert_validation: return "Validation Level"
 
 _config_user_locations = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),

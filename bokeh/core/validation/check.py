@@ -79,6 +79,21 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
         __silencers__.remove(warning)
     return __silencers__
 
+def is_silenced(warning):
+    ''' Check if a warning has been silenced.
+
+    Args:
+        warning (Warning) : Bokeh warning to check
+
+    Returns:
+        bool
+
+    '''
+    if len(warning) > 0:
+        code = warning[0]
+        return code in __silencers__
+    return False
+
 @contextlib.contextmanager
 def silenced(warning: int) -> None:
     silence(warning, True)
@@ -147,19 +162,27 @@ def process_validation_issues(issues):
         W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
 
     '''
-    for msg in sorted(issues['error']):
-        log.error("E-%d (%s): %s: %s" % msg)
+    errors = issues['error']
+    warnings = [item for item in issues['warning'] if not is_silenced(item)]
 
-    for msg in sorted(issues['warning']):
-        code, name, desc, obj = msg
-        if code not in __silencers__:
-            log.warning("W-%d (%s): %s: %s" % msg)
+    warning_messages = []
+    for code, name, desc, obj in sorted(warnings):
+        msg = f"W-{code} ({name}): {desc}: {obj}"
+        warning_messages.append(msg)
+        log.warning(msg)
+
+    error_messages = []
+    for code, name, desc, obj in sorted(errors):
+        msg = f"W-{code} ({name}): {desc}: {obj}"
+        error_messages.append(msg)
+        log.error(msg)
+
     if settings.validation_level() == "errors":
-        if len(issues['error']):
-            raise RuntimeError("Errors encountered during validation (see log output)")
+        if len(errors):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages}")
     elif settings.validation_level() == "all":
-        if len(issues['error']) or len(issues['warning']):
-            raise RuntimeError("Errors encountered during validation (see log output)")
+        if len(errors) or len(warnings):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages} {warning_messages}")
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -94,7 +94,7 @@ class TestSettings:
 
         assert bs.settings.py_log_level.convert_type == "Log Level"
 
-        assert bs.settings.validation_level.convert_type == "Validation Level String"
+        assert bs.settings.validation_level.convert_type == "Validation Level"
 
         assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
