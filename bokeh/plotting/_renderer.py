@@ -313,7 +313,7 @@ def _split_feature_trait(ft):
 def _is_visual(ft):
     """Whether a feature trait name is visual"""
     feature, trait = _split_feature_trait(ft)
-    return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None        
+    return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None
 
 _GLYPH_SOURCE_MSG = """
 
