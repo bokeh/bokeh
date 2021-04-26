@@ -13,7 +13,7 @@ import {
   Plot,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -899,6 +899,15 @@ describe("Bug", () => {
       const widget = new Select({options: ["1", "2", "3"], value: "3", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
+      await view.ready
+    })
+  })
+
+  describe("in issue #11203", () => {
+    it("doesn't allow to set RadioGroup.active = null", async () => {
+      const widget = new RadioGroup({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
+      const {view} = await display(widget, [250, 50])
+      widget.active = null
       await view.ready
     })
   })
