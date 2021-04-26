@@ -96,7 +96,7 @@ RuntimeError will be raised.
 
 API
 ~~~
-d
+
 There are a few methods on the ``settings`` object:
 
 .. autoclass:: Settings
