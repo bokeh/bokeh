@@ -163,6 +163,10 @@ class TestConverters:
     def test_convert_validation_good(self, value) -> None:
         assert bs.convert_validation(value) == value
 
+    def test_convert_validation_bad(self) -> None:
+        with pytest.raises(ValueError):
+            bs.convert_validation("junk")
+
 class TestPrioritizedSetting:
     def test_env_var_property(self) -> None:
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO")
