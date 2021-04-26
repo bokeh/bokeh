@@ -238,8 +238,8 @@ class BokehJSONEncoder(json.JSONEncoder):
 
         '''
 
-        from ..model import Model
         from ..colors import Color
+        from ..model import Model
         from .has_props import HasProps
 
         # array types -- use force_list here, only binary

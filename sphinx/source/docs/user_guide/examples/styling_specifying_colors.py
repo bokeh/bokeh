@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, show, output_file
+from bokeh.plotting import figure, output_file, show
 
 output_file("specifying_colors.html")
 

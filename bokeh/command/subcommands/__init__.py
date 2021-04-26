@@ -48,6 +48,7 @@ def _collect() -> List[Type[Subcommand]]:
     from importlib import import_module
     from os import listdir
     from os.path import dirname
+
     # reference type by module as fully
     results = []
 

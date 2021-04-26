@@ -65,11 +65,7 @@ from .events import (
     TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
-from .util import (
-    initialize_references_json,
-    instantiate_references_json,
-    references_json,
-)
+from .util import initialize_references_json, instantiate_references_json, references_json
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1192,7 +1188,7 @@ class Document:
         '''
 
         '''
-        from bokeh.io.doc import set_curdoc, curdoc
+        from bokeh.io.doc import curdoc, set_curdoc
         old_doc = curdoc()
         try:
             if getattr(f, "nolock", False):

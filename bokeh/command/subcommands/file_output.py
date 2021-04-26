@@ -23,7 +23,13 @@ import argparse
 import sys
 from abc import abstractmethod
 from os.path import splitext
-from typing import Dict, List, Optional, Tuple, Union
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+)
 
 # Bokeh imports
 from ...document import Document

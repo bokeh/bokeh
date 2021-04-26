@@ -22,11 +22,7 @@ log = logging.getLogger(__name__)
 import datetime
 
 # Bokeh imports
-from ...util.serialization import (
-    convert_date_to_datetime,
-    is_datetime_type,
-    is_timedelta_type,
-)
+from ...util.serialization import convert_date_to_datetime, is_datetime_type, is_timedelta_type
 from .bases import Property
 from .primitive import bokeh_integer_types
 from .singletons import Undefined

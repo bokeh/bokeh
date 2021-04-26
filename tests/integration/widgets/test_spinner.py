@@ -19,12 +19,7 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (
-    RECORD,
-    ActionChains,
-    Keys,
-    enter_text_in_element,
-)
+from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, enter_text_in_element
 from bokeh.layouts import column
 from bokeh.models import (
     Circle,

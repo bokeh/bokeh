@@ -28,7 +28,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 from functools import lru_cache
-from typing import Any, Dict, Optional, Set, Union
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Set,
+    Union,
+)
 from warnings import warn
 
 # Bokeh imports
@@ -459,7 +465,7 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of ``DataSpec`` properties
 
         '''
-        from .property.dataspec import DataSpec # avoid circular import
+        from .property.dataspec import DataSpec  # avoid circular import
         return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:

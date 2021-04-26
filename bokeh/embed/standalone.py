@@ -19,13 +19,28 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union, cast
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 # External imports
 from jinja2 import Template
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
+from ..core.templates import (
+    AUTOLOAD_JS,
+    AUTOLOAD_TAG,
+    FILE,
+    MACROS,
+    ROOT_DIV,
+)
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import CSSResources, JSResources, Resources

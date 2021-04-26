@@ -50,7 +50,7 @@ dependencies:
   - pip:
     - autoclasstoc
     - pydata_sphinx_theme
-    - isort <5.0
+    - isort 5.8
     - sphinxext-opengraph
     - sphinx-reredirects
 

@@ -134,7 +134,7 @@ class RGB(Color):
             :class:`~bokeh.colors.hsl.HSL`
 
         '''
-        from .hsl import HSL # prevent circular import
+        from .hsl import HSL  # prevent circular import
         h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
         return HSL(round(h*360), s, l, self.a)
 

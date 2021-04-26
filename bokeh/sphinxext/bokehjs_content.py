@@ -72,6 +72,7 @@ if False:
     # For type annotation
     # from directives.code.CodeBlock.run
     from typing import Any, Dict, List, Tuple  # NOQA
+
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 

@@ -17,7 +17,15 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String
+from ..core.properties import (
+    Auto,
+    Either,
+    Enum,
+    Instance,
+    Int,
+    Seq,
+    String,
+)
 from ..models import (
     GMapPlot,
     LinearAxis,

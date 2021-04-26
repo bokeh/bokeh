@@ -31,7 +31,13 @@ import hashlib
 import hmac
 import json
 import time
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Tuple,
+    Union,
+)
 
 # Bokeh imports
 from bokeh.settings import settings

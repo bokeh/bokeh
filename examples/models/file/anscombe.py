@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import column, gridplot
 from bokeh.models import (Circle, ColumnDataSource, Div, Grid,
-                          Line, LinearAxis, Plot, Range1d,)
+                          Line, LinearAxis, Plot, Range1d)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

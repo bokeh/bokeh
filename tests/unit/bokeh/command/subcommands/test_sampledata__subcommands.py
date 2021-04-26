@@ -36,6 +36,7 @@ did_call_download = False
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scsample.Sampledata(parser=argparse.ArgumentParser())

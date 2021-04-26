@@ -22,14 +22,15 @@ from time import sleep
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
-from bokeh._testing.util.selenium import (
-    RECORD,
-    enter_text_in_element,
-    get_table_row,
-    shift_click,
-)
+from bokeh._testing.util.selenium import RECORD, enter_text_in_element, get_table_row, shift_click
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomJS, DataTable, TableColumn, TextInput
+from bokeh.models import (
+    ColumnDataSource,
+    CustomJS,
+    DataTable,
+    TableColumn,
+    TextInput,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

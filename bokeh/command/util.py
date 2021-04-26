@@ -23,16 +23,17 @@ import errno
 import os
 import sys
 import warnings
-from typing import Dict, Iterator, List, Optional, Sequence
+from typing import (
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+)
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import (
-    DirectoryHandler,
-    Handler,
-    NotebookHandler,
-    ScriptHandler,
-)
+from bokeh.application.handlers import DirectoryHandler, Handler, NotebookHandler, ScriptHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -25,13 +25,13 @@ from datetime import timedelta
 
 # External imports
 import mock
+from _util_server import http_get, url, websocket_open, ws_url
 from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 # Bokeh imports
-from _util_server import http_get, url, websocket_open, ws_url
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
@@ -39,12 +39,7 @@ from bokeh.core.properties import List, String
 from bokeh.model import Model
 from bokeh.server.server import BaseServer, Server
 from bokeh.server.tornado import BokehTornado
-from bokeh.util.token import (
-    check_token_signature,
-    generate_jwt_token,
-    get_session_id,
-    get_token_payload,
-)
+from bokeh.util.token import check_token_signature, generate_jwt_token, get_session_id, get_token_payload
 
 # Module under test
 import bokeh.server.server as server # isort:skip

@@ -27,7 +27,15 @@ from operator import itemgetter
 # Bokeh imports
 from .core.has_props import HasProps, abstract
 from .core.json_encoder import serialize_json
-from .core.properties import AnyRef, Bool, Dict, Instance, List, Nullable, String
+from .core.properties import (
+    AnyRef,
+    Bool,
+    Dict,
+    Instance,
+    List,
+    Nullable,
+    String,
+)
 from .events import Event
 from .themes import default as default_theme
 from .util.callback_manager import EventCallbackManager, PropertyCallbackManager

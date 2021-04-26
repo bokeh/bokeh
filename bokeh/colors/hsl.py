@@ -22,8 +22,8 @@ log = logging.getLogger(__name__)
 import colorsys
 
 # Bokeh imports
-from .color import Color
 from ..util.deprecation import deprecated
+from .color import Color
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -138,7 +138,7 @@ class HSL(Color):
             :class:`~bokeh.colors.rgb.RGB`
 
         '''
-        from .rgb import RGB # prevent circular import
+        from .rgb import RGB  # prevent circular import
         r, g, b = colorsys.hls_to_rgb(float(self.h)/360, self.l, self.s)
         return RGB(round(r*255), round(g*255), round(b*255), self.a)
 
