@@ -226,6 +226,7 @@ describe("Bug", () => {
 
       const glyph = r.selection_glyph as Circle
       glyph.line_color = "black"
+      glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
 
       await view.ready
@@ -884,6 +885,18 @@ describe("Bug", () => {
 
     it("results in incorrect layout when viewport is larger than optimal size", async () => {
       await display(layout(), [500, 300], box(450, 225))
+    })
+  })
+
+  describe("in issue #11154", () => {
+    it("does not allow the plotting API to consider hatch visuals", async () => {
+      const p = fig([200, 200])
+      const r = p.rect({
+        x: [0, 1, 2], y: 3, width: 0.7, height: 0.7, angle: [0.0, 0.3, 0.6],
+        hatch_pattern: "x", fill_color: "orange",
+      })
+      r.data_source.selected.indices = [1]
+      await display(p)
     })
   })
 
