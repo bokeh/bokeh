@@ -202,4 +202,4 @@ p2.multi_line(xs, ys, color="#ee6666", line_width=2, line_alpha=0.8)
 
 output_file("vector.html", title="vector.py example")
 
-show(gridplot([[p1,p2]], plot_width=400, plot_height=400))  # open a browser
+show(gridplot([[p1,p2]], width=400, height=400))  # open a browser

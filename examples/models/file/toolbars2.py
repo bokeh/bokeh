@@ -17,7 +17,7 @@ def mkplot(xaxis="below", yaxis="left"):
     return p
 
 def mkgrid(plots, location):
-    return gridplot(plots, plot_width=300, plot_height=300, toolbar_location=location)
+    return gridplot(plots, width=300, height=300, toolbar_location=location)
 
 l_al = mkgrid([[mkplot(), mkplot()], [mkplot(), mkplot()]], "above")
 l_ar = mkgrid([[mkplot(), mkplot()], [mkplot(), mkplot()]], "below")

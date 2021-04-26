@@ -117,7 +117,7 @@ class Test_Plot:
         def modify_doc(doc):
             x_range = Range1d(0, 4)
             y_range = Range1d(0, 4)
-            p = figure(plot_height=400, plot_width=400, x_range=x_range, y_range=y_range)
+            p = figure(height=400, width=400, x_range=x_range, y_range=y_range)
             p.line([1, 2, 3], [1, 2, 3])
             p.on_event(RangesUpdate, lambda evt: events.append(("RangesUpdate", evt.x0, evt.x1, evt.y0, evt.y1)))
             doc.add_root(p)

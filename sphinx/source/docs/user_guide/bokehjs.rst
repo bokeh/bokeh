@@ -204,7 +204,7 @@ and hover policy. Here is an example of a ``pie`` chart and the plot it generate
     const doc = new Bokeh.Document();
     doc.add_root(plt.gridplot(
                      [[p1, p2], [p3, p4]],
-                     {plot_width:250, plot_height:250}));
+                     {width: 250, height: 250}));
     Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
 
 .. _userguide_bokehjs_interfaces_charts_bar:
@@ -278,7 +278,7 @@ and hover policy. Here is an example of a ``bar`` chart and the plot it generate
         stacked: true
     });
 
-    plt.show(plt.gridplot([[p1, p2], [p3, p4]], {plot_width:350, plot_height:350}));
+    plt.show(plt.gridplot([[p1, p2], [p3, p4]], {width: 350, height: 350}));
 
 .. _userguide_bokehjs_issues:
 

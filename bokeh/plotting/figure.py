@@ -150,12 +150,6 @@ class Figure(Plot):
     __view_model__ = "Plot"
 
     def __init__(self, *arg, **kw):
-
-        if 'plot_width' in kw and 'width' in kw:
-            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kw and 'height' in kw:
-            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-
         opts = FigureOptions(kw)
 
         title = kw.get("title", None)

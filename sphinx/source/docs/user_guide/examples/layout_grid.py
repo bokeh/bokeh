@@ -20,6 +20,6 @@ s3 = figure(background_fill_color="#fafafa")
 s3.square(x, y2, size=12, alpha=0.8, color="#d95b43")
 
 # make a grid
-grid = gridplot([[s1, s2], [None, s3]], plot_width=250, plot_height=250)
+grid = gridplot([[s1, s2], [None, s3]], width=250, height=250)
 
 show(grid)

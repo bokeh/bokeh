@@ -42,9 +42,9 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       }
 
       if (options.plot_width != null)
-        item.plot_width = options.plot_width
+        item.width = options.plot_width
       if (options.plot_height != null)
-        item.plot_height = options.plot_height
+        item.height = options.plot_height
     }
 
     if (options.width != null)
