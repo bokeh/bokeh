@@ -141,9 +141,6 @@ class Color(Either):
             value = colors.RGB(*value).to_css()
         return value
 
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
-
 
 class ColorHex(Color):
     """ ref Color
