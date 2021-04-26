@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 from typing import Optional
 
 # Bokeh imports
-from ..core.enums import Align, Location, SizingMode, SizingPolicy
+from ..core.enums import (
+    Align,
+    Location,
+    SizingMode,
+    SizingPolicy,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,

@@ -36,8 +36,18 @@ from typing import (
 from typing_extensions import Literal
 
 # Bokeh imports
-from ..models import HoverTool, Plot, Tool, Toolbar
-from ..models.tools import Drag, InspectTool, Scroll, Tap
+from ..models import (
+    HoverTool,
+    Plot,
+    Tool,
+    Toolbar,
+)
+from ..models.tools import (
+    Drag,
+    InspectTool,
+    Scroll,
+    Tap,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -33,7 +33,12 @@ from typing import (
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.application.handlers import DirectoryHandler, Handler, NotebookHandler, ScriptHandler
+from bokeh.application.handlers import (
+    DirectoryHandler,
+    Handler,
+    NotebookHandler,
+    ScriptHandler,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

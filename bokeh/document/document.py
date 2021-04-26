@@ -37,7 +37,12 @@ from collections import defaultdict
 from functools import wraps
 from inspect import isclass
 from json import loads
-from typing import Any, Callable, Dict, List
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+)
 
 # External imports
 import jinja2

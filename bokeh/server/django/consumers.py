@@ -20,7 +20,12 @@ import asyncio
 import calendar
 import datetime as dt
 import json
-from typing import Any, Dict, Optional, Set
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Set,
+)
 from urllib.parse import parse_qs, urljoin, urlparse
 
 # External imports

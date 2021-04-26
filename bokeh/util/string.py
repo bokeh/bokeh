@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import Any, Dict, Optional, Sequence
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Sequence,
+)
 from urllib.parse import quote_plus
 
 #-----------------------------------------------------------------------------

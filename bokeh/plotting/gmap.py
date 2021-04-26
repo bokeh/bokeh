@@ -35,7 +35,12 @@ from ..models import (
     Title,
     Tool,
 )
-from ..models.tools import Drag, InspectTool, Scroll, Tap
+from ..models.tools import (
+    Drag,
+    InspectTool,
+    Scroll,
+    Tap,
+)
 from ..util.options import Options
 from ._tools import process_active_tools, process_tools_arg
 from .figure import Figure

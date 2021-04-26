@@ -44,8 +44,18 @@ from ..core.properties import (
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, INCOMPATIBLE_SCALE_AND_RANGE, REQUIRED_RANGE, REQUIRED_SCALE
-from ..core.validation.warnings import FIXED_HEIGHT_POLICY, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, MISSING_RENDERERS
+from ..core.validation.errors import (
+    BAD_EXTRA_RANGE_NAME,
+    INCOMPATIBLE_SCALE_AND_RANGE,
+    REQUIRED_RANGE,
+    REQUIRED_SCALE,
+)
+from ..core.validation.warnings import (
+    FIXED_HEIGHT_POLICY,
+    FIXED_SIZING_MODE,
+    FIXED_WIDTH_POLICY,
+    MISSING_RENDERERS,
+)
 from ..model import Model
 from ..util.string import nice_join
 from .annotations import Annotation, Legend, Title
@@ -53,9 +63,19 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import DataRange1d, FactorRange, Range, Range1d
+from .ranges import (
+    DataRange1d,
+    FactorRange,
+    Range,
+    Range1d,
+)
 from .renderers import GlyphRenderer, Renderer, TileRenderer
-from .scales import CategoricalScale, LinearScale, LogScale, Scale
+from .scales import (
+    CategoricalScale,
+    LinearScale,
+    LogScale,
+    Scale,
+)
 from .sources import ColumnDataSource, DataSource
 from .tools import HoverTool, Tool, Toolbar
 

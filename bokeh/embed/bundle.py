@@ -28,7 +28,12 @@ from os.path import (
     join,
     normpath,
 )
-from typing import Dict, List, NamedTuple, Optional
+from typing import (
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+)
 from warnings import warn
 
 # Bokeh imports

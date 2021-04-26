@@ -44,7 +44,12 @@ from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
 
-from _util_document import AnotherModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument, SomeModelInTestDocument
+from _util_document import (
+    AnotherModelInTestDocument,
+    ModelThatOverridesName,
+    ModelWithSpecInTestDocument,
+    SomeModelInTestDocument,
+)
 
 # Module under test
 import bokeh.document.document as document # isort:skip
