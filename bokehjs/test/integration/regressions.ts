@@ -952,4 +952,21 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #11162", () => {
+    it("makes axis allocate space for invisible tick labels", async () => {
+      const p = fig([200, 200])
+      p.line([0, 1], [0, 1])
+
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
+
+      p.axis.map((ax) => ax.major_tick_in = 10)
+      p.axis.map((ax) => ax.major_tick_out = 0)
+      p.axis.map((ax) => ax.minor_tick_in = 5)
+      p.axis.map((ax) => ax.minor_tick_out = 0)
+
+      await display(p)
+    })
+  })
 })

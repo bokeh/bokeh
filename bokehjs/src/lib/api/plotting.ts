@@ -193,10 +193,17 @@ export class Figure extends Plot {
   }
 
   get xaxis(): Axis[] {
-    return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)
+    return [...this.below, ...this.above].filter((r): r is Axis => r instanceof Axis)
   }
   get yaxis(): Axis[] {
-    return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
+    return [...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+  }
+
+  get grid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid)
+  }
+  get axis(): Axis[] {
+    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
   }
 
   get legend(): Legend {
