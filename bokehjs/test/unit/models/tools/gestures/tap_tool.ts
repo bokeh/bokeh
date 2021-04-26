@@ -45,140 +45,152 @@ describe("TapTool", () => {
   describe("should support 'tap' gesture with behavior 'select'", () => {
     it("and trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 50, 50)
       expect(called).to.be.true
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 150, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
   })
 
   describe("should support 'doubletap' gesture with behavior 'select'", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 50, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
 
     it("and trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.true
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "select"
+      const callback = {execute() { called = true, behavior = "select" }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 150, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("select")
+      expect(behavior).to.be.equal("select")
     })
   })
 
   describe("should support 'tap' gesture with behavior 'inspect'", () => {
     it("and trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 50, 50)
       expect(called).to.be.true
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 150, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
   })
 
   describe("should support 'doubletap' gesture with behavior 'inspect'", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       tap(plot_view, 50, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
 
     it("and trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.true
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      let behavior = "inspect"
+      const callback = {execute() { called = true, behavior = "inspect" }}
       const tool = new TapTool({behavior: "inspect", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 150, 50)
       expect(called).to.be.false
-      expect(tool.behavior).to.be.equal("inspect")
+      expect(behavior).to.be.equal("inspect")
     })
   })
 })
