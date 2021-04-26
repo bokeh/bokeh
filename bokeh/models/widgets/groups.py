@@ -106,8 +106,7 @@ class RadioGroup(Group):
     '''
 
     active = Nullable(Int, help="""
-    The index of the selected radio box, or ``None`` if nothing is
-    selected.
+    The index of the selected radio box, or ``None`` if nothing is selected.
     """)
 
 class CheckboxButtonGroup(ButtonGroup):
