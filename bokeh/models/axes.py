@@ -34,7 +34,6 @@ from ..core.properties import (
     Instance,
     Int,
     Null,
-    Nullable,
     Override,
     Seq,
     String,
