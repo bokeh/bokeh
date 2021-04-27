@@ -20,6 +20,7 @@ import {Factor, FactorRange} from "models/ranges/factor_range"
 import {CanvasImage} from "models/glyphs/image_url"
 import {ImageLoader} from "core/util/image"
 import {color2css} from "core/util/color"
+import {MathText} from "models/tools/math_text"
 
 const {abs} = Math
 
@@ -157,7 +158,7 @@ export class AxisView extends GuideRendererView {
 
   protected _axis_label_extent(): number {
     const text = this.model.axis_label
-    if (!text)
+    if (!text || text instanceof MathText)
       return 0
 
     const axis_label = new TextBox({text})
@@ -173,7 +174,6 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _load_latex_image(text: string, color: string) {
-    console.log({mathjax_instantiated: this.mathjax_instantiated})
     if (!this.mathjax_instantiated) {
       const script = document.createElement('script')
       script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'
@@ -270,12 +270,12 @@ export class AxisView extends GuideRendererView {
     if (!text || this.model.fixed_location != null)
       return
 
-    if (text.startsWith('$$')) {
+    if (text instanceof MathText) {
       const {text_color, text_alpha} = this.visuals.axis_label_text
       const color = text_color.get_value()
       const alpha = text_alpha.get_value()
 
-      if (!this.latex_image) return this._load_latex_image(text.substring(2), color2css(color, alpha))
+      if (!this.latex_image) return this._load_latex_image(text.text, color2css(color, alpha))
 
       const [sx, sy] = (() => {
         const {bbox} = this.layout
@@ -688,7 +688,7 @@ export namespace Axis {
     bounds: p.Property<[number, number] | "auto">
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
-    axis_label: p.Property<string | null>
+    axis_label: p.Property<string | MathText | null>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
@@ -742,7 +742,7 @@ export class Axis extends GuideRenderer {
       bounds:                  [ Or(Tuple(Number, Number), Auto), "auto" ],
       ticker:                  [ Ref(Ticker) ],
       formatter:               [ Ref(TickFormatter) ],
-      axis_label:              [ Nullable(String), "" ],
+      axis_label:              [ Nullable(Or(String, Ref(MathText))), "" ],
       axis_label_standoff:     [ Int, 5 ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(TickLabelOrientation, Number), "horizontal" ],
