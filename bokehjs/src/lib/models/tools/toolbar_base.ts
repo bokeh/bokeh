@@ -19,6 +19,7 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
@@ -58,11 +59,21 @@ export class ToolbarBaseView extends DOMView {
 
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
+  protected _overflow_menu: ContextMenu
 
   initialize(): void {
     super.initialize()
     this._tool_button_views = new Map()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
+
+    const {toolbar_location} = this.model
+    const reversed = toolbar_location == "left" || toolbar_location == "above"
+    const orientation = this.model.horizontal ? "vertical" : "horizontal"
+    this._overflow_menu = new ContextMenu([], {
+      orientation,
+      reversed,
+      //prevent_hide: (event) => event.target == this.el,
+    })
   }
 
   async lazy_initialize(): Promise<void> {
@@ -147,8 +158,43 @@ export class ToolbarBaseView extends DOMView {
     const non_empty = bars.filter((bar) => bar.length != 0)
     const separator = () => div({class: toolbars.tool_separator})
 
+    const {horizontal} = this.model
+    const {bbox} = this.layout
+
+    let overflowed = false
+    this.root.el.appendChild(this._overflow_menu.el)
+    const overflow_button = div({class: toolbars.tool_overflow}, horizontal ? "⋮" : "⋯")
+    overflow_button.addEventListener("click", () => {
+      const at = (() => {
+        switch (this.model.toolbar_location) {
+          case "right": return {left_of:  overflow_button}
+          case "left":  return {right_of: overflow_button}
+          case "above": return {below_of: overflow_button}
+          case "below": return {above_of: overflow_button}
+        }
+      })()
+      this._overflow_menu.toggle(at)
+    })
+
+    const margin = 0 //15 //px - overflow button's width/height (h/v)
+
     for (const el of join<HTMLElement>(non_empty, separator)) {
-      this.el.appendChild(el)
+      if (overflowed) {
+        this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
+      } else {
+        this.el.appendChild(el)
+        const {right, bottom} = el.getBoundingClientRect()
+        const overflow = horizontal ? right - (bbox.width - margin) : bottom - (bbox.height - margin)
+        if (overflow > 0) {
+          overflowed = true
+          this.el.removeChild(el)
+          this.el.appendChild(overflow_button)
+
+          const {items} = this._overflow_menu
+          items.splice(0, items.length)
+          items.push({content: el, class: horizontal ? "bk-below" : "bk-left"})
+        }
+      }
     }
   }
 

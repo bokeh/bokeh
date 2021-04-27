@@ -57,7 +57,9 @@
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: center center;
+  }
 
+  .bk-toobar-button, .bk-tool-overflow {
     &:hover {
       background-color: rgba(192, 192, 192, 0.15);
     }
@@ -81,19 +83,19 @@
     }
   }
 
-  .bk-toolbar.bk-above .bk-toolbar-button {
+  .bk-above .bk-toolbar-button {
     .toolbar-button-border(bottom);
   }
 
-  .bk-toolbar.bk-below .bk-toolbar-button {
+  .bk-below .bk-toolbar-button {
     .toolbar-button-border(top);
   }
 
-  .bk-toolbar.bk-right .bk-toolbar-button {
+  .bk-right .bk-toolbar-button {
     .toolbar-button-border(left);
   }
 
-  .bk-toolbar.bk-left .bk-toolbar-button {
+  .bk-left .bk-toolbar-button {
     .toolbar-button-border(right);
   }
 
@@ -114,6 +116,24 @@
     .bk-tool-separator {
       height: 1px;
       width: 10px;
+    }
+  }
+
+  .bk-tool-overflow {
+    color: gray;
+  }
+
+  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+    .bk-tool-overflow {
+      width: @buttonWidth ./ 2;
+      height: @buttonHeight;
+    }
+  }
+  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+    .bk-tool-overflow {
+      width: @buttonWidth;
+      height: @buttonHeight ./ 2;
+      text-align: center;
     }
   }
 }
