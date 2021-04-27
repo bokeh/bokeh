@@ -10,6 +10,7 @@ export type Context2d = {
   setImageSmoothingEnabled(value: boolean): void
   getImageSmoothingEnabled(): boolean
   lineDash: number[]
+  readonly layer: CanvasLayer
 } & CanvasRenderingContext2D
 
 function fixup_line_dash(ctx: any): void {
@@ -124,6 +125,7 @@ export class CanvasLayer {
       }
     }
 
+    (this._ctx as any).layer = this
     fixup_ctx(this._ctx)
   }
 
@@ -135,6 +137,24 @@ export class CanvasLayer {
     target.height = height*this.pixel_ratio
   }
 
+  private _base_transform: DOMMatrix
+
+  undo_transform(fn: (ctx: Context2d) => void) {
+    const {ctx} = this
+    if (typeof ctx.getTransform === "undefined") {
+      // XXX: remove this when IE/legacy is dropped
+      fn(ctx)
+    } else {
+      const current_transform = ctx.getTransform()
+      ctx.setTransform(this._base_transform)
+      try {
+        fn(ctx)
+      } finally {
+        ctx.setTransform(current_transform)
+      }
+    }
+  }
+
   prepare(): void {
     const {ctx, hidpi, pixel_ratio} = this
     ctx.save()
@@ -142,6 +162,7 @@ export class CanvasLayer {
       ctx.scale(pixel_ratio, pixel_ratio)
       ctx.translate(0.5, 0.5)
     }
+    this._base_transform = ctx.getTransform()
     this.clear()
   }
 

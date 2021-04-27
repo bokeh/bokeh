@@ -62,7 +62,7 @@ export class Hatch extends VisualProperties {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }
@@ -168,7 +168,7 @@ export class HatchScalar extends VisualUniforms {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }
@@ -308,7 +308,7 @@ export class HatchVector extends VisualUniforms {
     const {doit} = this
     if (doit) {
       this.set_vectorize(ctx, i)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }

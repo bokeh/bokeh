@@ -20,6 +20,16 @@ export class AffineTransform {
     return `matrix(${a}, ${b}, ${c}, ${d}, ${e}, ${f})`
   }
 
+  static from_DOMMatrix(matrix: DOMMatrix): AffineTransform {
+    const {a, b, c, d, e, f} = matrix
+    return new AffineTransform(a, b, c, d, e, f)
+  }
+
+  to_DOMMatrix(): DOMMatrix {
+    const {a, b, c, d, e, f} = this
+    return new DOMMatrix([a, b, c, d, e, f])
+  }
+
   clone(): AffineTransform {
     const {a, b, c, d, e, f} = this
     return new AffineTransform(a, b, c, d, e, f)
