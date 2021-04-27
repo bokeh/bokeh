@@ -966,6 +966,23 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11149", () => {
+    it("makes hatch patterns rotate with glyph's rotation", async () => {
+      const p = fig([300, 300])
+
+      const x = [0, 1, 2]
+      const angle = [0.0, 0.3, 0.6]
+      const common = {x, angle, hatch_pattern: "|", fill_color: "orange"}
+
+      p.rect({y: 3, width: 0.7, height: 0.7, ...common})
+      p.square({y: 2, size: 50, ...common})
+      p.ellipse({y: 1, width: 0.8, height: 0.5, ...common})
+      p.hex({y: 0, size: 50, ...common})
+
+      await display(p)
+    })
+  })
+
   describe("in issue #11162", () => {
     it("makes axis allocate space for invisible tick labels", async () => {
       const p = fig([200, 200])
