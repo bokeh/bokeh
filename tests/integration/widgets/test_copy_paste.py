@@ -26,7 +26,12 @@ from bokeh._testing.util.selenium import (
     paste_values,
 )
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, DataTable, Div, TableColumn
+from bokeh.models import (
+    ColumnDataSource,
+    DataTable,
+    Div,
+    TableColumn,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

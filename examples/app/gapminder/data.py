@@ -2,7 +2,8 @@ import numpy as np
 
 
 def process_data():
-    from bokeh.sampledata.gapminder import fertility, life_expectancy, population, regions
+    from bokeh.sampledata.gapminder import (fertility, life_expectancy,
+                                            population, regions)
 
     # Make the column names ints not strings for handling
     columns = list(fertility.columns)

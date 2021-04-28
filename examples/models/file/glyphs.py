@@ -8,7 +8,7 @@ from bokeh.models import (AnnularWedge, Annulus, Arc, Asterisk, Bezier, Circle,
                           ImageURL, InvertedTriangle, Line, LinearAxis, MultiLine,
                           MultiPolygons, Panel, Paragraph, Patch, Patches, Plot,
                           Quad, Quadratic, Ray, Rect, Segment, Square, SquareCross,
-                          SquareX, Tabs, Text, Triangle, Wedge, X,)
+                          SquareX, Tabs, Text, Triangle, Wedge, X)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

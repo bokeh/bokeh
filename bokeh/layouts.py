@@ -24,7 +24,15 @@ from collections import namedtuple
 
 # Bokeh imports
 from .core.enums import Location
-from .models.layouts import Box, Column, GridBox, LayoutDOM, Row, Spacer, WidgetBox
+from .models.layouts import (
+    Box,
+    Column,
+    GridBox,
+    LayoutDOM,
+    Row,
+    Spacer,
+    WidgetBox,
+)
 from .models.plots import Plot
 from .models.tools import ProxyToolbar, ToolbarBox
 from .util.deprecation import deprecated

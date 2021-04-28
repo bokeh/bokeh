@@ -20,7 +20,13 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, List, Nullable, String
+from ...core.properties import (
+    Bool,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from .buttons import ButtonLike
 from .widget import Widget
 

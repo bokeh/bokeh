@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from .server import server_document, server_session
-from .standalone import autoload_static, components, file_html, json_item
+from .standalone import (
+    autoload_static,
+    components,
+    file_html,
+    json_item,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

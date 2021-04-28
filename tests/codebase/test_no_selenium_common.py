@@ -19,7 +19,6 @@ import pytest ; pytest
 from subprocess import run
 from sys import executable as python
 
-# Bokeh imports
 from . import verify_clean_imports
 
 #-----------------------------------------------------------------------------

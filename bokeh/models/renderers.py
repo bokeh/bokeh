@@ -46,9 +46,19 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
+from .glyphs import (
+    Circle,
+    ConnectedXYGlyph,
+    Glyph,
+    MultiLine,
+)
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
+from .sources import (
+    CDSView,
+    ColumnDataSource,
+    DataSource,
+    WebDataSource,
+)
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------

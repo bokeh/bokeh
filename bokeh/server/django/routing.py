@@ -30,10 +30,7 @@ from django.urls.resolvers import URLPattern
 from bokeh.application import Application
 from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 from bokeh.application.handlers.function import FunctionHandler
-from bokeh.command.util import (
-    build_single_handler_application,
-    build_single_handler_applications,
-)
+from bokeh.command.util import build_single_handler_application, build_single_handler_applications
 from bokeh.server.contexts import ApplicationContext
 
 # Bokeh imports

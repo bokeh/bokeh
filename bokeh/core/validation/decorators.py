@@ -47,11 +47,9 @@ def _validator(code_or_name, validator_type):
 
     '''
     if validator_type == "error":
-        from .errors import codes
-        from .errors import EXT
+        from .errors import EXT, codes
     elif validator_type == "warning":
-        from .warnings import codes
-        from .warnings import EXT
+        from .warnings import EXT, codes
     else:
         pass # TODO (bev) ValueError?
 

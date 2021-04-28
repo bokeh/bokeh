@@ -25,7 +25,13 @@ import os
 import re
 import sys
 from collections import OrderedDict
-from os.path import abspath, dirname, exists, isabs, join
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    isabs,
+    join,
+)
 from subprocess import PIPE, Popen
 
 # Bokeh imports

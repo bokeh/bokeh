@@ -6,6 +6,7 @@ from bokeh.palettes import Spectral4
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
+
 class LatexLabel(Label):
     """A subclass of `Label` with additional class attributes 'width' and 'height',
     canvas mode isn't supported and DOM manipulation happens in the TypeScript

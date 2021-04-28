@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import sys
-from os.path import basename, dirname, join, splitext
+from os.path import (
+    basename,
+    dirname,
+    join,
+    splitext,
+)
 from tempfile import NamedTemporaryFile
 from typing import Optional
 

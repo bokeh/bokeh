@@ -18,9 +18,19 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.properties import Alias, AngleSpec, Either, Int, List, Nullable, NumberSpec, Override, String
+from bokeh.core.properties import (
+    Alias,
+    AngleSpec,
+    Either,
+    Int,
+    List,
+    Nullable,
+    NumberSpec,
+    Override,
+    String,
+)
 from bokeh.core.property.dataspec import field, value
-from bokeh.core.property.descriptors import PropertyDescriptor, DataSpecPropertyDescriptor
+from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Intrinsic
 
 # Module under test

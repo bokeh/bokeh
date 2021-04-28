@@ -3,7 +3,7 @@ import yaml
 from bokeh.document import Document
 from bokeh.models import (CDSView, Circle, ColumnDataSource, DataRange1d,
                           Grid, HoverTool, IndexFilter, LinearAxis, Plot,
-                          Range1d, SingleIntervalTicker, Text,)
+                          Range1d, SingleIntervalTicker, Text)
 from bokeh.resources import INLINE
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme

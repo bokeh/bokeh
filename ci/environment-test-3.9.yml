@@ -26,6 +26,7 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
+  - isort 5.8
   - mock
   - mypy
   - nbconvert >=5.4
@@ -50,7 +51,6 @@ dependencies:
   - pip:
     - autoclasstoc
     - pydata_sphinx_theme
-    - isort <5.0
     - sphinxext-opengraph
     - sphinx-reredirects
 

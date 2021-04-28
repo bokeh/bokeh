@@ -24,7 +24,13 @@ from typing import List, Optional
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
-from ..core.templates import DOC_JS, FILE, MACROS, PLOT_DIV, _env
+from ..core.templates import (
+    DOC_JS,
+    FILE,
+    MACROS,
+    PLOT_DIV,
+    _env,
+)
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_id

@@ -20,8 +20,20 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
-from os.path import abspath, basename, dirname, exists, join, normpath
-from typing import Dict, List, NamedTuple, Optional
+from os.path import (
+    abspath,
+    basename,
+    dirname,
+    exists,
+    join,
+    normpath,
+)
+from typing import (
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+)
 from warnings import warn
 
 # Bokeh imports

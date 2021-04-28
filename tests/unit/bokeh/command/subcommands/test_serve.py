@@ -47,6 +47,7 @@ from bokeh.resources import DEFAULT_SERVER_PORT
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scserve.Serve(parser=argparse.ArgumentParser())

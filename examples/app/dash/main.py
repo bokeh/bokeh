@@ -7,7 +7,7 @@ import pandas as pd
 from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.models import (ColumnDataSource, DataTable, NumberFormatter,
-                          RangeTool, StringFormatter, TableColumn,)
+                          RangeTool, StringFormatter, TableColumn)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg

@@ -23,7 +23,12 @@ import os
 import subprocess
 import sys
 import time
-from os.path import dirname, exists, join, pardir
+from os.path import (
+    dirname,
+    exists,
+    join,
+    pardir,
+)
 
 # External imports
 import pytest

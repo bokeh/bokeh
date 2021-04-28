@@ -31,8 +31,20 @@ from ..core.properties import (
     String,
     Tuple,
 )
-from ..models import ColumnDataSource, GraphRenderer, Plot, Title, Tool, glyphs
-from ..models.tools import Drag, InspectTool, Scroll, Tap
+from ..models import (
+    ColumnDataSource,
+    GraphRenderer,
+    Plot,
+    Title,
+    Tool,
+    glyphs,
+)
+from ..models.tools import (
+    Drag,
+    InspectTool,
+    Scroll,
+    Tap,
+)
 from ..transform import linear_cmap
 from ..util.options import Options
 from ._decorators import glyph_method, marker_method

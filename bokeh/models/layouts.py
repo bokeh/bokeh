@@ -22,7 +22,12 @@ log = logging.getLogger(__name__)
 from typing import Optional
 
 # Bokeh imports
-from ..core.enums import Align, Location, SizingMode, SizingPolicy
+from ..core.enums import (
+    Align,
+    Location,
+    SizingMode,
+    SizingPolicy,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -44,11 +49,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.validation import error, warning
-from ..core.validation.errors import (
-    MIN_PREFERRED_MAX_HEIGHT,
-    MIN_PREFERRED_MAX_WIDTH,
-    REPEATED_LAYOUT_CHILD,
-)
+from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
 from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
     EMPTY_LAYOUT,
