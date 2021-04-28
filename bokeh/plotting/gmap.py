@@ -105,8 +105,8 @@ class GMap(GMapPlot):
 
         tool_objs, tool_map = process_tools_arg(self, opts.tools)
         self.add_tools(*tool_objs)
-        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
-
+        process_active_tools(self.toolbar, tool_map,
+            opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap, opts.active_multi)
 
     annular_wedge = Figure.annular_wedge
 
