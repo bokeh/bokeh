@@ -25,13 +25,18 @@ from datetime import timedelta
 
 # External imports
 import mock
+from _util_server import (
+    http_get,
+    url,
+    websocket_open,
+    ws_url,
+)
 from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
 
 # Bokeh imports
-from _util_server import http_get, url, websocket_open, ws_url
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session

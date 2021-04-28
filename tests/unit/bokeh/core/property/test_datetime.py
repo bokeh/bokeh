@@ -21,9 +21,10 @@ import datetime
 import numpy as np
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.util.serialization import convert_date_to_datetime
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.datetime as bcpd # isort:skip

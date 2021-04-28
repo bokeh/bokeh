@@ -17,7 +17,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings  # lgtm [py/import-and-import-from]
-from typing import Optional, Tuple, Union, overload
+from typing import (
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
 # Bokeh imports
 from .warnings import BokehDeprecationWarning

@@ -21,19 +21,6 @@ from datetime import datetime
 import mock
 
 # Bokeh imports
-from _util_models import (
-    ANGLE,
-    FILL,
-    HATCH,
-    LINE,
-    TEXT,
-    check_fill_properties,
-    check_hatch_properties,
-    check_line_properties,
-    check_properties_existence,
-    check_text_properties,
-    prefix,
-)
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
@@ -54,6 +41,20 @@ from bokeh.models import (
     Span,
     Title,
     Whisker,
+)
+
+from _util_models import (
+    ANGLE,
+    FILL,
+    HATCH,
+    LINE,
+    TEXT,
+    check_fill_properties,
+    check_hatch_properties,
+    check_line_properties,
+    check_properties_existence,
+    check_text_properties,
+    prefix,
 )
 
 #-----------------------------------------------------------------------------

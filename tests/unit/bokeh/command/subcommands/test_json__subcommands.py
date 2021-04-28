@@ -19,9 +19,10 @@ import argparse
 import os
 
 # Bokeh imports
-from _util_subcommands import basic_scatter_script
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 from bokeh.command.bootstrap import main
+
+from _util_subcommands import basic_scatter_script
 
 # Module under test
 import bokeh.command.subcommands.json as scjson # isort:skip
@@ -41,6 +42,7 @@ import bokeh.command.subcommands.json as scjson # isort:skip
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scjson.JSON(parser=argparse.ArgumentParser())

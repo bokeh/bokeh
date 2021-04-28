@@ -21,13 +21,13 @@ import logging
 from mock import patch
 
 # Bokeh imports
-from _util_document import (
-    AnotherModelInTestDocument,
-    ModelThatOverridesName,
-    ModelWithSpecInTestDocument,
-    SomeModelInTestDocument,
+from bokeh.core.properties import (
+    Instance,
+    Int,
+    List,
+    Nullable,
+    Override,
 )
-from bokeh.core.properties import Instance, Int, List, Nullable, Override
 from bokeh.document.events import (
     ColumnsPatchedEvent,
     ColumnsStreamedEvent,
@@ -43,6 +43,13 @@ from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource
 from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
+
+from _util_document import (
+    AnotherModelInTestDocument,
+    ModelThatOverridesName,
+    ModelWithSpecInTestDocument,
+    SomeModelInTestDocument,
+)
 
 # Module under test
 import bokeh.document.document as document # isort:skip
@@ -965,9 +972,10 @@ class TestDocument:
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:
+        import numpy as np
+
         from bokeh.io.doc import set_curdoc
         from bokeh.plotting import figure
-        import numpy as np
         d = document.Document()
         set_curdoc(d)
         assert not d.roots

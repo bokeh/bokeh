@@ -26,7 +26,12 @@ import_required("selenium.webdriver",
 # Standard library imports
 import atexit
 import os
-from os.path import devnull, dirname, isfile, join
+from os.path import (
+    devnull,
+    dirname,
+    isfile,
+    join,
+)
 from shutil import which
 from typing import List, Optional
 

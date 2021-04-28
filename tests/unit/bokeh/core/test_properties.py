@@ -28,8 +28,8 @@ from bokeh.core.properties import (
     Instance,
     Int,
     List,
-    NumberSpec,
     Nullable,
+    NumberSpec,
     Override,
     String,
 )

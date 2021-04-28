@@ -1,7 +1,7 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,
-                          WheelZoomTool, WMTSTileSource,)
+                          WheelZoomTool, WMTSTileSource)
 from bokeh.plotting import output_file
 from bokeh.resources import INLINE
 from bokeh.util.browser import view

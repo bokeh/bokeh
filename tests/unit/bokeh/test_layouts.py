@@ -19,8 +19,21 @@ import mock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
-from bokeh.layouts import GridSpec, column, grid, gridplot, layout, row
-from bokeh.models import Column, GridBox, LayoutDOM, Row, Spacer
+from bokeh.layouts import (
+    GridSpec,
+    column,
+    grid,
+    gridplot,
+    layout,
+    row,
+)
+from bokeh.models import (
+    Column,
+    GridBox,
+    LayoutDOM,
+    Row,
+    Spacer,
+)
 from bokeh.plotting import figure
 
 #-----------------------------------------------------------------------------

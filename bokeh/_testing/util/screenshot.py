@@ -20,7 +20,13 @@ import json
 import os
 import subprocess
 import sys
-from os.path import abspath, dirname, join, pardir, split
+from os.path import (
+    abspath,
+    dirname,
+    join,
+    pardir,
+    split,
+)
 
 # Bokeh imports
 from bokeh.util.terminal import fail, trace

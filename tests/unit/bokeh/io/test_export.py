@@ -25,7 +25,12 @@ from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
 from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
+from bokeh.models import (
+    ColumnDataSource,
+    Plot,
+    Range1d,
+    Rect,
+)
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 

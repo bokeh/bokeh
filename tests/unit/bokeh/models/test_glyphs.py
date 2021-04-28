@@ -15,20 +15,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_models import (
-    FILL,
-    GLYPH,
-    HATCH,
-    LINE,
-    MARKER,
-    TEXT,
-    check_fill_properties,
-    check_hatch_properties,
-    check_line_properties,
-    check_marker_properties,
-    check_properties_existence,
-    check_text_properties,
-)
 from bokeh.core.enums import (
     Anchor,
     AngleUnits,
@@ -61,6 +47,21 @@ from bokeh.models.glyphs import (
     SquareX,
     Triangle,
     X,
+)
+
+from _util_models import (
+    FILL,
+    GLYPH,
+    HATCH,
+    LINE,
+    MARKER,
+    TEXT,
+    check_fill_properties,
+    check_hatch_properties,
+    check_line_properties,
+    check_marker_properties,
+    check_properties_existence,
+    check_text_properties,
 )
 
 # Module under test

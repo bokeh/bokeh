@@ -50,6 +50,7 @@ def main():
 
     '''
     import sys
+
     from bokeh.command.bootstrap import main as _main
 
    # Main entry point (see setup.py)

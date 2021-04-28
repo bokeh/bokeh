@@ -17,7 +17,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from os.path import abspath, dirname, isdir, join, normpath, realpath
+from os.path import (
+    abspath,
+    dirname,
+    isdir,
+    join,
+    normpath,
+    realpath,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

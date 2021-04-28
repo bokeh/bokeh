@@ -4,7 +4,6 @@ from bokeh.layouts import column
 from bokeh.models import HTMLBox, Slider
 from bokeh.util.compiler import TypeScript
 
-
 CODE ="""
 import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
 import {Slider} from "models/widgets/slider"

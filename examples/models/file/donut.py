@@ -5,7 +5,7 @@ from bokeh.colors.named import firebrick, lightgray, orchid, seagreen, skyblue, 
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AnnularWedge, ColumnDataSource,
-                          ImageURL, Plot, Range1d, Text, Wedge,)
+                          ImageURL, Plot, Range1d, Text, Wedge)
 from bokeh.resources import INLINE
 from bokeh.sampledata.browsers import browsers_nov_2013, icons
 from bokeh.util.browser import view

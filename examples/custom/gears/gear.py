@@ -1,6 +1,7 @@
 from bokeh.core.properties import AngleSpec, Include, NumberSpec
-from bokeh.core.property_mixins import FillProps, LineProps, HatchProps
+from bokeh.core.property_mixins import FillProps, HatchProps, LineProps
 from bokeh.models import Glyph
+
 
 class Gear(Glyph):
     """ Render gears.

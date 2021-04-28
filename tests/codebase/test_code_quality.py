@@ -18,7 +18,13 @@ import pytest ; pytest
 # Standard library imports
 import subprocess
 from os import pardir
-from os.path import abspath, basename, join, split, splitext
+from os.path import (
+    abspath,
+    basename,
+    join,
+    split,
+    splitext,
+)
 
 #-----------------------------------------------------------------------------
 # Tests

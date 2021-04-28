@@ -21,8 +21,10 @@ import os
 import sys
 from subprocess import run
 
-# Bokeh imports
+# External imports
 from _util_server import http_get, url
+
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.auth_provider import NullAuth

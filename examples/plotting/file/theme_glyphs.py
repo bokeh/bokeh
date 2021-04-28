@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.io import curdoc, output_file, show
 from bokeh.models import (ColumnDataSource, Ellipse, HBar, Line,
-                          LinearAxis, Plot, Scatter, Text, Title,)
+                          LinearAxis, Plot, Scatter, Text, Title)
 from bokeh.models.formatters import BasicTickFormatter
 from bokeh.models.tickers import BasicTicker
 from bokeh.themes import Theme

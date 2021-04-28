@@ -21,8 +21,9 @@ import datetime as dt
 import mock
 
 # Bokeh imports
-from _util_models import check_properties_existence
 from bokeh.core.validation import check_integrity, process_validation_issues
+
+from _util_models import check_properties_existence
 
 # Module under test
 from bokeh.models import Range1d, DataRange1d, FactorRange # isort:skip

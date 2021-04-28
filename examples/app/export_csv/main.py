@@ -5,7 +5,7 @@ import pandas as pd
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import (Button, ColumnDataSource, CustomJS, DataTable,
-                          NumberFormatter, RangeSlider, TableColumn,)
+                          NumberFormatter, RangeSlider, TableColumn)
 
 df = pd.read_csv(join(dirname(__file__), 'salary_data.csv'))
 

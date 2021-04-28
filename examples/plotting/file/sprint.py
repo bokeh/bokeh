@@ -2,7 +2,7 @@
 
 from bokeh.models import (Arrow, ColumnDataSource, CustomJS, DataRange1d,
                           FixedTicker, HoverTool, Label, LinearAxis, NormalHead,
-                          Range1d, SingleIntervalTicker, TapTool,)
+                          Range1d, SingleIntervalTicker, TapTool)
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.sprint import sprint
 

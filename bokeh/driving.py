@@ -45,7 +45,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import partial
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Sequence,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

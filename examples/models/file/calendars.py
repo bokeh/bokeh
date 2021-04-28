@@ -6,7 +6,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import gridplot
 from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
-                          FactorRange, HoverTool, Plot, Rect, Text,)
+                          FactorRange, HoverTool, Plot, Rect, Text)
 from bokeh.resources import INLINE
 from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view

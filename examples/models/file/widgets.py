@@ -9,7 +9,7 @@ from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
                           RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
                           Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
-                          TextAreaInput, TextInput, Toggle,)
+                          TextAreaInput, TextInput, Toggle)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg

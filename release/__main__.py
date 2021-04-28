@@ -5,11 +5,18 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
 
+# Standard library imports
 import sys
 
+# Bokeh imports
 from .config import Config
 from .pipeline import Pipeline
-from .stages import BUILD_CHECKS, BUILD_STEPS, DEPLOY_CHECKS, DEPLOY_STEPS
+from .stages import (
+    BUILD_CHECKS,
+    BUILD_STEPS,
+    DEPLOY_CHECKS,
+    DEPLOY_STEPS,
+)
 from .system import System
 
 system = System()

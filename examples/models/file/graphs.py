@@ -12,7 +12,7 @@ import networkx as nx
 
 from bokeh.io import curdoc, show
 from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes, HoverTool,
-                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, Row, TapTool,)
+                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 

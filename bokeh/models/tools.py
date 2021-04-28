@@ -40,6 +40,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+
+# External imports
 from typing_extensions import Literal
 
 # Bokeh imports
@@ -93,7 +95,14 @@ from ..util.deprecation import deprecated
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
+from .glyphs import (
+    Line,
+    LineGlyph,
+    MultiLine,
+    Patches,
+    Rect,
+    XYGlyph,
+)
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import DataRenderer, GlyphRenderer

@@ -18,7 +18,6 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from _util_property import _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import (
     Angle,
@@ -45,6 +44,8 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.models import ColumnDataSource
+
+from _util_property import _TestModel
 
 # Module under test
 import bokeh.core.property.wrappers as bcpw # isort:skip
@@ -184,8 +185,9 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify) -> None:
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -218,8 +220,9 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify) -> None
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_array(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
     pvcd = bcpw.PropertyValueColumnData(source.data)
@@ -255,8 +258,9 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify) -> None:
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify) -> None:
-    from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
     pvcd = bcpw.PropertyValueColumnData(source.data)

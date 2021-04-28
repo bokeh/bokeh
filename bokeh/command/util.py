@@ -23,7 +23,13 @@ import errno
 import os
 import sys
 import warnings
-from typing import Dict, Iterator, List, Optional, Sequence
+from typing import (
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+)
 
 # Bokeh imports
 from bokeh.application import Application

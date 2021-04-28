@@ -11,7 +11,14 @@ import platform
 import signal
 import subprocess
 import time
-from os.path import abspath, basename, dirname, join, relpath, split
+from os.path import (
+    abspath,
+    basename,
+    dirname,
+    join,
+    relpath,
+    split,
+)
 
 # External imports
 import pytest
@@ -22,7 +29,13 @@ from bokeh._testing.util.screenshot import run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from bokeh.util.terminal import fail, info, red, warn, white
+from bokeh.util.terminal import (
+    fail,
+    info,
+    red,
+    warn,
+    white,
+)
 
 is_windows = platform.system() == "Windows"
 

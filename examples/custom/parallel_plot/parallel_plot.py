@@ -3,9 +3,10 @@ import numpy as np
 from bokeh.layouts import column
 from bokeh.models import (BasicTickFormatter, ColumnDataSource, Div,
                           FixedTicker, FuncTickFormatter, LinearAxis,
-                          LinearColorMapper, MultiLine, Range1d,)
+                          LinearColorMapper, MultiLine, Range1d)
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg import autompg_clean as df
+
 from parallel_reset import ParallelResetTool
 from parallel_selection_tool import ParallelSelectionTool
 
@@ -106,8 +107,8 @@ def parallel_plot(df, color=None, palette=None):
     return p
 
 if __name__ == '__main__':
-    from bokeh.palettes import Viridis256
     from bokeh.io import show
+    from bokeh.palettes import Viridis256
     del df['origin']
     del df['mfr']
     del df['name']

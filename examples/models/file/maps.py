@@ -2,7 +2,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxSelectTool, Circle, ColumnDataSource, GMapOptions,
                           GMapPlot, Label, LinearAxis, MercatorTicker,
-                          MercatorTickFormatter, PanTool, WheelZoomTool,)
+                          MercatorTickFormatter, PanTool, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

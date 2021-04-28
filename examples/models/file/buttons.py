@@ -1,7 +1,7 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Button, CheckboxButtonGroup, CheckboxGroup, Column,
-                          CustomJS, Dropdown, RadioButtonGroup, RadioGroup, Toggle,)
+                          CustomJS, Dropdown, RadioButtonGroup, RadioGroup, Toggle)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

@@ -65,13 +65,24 @@ from sphinx.util import logging, parselinenos
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports
-from .templates import BJS_CODEPEN_INIT, BJS_EPILOGUE, BJS_HTML, BJS_PROLOGUE
+from .templates import (
+    BJS_CODEPEN_INIT,
+    BJS_EPILOGUE,
+    BJS_HTML,
+    BJS_PROLOGUE,
+)
 from .util import get_sphinx_resources
 
 if False:
     # For type annotation
     # from directives.code.CodeBlock.run
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import (  # NOQA
+        Any,
+        Dict,
+        List,
+        Tuple,
+    )
+
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
 

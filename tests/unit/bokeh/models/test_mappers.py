@@ -18,9 +18,10 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from _util_models import check_properties_existence
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.palettes import Spectral6
+
+from _util_models import check_properties_existence
 
 # Module under test
 import bokeh.models.mappers as bmm # isort:skip

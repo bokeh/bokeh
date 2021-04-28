@@ -370,10 +370,10 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
+    from ..embed.bundle import bundle_for_objs_and_resources
     from ..resources import Resources
     from ..settings import settings
     from ..util.serialization import make_id
-    from ..embed.bundle import bundle_for_objs_and_resources
 
     if resources is None:
         resources = Resources(mode=settings.resources())
@@ -462,6 +462,7 @@ def show_app(app, state, notebook_url, port=0, **kw):
     logging.basicConfig()
 
     from tornado.ioloop import IOLoop
+
     from ..server.server import Server
 
     loop = IOLoop.current()

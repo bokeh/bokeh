@@ -2,7 +2,7 @@ import pandas as pd
 
 from bokeh.io import output_file, show
 from bokeh.models import (BasicTicker, ColorBar, ColumnDataSource,
-                          LinearColorMapper, PrintfTickFormatter,)
+                          LinearColorMapper, PrintfTickFormatter)
 from bokeh.plotting import figure
 from bokeh.sampledata.unemployment1948 import data
 from bokeh.transform import transform

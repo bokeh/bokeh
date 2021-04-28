@@ -1,8 +1,8 @@
 from datetime import date
 
 from bokeh.layouts import column
-from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup, DatePicker,
-                          Dropdown, RadioButtonGroup, TextInput, Toggle,)
+from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
+                          DatePicker, Dropdown, RadioButtonGroup, TextInput, Toggle)
 from bokeh.plotting import save
 
 menu = [("Item 1", "1"), ("Item 2", "2"), ("Item 3", "3")]

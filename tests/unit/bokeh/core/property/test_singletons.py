@@ -14,7 +14,7 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
+# Standard library imports
 from copy import copy
 
 # Module under test

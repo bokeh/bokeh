@@ -43,7 +43,13 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core.properties import Bool, Int, List, Nullable, String
+from ..core.properties import (
+    Bool,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado

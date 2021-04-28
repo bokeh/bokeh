@@ -9,6 +9,7 @@
 
 """Git implementation of _version.py."""
 
+# Standard library imports
 import errno
 import os
 import re

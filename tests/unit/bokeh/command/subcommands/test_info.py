@@ -37,6 +37,7 @@ import bokeh.command.subcommands.info as scinfo # isort:skip
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scinfo.Info(parser=argparse.ArgumentParser())
