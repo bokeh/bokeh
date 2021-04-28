@@ -120,7 +120,8 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"mkdir {dirname}")
         system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
         system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
-        system.run(f"cp dist/bokeh-*.tar.gz {dirname}")  # TODO: handle .dev version variant better
+        system.run(f"cp dist/bokeh-{config.pep440_version}.tar.gz {dirname}")
+        system.run(f"cp dist/bokeh-{config.pep440_version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
         system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
         system.run(f"mkdir -p {dirname}/sphinx/build")

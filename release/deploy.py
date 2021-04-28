@@ -67,7 +67,7 @@ def publish_pip_packages(config: Config, system: System) -> ActionReturn:
     # NOTE: using pep440_version below because sdists already uses this syntax
     # This will eventually be the standard dev/rc version syntax for all packages
     sdist_path = f"deployment-{config.version}/bokeh-{config.pep440_version}.tar.gz"
-    wheel_path = f"deployment-{config.version}/bokeh-{config.pep440_version}-*.whl"
+    wheel_path = f"deployment-{config.version}/bokeh-{config.pep440_version}-py3-none-any.whl"
     try:
         system.run(f"twine upload -u __token__ -p $PYPI_TOKEN {sdist_path} {wheel_path}")
         return PASSED("Publish to pypi.org succeeded")
