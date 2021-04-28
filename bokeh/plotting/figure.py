@@ -182,8 +182,15 @@ class Figure(Plot):
 
         tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        process_active_tools(self.toolbar, tool_map,
-            opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap, opts.active_multi)
+        process_active_tools(
+            self.toolbar,
+            tool_map,
+            opts.active_drag,
+            opts.active_inspect,
+            opts.active_scroll,
+            opts.active_tap,
+            opts.active_multi,
+        )
 
     @glyph_method(glyphs.AnnularWedge)
     def annular_wedge(self, **kwargs):
@@ -1607,18 +1614,10 @@ def markers():
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
-class FigureOptions(Options):
+class BaseFigureOptions(Options):
 
     tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
     Tools the plot should start with.
-    """)
-
-    x_range = Any(help="""
-    Customize the x-range of the plot.
-    """)
-
-    y_range = Any(help="""
-    Customize the y-range of the plot.
     """)
 
     x_minor_ticks = Either(Auto, Int, default="auto", help="""
@@ -1665,14 +1664,6 @@ class FigureOptions(Options):
     Specify an active multi-gesture tool, for instance an edit tool or a range tool.
     """)
 
-    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the x-axis.
-    """)
-
-    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the y-axis.
-    """)
-
     tooltips = Either(Null, String, List(Tuple(String, String)), help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
@@ -1680,6 +1671,24 @@ class FigureOptions(Options):
     hover tools ``tooltips`` value. If no hover tool is specified in the
     ``tools`` argument, then passing tooltips here will cause one to be created
     and added.
+    """)
+
+class FigureOptions(BaseFigureOptions):
+
+    x_range = Any(help="""
+    Customize the x-range of the plot.
+    """)
+
+    y_range = Any(help="""
+    Customize the y-range of the plot.
+    """)
+
+    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the x-axis.
+    """)
+
+    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the y-axis.
     """)
 
 #-----------------------------------------------------------------------------
