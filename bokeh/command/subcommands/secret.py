@@ -26,6 +26,8 @@ the ``BOKEH_SECRET_KEY`` environment variable.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
