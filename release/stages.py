@@ -51,7 +51,7 @@ from .deploy import (
     publish_conda_package,
     publish_documentation,
     publish_npm_package,
-    publish_pip_package,
+    publish_pip_packages,
     unpack_deployment_tarball,
 )
 from .git import (
@@ -139,6 +139,6 @@ DEPLOY_STEPS: StepListType = (
     unpack_deployment_tarball,
     publish_npm_package,
     publish_conda_package,
-    publish_pip_package,
+    publish_pip_packages,
     publish_documentation,
 )
