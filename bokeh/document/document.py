@@ -42,6 +42,7 @@ from typing import (
     Callable,
     Dict,
     List,
+    Union,
 )
 
 # External imports
@@ -104,16 +105,17 @@ class Document:
 
     '''
 
+    _theme: Theme
     _message_callbacks: Dict[str, List[Callable[[Any], None]]]
 
-    def __init__(self, **kwargs):
-        self._roots = list()
-        self._theme = kwargs.pop('theme', default_theme)
+    def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
+        self._roots = []
+        self._theme = theme
         # use _title directly because we don't need to trigger an event
-        self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._title = title
         self._template = FILE
         self._all_models_freeze_count = 0
-        self._all_models = dict()
+        self._all_models = {}
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
@@ -131,9 +133,11 @@ class Document:
         self._subscribed_models = defaultdict(set)
         self.on_message("bokeh_event", self.apply_json_event)
 
-        self._callback_objs_by_callable = {self.add_next_tick_callback: defaultdict(set),
-                                           self.add_periodic_callback: defaultdict(set),
-                                           self.add_timeout_callback: defaultdict(set)}
+        self._callback_objs_by_callable = {
+            self.add_next_tick_callback: defaultdict(set),
+            self.add_periodic_callback: defaultdict(set),
+            self.add_timeout_callback: defaultdict(set),
+        }
 
     # Properties --------------------------------------------------------------
 
@@ -191,7 +195,7 @@ class Document:
         return self._template_variables
 
     @property
-    def theme(self):
+    def theme(self) -> Theme:
         ''' The current ``Theme`` instance affecting models in this Document.
 
         Setting this to ``None`` sets the default theme. (i.e this property
@@ -204,7 +208,7 @@ class Document:
         return self._theme
 
     @theme.setter
-    def theme(self, theme):
+    def theme(self, theme: Union[None, str, Theme]) -> None:
         if theme is None:
             theme = default_theme
 
