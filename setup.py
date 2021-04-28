@@ -52,10 +52,10 @@ the python source tree, the following command may be issued:
 This will copy BokehJS from the ``bokehjs`` source directory, into the python
 package directory, and perform no other actions.
 
-Note that source distributions (sdists) are published with a pre-built BokehJS
-included inside the python package, and do not include the ``bokehjs`` source.
-The ``--build-js`` and ``-install-js`` options are not valid when running from
-an sdist. They will be ignored, and warning printed.
+Note that source distributions (sdists) and wheels are published with a
+pre-built BokehJS included inside the python package, and do not include the
+``bokehjs`` source. The ``--build-js`` and ``-install-js`` options are not valid
+when running from an sdist. They will be ignored, and warning printed.
 
 '''
 import sys
@@ -65,7 +65,7 @@ from setuptools import find_packages, setup
 import versioneer
 
 from _setup_support import ( # isort:skip
-    build_or_install_bokehjs, check_building_sdist, check_python,
+    build_or_install_bokehjs, check_building_dist, check_python,
     conda_rendering, fixup_for_packaged, install_js, show_bokehjs, show_help,
     INSTALL_REQUIRES,
 )
@@ -81,7 +81,7 @@ if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
 # if this is just conda-build skimming information, skip all this actual work
 if not conda_rendering():
     fixup_for_packaged()   # --build_js and --install_js not valid FROM sdist
-    check_building_sdist() # must build or install BokehJS when MAKING sdists
+    check_building_dist() # must build or install BokehJS when MAKING dists
 
     bokehjs_action = build_or_install_bokehjs()
 
