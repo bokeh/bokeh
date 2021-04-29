@@ -43,6 +43,7 @@ import bokeh.plotting._decorators as bpd # isort:skip
 # acceptable values for parameters
 _renderer_args_values = dict(
     name=[None, "", "test name"],
+    coordinates=[None, None],
     x_range_name=[None, "", "x range"],
     y_range_name=[None, "", "y range"],
     level=[None, "overlay"],
