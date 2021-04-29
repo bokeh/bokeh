@@ -7,13 +7,11 @@ import {Texture2D} from "regl"
 import {cap_lookup, join_lookup} from "./webgl_utils"
 import {LineGlyphProps, LineDashGlyphProps} from "./types"
 
-
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
 const missing_point = -10000.0
 const missing_point_threshold = -9000.0
-
 
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number

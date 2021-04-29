@@ -7,12 +7,10 @@ import type {CircleView} from "../circle"
 import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
 import {MarkerType} from "core/enums"
 
-
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
 const missing_point = -10000
-
 
 type MarkerLikeView = ScatterView | CircleView
 

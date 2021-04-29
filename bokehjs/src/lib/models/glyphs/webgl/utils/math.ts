@@ -31,7 +31,6 @@ export function gcd(values: number[]): number {
   return ret
 }
 
-
 // From regl
 export function is_pow_2(v: number): boolean {
   return !(v & (v - 1)) && (!!v)

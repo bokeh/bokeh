@@ -10,7 +10,6 @@ import {MarkerType} from "core/enums"
 import rect_vertex_shader from "./rect.vert"
 import rect_fragment_shader from "./rect.frag"
 
-
 // All access to regl is performed via the get_regl() function that returns a
 // ReglWrapper object.  This ensures that regl is correctly initialised before
 // it is used, and is only initialised once.
@@ -23,9 +22,7 @@ export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   return regl_wrapper
 }
 
-
 type ReglRenderFunction = ({}) => void
-
 
 export class ReglWrapper {
   private _regl: Regl
@@ -101,7 +98,6 @@ export class ReglWrapper {
   }
 }
 
-
 // Regl rendering functions are here as some will be reused, e.g. lines may also
 // be used around polygons or for bezier curves.
 
@@ -128,12 +124,10 @@ const line_instance_geometry = [
 
 const line_triangle_indices = [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]]
 
-
 function regl_solid_line(regl: Regl): ReglRenderFunction {
   type Props = t.LineGlyphProps
   type Uniforms = t.LineGlyphUniforms
   type Attributes = t.LineGlyphAttributes
-  type Context = t.EmptyContext
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: line_vertex_shader,
@@ -144,27 +138,27 @@ function regl_solid_line(regl: Regl): ReglRenderFunction {
         buffer: regl.buffer(line_instance_geometry),
         divisor: 0,
       },
-      a_point_prev: (_: Context, props: Props) => {
+      a_point_prev(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
         }
       },
-      a_point_start: (_: Context, props: Props) => {
+      a_point_start(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
           offset: Float32Array.BYTES_PER_ELEMENT * 2,
         }
       },
-      a_point_end: (_: Context, props: Props) => {
+      a_point_end(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
           offset: Float32Array.BYTES_PER_ELEMENT * 4,
         }
       },
-      a_point_next: (_: Context, props: Props) => {
+      a_point_next(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
@@ -204,12 +198,10 @@ function regl_solid_line(regl: Regl): ReglRenderFunction {
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-
 function regl_dashed_line(regl: Regl): ReglRenderFunction {
   type Props = t.LineDashGlyphProps
   type Uniforms = t.LineDashGlyphUniforms
   type Attributes = t.LineDashGlyphAttributes
-  type Context = t.EmptyContext
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: '#define DASHED\n\n' + line_vertex_shader,
@@ -220,34 +212,34 @@ function regl_dashed_line(regl: Regl): ReglRenderFunction {
         buffer: regl.buffer(line_instance_geometry),
         divisor: 0,
       },
-      a_point_prev: (_: Context, props: Props) => {
+      a_point_prev(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
         }
       },
-      a_point_start: (_: Context, props: Props) => {
+      a_point_start(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
           offset: Float32Array.BYTES_PER_ELEMENT * 2,
         }
       },
-      a_point_end: (_: Context, props: Props) => {
+      a_point_end(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
           offset: Float32Array.BYTES_PER_ELEMENT * 4,
         }
       },
-      a_point_next: (_: Context, props: Props) => {
+      a_point_next(_, props) {
         return {
           buffer: regl.buffer(props.points),
           divisor: 1,
           offset: Float32Array.BYTES_PER_ELEMENT * 6,
         }
       },
-      a_length_so_far: (_: Context, props: Props) => {
+      a_length_so_far(_, props) {
         return {
           buffer: regl.buffer(props.length_so_far),
           divisor: 1,
@@ -290,7 +282,6 @@ function regl_dashed_line(regl: Regl): ReglRenderFunction {
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-
 // Return a ReGL AttributeConfig that corresponds to one value for
 // each marker or the same value for all markers.  Instanced rendering supports
 // the former using 'divisor = 1', but does not support the latter directly.
@@ -307,12 +298,10 @@ function one_each_or_constant(regl: Regl, prop: Float32Array | Uint8Array | numb
   }
 }
 
-
 function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
   type Props = t.MarkerGlyphProps
   type Uniforms = t.CommonUniforms
   type Attributes = t.MarkerGlyphAttributes
-  type Context = t.EmptyContext
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: marker_vertex_shader,
@@ -323,28 +312,28 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: (_: Context, props: Props) => {
+      a_center(_, props) {
         return {
           buffer: regl.buffer(props.center),
           divisor: 1,
         }
       },
-      a_size: (_: Context, props: Props) => {
+      a_size(_, props) {
         return one_each_or_constant(regl, props.size, 1, false, props.nmarkers)
       },
-      a_angle: (_: Context, props: Props) => {
+      a_angle(_, props) {
         return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: Context, props: Props) => {
+      a_linewidth(_, props) {
         return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: Context, props: Props) => {
+      a_line_color(_, props) {
         return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: Context, props: Props) => {
+      a_fill_color(_, props) {
         return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_show: (_: Context, props: Props) => {
+      a_show(_, props) {
         return {
           buffer: regl.buffer(props.show),
           normalized: true,
@@ -378,12 +367,10 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-
 function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
   type Props = t.RectGlyphProps
   type Uniforms = t.CommonUniforms
   type Attributes = t.RectGlyphAttributes
-  type Context = t.EmptyContext
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: rect_vertex_shader,
@@ -394,34 +381,34 @@ function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: (_: Context, props: Props) => {
+      a_center(_, props) {
         return {
           buffer: regl.buffer(props.center),
           divisor: 1,
         }
       },
-      a_width: (_: Context, props: Props) => {
+      a_width(_, props) {
         return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
       },
-      a_height: (_: Context, props: Props) => {
+      a_height(_, props) {
         return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
       },
-      a_angle: (_: Context, props: Props) => {
+      a_angle(_, props) {
         return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: Context, props: Props) => {
+      a_linewidth(_, props) {
         return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: Context, props: Props) => {
+      a_line_color(_, props) {
         return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: Context, props: Props) => {
+      a_fill_color(_, props) {
         return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_line_join: (_: Context, props: Props) => {
+      a_line_join(_, props) {
         return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
       },
-      a_show: (_: Context, props: Props) => {
+      a_show(_, props) {
         return {
           buffer: regl.buffer(props.show),
           normalized: true,
@@ -455,12 +442,10 @@ function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-
 function regl_rect_hatch(regl: Regl): ReglRenderFunction {
   type Props = t.RectHatchGlyphProps
   type Uniforms = t.CommonUniforms
   type Attributes = t.RectHatchGlyphAttributes
-  type Context = t.EmptyContext
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: '#define HATCH\n\n' + rect_vertex_shader,
@@ -471,50 +456,50 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: (_: Context, props: Props) => {
+      a_center(_, props) {
         return {
           buffer: regl.buffer(props.center),
           divisor: 1,
         }
       },
-      a_width: (_: Context, props: Props) => {
+      a_width(_, props) {
         return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
       },
-      a_height: (_: Context, props: Props) => {
+      a_height(_, props) {
         return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
       },
-      a_angle: (_: Context, props: Props) => {
+      a_angle(_, props) {
         return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: Context, props: Props) => {
+      a_linewidth(_, props) {
         return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: Context, props: Props) => {
+      a_line_color(_, props) {
         return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: Context, props: Props) => {
+      a_fill_color(_, props) {
         return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_line_join: (_: Context, props: Props) => {
+      a_line_join(_, props) {
         return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
       },
-      a_show: (_: Context, props: Props) => {
+      a_show(_, props) {
         return {
           buffer: regl.buffer(props.show),
           normalized: true,
           divisor: 1,
         }
       },
-      a_hatch_pattern: (_: Context, props: Props) => {
+      a_hatch_pattern(_, props) {
         return one_each_or_constant(regl, props.hatch_pattern, 1, false, props.nmarkers)
       },
-      a_hatch_scale: (_: Context, props: Props) => {
+      a_hatch_scale(_, props) {
         return one_each_or_constant(regl, props.hatch_scale, 1, false, props.nmarkers)
       },
-      a_hatch_weight: (_: Context, props: Props) => {
+      a_hatch_weight(_, props) {
         return one_each_or_constant(regl, props.hatch_weight, 1, false, props.nmarkers)
       },
-      a_hatch_color: (_: Context, props: Props) => {
+      a_hatch_color(_, props) {
         return one_each_or_constant(regl, props.hatch_color, 4, true, props.nmarkers)
       },
     },

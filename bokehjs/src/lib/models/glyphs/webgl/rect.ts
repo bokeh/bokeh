@@ -4,12 +4,10 @@ import {RectGlyphProps, RectHatchGlyphProps} from "./types"
 import {color_to_uint8_array, prop_as_array, hatch_pattern_prop_as_array, line_join_prop_as_array} from "./webgl_utils"
 import {RectView} from "../rect"
 
-
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
 const missing_point = -10000
-
 
 export class RectGL extends BaseGLGlyph {
   protected _antialias: number
