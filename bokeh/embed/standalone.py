@@ -258,7 +258,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     return script, result
 
 def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]],
+              resources: Optional[Union[Resources, Tuple[JSResources, CSSResources]]],
               title: Optional[str] = None,
               template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},
