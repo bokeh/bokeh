@@ -23,7 +23,7 @@ from argparse import Namespace
 from bokeh.ext import init
 
 # Bokeh imports
-from ..subcommand import Subcommand
+from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,21 +49,21 @@ class Init(Subcommand):
     help = "Initialize a bokeh extension"
 
     args = (
-        ("base_dir", dict(
+        ("base_dir", Argument(
             metavar="BASE_DIR",
             type=str,
             nargs="?",
             default=".",
         )),
-        ("--interactive", dict(
+        ("--interactive", Argument(
             action="store_true",
             help="Walk the user through creating an extension",
         )),
-        ("--bokehjs_version", dict(
+        ("--bokehjs_version", Argument(
             action="store_true",
             help="Use a specific version of bokehjs",
         )),
-        ("--debug", dict(
+        ("--debug", Argument(
             action="store_true",
             help="Run nodejs in debug mode (use --inspect-brk)",
         )),

@@ -70,9 +70,6 @@ class Sampledata(Subcommand):
 
     help = "Download the bokeh sample data sets"
 
-    args = (
-    )
-
     def invoke(self, args: Namespace) -> None:
         '''
 
