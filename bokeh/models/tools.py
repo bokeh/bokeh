@@ -316,7 +316,7 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Nullable(Instance(GestureTool), help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
