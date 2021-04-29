@@ -38,12 +38,12 @@ export abstract class Scale<T = number> extends Transform<T, number> {
   }
 
   v_compute(xs: Arrayable<T>): ScreenArray {
-   const result = new ScreenArray(xs.length)
-   const {s_compute} = this
-   for (let i = 0; i < xs.length; i++) {
-     result[i] = s_compute(xs[i])
-   }
-   return result
+    const result = new ScreenArray(xs.length)
+    const {s_compute} = this
+    for (let i = 0; i < xs.length; i++) {
+      result[i] = s_compute(xs[i])
+    }
+    return result
   }
 
   invert(sx: number): number {

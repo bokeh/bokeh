@@ -25,11 +25,12 @@ export class LinearInterpolationScale extends Scale<number> {
   static init_LinearInterpolationScale(): void {
     this.internal<LinearInterpolationScale.Props>(({Arrayable, Ref}) => ({
       binning:      [ Arrayable ],
-      linear_scale: [ Ref(LinearScale),
+      linear_scale: [
+        Ref(LinearScale),
         (self: any /* XXX: TS bug, needs TS 4.3 */) => new LinearScale({
           source_range: self.source_range,
           target_range: self.target_range,
-        })
+        }),
       ],
     }))
   }
