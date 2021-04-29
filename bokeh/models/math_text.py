@@ -14,6 +14,6 @@ class MathText(Model):
     """)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         if len(args) == 1:
             self.text = args[0]
