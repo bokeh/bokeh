@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
+from dataclasses import dataclass
 from os.path import (
     abspath,
     basename,
@@ -30,12 +31,7 @@ from os.path import (
     join,
     normpath,
 )
-from typing import (
-    Dict,
-    List,
-    NamedTuple,
-    Optional,
-)
+from typing import Dict, List, Optional
 from warnings import warn
 
 # Bokeh imports
@@ -238,7 +234,8 @@ def _query_extensions(objs, query):
 
 _default_cdn_host = "https://unpkg.com"
 
-class ExtensionEmbed(NamedTuple):
+@dataclass
+class ExtensionEmbed:
     artifact_path: str
     server_url: str
     cdn_url: Optional[str] = None
