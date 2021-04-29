@@ -1,5 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
+import {MarkerGlyphProps} from "./types"
 import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
@@ -119,7 +120,7 @@ export class MarkerGL extends BaseGLGlyph {
         this._show[i] = 255
     }
 
-    this.regl_wrapper.marker(this._marker_type)({
+    const props: MarkerGlyphProps = {
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
       center: mainGlGlyph._centers,
@@ -131,7 +132,8 @@ export class MarkerGL extends BaseGLGlyph {
       line_color: this._line_rgba,
       fill_color: this._fill_rgba,
       show: this._show,
-    })
+    }
+    this.regl_wrapper.marker(this._marker_type)(props)
   }
 
   protected _set_data(): void {

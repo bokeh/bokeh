@@ -1,5 +1,6 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
+import {RectGlyphProps, RectHatchGlyphProps} from "./types"
 import {color_to_uint8_array, prop_as_array, hatch_pattern_prop_as_array, line_join_prop_as_array} from "./webgl_utils"
 import {RectView} from "../rect"
 
@@ -26,10 +27,10 @@ export class RectGL extends BaseGLGlyph {
 
   // Only needed if have hatch pattern.
   protected _have_hatch: boolean
-  protected _hatch_patterns: number[] | Float32Array
-  protected _hatch_scales: number[] | Float32Array
-  protected _hatch_weights: number[] | Float32Array
-  protected _hatch_rgba: Uint8Array
+  protected _hatch_patterns?: number[] | Float32Array
+  protected _hatch_scales?: number[] | Float32Array
+  protected _hatch_weights?: number[] | Float32Array
+  protected _hatch_rgba?: Uint8Array
 
   constructor(regl_wrapper: ReglWrapper, readonly glyph: RectView) {
     super(regl_wrapper, glyph)
@@ -73,7 +74,7 @@ export class RectGL extends BaseGLGlyph {
     }
 
     if (this._have_hatch) {
-      this.regl_wrapper.rect_hatch()({
+      const props: RectHatchGlyphProps = {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         center: mainGlGlyph._centers,
@@ -87,13 +88,14 @@ export class RectGL extends BaseGLGlyph {
         fill_color: this._fill_rgba,
         line_join: this._line_joins,
         show: this._show,
-        hatch_pattern: this._hatch_patterns,
-        hatch_scale: this._hatch_scales,
-        hatch_weight: this._hatch_weights,
-        hatch_color: this._hatch_rgba,
-      })
+        hatch_pattern: this._hatch_patterns!,
+        hatch_scale: this._hatch_scales!,
+        hatch_weight: this._hatch_weights!,
+        hatch_color: this._hatch_rgba!,
+      }
+      this.regl_wrapper.rect_hatch()(props)
     } else {
-      this.regl_wrapper.rect_no_hatch()({
+      const props: RectGlyphProps = {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         center: mainGlGlyph._centers,
@@ -107,7 +109,8 @@ export class RectGL extends BaseGLGlyph {
         fill_color: this._fill_rgba,
         line_join: this._line_joins,
         show: this._show,
-      })
+      }
+      this.regl_wrapper.rect_no_hatch()(props)
     }
   }
 

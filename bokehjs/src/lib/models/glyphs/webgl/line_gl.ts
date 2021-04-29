@@ -5,6 +5,7 @@ import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
 import {cap_lookup, join_lookup} from "./webgl_utils"
+import {LineGlyphProps, LineDashGlyphProps} from "./types"
 
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -22,24 +23,20 @@ export class LineGL extends BaseGLGlyph {
   protected _color: number[]
   protected _miter_limit: number
   protected _line_dash: number[]
-  protected _dash_offset: number
   protected _is_closed: boolean
 
   // Only needed if line has dashes.
-  protected _length_so_far: Float32Array | undefined
-  protected _dash_tex: Texture2D | undefined
-  protected _dash_tex_info: number[] | undefined
-  protected _dash_scale: number | undefined
-
-  protected _debug_show_mesh: boolean
+  protected _length_so_far?: Float32Array
+  protected _dash_tex?: Texture2D
+  protected _dash_tex_info?: number[]
+  protected _dash_scale?: number
+  protected _dash_offset?: number
 
   constructor(regl_wrapper: ReglWrapper, readonly glyph: LineView) {
     super(regl_wrapper, glyph)
 
     this._antialias = 1.5   // Make this larger to test antialiasing at edges.
     this._miter_limit = 5.0 // Threshold for miters to be replaced by bevels.
-
-    this._debug_show_mesh = false
   }
 
   draw(_indices: number[], mainGlyph: LineView, transform: Transform): void {
@@ -59,54 +56,43 @@ export class LineGL extends BaseGLGlyph {
     const line_visuals = this.glyph.visuals.line
     const linewidth = line_visuals.line_width.value
     const antialias = Math.min(this._antialias, linewidth)
-    const cap_type = cap_lookup[line_visuals.line_cap.value]
-    const join_type = join_lookup[line_visuals.line_join.value]
+    const line_cap = cap_lookup[line_visuals.line_cap.value]
+    const line_join = join_lookup[line_visuals.line_join.value]
 
-    if (this._is_dashed())
-      this.regl_wrapper.dashed_line()({
+    if (this._is_dashed()) {
+      const props: LineDashGlyphProps = {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        color: this._color,
+        line_color: this._color,
         linewidth,
         antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type,
-        cap_type,
-        length_so_far: this._length_so_far,
-        dash_tex: this._dash_tex,
-        dash_tex_info: this._dash_tex_info,
-        dash_scale: this._dash_scale,
-        dash_offset: this._dash_offset,
-      })
-    else
-      this.regl_wrapper.solid_line()({
+        line_join,
+        line_cap,
+        length_so_far: this._length_so_far!,
+        dash_tex: this._dash_tex!,
+        dash_tex_info: this._dash_tex_info!,
+        dash_scale: this._dash_scale!,
+        dash_offset: this._dash_offset!,
+      }
+      this.regl_wrapper.dashed_line()(props)
+    } else {
+      const props: LineGlyphProps = {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        color: this._color,
+        line_color: this._color,
         linewidth,
         antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
-        join_type,
-        cap_type,
-      })
-
-    if (this._debug_show_mesh)
-      this.regl_wrapper.line_mesh()({
-        canvas_size: [transform.width, transform.height],
-        pixel_ratio: transform.pixel_ratio,
-        color: [0, 0, 0, 1],
-        linewidth,
-        antialias,
-        miter_limit: this._miter_limit,
-        points: this._points,
-        nsegments: this._nsegments,
-        join_type,
-        cap_type,
-      })
+        line_join,
+        line_cap,
+      }
+      this.regl_wrapper.solid_line()(props)
+    }
   }
 
   protected _is_dashed(): boolean {
