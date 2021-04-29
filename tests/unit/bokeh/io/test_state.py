@@ -42,15 +42,15 @@ class Test_State:
     def test_default_file_resources(self) -> None:
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['resources'].minified, True
+        assert s.file.resources.minified, True
 
     def test_output_file(self) -> None:
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['filename'] == "foo.html"
-        assert s.file['title'] == "Bokeh Plot"
-        assert s.file['resources'].log_level == 'info'
-        assert s.file['resources'].minified == True
+        assert s.file.filename == "foo.html"
+        assert s.file.title == "Bokeh Plot"
+        assert s.file.resources.log_level == 'info'
+        assert s.file.resources.minified == True
 
     @patch('bokeh.io.state.log')
     @patch('os.path.isfile')
@@ -58,10 +58,10 @@ class Test_State:
         mock_isfile.return_value = True
         s = bis.State()
         s.output_file("foo.html")
-        assert s.file['filename'] == "foo.html"
-        assert s.file['title'] == "Bokeh Plot"
-        assert s.file['resources'].log_level == 'info'
-        assert s.file['resources'].minified == True
+        assert s.file.filename == "foo.html"
+        assert s.file.title == "Bokeh Plot"
+        assert s.file.resources.log_level == 'info'
+        assert s.file.resources.minified == True
         assert mock_log.info.call_count == 1
         assert mock_log.info.call_args[0] == (
             "Session output file 'foo.html' already exists, will be overwritten.",

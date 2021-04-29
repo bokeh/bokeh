@@ -59,3 +59,9 @@ Use ``pathlib.Path`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``width`` or ``height`` respectively instead.
+
+``curstate().file`` is now a dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was a `dict`-based ad-hoc data structure. Replace key indexing
+with attribute access.
