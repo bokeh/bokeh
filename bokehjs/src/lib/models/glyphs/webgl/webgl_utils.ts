@@ -5,7 +5,6 @@ import {uint32} from "core/types"
 import {HatchPattern} from "core/property_mixins"
 import {hatch_aliases} from "core/visuals/patterns"
 
-
 // WebGL shaders use integers for caps, joins and hatching.
 export const cap_lookup = {butt: 0, round: 1, square: 2}
 
@@ -30,7 +29,6 @@ const hatch_pattern_lookup: {[key: string]: number} = {
   vertical_wave: 15,
   criss_cross: 16,
 }
-
 
 function hatch_pattern_to_index(pattern: HatchPattern): number {
   return hatch_pattern_lookup[hatch_aliases[pattern] ?? pattern] ?? 0
