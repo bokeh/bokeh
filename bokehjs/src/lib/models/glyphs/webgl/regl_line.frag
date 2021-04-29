@@ -10,9 +10,9 @@ const int bevel_join = 2;
 
 uniform float u_linewidth;
 uniform float u_antialias;
-uniform float u_join_type;
-uniform float u_cap_type;
-uniform vec4 u_color;
+uniform float u_line_join;
+uniform float u_line_cap;
+uniform vec4 u_line_color;
 #ifdef DASHED
 uniform sampler2D u_dash_tex;
 uniform vec4 u_dash_tex_info;
@@ -126,8 +126,8 @@ mat2 rotation_matrix(in float sign_start)
 
 void main()
 {
-    int join_type = int(u_join_type + 0.5);
-    int cap_type = int(u_cap_type + 0.5);
+    int join_type = int(u_line_join + 0.5);
+    int cap_type = int(u_line_cap + 0.5);
     float halfwidth = 0.5*(u_linewidth + u_antialias);
 
     // Extract flags.
@@ -240,6 +240,6 @@ void main()
     }
 #endif
 
-    alpha = u_color.a*alpha;
-    gl_FragColor = vec4(u_color.rgb*alpha, alpha);  // Premultiplied alpha.
+    alpha = u_line_color.a*alpha;
+    gl_FragColor = vec4(u_line_color.rgb*alpha, alpha);  // Premultiplied alpha.
 }
