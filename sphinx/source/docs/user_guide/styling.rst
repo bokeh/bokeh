@@ -410,9 +410,10 @@ Title
 To style the title of your plot, use the |Title| annotation, which is available
 as the ``.title`` property of the |Plot|.
 
-You can use most of the standard `Text Properties`_. However, ``text_align`` and
-``text_baseline`` do not apply. To position the title relative to the entire
-plot, use the properties :class:`~bokeh.models.annotations.Title.align` and
+You can use most of the standard :ref:`text properties <userguide_styling_text_properties>`.
+However, ``text_align`` and ``text_baseline`` do not apply. To position the
+title relative to the entire plot, use the properties
+:class:`~bokeh.models.annotations.Title.align` and
 :class:`~bokeh.models.annotations.Title.offset` instead.
 
 As an example, to set the color and font style of the title text, use
@@ -458,8 +459,9 @@ Outline
 ~~~~~~~
 
 Bokeh :class:`~bokeh.models.plots.Plot` objects have various
-`line properties <Line properties>`_. To change the appearance of outlines, use
-those line properties that are prefixed with ``outline_``.
+:ref:`line properties <userguide_styling_line_properties>`. To change the
+appearance of outlines, use those line properties that are prefixed with
+``outline_``.
 
 For example, to set the color of the outline, use ``outline_line_color``:
 
@@ -645,8 +647,9 @@ property. To add line breaks to the text in an axis label, include ``\n`` in
 your string.
 
 To control the visual appearance of the label text, use
-`Text Properties`_ prefixed with ``axis_label_``. For instance, to set the text
-color of the label, set ``axis_label_text_color``.
+:ref:`text properties <userguide_styling_text_properties>` prefixed with
+``axis_label_``. For instance, to set the text color of the label, set
+``axis_label_text_color``.
 
 To change the distance between the axis label and the major tick labels, set the
 ``axis_label_standoff`` property.
@@ -704,8 +707,8 @@ Tick lines
 ~~~~~~~~~~
 
 To control the visual appearance of the major and minor ticks, set the
-appropriate `Line Properties`_, prefixed with ``major_tick_`` and
-``minor_tick_``, respectively.
+appropriate :ref:`line properties <userguide_styling_line_properties>`, prefixed
+with ``major_tick_`` and ``minor_tick_``, respectively.
 
 For instance, to set the color of the major ticks, use
 ``major_tick_line_color``. To hide either set of ticks, set the color to
@@ -839,7 +842,8 @@ Lines
 ~~~~~
 
 To configure the visual appearance of grid lines, use a collection of
-`Line Properties`_, prefixed with ``grid_``.
+:ref:`line properties <userguide_styling_line_properties>`, prefixed with
+``grid_``.
 
 For instance, to set the color of grid lines, use ``grid_line_color``. To hide
 grid lines, set their line color to ``None``:
@@ -851,7 +855,7 @@ Minor lines
 ~~~~~~~~~~~
 
 To configure the visual appearance of minor grid lines, use a collection of
-`Line Properties`_, prefixed with ``minor_grid_``.
+:ref:`line properties <userguide_styling_line_properties>`, prefixed with ``minor_grid_``.
 
 For instance, to set the color of grid lines, use ``minor_grid_line_color``. By
 default, minor grid lines are hidden (which means that their line color is set
@@ -867,7 +871,9 @@ Bands
 
 Use "bands" to display filled, shaded bands between adjacent grid lines. To
 control the visual appearance of these bands, use a collection of
-`Fill Properties`_ and `Hatch Properties`_ that are prefixed with ``band_``.
+:ref:`fill properties <userguide_styling_fill_properties>` and
+:ref:`hatch properties <userguide_styling_hatch_properties>` that are prefixed
+with ``band_``.
 
 For instance, to set the color of grid bands, use ``band_fill_color``. To hide
 grid bands, set their fill color to ``None`` (this is the default).
@@ -983,8 +989,9 @@ To add or change a legend's title, use its ``title`` property:
     plot.legend.title = "Division"
 
 To control the visual appearance of the legend title, use a collection of
-`Text Properties`_, prefixed with ``title_``. For instance, to set the font
-style of the legend, use ``title_text_font_style``.
+:ref:`text properties <userguide_styling_text_properties>`, prefixed with
+``title_``. For instance, to set the font style of the legend, use
+``title_text_font_style``.
 
 To set the distance between the title and the rest of the legend (in pixels),
 use the ``title_standoff`` property.
@@ -1010,8 +1017,9 @@ Label text
 ~~~~~~~~~~
 
 To control the visual appearance of the legend labels, use a collection of
-`Text Properties`_, prefixed with ``label_``. For instance, to set the font
-style of the labels, use ``label_text_font_style``.
+:ref:`text properties <userguide_styling_text_properties>`, prefixed with
+``label_``. For instance, to set the font style of the labels, use
+``label_text_font_style``.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_label_text.py
     :source-position: above
@@ -1020,9 +1028,10 @@ Border
 ~~~~~~
 
 To control the visual appearance of the legend border, use a collection of
-`Line Properties`_, prefixed with ``border_``. For instance, to set the color
-of the border, use ``border_line_color``. To make the border invisible, set
-the border line color to ``None``.
+:ref:`line properties <userguide_styling_line_properties>`, prefixed with
+``border_``. For instance, to set the color of the border, use
+``border_line_color``. To make the border invisible, set the border line color
+to ``None``.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_border.py
     :source-position: above
@@ -1031,9 +1040,10 @@ Background
 ~~~~~~~~~~
 
 To control the visual appearance of the legend background, use a collection
-of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
-color of the background, use ``background_fill_color``. To make the background
-transparent, set the ``background_fill_alpha`` to ``0``.
+of :ref:`fill properties <userguide_styling_fill_properties>`, prefixed with
+``background_``. For instance, to set the color of the background, use
+``background_fill_color``. To make the background transparent, set the
+``background_fill_alpha`` to ``0``.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_background.py
     :source-position: above
