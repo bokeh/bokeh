@@ -4,6 +4,7 @@
 .. |data units|         replace:: :ref:`data units <userguide_styling_units>`
 .. |developers guide|   replace:: :ref:`developers guide <devguide>`
 .. |fill properties|    replace:: :ref:`fill properties <userguide_styling_fill_properties>`
+.. |hatch properties|   replace:: :ref:`hatch properties <userguide_styling_hatch_properties>`
 .. |interactive legends| replace:: :ref:`interactive legends <userguide_interaction_legends>`
 .. |line properties|    replace:: :ref:`line properties <userguide_styling_line_properties>`
 .. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`

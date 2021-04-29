@@ -456,9 +456,8 @@ to all sides as a convenience. The ``min_border`` default value is 40px.
 Outline
 ~~~~~~~
 
-Bokeh |Plot| objects have various `line properties <Line properties>`_. To
-change the appearance of outlines, use those line properties that are prefixed
-with ``outline_``.
+Bokeh |Plot| objects have various |line properties|. To change the appearance of
+outlines, use those line properties that are prefixed with ``outline_``.
 
 For example, to set the color of the outline, use ``outline_line_color``:
 
@@ -703,7 +702,7 @@ Tick lines
 ~~~~~~~~~~
 
 To control the visual appearance of the major and minor ticks, set the
-appropriate `Line Properties`_, prefixed with ``major_tick_`` and
+appropriate |line properties|, prefixed with ``major_tick_`` and
 ``minor_tick_``, respectively.
 
 For instance, to set the color of the major ticks, use
@@ -838,7 +837,7 @@ Lines
 ~~~~~
 
 To configure the visual appearance of grid lines, use a collection of
-`Line Properties`_, prefixed with ``grid_``.
+|line properties|, prefixed with ``grid_``.
 
 For instance, to set the color of grid lines, use ``grid_line_color``. To hide
 grid lines, set their line color to ``None``:
@@ -850,7 +849,7 @@ Minor lines
 ~~~~~~~~~~~
 
 To configure the visual appearance of minor grid lines, use a collection of
-`Line Properties`_, prefixed with ``minor_grid_``.
+|line properties|, prefixed with ``minor_grid_``.
 
 For instance, to set the color of grid lines, use ``minor_grid_line_color``. By
 default, minor grid lines are hidden (which means that their line color is set
@@ -866,7 +865,7 @@ Bands
 
 Use "bands" to display filled, shaded bands between adjacent grid lines. To
 control the visual appearance of these bands, use a collection of
-`Fill Properties`_ and `Hatch Properties`_ that are prefixed with ``band_``.
+|fill properties| and |hatch properties| that are prefixed with ``band_``.
 
 For instance, to set the color of grid bands, use ``band_fill_color``. To hide
 grid bands, set their fill color to ``None`` (this is the default).
@@ -1019,7 +1018,7 @@ Border
 ~~~~~~
 
 To control the visual appearance of the legend border, use a collection of
-`Line Properties`_, prefixed with ``border_``. For instance, to set the color
+|line properties|, prefixed with ``border_``. For instance, to set the color
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
@@ -1030,7 +1029,7 @@ Background
 ~~~~~~~~~~
 
 To control the visual appearance of the legend background, use a collection
-of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
+of |fill properties|, prefixed with ``background_``. For instance, to set the
 color of the background, use ``background_fill_color``. To make the background
 transparent, set the ``background_fill_alpha`` to ``0``.
 
