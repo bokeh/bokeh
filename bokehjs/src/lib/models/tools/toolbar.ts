@@ -23,7 +23,7 @@ type ActiveGestureToolsProps = {
   active_drag: p.Property<Drag | "auto" | null>
   active_scroll: p.Property<Scroll | "auto" | null>
   active_tap: p.Property<Tap | "auto" | null>
-  active_multi: p.Property<GestureTool | null>
+  active_multi: p.Property<GestureTool | "auto" | null>
 }
 
 type ActiveToolsProps = ActiveGestureToolsProps & {
@@ -38,7 +38,7 @@ export namespace Toolbar {
 
 export interface Toolbar extends Toolbar.Attrs {}
 
-const _get_active_attr = (et: string): keyof ActiveGestureToolsProps | null => {
+function _get_active_attr(et: string): keyof ActiveGestureToolsProps | null {
   switch (et) {
     case 'tap': return 'active_tap'
     case 'pan': return 'active_drag'
@@ -49,7 +49,7 @@ const _get_active_attr = (et: string): keyof ActiveGestureToolsProps | null => {
   return null
 }
 
-const _supports_auto = (et: string) => {
+function _supports_auto(et: string): boolean {
   return et == 'tap' || et == 'pan'
 }
 
@@ -63,12 +63,12 @@ export class Toolbar extends ToolbarBase {
   static init_Toolbar(): void {
     this.prototype.default_view = ToolbarBaseView
 
-    this.define<Toolbar.Props>(({Or, Ref, Auto, Null, Nullable}) => ({
-      active_drag:     [ Or(Ref(Drag), Auto, Null), "auto" ],
-      active_inspect:  [ Or(Ref(Inspection), Auto, Null), "auto" ],
-      active_scroll:   [ Or(Ref(Scroll), Auto, Null), "auto" ],
-      active_tap:      [ Or(Ref(Tap), Auto, Null), "auto" ],
-      active_multi:    [ Nullable(Ref(GestureTool)), null ],
+    this.define<Toolbar.Props>(({Or, Ref, Auto, Null}) => ({
+      active_drag:    [ Or(Ref(Drag), Auto, Null), "auto" ],
+      active_inspect: [ Or(Ref(Inspection), Auto, Null), "auto" ],
+      active_scroll:  [ Or(Ref(Scroll), Auto, Null), "auto" ],
+      active_tap:     [ Or(Ref(Tap), Auto, Null), "auto" ],
+      active_multi:   [ Or(Ref(GestureTool), Auto, Null), "auto" ],
     }))
   }
 

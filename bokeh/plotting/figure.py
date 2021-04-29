@@ -43,6 +43,7 @@ from ..models import (
 )
 from ..models.tools import (
     Drag,
+    GestureTool,
     InspectTool,
     Scroll,
     Tap,
@@ -183,7 +184,15 @@ class Figure(Plot):
 
         tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+        process_active_tools(
+            self.toolbar,
+            tool_map,
+            opts.active_drag,
+            opts.active_inspect,
+            opts.active_scroll,
+            opts.active_tap,
+            opts.active_multi,
+        )
 
     @glyph_method(glyphs.AnnularWedge)
     def annular_wedge(self, **kwargs):
@@ -1607,18 +1616,10 @@ def markers():
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
-class FigureOptions(Options):
+class BaseFigureOptions(Options):
 
     tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
     Tools the plot should start with.
-    """)
-
-    x_range = Any(help="""
-    Customize the x-range of the plot.
-    """)
-
-    y_range = Any(help="""
-    Customize the y-range of the plot.
     """)
 
     x_minor_ticks = Either(Auto, Int, default="auto", help="""
@@ -1645,28 +1646,24 @@ class FigureOptions(Options):
     A label for the y-axis.
     """)
 
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
+    active_drag = Either(Null, Auto, String, Instance(Drag), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
+    active_inspect = Either(Null, Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
+    active_scroll = Either(Null, Auto, String, Instance(Scroll), default="auto", help="""
     Which scroll tool should initially be active.
     """)
 
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
+    active_tap = Either(Null, Auto, String, Instance(Tap), default="auto", help="""
     Which tap tool should initially be active.
     """)
 
-    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the x-axis.
-    """)
-
-    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the y-axis.
+    active_multi = Either(Null, Auto, String, Instance(GestureTool), default="auto", help="""
+    Specify an active multi-gesture tool, for instance an edit tool or a range tool.
     """)
 
     tooltips = Either(Null, String, List(Tuple(String, String)), help="""
@@ -1676,6 +1673,24 @@ class FigureOptions(Options):
     hover tools ``tooltips`` value. If no hover tool is specified in the
     ``tools`` argument, then passing tooltips here will cause one to be created
     and added.
+    """)
+
+class FigureOptions(BaseFigureOptions):
+
+    x_range = Any(help="""
+    Customize the x-range of the plot.
+    """)
+
+    y_range = Any(help="""
+    Customize the y-range of the plot.
+    """)
+
+    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the x-axis.
+    """)
+
+    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the y-axis.
     """)
 
 #-----------------------------------------------------------------------------

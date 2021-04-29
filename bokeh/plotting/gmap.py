@@ -18,16 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import (
-    Auto,
-    Either,
-    Enum,
-    Instance,
-    Int,
-    Seq,
-    String,
-)
 from ..models import (
     GMapPlot,
     LinearAxis,
@@ -35,17 +25,10 @@ from ..models import (
     MercatorTickFormatter,
     Range1d,
     Title,
-    Tool,
 )
-from ..models.tools import (
-    Drag,
-    InspectTool,
-    Scroll,
-    Tap,
-)
-from ..util.options import Options
+from ._plot import _get_num_minor_ticks
 from ._tools import process_active_tools, process_tools_arg
-from .figure import Figure
+from .figure import BaseFigureOptions, Figure
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -97,18 +80,29 @@ class GMap(GMapPlot):
 
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
-        xf = MercatorTickFormatter(dimension="lon")
-        xt = MercatorTicker(dimension="lon")
-        self.add_layout(LinearAxis(formatter=xf, ticker=xt), 'below')
+        if opts.x_axis_location is not None:
+            xf = MercatorTickFormatter(dimension="lon")
+            xt = MercatorTicker(dimension="lon")
+            xt.num_minor_ticks = _get_num_minor_ticks(LinearAxis, opts.x_minor_ticks)
+            self.add_layout(LinearAxis(formatter=xf, ticker=xt, axis_label=opts.x_axis_label), opts.x_axis_location)
 
-        yf = MercatorTickFormatter(dimension="lat")
-        yt = MercatorTicker(dimension="lat")
-        self.add_layout(LinearAxis(formatter=yf, ticker=yt), 'left')
+        if opts.y_axis_location is not None:
+            yf = MercatorTickFormatter(dimension="lat")
+            yt = MercatorTicker(dimension="lat")
+            yt.num_minor_ticks = _get_num_minor_ticks(LinearAxis, opts.y_minor_ticks)
+            self.add_layout(LinearAxis(formatter=yf, ticker=yt, axis_label=opts.y_axis_label), opts.y_axis_location)
 
-        tool_objs, tool_map = process_tools_arg(self, opts.tools)
+        tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
-
+        process_active_tools(
+            self.toolbar,
+            tool_map,
+            opts.active_drag,
+            opts.active_inspect,
+            opts.active_scroll,
+            opts.active_tap,
+            opts.active_multi,
+        )
 
     annular_wedge = Figure.annular_wedge
 
@@ -247,51 +241,8 @@ def gmap(google_api_key, map_options, **kwargs):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GMapFigureOptions(Options):
-
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
-    Tools the plot should start with.
-    """)
-
-    x_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent x-axis major ticks.
-    """)
-
-    y_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent y-axis major ticks.
-    """)
-
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
-    Where the x-axis should be located.
-    """)
-
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
-    Where the y-axis should be located.
-    """)
-
-    x_axis_label = String(default="", help="""
-    A label for the x-axis.
-    """)
-
-    y_axis_label = String(default="", help="""
-    A label for the y-axis.
-    """)
-
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
-    Which scroll tool should initially be active.
-    """)
-
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
-    Which tap tool should initially be active.
-    """)
+class GMapFigureOptions(BaseFigureOptions):
+    pass
 
 #-----------------------------------------------------------------------------
 # Private API
