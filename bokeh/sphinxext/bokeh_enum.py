@@ -44,6 +44,8 @@ the same output above will be generated directly from the following code:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)

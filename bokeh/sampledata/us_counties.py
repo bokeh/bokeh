@@ -30,6 +30,8 @@ The combination of ``'detailed name'`` and ``'state'`` will always be unique.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

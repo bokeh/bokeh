@@ -43,6 +43,8 @@ updating all of the files in the :bokeh-tree:`examples` subdirectory.
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)

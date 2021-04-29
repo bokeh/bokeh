@@ -41,6 +41,8 @@ This will cause the sample data to be stored in ``/tmp/bokeh_data``.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

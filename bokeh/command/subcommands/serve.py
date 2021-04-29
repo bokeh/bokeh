@@ -400,6 +400,8 @@ logging stats is 0 (disabled). Only positive integer values are accepted.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

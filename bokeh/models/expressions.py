@@ -31,6 +31,8 @@ browser by the JavaScript implementation of ``some_expression`` using a
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

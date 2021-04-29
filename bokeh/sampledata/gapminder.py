@@ -37,6 +37,8 @@ This module contains four pandas Dataframes: ``fertility``, ``life_expectancy``,
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

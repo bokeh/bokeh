@@ -79,6 +79,8 @@ that can be used to attach Bokeh properties to Bokeh models.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

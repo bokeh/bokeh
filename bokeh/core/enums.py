@@ -63,6 +63,8 @@ Enumerations can be easily documented in Sphinx documentation with the
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
