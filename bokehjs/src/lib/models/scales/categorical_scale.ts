@@ -1,6 +1,6 @@
 import {Scale} from "./scale"
 import {LinearScale} from "./linear_scale"
-import {FactorRange} from "../ranges/factor_range"
+import {FactorRange, FactorLike} from "../ranges/factor_range"
 import * as p from "core/properties"
 
 const {_linear_compute_state} = LinearScale.prototype
@@ -12,7 +12,7 @@ export namespace CategoricalScale {
 
 export interface CategoricalScale extends CategoricalScale.Attrs {}
 
-export class CategoricalScale extends Scale {
+export class CategoricalScale extends Scale<FactorLike> {
   properties: CategoricalScale.Props
 
   constructor(attrs?: Partial<CategoricalScale.Attrs>) {
@@ -21,7 +21,7 @@ export class CategoricalScale extends Scale {
 
   source_range: FactorRange
 
-  get s_compute(): (x: number) => number {
+  get s_compute(): (x: FactorLike) => number {
     const [factor, offset] = _linear_compute_state.call(this)
     const range = this.source_range
     return (x) => factor*range.synthetic(x) + offset

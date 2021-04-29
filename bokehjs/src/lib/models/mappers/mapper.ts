@@ -11,7 +11,7 @@ export namespace Mapper {
 
 export interface Mapper<T> extends Mapper.Attrs {}
 
-export abstract class Mapper<T> extends Transform<T> {
+export abstract class Mapper<T> extends Transform<number, T> {
   properties: Mapper.Props
 
   constructor(attrs?: Partial<Mapper.Attrs>) {

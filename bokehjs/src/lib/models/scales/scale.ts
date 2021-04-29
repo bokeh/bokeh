@@ -13,9 +13,9 @@ export namespace Scale {
   }
 }
 
-export interface Scale extends Scale.Attrs {}
+export interface Scale<T = number> extends Scale.Attrs {}
 
-export abstract class Scale extends Transform {
+export abstract class Scale<T = number> extends Transform<T, number> {
   properties: Scale.Props
 
   constructor(attrs?: Partial<Scale.Attrs>) {
@@ -29,15 +29,15 @@ export abstract class Scale extends Transform {
     }))
   }
 
-  abstract get s_compute(): (x: number) => number
+  abstract get s_compute(): (x: T) => number
 
   abstract get s_invert(): (sx: number) => number
 
-  compute(x: number): number {
+  compute(x: T): number {
     return this.s_compute(x)
   }
 
-  v_compute(xs: Arrayable<number>): ScreenArray {
+  v_compute(xs: Arrayable<T>): ScreenArray {
    const result = new ScreenArray(xs.length)
    const {s_compute} = this
    for (let i = 0; i < xs.length; i++) {
@@ -59,7 +59,7 @@ export abstract class Scale extends Transform {
     return result
   }
 
-  r_compute(x0: number, x1: number): [number, number] {
+  r_compute(x0: T, x1: T): [number, number] {
     const {s_compute} = this
     if (this.target_range.is_reversed)
       return [s_compute(x1), s_compute(x0)]
