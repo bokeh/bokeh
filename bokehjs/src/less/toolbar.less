@@ -121,19 +121,22 @@
 
   .bk-tool-overflow {
     color: gray;
+    display: flex;
+    align-items: center;
   }
 
   .bk-toolbar.bk-above, .bk-toolbar.bk-below {
     .bk-tool-overflow {
       width: @buttonWidth ./ 2;
       height: @buttonHeight;
+      flex-direction: row;
     }
   }
   .bk-toolbar.bk-left, .bk-toolbar.bk-right {
     .bk-tool-overflow {
       width: @buttonWidth;
       height: @buttonHeight ./ 2;
-      text-align: center;
+      flex-direction: column;
     }
   }
 }
