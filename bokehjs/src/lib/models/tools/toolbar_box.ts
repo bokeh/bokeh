@@ -8,7 +8,7 @@ import {ButtonTool} from "./button_tool"
 import {ActionTool} from "./actions/action_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, GestureType} from "./toolbar_base"
+import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
 import {Toolbar} from "./toolbar"
 import {ToolProxy} from "./tool_proxy"
 
@@ -175,6 +175,13 @@ export class ToolbarBoxView extends LayoutDOMView {
         width_policy: "fixed", height_policy: "fit", min_height: 100,
       })
     }
+  }
+
+  after_layout(): void {
+    super.after_layout()
+    const toolbar_view = this.child_views[0] as any as ToolbarBaseView
+    toolbar_view.layout.bbox = this.layout.bbox
+    toolbar_view.render() // render the second time to revise overflow
   }
 }
 
