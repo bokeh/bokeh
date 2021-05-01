@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {Style} from "./style"
+import {Styles} from "./styles"
 import {span} from "core/dom"
 import {View} from "core/view"
 import {DOMView} from "core/dom_view"
@@ -13,7 +13,7 @@ import * as styles from "styles/tooltips.css"
 import {Index as DataIndex, _get_column_value} from "core/util/templating"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
-export {Style}
+export {Styles}
 
 export abstract class DOMNodeView extends DOMView {
   model: DOMNode
@@ -218,8 +218,8 @@ export class ColorRef extends ValueRef {
   }
 }
 
-export abstract class HTMLView extends DOMNodeView {
-  model: HTML
+export abstract class DOMElementView extends DOMNodeView {
+  model: DOMElement
   el: HTMLElement
 
   child_views: Map<DOMNode | LayoutDOM, DOMNodeView | LayoutDOMView> = new Map()
@@ -242,7 +242,7 @@ export abstract class HTMLView extends DOMNodeView {
       //this.el.style[key as Key] = value
       */
 
-      if (style instanceof Style) {
+      if (style instanceof Styles) {
         for (const prop of style) {
           const value = prop.get_value()
           if (isString(value)) {
@@ -274,27 +274,27 @@ export abstract class HTMLView extends DOMNodeView {
   }
 }
 
-export namespace HTML {
+export namespace DOMElement {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
-    style: p.Property<Style | {[key: string]: string} | null>
+    style: p.Property<Styles | {[key: string]: string} | null>
     children: p.Property<(string | DOMNode | LayoutDOM)[]>
   }
 }
 
-export interface HTML extends HTML.Attrs {}
+export interface DOMElement extends DOMElement.Attrs {}
 
-export abstract class HTML extends DOMNode {
-  properties: HTML.Props
-  __view_type__: HTMLView
+export abstract class DOMElement extends DOMNode {
+  properties: DOMElement.Props
+  __view_type__: DOMElementView
 
-  constructor(attrs?: Partial<HTML.Attrs>) {
+  constructor(attrs?: Partial<DOMElement.Attrs>) {
     super(attrs)
   }
 
-  static init_HTML(): void {
-    this.define<HTML.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
-      style: [ Nullable(Or(Ref(Style), Dict(String))), null ],
+  static init_DOMElement(): void {
+    this.define<DOMElement.Props>(({String, Array, Dict, Or, Nullable, Ref}) => ({
+      style: [ Nullable(Or(Ref(Styles), Dict(String))), null ],
       children: [ Array(Or(String, Ref(DOMNode), Ref(LayoutDOM))), [] ],
     }))
   }
@@ -327,7 +327,7 @@ export abstract class Action extends Model {
   }
 }
 
-export class TemplateView extends HTMLView {
+export class TemplateView extends DOMElementView {
   model: Template
   static tag_name = "div" as const
 
@@ -344,11 +344,11 @@ export class TemplateView extends HTMLView {
   }
 
   update(source: ColumnarDataSource, i: DataIndex, vars: object = {}/*, formatters?: Formatters*/): void {
-    function descend(obj: HTMLView): void {
+    function descend(obj: DOMElementView): void {
       for (const child of obj.child_views.values()) {
         if (child instanceof PlaceholderView) {
           child.update(source, i, vars)
-        } else if (child instanceof HTMLView) {
+        } else if (child instanceof DOMElementView) {
           descend(child)
         }
       }
@@ -364,14 +364,14 @@ export class TemplateView extends HTMLView {
 
 export namespace Template {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = HTML.Props & {
+  export type Props = DOMElement.Props & {
     actions: p.Property<Action[]>
   }
 }
 
 export interface Template extends Template.Attrs {}
 
-export class Template extends HTML {
+export class Template extends DOMElement {
   properties: Template.Props
   __view_type__: TemplateView
 
@@ -383,81 +383,47 @@ export class Template extends HTML {
   }
 }
 
-export class SpanView extends HTMLView {
+export class SpanView extends DOMElementView {
   model: Span
   static tag_name = "span" as const
 }
-export class Span extends HTML {
+export class Span extends DOMElement {
   __view_type__: SpanView
   static init_Span(): void {
     this.prototype.default_view = SpanView
   }
 }
 
-export class DivView extends HTMLView {
+export class DivView extends DOMElementView {
   model: Div
   static tag_name = "div" as const
 }
-export class Div extends HTML {
+export class Div extends DOMElement {
   __view_type__: DivView
   static init_Div(): void {
     this.prototype.default_view = DivView
   }
 }
 
-export class TableView extends HTMLView {
+export class TableView extends DOMElementView {
   model: Table
   static tag_name = "table" as const
 }
-export class Table extends HTML {
+export class Table extends DOMElement {
   __view_type__: TableView
   static init_Table(): void {
     this.prototype.default_view = TableView
   }
 }
 
-export class TableRowView extends HTMLView {
+export class TableRowView extends DOMElementView {
   model: TableRow
   static tag_name = "tr" as const
 }
-export class TableRow extends HTML {
+export class TableRow extends DOMElement {
   __view_type__: TableRowView
   static init_TableRow(): void {
     this.prototype.default_view = TableRowView
-  }
-}
-
-export class VBoxView extends HTMLView {
-  model: VBox
-
-  protected _createElement() {
-    const el = super._createElement()
-    el.style.display = "flex"
-    el.style.flexDirection = "column"
-    return el
-  }
-}
-export class VBox extends HTML {
-  __view_type__: VBoxView
-  static init_VBox(): void {
-    this.prototype.default_view = VBoxView
-  }
-}
-
-export class HBoxView extends HTMLView {
-  model: HBox
-
-  protected _createElement() {
-    const el = super._createElement()
-    el.style.display = "flex"
-    el.style.flexDirection = "row"
-    return el
-  }
-}
-export class HBox extends HTML {
-  __view_type__: HBoxView
-  static init_HBox(): void {
-    this.prototype.default_view = HBoxView
   }
 }
 

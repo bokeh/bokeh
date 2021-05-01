@@ -1,7 +1,44 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+""" An abstraction over the CSS object model.
+
+"""
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Bokeh imports
 from ..core.properties import Nullable, String
 from ..model import Model, Qualified
 
-class Style(Model, Qualified):
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    "Styles",
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+class Styles(Model, Qualified):
+    """ Allows to configure style attribute of DOM elements. """
+
     align_content = Nullable(String)
     align_items = Nullable(String)
     align_self = Nullable(String)
@@ -316,3 +353,15 @@ class Style(Model, Qualified):
     word_wrap = Nullable(String)
     writing_mode = Nullable(String)
     z_index = Nullable(String)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

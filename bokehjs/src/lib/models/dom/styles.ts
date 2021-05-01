@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 
-export namespace Style {
+export namespace Styles {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {
     align_content: p.Property<string | null>
@@ -321,18 +321,18 @@ export namespace Style {
   }
 }
 
-export interface Style extends Style.Attrs {}
+export interface Styles extends Styles.Attrs {}
 
-export class Style extends Model {
-  properties: Style.Props
-  static __module__ = "bokeh.models.style"
+export class Styles extends Model {
+  properties: Styles.Props
+  static __module__ = "bokeh.models.css"
 
-  constructor(attrs?: Partial<Style.Attrs>) {
+  constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)
   }
 
-  static init_Style(): void {
-    this.define<Style.Props>(({String, Nullable}) => ({
+  static init_Styles(): void {
+    this.define<Styles.Props>(({String, Nullable}) => ({
       align_content: [ Nullable(String), null ],
       align_items: [ Nullable(String), null ],
       align_self: [ Nullable(String), null ],
