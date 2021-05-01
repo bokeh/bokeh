@@ -74,7 +74,7 @@ export class ToolbarPanelView extends AnnotationView {
   protected _get_size(): Size {
     const {tools, logo} = this.model.toolbar
     return {
-      width: tools.length*30 + (logo != null ? 25 : 0), // TODO: approximate, use a proper layout instead.
+      width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
       height: 30,
     }
   }

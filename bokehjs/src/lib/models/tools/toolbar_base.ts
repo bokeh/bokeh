@@ -166,6 +166,7 @@ export class ToolbarBaseView extends DOMView {
     const {bbox} = this.layout
 
     let overflowed = false
+    const overflow_size = 15
     this.root.el.appendChild(this._overflow_menu.el)
     const overflow_button = div({class: toolbars.tool_overflow}, horizontal ? "⋮" : "⋯")
     overflow_button.addEventListener("click", () => {
@@ -187,7 +188,7 @@ export class ToolbarBaseView extends DOMView {
         this.el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
         size += horizontal ? width : height
-        overflowed = horizontal ? size > bbox.width - 15 : size > bbox.height - 15
+        overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
         if (overflowed) {
           this.el.removeChild(el)
           this.el.appendChild(overflow_button)
