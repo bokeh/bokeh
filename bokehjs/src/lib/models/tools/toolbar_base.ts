@@ -131,10 +131,15 @@ export class ToolbarBaseView extends DOMView {
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
 
+    const {horizontal} = this.model
+    let size = 0
+
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
       this.el.appendChild(logo_el)
+      const {width, height} = logo_el.getBoundingClientRect()
+      size += horizontal ? width : height
     }
 
     for (const [, button_view] of this._tool_button_views) {
@@ -158,7 +163,6 @@ export class ToolbarBaseView extends DOMView {
     const non_empty = bars.filter((bar) => bar.length != 0)
     const separator = () => div({class: toolbars.tool_separator})
 
-    const {horizontal} = this.model
     const {bbox} = this.layout
 
     let overflowed = false
@@ -176,17 +180,15 @@ export class ToolbarBaseView extends DOMView {
       this._overflow_menu.toggle(at)
     })
 
-    const margin = 0 //15 //px - overflow button's width/height (h/v)
-
     for (const el of join<HTMLElement>(non_empty, separator)) {
       if (overflowed) {
         this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
       } else {
         this.el.appendChild(el)
-        const {right, bottom} = el.getBoundingClientRect()
-        const overflow = horizontal ? right - (bbox.width - margin) : bottom - (bbox.height - margin)
-        if (overflow > 0) {
-          overflowed = true
+        const {width, height} = el.getBoundingClientRect()
+        size += horizontal ? width : height
+        overflowed = horizontal ? size > bbox.width - 15 : size > bbox.height - 15
+        if (overflowed) {
           this.el.removeChild(el)
           this.el.appendChild(overflow_button)
 
