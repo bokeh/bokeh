@@ -16,31 +16,6 @@ df = df[df.group != "-"]
 df = df[df.symbol != "Lr"]
 df = df[df.symbol != "Lu"]
 
-# 1s2
-# [He] 2s2 2p6
-# [Ne] 3s2 3p6
-# [Ar] 3d10 4s2 4p4
-# ->
-# 1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p4
-import re
-econf = "electronic configuration"
-ecs = []
-for ec in df[econf]:
-    n = 1
-    while n != 0:
-        replace = lambda m: df[df.symbol == m.group("name")][econf].values[0]
-        (ec, n) = re.subn(r"\[(?P<name>\w+)\]", replace, ec)
-
-    sc = {}
-    for m in re.finditer(r"(?P<shell>\d+)\w(?P<count>\d+)", ec):
-        s = int(m.group("shell"))
-        c = int(m.group("count"))
-        sc.setdefault(s, 0)
-        sc[s] += c
-
-    ecs.append(list(sc.values()))
-df["electron shells"] = ecs
-
 cmap = {
     "alkali metal"         : "#a6cee3",
     "alkaline earth metal" : "#1f78b4",
@@ -61,68 +36,9 @@ TOOLTIPS = [
     ("Electronic configuration", "@{electronic configuration}"),
 ]
 
-from math import sin, cos, radians
-import numpy as np
-from bokeh.models.renderers import RendererGroup
-def f():
-    fs = []
-    bohr_diagram = figure(
-        #x_range=(-n-e, n+e), y_range=(-n-e, n+e),
-        width=150, height=150,
-        x_axis_type=None, y_axis_type=None,
-        toolbar_location=None, outline_line_color=None,
-        match_aspect=True,
-    )
-    groups = []
-    for sc in df["electron shells"]:
-        n = len(sc)
-        e = 0.2
-        group = RendererGroup(visible=False)
-        groups.append(group)
-        c0 = bohr_diagram.circle(x=0, y=0, radius=list(range(1, n+1)), fill_color=None, line_color="black", visible=False)
-        c0.group = group
-        xs = np.array([])
-        ys = np.array([])
-        for i, c in enumerate(sc):
-            da = 360/c
-            r = i + 1
-            A = np.radians(np.arange(0, 360, da))
-            x = r*np.cos(A)
-            y = r*np.sin(A)
-            xs = np.append(xs, x)
-            ys = np.append(ys, y)
-            #bohr_diagram.circle(x=x, y=y)
-            #bohr_diagram.polar.circle(r=i+1, phi=list(range(0, 360, da)), phi_units="deg")
-        c1 = bohr_diagram.circle(x=xs, y=ys, visible=False)
-        c1.group = group
-    return bohr_diagram, groups
-
-from bokeh.models.dom import Styles, Template, ToggleGroup, Table, TableRow, Div, Span, Index, ValueRef, ColorRef
-
-def tooltips():
-    bohr_diagram, groups = f()
-
-    style = Styles(
-        display="grid",
-        grid_template_columns="auto auto",
-        column_gap="10px",
-    )
-    grid = Div(style=style)
-    grid.children = [
-        Span(),                     Span(children=["#", Index()]),
-        "Name",                     Span(style=dict(font_weight="bold"), children=[ValueRef(field="name")]),
-        "Atomic number",            ValueRef(field="atomic number"),
-        "Atomic mass",              ValueRef(field="atomic mass"),
-        "Type",                     ValueRef(field="metal"),
-        "CPK color",                ColorRef(field="CPK", hex=True, swatch=True),
-        "Electronic configuration", ValueRef(field="electronic configuration"),
-        Span(),                     bohr_diagram,
-    ]
-    return Template(children=[grid], actions=[ToggleGroup(groups=groups)])
-
 p = figure(title="Periodic Table (omitting LA and AC Series)", width=1000, height=450,
            x_range=groups, y_range=list(reversed(periods)),
-           tools="hover", toolbar_location=None, tooltips=tooltips())
+           tools="hover", toolbar_location=None, tooltips=TOOLTIPS)
 
 r = p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend_field="metal",
            color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
