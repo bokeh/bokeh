@@ -99,21 +99,21 @@
     .toolbar-button-border(right);
   }
 
-  .bk-tool-separator {
+  .bk-divider {
     content: " ";
     display: inline-block;
     background-color: @buttonColor;
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
-    .bk-tool-separator {
+  .bk-above, .bk-below {
+    .bk-divider {
       height: 10px;
       width: 1px;
     }
   }
 
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
-    .bk-tool-separator {
+  .bk-left, .bk-right {
+    .bk-divider {
       height: 1px;
       width: 10px;
     }
@@ -125,14 +125,14 @@
     align-items: center;
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+  .bk-above, .bk-below, .bk-horizontal {
     .bk-tool-overflow {
       width: @buttonWidth ./ 2;
       height: @buttonHeight;
       flex-direction: row;
     }
   }
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+  .bk-left, .bk-right, .bk-vertical {
     .bk-tool-overflow {
       width: @buttonWidth;
       height: @buttonHeight ./ 2;

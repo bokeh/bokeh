@@ -161,7 +161,7 @@ export class ToolbarBaseView extends DOMView {
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
 
     const non_empty = bars.filter((bar) => bar.length != 0)
-    const separator = () => div({class: toolbars.tool_separator})
+    const divider = () => div({class: toolbars.divider})
 
     const {bbox} = this.layout
 
@@ -180,7 +180,7 @@ export class ToolbarBaseView extends DOMView {
       this._overflow_menu.toggle(at)
     })
 
-    for (const el of join<HTMLElement>(non_empty, separator)) {
+    for (const el of join<HTMLElement>(non_empty, divider)) {
       if (overflowed) {
         this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
       } else {
@@ -194,7 +194,7 @@ export class ToolbarBaseView extends DOMView {
 
           const {items} = this._overflow_menu
           items.splice(0, items.length)
-          items.push({content: el, class: horizontal ? "bk-below" : "bk-left"})
+          items.push({content: el})
         }
       }
     }

@@ -140,6 +140,8 @@ export class ContextMenu {
         el = div({class: menus.divider})
       } else if (item.if != null && !item.if()) {
         continue
+      } else if (item.content != null) {
+        el = item.content
       } else {
         const icon = item.icon != null ? div({class: ["bk-menu-icon", item.icon]}) : null
         const classes = [item.active?.() ? "bk-active": null, item.class]
