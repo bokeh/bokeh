@@ -24,10 +24,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
-from dataclasses import dataclass, asdict
 from typing import (
     Any,
-    Optional,
     Sequence,
     Tuple,
     Type,
@@ -36,6 +34,14 @@ from typing import (
 
 # External imports
 from typing_extensions import Literal
+
+# Bokeh imports
+from ..util.dataclasses import (
+    NotRequired,
+    Unspecified,
+    dataclass,
+    values,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -55,15 +61,15 @@ __all__ = (
 
 @dataclass
 class Argument:
-    action: Optional[Literal["store", "store_const", "store_true", "append", "append_const", "count", "help", "version", "extend"]] = None
-    nargs: Optional[Union[int, Literal["?", "*", "+", "..."]]] = None
-    const: Optional[Any] = None
-    default: Optional[Any] = None
-    type: Optional[Type[Any]] = None
-    choices: Optional[Sequence[Any]] = None
-    required: bool = False
-    help: Optional[str] = None
-    metavar: Optional[str] = None
+    action: NotRequired[Literal["store", "store_const", "store_true", "append", "append_const", "count", "help", "version", "extend"]] = Unspecified
+    nargs: NotRequired[Union[int, Literal["?", "*", "+", "..."]]] = Unspecified
+    const: NotRequired[Any] = Unspecified
+    default: NotRequired[Any] = Unspecified
+    type: NotRequired[Type[Any]] = Unspecified
+    choices: NotRequired[Sequence[Any]] = Unspecified
+    required: NotRequired[bool] = Unspecified
+    help: NotRequired[str] = Unspecified
+    metavar: NotRequired[str] = Unspecified
 
 Arg = Tuple[Union[str, Tuple[str, str]], Argument]
 Args = Tuple[Arg, ...]
@@ -140,7 +146,8 @@ class Subcommand(metaclass=ABCMeta):
             flags, spec = arg
             if not isinstance(flags, tuple):
                 flags = (flags,)
-            self.parser.add_argument(*flags, **asdict(spec))
+            spec = { field.name: value for field, value in values(spec) }
+            self.parser.add_argument(*flags, **spec)
 
     @abstractmethod
     def invoke(self, args: Namespace) -> Union[bool, None]:
