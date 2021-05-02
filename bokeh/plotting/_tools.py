@@ -21,12 +21,12 @@ log = logging.getLogger(__name__)
 import itertools
 import re
 import warnings
+from dataclasses import dataclass
 from typing import (
     Any,
     Dict,
     Iterator,
     List,
-    NamedTuple,
     Optional,
     Sequence,
     Tuple,
@@ -196,7 +196,8 @@ def _resolve_tools(tools: Union[str, Sequence[Union[Tool, str]]]) -> Tuple[List[
     return tool_objs, tool_map
 
 def _collect_repeated_tools(tool_objs: List[Tool]) -> Iterator[Tool]:
-    class Item(NamedTuple):
+    @dataclass
+    class Item:
         obj: Tool
         properties: Dict[str, Any]
 

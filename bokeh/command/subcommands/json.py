@@ -52,6 +52,7 @@ from argparse import Namespace
 
 # Bokeh imports
 from ...document import Document
+from ..subcommand import Argument
 from .file_output import FileOutputSubcommand
 
 #-----------------------------------------------------------------------------
@@ -83,7 +84,7 @@ class JSON(FileOutputSubcommand):
 
         FileOutputSubcommand.files_arg("JSON"),
 
-        ('--indent', dict(
+        ('--indent', Argument(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",

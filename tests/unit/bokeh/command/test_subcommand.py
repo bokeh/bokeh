@@ -52,16 +52,21 @@ def test_no_args() -> None:
     p.add_argument.assert_not_called()
 
 def test_one_arg() -> None:
-    _Good.args = (('foo', dict(a=1, b=2)),)
+    _Good.args = (
+        ("foo", sc.Argument(nargs=1, help="foo")),
+    )
     p = MagicMock()
     _Good(p)
-    p.add_argument.assert_called_once_with('foo', **dict(a=1, b=2))
+    assert p.add_argument.call_count == 1
 
 def test_args() -> None:
-    _Good.args = (('foo', dict(a=1, b=2)),('bar', dict(a=3, b=4)))
+    _Good.args = (
+        ("foo", sc.Argument(nargs=1, help="foo")),
+        ("bar", sc.Argument(nargs=2, help="bar")),
+    )
     p = MagicMock()
     _Good(p)
-    p.call_count == 2
+    assert p.add_argument.call_count == 2
 
 def test_base_invoke() -> None:
     with pytest.raises(NotImplementedError):

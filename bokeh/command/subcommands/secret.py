@@ -66,9 +66,6 @@ class Secret(Subcommand):
 
     help = "Create a Bokeh secret key for use with Bokeh server"
 
-    args = (
-    )
-
     def invoke(self, args: Namespace) -> None:
         '''
 

@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from typing import List, Type
 
 # Bokeh imports
-from ..subcommand import Subcommand
+from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
