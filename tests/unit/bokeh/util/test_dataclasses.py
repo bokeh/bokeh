@@ -30,7 +30,7 @@ import bokeh.util.dataclasses as dc # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_values() -> None:
+def test_entries() -> None:
     @dc.dataclass
     class X:
         f0: int
@@ -39,13 +39,13 @@ def test_values() -> None:
         f3: dc.NotRequired[Union[bool, None]] = dc.Unspecified
 
     x0 = X(0, [1, 2, 3])
-    assert { f.name: v for (f, v) in dc.values(x0) } == dict(f0=0, f1=[1, 2, 3], f2=None)
+    assert dict(dc.entries(x0)) == dict(f0=0, f1=[1, 2, 3], f2=None)
 
     x1 = X(0, [1, 2, 3], f3=None)
-    assert { f.name: v for (f, v) in dc.values(x1) } == dict(f0=0, f1=[1, 2, 3], f2=None, f3=None)
+    assert dict(dc.entries(x1)) == dict(f0=0, f1=[1, 2, 3], f2=None, f3=None)
 
     with pytest.raises(TypeError):
-        list(dc.values(object()))
+        list(dc.entries(object()))
 
 #-----------------------------------------------------------------------------
 # Private API

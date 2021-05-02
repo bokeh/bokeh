@@ -40,7 +40,7 @@ from ..util.dataclasses import (
     NotRequired,
     Unspecified,
     dataclass,
-    values,
+    entries,
 )
 
 #-----------------------------------------------------------------------------
@@ -146,8 +146,7 @@ class Subcommand(metaclass=ABCMeta):
             flags, spec = arg
             if not isinstance(flags, tuple):
                 flags = (flags,)
-            spec = { field.name: value for field, value in values(spec) }
-            self.parser.add_argument(*flags, **spec)
+            self.parser.add_argument(*flags, **dict(entries(spec)))
 
     @abstractmethod
     def invoke(self, args: Namespace) -> Union[bool, None]:
