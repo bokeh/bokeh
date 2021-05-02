@@ -244,7 +244,15 @@ class Styles(Model, Qualified):
     max_width = Nullable(String)
     min_block_size = Nullable(String)
     min_height = Nullable(String)
-    min_inline_size = Nullable(String)
+    min_inline_size = Nullable(String, help="""
+    The `min-inline-size`_ CSS property defines the horizontal or vertical
+    minimal size of an element's block, depending on its writing mode. It
+    corresponds to either the ``min-width`` or the ``min-height`` property,
+    depending on the value of ``writing-mode``.
+
+    .. _min-inline-size: https://developer.mozilla.org/en-US/docs/Web/CSS/min-inline-size
+    """)
+
     min_width = Nullable(String)
     object_fit = Nullable(String)
     object_position = Nullable(String)
