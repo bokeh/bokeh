@@ -177,8 +177,8 @@ export class ToolbarBaseView extends DOMView {
         switch (this.model.toolbar_location) {
           case "right": return {left_of:  overflow_button}
           case "left":  return {right_of: overflow_button}
-          case "above": return {below_of: overflow_button}
-          case "below": return {above_of: overflow_button}
+          case "above": return {below: overflow_button}
+          case "below": return {above: overflow_button}
         }
       })()
       this._overflow_menu.toggle(at)

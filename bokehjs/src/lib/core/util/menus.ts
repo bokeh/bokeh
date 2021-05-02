@@ -6,7 +6,7 @@ import /*menus_css,*/ * as menus from "styles/menus.css"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 export type At = ScreenPoint |
-  {left_of:  HTMLElement} | {right_of: HTMLElement} | {below_of: HTMLElement} | {above_of: HTMLElement}
+  {left_of:  HTMLElement} | {right_of: HTMLElement} | {below: HTMLElement} | {above: HTMLElement}
 
 export type MenuEntry = {
   icon?: string
@@ -104,12 +104,12 @@ export class ContextMenu {
           const {top, right} = at.right_of.getBoundingClientRect()
           return {left: right, top}
         }
-        if ("below_of" in at) {
-          const {left, bottom} = at.below_of.getBoundingClientRect()
+        if ("below" in at) {
+          const {left, bottom} = at.below.getBoundingClientRect()
           return {left, top: bottom}
         }
-        if ("above_of" in at) {
-          const {left, top} = at.above_of.getBoundingClientRect()
+        if ("above" in at) {
+          const {left, top} = at.above.getBoundingClientRect()
           return {left, bottom: top}
         }
         return at

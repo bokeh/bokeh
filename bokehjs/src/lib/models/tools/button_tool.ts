@@ -93,8 +93,8 @@ export abstract class ButtonToolButtonView extends DOMView {
       switch (this.parent.model.toolbar_location) {
         case "right": return {left_of:  this.el}
         case "left":  return {right_of: this.el}
-        case "above": return {below_of: this.el}
-        case "below": return {above_of: this.el}
+        case "above": return {below: this.el}
+        case "below": return {above: this.el}
       }
     })()
     this._menu?.toggle(at)
