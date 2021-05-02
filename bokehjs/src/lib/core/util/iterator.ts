@@ -7,12 +7,12 @@ export function* enumerate<T>(seq: Iterable<T>): Iterable<[T, number]> {
   }
 }
 
-export function* join<T>(seq: Iterable<Iterable<T>>, separator: () => T): Iterable<T> {
+export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Iterable<T> {
   let first = true
   for (const entry of seq) {
     if (first)
       first = false
-    else
+    else if (separator != null)
       yield separator()
 
     yield* entry
