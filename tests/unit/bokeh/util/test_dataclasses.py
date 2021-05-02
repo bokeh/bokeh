@@ -4,72 +4,51 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from argparse import Namespace
+from typing import List, Optional, Union
 
-# Bokeh imports
-from bokeh.ext import build
-
-# Bokeh imports
-from ..subcommand import Argument, Subcommand
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = ['Build']
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
+# Module under test
+import bokeh.util.dataclasses as dc # isort:skip
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Build(Subcommand):
-    '''
-    Build a bokeh extension in the given directory.
-    '''
-
-    name = "build"
-
-    help = "Manage and build a bokeh extension"
-
-    args = (
-        ("base_dir", Argument(
-            metavar="BASE_DIR",
-            type=str,
-            nargs="?",
-            default=".",
-        )),
-        ("--rebuild", Argument(
-            action="store_true",
-            help="Ignore all caches and perform a full rebuild",
-        )),
-        ("--debug", Argument(
-            action="store_true",
-            help="Run nodejs in debug mode (use --inspect-brk)",
-        )),
-    )
-
-    def invoke(self, args: Namespace) -> bool:
-        return build(args.base_dir, rebuild=args.rebuild, debug=args.debug)
-
 #-----------------------------------------------------------------------------
 # Dev API
+#-----------------------------------------------------------------------------
+
+def test_entries() -> None:
+    @dc.dataclass
+    class X:
+        f0: int
+        f1: List[str]
+        f2: Optional[X] = None
+        f3: dc.NotRequired[Union[bool, None]] = dc.Unspecified
+
+    x0 = X(0, [1, 2, 3])
+    assert dict(dc.entries(x0)) == dict(f0=0, f1=[1, 2, 3], f2=None)
+
+    x1 = X(0, [1, 2, 3], f3=None)
+    assert dict(dc.entries(x1)) == dict(f0=0, f1=[1, 2, 3], f2=None, f3=None)
+
+    with pytest.raises(TypeError):
+        list(dc.entries(object()))
+
+#-----------------------------------------------------------------------------
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
