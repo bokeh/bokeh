@@ -13,7 +13,7 @@
     transition: visibility 0.3s linear,opacity 0.3s linear;
   }
 
-  .bk-toolbar, .bk-button-bar {
+  .bk-toolbar {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -28,11 +28,6 @@
     flex-direction: row;
     justify-content: flex-end;
 
-    .bk-button-bar {
-      display: flex;
-      flex-direction: row;
-    }
-
     .bk-logo {
       order: 1;
       margin-left: 5px;
@@ -43,11 +38,6 @@
   .bk-toolbar.bk-left, .bk-toolbar.bk-right {
     flex-direction: column;
     justify-content: flex-start;
-
-    .bk-button-bar {
-      display: flex;
-      flex-direction: column;
-    }
 
     .bk-logo {
       order: 0;
@@ -67,7 +57,9 @@
     background-color: transparent;
     background-repeat: no-repeat;
     background-position: center center;
+  }
 
+  .bk-toobar-button, .bk-tool-overflow {
     &:hover {
       background-color: rgba(192, 192, 192, 0.15);
     }
@@ -91,39 +83,60 @@
     }
   }
 
-  .bk-toolbar.bk-above .bk-toolbar-button {
+  .bk-above .bk-toolbar-button {
     .toolbar-button-border(bottom);
   }
 
-  .bk-toolbar.bk-below .bk-toolbar-button {
+  .bk-below .bk-toolbar-button {
     .toolbar-button-border(top);
   }
 
-  .bk-toolbar.bk-right .bk-toolbar-button {
+  .bk-right .bk-toolbar-button {
     .toolbar-button-border(left);
   }
 
-  .bk-toolbar.bk-left .bk-toolbar-button {
+  .bk-left .bk-toolbar-button {
     .toolbar-button-border(right);
   }
 
-  .bk-button-bar + .bk-button-bar:before {
+  .bk-divider {
     content: " ";
     display: inline-block;
     background-color: @buttonColor;
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
-    .bk-button-bar + .bk-button-bar:before {
+  .bk-above, .bk-below {
+    .bk-divider {
       height: 10px;
       width: 1px;
     }
   }
 
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
-    .bk-button-bar + .bk-button-bar:before {
+  .bk-left, .bk-right {
+    .bk-divider {
       height: 1px;
       width: 10px;
+    }
+  }
+
+  .bk-tool-overflow {
+    color: gray;
+    display: flex;
+    align-items: center;
+  }
+
+  .bk-above, .bk-below, .bk-horizontal {
+    .bk-tool-overflow {
+      width: @buttonWidth ./ 2;
+      height: @buttonHeight;
+      flex-direction: row;
+    }
+  }
+  .bk-left, .bk-right, .bk-vertical {
+    .bk-tool-overflow {
+      width: @buttonWidth;
+      height: @buttonHeight ./ 2;
+      flex-direction: column;
     }
   }
 }

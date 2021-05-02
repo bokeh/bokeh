@@ -89,17 +89,12 @@ export abstract class ButtonToolButtonView extends DOMView {
   protected abstract _clicked(): void
 
   protected _pressed(): void {
-    const {left, top, right, bottom} = this.el.getBoundingClientRect()
     const at = (() => {
       switch (this.parent.model.toolbar_location) {
-        case "right":
-          return {right: left, top}
-        case "left":
-          return {left: right, top}
-        case "above":
-          return {left, top: bottom}
-        case "below":
-          return {left, bottom: top}
+        case "right": return {left_of:  this.el}
+        case "left":  return {right_of: this.el}
+        case "above": return {below: this.el}
+        case "below": return {above: this.el}
       }
     })()
     this._menu?.toggle(at)

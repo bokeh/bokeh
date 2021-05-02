@@ -108,7 +108,7 @@ export class ToolProxy extends Model {
       else {
         const handler = () => {
           for (const tool of this.tools) {
-            tool.menu?.[i]?.handler()
+            tool.menu?.[i]?.handler?.()
           }
         }
         items.push({...item, handler})

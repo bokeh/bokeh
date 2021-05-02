@@ -55,14 +55,16 @@ export class ToolbarPanelView extends AnnotationView {
     if (!this._previous_bbox.equals(bbox)) {
       position(this.el, bbox)
       this._previous_bbox = bbox
+      this._invalidate_toolbar = true
     }
 
     if (this._invalidate_toolbar) {
       this.el.style.position = "absolute"
       this.el.style.overflow = "hidden"
-      this._toolbar_view.render()
       empty(this.el)
       this.el.appendChild(this._toolbar_view.el)
+      this._toolbar_view.layout.bbox = bbox
+      this._toolbar_view.render()
       this._invalidate_toolbar = false
     }
 
@@ -72,7 +74,7 @@ export class ToolbarPanelView extends AnnotationView {
   protected _get_size(): Size {
     const {tools, logo} = this.model.toolbar
     return {
-      width: tools.length*30 + (logo != null ? 25 : 0), // TODO: approximate, use a proper layout instead.
+      width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
       height: 30,
     }
   }
