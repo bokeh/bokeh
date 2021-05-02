@@ -227,7 +227,7 @@ export abstract class DOMElementView extends DOMNodeView {
   async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const children = this.model.children.filter((obj): obj is DOMNode | LayoutDOM => obj instanceof Model)
-    await build_views(this.child_views, children, {parent: null})
+    await build_views(this.child_views, children, {parent: this})
   }
 
   render(): void {

@@ -32,6 +32,8 @@ export abstract class DOMView extends View {
   renderTo(element: Node): void {
     element.appendChild(this.el)
     this.render()
+    this._has_finished = true
+    this.notify_finished()
   }
 
   protected _createElement(): this["el"] {
