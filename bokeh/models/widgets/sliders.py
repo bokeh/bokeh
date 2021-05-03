@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -33,9 +35,9 @@ from ...core.properties import (
     Float,
     Instance,
     Int,
-    Override,
     NonNullable,
     Nullable,
+    Override,
     Readonly,
     String,
     Tuple,

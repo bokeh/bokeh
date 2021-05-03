@@ -30,6 +30,8 @@ included in Bokeh's sample data.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -67,9 +69,6 @@ class Sampledata(Subcommand):
     name = "sampledata"
 
     help = "Download the bokeh sample data sets"
-
-    args = (
-    )
 
     def invoke(self, args: Namespace) -> None:
         '''

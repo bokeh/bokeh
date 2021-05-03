@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,11 +22,19 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath
+from typing import Optional, Tuple
 from warnings import warn
 
+# External imports
+from jinja2 import Template
+
 # Bokeh imports
+from ..core.templates import FILE
+from ..models.layouts import LayoutDOM
+from ..resources import Resources
 from ..settings import settings
-from .state import curstate
+from ..themes import Theme
+from .state import State, curstate
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -41,7 +51,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj, filename=None, resources=None, title=None, template=None, state=None, **kwargs):
+def save(obj: LayoutDOM, filename: Optional[str] = None, resources: Optional[Resources] = None,
+        title: Optional[str] = None, template: Optional[Template] = None, state: Optional[State] = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -94,7 +105,8 @@ def save(obj, filename=None, resources=None, title=None, template=None, state=No
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_save_args(state, filename, resources, title):
+def _get_save_args(state: State, filename: Optional[str], resources: Optional[Resources],
+        title: Optional[str]) -> Tuple[str, Resources, str]:
     '''
 
     '''
@@ -106,21 +118,21 @@ def _get_save_args(state, filename, resources, title):
 
     return filename, resources, title
 
-def _get_save_filename(state, filename):
+def _get_save_filename(state: State, filename: Optional[str]) -> Tuple[str, bool]:
     if filename is not None:
         return filename, False
 
     if state.file and not settings.ignore_filename():
-        return state.file['filename'], False
+        return state.file.filename, False
 
     return default_filename("html"), True
 
-def _get_save_resources(state, resources, suppress_warning):
+def _get_save_resources(state: State, resources: Optional[Resources], suppress_warning: bool) -> Resources:
     if resources is not None:
         return resources
 
     if state.file:
-        return state.file['resources']
+        return state.file.resources
 
     if not suppress_warning:
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
@@ -128,24 +140,25 @@ def _get_save_resources(state, resources, suppress_warning):
     from ..resources import Resources
     return Resources(mode=settings.resources())
 
-def _get_save_title(state, title, suppress_warning):
+def _get_save_title(state: State, title: Optional[str], suppress_warning: bool) -> str:
     if title is not None:
         return title
 
     if state.file:
-        return state.file['title']
+        return state.file.title
 
     if not suppress_warning:
         warn("save() called but no title was supplied and output_file(...) was never called, using default title 'Bokeh Plot'")
 
     return DEFAULT_TITLE
 
-def _save_helper(obj, filename, resources, title, template, theme=None):
+def _save_helper(obj: LayoutDOM, filename: str, resources: Optional[Resources],
+        title: Optional[str], template: Optional[Template], theme: Optional[Theme] = None) -> None:
     '''
 
     '''
     from ..embed import file_html
-    html = file_html(obj, resources, title=title, template=template, theme=theme)
+    html = file_html(obj, resources, title=title, template=template or FILE, theme=theme)
 
     with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)

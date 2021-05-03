@@ -54,3 +54,14 @@ Raw string paths in ``Image`` property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``pathlib.Path`` instead.
+
+``gridplot(plot_width, plot_height)`` were deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``width`` or ``height`` respectively instead.
+
+``curstate().file`` is now a dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously it was a `dict`-based ad-hoc data structure. Replace key indexing
+with attribute access.

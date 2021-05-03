@@ -11,6 +11,8 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -46,9 +48,19 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
+from .glyphs import (
+    Circle,
+    ConnectedXYGlyph,
+    Glyph,
+    MultiLine,
+)
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
+from .sources import (
+    CDSView,
+    ColumnDataSource,
+    DataSource,
+    WebDataSource,
+)
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------

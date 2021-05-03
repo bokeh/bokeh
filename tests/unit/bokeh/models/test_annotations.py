@@ -21,21 +21,8 @@ from datetime import datetime
 import mock
 
 # Bokeh imports
-from _util_models import (
-    ANGLE,
-    FILL,
-    HATCH,
-    LINE,
-    TEXT,
-    check_fill_properties,
-    check_hatch_properties,
-    check_line_properties,
-    check_properties_existence,
-    check_text_properties,
-    prefix,
-)
 from bokeh.core.properties import field, value
-from bokeh.core.validation import check_integrity
+from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     Arrow,
     ArrowHead,
@@ -54,6 +41,20 @@ from bokeh.models import (
     Span,
     Title,
     Whisker,
+)
+
+from _util_models import (
+    ANGLE,
+    FILL,
+    HATCH,
+    LINE,
+    TEXT,
+    check_fill_properties,
+    check_hatch_properties,
+    check_line_properties,
+    check_properties_existence,
+    check_text_properties,
+    prefix,
 )
 
 #-----------------------------------------------------------------------------
@@ -500,7 +501,8 @@ def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     gr_2 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 
@@ -511,7 +513,8 @@ def test_legend_item_with_field_label_and_different_data_sources_raises_a_valida
     legend_item.label = field('label')
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
 
 
@@ -522,7 +525,8 @@ def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_
     legend_item.label = value('label')
     legend_item.renderers = [gr_1, gr_2]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 0
 
 
@@ -532,7 +536,8 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds() -> None
     legend_item.label = field('label')
     legend_item.renderers = [gr_1]
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
-        check_integrity([legend_item])
+        issues = check_integrity([legend_item])
+        process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
 
 #-----------------------------------------------------------------------------

@@ -24,6 +24,8 @@ figure below:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -37,7 +39,13 @@ from collections import defaultdict
 from functools import wraps
 from inspect import isclass
 from json import loads
-from typing import Any, Callable, Dict, List
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Union,
+)
 
 # External imports
 import jinja2
@@ -48,7 +56,7 @@ from ..core.has_props import is_DataModel
 from ..core.json_encoder import serialize_json
 from ..core.query import find
 from ..core.templates import FILE
-from ..core.validation import check_integrity
+from ..core.validation import check_integrity, process_validation_issues
 from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
 from ..themes import Theme, built_in_themes
@@ -65,11 +73,7 @@ from .events import (
     TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
-from .util import (
-    initialize_references_json,
-    instantiate_references_json,
-    references_json,
-)
+from .util import initialize_references_json, instantiate_references_json, references_json
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -103,16 +107,17 @@ class Document:
 
     '''
 
+    _theme: Theme
     _message_callbacks: Dict[str, List[Callable[[Any], None]]]
 
-    def __init__(self, **kwargs):
-        self._roots = list()
-        self._theme = kwargs.pop('theme', default_theme)
+    def __init__(self, *, theme: Theme = default_theme, title: str = DEFAULT_TITLE) -> None:
+        self._roots = []
+        self._theme = theme
         # use _title directly because we don't need to trigger an event
-        self._title = kwargs.pop('title', DEFAULT_TITLE)
+        self._title = title
         self._template = FILE
         self._all_models_freeze_count = 0
-        self._all_models = dict()
+        self._all_models = {}
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
@@ -130,9 +135,11 @@ class Document:
         self._subscribed_models = defaultdict(set)
         self.on_message("bokeh_event", self.apply_json_event)
 
-        self._callback_objs_by_callable = {self.add_next_tick_callback: defaultdict(set),
-                                           self.add_periodic_callback: defaultdict(set),
-                                           self.add_timeout_callback: defaultdict(set)}
+        self._callback_objs_by_callable = {
+            self.add_next_tick_callback: defaultdict(set),
+            self.add_periodic_callback: defaultdict(set),
+            self.add_timeout_callback: defaultdict(set),
+        }
 
     # Properties --------------------------------------------------------------
 
@@ -190,7 +197,7 @@ class Document:
         return self._template_variables
 
     @property
-    def theme(self):
+    def theme(self) -> Theme:
         ''' The current ``Theme`` instance affecting models in this Document.
 
         Setting this to ``None`` sets the default theme. (i.e this property
@@ -203,7 +210,7 @@ class Document:
         return self._theme
 
     @theme.setter
-    def theme(self, theme):
+    def theme(self, theme: Union[None, str, Theme]) -> None:
         if theme is None:
             theme = default_theme
 
@@ -969,7 +976,9 @@ class Document:
         '''
         for r in self.roots:
             refs = r.references()
-            check_integrity(refs)
+            issues = check_integrity(refs)
+
+            process_validation_issues(issues)
 
     # Private methods ---------------------------------------------------------
 
@@ -1190,7 +1199,7 @@ class Document:
         '''
 
         '''
-        from bokeh.io.doc import set_curdoc, curdoc
+        from bokeh.io.doc import curdoc, set_curdoc
         old_doc = curdoc()
         try:
             if getattr(f, "nolock", False):

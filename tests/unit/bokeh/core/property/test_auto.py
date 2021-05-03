@@ -15,8 +15,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.auto as bcpa # isort:skip

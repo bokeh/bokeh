@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+    </style>
+    <script type="text/javascript" src="{{ js('bokeh') }}"></script>
+    <script type="text/javascript" src="{{ js('bokeh-api') }}"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      const metrics = {{ metrics | dump | safe }}
+
+      const plots = []
+      for (const [name, y] of Object.entries(metrics)) {
+        const p = Bokeh.Plotting.figure({title: name, width: 800, height: 200})
+        p.y_range.start = 0
+        const x = Bokeh.LinAlg.range(y.length)
+        p.line(x, y)
+        plots.push([p])
+      }
+
+      const layout = Bokeh.Plotting.gridplot(plots)
+      Bokeh.Plotting.show(layout)
+    </script>
+  </body>
+</html>

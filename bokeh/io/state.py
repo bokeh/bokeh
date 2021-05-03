@@ -34,6 +34,8 @@ ensures their proper configuration in many common usage scenarios.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -43,10 +45,20 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+from dataclasses import dataclass
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Union,
+)
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
 from ..document import Document
-from ..resources import Resources
+from ..resources import Resources, ResourcesMode
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -56,6 +68,16 @@ __all__ = (
     'curstate',
     'State',
 )
+
+NotebookType = Union[Literal["jupyter"], str]
+UUID = str
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# XXX: move this to the bottom when Python 3.7 is dropped
+_STATE: Optional[State] = None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -67,7 +89,15 @@ class State:
     .. autoclasstoc::
 
     '''
-    def __init__(self):
+
+    _file: Optional[FileConfig]
+    _notebook: bool
+    _notebook_type: Optional[NotebookType]
+
+    last_comms_handle: Optional[Any] # TODO
+    uuid_to_server: Dict[UUID, Any] # TODO
+
+    def __init__(self) -> None:
         self.last_comms_handle = None
         self.uuid_to_server = {} # Mapping from uuid to server instance
         self.reset()
@@ -75,7 +105,7 @@ class State:
     # Properties --------------------------------------------------------------
 
     @property
-    def document(self):
+    def document(self) -> Document:
         ''' A default :class:`~bokeh.document.Document` to use for all
         output operations.
 
@@ -83,42 +113,34 @@ class State:
         return self._document
 
     @document.setter
-    def document(self, doc):
+    def document(self, doc: Document) -> None:
         self._document = doc
 
     @property
-    def file(self):
-        ''' A dict with the default configuration for file output (READ ONLY)
+    def file(self) -> Optional[FileConfig]:
+        ''' A structure with the default configuration for file output (READ ONLY)
 
-        The dictionary value has the following form:
-
-        .. code-block:: python
-
-            {
-                'filename'  : # filename to use when saving
-                'resources' : # resources configuration
-                'title'     : # a title for the HTML document
-            }
+            See :class:`~bokeh.io.state.FileConfig`.
 
         '''
         return self._file
 
     @property
-    def notebook(self):
+    def notebook(self) -> bool:
         ''' Whether to generate notebook output on show operations. (READ ONLY)
 
         '''
         return self._notebook
 
     @property
-    def notebook_type(self):
+    def notebook_type(self) -> Optional[NotebookType]:
         ''' Notebook type
 
         '''
         return self._notebook_type
 
     @notebook_type.setter
-    def notebook_type(self, notebook_type):
+    def notebook_type(self, notebook_type: NotebookType) -> None:
         ''' Notebook type, acceptable values are 'jupyter' as well as any names
         defined by external notebook hooks that have been installed.
 
@@ -129,7 +151,8 @@ class State:
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
+    def output_file(self, filename: str, title: str = "Bokeh Plot",
+            mode: Optional[ResourcesMode] = None, root_dir: Optional[str] = None) -> None:
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to
@@ -158,16 +181,16 @@ class State:
             every time ``show()`` or ``save()`` is called.
 
         '''
-        self._file = {
-            'filename'  : filename,
-            'resources' : Resources(mode=mode, root_dir=root_dir),
-            'title'     : title
-        }
+        self._file = FileConfig(
+            filename=filename,
+            resources=Resources(mode=mode, root_dir=root_dir),
+            title=title,
+        )
 
         if os.path.isfile(filename):
-            log.info("Session output file '%s' already exists, will be overwritten." % filename)
+            log.info(f"Session output file '{filename}' already exists, will be overwritten.")
 
-    def output_notebook(self, notebook_type='jupyter'):
+    def output_notebook(self, notebook_type: NotebookType = "jupyter") -> None:
         ''' Generate output in notebook cells.
 
         Calling ``output_notebook`` not clear the effects of any other calls
@@ -182,7 +205,7 @@ class State:
         self._notebook = True
         self.notebook_type = notebook_type
 
-    def reset(self):
+    def reset(self) -> None:
         ''' Deactivate all currently active output modes and set ``curdoc()``
         to a fresh empty ``Document``.
 
@@ -197,7 +220,7 @@ class State:
 
     # Private methods ---------------------------------------------------------
 
-    def _reset_keeping_doc(self):
+    def _reset_keeping_doc(self) -> None:
         ''' Reset output modes but DO NOT replace the default Document
 
         '''
@@ -205,14 +228,14 @@ class State:
         self._notebook = False
         self._notebook_type = None
 
-    def _reset_with_doc(self, doc):
+    def _reset_with_doc(self, doc: Document) -> None:
         ''' Reset output modes but DO replace the default Document
 
         '''
         self._document = doc
         self._reset_keeping_doc()
 
-def curstate():
+def curstate() -> State:
     ''' Return the current State object
 
     Returns:
@@ -228,11 +251,11 @@ def curstate():
 # Dev API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-_STATE = None
+@dataclass
+class FileConfig:
+    filename: str
+    resources: Resources
+    title: str
 
 #-----------------------------------------------------------------------------
 # Code

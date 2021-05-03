@@ -14,6 +14,8 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -25,6 +27,7 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # Bokeh imports
+from ._sphinx import model_link, property_link, register_type_link
 from .bases import DeserializationError, Property
 from .singletons import Undefined
 
@@ -78,7 +81,7 @@ class Instance(Property):
 
         return self._instance_type
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, dict):
             from ...model import Model
             if issubclass(self.instance_type, Model):
@@ -96,7 +99,7 @@ class Instance(Property):
 
                 for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
-                    attrs[name] = prop_descriptor.from_json(value, models)
+                    attrs[name] = prop_descriptor.from_json(value, models=models)
 
                 # XXX: this doesn't work when Instance(Superclass) := Subclass()
                 # Serialization dict must carry type information to resolve this.
@@ -119,10 +122,6 @@ class Instance(Property):
         # because the instance value is mutable
         return True
 
-    def _sphinx_type(self):
-        fullname = f"{self.instance_type.__module__}.{self.instance_type.__name__}"
-        return f"{self._sphinx_prop_link()}({self._sphinx_model_link(fullname)})"
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -134,3 +133,8 @@ class Instance(Property):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Instance)
+def _sphinx_type_link(obj):
+    fullname = f"{obj.instance_type.__module__}.{obj.instance_type.__name__}"
+    return f"{property_link(obj)}({model_link(fullname)}"

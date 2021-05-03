@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,8 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Optional
 import warnings
+from typing import Optional
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
@@ -63,9 +65,19 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import DataRange1d, FactorRange, Range, Range1d
+from .ranges import (
+    DataRange1d,
+    FactorRange,
+    Range,
+    Range1d,
+)
 from .renderers import GlyphRenderer, Renderer, TileRenderer
-from .scales import CategoricalScale, LinearScale, LogScale, Scale
+from .scales import (
+    CategoricalScale,
+    LinearScale,
+    LogScale,
+    Scale,
+)
 from .sources import ColumnDataSource, DataSource
 from .tools import HoverTool, Tool, Toolbar
 

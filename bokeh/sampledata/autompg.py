@@ -24,6 +24,8 @@ The "clean" version has cleaned up the ``"mfr"`` and ``"origin"`` fields.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

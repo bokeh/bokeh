@@ -15,7 +15,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.core.properties import Any, Dict, Instance, Int, List, Nullable, String
+from bokeh.core.properties import (
+    Any,
+    Dict,
+    Instance,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.model import Model
 
@@ -31,11 +39,23 @@ from bokeh.model import Model
 
 def large_plot(n):
     from bokeh.models import (
-        Plot, LinearAxis, Grid, GlyphRenderer,
-        ColumnDataSource, DataRange1d, PanTool, ZoomInTool, ZoomOutTool, WheelZoomTool, BoxZoomTool,
-        BoxSelectTool, SaveTool, ResetTool
+        BoxSelectTool,
+        BoxZoomTool,
+        Column,
+        ColumnDataSource,
+        DataRange1d,
+        GlyphRenderer,
+        Grid,
+        Line,
+        LinearAxis,
+        PanTool,
+        Plot,
+        ResetTool,
+        SaveTool,
+        WheelZoomTool,
+        ZoomInTool,
+        ZoomOutTool,
     )
-    from bokeh.models import Column, Line
 
     col = Column()
     objects = {col}
@@ -153,7 +173,7 @@ class TestModel:
         testObject2 = self.pObjectClass()
         assert testObject2.id is not None
 
-        assert testObject.properties() == {
+        assert set(testObject.properties()) == {
             "name",
             "tags",
             "js_property_callbacks",
@@ -212,7 +232,14 @@ class TestModel:
         assert x2.references() == {t1, y, t2, z2, x2}
 
     def test_references_in_containers(self) -> None:
-        from bokeh.core.properties import Int, String, Instance, List, Tuple, Dict
+        from bokeh.core.properties import (
+            Dict,
+            Instance,
+            Int,
+            List,
+            String,
+            Tuple,
+        )
 
         # XXX: can't use Y, because of:
         #

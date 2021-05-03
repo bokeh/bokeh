@@ -22,7 +22,12 @@ from mock import patch
 
 # Bokeh imports
 from bokeh import __version__
-from bokeh.core.properties import Instance, Int, List, String
+from bokeh.core.properties import (
+    Instance,
+    Int,
+    List,
+    String,
+)
 from bokeh.document.document import Document
 from bokeh.events import Tap
 from bokeh.io import curdoc

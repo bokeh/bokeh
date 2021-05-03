@@ -15,6 +15,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,6 +26,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import Optional
+
+# Bokeh imports
+from .bases import Property
+from .descriptors import AliasPropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -37,7 +43,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias:
+class Alias(Property): # lgtm [py/missing-call-to-init]
     """
     Alias another property of a model.
 
@@ -61,9 +67,30 @@ class Alias:
     name: str
     help: Optional[str]
 
-    def __init__(self, name: str, *, help: Optional[str] = None):
-        self.name = name
+    # Alias is somewhat a quasi-property
+    readonly = False
+    serialized = False
+    _default = None
+
+    def __init__(self, aliased_name: str, *, help: Optional[str] = None):
+        self.aliased_name = aliased_name
         self.help = help
+
+    def make_descriptors(self, base_name):
+        """ Return a list of ``AliasPropertyDescriptor`` instances to
+        install on a class, in order to delegate attribute access to this
+        property.
+
+        Args:
+            aliased_name (str) : the name of the property this alias is for
+
+        Returns:
+            list[AliasPropertyDescriptor]
+
+        The descriptors returned are collected by the ``MetaHasProps``
+        metaclass and added to ``HasProps`` subclasses during class creation.
+        """
+        return [ AliasPropertyDescriptor(base_name, self.aliased_name, self) ]
 
 #-----------------------------------------------------------------------------
 # Dev API

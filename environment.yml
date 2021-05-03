@@ -33,7 +33,6 @@ dependencies:
 
   # tests
   - beautifulsoup4
-  - black
   - channels
   - click
   - colorama
@@ -43,7 +42,7 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort <5.0
+  - isort 5.8
   - mock
   - mypy <=0.782
   - nbconvert >=5.4

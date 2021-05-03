@@ -18,6 +18,8 @@ serializable properties.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -27,12 +29,18 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-from typing import Any, Dict, Optional
+from functools import lru_cache
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Set,
+    Union,
+)
 from warnings import warn
 
 # Bokeh imports
 from ..util.string import append_docstring, nice_join
-from .property.alias import Alias
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -45,8 +53,6 @@ from .property.wrappers import PropertyValueContainer
 
 __all__ = (
     'abstract',
-    'accumulate_dict_from_superclasses',
-    'accumulate_from_superclasses',
     'HasProps',
     'MetaHasProps',
 )
@@ -89,31 +95,6 @@ def _generators(class_dict):
             generators[name] = generator
     return generators
 
-def _make_alias_property(target_name, help):
-    fget = lambda self: getattr(self, target_name)
-    fset = lambda self, value: setattr(self, target_name, value)
-    return property(fget, fset, None, help)
-
-def _property_aliases(class_dict):
-    property_aliases = {}
-    for name, prop in tuple(class_dict.items()):
-        if isinstance(prop, Alias):
-            property_aliases[name] = prop.name
-            class_dict[name] = _make_alias_property(prop.name, prop.help)
-    return property_aliases
-
-# These are to avoid circular imports and are just temporary until all the
-# explicit property caching in HasProps is replaced with memoized queries
-def _is_container_prop(x):
-    from .property.bases import ContainerProperty
-    from .property.descriptors import BasicPropertyDescriptor
-    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, ContainerProperty)
-
-def _is_dataspec_prop(x):
-    from .property.dataspec import DataSpec
-    from .property.descriptors import BasicPropertyDescriptor
-    return isinstance(x, BasicPropertyDescriptor) and isinstance(x.property, DataSpec)
-
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -125,116 +106,46 @@ class MetaHasProps(type):
 
     '''
 
-    def __new__(meta_cls, class_name, bases, class_dict):
+    def __new__(cls, class_name, bases, class_dict):
         '''
 
         '''
         overridden_defaults = _overridden_defaults(class_dict)
-        property_aliases = _property_aliases(class_dict)
         generators = _generators(class_dict)
 
-        names_with_refs = set()
-        container_names = set()
-        dataspecs = {}
-        new_class_attrs = {}
+        properties = {}
 
         for name, generator in generators.items():
-            prop_descriptors = generator.make_descriptors(name)
-            for prop_descriptor in prop_descriptors:
-                name = prop_descriptor.name
-                if name in new_class_attrs:
+            descriptors = generator.make_descriptors(name)
+            for descriptor in descriptors:
+                name = descriptor.name
+                if name in class_dict:
                     raise RuntimeError(f"Two property generators both created {class_name}.{name}")
-                new_class_attrs[name] = prop_descriptor
+                class_dict[name] = descriptor
+                properties[name] = descriptor.property
 
-                if prop_descriptor.has_ref:
-                    names_with_refs.add(name)
-
-                if _is_container_prop(prop_descriptor):
-                    container_names.add(name)
-
-                if _is_dataspec_prop(prop_descriptor):
-                    dataspecs[name] = prop_descriptor
-
-        class_dict.update(new_class_attrs)
-
-        class_dict["__properties__"] = list(new_class_attrs)
-        class_dict["__properties_with_refs__"] = names_with_refs
-        class_dict["__container_props__"] = container_names
-        class_dict["__property_aliases__"] = property_aliases
+        class_dict["__properties__"] = properties
         class_dict["__overridden_defaults__"] = overridden_defaults
-        class_dict["__dataspecs__"] = dataspecs
 
-        return super().__new__(meta_cls, class_name, bases, class_dict)
+        return super().__new__(cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, __):
-        # Check for improperly redeclaring a Property attribute.
-        for base in bases:
-            if not issubclass(base, HasProps):
-                continue
-            base_properties = base.properties()
-            for attr in cls.__dict__: # we do NOT want inherited attrs here
-                if attr in base_properties:
-                    warn(f"Property {attr!r} in class {base.__name__} was redeclared by a class attribute "
-                         f"{attr!r} in class {class_name}; it never makes sense to do this. "
-                         f"Either {base.__name__}.{attr} or {class_name}.{attr} should be removed, "
-                         "or Override() should be used to change a default value of a base class property.",
-                         RuntimeWarning, stacklevel=2)
+        # Check for improperly redeclared a Property attribute.
+        base_properties = {}
+        for base in (x for x in bases if issubclass(x, HasProps)):
+            base_properties.update(base.properties(_with_props=True))
+        own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
+        redeclared = own_properties.keys() & base_properties.keys()
+        if redeclared:
+            warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
+                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on"
+                 "the parent class. Override() can be used to change a default value of a base class property.",
+                 RuntimeWarning, stacklevel=2)
 
         # Check for no-op Overrides
-        overridden_defaults = cls.__dict__["__overridden_defaults__"]
-        if overridden_defaults:
-            our_props = cls.properties()
-            for key in overridden_defaults:
-                if key not in our_props:
-                    warn((f"Override() of {key} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
-
-def accumulate_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special sets of names
-    ``MetaHasProps`` stores on classes:
-
-    Args:
-        name (str) : name of the special attribute to collect.
-
-            Typically meaningful values are: ``__container_props__``,
-            ``__properties__``, ``__properties_with_refs__``
-
-    '''
-    cachename = "__cached_all" + propname
-    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
-    # classes, and the cache must be separate for each class
-    if cachename not in cls.__dict__:
-        s = set()
-        for c in cls.__mro__:
-            if issubclass(c, HasProps) and hasattr(c, propname):
-                base = getattr(c, propname)
-                s.update(base)
-        setattr(cls, cachename, s)
-    return cls.__dict__[cachename]
-
-def accumulate_dict_from_superclasses(cls, propname):
-    ''' Traverse the class hierarchy and accumulate the special dicts
-    ``MetaHasProps`` stores on classes:
-
-    Args:
-        name (str) : name of the special attribute to collect.
-
-            Typically meaningful values are: ``__dataspecs__``,
-            ``__overridden_defaults__``
-
-    '''
-    cachename = "__cached_all" + propname
-    # we MUST use cls.__dict__ NOT hasattr(). hasattr() would also look at base
-    # classes, and the cache must be separate for each class
-    if cachename not in cls.__dict__:
-        d = dict()
-        for c in cls.__mro__:
-            if issubclass(c, HasProps) and hasattr(c, propname):
-                base = getattr(c, propname)
-                for k,v in base.items():
-                    if k not in d:
-                        d[k] = v
-        setattr(cls, cachename, d)
-    return cls.__dict__[cachename]
+        unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
+        if unused_overrides:
+            warn((f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything."), RuntimeWarning, stacklevel=2)
 
 class HasProps(metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
@@ -273,24 +184,54 @@ class HasProps(metaclass=MetaHasProps):
             None
 
         '''
-        # self.properties() below can be expensive so avoid it
-        # if we're just setting a private underscore field
         if name.startswith("_"):
-            super().__setattr__(name, value)
-            return
+            return super().__setattr__(name, value)
 
-        prop_names = self.properties()
+        properties = self.properties(_with_props=True)
+        if name in properties:
+            return super().__setattr__(name, value)
+
         descriptor = getattr(self.__class__, name, None)
+        if isinstance(descriptor, property): # Python property
+            return super().__setattr__(name, value)
 
-        if name in prop_names or (descriptor is not None and descriptor.fset is not None):
-            super().__setattr__(name, value)
-        else:
-            matches, text = difflib.get_close_matches(name.lower(), prop_names), "similar"
+        self._raise_attribute_error_with_matches(name, properties)
 
-            if not matches:
-                matches, text = sorted(prop_names), "possible"
+    def __getattr__(self, name):
+        ''' Intercept attribute setting on HasProps in order to special case
+        a few situations:
 
-            raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
+        * short circuit all property machinery for ``_private`` attributes
+        * suggest similar attribute names on attribute errors
+
+        Args:
+            name (str) : the name of the attribute to set on this object
+            value (obj) : the value to set
+
+        Returns:
+            None
+
+        '''
+        if name.startswith("_"):
+            return super().__getattr__(name)
+
+        properties = self.properties(_with_props=True)
+        if name in properties:
+            return super().__getattr__(name)
+
+        descriptor = getattr(self.__class__, name, None)
+        if isinstance(descriptor, property): # Python property
+            return super().__getattr__(name)
+
+        self._raise_attribute_error_with_matches(name, properties)
+
+    def _raise_attribute_error_with_matches(self, name, properties):
+        matches, text = difflib.get_close_matches(name.lower(), properties), "similar"
+
+        if not matches:
+            matches, text = sorted(properties), "possible"
+
+        raise AttributeError(f"unexpected attribute {name!r} to {self.__class__.__name__}, {text} attributes are {nice_join(matches)}")
 
     def __str__(self) -> str:
         name = self.__class__.__name__
@@ -367,7 +308,7 @@ class HasProps(metaclass=MetaHasProps):
     def to_serializable(self, serializer):
         pass # TODO: new serializer, hopefully in near future
 
-    def set_from_json(self, name, json, models=None, setter=None):
+    def set_from_json(self, name, json, *, models=None, setter=None):
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -395,10 +336,10 @@ class HasProps(metaclass=MetaHasProps):
             None
 
         '''
-        if name in self.properties():
+        if name in self.properties(_with_props=True):
             log.trace("Patching attribute %r of %r with %r", name, self, json)
             descriptor = self.lookup(name)
-            descriptor.set_from_json(self, json, models, setter)
+            descriptor.set_from_json(self, json, models=models, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
@@ -429,7 +370,7 @@ class HasProps(metaclass=MetaHasProps):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, models=None, setter=None):
+    def update_from_json(self, json_attributes, *, models=None, setter=None):
         ''' Updates the object's properties from a JSON attributes dictionary.
 
         Args:
@@ -456,7 +397,7 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         for k, v in json_attributes.items():
-            self.set_from_json(k, v, models, setter)
+            self.set_from_json(k, v, models=models, setter=setter)
 
     @classmethod
     def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor]:
@@ -471,16 +412,36 @@ class HasProps(metaclass=MetaHasProps):
             PropertyDescriptor : descriptor for property named ``name``
 
         '''
-        resolved_name = cls._property_aliases().get(name, name)
-        attr = getattr(cls, resolved_name, None)
-        if attr is not None:
+        attr = getattr(cls, name, None)
+        if attr is not None or (attr is None and not raises):
             return attr
-        elif not raises:
-            return None
-        else:
-            raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
+        raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
     @classmethod
+    @lru_cache(None)
+    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, PropertyDescriptorFactory]]:
+        ''' Collect the names of properties on this class.
+
+        .. warning::
+            In a future version of Bokeh, this method will return a dictionary
+            mapping property names to property objects. To future-proof this
+            current usage of this method, wrap the return value in ``list``.
+
+        Returns:
+            property names
+
+        '''
+        props = dict()
+        for c in cls.__mro__:
+            props.update(getattr(c, "__properties__", {}))
+
+        if not _with_props:
+            return set(props)
+
+        return props
+
+    @classmethod
+    @lru_cache(None)
     def properties_with_refs(cls):
         ''' Collect the names of all properties on this class that also have
         references.
@@ -492,40 +453,10 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of properties that have references
 
         '''
-        return accumulate_from_superclasses(cls, "__properties_with_refs__")
+        return {k: v for k, v in cls.properties(_with_props=True).items() if v.has_ref}
 
     @classmethod
-    def properties_containers(cls):
-        ''' Collect the names of all container properties on this class.
-
-        This method *always* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Returns:
-            set[str] : names of container properties
-
-        '''
-        return accumulate_from_superclasses(cls, "__container_props__")
-
-    @classmethod
-    def properties(cls):
-        ''' Collect the names of properties on this class.
-
-        This method *optionally* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Args:
-            with_bases (bool, optional) :
-                Whether to include properties defined on parent classes in
-                the results. (default: True)
-
-        Returns:
-           set[str] : property names
-
-        '''
-        return accumulate_from_superclasses(cls, "__properties__")
-
-    @classmethod
+    @lru_cache(None)
     def dataspecs(cls):
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
@@ -536,21 +467,8 @@ class HasProps(metaclass=MetaHasProps):
             set[str] : names of ``DataSpec`` properties
 
         '''
-        return set(cls.dataspecs_with_props().keys())
-
-    @classmethod
-    def dataspecs_with_props(cls):
-        ''' Collect a dict mapping the names of all ``DataSpec`` properties
-        on this class to the associated properties.
-
-        This method *always* traverses the class hierarchy and includes
-        properties defined on any parent classes.
-
-        Returns:
-            dict[str, DataSpec] : mapping of names and ``DataSpec`` properties
-
-        '''
-        return accumulate_dict_from_superclasses(cls, "__dataspecs__")
+        from .property.dataspec import DataSpec  # avoid circular import
+        return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
     def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
@@ -584,16 +502,10 @@ class HasProps(metaclass=MetaHasProps):
             This is an implementation detail of ``Property``.
 
         '''
-        return accumulate_dict_from_superclasses(cls, "__overridden_defaults__")
-
-    @classmethod
-    def _property_aliases(cls) -> Dict[str, str]:
-        ''' Returns a dictionary of aliased properties.
-
-        .. note::
-            This is an implementation detail of ``Property``.
-        '''
-        return accumulate_dict_from_superclasses(cls, "__property_aliases__")
+        defaults = dict()
+        for c in reversed(cls.__mro__):
+            defaults.update(getattr(c, "__overridden_defaults__", {}))
+        return defaults
 
     def query_properties_with_values(self, query, *, include_defaults: bool = True, include_undefined: bool = False):
         ''' Query the properties values of |HasProps| instances with a
@@ -615,7 +527,7 @@ class HasProps(metaclass=MetaHasProps):
         themed_keys = set()
         result = dict()
         if include_defaults:
-            keys = self.properties()
+            keys = self.properties(_with_props=True)
         else:
             # TODO (bev) For now, include unstable default values. Things rely on Instances
             # always getting serialized, even defaults, and adding unstable defaults here
@@ -704,7 +616,8 @@ class HasProps(metaclass=MetaHasProps):
         # Emit any change notifications that result
         for k, v in old_values.items():
             descriptor = self.lookup(k)
-            descriptor.trigger_if_changed(self, v)
+            if isinstance(descriptor, PropertyDescriptor):
+                descriptor.trigger_if_changed(self, v)
 
     def unapply_theme(self):
         ''' Remove any themed values and restore defaults.

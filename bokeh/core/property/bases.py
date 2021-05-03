@@ -17,6 +17,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -36,8 +38,9 @@ import numpy as np
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from ..has_props import HasProps
+from ._sphinx import property_link, register_type_link, type_link
 from .descriptor_factory import PropertyDescriptorFactory
-from .descriptors import BasicPropertyDescriptor
+from .descriptors import PropertyDescriptor
 from .singletons import Intrinsic, Undefined
 
 #-----------------------------------------------------------------------------
@@ -110,45 +113,20 @@ class Property(PropertyDescriptorFactory):
     def __str__(self):
         return self.__class__.__name__
 
-    @classmethod
-    def _sphinx_prop_link(cls):
-        """ Generate a sphinx :class: link to this property.
-
-        """
-        # (double) escaped space at the end is to appease Sphinx
-        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return f":class:`~bokeh.core.properties.{cls.__name__}`\\ "
-
-    @staticmethod
-    def _sphinx_model_link(name):
-        """ Generate a sphinx :class: link to given named model.
-
-        """
-        # (double) escaped space at the end is to appease Sphinx
-        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#gotchas
-        return f":class:`~{name}`\\ "
-
-    def _sphinx_type(self):
-        """ Generate a Sphinx-style reference to this type for documentation
-        automation purposes.
-
-        """
-        return self._sphinx_prop_link()
-
     def make_descriptors(self, base_name):
-        """ Return a list of ``BasicPropertyDescriptor`` instances to install
+        """ Return a list of ``PropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
 
         Args:
             name (str) : the name of the property these descriptors are for
 
         Returns:
-            list[BasicPropertyDescriptor]
+            list[PropertyDescriptor]
 
         The descriptors returned are collected by the ``MetaHasProps``
         metaclass and added to ``HasProps`` subclasses during class creation.
         """
-        return [ BasicPropertyDescriptor(base_name, self) ]
+        return [ PropertyDescriptor(base_name, self) ]
 
     def _may_have_unstable_default(self):
         """ False if we have a default that is immutable, and will be the
@@ -252,7 +230,7 @@ class Property(PropertyDescriptorFactory):
         except ValueError:
             return False
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         """ Convert from JSON-compatible values into a value for this property.
 
         JSON-compatible values are: list, dict, number, string, bool, None
@@ -461,14 +439,11 @@ class SingleParameterizedProperty(ParameterizedProperty):
     def __str__(self):
         return f"{self.__class__.__name__}({self.type_param})"
 
-    def _sphinx_type(self):
-        return f"{self._sphinx_prop_link()}({self.type_param._sphinx_type()})"
-
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)
         self.type_param.validate(value, detail=detail)
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         return self.type_param.from_json(json, models=models)
 
     def transform(self, value):
@@ -512,15 +487,12 @@ class PrimitiveProperty(Property):
         msg = f"expected a value of type {expected_type}, got {value} of type {type(value).__name__}"
         raise ValueError(msg)
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, self._underlying_type):
             return json
         expected_type = nice_join([ cls.__name__ for cls in self._underlying_type ])
         msg = f"{self} expected {expected_type}, got {json} of type {type(json).__name__}"
         raise DeserializationError(msg)
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 class ContainerProperty(ParameterizedProperty):
     """ A base class for Container-like type properties.
@@ -547,3 +519,7 @@ def validation_on():
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(SingleParameterizedProperty)
+def _sphinx_type(obj):
+    return f"{property_link(obj)}({type_link(obj.type_param)})"

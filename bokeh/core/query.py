@@ -12,6 +12,8 @@ models for instances that match specified criteria.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable, Dict, Iterator, Optional, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    Optional,
+    Type,
+    Union,
+)
 
 # Bokeh imports
 from ..model import Model

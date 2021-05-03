@@ -2,7 +2,7 @@ import networkx as nx
 
 from bokeh.io import output_file, show
 from bokeh.models import (BoxSelectTool, Circle, EdgesAndLinkedNodes, HoverTool,
-                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, TapTool,)
+                          MultiLine, NodesAndLinkedEdges, Plot, Range1d, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 

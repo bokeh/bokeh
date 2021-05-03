@@ -45,7 +45,13 @@ from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, Plot
 from bokeh.util.token import generate_jwt_token
-from server._util_server import http_get, url, websocket_open, ws_url
+
+from server._util_server import (
+    http_get,
+    url,
+    websocket_open,
+    ws_url,
+)
 
 # Module under test
 

@@ -18,6 +18,8 @@ A snapshot of data available from NHS Choices on November 14th, 2015.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

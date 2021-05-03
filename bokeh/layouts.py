@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,9 +26,18 @@ from collections import namedtuple
 
 # Bokeh imports
 from .core.enums import Location
-from .models.layouts import Box, Column, GridBox, LayoutDOM, Row, Spacer, WidgetBox
+from .models.layouts import (
+    Box,
+    Column,
+    GridBox,
+    LayoutDOM,
+    Row,
+    Spacer,
+    WidgetBox,
+)
 from .models.plots import Plot
 from .models.tools import ProxyToolbar, ToolbarBox
+from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -197,7 +208,8 @@ def layout(*args, **kwargs):
     return _create_grid(children, sizing_mode, **kwargs)
 
 def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
-             plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
+             width=None, height=None, plot_width=None, plot_height=None,
+             toolbar_options=None, merge_tools=True):
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -225,9 +237,9 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
-        plot_width (int, optional): The width you would like all your plots to be
+        width (int, optional): The width you would like all your plots to be
 
-        plot_height (int, optional): The height you would like all your plots to be.
+        height (int, optional): The height you would like all your plots to be.
 
         toolbar_options (dict, optional) : A dictionary of options that will be
             used to construct the grid's toolbar (an instance of
@@ -245,7 +257,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     Examples:
 
         >>> gridplot([[plot_1, plot_2], [plot_3, plot_4]])
-        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, plot_width=200, plot_height=100)
+        >>> gridplot([plot_1, plot_2, plot_3, plot_4], ncols=2, width=200, height=100)
         >>> gridplot(
                 children=[[plot_1, plot_2], [None, plot_3]],
                 toolbar_location='right'
@@ -254,6 +266,9 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
             )
 
     '''
+    if plot_width is not None or plot_height is not None:
+        deprecated((2, 4, 0), "plot_width and plot_height", "width or height")
+
     if toolbar_options is None:
         toolbar_options = {}
 
@@ -287,9 +302,14 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
 
                 if isinstance(item, Plot):
                     if plot_width is not None:
-                        item.plot_width = plot_width
+                        item.width = plot_width
                     if plot_height is not None:
-                        item.plot_height = plot_height
+                        item.height = plot_height
+
+                if width is not None:
+                    item.width = width
+                if height is not None:
+                    item.height = height
 
                 if sizing_mode is not None and _has_auto_sizing(item):
                     item.sizing_mode = sizing_mode

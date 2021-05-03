@@ -19,9 +19,11 @@ import argparse
 import os
 
 # Bokeh imports
-from _util_subcommands import basic_scatter_script
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 from bokeh.command.bootstrap import main
+from bokeh.command.subcommand import Argument
+
+from _util_subcommands import basic_scatter_script
 
 # Module under test
 import bokeh.command.subcommands.json as scjson # isort:skip
@@ -41,6 +43,7 @@ import bokeh.command.subcommands.json as scjson # isort:skip
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scjson.JSON(parser=argparse.ArgumentParser())
@@ -55,28 +58,28 @@ def test_help() -> None:
 def test_args() -> None:
     assert scjson.JSON.args == (
 
-        ('files', dict(
+        ('files', Argument(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
             help="The app directories or scripts to generate JSON for",
             default=None
         )),
 
-        ('--indent', dict(
+        ('--indent', Argument(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",
             default=None
         )),
 
-        (('-o', '--output'), dict(
+        (('-o', '--output'), Argument(
                 metavar='FILENAME',
                 action='append',
                 type=str,
                 help="Name of the output file or - for standard output."
         )),
 
-        ('--args', dict(
+        ('--args', Argument(
             metavar='COMMAND-LINE-ARGS',
             nargs=argparse.REMAINDER,
             help="Any command line arguments remaining are passed on to the application handler",

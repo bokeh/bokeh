@@ -18,7 +18,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 
-# Bokeh imports
 from . import TOP_PATH
 
 #-----------------------------------------------------------------------------

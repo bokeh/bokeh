@@ -11,7 +11,14 @@
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Any, Dict, Either, Int, Seq, String
+from ..core.properties import (
+    Any,
+    Dict,
+    Either,
+    Int,
+    Seq,
+    String,
+)
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -121,7 +128,7 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
 
 # TODO (bev) deprecation: 3.0
 def from_networkx(graph, layout_function, **kwargs):
-    from bokeh.util.deprecation import deprecated
     from bokeh.plotting import from_networkx as real_from_networkx
+    from bokeh.util.deprecation import deprecated
     deprecated("Importing from_networkx from bokeh.models.graphs is deprecated and will be removed in Bokeh 3.0. Import from bokeh.plotting instead")
     return real_from_networkx(graph, layout_function, **kwargs)

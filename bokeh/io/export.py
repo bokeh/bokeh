@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,7 +26,15 @@ import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 # External imports
 from PIL import Image
@@ -315,8 +325,8 @@ def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
     '''
 
     '''
-    from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.support.ui import WebDriverWait
 
     def is_bokeh_loaded(driver: "WebDriver") -> bool:
         return cast(bool, driver.execute_script('''

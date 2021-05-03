@@ -23,6 +23,8 @@ There are two public classes in this module:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -43,7 +45,13 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core.properties import Bool, Int, List, Nullable, String
+from ..core.properties import (
+    Bool,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado

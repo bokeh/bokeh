@@ -18,7 +18,12 @@ import pytest ; pytest
 import itertools
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, GlyphRenderer, Legend, LegendItem
+from bokeh.models import (
+    ColumnDataSource,
+    GlyphRenderer,
+    Legend,
+    LegendItem,
+)
 
 # Module under test
 import bokeh.plotting._legends as bpl # isort:skip

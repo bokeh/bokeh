@@ -18,9 +18,10 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from _util_models import check_properties_existence
-from bokeh.core.validation import check_integrity
+from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.palettes import Spectral6
+
+from _util_models import check_properties_existence
 
 # Module under test
 import bokeh.models.mappers as bmm # isort:skip
@@ -50,7 +51,8 @@ class Test_CategoricalColorMapper:
     @patch("bokeh.core.validation.check.log.warning")
     def test_warning_with_short_palette(self, mock_warn, mock_error) -> None:
         m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green"])
-        check_integrity([m])
+        issues = check_integrity([m])
+        process_validation_issues(issues)
         assert not mock_error.called
         assert mock_warn.called
 
@@ -58,7 +60,8 @@ class Test_CategoricalColorMapper:
     @patch("bokeh.core.validation.check.log.warning")
     def test_no_warning_with_long_palette(self, mock_warn, mock_error) -> None:
         m = bmm.CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
-        check_integrity([m])
+        issues = check_integrity([m])
+        process_validation_issues(issues)
         assert not mock_error.called
         assert not mock_warn.called
 

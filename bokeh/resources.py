@@ -24,6 +24,8 @@ Attributes:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -36,6 +38,10 @@ log = logging.getLogger(__name__)
 import json
 import re
 from os.path import basename, join, relpath
+from typing import Optional, Union
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
 from . import __version__
@@ -53,6 +59,14 @@ from .util.version import is_full_release
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
+
+ResourcesMode = Union[
+    Literal["inline"],
+    Literal["cdn"],
+    Literal["server"], Literal["server-dev"],
+    Literal["relative"], Literal["relative-dev"],
+    Literal["absolute"], Literal["absolute-dev"],
+]
 
 # __all__ defined at the bottom on the class module
 
@@ -206,7 +220,7 @@ class BaseResources:
 
     def __init__(
         self,
-        mode=None,
+        mode: Optional[ResourcesMode] = None,
         version=None,
         root_dir=None,
         minified=None,

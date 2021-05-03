@@ -20,7 +20,6 @@ from os import chdir
 from os.path import join
 from subprocess import run
 
-# Bokeh imports
 from . import TOP_PATH
 
 #-----------------------------------------------------------------------------

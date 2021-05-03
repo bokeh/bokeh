@@ -27,6 +27,8 @@ All glyphs share a minimal common interface through the base class ``Glyph``:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -35,7 +37,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import Anchor, Direction, StepMode, enumeration
+from ..core.enums import (
+    Anchor,
+    Direction,
+    StepMode,
+    enumeration,
+)
 from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
