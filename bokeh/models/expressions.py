@@ -48,13 +48,13 @@ from ..core.properties import (
     AnyRef,
     Bool,
     Dict,
-    DistanceSpec,
     Enum,
     Float,
     Instance,
     IntSpec,
     NonNullable,
     Nullable,
+    NumberSpec,
     Seq,
     String,
     field,
@@ -206,7 +206,7 @@ class Maximum(ScalarExpression):
 
 @abstract
 class CoordinateTransform(Expression):
-
+    """ Base class for coordinate transforms. """
 
     @property
     def x(self):
@@ -219,29 +219,31 @@ class CoordinateTransform(Expression):
 class PolarTransform(CoordinateTransform):
     """ Transform from polar to cartesian coordinates. """
 
-    radius = DistanceSpec(default=field("radius"), help="""
+    radius = NumberSpec(default=field("radius"), help="""
     The radial coordinate (i.e. the distance from the origin).
+
+    Negative radius is allowed, which is equivalent to using positive radius
+    and changing ``direction`` to the opposite value.
     """)
 
     angle = AngleSpec(default=field("angle"), help="""
-    The angular coordinate (i.e. the angle from the reference direction).
+    The angular coordinate (i.e. the angle from the reference axis).
     """)
 
-    # origin = Tuple(Number, Number)
-    # ref_dir = Angle
-
     direction = Enum(Direction, default=Direction.anticlock, help="""
-
+    Should ``angle`` be measured in clock or anticlock direction from the reference axis.
     """)
 
 class IndexTransform(CoordinateTransform):
+    """ Allow to index into other renderer's coordinates. """
 
     index = IntSpec(default=field("index"))
 
     target = Instance("bokeh.models.renderers.Renderer")
 
+@abstract
 class XYComponent(Expression):
-    """ """
+    """ Base class for bi-variate expressions. """
 
     transform = Instance(CoordinateTransform)
 
