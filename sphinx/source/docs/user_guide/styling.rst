@@ -236,10 +236,8 @@ properties to control the appearance of lines, fills, or text, for example.
 
 Use one of these options to define colors in Bokeh:
 
-- Any of the
-  `named CSS colors <http://www.w3schools.com/colors/colors_names.asp>`_, such
-  as ``'green'`` or ``'indigo'``. You can also use the additional name
-  ``'transparent'`` (equal to ``'#00000000'``).
+- Any of the |named CSS colors|, such as ``'green'`` or ``'indigo'``. You can
+  also use the additional name ``'transparent'`` (equal to ``'#00000000'``).
 - An RGB(A) hex value, such as ``'#FF0000'`` (without alpha information) or
   ``'#44444444'`` (with alpha information).
 - A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``

@@ -522,14 +522,12 @@ class ColorSpec(DataSpec):
     _default_help = """\
     Acceptable values are:
 
-    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
     - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
     - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
-
-    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 
     """
 
