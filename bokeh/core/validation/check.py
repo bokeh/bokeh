@@ -22,10 +22,19 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import contextlib
-from typing import Set
+from typing import (
+    Any,
+    Iterator,
+    List,
+    Set,
+    Sequence,
+    Tuple,
+)
 
 # Bokeh imports
+from ...model import Model
 from ...settings import settings
+from ...util.dataclasses import dataclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,6 +51,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+ValidationIssue = Tuple[int, str, str, Any]
+
+@dataclass
+class ValidationIssues:
+    warning: List[ValidationIssue]
+    error: List[ValidationIssue]
 
 def silence(warning: int, silence: bool = True) -> Set[int]:
     ''' Silence a particular warning on all Bokeh models.
@@ -73,15 +89,14 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
 
     '''
     if not isinstance(warning, int):
-        raise ValueError('Input to silence should be a warning object '
-                         '- not of type {}'.format(type(warning)))
+        raise ValueError(f"Input to silence should be a warning object - not of type {type(warning)}")
     if silence:
         __silencers__.add(warning)
     elif warning in __silencers__:
         __silencers__.remove(warning)
     return __silencers__
 
-def is_silenced(warning):
+def is_silenced(warning: ValidationIssue) -> bool:
     ''' Check if a warning has been silenced.
 
     Args:
@@ -94,59 +109,60 @@ def is_silenced(warning):
     return warning[0] in __silencers__
 
 @contextlib.contextmanager
-def silenced(warning: int) -> None:
+def silenced(warning: int) -> Iterator[None]:
     silence(warning, True)
     try:
         yield
     finally:
         silence(warning, False)
 
-def check_integrity(models):
+def check_integrity(models: Sequence[Model]) -> ValidationIssues:
     ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:
         models (seq[Model]) : a collection of Models to test
 
     Returns:
-        dict(error=[], warning=[]): A dictionary of all warning and error messages
+        ValidationIssues: A collection of all warning and error messages
 
-    This function will return a dictionary containing all errors or
+    This function will return an object containing all errors and/or
     warning conditions that are detected. For example, layouts without
-    any children will add a warning to the dictionary:
+    any children will add a warning to the collection:
 
     .. code-block:: python
 
-        >>> empty_row = Row
+        >>> empty_row = Row()
 
         >>> check_integrity([empty_row])
-        {
-            "warning": [
+        ValidationIssues(
+            warning: [
                 (1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...),
                 ...
             ],
-            "error": [...]
-        }
+            error: [...],
+        )
 
     '''
-    messages = dict(error=[], warning=[])
+    issues = ValidationIssues(error=[], warning=[])
 
     for model in models:
         validators = []
         for name in dir(model):
-            if not name.startswith("_check"): continue
+            if not name.startswith("_check"):
+                continue
             obj = getattr(model, name)
             if getattr(obj, "validator_type", None):
                 validators.append(obj)
         for func in validators:
-            messages[func.validator_type].extend(func())
+            getattr(issues, func.validator_type).extend(func())
 
-    return messages
+    return issues
 
-def process_validation_issues(issues):
+def process_validation_issues(issues: ValidationIssues) -> None:
     ''' Log warning and error messages for a dictionary containing warnings and error messages.
 
     Args:
-        issues (dict(error=[], warning=[])) : A dictionary of all warning and error messages
+        issues (ValidationIssue) : A collection of all warning and error messages
 
     Returns:
         None
@@ -161,8 +177,8 @@ def process_validation_issues(issues):
         W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
 
     '''
-    errors = issues['error']
-    warnings = [item for item in issues['warning'] if not is_silenced(item)]
+    errors = issues.error
+    warnings = [item for item in issues.warning if not is_silenced(item)]
 
     warning_messages = []
     for code, name, desc, obj in sorted(warnings):

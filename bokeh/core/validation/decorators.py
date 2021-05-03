@@ -22,6 +22,15 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import partial
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+    Union,
+)
+
+# External imports
+from typing_extensions import Literal
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +45,10 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _validator(code_or_name, validator_type):
+ValidatorType = Literal["error", "warning"]
+F = TypeVar("F", bound=Callable[..., Any])
+
+def _validator(code_or_name: Union[int, str], validator_type: ValidatorType) -> Callable[[F], F]:
     ''' Internal shared implementation to handle both error and warning
     validation checks.
 
@@ -55,10 +67,11 @@ def _validator(code_or_name, validator_type):
     else:
         pass # TODO (bev) ValueError?
 
-    def decorator(func):
-        def wrapper(*args, **kw):
+    def decorator(func: F) -> F:
+        def wrapper(*args: Any, **kw: Any) -> Any:
             extra = func(*args, **kw)
-            if extra is None: return []
+            if extra is None:
+                return []
             if isinstance(code_or_name, str):
                 code = EXT
                 name = codes[code][0] + ":" + code_or_name
@@ -84,7 +97,7 @@ _warning = partial(_validator, validator_type="warning")
 # Dev API
 #-----------------------------------------------------------------------------
 
-def error(code_or_name):
+def error(code_or_name: Union[int, str]):
     ''' Decorator to mark a validator method for a Bokeh error condition
 
     Args:
@@ -124,7 +137,7 @@ def error(code_or_name):
     '''
     return _error(code_or_name)
 
-def warning(code_or_name):
+def warning(code_or_name: Union[int, str]):
     ''' Decorator to mark a validator method for a Bokeh error condition
 
     Args:
