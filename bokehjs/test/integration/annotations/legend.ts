@@ -3,8 +3,8 @@ import {display, fig} from "../_util"
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
-import { CircleArgs, LineArgs } from "@bokehjs/api/plotting"
-import { Orientation } from "@bokehjs/core/enums"
+import {CircleArgs, LineArgs} from "@bokehjs/api/plotting"
+import {Orientation} from "@bokehjs/core/enums"
 
 describe("Legend annotation", () => {
   it("should support various combinations of locations and orientations", async () => {
@@ -57,19 +57,19 @@ describe("Legend annotation", () => {
     legend_items,
     legends,
   }: {
-    figure_dimensions?: [width: number, height: number],
+    figure_dimensions?: [width: number, height: number]
     glyphs?: {
-      x: number,
-      y: number,
-      type: "circle" | "line",
+      x: number
+      y: number
+      type: "circle" | "line"
       options: Partial<CircleArgs | LineArgs>
-    }[],
-    legend_items?: {label: string, renderers: number[]}[],
-    legends: Partial<Legend.Attrs>[],
+    }[]
+    legend_items?: {label: string, renderers: number[]}[]
+    legends: Partial<Legend.Attrs>[]
   }) => Promise<void>
 
   function plot({
-    orientation
+    orientation,
   }: {
     orientation: Orientation
   }): PlotFn {
@@ -95,7 +95,7 @@ describe("Legend annotation", () => {
       }
 
       const items = legend_items.map(
-        ({label, renderers}) => new LegendItem({ label, renderers: renderers.map(r => gls[r])})
+        ({label, renderers}) => new LegendItem({label, renderers: renderers.map(r => gls[r])})
       )
 
 
@@ -109,7 +109,7 @@ describe("Legend annotation", () => {
           orientation,
           items,
           background_fill_alpha: 0.7,
-          ...attrs
+          ...attrs,
         }))
       })
 
@@ -186,12 +186,12 @@ describe("Legend annotation", () => {
         }],
         legend_items: [
           {label: "#0", renderers: [0]},
-          {label: "#1", renderers: [1]}
+          {label: "#1", renderers: [1]},
         ],
         glyphs: [
           {type: 'circle', x: 1, y: 2, options: {fill_color: "red"}},
-          {type: 'circle', x: 2, y: 1, options: {fill_color: "blue"}}
-        ]
+          {type: 'circle', x: 2, y: 1, options: {fill_color: "blue"}},
+        ],
       })
     })
   }
