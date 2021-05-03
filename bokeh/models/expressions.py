@@ -51,7 +51,6 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
-    IntSpec,
     NonNullable,
     Nullable,
     NumberSpec,
@@ -69,7 +68,6 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
-    'IndexTransform',
     'PolarTransform',
     'Stack',
 )
@@ -233,13 +231,6 @@ class PolarTransform(CoordinateTransform):
     direction = Enum(Direction, default=Direction.anticlock, help="""
     Should ``angle`` be measured in clock or anticlock direction from the reference axis.
     """)
-
-class IndexTransform(CoordinateTransform):
-    """ Allow to index into other renderer's coordinates. """
-
-    index = IntSpec(default=field("index"))
-
-    target = Instance("bokeh.models.renderers.Renderer")
 
 @abstract
 class XYComponent(Expression):

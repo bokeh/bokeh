@@ -9,4 +9,3 @@ export {Maximum} from "./maximum"
 
 export {XComponent, YComponent} from "./coordinate_transform"
 export {PolarTransform} from "./polar"
-export {IndexTransform} from "./index_transform"
