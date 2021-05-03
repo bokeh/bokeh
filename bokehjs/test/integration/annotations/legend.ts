@@ -3,9 +3,11 @@ import {display, fig} from "../_util"
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
+import { CircleArgs, LineArgs } from "@bokehjs/api/plotting"
+import { Orientation } from "@bokehjs/core/enums"
 
 describe("Legend annotation", () => {
-  it(`should support various combinations of locations and orientations`, async () => {
+  it("should support various combinations of locations and orientations", async () => {
     const random = new Random(1)
 
     const p = fig([600, 600])
@@ -49,235 +51,151 @@ describe("Legend annotation", () => {
     await display(p)
   })
 
-  it(`should display title correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+  type PlotFn = ({
+    figure_dimensions,
+    glyphs,
+    legend_items,
+    legends,
+  }: {
+    figure_dimensions?: [width: number, height: number],
+    glyphs?: {
+      x: number,
+      y: number,
+      type: "circle" | "line",
+      options: Partial<CircleArgs | LineArgs>
+    }[],
+    legend_items?: {label: string, renderers: number[]}[],
+    legends: Partial<Legend.Attrs>[],
+  }) => Promise<void>
 
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
+  function plot({
+    orientation
+  }: {
+    orientation: Orientation
+  }): PlotFn {
+    return async ({
+      figure_dimensions,
+      glyphs,
+      legend_items,
+      legends,
+    }) => {
+      const p = fig(figure_dimensions ?? [225, 225])
 
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+      p.add_layout(new LinearAxis(), "above")
+      p.add_layout(new LinearAxis(), "right")
 
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-    }))
+      if (!glyphs?.length) {
+        glyphs = [{x: 2, y: 1, type: 'circle', options: {fill_color: "red"}}]
+      }
 
-    await display(p)
-  })
+      const gls = glyphs.map(({x, y, options}) => p.circle(x, y, options))
 
-  it(`should display title standoff correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+      if (!legend_items?.length) {
+        legend_items = [{label: "#0", renderers: [0]}]
+      }
 
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
+      const items = legend_items.map(
+        ({label, renderers}) => new LegendItem({ label, renderers: renderers.map(r => gls[r])})
+      )
 
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
 
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      title_standoff: 20,
-    }))
+      if (!legends?.length) {
+        legends = [{}]
+      }
 
-    await display(p)
-  })
+      legends.map(attrs => {
+        p.add_layout(new Legend({
+          location: "center",
+          orientation,
+          items,
+          background_fill_alpha: 0.7,
+          ...attrs
+        }))
+      })
 
-  it(`should display label standoff correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+      await display(p)
+    }
+  }
 
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
+  function test(plot: PlotFn) {
+    it("should display title correctly", async () => {
+      await plot({legends: [{title: "title"}]})
+    })
 
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+    it("should display title standoff correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        title_standoff: 20,
+      }]})
+    })
 
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      label_standoff: 20,
-    }))
+    it("should display label standoff correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_standoff: 20,
+      }]})
+    })
 
-    await display(p)
-  })
+    it("should display glyph_height correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        glyph_height: 50,
+      }]})
+    })
 
-  it(`should display glyph_height correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+    it("should display glyph_width correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        glyph_width: 50,
+      }]})
+    })
 
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
+    it("should display label_height correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_height: 50,
+      }]})
+    })
 
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
+    it("should display label_width correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_width: 50,
+      }]})
+    })
 
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      glyph_height: 50,
-    }))
+    it("should display margin correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        margin: 0,
+      }]})
+    })
 
-    await display(p)
-  })
+    it("should display padding correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        padding: 5,
+      }]})
+    })
 
-  it(`should display glyph_width correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
+    it("should display spacing correctly", async () => {
+      await plot({
+        legends: [{
+          title: "title",
+          spacing: 20,
+        }],
+        legend_items: [
+          {label: "#0", renderers: [0]},
+          {label: "#1", renderers: [1]}
+        ],
+        glyphs: [
+          {type: 'circle', x: 1, y: 2, options: {fill_color: "red"}},
+          {type: 'circle', x: 2, y: 1, options: {fill_color: "blue"}}
+        ]
+      })
+    })
+  }
 
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
-
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      glyph_width: 50,
-    }))
-
-    await display(p)
-  })
-
-  it(`should display label_height correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
-
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      label_height: 50,
-    }))
-
-    await display(p)
-  })
-
-  it(`should display label_width correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
-
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      label_width: 50,
-    }))
-
-    await display(p)
-  })
-
-  it(`should display margin correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
-
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      margin: 0,
-    }))
-
-    await display(p)
-  })
-
-  it(`should display padding correctly`, async () => {
-    const p = fig([225, 125])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-
-    const x = 2
-    const y = 1
-    const cr = p.circle(x, y, {fill_color: "red"})
-
-    const items = [new LegendItem({label: "#0", renderers: [cr]})]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      title: "title",
-      padding: 5,
-    }))
-
-    await display(p)
-  })
-
-  it(`should display spacing correctly`, async () => {
-    const p = fig([200, 150])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-
-    const x = 2
-    const y = 1
-    const cr0 = p.circle(x, y, {fill_color: "red"})
-    const cr1 = p.circle(x, y + 1, {fill_color: "blue"})
-
-    const items = [
-      new LegendItem({label: "#0", renderers: [cr0]}),
-      new LegendItem({label: "#1", renderers: [cr1]}),
-    ]
-
-    p.add_layout(new Legend({
-      items,
-      background_fill_alpha: 0.7,
-      location: "top_left",
-      orientation: "vertical",
-      spacing: 20,
-    }))
-
-    await display(p)
-  })
+  describe("in horizontal orientation", () => test(plot({orientation: "horizontal"})))
+  describe("in vertical orientation", () => test(plot({orientation: "vertical"})))
 })
