@@ -16,10 +16,10 @@ export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
 export interface RayView extends RayData {}
 
 export class RayView extends XYGlyphView {
-  model: Ray
-  visuals: Ray.Visuals
+  override model: Ray
+  override visuals: Ray.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.length.units == "data")
       this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
     else
@@ -64,7 +64,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -85,8 +85,8 @@ export namespace Ray {
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
-  properties: Ray.Props
-  __view_type__: RayView
+  override properties: Ray.Props
+  override __view_type__: RayView
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)

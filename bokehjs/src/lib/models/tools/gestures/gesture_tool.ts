@@ -3,7 +3,7 @@ import {OnOffButtonView} from "../on_off_button"
 import * as p from "core/properties"
 
 export abstract class GestureToolView extends ButtonToolView {
-  model: GestureTool
+  override model: GestureTool
 }
 
 export namespace GestureTool {
@@ -15,14 +15,14 @@ export namespace GestureTool {
 export interface GestureTool extends GestureTool.Attrs {}
 
 export abstract class GestureTool extends ButtonTool {
-  properties: GestureTool.Props
-  __view_type__: GestureToolView
+  override properties: GestureTool.Props
+  override __view_type__: GestureToolView
 
   constructor(attrs?: Partial<GestureTool.Attrs>) {
     super(attrs)
   }
 
-  button_view = OnOffButtonView
+  override button_view = OnOffButtonView
 
   default_order: number
 }

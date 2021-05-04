@@ -69,7 +69,7 @@ export namespace GroupingInfo {
 export interface GroupingInfo extends GroupingInfo.Attrs {}
 
 export class GroupingInfo extends Model {
-  properties: GroupingInfo.Props
+  override properties: GroupingInfo.Props
 
   constructor(attrs?: Partial<GroupingInfo.Attrs>) {
     super(attrs)
@@ -203,11 +203,11 @@ export class DataCubeProvider extends TableDataProvider {
     }
   }
 
-  getLength(): number {
+  override getLength(): number {
     return this.rows.length
   }
 
-  getItem(i: number): Item {
+  override getItem(i: number): Item {
     const item = this.rows[i]
     const {source: {data}} = this
 
@@ -266,11 +266,11 @@ export class DataCubeProvider extends TableDataProvider {
 }
 
 export class DataCubeView extends DataTableView {
-  model: DataCube
+  override model: DataCube
 
-  protected data: DataCubeProvider
+  protected override data: DataCubeProvider
 
-  render(): void {
+  override render(): void {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
@@ -318,7 +318,7 @@ export namespace DataCube {
 export interface DataCube extends DataCube.Attrs {}
 
 export class DataCube extends DataTable {
-  properties: DataCube.Props
+  override properties: DataCube.Props
 
   constructor(attrs?: Partial<DataCube.Attrs>) {
     super(attrs)

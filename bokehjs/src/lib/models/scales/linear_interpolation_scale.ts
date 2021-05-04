@@ -16,7 +16,7 @@ export namespace LinearInterpolationScale {
 export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs {}
 
 export class LinearInterpolationScale extends Scale<number> {
-  properties: LinearInterpolationScale.Props
+  override properties: LinearInterpolationScale.Props
 
   constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
     super(attrs)
@@ -35,7 +35,7 @@ export class LinearInterpolationScale extends Scale<number> {
     }))
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const {source_range, target_range} = this.properties
     this.on_change([source_range, target_range], () => {
@@ -54,11 +54,11 @@ export class LinearInterpolationScale extends Scale<number> {
     throw new Error("not implemented")
   }
 
-  compute(x: number): number {
+  override compute(x: number): number {
     return x
   }
 
-  v_compute(vs: Arrayable<number>): ScreenArray {
+  override v_compute(vs: Arrayable<number>): ScreenArray {
     const {binning} = this
 
     const {start, end} = this.source_range
@@ -89,11 +89,11 @@ export class LinearInterpolationScale extends Scale<number> {
     return this.linear_scale.v_compute(vvs)
   }
 
-  invert(xprime: number): number {
+  override invert(xprime: number): number {
     return xprime
   }
 
-  v_invert(xprimes: Arrayable<number>): FloatArray {
+  override v_invert(xprimes: Arrayable<number>): FloatArray {
     return new Float64Array(xprimes)
   }
 }

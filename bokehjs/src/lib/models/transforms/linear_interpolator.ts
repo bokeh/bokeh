@@ -11,7 +11,7 @@ export namespace LinearInterpolator {
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
-  properties: LinearInterpolator.Props
+  override properties: LinearInterpolator.Props
 
   constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
     super(attrs)

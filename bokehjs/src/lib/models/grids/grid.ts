@@ -9,8 +9,8 @@ import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
 
 export class GridView extends GuideRendererView {
-  model: Grid
-  visuals: Grid.Visuals
+  override model: Grid
+  override visuals: Grid.Visuals
 
   protected _render(): void {
     const ctx = this.layer.ctx
@@ -21,7 +21,7 @@ export class GridView extends GuideRendererView {
     ctx.restore()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -199,8 +199,8 @@ export namespace Grid {
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
-  properties: Grid.Props
-  __view_type__: GridView
+  override properties: Grid.Props
+  override __view_type__: GridView
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)

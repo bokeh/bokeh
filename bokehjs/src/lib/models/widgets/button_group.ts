@@ -7,14 +7,14 @@ import * as p from "core/properties"
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class ButtonGroupView extends ControlView {
-  model: ButtonGroup
+  override model: ButtonGroup
 
   protected _buttons: HTMLElement[]
   *controls() {
     yield* (this._buttons as any) // TODO: HTMLButtonElement[]
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const p = this.model.properties
@@ -23,11 +23,11 @@ export abstract class ButtonGroupView extends ControlView {
     this.on_change(p.active,      () => this._update_active())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), buttons_css]
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this._buttons = this.model.labels.map((label, i) => {
@@ -62,8 +62,8 @@ export namespace ButtonGroup {
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
 export abstract class ButtonGroup extends Control {
-  properties: ButtonGroup.Props & {active: p.Property<unknown>}
-  __view_type__: ButtonGroupView
+  override properties: ButtonGroup.Props & {active: p.Property<unknown>}
+  override __view_type__: ButtonGroupView
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {
     super(attrs)

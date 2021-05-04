@@ -16,7 +16,7 @@ import {Arrayable} from "core/types"
 import {assert} from "core/util/assert"
 
 export class GraphRendererView extends DataRendererView {
-  model: GraphRenderer
+  override model: GraphRenderer
 
   edge_view: GlyphRendererView
   node_view: GlyphRendererView
@@ -25,7 +25,7 @@ export class GraphRendererView extends DataRendererView {
     return this.node_view.glyph
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const graph = this.model
@@ -93,7 +93,7 @@ export class GraphRendererView extends DataRendererView {
     this.node_view = await build_view(node_renderer, {parent})
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.layout_provider.change, () => {
       this.edge_view.set_data()
@@ -102,7 +102,7 @@ export class GraphRendererView extends DataRendererView {
     })
   }
 
-  remove(): void {
+  override remove(): void {
     this.edge_view.remove()
     this.node_view.remove()
     super.remove()
@@ -113,7 +113,7 @@ export class GraphRendererView extends DataRendererView {
     this.node_view.render()
   }
 
-  renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
+  override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     if (renderer instanceof GlyphRenderer) {
       if (renderer == this.edge_view.model)
         return this.edge_view
@@ -139,8 +139,8 @@ export namespace GraphRenderer {
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
-  properties: GraphRenderer.Props
-  __view_type__: GraphRendererView
+  override properties: GraphRenderer.Props
+  override __view_type__: GraphRendererView
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)

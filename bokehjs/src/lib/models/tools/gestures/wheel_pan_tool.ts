@@ -6,9 +6,9 @@ import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
 export class WheelPanToolView extends GestureToolView {
-  model: WheelPanTool
+  override model: WheelPanTool
 
-  _scroll(ev: ScrollEvent): void {
+  override _scroll(ev: ScrollEvent): void {
     let factor = this.model.speed*ev.delta
 
     // clamp the magnitude of factor, if it is > 1 bad things happen
@@ -80,8 +80,8 @@ export namespace WheelPanTool {
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
-  properties: WheelPanTool.Props
-  __view_type__: WheelPanToolView
+  override properties: WheelPanTool.Props
+  override __view_type__: WheelPanToolView
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)
@@ -102,12 +102,12 @@ export class WheelPanTool extends GestureTool {
     this.register_alias("ywheel_pan", () => new WheelPanTool({dimension: "height"}))
   }
 
-  tool_name = "Wheel Pan"
-  icon = tool_icon_wheel_pan
-  event_type = "scroll" as "scroll"
-  default_order = 12
+  override tool_name = "Wheel Pan"
+  override icon = tool_icon_wheel_pan
+  override event_type = "scroll" as "scroll"
+  override default_order = 12
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimension)
   }
 }

@@ -2,14 +2,14 @@ import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
 import {tool_icon_zoom_in} from "styles/icons.css"
 
 export class ZoomInToolView extends ZoomBaseToolView {
-  model: ZoomBaseTool
+  override model: ZoomBaseTool
 }
 
 export interface ZoomInTool extends ZoomBaseTool.Attrs {}
 
 export class ZoomInTool extends ZoomBaseTool {
-  properties: ZoomBaseTool.Props
-  __view_type__: ZoomBaseToolView
+  override properties: ZoomBaseTool.Props
+  override __view_type__: ZoomBaseToolView
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
@@ -23,7 +23,7 @@ export class ZoomInTool extends ZoomBaseTool {
     this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
   }
 
-  sign = 1 as 1
-  tool_name = "Zoom In"
-  icon = tool_icon_zoom_in
+  override sign = 1 as 1
+  override tool_name = "Zoom In"
+  override icon = tool_icon_zoom_in
 }

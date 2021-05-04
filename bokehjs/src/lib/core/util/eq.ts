@@ -206,7 +206,7 @@ export class SimilarComparator extends Comparator {
     super()
   }
 
-  numbers(a: number, b: number): boolean {
+  override numbers(a: number, b: number): boolean {
     return super.numbers(a, b) || abs(a - b) < this.tolerance
   }
 }

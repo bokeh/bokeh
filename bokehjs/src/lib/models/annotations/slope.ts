@@ -4,10 +4,10 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class SlopeView extends AnnotationView {
-  model: Slope
-  visuals: Slope.Visuals
+  override model: Slope
+  override visuals: Slope.Visuals
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -72,8 +72,8 @@ export namespace Slope {
 export interface Slope extends Slope.Attrs {}
 
 export class Slope extends Annotation {
-  properties: Slope.Props
-  __view_type__: SlopeView
+  override properties: Slope.Props
+  override __view_type__: SlopeView
 
   constructor(attrs?: Partial<Slope.Attrs>) {
     super(attrs)

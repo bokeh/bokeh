@@ -7,7 +7,7 @@ import {clamp} from "core/util/math"
 import menus_css, * as menus from "styles/menus.css"
 
 export class AutocompleteInputView extends TextInputView {
-  model: AutocompleteInput
+  override model: AutocompleteInput
 
   protected _open: boolean = false
 
@@ -17,11 +17,11 @@ export class AutocompleteInputView extends TextInputView {
 
   protected menu: HTMLElement
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), menus_css]
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.input_el.addEventListener("keydown", (event) => this._keydown(event))
@@ -34,7 +34,7 @@ export class AutocompleteInputView extends TextInputView {
     undisplay(this.menu)
   }
 
-  change_input(): void {
+  override change_input(): void {
     if (this._open && this.menu.children.length > 0) {
       this.model.value = this.menu.children[this._hover_index].textContent!
       this.input_el.focus()
@@ -178,8 +178,8 @@ export namespace AutocompleteInput {
 export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
-  properties: AutocompleteInput.Props
-  __view_type__: AutocompleteInputView
+  override properties: AutocompleteInput.Props
+  override __view_type__: AutocompleteInputView
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)

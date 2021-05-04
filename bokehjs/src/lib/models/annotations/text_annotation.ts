@@ -9,10 +9,10 @@ import {Context2d} from "core/util/canvas"
 import {assert, unreachable} from "core/util/assert"
 
 export abstract class TextAnnotationView extends AnnotationView {
-  model: TextAnnotation
-  visuals: TextAnnotation.Visuals
+  override model: TextAnnotation
+  override visuals: TextAnnotation.Visuals
 
-  update_layout(): void {
+  override update_layout(): void {
     const {panel} = this
     if (panel != null)
       this.layout = new SideLayout(panel, () => this.get_size(), true)
@@ -22,7 +22,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected el?: HTMLElement
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.model.render_mode == 'css') {
@@ -31,13 +31,13 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  remove(): void {
+  override remove(): void {
     if (this.el != null)
       remove(this.el)
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     if (this.model.render_mode == 'css') {
       // dispatch CSS update immediately
@@ -47,7 +47,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
   }
 
-  render(): void {
+  override render(): void {
     if (!this.model.visible && this.model.render_mode == "css")
       undisplay(this.el!)
 
@@ -169,8 +169,8 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-  properties: TextAnnotation.Props
-  __view_type__: TextAnnotationView
+  override properties: TextAnnotation.Props
+  override __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)

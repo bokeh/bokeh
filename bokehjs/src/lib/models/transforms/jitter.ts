@@ -18,7 +18,7 @@ export namespace Jitter {
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends RangeTransform {
-  properties: Jitter.Props
+  override properties: Jitter.Props
 
   previous_values: Arrayable<number>
 
@@ -34,7 +34,7 @@ export class Jitter extends RangeTransform {
     }))
   }
 
-  v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
+  override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
     if (this.previous_values != null && this.previous_values.length == xs0.length)
       return this.previous_values
     this.previous_values = super.v_compute(xs0)

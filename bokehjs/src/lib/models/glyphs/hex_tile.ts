@@ -35,8 +35,8 @@ export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
 export interface HexTileView extends HexTileData {}
 
 export class HexTileView extends GlyphView {
-  model: HexTile
-  visuals: HexTile.Visuals
+  override model: HexTile
+  override visuals: HexTile.Visuals
 
   scenterxy(i: number): [number, number] {
     const scx = this.sx[i]
@@ -44,7 +44,7 @@ export class HexTileView extends GlyphView {
     return [scx, scy]
   }
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     const {orientation, size, aspect_scale} = this.model
     const {q, r} = this
 
@@ -71,7 +71,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x, this._y)
   }
 
@@ -96,7 +96,7 @@ export class HexTileView extends GlyphView {
 
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
-  map_data(): void {
+  override map_data(): void {
     [this.sx, this.sy] = this.renderer.coordinates.map_to_screen(this._x, this._y)
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
@@ -157,7 +157,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -174,7 +174,7 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let indices: number[]
@@ -193,7 +193,7 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
@@ -201,7 +201,7 @@ export class HexTileView extends GlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -226,8 +226,8 @@ export namespace HexTile {
 export interface HexTile extends HexTile.Attrs { }
 
 export class HexTile extends Glyph {
-  properties: HexTile.Props
-  __view_type__: HexTileView
+  override properties: HexTile.Props
+  override __view_type__: HexTileView
 
   constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)

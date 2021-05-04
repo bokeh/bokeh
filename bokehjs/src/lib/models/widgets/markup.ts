@@ -7,12 +7,12 @@ import {Widget, WidgetView} from "./widget"
 import clearfix_css, {clearfix} from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
-  model: Markup
-  layout: CachedVariadicBox
+  override model: Markup
+  override layout: CachedVariadicBox
 
   protected markup_el: HTMLElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => {
       this.layout.invalidate_cache()
@@ -21,16 +21,16 @@ export abstract class MarkupView extends WidgetView {
     })
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), clearfix_css]
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new CachedVariadicBox(this.el)
     this.layout.set_sizing(this.box_sizing())
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     const style = {...this.model.style, display: "inline-block"}
     this.markup_el = div({class: clearfix, style})
@@ -50,8 +50,8 @@ export namespace Markup {
 export interface Markup extends Markup.Attrs {}
 
 export abstract class Markup extends Widget {
-  properties: Markup.Props
-  __view_type__: MarkupView
+  override properties: Markup.Props
+  override __view_type__: MarkupView
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)

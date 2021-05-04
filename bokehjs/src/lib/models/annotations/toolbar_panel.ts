@@ -9,37 +9,37 @@ import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
-  model: ToolbarPanel
+  override model: ToolbarPanel
 
-  panel: Panel
-  layout: Layoutable
+  override panel: Panel
+  override layout: Layoutable
 
-  update_layout(): void {
+  override update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
   protected _toolbar_view: ToolbarBaseView
   protected el: HTMLElement
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.el = div()
     this.plot_view.canvas_view.add_event(this.el)
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     this._toolbar_view = await build_view(this.model.toolbar, {parent: this}) as ToolbarBaseView
     this.plot_view.visibility_callbacks.push((visible) => this._toolbar_view.set_visibility(visible))
   }
 
-  remove(): void {
+  override remove(): void {
     this._toolbar_view.remove()
     remove(this.el)
     super.remove()
   }
 
-  render(): void {
+  override render(): void {
     if (!this.model.visible)
       undisplay(this.el)
 
@@ -71,7 +71,7 @@ export class ToolbarPanelView extends AnnotationView {
     display(this.el)
   }
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {tools, logo} = this.model.toolbar
     return {
       width: tools.length*30 + (logo != null ? 25 : 0) + 15, // TODO: approximate, use a proper layout instead.
@@ -91,8 +91,8 @@ export namespace ToolbarPanel {
 export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
-  properties: ToolbarPanel.Props
-  __view_type__: ToolbarPanelView
+  override properties: ToolbarPanel.Props
+  override __view_type__: ToolbarPanelView
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)

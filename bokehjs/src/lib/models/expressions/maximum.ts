@@ -15,7 +15,7 @@ export namespace Maximum {
 export interface Maximum extends Maximum.Attrs {}
 
 export class Maximum extends ScalarExpression<number> {
-  properties: Maximum.Props
+  override properties: Maximum.Props
 
   constructor(attrs?: Partial<Maximum.Attrs>) {
     super(attrs)

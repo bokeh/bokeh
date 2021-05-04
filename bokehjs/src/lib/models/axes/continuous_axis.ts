@@ -2,7 +2,7 @@ import {Axis, AxisView} from "./axis"
 import * as p from "core/properties"
 
 export abstract class ContinuousAxisView extends AxisView {
-  model: ContinuousAxis
+  override model: ContinuousAxis
 }
 
 export namespace ContinuousAxis {
@@ -14,8 +14,8 @@ export namespace ContinuousAxis {
 export interface ContinuousAxis extends ContinuousAxis.Attrs {}
 
 export abstract class ContinuousAxis extends Axis {
-  properties: ContinuousAxis.Props
-  __view_type__: ContinuousAxisView
+  override properties: ContinuousAxis.Props
+  override __view_type__: ContinuousAxisView
 
   constructor(attrs?: Partial<ContinuousAxis.Attrs>) {
     super(attrs)

@@ -57,9 +57,9 @@ describe("Toolbar", () => {
 class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
-  default_view = MultiToolView
-  tool_name = "Multi Tool"
-  event_type = ["tap" as "tap", "pan" as "pan"]
+  override default_view = MultiToolView
+  override tool_name = "Multi Tool"
+  override event_type = ["tap" as "tap", "pan" as "pan"]
 }
 
 describe("Toolbar Multi Gesture Tool", () => {

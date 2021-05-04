@@ -3,7 +3,7 @@ import * as toolbars from "styles/toolbar.css"
 import {classes} from "core/dom"
 
 export class OnOffButtonView extends ButtonToolButtonView {
-  render(): void {
+  override render(): void {
     super.render()
     classes(this.el).toggle(toolbars.active, this.model.active)
   }

@@ -9,12 +9,12 @@ import {BBox, CoordinateMapper} from "core/util/bbox"
 export const EDGE_TOLERANCE = 2.5
 
 export class BoxAnnotationView extends AnnotationView {
-  model: BoxAnnotation
-  visuals: BoxAnnotation.Visuals
+  override model: BoxAnnotation
+  override visuals: BoxAnnotation.Visuals
 
   protected bbox: BBox = new BBox()
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -76,14 +76,14 @@ export class BoxAnnotationView extends AnnotationView {
     return this.bbox.grow_by(tolerance)
   }
 
-  interactive_hit(sx: number, sy: number): boolean {
+  override interactive_hit(sx: number, sy: number): boolean {
     if (this.model.in_cursor == null)
       return false
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
-  cursor(sx: number, sy: number): string | null {
+  override cursor(sx: number, sy: number): string | null {
     const tol = 3
 
     const {left, right, bottom, top} = this.bbox
@@ -126,8 +126,8 @@ export namespace BoxAnnotation {
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
-  properties: BoxAnnotation.Props
-  __view_type__: BoxAnnotationView
+  override properties: BoxAnnotation.Props
+  override __view_type__: BoxAnnotationView
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)

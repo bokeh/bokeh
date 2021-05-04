@@ -30,7 +30,7 @@ export class RectGL extends BaseGLGlyph {
   protected _hatch_weights?: number[] | Float32Array
   protected _hatch_rgba?: Uint8Array
 
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: RectView) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: RectView) {
     super(regl_wrapper, glyph)
 
     this._antialias = 1.5

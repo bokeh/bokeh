@@ -15,7 +15,7 @@ export namespace Range1d {
 export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
-  properties: Range1d.Props
+  override properties: Range1d.Props
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
     super(attrs)
@@ -49,7 +49,7 @@ export class Range1d extends Range {
   private _reset_start: number
   private _reset_end: number
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._set_auto_bounds()
   }

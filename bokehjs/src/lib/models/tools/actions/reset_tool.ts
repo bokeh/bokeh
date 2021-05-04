@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {tool_icon_reset} from "styles/icons.css"
 
 export class ResetToolView extends ActionToolView {
-  model: ResetTool
+  override model: ResetTool
 
   doit(): void {
     // reset() issues the RangesUpdate event
@@ -20,8 +20,8 @@ export namespace ResetTool {
 export interface ResetTool extends ResetTool.Attrs {}
 
 export class ResetTool extends ActionTool {
-  properties: ResetTool.Props
-  __view_type__: ResetToolView
+  override properties: ResetTool.Props
+  override __view_type__: ResetToolView
 
   constructor(attrs?: Partial<ResetTool.Attrs>) {
     super(attrs)
@@ -33,6 +33,6 @@ export class ResetTool extends ActionTool {
     this.register_alias("reset", () => new ResetTool())
   }
 
-  tool_name = "Reset"
-  icon = tool_icon_reset
+  override tool_name = "Reset"
+  override icon = tool_icon_reset
 }

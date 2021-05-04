@@ -2,7 +2,7 @@ import {Column, ColumnView} from "./column"
 import * as p from "core/properties"
 
 export class WidgetBoxView extends ColumnView {
-  model: WidgetBox
+  override model: WidgetBox
 }
 
 export namespace WidgetBox {
@@ -14,8 +14,8 @@ export namespace WidgetBox {
 export interface WidgetBox extends Column.Attrs {}
 
 export class WidgetBox extends Column {
-  properties: WidgetBox.Props
-  __view_type__: WidgetBoxView
+  override properties: WidgetBox.Props
+  override __view_type__: WidgetBoxView
 
   constructor(attrs?: Partial<WidgetBox.Attrs>) {
     super(attrs)

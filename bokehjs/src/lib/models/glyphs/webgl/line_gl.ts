@@ -30,7 +30,7 @@ export class LineGL extends BaseGLGlyph {
   protected _dash_scale?: number
   protected _dash_offset?: number
 
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: LineView) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: LineView) {
     super(regl_wrapper, glyph)
 
     this._antialias = 1.5   // Make this larger to test antialiasing at edges.

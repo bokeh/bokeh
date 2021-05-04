@@ -22,8 +22,8 @@ export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
 export interface TextView extends TextData {}
 
 export class TextView extends XYGlyphView {
-  model: Text
-  visuals: Text.Visuals
+  override model: Text
+  override visuals: Text.Visuals
 
   private _rotate_point(x: number, y: number, xoff: number, yoff: number, angle: number): [number, number] {
     const sxr = (x - xoff) * Math.cos(angle) - (y - yoff) * Math.sin(angle) + xoff
@@ -120,7 +120,7 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const indices = []
 
@@ -139,7 +139,7 @@ export class TextView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  scenterxy(i: number): [number, number] {
+  override scenterxy(i: number): [number, number] {
     const sxs = this._sxs[i]
     const sys = this._sys[i]
     assert(sxs.length != 0 && sys.length != 0)
@@ -170,8 +170,8 @@ export namespace Text {
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
-  properties: Text.Props
-  __view_type__: TextView
+  override properties: Text.Props
+  override __view_type__: TextView
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)
