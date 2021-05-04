@@ -1,8 +1,8 @@
 import {logger} from "core/logging"
-import {classes, empty, div, a, Keys} from "core/dom"
+import {classes, div, a, Keys} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
-import {DOMView} from "core/dom_view"
+import {DOMComponentView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
@@ -23,6 +23,7 @@ import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
+import icons_css from "styles/icons.css"
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -57,7 +58,7 @@ export class ToolbarViewModel extends Model {
   }
 }
 
-export class ToolbarBaseView extends DOMView {
+export class ToolbarBaseView extends DOMComponentView {
   override model: ToolbarBase
   override el: HTMLElement
 
@@ -99,7 +100,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), toolbars_css, logos_css]
+    return [...super.styles(), toolbars_css, logos_css, icons_css]
   }
 
   override remove(): void {
@@ -120,12 +121,12 @@ export class ToolbarBaseView extends DOMView {
 
   protected _on_visible_change(): void {
     const {visible} = this._toolbar_view_model
-    classes(this.el).toggle(toolbars.toolbar_hidden, !visible)
+    classes(this.el).toggle(toolbars.hidden, !visible)
   }
 
   override render(): void {
-    empty(this.el)
-    this.el.classList.add(toolbars.toolbar)
+    this.empty()
+
     this.el.classList.add(toolbars[this.model.toolbar_location])
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
@@ -136,7 +137,7 @@ export class ToolbarBaseView extends DOMView {
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
-      this.el.appendChild(logo_el)
+      this.shadow_el.appendChild(logo_el)
       const {width, height} = logo_el.getBoundingClientRect()
       size += horizontal ? width : height
     }
@@ -192,13 +193,13 @@ export class ToolbarBaseView extends DOMView {
       if (overflowed) {
         this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
       } else {
-        this.el.appendChild(el)
+        this.shadow_el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
         size += horizontal ? width : height
         overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
         if (overflowed) {
-          this.el.removeChild(el)
-          this.el.appendChild(overflow_button)
+          this.shadow_el.removeChild(el)
+          this.shadow_el.appendChild(overflow_button)
 
           const {items} = this._overflow_menu
           items.splice(0, items.length)

@@ -1,6 +1,5 @@
 @import "./_mixins.less";
 
-.bk-root {
   @toolbarSize: 30px;
 
   @buttonHeight: 30px;
@@ -10,24 +9,24 @@
   @activeToolHighlight: #26aae1;
   @activeToolBorder: 2px solid transparent;
 
-  .bk-toolbar-hidden {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.3s linear,opacity 0.3s linear;
-  }
-
-  .bk-toolbar {
+  :host {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     .no-user-select();
   }
 
-  .bk-toolbar .bk-logo {
+  :host(.bk-hidden) {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s linear, opacity 0.3s linear;
+  }
+
+  .bk-logo {
     flex-shrink: 0;
   }
 
-  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+  :host(.bk-above), :host(.bk-below) {
     flex-direction: row;
     justify-content: flex-end;
 
@@ -38,7 +37,7 @@
     }
   }
 
-  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+  :host(.bk-left), :host(.bk-right) {
     flex-direction: column;
     justify-content: flex-start;
 
@@ -84,19 +83,19 @@
     }
   }
 
-  .bk-above .bk-toolbar-button {
+  :host(.bk-above) .bk-toolbar-button {
     .toolbar-button-border(bottom);
   }
 
-  .bk-below .bk-toolbar-button {
+  :host(.bk-below) .bk-toolbar-button {
     .toolbar-button-border(top);
   }
 
-  .bk-right .bk-toolbar-button {
+  :host(.bk-right) .bk-toolbar-button {
     .toolbar-button-border(left);
   }
 
-  .bk-left .bk-toolbar-button {
+  :host(.bk-left) .bk-toolbar-button {
     .toolbar-button-border(right);
   }
 
@@ -106,14 +105,14 @@
     background-color: @buttonColor;
   }
 
-  .bk-above, .bk-below {
+  :host(.bk-above), :host(.bk-below) {
     .bk-divider {
       height: 10px;
       width: 1px;
     }
   }
 
-  .bk-left, .bk-right {
+  :host(.bk-left), :host(.bk-right) {
     .bk-divider {
       height: 1px;
       width: 10px;
@@ -126,18 +125,17 @@
     align-items: center;
   }
 
-  .bk-above, .bk-below, .bk-horizontal {
+  :host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
     .bk-tool-overflow {
       width: @buttonWidth ./ 2;
       height: @buttonHeight;
       flex-direction: row;
     }
   }
-  .bk-left, .bk-right, .bk-vertical {
+  :host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
     .bk-tool-overflow {
       width: @buttonWidth;
       height: @buttonHeight ./ 2;
       flex-direction: column;
     }
   }
-}
