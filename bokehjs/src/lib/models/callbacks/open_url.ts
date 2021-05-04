@@ -29,7 +29,7 @@ export class OpenURL extends Callback {
     }))
   }
 
-  raise(url: string): void {
+  navigate(url: string): void {
     if (this.same_tab)
       window.location.href = url
     else
@@ -41,7 +41,7 @@ export class OpenURL extends Callback {
       const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURI)
       if (!isString(url))
         throw new Error("HTML output is not supported in this context")
-      this.raise(url)
+      this.navigate(url)
     }
 
     const {selected} = source

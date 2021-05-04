@@ -18,67 +18,72 @@ describe("OpenURL", () => {
       const source = new ColumnDataSource({data: {"foo bar": ["baz"]}})
       source.selected.indices = [0]
       const cb = new OpenURL({url: "http://stuff.com/@{foo bar}.html"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledOnce).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://stuff.com/baz.html"])
+      expect(navigate_spy.calledOnce).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://stuff.com/baz.html"])
     })
+
     it("should escape spaces", () => {
       const source = new ColumnDataSource({data: {foo: ["bar baz/index.html"]}})
       source.selected.indices = [0]
       const cb = new OpenURL({url: "http://stuff.com/@foo"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledOnce).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://stuff.com/bar%20baz/index.html"])
+      expect(navigate_spy.calledOnce).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://stuff.com/bar%20baz/index.html"])
     })
+
     it("should not escape slashes", () => {
       const source = new ColumnDataSource({data: {foo: ["bar/baz/index.html"]}})
       source.selected.indices = [0]
       const cb = new OpenURL({url: "http://stuff.com/@foo"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledOnce).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://stuff.com/bar/baz/index.html"])
+      expect(navigate_spy.calledOnce).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://stuff.com/bar/baz/index.html"])
     })
+
     it("should not escape anchors", () => {
       const source = new ColumnDataSource({data: {foo: ["index.html#foo"]}})
       source.selected.indices = [0]
       const cb = new OpenURL({url: "http://stuff.com/@foo"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledOnce).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://stuff.com/index.html#foo"])
+      expect(navigate_spy.calledOnce).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://stuff.com/index.html#foo"])
     })
+
     it("should not escape request args", () => {
       const source = new ColumnDataSource({data: {foo: ["index.html?name=ferret&color=purple"]}})
       source.selected.indices = [0]
       const cb = new OpenURL({url: "http://stuff.com/@foo"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledOnce).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://stuff.com/index.html?name=ferret&color=purple"])
+      expect(navigate_spy.calledOnce).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://stuff.com/index.html?name=ferret&color=purple"])
     })
   })
 
   describe("Selection handling", () => {
-    it("should should not raise for empty selection", () => {
+    it("should should not navigate for empty selection", () => {
       const source = new ColumnDataSource({data: {foo: ["bar", "baz", "quux"]}})
       source.selected.indices = []
       const cb = new OpenURL({url: "http://@foo.com"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.called).to.be.false
+      expect(navigate_spy.called).to.be.false
     })
-    it("should should raise for every selection index", () => {
+
+    it("should should navigate for every selection index", () => {
       const source = new ColumnDataSource({data: {foo: ["bar", "baz", "quux"]}})
       source.selected.indices = [0, 2]
       const cb = new OpenURL({url: "http://@foo.com"})
-      const raise_spy = sinon.spy(cb, "raise")
+      const navigate_spy = sinon.spy(cb, "navigate")
       cb.execute(undefined, {source})
-      expect(raise_spy.calledTwice).to.be.true
-      expect(raise_spy.args[0]).to.be.equal(["http://bar.com"])
-      expect(raise_spy.args[1]).to.be.equal(["http://quux.com"])
+      expect(navigate_spy.calledTwice).to.be.true
+      expect(navigate_spy.args[0]).to.be.equal(["http://bar.com"])
+      expect(navigate_spy.args[1]).to.be.equal(["http://quux.com"])
     })
   })
 })
