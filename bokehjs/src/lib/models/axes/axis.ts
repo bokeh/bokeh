@@ -3,7 +3,6 @@ import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {LabelingPolicy, AllLabels, DistanceMeasure} from "../policies/labeling"
 import {Range} from "../ranges/range"
-
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -17,23 +16,10 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {CanvasImage} from "models/glyphs/image_url"
-import {ImageLoader} from "core/util/image"
 import {color2css} from "core/util/color"
 import {MathText} from "models/tools/math_text"
 
 const {abs} = Math
-
-declare namespace MathJax {
-  function tex2svg(input: string): HTMLElement
-}
-
-type Position = {
-  sx: number
-  sy: number
-  x_anchor?: number | "left" | "center" | "right"
-  y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
-}
 
 export type Extents = {
   tick: number
@@ -55,11 +41,6 @@ export class AxisView extends GuideRendererView {
 
   panel: Panel
   layout: Layoutable
-
-  latex_image: CanvasImage
-  latex_image_height: number
-  latex_image_width: number
-  mathjax_instantiated = false
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -173,166 +154,58 @@ export class AxisView extends GuideRendererView {
     return extent > 0 ? standoff + extent + padding : 0
   }
 
-  protected _load_latex_image(text: string, color: string) {
-    if (!this.mathjax_instantiated) {
-      const script = document.createElement('script')
-      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'
-      script.async = false
-      document.head.appendChild(script)
-      script.onload = () => this.request_render()
-      this.mathjax_instantiated = true
-    }
-    if (typeof MathJax === 'undefined') return
-
-    const mathjax_element = MathJax.tex2svg(text)
-
-    // mathjax_element.setAttribute('style', 'visibility: hidden;')
-    document.body.appendChild(mathjax_element)
-
-    const svg_element = mathjax_element.children[0] as SVGElement
-    svg_element.setAttribute('stroke', color)
-
-    const outer_HTML = svg_element.outerHTML
-    const blob = new Blob([outer_HTML], {type: 'image/svg+xml;charset=utf-8'})
-    const url = URL.createObjectURL(blob)
-
-    this.latex_image_height = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('height'))
-    this.latex_image_width = parseFloat(getComputedStyle(svg_element, null).getPropertyValue('width'))
-
-    mathjax_element.remove()
-
-    new ImageLoader(url, {
-      loaded: (image) => {
-        this.latex_image = image
-        this.request_render()
-      },
-    })
-  }
-
-  protected _computed_position(size: Size, position: Position): {x: number, y: number} {
-    const {width, height} = size
-    const {sx, sy, x_anchor="left", y_anchor="center"} = position
-
-    const x = sx - (() => {
-      if (isNumber(x_anchor))
-        return x_anchor*width
-      else {
-        switch (x_anchor) {
-          case "left": return 0
-          case "center": return 0.5*width
-          case "right": return width
-        }
-      }
-    })()
-
-    const y = sy - (() => {
-      if (isNumber(y_anchor))
-        return y_anchor*height
-      else {
-        switch (y_anchor) {
-          case "top": return 0
-          case "center": return 0.5*height
-          case "bottom": return height
-          case "baseline": return 0.5*height
-        }
-      }
-    })()
-
-    return {x, y}
-  }
-
-  protected _draw_latex_image(ctx: Context2d, position: Position, angle: number): void {
-    if (this.latex_image) {
-      ctx.save()
-
-      const {sx, sy} = position
-
-      if (angle) {
-        ctx.translate(sx, sy)
-        ctx.rotate(angle)
-        ctx.translate(-sx, -sy)
-      }
-
-      const {x, y} = this._computed_position({
-        width: this.latex_image_width,
-        height: this.latex_image_height,
-      }, position)
-
-      ctx.drawImage(this.latex_image, x, y, this.latex_image_width, this.latex_image_height)
-      this.notify_finished()
-
-      ctx.restore()
-    }
-  }
-
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    const text = this.model.axis_label
-    if (!text || this.model.fixed_location != null)
+    const {axis_label} = this.model
+
+    if (!axis_label || this.model.fixed_location != null)
       return
 
-    if (text instanceof MathText) {
+    const [sx, sy] = (() => {
+      const {bbox} = this.layout
+      switch (this.panel.side) {
+        case "above":
+          return [bbox.hcenter, bbox.bottom]
+        case "below":
+          return [bbox.hcenter, bbox.top]
+        case "left":
+          return [bbox.right, bbox.vcenter]
+        case "right":
+          return [bbox.left, bbox.vcenter]
+      }
+    })()
+
+    const [nx, ny] = this.normals
+    const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
+    const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
+    const angle = this.panel.get_label_angle_heuristic("parallel")
+
+    const position = {
+      sx: sx + nx*standoff,
+      sy: sy + ny*standoff,
+      x_anchor: align,
+      y_anchor: vertical_align,
+    }
+
+    if (axis_label instanceof MathText) {
       const {text_color, text_alpha} = this.visuals.axis_label_text
       const color = text_color.get_value()
       const alpha = text_alpha.get_value()
 
-      if (!this.latex_image) return this._load_latex_image(text.text, color2css(color, alpha))
-
-      const [sx, sy] = (() => {
-        const {bbox} = this.layout
-        switch (this.panel.side) {
-          case "above":
-            return [bbox.hcenter, bbox.bottom]
-          case "below":
-            return [bbox.hcenter, bbox.top]
-          case "left":
-            return [bbox.right, bbox.vcenter]
-          case "right":
-            return [bbox.left, bbox.vcenter]
-        }
-      })()
-
-      const [nx, ny] = this.normals
-      const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
-      const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
-
-      this._draw_latex_image(ctx, {
-        sx: sx + nx*standoff,
-        sy: sy + ny*standoff,
-        x_anchor: align,
-        y_anchor: vertical_align,
-      }, this.panel.get_label_angle_heuristic("parallel"))
-    } else {
-      const axis_label = new TextBox({text})
-      axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-      axis_label.visuals = this.visuals.axis_label_text
-
-      const [sx, sy] = (() => {
-        const {bbox} = this.layout
-        switch (this.panel.side) {
-          case "above":
-            return [bbox.hcenter, bbox.bottom]
-          case "below":
-            return [bbox.hcenter, bbox.top]
-          case "left":
-            return [bbox.right, bbox.vcenter]
-          case "right":
-            return [bbox.left, bbox.vcenter]
-        }
-      })()
-
-      const [nx, ny] = this.normals
-      const standoff = extents.tick + extents.tick_label + this.model.axis_label_standoff
-
-      const {vertical_align, align} = this.panel.get_label_text_heuristics("parallel")
-      axis_label.position = {
-        sx: sx + nx*standoff,
-        sy: sy + ny*standoff,
-        x_anchor: align,
-        y_anchor: vertical_align,
+      if (!axis_label.image) {
+        this.request_render()
+        return axis_label.load_image(color2css(color, alpha))
       }
-      axis_label.align = align
 
-      axis_label.paint(ctx)
+      axis_label.draw_image(ctx, position, angle)
+
+      return this.notify_finished()
+    } else {
+      const axis_label_text_box = new TextBox({text: axis_label})
+      axis_label_text_box.angle = angle
+      axis_label_text_box.visuals = this.visuals.axis_label_text
+      axis_label_text_box.position = position
+      axis_label_text_box.align = align
+      axis_label_text_box.paint(ctx)
     }
   }
 
