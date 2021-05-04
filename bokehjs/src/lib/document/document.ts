@@ -81,7 +81,7 @@ export class Document {
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
-  private _idle_roots: WeakMap<Model, boolean>
+  private _idle_roots: WeakMap<HasProps, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void)| null
@@ -115,7 +115,7 @@ export class Document {
     return true
   }
 
-  notify_idle(model: Model): void {
+  notify_idle(model: HasProps): void {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)

@@ -43,7 +43,7 @@ p = figure(title="Periodic Table (omitting LA and AC Series)", width=1000, heigh
 r = p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend_field="metal",
            color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
-text_props = {"source": df, "text_align": "left", "text_baseline": "middle"}
+text_props = dict(source=df, text_align="left", text_baseline="middle")
 
 x = dodge("group", -0.4, range=p.x_range)
 

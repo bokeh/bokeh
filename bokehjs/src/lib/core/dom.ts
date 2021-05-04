@@ -102,7 +102,7 @@ export function append(element: HTMLElement, ...children: Element[]): void {
     element.appendChild(child)
 }
 
-export function remove(element: HTMLElement): void {
+export function remove(element: Node): void {
   const parent = element.parentNode
   if (parent != null) {
     parent.removeChild(element)

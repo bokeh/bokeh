@@ -88,3 +88,5 @@ export class ModelResolver {
 // TODO: this doesn't belong here, but it's easier this way for backwards compatibility
 import * as AllModels from "./models"
 register_models(AllModels)
+import * as DOMModels from "./models/dom"
+register_models(DOMModels)

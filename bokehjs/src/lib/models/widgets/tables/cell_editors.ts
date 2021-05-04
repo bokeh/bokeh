@@ -9,6 +9,7 @@ import * as tables from "styles/widgets/tables.css"
 
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
+  el: HTMLElement
 
   defaultValue: any
 

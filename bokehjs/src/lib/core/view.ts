@@ -94,11 +94,6 @@ export class View implements ISignalable {
     return this.parent == null
   }
 
-  assert_root(): void {
-    if (!this.is_root)
-      throw new Error(`${this.toString()} is not a root layout`)
-  }
-
   has_finished(): boolean {
     return this._has_finished
   }
@@ -136,5 +131,19 @@ export class View implements ISignalable {
 
   styles(): string[] {
     return [root_css]
+  }
+
+  private _idle_notified: boolean = false
+  notify_finished(): void {
+    if (!this.is_root)
+      this.root.notify_finished()
+    else {
+      if (!this._idle_notified && this.has_finished()) {
+        if (this.model.document != null) {
+          this._idle_notified = true
+          this.model.document.notify_idle(this.model)
+        }
+      }
+    }
   }
 }

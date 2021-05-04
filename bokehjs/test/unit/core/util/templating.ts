@@ -113,7 +113,7 @@ describe("templating module", () => {
     })
 
     it("should throw an error on unknown special vars", () => {
-      expect(() => tmpl.get_value("$x", source, 0, {}).to.throw())
+      expect(() => tmpl.get_value("$x", source, 0, {})).to.throw()
     })
 
     it("should return null for missing column", () => {
