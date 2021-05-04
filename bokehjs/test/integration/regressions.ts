@@ -730,7 +730,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10695", () => {
-    it("prevents showing MultiChoice's dropdown menu", async () => {
+    it.allowing(8)("prevents showing MultiChoice's dropdown menu", async () => {
       const random = new Random(1)
 
       const N = 10
