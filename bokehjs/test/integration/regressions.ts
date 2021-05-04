@@ -721,7 +721,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10507", () => {
-    it("prevents changing MultiSelect.disabled property", async () => {
+    it.allowing(22)("prevents changing MultiSelect.disabled property", async () => {
       const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
@@ -730,7 +730,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10695", () => {
-    it("prevents showing MultiChoice's dropdown menu", async () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu", async () => {
       const random = new Random(1)
 
       const N = 10
