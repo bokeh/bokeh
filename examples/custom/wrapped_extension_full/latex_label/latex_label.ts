@@ -6,13 +6,13 @@ import css from "./styles/latex_label.css"
 import * as katex from "katex"
 
 export class LatexLabelView extends LabelView {
-  model: LatexLabel
+  override model: LatexLabel
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), css]
   }
 
-  protected _render(): void {
+  protected override _render(): void {
     this.el?.classList.add("label-style")
 
     // Here because AngleSpec does units tranform and label doesn't support specs
@@ -53,10 +53,10 @@ export namespace LatexLabel {
 export interface LatexLabel extends LatexLabel.Attrs {}
 
 export class LatexLabel extends Label {
-  properties: LatexLabel.Props
-  __view_type__: LatexLabelView
+  override properties: LatexLabel.Props
+  override __view_type__: LatexLabelView
 
-  static __module__ = "latex_label"
+  static override __module__ = "latex_label"
 
   static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
