@@ -187,6 +187,7 @@ class DataSpec(Either):
             help=help
         )
         self._type = self._validate_type_param(value_type)
+        self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: expr(obj))
 
     # TODO (bev) add stricter validation on keys
 

@@ -1,8 +1,10 @@
-from math import cos, pi, sin
+from math import pi
 
+from bokeh.core.properties import expr
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import Arc, Circle, ColumnDataSource, Plot, Range1d, Ray, Text
+from bokeh.models.expressions import PolarTransform
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -43,9 +45,6 @@ def add_needle(speed, units):
     plot.add_glyph(Ray(x=0, y=0, length=data(0.75), angle=angle,    line_color="black", line_width=3))
     plot.add_glyph(Ray(x=0, y=0, length=data(0.10), angle=angle-pi, line_color="black", line_width=3))
 
-def polar_to_cartesian(r, alpha):
-    return r*cos(alpha), r*sin(alpha)
-
 def add_gauge(radius, max_value, length, direction, color, major_step, minor_step):
     major_angles, minor_angles = [], []
 
@@ -76,25 +75,25 @@ def add_gauge(radius, max_value, length, direction, color, major_step, minor_ste
 
     rotation = 0 if direction == 1 else -pi
 
-    x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in major_angles ])
     angles = [ angle + rotation for angle in major_angles ]
-    source = ColumnDataSource(dict(x=x, y=y, angle=angles))
+    source = ColumnDataSource(dict(major_angles=major_angles, angle=angles))
 
-    glyph = Ray(x="x", y="y", length=data(length), angle="angle", line_color=color, line_width=2)
+    t = PolarTransform(radius=radius, angle="major_angles")
+    glyph = Ray(x=expr(t.x), y=expr(t.y), length=data(length), angle="angle", line_color=color, line_width=2)
     plot.add_glyph(source, glyph)
 
-    x, y = zip(*[ polar_to_cartesian(radius, angle) for angle in minor_angles ])
     angles = [ angle + rotation for angle in minor_angles ]
-    source = ColumnDataSource(dict(x=x, y=y, angle=angles))
+    source = ColumnDataSource(dict(minor_angles=minor_angles, angle=angles))
 
-    glyph = Ray(x="x", y="y", length=data(length/2), angle="angle", line_color=color, line_width=1)
+    t = PolarTransform(radius=radius, angle="minor_angles")
+    glyph = Ray(x=expr(t.x), y=expr(t.y), length=data(length/2), angle="angle", line_color=color, line_width=1)
     plot.add_glyph(source, glyph)
 
-    x, y = zip(*[ polar_to_cartesian(radius+2*length*direction, angle) for angle in major_angles ])
     text_angles = [ angle - pi/2 for angle in major_angles ]
-    source = ColumnDataSource(dict(x=x, y=y, angle=text_angles, text=major_labels))
+    source = ColumnDataSource(dict(major_angles=major_angles, angle=text_angles, text=major_labels))
 
-    glyph = Text(x="x", y="y", angle="angle", text="text", text_align="center", text_baseline="middle")
+    t = PolarTransform(radius=radius + 2*length*direction, angle="major_angles")
+    glyph = Text(x=expr(t.x), y=expr(t.y), angle="angle", text="text", text_align="center", text_baseline="middle")
     plot.add_glyph(source, glyph)
 
 add_gauge(0.75, max_kmh, 0.05, +1, "red", major_step, minor_step)

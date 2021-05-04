@@ -261,7 +261,7 @@ export abstract class GlyphView extends View {
   }
 
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
-    const {x_range, y_range} = this.renderer.coordinates
+    const {x_source, y_source} = this.renderer.coordinates
     const visual_props = new Set(this._iter_visuals())
 
     this._data_size = indices.count
@@ -277,7 +277,7 @@ export abstract class GlyphView extends View {
         const base_array = prop.array(source)
         let array = indices.select(base_array)
 
-        const range = prop.dimension == "x" ? x_range : y_range
+        const range = prop.dimension == "x" ? x_source : y_source
         if (range instanceof FactorRange) {
           if (prop instanceof p.CoordinateSpec) {
             array = range.v_synthetic(array as Arrayable<number | Factor>)

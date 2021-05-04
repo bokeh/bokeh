@@ -9,9 +9,9 @@ export namespace Expression {
   export type Props = Model.Props
 }
 
-export interface Expression extends Expression.Attrs {}
+export interface Expression<T = Arrayable> extends Expression.Attrs {}
 
-export abstract class Expression extends Model {
+export abstract class Expression<T = Arrayable> extends Model {
   properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
@@ -19,7 +19,7 @@ export abstract class Expression extends Model {
   }
 
   protected _connected: Set<ColumnarDataSource>
-  protected _result: Map<ColumnarDataSource, Arrayable>
+  protected _result: Map<ColumnarDataSource, T>
 
   initialize(): void {
     super.initialize()
@@ -27,9 +27,9 @@ export abstract class Expression extends Model {
     this._result = new Map()
   }
 
-  protected abstract _v_compute(source: ColumnarDataSource): Arrayable
+  protected abstract _v_compute(source: ColumnarDataSource): T
 
-  v_compute(source: ColumnarDataSource): Arrayable {
+  v_compute(source: ColumnarDataSource): T {
     if (!this._connected.has(source)) {
       this.connect(source.change, () => this._result.delete(source))
       this.connect(source.patching, () => this._result.delete(source))

@@ -6,7 +6,7 @@ import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {CoordinateTransform} from "../canvas/coordinates"
+import {CoordinateTransform, CoordinateMapping} from "../canvas/coordinates"
 
 export abstract class RendererView extends View implements visuals.Renderable {
   model: Renderer
@@ -38,11 +38,16 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   protected _initialize_coordinates(): CoordinateTransform {
-    const {x_range_name, y_range_name} = this.model
+    const {coordinates} = this.model
     const {frame} = this.plot_view
-    const x_scale = frame.x_scales.get(x_range_name)!
-    const y_scale = frame.y_scales.get(y_range_name)!
-    return new CoordinateTransform(x_scale, y_scale)
+    if (coordinates != null) {
+      return coordinates.get_transform(frame)
+    } else {
+      const {x_range_name, y_range_name} = this.model
+      const x_scale = frame.x_scales.get(x_range_name)!
+      const y_scale = frame.y_scales.get(y_range_name)!
+      return new CoordinateTransform(x_scale, y_scale)
+    }
   }
 
   get plot_view(): PlotView {
@@ -106,6 +111,7 @@ export namespace Renderer {
     visible: p.Property<boolean>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
+    coordinates: p.Property<CoordinateMapping | null>
   }
 
   export type Visuals = visuals.Visuals
@@ -122,11 +128,12 @@ export abstract class Renderer extends Model {
   }
 
   static init_Renderer(): void {
-    this.define<Renderer.Props>(({Boolean, String}) => ({
+    this.define<Renderer.Props>(({Boolean, String, Ref, Nullable}) => ({
       level:        [ RenderLevel, "image" ],
       visible:      [ Boolean, true ],
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],
+      coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
     }))
   }
 }

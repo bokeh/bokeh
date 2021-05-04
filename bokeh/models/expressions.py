@@ -41,16 +41,22 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..core.enums import Direction
 from ..core.has_props import abstract
 from ..core.properties import (
+    AngleSpec,
     AnyRef,
     Bool,
     Dict,
+    Enum,
     Float,
+    Instance,
     NonNullable,
     Nullable,
+    NumberSpec,
     Seq,
     String,
+    field,
 )
 from ..model import Model
 
@@ -62,6 +68,7 @@ __all__ = (
     'CumSum',
     'CustomJSExpr',
     'Expression',
+    'PolarTransform',
     'Stack',
 )
 
@@ -194,3 +201,45 @@ class Maximum(ScalarExpression):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@abstract
+class CoordinateTransform(Expression):
+    """ Base class for coordinate transforms. """
+
+    @property
+    def x(self):
+        return XComponent(transform=self)
+
+    @property
+    def y(self):
+        return YComponent(transform=self)
+
+class PolarTransform(CoordinateTransform):
+    """ Transform from polar to cartesian coordinates. """
+
+    radius = NumberSpec(default=field("radius"), help="""
+    The radial coordinate (i.e. the distance from the origin).
+
+    Negative radius is allowed, which is equivalent to using positive radius
+    and changing ``direction`` to the opposite value.
+    """)
+
+    angle = AngleSpec(default=field("angle"), help="""
+    The angular coordinate (i.e. the angle from the reference axis).
+    """)
+
+    direction = Enum(Direction, default=Direction.anticlock, help="""
+    Whether ``angle`` measures clockwise or anti-clockwise from the reference axis.
+    """)
+
+@abstract
+class XYComponent(Expression):
+    """ Base class for bi-variate expressions. """
+
+    transform = Instance(CoordinateTransform)
+
+class XComponent(XYComponent):
+    """ X-component of a coordinate system transform to cartesian coordinates. """
+
+class YComponent(XYComponent):
+    """ Y-component of a coordinate system transform to cartesian coordinates. """

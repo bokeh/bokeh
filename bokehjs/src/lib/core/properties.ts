@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
+import {Arrayable, IntArray, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
@@ -631,6 +631,16 @@ export class BooleanSpec extends DataSpec<boolean> {
 
   array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
+  }
+}
+
+export class IntSpec extends DataSpec<number> {
+  v_materialize(values: Arrayable<number>): TypedArray {
+    return isTypedArray(values) ? values : new Int32Array(values)
+  }
+
+  array(source: ColumnarDataSource): IntArray {
+    return new Int32Array(super.array(source) as Arrayable<number>)
   }
 }
 

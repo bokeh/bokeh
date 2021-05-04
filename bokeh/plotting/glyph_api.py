@@ -1,0 +1,1022 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Bokeh imports
+from ..models import glyphs
+from ._decorators import glyph_method, marker_method
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    "GlyphAPI",
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+class GlyphAPI:
+    """ """
+
+    @property
+    def plot(self):
+        return self._parent
+
+    @property
+    def coordinates(self):
+        return self._coordinates
+
+    def __init__(self, parent=None, coordinates=None) -> None:
+        self._parent = parent
+        self._coordinates = coordinates
+
+    @glyph_method(glyphs.AnnularWedge)
+    def annular_wedge(self, **kwargs):
+        pass
+
+    @glyph_method(glyphs.Annulus)
+    def annulus(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.annulus(x=[1, 2, 3], y=[1, 2, 3], color="#7FC97F",
+                     inner_radius=0.2, outer_radius=0.5)
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Arc)
+    def arc(self, **kwargs):
+        pass
+
+    @marker_method()
+    def asterisk(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.asterisk(x=[1,2,3], y=[1,2,3], size=20, color="#F0027F")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Bezier)
+    def bezier(self, **kwargs):
+        pass
+
+    @glyph_method(glyphs.Circle)
+    def circle(self, **kwargs):
+        """
+.. note::
+    Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
+    defaults to data units.
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle(x=[1, 2, 3], y=[1, 2, 3], size=20)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def circle_cross(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_cross(x=[1,2,3], y=[4,5,6], size=20,
+                          color="#FB8072", fill_alpha=0.2, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def circle_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_dot(x=[1,2,3], y=[4,5,6], size=20,
+                        color="#FB8072", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def circle_x(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_x(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#DD1C77", fill_alpha=0.2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def circle_y(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.circle_y(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#DD1C77", fill_alpha=0.2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def cross(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                   color="#E6550D", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def dash(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                  color="#99D594", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def diamond(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                     color="#1C9099", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def diamond_cross(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond_cross(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                           color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def diamond_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.diamond_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                         color="#386CB0", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.dot(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#386CB0")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.HArea)
+    def harea(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.harea(x1=[0, 0, 0], x2=[1, 4, 2], y=[1, 2, 3],
+                   fill_color="#99D594")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.HBar)
+    def hbar(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Ellipse)
+    def ellipse(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ellipse(x=[1, 2, 3], y=[1, 2, 3], width=30, height=20,
+                     color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def hex(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.hex(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def hex_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.hex_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30],
+                     color="#74ADD1", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.HexTile)
+    def hex_tile(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300, match_aspect=True)
+        plot.hex_tile(r=[0, 0, 1], q=[1, 2, 2], fill_color="#74ADD1")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Image)
+    def image(self, **kwargs):
+        """
+.. note::
+    If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
+    exception will be raised. If neither is passed, then the ``Greys9``
+    palette will be used as a default.
+
+"""
+
+    @glyph_method(glyphs.ImageRGBA)
+    def image_rgba(self, **kwargs):
+        """
+.. note::
+    The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
+    values (encoded as 32-bit integers).
+
+"""
+
+    @glyph_method(glyphs.ImageURL)
+    def image_url(self, **kwargs):
+        pass
+
+    @marker_method()
+    def inverted_triangle(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.inverted_triangle(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Line)
+    def line(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        p = figure(title="line", width=300, height=300)
+        p.line(x=[1, 2, 3, 4, 5], y=[6, 7, 2, 4, 5])
+
+        show(p)
+
+"""
+
+    @glyph_method(glyphs.MultiLine)
+    def multi_line(self, **kwargs):
+        """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is an
+    "array of arrays".
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        p = figure(width=300, height=300)
+        p.multi_line(xs=[[1, 2, 3], [2, 3, 4]], ys=[[6, 7, 2], [4, 5, 7]],
+                    color=['red','green'])
+
+        show(p)
+
+"""
+
+    @glyph_method(glyphs.MultiPolygons)
+    def multi_polygons(self, **kwargs):
+        """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is a
+    nested array.
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        p = figure(width=300, height=300)
+        p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
+                        ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
+                        color=['red', 'green'])
+        show(p)
+
+"""
+
+    @glyph_method(glyphs.Oval)
+    def oval(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.oval(x=[1, 2, 3], y=[1, 2, 3], width=0.2, height=0.4,
+                  angle=-0.7, color="#1D91C0")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Patch)
+    def patch(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        p = figure(width=300, height=300)
+        p.patch(x=[1, 2, 3, 2], y=[6, 7, 2, 2], color="#99d8c9")
+
+        show(p)
+
+"""
+
+    @glyph_method(glyphs.Patches)
+    def patches(self, **kwargs):
+        """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is an
+    "array of arrays".
+
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        p = figure(width=300, height=300)
+        p.patches(xs=[[1,2,3],[4,5,6,5]], ys=[[1,2,1],[4,5,5,4]],
+                  color=["#43a2ca", "#a8ddb5"])
+
+        show(p)
+
+"""
+
+    @marker_method()
+    def plus(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.plus(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Quad)
+    def quad(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.quad(top=[2, 3, 4], bottom=[1, 2, 3], left=[1, 2, 3],
+                  right=[1.2, 2.5, 3.7], color="#B3DE69")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Quadratic)
+    def quadratic(self, **kwargs):
+        pass
+
+    @glyph_method(glyphs.Ray)
+    def ray(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.ray(x=[1, 2, 3], y=[1, 2, 3], length=45, angle=-0.7, color="#FB8072",
+                line_width=2)
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Rect)
+    def rect(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.rect(x=[1, 2, 3], y=[1, 2, 3], width=10, height=20, color="#CAB2D6",
+                  width_units="screen", height_units="screen")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Step)
+    def step(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.step(x=[1, 2, 3, 4, 5], y=[1, 2, 3, 2, 5], color="#FB8072")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Segment)
+    def segment(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.segment(x0=[1, 2, 3], y0=[1, 2, 3],
+                     x1=[1, 2, 3], y1=[1.2, 2.5, 3.7],
+                     color="#F4A582", line_width=3)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def square(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def square_cross(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_cross(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                          color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def square_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                        color="#7FC97F", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def square_pin(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                        color="#7FC97F",fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def square_x(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.square_x(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                      color="#FDAE6B",fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def star(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.star(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                  color="#1C9099", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def star_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.star_dot(x=[1, 2, 3], y=[1, 2, 3], size=20,
+                      color="#386CB0", fill_color=None, line_width=2)
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Text)
+    def text(self, **kwargs):
+        """
+.. note::
+    The location and angle of the text relative to the ``x``, ``y`` coordinates
+    is indicated by the alignment and baseline text properties.
+
+"""
+
+    @marker_method()
+    def triangle(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                      color="#99D594", line_width=2)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def triangle_dot(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle_dot(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                          color="#99D594", fill_color=None)
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def triangle_pin(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.triangle_pin(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                      color="#99D594", line_width=2)
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.VArea)
+    def varea(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.varea(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
+                   fill_color="#99D594")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.VBar)
+    def vbar(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.Wedge)
+    def wedge(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.wedge(x=[1, 2, 3], y=[1, 2, 3], radius=15, start_angle=0.6,
+                   end_angle=4.1, radius_units="screen", color="#2b8cbe")
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def x(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.x(x=[1, 2, 3], y=[1, 2, 3], size=[10, 20, 25], color="#fa9fb5")
+
+        show(plot)
+
+"""
+
+    @marker_method()
+    def y(self, **kwargs):
+        """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.y(x=[1, 2, 3], y=[1, 2, 3], size=20, color="#DE2D26")
+
+        show(plot)
+
+"""
+
+    # -------------------------------------------------------------------------
+
+    @glyph_method(glyphs.Scatter)
+    def _scatter(self, **kwargs):
+        pass
+
+    def scatter(self, *args, **kwargs):
+        ''' Creates a scatter plot of the given x and y items.
+
+        Args:
+            x (str or seq[float]) : values or field names of center x coordinates
+
+            y (str or seq[float]) : values or field names of center y coordinates
+
+            size (str or list[float]) : values or field names of sizes in screen units
+
+            marker (str, or list[str]): values or field names of marker types
+
+            color (color value, optional): shorthand to set both fill and line color
+
+            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
+                An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
+                if needed. If none is supplied, one is created for the user automatically.
+
+            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+
+        Examples:
+
+            >>> p.scatter([1,2,3],[4,5,6], marker="square", fill_color="red")
+            >>> p.scatter("data1", "data2", marker="mtype", source=data_source, ...)
+
+        .. note::
+            When passing ``marker="circle"`` it is also possible to supply a
+            ``radius`` value in data-space units. When configuring marker type
+            from a data source column, *all* markers including circles may only
+            be configured with ``size`` in screen units.
+
+        '''
+        marker_type = kwargs.pop("marker", "circle")
+
+        if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
+            marker_type = _MARKER_SHORTCUTS[marker_type]
+
+        # The original scatter implementation allowed circle scatters to set a
+        # radius. We will leave this here for compatibility but note that it
+        # only works when the marker type is "circle" (and not referencing a
+        # data source column). Consider deprecating in the future.
+        if marker_type == "circle" and "radius" in kwargs:
+            return self.circle(*args, **kwargs)
+        else:
+            return self._scatter(*args, marker=marker_type, **kwargs)
+
+_MARKER_SHORTCUTS = {
+    "*"  : "asterisk",
+    "+"  : "cross",
+    "o"  : "circle",
+    "o+" : "circle_cross",
+    "o." : "circle_dot",
+    "ox" : "circle_x",
+    "oy" : "circle_y",
+    "-"  : "dash",
+    "."  : "dot",
+    "v"  : "inverted_triangle",
+    "^"  : "triangle",
+    "^." : "triangle_dot",
+}
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

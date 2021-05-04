@@ -138,6 +138,12 @@ class Test_RGB:
         assert c2.g == c.g
         assert c2.b == c.b
 
+    def test_brightness(self) -> None:
+        assert round(bcr.RGB(  0,   0,   0).brightness, 2) == 0.0
+        assert round(bcr.RGB(127, 127, 127).brightness, 2) == 0.5
+        assert round(bcr.RGB(128, 128, 128).brightness, 2) == 0.5
+        assert round(bcr.RGB(255, 255, 255).brightness, 2) == 1.0
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

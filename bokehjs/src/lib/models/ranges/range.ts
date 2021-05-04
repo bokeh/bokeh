@@ -51,4 +51,8 @@ export abstract class Range extends Model {
   get is_valid(): boolean {
     return isFinite(this.min) && isFinite(this.max)
   }
+
+  get span(): number {
+    return Math.abs(this.end - this.start)
+  }
 }
