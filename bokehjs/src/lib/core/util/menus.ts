@@ -1,8 +1,10 @@
-import {div, classes, display, undisplay, empty, remove, Keys} from "../dom"
+import {div, style, classes, display, undisplay, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
 
-import /*menus_css,*/ * as menus from "styles/menus.css"
+import menus_css, * as menus from "styles/menus.css"
+import icons_css from "styles/icons.css"
+import base_css from "styles/base.css"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
 export type At = ScreenPoint |
@@ -29,6 +31,9 @@ export type MenuOptions = {
 
 export class ContextMenu {
   readonly el: HTMLElement = div()
+  readonly shadow_el: ShadowRoot
+  readonly stylesheet_el: HTMLStyleElement
+
   protected _open: boolean = false
 
   get is_open(): boolean {
@@ -47,6 +52,11 @@ export class ContextMenu {
     this.orientation = options.orientation ?? "vertical"
     this.reversed = options.reversed ?? false
     this.prevent_hide = options.prevent_hide
+
+    this.shadow_el = this.el.attachShadow({mode: "open"})
+    this.stylesheet_el = style({}, ...this.styles())
+    this.shadow_el.appendChild(this.stylesheet_el)
+
     undisplay(this.el)
   }
 
@@ -123,15 +133,18 @@ export class ContextMenu {
     }
   }
 
-  /*
-  override styles(): string[] {
-    return [...super.styles(), menus_css]
+  styles(): string[] {
+    return [base_css, /*...super.styles(), */menus_css, icons_css]
   }
-  */
+
+  empty(): void {
+    empty(this.shadow_el)
+    this.shadow_el.appendChild(this.stylesheet_el)
+  }
 
   render(): void {
-    empty(this.el, true)
-    classes(this.el).add("bk-context-menu", `bk-${this.orientation}`)
+    this.empty()
+    classes(this.el).add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
     for (const item of items) {
@@ -143,8 +156,8 @@ export class ContextMenu {
       } else if (item.content != null) {
         el = item.content
       } else {
-        const icon = item.icon != null ? div({class: ["bk-menu-icon", item.icon]}) : null
-        const classes = [item.active?.() ?? false ? "bk-active" : null, item.class]
+        const icon = item.icon != null ? div({class: [menus.menu_icon, item.icon]}) : null
+        const classes = [item.active?.() ?? false ? menus.active: null, item.class]
         el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, item.label, item.content)
         el.addEventListener("click", () => {
           this._item_click(item)
@@ -156,7 +169,7 @@ export class ContextMenu {
         })
       }
 
-      this.el.appendChild(el)
+      this.shadow_el.appendChild(el)
     }
   }
 
@@ -166,7 +179,7 @@ export class ContextMenu {
 
     if (!this._open) {
       this.render()
-      if (this.el.children.length == 0)
+      if (this.shadow_el.children.length == 0)
         return
       this._position(at ?? {left: 0, top: 0})
       display(this.el)
