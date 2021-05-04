@@ -27,9 +27,9 @@ export class LinearInterpolationScale extends Scale<number> {
       binning:      [ Arrayable ],
       linear_scale: [
         Ref(LinearScale),
-        (self: any /* XXX: TS bug, needs TS 4.3 */) => new LinearScale({
-          source_range: self.source_range,
-          target_range: self.target_range,
+        (self) => new LinearScale({
+          source_range: (self as LinearInterpolationScale).source_range,
+          target_range: (self as LinearInterpolationScale).target_range,
         }),
       ],
     }))
