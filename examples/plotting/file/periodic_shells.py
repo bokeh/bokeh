@@ -72,6 +72,8 @@ def bohr_diagram():
         toolbar_location=None, outline_line_color=None,
         match_aspect=True,
     )
+    plot.x_range.only_visible = True
+    plot.y_range.only_visible = True
     groups = []
     for sc in df["electron shells"]:
         n = len(sc)
