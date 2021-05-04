@@ -4,6 +4,7 @@ import * as p from "core/properties"
 
 export abstract class AbstractIconView extends DOMView {
   model: AbstractIcon
+  el: HTMLElement
 }
 
 export namespace AbstractIcon {

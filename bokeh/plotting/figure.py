@@ -46,6 +46,7 @@ from ..models import (
     Title,
     Tool,
 )
+from ..models.dom import Template
 from ..models.tools import (
     Drag,
     GestureTool,
@@ -726,7 +727,7 @@ class BaseFigureOptions(Options):
     Specify an active multi-gesture tool, for instance an edit tool or a range tool.
     """)
 
-    tooltips = Either(Null, String, List(Tuple(String, String)), help="""
+    tooltips = Either(Null, Instance(Template), String, List(Tuple(String, String)), help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
     tool is specified in the ``tools`` argument, this value will override that

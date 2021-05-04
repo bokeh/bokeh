@@ -21,6 +21,7 @@ import type {ToolbarBaseView} from "./toolbar_base"
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
   readonly parent: ToolbarBaseView
+  el: HTMLElement
 
   private _hammer: InstanceType<typeof Manager>
   private _menu?: ContextMenu
