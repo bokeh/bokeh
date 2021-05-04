@@ -28,7 +28,8 @@ from ..models import (
 )
 from ._plot import _get_num_minor_ticks
 from ._tools import process_active_tools, process_tools_arg
-from .figure import BaseFigureOptions, Figure
+from .figure import BaseFigureOptions
+from .glyph_api import GlyphAPI
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class GMap(GMapPlot):
+class GMap(GMapPlot, GlyphAPI):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
 
@@ -104,111 +105,13 @@ class GMap(GMapPlot):
             opts.active_multi,
         )
 
-    annular_wedge = Figure.annular_wedge
+    @property
+    def plot(self):
+        return self
 
-    annulus = Figure.annulus
-
-    arc = Figure.arc
-
-    asterisk = Figure.asterisk
-
-    bezier = Figure.bezier
-
-    circle = Figure.circle
-
-    circle_cross = Figure.circle_cross
-
-    circle_x = Figure.circle_x
-
-    cross = Figure.cross
-
-    dash = Figure.dash
-
-    diamond = Figure.diamond
-
-    diamond_cross = Figure.diamond_cross
-
-    graph = Figure.graph
-
-    harea = Figure.harea
-
-    harea_stack = Figure.harea_stack
-
-    hbar = Figure.hbar
-
-    hbar_stack = Figure.hbar_stack
-
-    hline_stack = Figure.hline_stack
-
-    ellipse = Figure.ellipse
-
-    hex = Figure.hex
-
-    hexbin = Figure.hexbin
-
-    hex_tile = Figure.hex_tile
-
-    image = Figure.image
-
-    image_rgba = Figure.image_rgba
-
-    image_url = Figure.image_url
-
-    inverted_triangle = Figure.inverted_triangle
-
-    line = Figure.line
-
-    multi_line = Figure.multi_line
-
-    multi_polygons = Figure.multi_polygons
-
-    oval = Figure.oval
-
-    patch = Figure.patch
-
-    patches = Figure.patches
-
-    quad = Figure.quad
-
-    quadratic = Figure.quadratic
-
-    ray = Figure.ray
-
-    rect = Figure.rect
-
-    star = Figure.star
-
-    star_dot = Figure.star_dot
-
-    step = Figure.step
-
-    scatter = Figure.scatter
-
-    segment = Figure.segment
-
-    square = Figure.square
-
-    square_cross = Figure.square_cross
-
-    square_x = Figure.square_x
-
-    text = Figure.text
-
-    triangle = Figure.triangle
-
-    varea = Figure.varea
-
-    varea_stack = Figure.varea_stack
-
-    vbar = Figure.vbar
-
-    vbar_stack = Figure.vbar_stack
-
-    vline_stack = Figure.vline_stack
-
-    wedge = Figure.wedge
-
-    x = Figure.x
+    @property
+    def coordinates(self):
+        return None
 
 def gmap(google_api_key, map_options, **kwargs):
     ''' Create a new :class:`~bokeh.plotting.gmap.GMap` for plotting.

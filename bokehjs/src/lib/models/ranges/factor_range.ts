@@ -31,6 +31,8 @@ export type L3OffsetFactor = [string, string, string, number]
 
 export type OffsetFactor = L1OffsetFactor | L2OffsetFactor | L3OffsetFactor
 
+export type FactorLike = number | Factor | BoxedFactor | OffsetFactor
+
 export type L1Mapping = Map<string, {value: number}>
 export type L2Mapping = Map<string, {value: number, mapping: L1Mapping}>
 export type L3Mapping = Map<string, {value: number, mapping: L2Mapping}>
@@ -218,7 +220,7 @@ export class FactorRange extends Range {
   }
 
   // convert a string factor into a synthetic coordinate
-  synthetic(x: number | Factor | [string] | OffsetFactor): number {
+  synthetic(x: FactorLike): number {
     if (isNumber(x))
       return x
 

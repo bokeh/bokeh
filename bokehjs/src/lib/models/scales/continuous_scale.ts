@@ -9,7 +9,7 @@ export namespace ContinuousScale {
 
 export interface ContinuousScale extends ContinuousScale.Attrs {}
 
-export abstract class ContinuousScale extends Scale {
+export abstract class ContinuousScale extends Scale<number> {
   properties: ContinuousScale.Props
 
   constructor(attrs?: Partial<ContinuousScale.Attrs>) {

@@ -1,4 +1,5 @@
 import {Scale} from "./scale"
+import {LinearScale} from "./linear_scale"
 import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map, left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
@@ -8,12 +9,13 @@ export namespace LinearInterpolationScale {
 
   export type Props = Scale.Props & {
     binning: p.Property<Arrayable<number>>
+    linear_scale: p.Property<LinearScale>
   }
 }
 
 export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs {}
 
-export class LinearInterpolationScale extends Scale {
+export class LinearInterpolationScale extends Scale<number> {
   properties: LinearInterpolationScale.Props
 
   constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
@@ -21,12 +23,34 @@ export class LinearInterpolationScale extends Scale {
   }
 
   static init_LinearInterpolationScale(): void {
-    this.internal<LinearInterpolationScale.Props>(({Arrayable}) => ({
-      binning: [ Arrayable ],
+    this.internal<LinearInterpolationScale.Props>(({Arrayable, Ref}) => ({
+      binning:      [ Arrayable ],
+      linear_scale: [
+        Ref(LinearScale),
+        (self: any /* XXX: TS bug, needs TS 4.3 */) => new LinearScale({
+          source_range: self.source_range,
+          target_range: self.target_range,
+        }),
+      ],
     }))
   }
 
+  connect_signals(): void {
+    super.connect_signals()
+    const {source_range, target_range} = this.properties
+    this.on_change([source_range, target_range], () => {
+      this.linear_scale = new LinearScale({
+        source_range: this.source_range,
+        target_range: this.target_range,
+      })
+    })
+  }
+
   get s_compute(): (x: number) => number {
+    throw new Error("not implemented")
+  }
+
+  get s_invert(): (sx: number) => number {
     throw new Error("not implemented")
   }
 
@@ -62,7 +86,7 @@ export class LinearInterpolationScale extends Scale {
       return m0 + c*(m1 - m0)
     })
 
-    return this._linear_v_compute(vvs)
+    return this.linear_scale.v_compute(vvs)
   }
 
   invert(xprime: number): number {
