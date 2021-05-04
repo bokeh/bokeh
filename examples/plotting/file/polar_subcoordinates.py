@@ -38,9 +38,9 @@ plot = figure(width=N*100, height=D*100, x_range=(1-h, N+h), y_range=(D+h, 1-h))
 
 for d in range(1, D + 1):
     for n in range(1, N + 1):
-        xy = plot.mapping(
-            x_range=Range1d(start=-1, end=1),
-            y_range=Range1d(start=-1, end=1),
+        xy = plot.subplot(
+            x_source=Range1d(start=-1, end=1),
+            y_source=Range1d(start=-1, end=1),
             x_target=Range1d(start=n-h, end=n+h),
             y_target=Range1d(start=d-h, end=d+h),
         )

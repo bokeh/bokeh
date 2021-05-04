@@ -15,8 +15,8 @@ export class CoordinateTransform {
   readonly x_scale: Scale
   readonly y_scale: Scale
 
-  readonly x_range: Range
-  readonly y_range: Range
+  readonly x_source: Range
+  readonly y_source: Range
 
   readonly ranges: readonly [Range, Range]
   readonly scales: readonly [Scale, Scale]
@@ -24,9 +24,9 @@ export class CoordinateTransform {
   constructor(x_scale: Scale, y_scale: Scale) {
     this.x_scale = x_scale
     this.y_scale = y_scale
-    this.x_range = this.x_scale.source_range
-    this.y_range = this.y_scale.source_range
-    this.ranges = [this.x_range, this.y_range]
+    this.x_source = this.x_scale.source_range
+    this.y_source = this.y_scale.source_range
+    this.ranges = [this.x_source, this.y_source]
     this.scales = [this.x_scale, this.y_scale]
   }
 
@@ -47,8 +47,8 @@ export namespace CoordinateMapping {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    x_range: p.Property<Range>
-    y_range: p.Property<Range>
+    x_source: p.Property<Range>
+    y_source: p.Property<Range>
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
     x_target: p.Property<Range>
@@ -66,9 +66,9 @@ export abstract class CoordinateMapping extends Model {
   }
 
   static init_CoordinateMapping(): void {
-    this.define<CoordinateMapping.Props>(({Ref/*, Inherit*/}) => ({
-      x_range: [ Ref(Range), () => new DataRange1d() ],
-      y_range: [ Ref(Range), () => new DataRange1d() ],
+    this.define<CoordinateMapping.Props>(({Ref}) => ({
+      x_source: [ Ref(Range), () => new DataRange1d() ],
+      y_source: [ Ref(Range), () => new DataRange1d() ],
       x_scale: [ Ref(Scale), () => new LinearScale() ],
       y_scale: [ Ref(Scale), () => new LinearScale() ],
       x_target: [ Ref(Range) ],
@@ -77,11 +77,11 @@ export abstract class CoordinateMapping extends Model {
   }
 
   get x_ranges(): Map<string, Range> {
-    return new Map([["default", this.x_range]])
+    return new Map([["default", this.x_source]])
   }
 
   get y_ranges(): Map<string, Range> {
-    return new Map([["default", this.y_range]])
+    return new Map([["default", this.y_source]])
   }
 
   private _get_scale(range: Range, scale: Scale, target: Range): Scale {
@@ -101,18 +101,18 @@ export abstract class CoordinateMapping extends Model {
   }
 
   get_transform(frame: CartesianFrame): CoordinateTransform {
-    const {x_range, x_scale, x_target} = this
-    const x_source = this._get_scale(x_range, x_scale, x_target)
+    const {x_source, x_scale, x_target} = this
+    const x_source_scale = this._get_scale(x_source, x_scale, x_target)
 
-    const {y_range, y_scale, y_target} = this
-    const y_source = this._get_scale(y_range, y_scale, y_target)
+    const {y_source, y_scale, y_target} = this
+    const y_source_scale = this._get_scale(y_source, y_scale, y_target)
 
     const xscale = new CompositeScale({
-      source_scale: x_source, source_range: x_source.source_range,
+      source_scale: x_source_scale, source_range: x_source_scale.source_range,
       target_scale: frame.x_scale, target_range: frame.x_target,
     })
     const yscale = new CompositeScale({
-      source_scale: y_source, source_range: y_source.source_range,
+      source_scale: y_source_scale, source_range: y_source_scale.source_range,
       target_scale: frame.y_scale, target_range: frame.y_target,
     })
 

@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Optional
+
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
@@ -39,6 +42,7 @@ from ..models import (
     GraphRenderer,
     Plot,
     Range,
+    Scale,
     Title,
     Tool,
 )
@@ -203,9 +207,14 @@ class Figure(Plot, GlyphAPI):
     def coordinates(self):
         return None
 
-    def mapping(self, *, x_range: Range, y_range: Range, x_target: Range, y_target: Range) -> GlyphAPI:
+    def subplot(self,
+            *,
+            x_source: Optional[Range] = None, y_source: Optional[Range] = None,
+            x_scale: Optional[Scale] = None, y_scale: Optional[Scale] = None,
+            x_target: Range, y_target: Range,
+        ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """
-        coordinates = CoordinateMapping(x_range=x_range, y_range=y_range, x_target=x_target, y_target=y_target)
+        coordinates = CoordinateMapping(x_source=x_source, y_source=y_source, x_target=x_target, y_target=y_target)
         return GlyphAPI(self, coordinates)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):

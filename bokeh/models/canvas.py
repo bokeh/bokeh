@@ -38,8 +38,8 @@ __all__ = (
 class CoordinateMapping(Model):
     """ A mapping between two coordinate systems. """
 
-    x_range = Instance(Range, default=lambda: DataRange1d())
-    y_range = Instance(Range, default=lambda: DataRange1d())
+    x_source = Instance(Range, default=lambda: DataRange1d())
+    y_source = Instance(Range, default=lambda: DataRange1d())
     x_scale = Instance(Scale, default=lambda: LinearScale())
     y_scale = Instance(Scale, default=lambda: LinearScale())
     x_target = Instance(Range)

@@ -8,9 +8,9 @@ export namespace Transform {
   export type Props = Model.Props
 }
 
-export interface Transform<From=number, To = number> extends Transform.Attrs {}
+export interface Transform<From = number, To = number> extends Transform.Attrs {}
 
-export abstract class Transform<From=number, To = number> extends Model {
+export abstract class Transform<From = number, To = number> extends Model {
   properties: Transform.Props
 
   constructor(attrs?: Partial<Transform.Attrs>) {
