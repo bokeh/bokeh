@@ -229,7 +229,7 @@ class PolarTransform(CoordinateTransform):
     """)
 
     direction = Enum(Direction, default=Direction.anticlock, help="""
-    Should ``angle`` be measured in clock or anticlock direction from the reference axis.
+    Whether ``angle`` measures clockwise or anti-clockwise from the reference axis.
     """)
 
 @abstract
@@ -239,7 +239,7 @@ class XYComponent(Expression):
     transform = Instance(CoordinateTransform)
 
 class XComponent(XYComponent):
-    """X-component of a coordinate system transform to cartesian coordinates. """
+    """ X-component of a coordinate system transform to cartesian coordinates. """
 
 class YComponent(XYComponent):
-    """Y-component of a coordinate system transform to cartesian coordinates. """
+    """ Y-component of a coordinate system transform to cartesian coordinates. """
