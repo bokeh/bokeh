@@ -14,7 +14,7 @@ export namespace CategoricalColorMapper {
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
-  properties: CategoricalColorMapper.Props
+  override properties: CategoricalColorMapper.Props
 
   constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
     super(attrs)

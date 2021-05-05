@@ -15,9 +15,9 @@ import {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
-  model: SelectTool
+  override model: SelectTool
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.model.clear.connect(() => this._clear())
   }
@@ -62,7 +62,7 @@ export abstract class SelectToolView extends GestureToolView {
       unreachable()
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
       this._clear()
     }
@@ -152,8 +152,8 @@ export namespace SelectTool {
 export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
-  properties: SelectTool.Props
-  __view_type__: SelectToolView
+  override properties: SelectTool.Props
+  override __view_type__: SelectToolView
 
   clear: Signal0<this>
 
@@ -161,7 +161,7 @@ export abstract class SelectTool extends GestureTool {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.clear = new Signal0(this, "clear")
   }
@@ -174,7 +174,7 @@ export abstract class SelectTool extends GestureTool {
     }))
   }
 
-  get menu(): MenuItem[] | null {
+  override get menu(): MenuItem[] | null {
     return [
       {
         icon: "bk-tool-icon-replace-mode",

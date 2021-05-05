@@ -10,7 +10,7 @@ export namespace LinearScale {
 export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends ContinuousScale {
-  properties: LinearScale.Props
+  override properties: LinearScale.Props
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
     super(attrs)

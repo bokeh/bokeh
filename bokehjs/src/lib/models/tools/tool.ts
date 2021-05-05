@@ -62,9 +62,9 @@ export type ToolAliases = {
 }
 
 export abstract class ToolView extends View {
-  model: Tool
+  override model: Tool
 
-  readonly parent: PlotView
+  override readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent
@@ -74,7 +74,7 @@ export abstract class ToolView extends View {
     return this.parent.model
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => {
       if (this.model.active)
@@ -131,8 +131,8 @@ export interface Tool extends Tool.Attrs {
 }
 
 export abstract class Tool extends Model {
-  properties: Tool.Props
-  __view_type__: ToolView
+  override properties: Tool.Props
+  override __view_type__: ToolView
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)

@@ -21,8 +21,8 @@ export type HBarData = BoxData & {
 export interface HBarView extends HBarData {}
 
 export class HBarView extends BoxView {
-  model: HBar
-  visuals: HBar.Visuals
+  override model: HBar
+  override visuals: HBar.Visuals
 
   scenterxy(i: number): [number, number] {
     const scx = (this.sleft[i] + this.sright[i])/2
@@ -44,7 +44,7 @@ export class HBarView extends BoxView {
     return [l, r, t, b]
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sy = this.renderer.yscale.v_compute(this._y)
     this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
     this.sleft = this.renderer.xscale.v_compute(this._left)
@@ -78,8 +78,8 @@ export namespace HBar {
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
-  properties: HBar.Props
-  __view_type__: HBarView
+  override properties: HBar.Props
+  override __view_type__: HBarView
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)

@@ -20,7 +20,7 @@ export namespace LegendItem {
 export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
-  properties: LegendItem.Props
+  override properties: LegendItem.Props
 
   legend: Legend | null
 
@@ -68,7 +68,7 @@ export class LegendItem extends Model {
     return true
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.legend = null
     this.connect(this.change, () => this.legend?.item_change.emit())

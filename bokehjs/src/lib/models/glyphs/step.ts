@@ -12,8 +12,8 @@ export type StepData = XYGlyphData
 export interface StepView extends StepData {}
 
 export class StepView extends XYGlyphView {
-  model: Step
-  visuals: Step.Visuals
+  override model: Step
+  override visuals: Step.Visuals
 
   protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
     const {sx, sy} = data ?? this
@@ -85,7 +85,7 @@ export class StepView extends XYGlyphView {
     ctx.stroke()
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
@@ -105,8 +105,8 @@ export namespace Step {
 export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
-  properties: Step.Props
-  __view_type__: StepView
+  override properties: Step.Props
+  override __view_type__: StepView
 
   constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)

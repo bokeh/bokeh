@@ -12,7 +12,7 @@ export namespace Expression {
 export interface Expression<T = Arrayable> extends Expression.Attrs {}
 
 export abstract class Expression<T = Arrayable> extends Model {
-  properties: Expression.Props
+  override properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)
@@ -21,7 +21,7 @@ export abstract class Expression<T = Arrayable> extends Model {
   protected _connected: Set<ColumnarDataSource>
   protected _result: Map<ColumnarDataSource, T>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._connected = new Set()
     this._result = new Map()
@@ -55,7 +55,7 @@ export namespace ScalarExpression {
 export interface ScalarExpression<T> extends ScalarExpression.Attrs {}
 
 export abstract class ScalarExpression<T> extends Model {
-  properties: ScalarExpression.Props
+  override properties: ScalarExpression.Props
 
   constructor(attrs?: Partial<ScalarExpression.Attrs>) {
     super(attrs)
@@ -64,7 +64,7 @@ export abstract class ScalarExpression<T> extends Model {
   protected _connected: Set<ColumnarDataSource>
   protected _result: Map<ColumnarDataSource, T>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._connected = new Set()
     this._result = new Map()

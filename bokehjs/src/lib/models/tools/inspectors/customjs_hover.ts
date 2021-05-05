@@ -15,7 +15,7 @@ export namespace CustomJSHover {
 export interface CustomJSHover extends CustomJSHover.Attrs {}
 
 export class CustomJSHover extends Model {
-  properties: CustomJSHover.Props
+  override properties: CustomJSHover.Props
 
   constructor(attrs?: Partial<CustomJSHover.Attrs>) {
     super(attrs)

@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class SliderView extends AbstractSliderView {
-  model: Slider
+  override model: Slider
 }
 
 export namespace Slider {
@@ -18,8 +18,8 @@ export namespace Slider {
 export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
-  properties: Slider.Props
-  __view_type__: SliderView
+  override properties: Slider.Props
+  override __view_type__: SliderView
 
   constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)
@@ -33,8 +33,8 @@ export class Slider extends AbstractSlider {
     })
   }
 
-  behaviour = "tap" as "tap"
-  connected = [true, false]
+  override behaviour = "tap" as "tap"
+  override connected = [true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format))

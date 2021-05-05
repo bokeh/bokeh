@@ -5,7 +5,7 @@ import {ContinuousTicker} from "../tickers/continuous_ticker"
 import * as p from "core/properties"
 
 export class LinearAxisView extends ContinuousAxisView {
-  model: LinearAxis
+  override model: LinearAxis
 }
 
 export namespace LinearAxis {
@@ -20,8 +20,8 @@ export namespace LinearAxis {
 export interface LinearAxis extends LinearAxis.Attrs {}
 
 export class LinearAxis extends ContinuousAxis {
-  properties: LinearAxis.Props
-  __view_type__: LinearAxisView
+  override properties: LinearAxis.Props
+  override __view_type__: LinearAxisView
 
   ticker: ContinuousTicker
   formatters: BasicTickFormatter

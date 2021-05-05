@@ -18,7 +18,7 @@ export namespace CustomJSFilter {
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
-  properties: CustomJSFilter.Props
+  override properties: CustomJSFilter.Props
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)

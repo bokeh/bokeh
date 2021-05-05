@@ -11,7 +11,7 @@ export namespace TickFormatter {
 export interface TickFormatter extends TickFormatter.Attrs {}
 
 export abstract class TickFormatter extends Model {
-  properties: TickFormatter.Props
+  override properties: TickFormatter.Props
 
   constructor(attrs?: Partial<TickFormatter.Attrs>) {
     super(attrs)

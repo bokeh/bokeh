@@ -33,10 +33,10 @@ import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 
 export class PlotView extends LayoutDOMView implements Renderable {
-  model: Plot
+  override model: Plot
   visuals: Plot.Visuals
 
-  layout: BorderLayout
+  override layout: BorderLayout
 
   frame: CartesianFrame
 
@@ -158,21 +158,21 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.model.trigger_event(new Reset())
   }
 
-  remove(): void {
+  override remove(): void {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
     this.canvas_view.remove()
     super.remove()
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.el.appendChild(this.canvas_view.el)
     this.canvas_view.render()
   }
 
-  initialize(): void {
+  override initialize(): void {
     this.pause()
 
     super.initialize()
@@ -215,7 +215,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {hidpi, output_backend} = this.model
@@ -232,15 +232,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     logger.debug("PlotView initialized")
   }
 
-  protected _width_policy(): SizingPolicy {
+  protected override _width_policy(): SizingPolicy {
     return this.model.frame_width == null ? super._width_policy() : "min"
   }
 
-  protected _height_policy(): SizingPolicy {
+  protected override _height_policy(): SizingPolicy {
     return this.model.frame_height == null ? super._height_policy() : "min"
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new BorderLayout()
     this.layout.set_sizing(this.box_sizing())
 
@@ -495,7 +495,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const {x_ranges, y_ranges} = this.frame
@@ -519,7 +519,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.connect(this.model.reset, () => this.reset())
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     if (!super.has_finished())
       return false
 
@@ -533,7 +533,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return true
   }
 
-  after_layout(): void {
+  override after_layout(): void {
     super.after_layout()
 
     for (const [, child_view] of this.renderer_views) {
@@ -745,7 +745,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.canvas_view.to_blob()
   }
 
-  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
+  override export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
     const output_backend = type == "png" ? "canvas" : "svg"
     const composite = new CanvasLayer(output_backend, hidpi)
 
@@ -758,7 +758,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return composite
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
     const renderers = this.get_renderer_views()
       .map((view) => view.serializable_state())

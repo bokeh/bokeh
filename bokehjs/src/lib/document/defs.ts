@@ -121,8 +121,8 @@ export function resolve_defs(defs: ModelDef[], resolver: ModelResolver): void {
     })()
 
     const model = class extends base {
-      static __name__ = def.name
-      static __module__ = def.module
+      static override __name__ = def.name
+      static override __module__ = def.module
     }
 
     for (const prop of def.properties ?? []) {

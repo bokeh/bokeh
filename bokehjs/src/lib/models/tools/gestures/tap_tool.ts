@@ -9,14 +9,14 @@ import {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
 
 export class TapToolView extends SelectToolView {
-  model: TapTool
+  override model: TapTool
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     if (this.model.gesture == "tap")
       this._handle_tap(ev)
   }
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     if (this.model.gesture == "doubletap")
       this._handle_tap(ev)
   }
@@ -27,7 +27,7 @@ export class TapToolView extends SelectToolView {
     this._select(geometry, true, this._select_mode(ev))
   }
 
-  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+  override _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
     const {callback} = this.model
 
     if (this.model.behavior == "select") {
@@ -86,8 +86,8 @@ export namespace TapTool {
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
-  properties: TapTool.Props
-  __view_type__: TapToolView
+  override properties: TapTool.Props
+  override __view_type__: TapToolView
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)
@@ -107,8 +107,8 @@ export class TapTool extends SelectTool {
     this.register_alias("doubletap", () => new TapTool({gesture: "doubletap"}))
   }
 
-  tool_name = "Tap"
-  icon = tool_icon_tap_select
-  event_type = "tap" as "tap"
-  default_order = 10
+  override tool_name = "Tap"
+  override icon = tool_icon_tap_select
+  override event_type = "tap" as "tap"
+  override default_order = 10
 }

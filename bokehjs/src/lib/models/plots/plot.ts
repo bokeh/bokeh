@@ -104,8 +104,8 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-  properties: Plot.Props
-  __view_type__: PlotView
+  override properties: Plot.Props
+  override __view_type__: PlotView
 
   readonly use_map: boolean = false
 
@@ -191,7 +191,7 @@ export class Plot extends LayoutDOM {
     })
   }
 
-  protected _doc_attached(): void {
+  protected override _doc_attached(): void {
     super._doc_attached()
     this._push_changes([
       [this.properties.inner_height, null, this.inner_height],
@@ -199,7 +199,7 @@ export class Plot extends LayoutDOM {
     ])
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     this.reset = new Signal0(this, "reset")

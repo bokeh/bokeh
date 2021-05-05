@@ -32,7 +32,7 @@ export namespace Selection {
 export interface Selection extends Selection.Attrs {}
 
 export class Selection extends Model {
-  properties: Selection.Props
+  override properties: Selection.Props
 
   constructor(attrs?: Partial<Selection.Attrs>) {
     super(attrs)

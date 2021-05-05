@@ -26,11 +26,11 @@ function _convert_date_list(value: DatesList): flatpickr.Options.DateLimit[] {
 }
 
 export class DatePickerView extends InputWidgetView {
-  model: DatePicker
+  override model: DatePicker
 
   private _picker: flatpickr.Instance
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const {value, min_date, max_date, disabled_dates, enabled_dates, position, inline} = this.model.properties
@@ -43,16 +43,16 @@ export class DatePickerView extends InputWidgetView {
     this.connect(inline.change, () => this._picker?.set("inline", this.model.inline))
   }
 
-  remove(): void {
+  override remove(): void {
     this._picker?.destroy()
     super.remove()
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), flatpickr_css]
   }
 
-  render(): void {
+  override render(): void {
     if (this._picker != null)
       return
 
@@ -95,8 +95,8 @@ export namespace DatePicker {
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
-  properties: DatePicker.Props
-  __view_type__: DatePickerView
+  override properties: DatePicker.Props
+  override __view_type__: DatePickerView
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)

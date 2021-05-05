@@ -149,7 +149,7 @@ export namespace ColumnDataSource {
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
-  properties: ColumnDataSource.Props
+  override properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)

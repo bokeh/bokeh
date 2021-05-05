@@ -20,13 +20,13 @@ export type RectData = CenterRotatableData & {
 export interface RectView extends RectData {}
 
 export class RectView extends CenterRotatableView {
-  model: Rect
-  visuals: Rect.Visuals
+  override model: Rect
+  override visuals: Rect.Visuals
 
   /** @internal */
-  glglyph?: RectGL
+  override glglyph?: RectGL
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
@@ -38,7 +38,7 @@ export class RectView extends CenterRotatableView {
     }
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.width.units == "data")
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
     else {
@@ -101,11 +101,11 @@ export class RectView extends CenterRotatableView {
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry)
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     let {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -214,7 +214,7 @@ export class RectView extends CenterRotatableView {
     return ddist
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -232,8 +232,8 @@ export namespace Rect {
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
-  properties: Rect.Props
-  __view_type__: RectView
+  override properties: Rect.Props
+  override __view_type__: RectView
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

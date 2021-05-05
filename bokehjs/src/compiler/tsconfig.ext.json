@@ -5,6 +5,7 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitOverride": false,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,

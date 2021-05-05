@@ -15,12 +15,12 @@ import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
 export abstract class LayoutDOMView extends DOMView {
-  model: LayoutDOM
+  override model: LayoutDOM
 
-  root: LayoutDOMView
-  readonly parent: DOMView
+  override root: LayoutDOMView
+  override readonly parent: DOMView
 
-  el: HTMLElement
+  override el: HTMLElement
 
   protected _child_views: Map<LayoutDOM, LayoutDOMView>
 
@@ -38,25 +38,25 @@ export abstract class LayoutDOMView extends DOMView {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.el.style.position = this.is_layout_root ? "relative" : "absolute"
     this._child_views = new Map()
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this.build_child_views()
   }
 
-  remove(): void {
+  override remove(): void {
     for (const child_view of this.child_views)
       child_view.remove()
     this._child_views.clear()
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     if (this.is_layout_root) {
@@ -94,7 +94,7 @@ export abstract class LayoutDOMView extends DOMView {
     ], () => this.invalidate_render())
   }
 
-  disconnect_signals(): void {
+  override disconnect_signals(): void {
     if (this._parent_observer != null)
       clearTimeout(this._parent_observer)
     if (this._on_resize != null)
@@ -102,7 +102,7 @@ export abstract class LayoutDOMView extends DOMView {
     super.disconnect_signals()
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(this.model.css_classes)
   }
 
@@ -116,7 +116,7 @@ export abstract class LayoutDOMView extends DOMView {
     await build_views(this._child_views, this.child_models, {parent: this})
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     empty(this.el) // XXX: this should be in super
 
@@ -161,7 +161,7 @@ export abstract class LayoutDOMView extends DOMView {
     this._viewport = this._viewport_size()
   }
 
-  renderTo(element: Node): void {
+  override renderTo(element: Node): void {
     element.appendChild(this.el)
     this._offset_parent = this.el.offsetParent
     this.compute_viewport()
@@ -208,7 +208,7 @@ export abstract class LayoutDOMView extends DOMView {
     this.invalidate_layout()
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     if (!super.has_finished())
       return false
 
@@ -375,7 +375,7 @@ export abstract class LayoutDOMView extends DOMView {
     return composite
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
@@ -410,8 +410,8 @@ export namespace LayoutDOM {
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
-  properties: LayoutDOM.Props
-  __view_type__: LayoutDOMView
+  override properties: LayoutDOM.Props
+  override __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)
