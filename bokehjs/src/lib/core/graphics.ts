@@ -173,7 +173,7 @@ export class TextBox extends GraphicsBox {
     this.text = text
   }
 
-  infer_text_height() {
+  override infer_text_height() {
     if (this.text.includes("\n"))
       return "ascent_descent"
     else {
@@ -456,7 +456,7 @@ export class BaseExpo extends GraphicsBox {
     return [this.base, this.expo]
   }
 
-  set position(p: Position) {
+  override set position(p: Position) {
     this._position = p
 
     const bs = this.base.size()
@@ -476,7 +476,7 @@ export class BaseExpo extends GraphicsBox {
     }
   }
 
-  get position(): Position {
+  override get position(): Position {
     return this._position
   }
 
@@ -495,7 +495,7 @@ export class BaseExpo extends GraphicsBox {
     }
   }
 
-  infer_text_height() {
+  override infer_text_height() {
     return this.base.infer_text_height()
   }
 
@@ -536,7 +536,7 @@ export class BaseExpo extends GraphicsBox {
 
   // paint_rect ...
 
-  paint_bbox(ctx: Context2d): void {
+  override paint_bbox(ctx: Context2d): void {
     super.paint_bbox(ctx)
     const {x, y} = this._computed_position()
     ctx.save()

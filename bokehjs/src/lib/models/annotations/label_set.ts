@@ -13,8 +13,8 @@ import {Context2d} from "core/util/canvas"
 import {font_metrics} from "core/util/text"
 
 export class LabelSetView extends TextAnnotationView {
-  model: LabelSet
-  visuals: LabelSet.Visuals
+  override model: LabelSet
+  override visuals: LabelSet.Visuals
 
   protected _x: FloatArray
   protected _y: FloatArray
@@ -28,7 +28,7 @@ export class LabelSetView extends TextAnnotationView {
     DataAnnotationView.prototype.set_data.call(this, source)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.set_data(this.model.source)
 
@@ -40,7 +40,7 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const render = () => {
@@ -58,7 +58,7 @@ export class LabelSetView extends TextAnnotationView {
     this.connect(this.model.source.change, render)
   }
 
-  protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
+  protected override _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
     const {height} = font_metrics(this.visuals.text.font_value(0))
     return [width, height]
@@ -87,7 +87,7 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_vectorize(ctx, 0)
 
@@ -186,8 +186,8 @@ export namespace LabelSet {
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
-  properties: LabelSet.Props
-  __view_type__: LabelSetView
+  override properties: LabelSet.Props
+  override __view_type__: LabelSetView
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)

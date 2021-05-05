@@ -12,7 +12,7 @@ export namespace Filter {
 export interface Filter extends Filter.Attrs {}
 
 export abstract class Filter extends Model {
-  properties: Filter.Props
+  override properties: Filter.Props
 
   constructor(attrs?: Partial<Filter.Attrs>) {
     super(attrs)

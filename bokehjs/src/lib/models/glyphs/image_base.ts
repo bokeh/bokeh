@@ -23,13 +23,13 @@ export type ImageDataBase = XYGlyphData & {
 export interface ImageBaseView extends ImageDataBase {}
 
 export abstract class ImageBaseView extends XYGlyphView {
-  model: ImageBase
-  visuals: ImageBase.Visuals
+  override model: ImageBase
+  override visuals: ImageBase.Visuals
 
   protected _width: Uint32Array
   protected _height: Uint32Array
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
@@ -68,7 +68,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
 
-  protected _set_data(indices: number[] | null): void {
+  protected override _set_data(indices: number[] | null): void {
     this._set_width_heigh_data()
 
     for (let i = 0, end = this.image.length; i < end; i++) {
@@ -93,7 +93,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _index_data(index: SpatialIndex): void {
+  protected override _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
@@ -152,7 +152,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     this.image_data[i] = canvas
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.dw.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, 'edge', this.model.dilate)
     else
@@ -179,7 +179,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
-  _hit_point(geometry: PointGeometry): Selection {
+  override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -214,8 +214,8 @@ export namespace ImageBase {
 export interface ImageBase extends ImageBase.Attrs {}
 
 export abstract class ImageBase extends XYGlyph {
-  properties: ImageBase.Props
-  __view_type__: ImageBaseView
+  override properties: ImageBase.Props
+  override __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)

@@ -16,7 +16,7 @@ export namespace OpenURL {
 export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Callback {
-  properties: OpenURL.Props
+  override properties: OpenURL.Props
 
   constructor(attrs?: Partial<OpenURL.Attrs>) {
     super(attrs)
@@ -29,16 +29,19 @@ export class OpenURL extends Callback {
     }))
   }
 
+  navigate(url: string): void {
+    if (this.same_tab)
+      window.location.href = url
+    else
+      window.open(url)
+  }
+
   execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
     const open_url = (i: number) => {
-      const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURIComponent)
+      const url = replace_placeholders(this.url, source, i, undefined, undefined, encodeURI)
       if (!isString(url))
         throw new Error("HTML output is not supported in this context")
-
-      if (this.same_tab)
-        window.location.href = url
-      else
-        window.open(url)
+      this.navigate(url)
     }
 
     const {selected} = source

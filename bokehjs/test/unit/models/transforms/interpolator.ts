@@ -12,7 +12,7 @@ describe("Interpolator model", () => {
       return NaN
     }
 
-    sort(descending: boolean = false): void {
+    override sort(descending: boolean = false): void {
       super.sort(descending)
       x_sorted = this._x_sorted
       y_sorted = this._y_sorted

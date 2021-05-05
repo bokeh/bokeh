@@ -28,17 +28,17 @@ export type ImageURLData = XYGlyphData & {
 export interface ImageURLView extends ImageURLData {}
 
 export class ImageURLView extends XYGlyphView {
-  model: ImageURL
-  visuals: ImageURL.Visuals
+  override model: ImageURL
+  override visuals: ImageURL.Visuals
 
   protected _images_rendered = false
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _index_data(index: SpatialIndex): void {
+  protected override _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
@@ -49,7 +49,7 @@ export class ImageURLView extends XYGlyphView {
 
   private _set_data_iteration: number = 0
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     // TODO: cache by url, to reuse images between iterations
     this._set_data_iteration++
 
@@ -151,11 +151,11 @@ export class ImageURLView extends XYGlyphView {
     this._bounds_rect = {x0, x1, y0, y1}
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     return super.has_finished() && this._images_rendered == true
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.w.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
     else
@@ -261,7 +261,7 @@ export class ImageURLView extends XYGlyphView {
     ctx.restore()
   }
 
-  bounds(): Rect {
+  override bounds(): Rect {
     return this._bounds_rect
   }
 }
@@ -287,8 +287,8 @@ export namespace ImageURL {
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-  properties: ImageURL.Props
-  __view_type__: ImageURLView
+  override properties: ImageURL.Props
+  override __view_type__: ImageURLView
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

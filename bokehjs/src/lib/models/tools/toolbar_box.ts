@@ -26,7 +26,7 @@ export namespace ProxyToolbar {
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
-  properties: ProxyToolbar.Props
+  override properties: ProxyToolbar.Props
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
@@ -38,9 +38,9 @@ export class ProxyToolbar extends ToolbarBase {
     }))
   }
 
-  _proxied_tools: (Tool | ToolProxy)[]
+  override _proxied_tools: (Tool | ToolProxy)[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._merge_tools()
   }
@@ -150,9 +150,9 @@ export class ProxyToolbar extends ToolbarBase {
 }
 
 export class ToolbarBoxView extends LayoutDOMView {
-  model: ToolbarBox
+  override model: ToolbarBox
 
-  initialize(): void {
+  override initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
     super.initialize()
   }
@@ -161,7 +161,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     return [this.model.toolbar as any] // XXX
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     this.layout = new ContentBox(this.child_views[0].el)
 
     const {toolbar} = this.model
@@ -177,7 +177,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     }
   }
 
-  after_layout(): void {
+  override after_layout(): void {
     super.after_layout()
     const toolbar_view = this.child_views[0] as any as ToolbarBaseView
     toolbar_view.layout.bbox = this.layout.bbox
@@ -197,7 +197,7 @@ export namespace ToolbarBox {
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
-  properties: ToolbarBox.Props
+  override properties: ToolbarBox.Props
 
   constructor(attrs?: Partial<ToolbarBox.Attrs>) {
     super(attrs)

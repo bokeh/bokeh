@@ -10,7 +10,7 @@ export namespace BasicTicker {
 export interface BasicTicker extends BasicTicker.Attrs {}
 
 export class BasicTicker extends AdaptiveTicker {
-  properties: BasicTicker.Props
+  override properties: BasicTicker.Props
 
   constructor(attrs?: Partial<BasicTicker.Attrs>) {
     super(attrs)

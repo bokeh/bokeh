@@ -19,13 +19,14 @@ import {ContextMenu, MenuItem} from "core/util/menus"
 import type {ToolbarBaseView} from "./toolbar_base"
 
 export abstract class ButtonToolButtonView extends DOMView {
-  model: ButtonTool
-  readonly parent: ToolbarBaseView
+  override model: ButtonTool
+  override readonly parent: ToolbarBaseView
+  override el: HTMLElement
 
   private _hammer: InstanceType<typeof Manager>
   private _menu?: ContextMenu
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const items = this.model.menu
@@ -56,21 +57,21 @@ export abstract class ButtonToolButtonView extends DOMView {
     this._hammer.on("press", () => this._pressed())
   }
 
-  remove(): void {
+  override remove(): void {
     this._hammer.destroy()
     this._menu?.remove()
     super.remove()
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), toolbar_css, icons_css, menus_css]
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(toolbars.toolbar_button)
   }
 
-  render(): void {
+  override render(): void {
     empty(this.el)
     const icon = this.model.computed_icon
     if (isString(icon)) {
@@ -102,7 +103,7 @@ export abstract class ButtonToolButtonView extends DOMView {
 }
 
 export abstract class ButtonToolView extends ToolView {
-  model: ButtonTool
+  override model: ButtonTool
 }
 
 export namespace ButtonTool {
@@ -116,8 +117,8 @@ export namespace ButtonTool {
 export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
-  properties: ButtonTool.Props
-  __view_type__: ButtonToolView
+  override properties: ButtonTool.Props
+  override __view_type__: ButtonToolView
 
   constructor(attrs?: Partial<ButtonTool.Attrs>) {
     super(attrs)

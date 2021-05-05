@@ -333,7 +333,7 @@ export class UIEventBus implements EventListenerObject {
 
     const relativize_event = (_plot_view: PlotView): E => {
       const [rel_sx, rel_sy] = [sx, sy] // plot_view.layout.bbox.relativize(sx, sy)
-      return {...e, sx: rel_sx, sy: rel_sy}
+      return {...e, sx: rel_sx, sy: rel_sy} as E
     }
 
     if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {

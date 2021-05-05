@@ -1,4 +1,5 @@
 import {Scale} from "./scale"
+import {LinearScale} from "./linear_scale"
 import {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map, left_edge_index} from "core/util/arrayable"
 import * as p from "core/properties"
@@ -8,33 +9,56 @@ export namespace LinearInterpolationScale {
 
   export type Props = Scale.Props & {
     binning: p.Property<Arrayable<number>>
+    linear_scale: p.Property<LinearScale>
   }
 }
 
 export interface LinearInterpolationScale extends LinearInterpolationScale.Attrs {}
 
-export class LinearInterpolationScale extends Scale {
-  properties: LinearInterpolationScale.Props
+export class LinearInterpolationScale extends Scale<number> {
+  override properties: LinearInterpolationScale.Props
 
   constructor(attrs?: Partial<LinearInterpolationScale.Attrs>) {
     super(attrs)
   }
 
   static init_LinearInterpolationScale(): void {
-    this.internal<LinearInterpolationScale.Props>(({Arrayable}) => ({
-      binning: [ Arrayable ],
+    this.internal<LinearInterpolationScale.Props>(({Arrayable, Ref}) => ({
+      binning:      [ Arrayable ],
+      linear_scale: [
+        Ref(LinearScale),
+        (self) => new LinearScale({
+          source_range: (self as LinearInterpolationScale).source_range,
+          target_range: (self as LinearInterpolationScale).target_range,
+        }),
+      ],
     }))
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    const {source_range, target_range} = this.properties
+    this.on_change([source_range, target_range], () => {
+      this.linear_scale = new LinearScale({
+        source_range: this.source_range,
+        target_range: this.target_range,
+      })
+    })
   }
 
   get s_compute(): (x: number) => number {
     throw new Error("not implemented")
   }
 
-  compute(x: number): number {
+  get s_invert(): (sx: number) => number {
+    throw new Error("not implemented")
+  }
+
+  override compute(x: number): number {
     return x
   }
 
-  v_compute(vs: Arrayable<number>): ScreenArray {
+  override v_compute(vs: Arrayable<number>): ScreenArray {
     const {binning} = this
 
     const {start, end} = this.source_range
@@ -62,14 +86,14 @@ export class LinearInterpolationScale extends Scale {
       return m0 + c*(m1 - m0)
     })
 
-    return this._linear_v_compute(vvs)
+    return this.linear_scale.v_compute(vvs)
   }
 
-  invert(xprime: number): number {
+  override invert(xprime: number): number {
     return xprime
   }
 
-  v_invert(xprimes: Arrayable<number>): FloatArray {
+  override v_invert(xprimes: Arrayable<number>): FloatArray {
     return new Float64Array(xprimes)
   }
 }

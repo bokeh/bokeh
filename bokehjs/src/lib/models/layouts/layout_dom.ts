@@ -15,12 +15,12 @@ import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
 export abstract class LayoutDOMView extends DOMView {
-  model: LayoutDOM
+  override model: LayoutDOM
 
-  root: LayoutDOMView
-  readonly parent: LayoutDOMView
+  override root: LayoutDOMView
+  override readonly parent: DOMView
 
-  protected _idle_notified: boolean = false
+  override el: HTMLElement
 
   protected _child_views: Map<LayoutDOM, LayoutDOMView>
 
@@ -34,28 +34,32 @@ export abstract class LayoutDOMView extends DOMView {
 
   layout: Layoutable
 
-  initialize(): void {
+  get is_layout_root(): boolean {
+    return this.is_root || !(this.parent instanceof LayoutDOMView)
+  }
+
+  override initialize(): void {
     super.initialize()
-    this.el.style.position = this.is_root ? "relative" : "absolute"
+    this.el.style.position = this.is_layout_root ? "relative" : "absolute"
     this._child_views = new Map()
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this.build_child_views()
   }
 
-  remove(): void {
+  override remove(): void {
     for (const child_view of this.child_views)
       child_view.remove()
     this._child_views.clear()
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
-    if (this.is_root) {
+    if (this.is_layout_root) {
       this._on_resize = () => this.resize_layout()
       window.addEventListener("resize", this._on_resize)
 
@@ -90,7 +94,7 @@ export abstract class LayoutDOMView extends DOMView {
     ], () => this.invalidate_render())
   }
 
-  disconnect_signals(): void {
+  override disconnect_signals(): void {
     if (this._parent_observer != null)
       clearTimeout(this._parent_observer)
     if (this._on_resize != null)
@@ -98,7 +102,7 @@ export abstract class LayoutDOMView extends DOMView {
     super.disconnect_signals()
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(this.model.css_classes)
   }
 
@@ -112,7 +116,7 @@ export abstract class LayoutDOMView extends DOMView {
     await build_views(this._child_views, this.child_models, {parent: this})
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     empty(this.el) // XXX: this should be in super
 
@@ -139,7 +143,7 @@ export abstract class LayoutDOMView extends DOMView {
   update_position(): void {
     this.el.style.display = this.model.visible ? "block" : "none"
 
-    const margin = this.is_root ? this.layout.sizing.margin : undefined
+    const margin = this.is_layout_root ? this.layout.sizing.margin : undefined
     position(this.el, this.layout.bbox, margin)
 
     for (const child_view of this.child_views)
@@ -157,18 +161,22 @@ export abstract class LayoutDOMView extends DOMView {
     this._viewport = this._viewport_size()
   }
 
-  renderTo(element: HTMLElement): void {
+  override renderTo(element: Node): void {
     element.appendChild(this.el)
     this._offset_parent = this.el.offsetParent
     this.compute_viewport()
     this.build()
+    this.notify_finished()
   }
 
   build(): this {
-    this.assert_root()
+    if (!this.is_layout_root)
+      throw new Error(`${this.toString()} is not a root layout`)
+
     this.render()
     this.update_layout()
     this.compute_layout()
+
     return this
   }
 
@@ -183,7 +191,6 @@ export abstract class LayoutDOMView extends DOMView {
     this.update_position()
     this.after_layout()
     logger.debug(`layout computed in ${Date.now() - start} ms`)
-    this.notify_finished()
   }
 
   resize_layout(): void {
@@ -201,7 +208,7 @@ export abstract class LayoutDOMView extends DOMView {
     this.invalidate_layout()
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     if (!super.has_finished())
       return false
 
@@ -211,19 +218,6 @@ export abstract class LayoutDOMView extends DOMView {
     }
 
     return true
-  }
-
-  notify_finished(): void {
-    if (!this.is_root)
-      this.root.notify_finished()
-    else {
-      if (!this._idle_notified && this.has_finished()) {
-        if (this.model.document != null) {
-          this._idle_notified = true
-          this.model.document.notify_idle(this.model)
-        }
-      }
-    }
   }
 
   protected _width_policy(): SizingPolicy {
@@ -381,7 +375,7 @@ export abstract class LayoutDOMView extends DOMView {
     return composite
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
@@ -416,8 +410,8 @@ export namespace LayoutDOM {
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
-  properties: LayoutDOM.Props
-  __view_type__: LayoutDOMView
+  override properties: LayoutDOM.Props
+  override __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)

@@ -21,8 +21,8 @@ export type VBarData = BoxData & {
 export interface VBarView extends VBarData {}
 
 export class VBarView extends BoxView {
-  model: VBar
-  visuals: VBar.Visuals
+  override model: VBar
+  override visuals: VBar.Visuals
 
   scenterxy(i: number): [number, number] {
     const scx = this.sx[i]
@@ -44,7 +44,7 @@ export class VBarView extends BoxView {
     return [l, r, t, b]
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sx = this.renderer.xscale.v_compute(this._x)
     this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
     this.stop = this.renderer.yscale.v_compute(this._top)
@@ -78,8 +78,8 @@ export namespace VBar {
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
-  properties: VBar.Props
-  __view_type__: VBarView
+  override properties: VBar.Props
+  override __view_type__: VBarView
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)

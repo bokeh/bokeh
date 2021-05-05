@@ -6,11 +6,11 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class TextAreaInputView extends TextLikeInputView {
-  model: TextAreaInput
+  override model: TextAreaInput
 
-  protected input_el: HTMLTextAreaElement
+  protected override input_el: HTMLTextAreaElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.rows.change, () => this.input_el.rows = this.model.rows)
     this.connect(this.model.properties.cols.change, () => this.input_el.cols = this.model.cols)
@@ -19,7 +19,7 @@ export class TextAreaInputView extends TextLikeInputView {
     this.input_el = textarea({class: inputs.input})
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     this.input_el.cols = this.model.cols
     this.input_el.rows = this.model.rows
@@ -38,8 +38,8 @@ export namespace TextAreaInput {
 export interface TextAreaInput extends TextAreaInput.Attrs {}
 
 export class TextAreaInput extends TextLikeInput {
-  properties: TextAreaInput.Props
-  __view_type__: TextAreaInputView
+  override properties: TextAreaInput.Props
+  override __view_type__: TextAreaInputView
 
   constructor(attrs?: Partial<TextAreaInput.Attrs>) {
     super(attrs)

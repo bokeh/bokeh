@@ -7,9 +7,9 @@ import {InputGroup, InputGroupView} from "./input_group"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends InputGroupView {
-  model: RadioGroup
+  override model: RadioGroup
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
@@ -52,8 +52,8 @@ export namespace RadioGroup {
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
-  properties: RadioGroup.Props
-  __view_type__: RadioGroupView
+  override properties: RadioGroup.Props
+  override __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)

@@ -3,7 +3,7 @@ import {tool_icon_zoom_out} from "styles/icons.css"
 import * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
-  model: ZoomBaseTool
+  override model: ZoomBaseTool
 }
 
 export namespace ZoomOutTool {
@@ -17,8 +17,8 @@ export namespace ZoomOutTool {
 export interface ZoomOutTool extends ZoomBaseTool.Attrs {}
 
 export class ZoomOutTool extends ZoomBaseTool {
-  properties: ZoomOutTool.Props
-  __view_type__: ZoomBaseToolView
+  override properties: ZoomOutTool.Props
+  override __view_type__: ZoomBaseToolView
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
@@ -36,7 +36,7 @@ export class ZoomOutTool extends ZoomBaseTool {
     this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: "height"}))
   }
 
-  sign = -1 as -1
-  tool_name = "Zoom Out"
-  icon = tool_icon_zoom_out
+  override sign = -1 as -1
+  override tool_name = "Zoom Out"
+  override icon = tool_icon_zoom_out
 }

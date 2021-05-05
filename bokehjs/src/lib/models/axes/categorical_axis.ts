@@ -19,10 +19,10 @@ export type CategoricalTickCoords = TickCoords & {
 }
 
 export class CategoricalAxisView extends AxisView {
-  model: CategoricalAxis
-  visuals: CategoricalAxis.Visuals
+  override model: CategoricalAxis
+  override visuals: CategoricalAxis.Visuals
 
-  protected _paint(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
+  protected override _paint(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     this._draw_group_separators(ctx, extents, tick_coords)
   }
 
@@ -61,7 +61,7 @@ export class CategoricalAxisView extends AxisView {
     this._draw_ticks(ctx, coords, -3, tex - 6, this.visuals.separator_line)
   }
 
-  protected _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
+  protected override _draw_major_labels(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
     const info = this._get_factor_info()
 
     let standoff = extents.tick + this.model.major_label_standoff
@@ -72,7 +72,7 @@ export class CategoricalAxisView extends AxisView {
     }
   }
 
-  protected _tick_label_extents(): number[] {
+  protected override _tick_label_extents(): number[] {
     const info = this._get_factor_info()
 
     const extents = []
@@ -123,7 +123,7 @@ export class CategoricalAxisView extends AxisView {
     return info
   }
 
-  get tick_coords(): CategoricalTickCoords {
+  override get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
     const [range] = this.ranges as [FactorRange, FactorRange]
@@ -180,8 +180,8 @@ export namespace CategoricalAxis {
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
-  properties: CategoricalAxis.Props
-  __view_type__: CategoricalAxisView
+  override properties: CategoricalAxis.Props
+  override __view_type__: CategoricalAxisView
 
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter

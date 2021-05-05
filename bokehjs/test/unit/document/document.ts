@@ -23,7 +23,7 @@ namespace AnotherModel {
 interface AnotherModel extends AnotherModel.Attrs {}
 
 class AnotherModel extends Model {
-  properties: AnotherModel.Props
+  override properties: AnotherModel.Props
 
   constructor(attrs?: Partial<AnotherModel.Attrs>) {
     super(attrs)
@@ -49,7 +49,7 @@ namespace SomeModel {
 interface SomeModel extends SomeModel.Attrs {}
 
 class SomeModel extends Model {
-  properties: SomeModel.Props
+  override properties: SomeModel.Props
 
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
@@ -75,7 +75,7 @@ namespace SomeModelWithChildren {
 interface SomeModelWithChildren extends SomeModelWithChildren.Attrs {}
 
 class SomeModelWithChildren extends Model {
-  properties: SomeModelWithChildren.Props
+  override properties: SomeModelWithChildren.Props
 
   constructor(attrs?: Partial<SomeModelWithChildren.Attrs>) {
     super(attrs)
@@ -101,13 +101,13 @@ namespace ModelWithConstructTimeChanges {
 interface ModelWithConstructTimeChanges extends ModelWithConstructTimeChanges.Attrs {}
 
 class ModelWithConstructTimeChanges extends Model {
-  properties: ModelWithConstructTimeChanges.Props
+  override properties: ModelWithConstructTimeChanges.Props
 
   constructor(attrs?: Partial<ModelWithConstructTimeChanges.Attrs>) {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.foo = 4
     this.child = new AnotherModel()
@@ -136,13 +136,13 @@ namespace ComplicatedModelWithConstructTimeChanges {
 interface ComplicatedModelWithConstructTimeChanges extends ComplicatedModelWithConstructTimeChanges.Attrs {}
 
 class ComplicatedModelWithConstructTimeChanges extends Model {
-  properties: ComplicatedModelWithConstructTimeChanges.Props
+  override properties: ComplicatedModelWithConstructTimeChanges.Props
 
   constructor(attrs?: Partial<ComplicatedModelWithConstructTimeChanges.Attrs>) {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.list_prop = [new AnotherModel()]
     this.dict_prop = {foo: new AnotherModel()}

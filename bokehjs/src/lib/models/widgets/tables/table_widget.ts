@@ -15,7 +15,7 @@ export namespace TableWidget {
 export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
-  properties: TableWidget.Props
+  override properties: TableWidget.Props
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)
@@ -28,7 +28,7 @@ export class TableWidget extends Widget {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.view.source == null) {

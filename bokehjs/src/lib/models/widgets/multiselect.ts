@@ -6,11 +6,11 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class MultiSelectView extends InputWidgetView {
-  model: MultiSelect
+  override model: MultiSelect
 
-  protected input_el: HTMLSelectElement
+  protected override input_el: HTMLSelectElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.value.change, () => this.render_selection())
     this.connect(this.model.properties.options.change, () => this.render())
@@ -20,7 +20,7 @@ export class MultiSelectView extends InputWidgetView {
     this.connect(this.model.properties.disabled.change, () => this.render())
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const options = this.model.options.map((opt) => {
@@ -57,7 +57,7 @@ export class MultiSelectView extends InputWidgetView {
     this.input_el.size = this.model.size
   }
 
-  change_input(): void {
+  override change_input(): void {
     const is_focused = this.el.querySelector('select:focus') != null
 
     const values = []
@@ -90,8 +90,8 @@ export namespace MultiSelect {
 export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
-  properties: MultiSelect.Props
-  __view_type__: MultiSelectView
+  override properties: MultiSelect.Props
+  override __view_type__: MultiSelectView
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)

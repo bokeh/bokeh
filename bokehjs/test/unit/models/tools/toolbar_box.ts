@@ -17,10 +17,10 @@ import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 class MultiToolView extends SelectToolView {}
 
 class MultiTool extends SelectTool {
-  default_view = MultiToolView
-  icon = "Multi Tool"
-  tool_name = "Multi Tool"
-  event_type = ["tap" as "tap", "pan" as "pan"]
+  override default_view = MultiToolView
+  override icon = "Multi Tool"
+  override tool_name = "Multi Tool"
+  override event_type = ["tap" as "tap", "pan" as "pan"]
 }
 
 describe("ToolbarBox", () => {

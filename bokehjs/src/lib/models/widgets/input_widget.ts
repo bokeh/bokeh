@@ -8,7 +8,7 @@ import inputs_css, * as inputs from "styles/widgets/inputs.css"
 export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 
 export abstract class InputWidgetView extends ControlView {
-  model: InputWidget
+  override model: InputWidget
 
   protected input_el: HTMLInputElementLike
   protected label_el: HTMLLabelElement
@@ -18,18 +18,18 @@ export abstract class InputWidgetView extends ControlView {
     yield this.input_el
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.title.change, () => {
       this.label_el.textContent = this.model.title
     })
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), inputs_css]
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const {title} = this.model
@@ -53,8 +53,8 @@ export namespace InputWidget {
 export interface InputWidget extends InputWidget.Attrs {}
 
 export abstract class InputWidget extends Control {
-  properties: InputWidget.Props
-  __view_type__: InputWidgetView
+  override properties: InputWidget.Props
+  override __view_type__: InputWidgetView
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)

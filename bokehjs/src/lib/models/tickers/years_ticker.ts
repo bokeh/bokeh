@@ -13,7 +13,7 @@ export namespace YearsTicker {
 export interface YearsTicker extends YearsTicker.Attrs {}
 
 export class YearsTicker extends SingleIntervalTicker {
-  properties: YearsTicker.Props
+  override properties: YearsTicker.Props
 
   constructor(attrs?: Partial<YearsTicker.Attrs>) {
     super(attrs)
@@ -21,13 +21,13 @@ export class YearsTicker extends SingleIntervalTicker {
 
   protected basic_ticker: BasicTicker
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.interval = ONE_YEAR
     this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
     const end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 

@@ -49,3 +49,9 @@ interface Document {
     check(font: string, text?: string): boolean
   }
 }
+
+// TS 4.3 regression
+interface TextMetrics {
+  readonly fontBoundingBoxAscent: number
+  readonly fontBoundingBoxDescent: number
+}

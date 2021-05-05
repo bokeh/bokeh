@@ -190,16 +190,20 @@ def _process_example(cls):
         cls.__doc__ = append_docstring(cls.__doc__, _EXAMPLE_TEMPLATE.format(path=cls.__dict__["__example__"]))
     return cls
 
+@abstract
+class Qualified(HasProps):
+    pass
+
 def _qualified_model(cls):
     module = cls.__view_module__
     model = cls.__dict__.get("__subtype__", cls.__view_model__)
     impl = cls.__dict__.get("__implementation__", None)
 
-    head = module.split(".")[0]
-    if head == "bokeh" or head == "__main__" or impl is not None:
-        return model
+    if not issubclass(cls, Qualified):
+        head = module.split(".")[0]
+        if head == "bokeh" or head == "__main__" or impl is not None:
+            return model
     return f"{module}.{model}"
-
 
 @abstract
 class Model(HasProps, PropertyCallbackManager, EventCallbackManager):

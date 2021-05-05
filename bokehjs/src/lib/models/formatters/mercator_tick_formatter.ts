@@ -14,7 +14,7 @@ export namespace MercatorTickFormatter {
 export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
-  properties: MercatorTickFormatter.Props
+  override properties: MercatorTickFormatter.Props
 
   constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
     super(attrs)
@@ -26,7 +26,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     }))
   }
 
-  doFormat(ticks: number[], opts: {loc: number}): string[] {
+  override doFormat(ticks: number[], opts: {loc: number}): string[] {
     if (this.dimension == null)
       throw new Error("MercatorTickFormatter.dimension not configured")
 
