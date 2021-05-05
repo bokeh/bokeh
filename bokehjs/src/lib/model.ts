@@ -23,11 +23,11 @@ export namespace Model {
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
-  properties: Model.Props
+  override properties: Model.Props
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 
-  get is_syncable(): boolean{
+  override get is_syncable(): boolean{
     return this.syncable
   }
 
@@ -46,12 +46,12 @@ export class Model extends HasProps {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._js_callbacks = new Map()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     this._update_property_callbacks()
@@ -105,12 +105,12 @@ export class Model extends HasProps {
     }
   }
 
-  protected _doc_attached(): void {
+  protected override _doc_attached(): void {
     if (!isEmpty(this.js_event_callbacks) || this.subscribed_events.length != 0)
       this._update_event_callbacks()
   }
 
-  protected _doc_detached(): void {
+  protected override _doc_detached(): void {
     this.document!.event_manager.subscribed_models.delete(this)
   }
 

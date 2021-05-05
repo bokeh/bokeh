@@ -13,7 +13,7 @@ export namespace DataSource {
 export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
-  properties: DataSource.Props
+  override properties: DataSource.Props
 
   constructor(attrs?: Partial<DataSource.Attrs>) {
     super(attrs)

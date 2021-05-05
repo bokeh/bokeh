@@ -10,15 +10,14 @@ export abstract class DOMView extends View {
 
   el: Node
 
-  /** @override */
-  readonly root: DOMView
+  override readonly root: DOMView
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.el = this._createElement()
   }
 
-  remove(): void {
+  override remove(): void {
     remove(this.el)
     super.remove()
   }

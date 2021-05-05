@@ -19,10 +19,10 @@ export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
 export interface ArcView extends ArcData {}
 
 export class ArcView extends XYGlyphView {
-  model: Arc
-  visuals: Arc.Visuals
+  override model: Arc
+  override visuals: Arc.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
     else
@@ -53,7 +53,7 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -76,8 +76,8 @@ export namespace Arc {
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
-  properties: Arc.Props
-  __view_type__: ArcView
+  override properties: Arc.Props
+  override __view_type__: ArcView
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)

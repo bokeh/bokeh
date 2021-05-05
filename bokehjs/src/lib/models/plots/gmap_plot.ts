@@ -19,7 +19,7 @@ export namespace MapOptions {
 export interface MapOptions extends MapOptions.Attrs {}
 
 export class MapOptions extends Model {
-  properties: MapOptions.Props
+  override properties: MapOptions.Props
 
   constructor(attrs?: Partial<MapOptions.Attrs>) {
     super(attrs)
@@ -48,7 +48,7 @@ export namespace GMapOptions {
 export interface GMapOptions extends GMapOptions.Attrs {}
 
 export class GMapOptions extends MapOptions {
-  properties: GMapOptions.Props
+  override properties: GMapOptions.Props
 
   constructor(attrs?: Partial<GMapOptions.Attrs>) {
     super(attrs)
@@ -77,9 +77,9 @@ export namespace GMapPlot {
 export interface GMapPlot extends GMapPlot.Attrs {}
 
 export class GMapPlot extends Plot {
-  properties: GMapPlot.Props
+  override properties: GMapPlot.Props
 
-  use_map = true
+  override use_map = true
 
   constructor(attrs?: Partial<GMapPlot.Attrs>) {
     super(attrs)

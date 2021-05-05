@@ -15,7 +15,7 @@ export type HasXYGlyph = {
 }
 
 export abstract class EditToolView extends GestureToolView {
-  model: EditTool
+  override model: EditTool
 
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
@@ -35,11 +35,11 @@ export abstract class EditToolView extends GestureToolView {
       unreachable()
   }
 
-  _move_enter(_e: MoveEvent): void {
+  override _move_enter(_e: MoveEvent): void {
     this._mouse_in_frame = true
   }
 
-  _move_exit(_e: MoveEvent): void {
+  override _move_exit(_e: MoveEvent): void {
     this._mouse_in_frame = false
   }
 
@@ -178,8 +178,8 @@ export namespace EditTool {
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
-  properties: EditTool.Props
-  __view_type__: EditToolView
+  override properties: EditTool.Props
+  override __view_type__: EditToolView
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)
@@ -193,7 +193,7 @@ export abstract class EditTool extends GestureTool {
     }))
   }
 
-  get computed_icon(): string {
+  override get computed_icon(): string {
     return this.custom_icon ?? this.icon
   }
 }

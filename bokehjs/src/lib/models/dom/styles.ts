@@ -324,8 +324,8 @@ export namespace Styles {
 export interface Styles extends Styles.Attrs {}
 
 export class Styles extends Model {
-  properties: Styles.Props
-  static __module__ = "bokeh.models.css"
+  override properties: Styles.Props
+  static override __module__ = "bokeh.models.css"
 
   constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)

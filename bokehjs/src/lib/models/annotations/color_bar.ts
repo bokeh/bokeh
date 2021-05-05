@@ -34,9 +34,9 @@ const MAJOR_DIM_MIN_SCALAR = 0.3
 const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export class ColorBarView extends AnnotationView {
-  model: ColorBar
-  visuals: ColorBar.Visuals
-  layout: Layoutable
+  override model: ColorBar
+  override visuals: ColorBar.Visuals
+  override layout: Layoutable
 
   protected _image: HTMLCanvasElement
 
@@ -63,7 +63,7 @@ export class ColorBarView extends AnnotationView {
     return this._orientation
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const {ticker, formatter, color_mapper} = this.model
@@ -168,7 +168,7 @@ export class ColorBarView extends AnnotationView {
     }
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const self = this
@@ -195,13 +195,13 @@ export class ColorBarView extends AnnotationView {
       this._title_view = await build_view(this._title, {parent})
   }
 
-  remove(): void {
+  override remove(): void {
     this._title_view?.remove()
     this._axis_view.remove()
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     // TODO: this.connect(this.model.change, () => this.plot_view.invalidate_layout())
     this.connect(this._ticker.change, () => this.request_render())
@@ -260,7 +260,7 @@ export class ColorBarView extends AnnotationView {
     image_ctx.putImageData(image_data, 0, 0)
   }
 
-  update_layout(): void {
+  override update_layout(): void {
     const {location, width: w, height: h, padding, margin} = this.model
 
     const [valign, halign] = (() => {
@@ -518,7 +518,7 @@ export class ColorBarView extends AnnotationView {
     ctx.restore()
   }
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     const {children = [], ...state} = super.serializable_state()
     if (this._title_view != null)
       children.push(this._title_view.serializable_state())
@@ -575,8 +575,8 @@ export namespace ColorBar {
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
-  properties: ColorBar.Props
-  __view_type__: ColorBarView
+  override properties: ColorBar.Props
+  override __view_type__: ColorBarView
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)

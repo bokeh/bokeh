@@ -101,19 +101,19 @@ export function update_range(range: Range1d, scale: Scale, delta: number, plot_r
 }
 
 export class RangeToolView extends GestureToolView {
-  model: RangeTool
+  override model: RangeTool
 
   private last_dx: number
   private last_dy: number
   private side: Side
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.side = Side.None
     this.model.update_overlay_from_ranges()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     if (this.model.x_range != null)
       this.connect(this.model.x_range.change, () => this.model.update_overlay_from_ranges())
@@ -121,7 +121,7 @@ export class RangeToolView extends GestureToolView {
       this.connect(this.model.y_range.change, () => this.model.update_overlay_from_ranges())
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this.last_dx = 0
     this.last_dy = 0
 
@@ -161,7 +161,7 @@ export class RangeToolView extends GestureToolView {
     }
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     const frame = this.plot_view.frame
 
     const new_dx = ev.deltaX - this.last_dx
@@ -201,7 +201,7 @@ export class RangeToolView extends GestureToolView {
     this.last_dy = ev.deltaY
   }
 
-  _pan_end(_ev: PanEvent): void {
+  override _pan_end(_ev: PanEvent): void {
     this.side = Side.None
     this.plot_view.trigger_ranges_update_event()
   }
@@ -234,10 +234,10 @@ export namespace RangeTool {
 export interface RangeTool extends RangeTool.Attrs {}
 
 export class RangeTool extends GestureTool {
-  properties: RangeTool.Props
-  __view_type__: RangeToolView
+  override properties: RangeTool.Props
+  override __view_type__: RangeToolView
 
-  /*override*/ overlay: BoxAnnotation
+  override overlay: BoxAnnotation
 
   constructor(attrs?: Partial<RangeTool.Attrs>) {
     super(attrs)
@@ -255,7 +255,7 @@ export class RangeTool extends GestureTool {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.overlay.in_cursor = "grab"
     this.overlay.ew_cursor = this.x_range != null && this.x_interaction ? "ew-resize" : null
@@ -288,8 +288,8 @@ export class RangeTool extends GestureTool {
     }
   }
 
-  tool_name = "Range Tool"
-  icon = tool_icon_range
-  event_type = "pan" as "pan"
-  default_order = 1
+  override tool_name = "Range Tool"
+  override icon = tool_icon_range
+  override event_type = "pan" as "pan"
+  override default_order = 1
 }

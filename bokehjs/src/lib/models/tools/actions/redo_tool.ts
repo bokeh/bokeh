@@ -3,9 +3,9 @@ import * as p from "core/properties"
 import {tool_icon_redo} from "styles/icons.css"
 
 export class RedoToolView extends ActionToolView {
-  model: RedoTool
+  override model: RedoTool
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.plot_view.state.changed, () => this.model.disabled = !this.plot_view.state.can_redo)
   }
@@ -28,8 +28,8 @@ export namespace RedoTool {
 export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
-  properties: RedoTool.Props
-  __view_type__: RedoToolView
+  override properties: RedoTool.Props
+  override __view_type__: RedoToolView
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)
@@ -45,6 +45,6 @@ export class RedoTool extends ActionTool {
     this.register_alias("redo", () => new RedoTool())
   }
 
-  tool_name = "Redo"
-  icon = tool_icon_redo
+  override tool_name = "Redo"
+  override icon = tool_icon_redo
 }

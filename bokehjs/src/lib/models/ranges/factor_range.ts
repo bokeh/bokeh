@@ -126,7 +126,7 @@ export namespace FactorRange {
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-  properties: FactorRange.Props
+  override properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)
@@ -161,12 +161,12 @@ export class FactorRange extends Range {
     return this.end
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._init(true)
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.properties.factors.change, () => this.reset())
     this.connect(this.properties.factor_padding.change, () => this.reset())

@@ -20,8 +20,8 @@ export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
 export interface MarkerView extends MarkerData {}
 
 export abstract class MarkerView extends XYGlyphView {
-  model: Marker
-  visuals: Marker.Visuals
+  override model: Marker
+  override visuals: Marker.Visuals
 
   protected _render_one: RenderOne
 
@@ -54,7 +54,7 @@ export abstract class MarkerView extends XYGlyphView {
     }
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     // dilate the inner screen region by max_size and map back to data space for use in spatial query
     const {x_target, y_target} = this.renderer.plot_view.frame
 
@@ -67,7 +67,7 @@ export abstract class MarkerView extends XYGlyphView {
     })
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const {max_size} = this
     const {hit_dilation} = this.model
@@ -93,7 +93,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const bounds = this.bounds()
     const ms = this.max_size/2
@@ -117,7 +117,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
@@ -125,7 +125,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_poly(geometry: PolyGeometry): Selection {
+  protected override _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry
 
     // TODO (bev) use spatial index to pare candidate list
@@ -160,7 +160,7 @@ export abstract class MarkerView extends XYGlyphView {
     return {sx, sy, size, angle} as any
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const args = this._get_legend_args({x0, x1, y0, y1}, index)
     this._render(ctx, [index], args) // XXX
   }
@@ -183,8 +183,8 @@ export namespace Marker {
 export interface Marker extends Marker.Attrs {}
 
 export abstract class Marker extends XYGlyph {
-  properties: Marker.Props
-  __view_type__: MarkerView
+  override properties: Marker.Props
+  override __view_type__: MarkerView
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)

@@ -16,7 +16,7 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 export {Styles}
 
 export abstract class DOMNodeView extends DOMView {
-  model: DOMNode
+  override model: DOMNode
 }
 
 export namespace DOMNode {
@@ -27,9 +27,9 @@ export namespace DOMNode {
 export interface DOMNode extends DOMNode.Attrs {}
 
 export abstract class DOMNode extends Model {
-  properties: DOMNode.Props
-  __view_type__: DOMNodeView
-  static __module__ = "bokeh.models.dom"
+  override properties: DOMNode.Props
+  override __view_type__: DOMNodeView
+  static override __module__ = "bokeh.models.dom"
 
   constructor(attrs?: Partial<DOMNode.Attrs>) {
     super(attrs)
@@ -39,15 +39,15 @@ export abstract class DOMNode extends Model {
 }
 
 export class TextView extends DOMNodeView {
-  model: Text
-  el: globalThis.Text
+  override model: Text
+  override el: globalThis.Text
 
-  render(): void {
+  override render(): void {
     super.render()
     this.el.textContent = this.model.content
   }
 
-  protected _createElement(): globalThis.Text {
+  protected override _createElement(): globalThis.Text {
     return document.createTextNode("")
   }
 }
@@ -62,8 +62,8 @@ export namespace Text {
 export interface Text extends Text.Attrs {}
 
 export class Text extends DOMNode {
-  properties: Text.Props
-  __view_type__: TextView
+  override properties: Text.Props
+  override __view_type__: TextView
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)
@@ -78,8 +78,8 @@ export class Text extends DOMNode {
 }
 
 export abstract class PlaceholderView extends DOMNodeView {
-  model: Placeholder
-  static tag_name = "span" as const
+  override model: Placeholder
+  static override tag_name = "span" as const
 
   abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
 }
@@ -92,8 +92,8 @@ export namespace Placeholder {
 export interface Placeholder extends Placeholder.Attrs {}
 
 export abstract class Placeholder extends DOMNode {
-  properties: Placeholder.Props
-  __view_type__: PlaceholderView
+  override properties: Placeholder.Props
+  override __view_type__: PlaceholderView
 
   constructor(attrs?: Partial<Placeholder.Attrs>) {
     super(attrs)
@@ -105,7 +105,7 @@ export abstract class Placeholder extends DOMNode {
 }
 
 export class IndexView extends PlaceholderView {
-  model: Index
+  override model: Index
 
   update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
     this.el.textContent = i.toString()
@@ -120,8 +120,8 @@ export namespace Index {
 export interface Index extends Index.Attrs {}
 
 export class Index extends Placeholder {
-  properties: Index.Props
-  __view_type__: IndexView
+  override properties: Index.Props
+  override __view_type__: IndexView
 
   constructor(attrs?: Partial<Index.Attrs>) {
     super(attrs)
@@ -134,7 +134,7 @@ export class Index extends Placeholder {
 }
 
 export class ValueRefView extends PlaceholderView {
-  model: ValueRef
+  override model: ValueRef
 
   update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
     const value = _get_column_value(this.model.field, source, i)
@@ -153,8 +153,8 @@ export namespace ValueRef {
 export interface ValueRef extends ValueRef.Attrs {}
 
 export class ValueRef extends Placeholder {
-  properties: ValueRef.Props
-  __view_type__: ValueRefView
+  override properties: ValueRef.Props
+  override __view_type__: ValueRefView
 
   constructor(attrs?: Partial<ValueRef.Attrs>) {
     super(attrs)
@@ -169,12 +169,12 @@ export class ValueRef extends Placeholder {
 }
 
 export class ColorRefView extends ValueRefView {
-  model: ColorRef
+  override model: ColorRef
 
   value_el?: HTMLElement
   swatch_el?: HTMLElement
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.value_el = span()
@@ -184,7 +184,7 @@ export class ColorRefView extends ValueRefView {
     this.el.appendChild(this.swatch_el)
   }
 
-  update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
+  override update(source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
     const value = _get_column_value(this.model.field, source, i)
     const text = value == null ? "???" : `${value}` //.toString()
     this.el.textContent = text
@@ -202,8 +202,8 @@ export namespace ColorRef {
 export interface ColorRef extends ColorRef.Attrs {}
 
 export class ColorRef extends ValueRef {
-  properties: ColorRef.Props
-  __view_type__: ColorRefView
+  override properties: ColorRef.Props
+  override __view_type__: ColorRefView
 
   constructor(attrs?: Partial<ColorRef.Attrs>) {
     super(attrs)
@@ -219,18 +219,18 @@ export class ColorRef extends ValueRef {
 }
 
 export abstract class DOMElementView extends DOMNodeView {
-  model: DOMElement
-  el: HTMLElement
+  override model: DOMElement
+  override el: HTMLElement
 
   child_views: Map<DOMNode | LayoutDOM, DOMNodeView | LayoutDOMView> = new Map()
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const children = this.model.children.filter((obj): obj is DOMNode | LayoutDOM => obj instanceof Model)
     await build_views(this.child_views, children, {parent: this})
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const {style} = this.model
@@ -285,8 +285,8 @@ export namespace DOMElement {
 export interface DOMElement extends DOMElement.Attrs {}
 
 export abstract class DOMElement extends DOMNode {
-  properties: DOMElement.Props
-  __view_type__: DOMElementView
+  override properties: DOMElement.Props
+  override __view_type__: DOMElementView
 
   constructor(attrs?: Partial<DOMElement.Attrs>) {
     super(attrs)
@@ -301,7 +301,7 @@ export abstract class DOMElement extends DOMNode {
 }
 
 export abstract class ActionView extends View {
-  model: Action
+  override model: Action
 
   abstract update(source: ColumnarDataSource, i: DataIndex, vars: object/*, formatters?: Formatters*/): void
 }
@@ -314,9 +314,9 @@ export namespace Action {
 export interface Action extends Action.Attrs {}
 
 export abstract class Action extends Model {
-  properties: Action.Props
-  __view_type__: ActionView
-  static __module__ = "bokeh.models.dom"
+  override properties: Action.Props
+  override __view_type__: ActionView
+  static override __module__ = "bokeh.models.dom"
 
   constructor(attrs?: Partial<Action.Attrs>) {
     super(attrs)
@@ -328,17 +328,17 @@ export abstract class Action extends Model {
 }
 
 export class TemplateView extends DOMElementView {
-  model: Template
-  static tag_name = "div" as const
+  override model: Template
+  static override tag_name = "div" as const
 
   action_views: Map<Action, ActionView> = new Map()
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await build_views(this.action_views, this.model.actions, {parent: this})
   }
 
-  remove(): void {
+  override remove(): void {
     remove_views(this.action_views)
     super.remove()
   }
@@ -372,8 +372,8 @@ export namespace Template {
 export interface Template extends Template.Attrs {}
 
 export class Template extends DOMElement {
-  properties: Template.Props
-  __view_type__: TemplateView
+  override properties: Template.Props
+  override __view_type__: TemplateView
 
   static init_Template(): void {
     this.prototype.default_view = TemplateView
@@ -384,44 +384,44 @@ export class Template extends DOMElement {
 }
 
 export class SpanView extends DOMElementView {
-  model: Span
-  static tag_name = "span" as const
+  override model: Span
+  static override tag_name = "span" as const
 }
 export class Span extends DOMElement {
-  __view_type__: SpanView
+  override __view_type__: SpanView
   static init_Span(): void {
     this.prototype.default_view = SpanView
   }
 }
 
 export class DivView extends DOMElementView {
-  model: Div
-  static tag_name = "div" as const
+  override model: Div
+  static override tag_name = "div" as const
 }
 export class Div extends DOMElement {
-  __view_type__: DivView
+  override __view_type__: DivView
   static init_Div(): void {
     this.prototype.default_view = DivView
   }
 }
 
 export class TableView extends DOMElementView {
-  model: Table
-  static tag_name = "table" as const
+  override model: Table
+  static override tag_name = "table" as const
 }
 export class Table extends DOMElement {
-  __view_type__: TableView
+  override __view_type__: TableView
   static init_Table(): void {
     this.prototype.default_view = TableView
   }
 }
 
 export class TableRowView extends DOMElementView {
-  model: TableRow
-  static tag_name = "tr" as const
+  override model: TableRow
+  static override tag_name = "tr" as const
 }
 export class TableRow extends DOMElement {
-  __view_type__: TableRowView
+  override __view_type__: TableRowView
   static init_TableRow(): void {
     this.prototype.default_view = TableRowView
   }
@@ -433,7 +433,7 @@ import {RendererGroup} from "../renderers/renderer"
 import {enumerate} from "core/util/iterator"
 
 export class ToggleGroupView extends ActionView {
-  model: ToggleGroup
+  override model: ToggleGroup
 
   update(_source: ColumnarDataSource, i: DataIndex, _vars: object/*, formatters?: Formatters*/): void {
     for (const [group, j] of enumerate(this.model.groups)) {
@@ -452,8 +452,8 @@ export namespace ToggleGroup {
 export interface ToggleGroup extends ToggleGroup.Attrs {}
 
 export class ToggleGroup extends Action {
-  properties: ToggleGroup.Props
-  __view_type__: ToggleGroupView
+  override properties: ToggleGroup.Props
+  override __view_type__: ToggleGroupView
 
   constructor(attrs?: Partial<ToggleGroup.Attrs>) {
     super(attrs)
@@ -477,7 +477,7 @@ export namespace X {
 export interface X extends X.Attrs {}
 
 export class X extends Y {
-  properties: X.Props
+  override properties: X.Props
 
   constructor(attrs?: Partial<X.Attrs>) {
     super(attrs)

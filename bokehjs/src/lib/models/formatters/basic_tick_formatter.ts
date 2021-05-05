@@ -27,7 +27,7 @@ export namespace BasicTickFormatter {
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
-  properties: BasicTickFormatter.Props
+  override properties: BasicTickFormatter.Props
 
   constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
     super(attrs)

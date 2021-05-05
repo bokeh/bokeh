@@ -64,7 +64,7 @@ function combineByKey(key: string, array: any[]) {
 
 
 export class ParallelSelectionView extends BoxSelectToolView {
-  model: ParallelSelectionTool
+  override model: ParallelSelectionTool
 
   private xscale: Scale
   private yscale: Scale
@@ -83,7 +83,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     indices: number[]
   }[] //must be synchronize with element of cds_select
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const {frame} = this.plot_view
@@ -361,8 +361,8 @@ export namespace ParallelSelectionTool {
 export interface ParallelSelectionTool extends ParallelSelectionTool.Attrs {}
 
 export class ParallelSelectionTool extends BoxSelectTool {
-  properties: ParallelSelectionTool.Props
-  __view_type__: ParallelSelectionView
+  override properties: ParallelSelectionTool.Props
+  override __view_type__: ParallelSelectionView
 
   static init_ParallelSelectionTool(): void {
     this.prototype.default_view = ParallelSelectionView

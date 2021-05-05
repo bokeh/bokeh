@@ -3,10 +3,10 @@ import {Grid} from "core/layout"
 import * as p from "core/properties"
 
 export abstract class BoxView extends LayoutDOMView {
-  model: Box
-  layout: Grid
+  override model: Box
+  override layout: Grid
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.children.change, () => this.rebuild())
   }
@@ -28,8 +28,8 @@ export namespace Box {
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends LayoutDOM {
-  properties: Box.Props
-  __view_type__: BoxView
+  override properties: Box.Props
+  override __view_type__: BoxView
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)

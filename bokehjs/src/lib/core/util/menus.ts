@@ -124,7 +124,7 @@ export class ContextMenu {
   }
 
   /*
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), menus_css]
   }
   */

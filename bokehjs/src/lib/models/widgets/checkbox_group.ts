@@ -7,9 +7,9 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends InputGroupView {
-  model: CheckboxGroup
+  override model: CheckboxGroup
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
@@ -54,8 +54,8 @@ export namespace CheckboxGroup {
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends InputGroup {
-  properties: CheckboxGroup.Props
-  __view_type__: CheckboxGroupView
+  override properties: CheckboxGroup.Props
+  override __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)

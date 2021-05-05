@@ -24,12 +24,12 @@ export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> &
 export interface MultiPolygonsView extends MultiPolygonsData {}
 
 export class MultiPolygonsView extends GlyphView {
-  model: MultiPolygons
-  visuals: MultiPolygons.Visuals
+  override model: MultiPolygons
+  override visuals: MultiPolygons.Visuals
 
   protected _hole_index: SpatialIndex
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     // TODO
   }
 
@@ -114,7 +114,7 @@ export class MultiPolygonsView extends GlyphView {
     return index
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     const {x_range, y_range} = this.renderer.plot_view.frame
     return this.index.indices({
       x0: x_range.min, x1: x_range.max,
@@ -164,7 +164,7 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const xs = [sx0, sx1, sx1, sx0]
     const ys = [sy0, sy0, sy1, sy1]
@@ -197,7 +197,7 @@ export class MultiPolygonsView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -268,7 +268,7 @@ export class MultiPolygonsView extends GlyphView {
     unreachable()
   }
 
-  map_data(): void {
+  override map_data(): void {
     const n_i = this._xs.length
     this.sxs = new Array(n_i)
     this.sys = new Array(n_i)
@@ -289,7 +289,7 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -310,8 +310,8 @@ export namespace MultiPolygons {
 export interface MultiPolygons extends MultiPolygons.Attrs {}
 
 export class MultiPolygons extends Glyph {
-  properties: MultiPolygons.Props
-  __view_type__: MultiPolygonsView
+  override properties: MultiPolygons.Props
+  override __view_type__: MultiPolygonsView
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)

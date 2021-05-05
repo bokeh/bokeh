@@ -9,10 +9,10 @@ export type ImageData = ImageDataBase
 export interface ImageView extends ImageData {}
 
 export class ImageView extends ImageBaseView {
-  model: Image
-  visuals: Image.Visuals
+  override model: Image
+  override visuals: Image.Visuals
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.color_mapper.change, () => this._update_image())
   }
@@ -47,8 +47,8 @@ export namespace Image {
 export interface Image extends Image.Attrs {}
 
 export class Image extends ImageBase {
-  properties: Image.Props
-  __view_type__: ImageView
+  override properties: Image.Props
+  override __view_type__: ImageView
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)

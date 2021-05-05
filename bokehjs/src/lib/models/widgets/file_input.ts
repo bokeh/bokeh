@@ -3,16 +3,16 @@ import * as p from "core/properties"
 import {Widget, WidgetView} from "models/widgets/widget"
 
 export class FileInputView extends WidgetView {
-  model: FileInput
+  override model: FileInput
 
   protected dialog_el: HTMLInputElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
   }
 
-  render(): void {
+  override render(): void {
     const {multiple, accept, disabled, width} = this.model
 
     if (this.dialog_el == null) {
@@ -89,8 +89,8 @@ export namespace FileInput {
 export interface FileInput extends FileInput.Attrs {}
 
 export class FileInput extends Widget {
-  properties: FileInput.Props
-  __view_type__: FileInputView
+  override properties: FileInput.Props
+  override __view_type__: FileInputView
 
   constructor(attrs?: Partial<FileInput.Attrs>) {
     super(attrs)

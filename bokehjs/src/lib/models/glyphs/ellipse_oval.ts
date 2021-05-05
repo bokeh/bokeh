@@ -11,10 +11,10 @@ export type EllipseOvalData = CenterRotatableData
 export interface EllipseOvalView extends EllipseOvalData {}
 
 export abstract class EllipseOvalView extends CenterRotatableView  {
-  model: EllipseOval
-  visuals: EllipseOval.Visuals
+  override model: EllipseOval
+  override visuals: EllipseOval.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this.width, 'center')
     else
@@ -48,7 +48,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     let x0, x1, y0, y1, cond, sx0, sx1, sy0, sy1
 
     const {sx, sy} = geometry
@@ -86,7 +86,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -122,8 +122,8 @@ export namespace EllipseOval {
 export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
-  properties: EllipseOval.Props
-  __view_type__: EllipseOvalView
+  override properties: EllipseOval.Props
+  override __view_type__: EllipseOvalView
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)

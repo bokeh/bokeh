@@ -12,7 +12,7 @@ import buttons_css, * as buttons from "styles/buttons.css"
 import menus_css, * as menus from "styles/menus.css"
 
 export class TabsView extends LayoutDOMView {
-  model: Tabs
+  override model: Tabs
 
   protected header: Layoutable
 
@@ -21,13 +21,13 @@ export class TabsView extends LayoutDOMView {
   protected scroll_el: HTMLElement
   protected headers_el: HTMLElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tabs.change, () => this.rebuild())
     this.connect(this.model.properties.active.change, () => this.on_active_change())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), buttons_css, menus_css, tabs_css]
   }
 
@@ -35,14 +35,14 @@ export class TabsView extends LayoutDOMView {
     return this.model.tabs.map((tab) => tab.child)
   }
 
-  _update_layout(): void {
+  override _update_layout(): void {
     const loc = this.model.tabs_location
     const vertical = loc == "above" || loc == "below"
 
     // XXX: this is a hack, this should be handled by "fit" policy in grid layout
     const {scroll_el, headers_el} = this
     this.header = new class extends ContentBox {
-      protected _measure(viewport: Sizeable) {
+      protected override _measure(viewport: Sizeable) {
         const min_headers = 3
 
         const scroll = size(scroll_el)
@@ -82,7 +82,7 @@ export class TabsView extends LayoutDOMView {
     this.layout.set_sizing(this.box_sizing())
   }
 
-  update_position(): void {
+  override update_position(): void {
     super.update_position()
 
     this.header_el.style.position = "absolute" // XXX: do it in position()
@@ -122,7 +122,7 @@ export class TabsView extends LayoutDOMView {
       show(tab.el)
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const {active} = this.model
@@ -236,8 +236,8 @@ export namespace Tabs {
 export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends LayoutDOM {
-  properties: Tabs.Props
-  __view_type__: TabsView
+  override properties: Tabs.Props
+  override __view_type__: TabsView
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)

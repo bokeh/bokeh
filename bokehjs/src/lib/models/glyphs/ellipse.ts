@@ -6,8 +6,8 @@ export type EllipseData = EllipseOvalData
 export interface EllipseView extends EllipseData {}
 
 export class EllipseView extends EllipseOvalView {
-  model: Ellipse
-  visuals: Ellipse.Visuals
+  override model: Ellipse
+  override visuals: Ellipse.Visuals
 }
 
 export namespace Ellipse {
@@ -21,8 +21,8 @@ export namespace Ellipse {
 export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends EllipseOval {
-  properties: Ellipse.Props
-  __view_type__: EllipseView
+  override properties: Ellipse.Props
+  override __view_type__: EllipseView
 
   constructor(attrs?: Partial<Ellipse.Attrs>) {
     super(attrs)

@@ -19,7 +19,7 @@ export namespace AjaxDataSource {
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends WebDataSource {
-  properties: AjaxDataSource.Props
+  override properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)
@@ -38,7 +38,7 @@ export class AjaxDataSource extends WebDataSource {
   protected interval: number | null = null
   protected initialized: boolean = false
 
-  destroy(): void {
+  override destroy(): void {
     if (this.interval != null)
       clearInterval(this.interval)
     super.destroy()

@@ -20,7 +20,7 @@ export namespace CellFormatter {
 export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
-  properties: CellFormatter.Props
+  override properties: CellFormatter.Props
 
   constructor(attrs?: Partial<CellFormatter.Attrs>) {
     super(attrs)
@@ -47,7 +47,7 @@ export namespace StringFormatter {
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
-  properties: StringFormatter.Props
+  override properties: StringFormatter.Props
 
   constructor(attrs?: Partial<StringFormatter.Attrs>) {
     super(attrs)
@@ -61,7 +61,7 @@ export class StringFormatter extends CellFormatter {
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
     const text = div({}, value == null ? "" : `${value}`)
@@ -97,7 +97,7 @@ export namespace ScientificFormatter {
 export interface ScientificFormatter extends ScientificFormatter.Attrs {}
 
 export class ScientificFormatter extends StringFormatter {
-  properties: ScientificFormatter.Props
+  override properties: ScientificFormatter.Props
 
   constructor(attrs?: Partial<ScientificFormatter.Attrs>) {
     super(attrs)
@@ -120,7 +120,7 @@ export class ScientificFormatter extends StringFormatter {
     return 10.0**this.power_limit_high
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const need_sci = Math.abs(value) <= this.scientific_limit_low || Math.abs(value) >= this.scientific_limit_high
     let precision = this.precision
 
@@ -157,7 +157,7 @@ export namespace NumberFormatter {
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
-  properties: NumberFormatter.Props
+  override properties: NumberFormatter.Props
 
   constructor(attrs?: Partial<NumberFormatter.Attrs>) {
     super(attrs)
@@ -172,7 +172,7 @@ export class NumberFormatter extends StringFormatter {
     }))
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language, nan_format} = this
     const rounding = (() => {
       switch (this.rounding) {
@@ -200,7 +200,7 @@ export namespace BooleanFormatter {
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
-  properties: BooleanFormatter.Props
+  override properties: BooleanFormatter.Props
 
   constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
     super(attrs)
@@ -212,7 +212,7 @@ export class BooleanFormatter extends CellFormatter {
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
@@ -229,7 +229,7 @@ export namespace DateFormatter {
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends StringFormatter {
-  properties: DateFormatter.Props
+  override properties: DateFormatter.Props
 
   constructor(attrs?: Partial<DateFormatter.Attrs>) {
     super(attrs)
@@ -269,7 +269,7 @@ export class DateFormatter extends StringFormatter {
     }
   }
 
-  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {nan_format} = this
     value = isString(value) ? parseInt(value, 10) : value
     let date: string
@@ -293,7 +293,7 @@ export namespace HTMLTemplateFormatter {
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
-  properties: HTMLTemplateFormatter.Props
+  override properties: HTMLTemplateFormatter.Props
 
   constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
     super(attrs)
@@ -305,7 +305,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
     }))
   }
 
-  doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
+  override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     const {template} = this
     if (value == null)
       return ""

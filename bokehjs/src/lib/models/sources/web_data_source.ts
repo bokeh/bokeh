@@ -19,25 +19,25 @@ export namespace WebDataSource {
 export interface WebDataSource extends WebDataSource.Attrs {}
 
 export abstract class WebDataSource extends ColumnDataSource {
-  properties: WebDataSource.Props
+  override properties: WebDataSource.Props
 
   constructor(attrs?: Partial<WebDataSource.Attrs>) {
     super(attrs)
   }
 
-  get_column(colname: string): Arrayable {
+  override get_column(colname: string): Arrayable {
     const column = this.data[colname]
     return column != null ? column : []
   }
 
-  get_length(): number {
+  override get_length(): number {
     return super.get_length() ?? 0
   }
 
   // override this method to setup the connection to the web source
-  abstract setup(): void
+  abstract override setup(): void
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.setup()
   }

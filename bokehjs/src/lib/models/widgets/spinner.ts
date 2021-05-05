@@ -41,7 +41,7 @@ function debounce(func: () => void, wait: number, immediate: boolean = false) {
 
 // Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class SpinnerView extends NumericInputView {
-  model: Spinner
+  override model: Spinner
 
   protected wrapper_el: HTMLDivElement
   protected btn_up_el: HTMLButtonElement
@@ -58,13 +58,13 @@ export class SpinnerView extends NumericInputView {
     yield this.btn_down_el
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._handles = {interval: undefined, timeout: undefined}
     this._interval = 200
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const p = this.model.properties
     this.on_change(p.disabled, () => {
@@ -74,7 +74,7 @@ export class SpinnerView extends NumericInputView {
     })
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     this.wrapper_el = div({class: "bk-spin-wrapper"})
     this.group_el.replaceChild(this.wrapper_el, this.input_el)
@@ -110,7 +110,7 @@ export class SpinnerView extends NumericInputView {
     return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)))
   }
 
-  remove(): void {
+  override remove(): void {
     this._stop_incrementation()
     super.remove()
   }
@@ -201,7 +201,7 @@ export class SpinnerView extends NumericInputView {
       this.model.value = this.adjust_to_precision(this.model.value + step)
   }
 
-  change_input(): void {
+  override change_input(): void {
     super.change_input()
     this.model.value_throttled = this.model.value
   }
@@ -221,8 +221,8 @@ export namespace Spinner {
 export interface Spinner extends Spinner.Attrs {}
 
 export class Spinner extends NumericInput {
-  properties: Spinner.Props
-  __view_type__: SpinnerView
+  override properties: Spinner.Props
+  override __view_type__: SpinnerView
 
   constructor(attrs?: Partial<Spinner.Attrs>) {
     super(attrs)

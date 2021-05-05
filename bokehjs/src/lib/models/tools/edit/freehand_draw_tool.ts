@@ -6,7 +6,7 @@ import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
-  model: FreehandDrawTool
+  override model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
     if (!this.model.active)
@@ -49,23 +49,23 @@ export class FreehandDrawToolView extends EditToolView {
     this._emit_cds_changes(cds, true, true, emit)
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this._draw(ev, 'new')
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     this._draw(ev, 'add')
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     this._draw(ev, 'add', true)
   }
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -89,8 +89,8 @@ export namespace FreehandDrawTool {
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
-  properties: FreehandDrawTool.Props
-  __view_type__: FreehandDrawToolView
+  override properties: FreehandDrawTool.Props
+  override __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)
@@ -105,8 +105,8 @@ export class FreehandDrawTool extends EditTool {
 
     this.register_alias("freehand_draw", () => new FreehandDrawTool())
   }
-  tool_name = "Freehand Draw Tool"
-  icon = tool_icon_freehand_draw
-  event_type = ["pan" as "pan", "tap" as "tap"]
-  default_order = 3
+  override tool_name = "Freehand Draw Tool"
+  override icon = tool_icon_freehand_draw
+  override event_type = ["pan" as "pan", "tap" as "tap"]
+  override default_order = 3
 }

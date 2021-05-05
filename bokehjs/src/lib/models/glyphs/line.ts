@@ -16,13 +16,13 @@ export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 export interface LineView extends LineData {}
 
 export class LineView extends XYGlyphView {
-  model: Line
-  visuals: Line.Visuals
+  override model: Line
+  override visuals: Line.Visuals
 
   /** @internal */
-  glglyph?: LineGL
+  override glglyph?: LineGL
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
@@ -59,7 +59,7 @@ export class LineView extends XYGlyphView {
     ctx.stroke()
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     /* Check if the point geometry hits this line glyph and return an object
     that describes the hit result:
       Args:
@@ -89,7 +89,7 @@ export class LineView extends XYGlyphView {
     return result
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const result = new Selection()
 
@@ -119,7 +119,7 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_line_scalar_legend(this.visuals, ctx, bbox)
   }
 }
@@ -137,8 +137,8 @@ export namespace Line {
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
-  properties: Line.Props
-  __view_type__: LineView
+  override properties: Line.Props
+  override __view_type__: LineView
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)

@@ -21,7 +21,7 @@ export namespace ContinuousColorMapper {
 export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {}
 
 export abstract class ContinuousColorMapper extends ColorMapper {
-  properties: ContinuousColorMapper.Props
+  override properties: ContinuousColorMapper.Props
 
   constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {
     super(attrs)
@@ -39,7 +39,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     })
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const connect_renderers = () => {
@@ -132,7 +132,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
+  protected override _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
     return {
       ...super._colors(conv),
       low_color: this.low_color != null ? conv(this.low_color) : undefined,

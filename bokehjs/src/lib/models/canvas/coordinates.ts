@@ -59,7 +59,7 @@ export namespace CoordinateMapping {
 export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 
 export abstract class CoordinateMapping extends Model {
-  properties: CoordinateMapping.Props
+  override properties: CoordinateMapping.Props
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
     super(attrs)
@@ -132,7 +132,7 @@ export namespace CompositeScale {
 export interface CompositeScale extends CompositeScale.Attrs {}
 
 export class CompositeScale extends Scale {
-  properties: CompositeScale.Props
+  override properties: CompositeScale.Props
 
   constructor(attrs?: Partial<CompositeScale.Attrs>) {
     super(attrs)
@@ -157,20 +157,20 @@ export class CompositeScale extends Scale {
     return (sx) => source_invert(target_invert(sx))
   }
 
-  compute(x: number): number {
+  override compute(x: number): number {
     return this.s_compute(x)
   }
 
-  v_compute(xs: Arrayable<number>): ScreenArray {
+  override v_compute(xs: Arrayable<number>): ScreenArray {
     const {s_compute} = this
     return map(xs, s_compute) as ScreenArray // XXX
   }
 
-  invert(sx: number): number {
+  override invert(sx: number): number {
     return this.s_invert(sx)
   }
 
-  v_invert(sxs: Arrayable<number>): FloatArray {
+  override v_invert(sxs: Arrayable<number>): FloatArray {
     const {s_invert} = this
     return map(sxs, s_invert) as FloatArray // XXX
   }

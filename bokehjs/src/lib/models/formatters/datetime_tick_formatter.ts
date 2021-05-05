@@ -68,7 +68,7 @@ export namespace DatetimeTickFormatter {
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
-  properties: DatetimeTickFormatter.Props
+  override properties: DatetimeTickFormatter.Props
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)
@@ -93,7 +93,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   protected strip_leading_zeros = true
   protected _width_formats: {[key: string]: [number[], string[]]}
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     // TODO (bev) trigger update on format change
     this._update_width_formats()

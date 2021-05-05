@@ -13,14 +13,13 @@ export interface HasPolyGlyph {
 }
 
 export class PolyEditToolView extends PolyToolView {
-  model: PolyEditTool
+  override model: PolyEditTool
 
   _selected_renderer: GlyphRenderer | null
-  _basepoint: [number, number] | null
   _drawing: boolean = false
   _cur_index: number | null = null
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     if (!this.model.active)
       return
     const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer)
@@ -108,7 +107,7 @@ export class PolyEditToolView extends PolyToolView {
     this._set_vertices(xs, ys)
   }
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     if (this._drawing && this._selected_renderer != null) {
       const renderer = this.model.vertex_renderer
       const cds = renderer.data_source
@@ -129,7 +128,7 @@ export class PolyEditToolView extends PolyToolView {
     }
   }
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     const renderer = this.model.vertex_renderer
     const point = this._map_drag(ev.sx, ev.sy, renderer)
     if (point == null)
@@ -180,12 +179,12 @@ export class PolyEditToolView extends PolyToolView {
     this._emit_cds_changes(this._selected_renderer.data_source)
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this._select_event(ev, "append", [this.model.vertex_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.vertex_renderer])
@@ -193,7 +192,7 @@ export class PolyEditToolView extends PolyToolView {
       this._selected_renderer.data_source.change.emit()
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.vertex_renderer])
@@ -204,7 +203,7 @@ export class PolyEditToolView extends PolyToolView {
     this._basepoint = null
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     let renderers: GlyphRenderer[]
@@ -231,7 +230,7 @@ export class PolyEditToolView extends PolyToolView {
     }
   }
 
-  deactivate(): void {
+  override deactivate(): void {
     if (!this._selected_renderer) {
       return
     } else if (this._drawing) {
@@ -251,10 +250,10 @@ export namespace PolyEditTool {
 export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends PolyTool {
-  properties: PolyEditTool.Props
-  __view_type__: PolyEditToolView
+  override properties: PolyEditTool.Props
+  override __view_type__: PolyEditToolView
 
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
+  override renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
@@ -264,8 +263,8 @@ export class PolyEditTool extends PolyTool {
     this.prototype.default_view = PolyEditToolView
   }
 
-  tool_name = "Poly Edit Tool"
-  icon = tool_icon_poly_edit
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
-  default_order = 4
+  override tool_name = "Poly Edit Tool"
+  override icon = tool_icon_poly_edit
+  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override default_order = 4
 }

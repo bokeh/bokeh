@@ -8,13 +8,13 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
-  model: Whisker
-  visuals: Whisker.Visuals
+  override model: Whisker
+  override visuals: Whisker.Visuals
 
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {lower_head, upper_head} = this.model
@@ -24,7 +24,7 @@ export class WhiskerView extends UpperLowerView {
       this.upper_head = await build_view(upper_head, {parent: this})
   }
 
-  set_data(source: ColumnarDataSource): void {
+  override set_data(source: ColumnarDataSource): void {
     super.set_data(source)
     this.lower_head?.set_data(source)
     this.upper_head?.set_data(source)
@@ -81,8 +81,8 @@ export namespace Whisker {
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends UpperLower {
-  properties: Whisker.Props
-  __view_type__: WhiskerView
+  override properties: Whisker.Props
+  override __view_type__: WhiskerView
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)

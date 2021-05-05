@@ -2,11 +2,11 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as p from "core/properties"
 
 export abstract class TextLikeInputView extends InputWidgetView {
-  model: TextLikeInput
+  override model: TextLikeInput
 
-  protected input_el: HTMLInputElement | HTMLTextAreaElement
+  protected override input_el: HTMLInputElement | HTMLTextAreaElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
@@ -24,7 +24,7 @@ export abstract class TextLikeInputView extends InputWidgetView {
 
   protected abstract _render_input(): void
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this._render_input()
@@ -42,7 +42,7 @@ export abstract class TextLikeInputView extends InputWidgetView {
     this.group_el.appendChild(input_el)
   }
 
-  change_input(): void {
+  override change_input(): void {
     this.model.value = this.input_el.value
     super.change_input()
   }
@@ -67,8 +67,8 @@ export namespace TextLikeInput {
 export interface TextLikeInput extends TextLikeInput.Attrs {}
 
 export class TextLikeInput extends InputWidget {
-  properties: TextLikeInput.Props
-  __view_type__: TextLikeInputView
+  override properties: TextLikeInput.Props
+  override __view_type__: TextLikeInputView
 
   constructor(attrs?: Partial<TextLikeInput.Attrs>) {
     super(attrs)

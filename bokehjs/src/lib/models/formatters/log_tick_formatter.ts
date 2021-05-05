@@ -18,7 +18,7 @@ export namespace LogTickFormatter {
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
-  properties: LogTickFormatter.Props
+  override properties: LogTickFormatter.Props
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
     super(attrs)
@@ -33,12 +33,12 @@ export class LogTickFormatter extends TickFormatter {
 
   protected basic_formatter: BasicTickFormatter
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.basic_formatter = new BasicTickFormatter()
   }
 
-  format_graphics(ticks: number[], opts: {loc: number}): GraphicsBox[] {
+  override format_graphics(ticks: number[], opts: {loc: number}): GraphicsBox[] {
     if (ticks.length == 0)
       return []
 

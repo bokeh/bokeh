@@ -12,7 +12,7 @@ export namespace Mapper {
 export interface Mapper<T> extends Mapper.Attrs {}
 
 export abstract class Mapper<T> extends Transform<number, T> {
-  properties: Mapper.Props
+  override properties: Mapper.Props
 
   constructor(attrs?: Partial<Mapper.Attrs>) {
     super(attrs)
@@ -23,5 +23,5 @@ export abstract class Mapper<T> extends Transform<number, T> {
     throw new Error("mapping single values is not supported")
   }
 
-  abstract v_compute(xs: ArrayableOf<number | Factor>): Arrayable<T>
+  abstract override v_compute(xs: ArrayableOf<number | Factor>): Arrayable<T>
 }

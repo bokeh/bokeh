@@ -19,7 +19,7 @@ export namespace GraphHitTestPolicy {
 export interface GraphHitTestPolicy extends Model.Attrs {}
 
 export abstract class GraphHitTestPolicy extends Model {
-  properties: GraphHitTestPolicy.Props
+  override properties: GraphHitTestPolicy.Props
 
   constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
     super(attrs)
@@ -53,7 +53,7 @@ export namespace EdgesOnly {
 export interface EdgesOnly extends EdgesOnly.Attrs {}
 
 export class EdgesOnly extends GraphHitTestPolicy {
-  properties: EdgesOnly.Props
+  override properties: EdgesOnly.Props
 
   constructor(attrs?: Partial<EdgesOnly.Attrs>) {
     super(attrs)
@@ -99,7 +99,7 @@ export namespace NodesOnly {
 export interface NodesOnly extends NodesOnly.Attrs {}
 
 export class NodesOnly extends GraphHitTestPolicy {
-  properties: NodesOnly.Props
+  override properties: NodesOnly.Props
 
   constructor(attrs?: Partial<NodesOnly.Attrs>) {
     super(attrs)
@@ -145,7 +145,7 @@ export namespace NodesAndLinkedEdges {
 export interface NodesAndLinkedEdges extends NodesAndLinkedEdges.Attrs {}
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
-  properties: NodesAndLinkedEdges.Props
+  override properties: NodesAndLinkedEdges.Props
 
   constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
@@ -222,7 +222,7 @@ export namespace EdgesAndLinkedNodes {
 export interface EdgesAndLinkedNodes extends EdgesAndLinkedNodes.Attrs {}
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
-  properties: EdgesAndLinkedNodes.Props
+  override properties: EdgesAndLinkedNodes.Props
 
   constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)

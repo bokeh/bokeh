@@ -7,10 +7,10 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
-  model: Title
-  visuals: Title.Visuals
-  layout: Layoutable
-  panel: Panel
+  override model: Title
+  override visuals: Title.Visuals
+  override layout: Layoutable
+  override panel: Panel
 
   protected _get_location(): [number, number] {
     const hmargin = this.model.offset
@@ -82,7 +82,7 @@ export class TitleView extends TextAnnotationView {
     draw(this.layer.ctx, text, sx, sy, angle)
   }
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {text} = this.model
     if (text == null || text.length == 0)
       return {width: 0, height: 0}
@@ -122,8 +122,8 @@ export namespace Title {
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
-  properties: Title.Props
-  __view_type__: TitleView
+  override properties: Title.Props
+  override __view_type__: TitleView
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)

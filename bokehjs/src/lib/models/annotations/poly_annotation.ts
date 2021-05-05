@@ -8,10 +8,10 @@ import {CoordinateMapper} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
-  model: PolyAnnotation
-  visuals: PolyAnnotation.Visuals
+  override model: PolyAnnotation
+  override visuals: PolyAnnotation.Visuals
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
   }
@@ -74,8 +74,8 @@ export namespace PolyAnnotation {
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
-  properties: PolyAnnotation.Props
-  __view_type__: PolyAnnotationView
+  override properties: PolyAnnotation.Props
+  override __view_type__: PolyAnnotationView
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)

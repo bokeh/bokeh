@@ -29,7 +29,7 @@ export namespace ColumnarDataSource {
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
-  properties: ColumnarDataSource.Props
+  override properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}
 
@@ -66,7 +66,7 @@ export abstract class ColumnarDataSource extends DataSource {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     this._select = new Signal0(this, "select")

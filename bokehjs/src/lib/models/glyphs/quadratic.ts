@@ -47,10 +47,10 @@ export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
 export interface QuadraticView extends QuadraticData {}
 
 export class QuadraticView extends GlyphView {
-  model: Quadratic
-  visuals: Quadratic.Visuals
+  override model: Quadratic
+  override visuals: Quadratic.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -102,7 +102,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -131,8 +131,8 @@ export namespace Quadratic {
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
-  properties: Quadratic.Props
-  __view_type__: QuadraticView
+  override properties: Quadratic.Props
+  override __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)

@@ -24,10 +24,10 @@ export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
 export interface MultiLineView extends MultiLineData {}
 
 export class MultiLineView extends GlyphView {
-  model: MultiLine
-  visuals: MultiLine.Visuals
+  override model: MultiLine
+  override visuals: MultiLine.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
   }
 
@@ -75,7 +75,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const point = {x: geometry.sx, y: geometry.sy}
     let shortest = 9999
 
@@ -107,7 +107,7 @@ export class MultiLineView extends GlyphView {
     })
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let val: number
@@ -149,7 +149,7 @@ export class MultiLineView extends GlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -174,8 +174,8 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-  properties: MultiLine.Props
-  __view_type__: MultiLineView
+  override properties: MultiLine.Props
+  override __view_type__: MultiLineView
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)

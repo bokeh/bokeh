@@ -15,10 +15,10 @@ import {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 
 export class LegendView extends AnnotationView {
-  model: Legend
-  visuals: Legend.Visuals
+  override model: Legend
+  override visuals: Legend.Visuals
 
-  update_layout(): void {
+  override update_layout(): void {
     const {panel} = this
     if (panel != null)
       this.layout = new SideLayout(panel, () => this.get_size())
@@ -31,7 +31,7 @@ export class LegendView extends AnnotationView {
   protected title_height: number
   protected title_width: number
 
-  cursor(_sx: number, _sy: number): string | null {
+  override cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
   }
 
@@ -39,7 +39,7 @@ export class LegendView extends AnnotationView {
     return this.model.border_line_color != null ? this.model.padding : 0
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.item_change, () => this.request_render())
@@ -153,12 +153,12 @@ export class LegendView extends AnnotationView {
     return this.compute_legend_bbox()
   }
 
-  interactive_hit(sx: number, sy: number): boolean {
+  override interactive_hit(sx: number, sy: number): boolean {
     const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
-  on_hit(sx: number, sy: number): boolean {
+  override on_hit(sx: number, sy: number): boolean {
     let yoffset
     const {glyph_width} = this.model
     const {legend_padding} = this
@@ -309,7 +309,7 @@ export class LegendView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {width, height} = this.compute_legend_bbox()
     return {
       width: width + 2*this.model.margin,
@@ -357,8 +357,8 @@ export namespace Legend {
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
-  properties: Legend.Props
-  __view_type__: LegendView
+  override properties: Legend.Props
+  override __view_type__: LegendView
 
   item_change: Signal0<this>
 
@@ -366,7 +366,7 @@ export class Legend extends Annotation {
     super(attrs)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.item_change = new Signal0(this, "item_change")
   }

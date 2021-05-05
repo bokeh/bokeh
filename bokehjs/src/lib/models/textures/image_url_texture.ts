@@ -15,7 +15,7 @@ export namespace ImageURLTexture {
 export interface ImageURLTexture extends ImageURLTexture.Attrs {}
 
 export abstract class ImageURLTexture extends Texture {
-  properties: ImageURLTexture.Props
+  override properties: ImageURLTexture.Props
 
   constructor(attrs?: Partial<ImageURLTexture.Attrs>) {
     super(attrs)
@@ -29,7 +29,7 @@ export abstract class ImageURLTexture extends Texture {
 
   private _loader: ImageLoader
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._loader = new ImageLoader(this.url)
   }

@@ -39,7 +39,7 @@ const nonselection_defaults: Defaults = {
 }
 
 export class GlyphRendererView extends DataRendererView {
-  model: GlyphRenderer
+  override model: GlyphRenderer
 
   glyph: GlyphView
   selection_glyph: GlyphView
@@ -57,7 +57,7 @@ export class GlyphRendererView extends DataRendererView {
 
   protected last_dtrender: number
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const base_glyph = this.model.glyph
@@ -114,7 +114,7 @@ export class GlyphRendererView extends DataRendererView {
     return build_view(glyph, {parent: this}) as Promise<GlyphView>
   }
 
-  remove(): void {
+  override remove(): void {
     this.glyph.remove()
     this.selection_glyph.remove()
     this.nonselection_glyph.remove()
@@ -124,7 +124,7 @@ export class GlyphRendererView extends DataRendererView {
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const render = () => this.request_render()
@@ -216,7 +216,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph?.set_visuals(source, all_indices)
   }
 
-  get has_webgl(): boolean {
+  override get has_webgl(): boolean {
     return this.glyph.has_webgl
   }
 
@@ -387,8 +387,8 @@ export namespace GlyphRenderer {
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
-  properties: GlyphRenderer.Props
-  __view_type__: GlyphRendererView
+  override properties: GlyphRenderer.Props
+  override __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)
@@ -409,7 +409,7 @@ export class GlyphRenderer extends DataRenderer {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.view.source != this.data_source) {

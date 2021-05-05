@@ -6,9 +6,9 @@ import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
 import {tool_icon_point_draw} from "styles/icons.css"
 
 export class PointDrawToolView extends EditToolView {
-  model: PointDrawTool
+  override model: PointDrawTool
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     const renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
     if (renderers.length || !this.model.add) {
       return
@@ -35,7 +35,7 @@ export class PointDrawToolView extends EditToolView {
     cds.properties.data.change.emit()
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -47,20 +47,20 @@ export class PointDrawToolView extends EditToolView {
     }
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     if (!this.model.drag || this._basepoint == null)
       return
     this._drag_points(ev, this.model.renderers)
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._pan(ev)
@@ -84,8 +84,8 @@ export namespace PointDrawTool {
 export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
-  properties: PointDrawTool.Props
-  __view_type__: PointDrawToolView
+  override properties: PointDrawTool.Props
+  override __view_type__: PointDrawToolView
 
   renderers: (GlyphRenderer & HasXYGlyph)[]
 
@@ -103,8 +103,8 @@ export class PointDrawTool extends EditTool {
     }))
   }
 
-  tool_name = "Point Draw Tool"
-  icon = tool_icon_point_draw
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
-  default_order = 2
+  override tool_name = "Point Draw Tool"
+  override icon = tool_icon_point_draw
+  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override default_order = 2
 }

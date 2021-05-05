@@ -14,8 +14,8 @@ export type PatchData = XYGlyphData & p.UniformsOf<Patch.Mixins>
 export interface PatchView extends PatchData {}
 
 export class PatchView extends XYGlyphView {
-  model: Patch
-  visuals: Patch.Visuals
+  override model: Patch
+  override visuals: Patch.Visuals
 
   protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
     const {sx, sy} = data ?? this
@@ -46,11 +46,11 @@ export class PatchView extends XYGlyphView {
     this.visuals.line.apply(ctx)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_area_scalar_legend(this.visuals, ctx, bbox)
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const result = new Selection()
 
     if (hittest.point_in_poly(geometry.sx, geometry.sy, this.sx, this.sy)) {
@@ -75,8 +75,8 @@ export namespace Patch {
 export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
-  properties: Patch.Props
-  __view_type__: PatchView
+  override properties: Patch.Props
+  override __view_type__: PatchView
 
   constructor(attrs?: Partial<Patch.Attrs>) {
     super(attrs)

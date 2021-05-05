@@ -7,7 +7,7 @@ import {RectGeometry} from "core/geometry"
 import {tool_icon_box_select} from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
-  model: BoxSelectTool
+  override model: BoxSelectTool
 
   protected _base_point: [number, number] | null
 
@@ -25,12 +25,12 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this._base_point = [sx, sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -42,7 +42,7 @@ export class BoxSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -92,11 +92,10 @@ export namespace BoxSelectTool {
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
-  properties: BoxSelectTool.Props
-  __view_type__: BoxSelectToolView
+  override properties: BoxSelectTool.Props
+  override __view_type__: BoxSelectToolView
 
-  /** @override */
-  overlay: BoxAnnotation
+  override overlay: BoxAnnotation
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
@@ -117,12 +116,12 @@ export class BoxSelectTool extends SelectTool {
     this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: 'height'}))
   }
 
-  tool_name = "Box Select"
-  icon = tool_icon_box_select
-  event_type = "pan" as "pan"
-  default_order = 30
+  override tool_name = "Box Select"
+  override icon = tool_icon_box_select
+  override event_type = "pan" as "pan"
+  override default_order = 30
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 }

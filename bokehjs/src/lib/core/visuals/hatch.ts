@@ -11,7 +11,7 @@ export class Hatch extends VisualProperties {
   protected _hatch_image: CanvasImageSource | null
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
     this._hatch_image = null
 
@@ -118,7 +118,7 @@ export class HatchScalar extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length
@@ -231,7 +231,7 @@ export class HatchVector extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length

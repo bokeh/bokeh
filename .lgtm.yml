@@ -1,3 +1,5 @@
+queries:
+  - exclude: js/syntax-error
 extraction:
   javascript:
     index:

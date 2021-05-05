@@ -11,10 +11,10 @@ export type AreaData = GlyphData & p.UniformsOf<Area.Mixins>
 export interface AreaView extends AreaData {}
 
 export abstract class AreaView extends GlyphView {
-  model: Area
-  visuals: Area.Visuals
+  override model: Area
+  override visuals: Area.Visuals
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, _index: number): void {
     generic_area_scalar_legend(this.visuals, ctx, bbox)
   }
 }
@@ -32,8 +32,8 @@ export namespace Area {
 export interface Area extends Area.Attrs {}
 
 export class Area extends Glyph {
-  properties: Area.Props
-  __view_type__: AreaView
+  override properties: Area.Props
+  override __view_type__: AreaView
 
   constructor(attrs?: Partial<Area.Attrs>) {
     super(attrs)

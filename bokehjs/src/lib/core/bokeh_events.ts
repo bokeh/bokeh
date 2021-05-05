@@ -48,7 +48,7 @@ export class MenuItemClick extends ModelEvent {
     super()
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {item} = this
     return {...super._to_json(), item}
   }
@@ -71,7 +71,7 @@ export class RangesUpdate extends UIEvent {
     super()
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {x0, x1, y0, y1} = this
     return {...super._to_json(), x0, x1, y0, y1}
   }
@@ -85,7 +85,7 @@ export class SelectionGeometry extends UIEvent {
     super()
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {geometry, final} = this
     return {...super._to_json(), geometry, final}
   }
@@ -101,7 +101,7 @@ export abstract class PointEvent extends UIEvent {
     super()
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {sx, sy, x, y} = this
     return {...super._to_json(), sx, sy, x, y}
   }
@@ -111,13 +111,13 @@ export abstract class PointEvent extends UIEvent {
 export class Pan extends PointEvent {
 
   /* TODO: direction: -1 | 1 */
-  constructor(readonly sx: number, readonly sy: number,
-              readonly x: number, readonly y: number,
+  constructor(sx: number, sy: number,
+              x: number, y: number,
               readonly delta_x: number, readonly delta_y: number) {
     super(sx, sy, x, y)
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {delta_x, delta_y/*, direction*/} = this
     return {...super._to_json(), delta_x, delta_y/*, direction*/}
   }
@@ -126,13 +126,13 @@ export class Pan extends PointEvent {
 @event("pinch")
 export class Pinch extends PointEvent {
 
-  constructor(readonly sx: number, readonly sy: number,
-              readonly x: number, readonly y: number,
+  constructor(sx: number, sy: number,
+              x: number, y: number,
               readonly scale: number) {
     super(sx, sy, x, y)
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {scale} = this
     return {...super._to_json(), scale}
   }
@@ -141,13 +141,13 @@ export class Pinch extends PointEvent {
 @event("rotate")
 export class Rotate extends PointEvent {
 
-  constructor(readonly sx: number, readonly sy: number,
-              readonly x: number, readonly y: number,
+  constructor(sx: number, sy: number,
+              x: number, y: number,
               readonly rotation: number) {
     super(sx, sy, x, y)
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {rotation} = this
     return {...super._to_json(), rotation}
   }
@@ -156,13 +156,13 @@ export class Rotate extends PointEvent {
 @event("wheel")
 export class MouseWheel extends PointEvent {
 
-  constructor(readonly sx: number, readonly sy: number,
-              readonly x: number, readonly y: number,
+  constructor(sx: number, sy: number,
+              x: number, y: number,
               readonly delta: number) {
     super(sx, sy, x, y)
   }
 
-  protected _to_json(): JSON {
+  protected override _to_json(): JSON {
     const {delta} = this
     return {...super._to_json(), delta}
   }

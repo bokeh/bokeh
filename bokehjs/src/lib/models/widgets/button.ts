@@ -4,9 +4,9 @@ import {ButtonClick} from "core/bokeh_events"
 import * as p from "core/properties"
 
 export class ButtonView extends AbstractButtonView {
-  model: Button
+  override model: Button
 
-  click(): void {
+  override click(): void {
     this.model.trigger_event(new ButtonClick())
     super.click()
   }
@@ -21,8 +21,8 @@ export namespace Button {
 export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
-  properties: Button.Props
-  __view_type__: ButtonView
+  override properties: Button.Props
+  override __view_type__: ButtonView
 
   constructor(attrs?: Partial<Button.Attrs>) {
     super(attrs)

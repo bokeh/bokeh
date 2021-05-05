@@ -28,7 +28,7 @@ export namespace ContinuousTicker {
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker {
-  properties: ContinuousTicker.Props
+  override properties: ContinuousTicker.Props
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
     super(attrs)

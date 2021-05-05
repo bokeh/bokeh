@@ -18,7 +18,7 @@ export namespace RendererGroup {
 export interface RendererGroup extends RendererGroup.Attrs {}
 
 export class RendererGroup extends Model {
-  properties: RendererGroup.Props
+  override properties: RendererGroup.Props
 
   constructor(attrs?: Partial<RendererGroup.Attrs>) {
     super(attrs)
@@ -32,10 +32,10 @@ export class RendererGroup extends Model {
 }
 
 export abstract class RendererView extends View implements visuals.Renderable {
-  model: Renderer
+  override model: Renderer
   visuals: Renderer.Visuals
 
-  readonly parent: PlotView
+  override readonly parent: PlotView
 
   needs_webgl_blit: boolean
 
@@ -48,13 +48,13 @@ export abstract class RendererView extends View implements visuals.Renderable {
       return this._coordinates = this._initialize_coordinates()
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
@@ -104,7 +104,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
     this.plot_view.request_paint(this)
   }
 
-  notify_finished(): void {
+  override notify_finished(): void {
     this.plot_view.notify_finished()
   }
 
@@ -157,8 +157,8 @@ export namespace Renderer {
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
-  properties: Renderer.Props
-  __view_type__: RendererView
+  override properties: Renderer.Props
+  override __view_type__: RendererView
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)

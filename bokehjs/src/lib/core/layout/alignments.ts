@@ -3,7 +3,7 @@ import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
 export abstract class Stack extends Layoutable {
-  *[Symbol.iterator]() {
+  override *[Symbol.iterator]() {
     yield* this.children
   }
 
@@ -24,7 +24,7 @@ export class HStack extends Stack {
     return {width, height}
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const top = this.absolute ? outer.top : 0
@@ -53,7 +53,7 @@ export class VStack extends Stack {
     return {width, height}
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const left = this.absolute ? outer.left : 0
@@ -69,7 +69,7 @@ export class VStack extends Stack {
 }
 
 export class NodeLayout extends Layoutable {
-  *[Symbol.iterator]() {
+  override *[Symbol.iterator]() {
     yield* this.children
   }
 
@@ -119,7 +119,7 @@ export class NodeLayout extends Layoutable {
     return {width, height}
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const bbox = this.absolute ? outer : outer.relative()

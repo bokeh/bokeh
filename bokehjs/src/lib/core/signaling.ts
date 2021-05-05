@@ -68,7 +68,7 @@ export class Signal<Args, Sender extends object> {
 }
 
 export class Signal0<Sender extends object> extends Signal<void, Sender> {
-  emit(): void {
+  override emit(): void {
     super.emit(undefined)
   }
 }

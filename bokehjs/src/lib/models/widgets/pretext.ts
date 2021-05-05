@@ -3,9 +3,9 @@ import {pre} from "core/dom"
 import * as p from "core/properties"
 
 export class PreTextView extends MarkupView {
-  model: PreText
+  override model: PreText
 
-  render(): void {
+  override render(): void {
     super.render()
     const content = pre({style: {overflow: "auto"}}, this.model.text)
     this.markup_el.appendChild(content)
@@ -21,8 +21,8 @@ export namespace PreText {
 export interface PreText extends PreText.Attrs {}
 
 export class PreText extends Markup {
-  properties: PreText.Props
-  __view_type__: PreTextView
+  override properties: PreText.Props
+  override __view_type__: PreTextView
 
   constructor(attrs?: Partial<PreText.Attrs>) {
     super(attrs)

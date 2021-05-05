@@ -15,7 +15,7 @@ export namespace Minimum {
 export interface Minimum extends Minimum.Attrs {}
 
 export class Minimum extends ScalarExpression<number> {
-  properties: Minimum.Props
+  override properties: Minimum.Props
 
   constructor(attrs?: Partial<Minimum.Attrs>) {
     super(attrs)

@@ -62,13 +62,13 @@ export namespace Kinds {
   }
 
   export class Int extends Number {
-    valid(value: unknown): value is number {
+    override valid(value: unknown): value is number {
       return super.valid(value) && tp.isInteger(value)
     }
   }
 
   export class Percent extends Number {
-    valid(value: unknown): value is number {
+    override valid(value: unknown): value is number {
       return super.valid(value) && 0 <= value && value <= 1
     }
   }

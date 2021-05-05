@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class DateSliderView extends AbstractSliderView {
-  model: DateSlider
+  override model: DateSlider
 }
 
 export namespace DateSlider {
@@ -18,8 +18,8 @@ export namespace DateSlider {
 export interface DateSlider extends DateSlider.Attrs {}
 
 export class DateSlider extends AbstractSlider {
-  properties: DateSlider.Props
-  __view_type__: DateSliderView
+  override properties: DateSlider.Props
+  override __view_type__: DateSliderView
 
   constructor(attrs?: Partial<DateSlider.Attrs>) {
     super(attrs)
@@ -33,8 +33,8 @@ export class DateSlider extends AbstractSlider {
     })
   }
 
-  behaviour = "tap" as "tap"
-  connected = [true, false]
+  override behaviour = "tap" as "tap"
+  override connected = [true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
     if (isString(format))

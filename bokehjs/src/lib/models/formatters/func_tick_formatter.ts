@@ -15,7 +15,7 @@ export namespace FuncTickFormatter {
 export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
-  properties: FuncTickFormatter.Props
+  override properties: FuncTickFormatter.Props
 
   constructor(attrs?: Partial<FuncTickFormatter.Attrs>) {
     super(attrs)

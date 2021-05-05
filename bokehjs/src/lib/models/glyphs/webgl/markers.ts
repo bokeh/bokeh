@@ -71,7 +71,7 @@ export class MarkerGL extends BaseGLGlyph {
     }
   }
 
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
     super(regl_wrapper, glyph)
 
     this._marker_type = marker_type

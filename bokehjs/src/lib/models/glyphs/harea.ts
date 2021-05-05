@@ -20,8 +20,8 @@ export type HAreaData = AreaData & {
 export interface HAreaView extends HAreaData {}
 
 export class HAreaView extends AreaView {
-  model: HArea
-  visuals: HArea.Visuals
+  override model: HArea
+  override visuals: HArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -52,7 +52,7 @@ export class HAreaView extends AreaView {
     this.visuals.hatch.apply(ctx)
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sy.length
     const sx = new ScreenArray(2*L)
     const sy = new ScreenArray(2*L)
@@ -80,7 +80,7 @@ export class HAreaView extends AreaView {
     return [scx, scy]
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sx1 = this.renderer.xscale.v_compute(this._x1)
     this.sx2 = this.renderer.xscale.v_compute(this._x2)
     this.sy  = this.renderer.yscale.v_compute(this._y)
@@ -102,8 +102,8 @@ export namespace HArea {
 export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
-  properties: HArea.Props
-  __view_type__: HAreaView
+  override properties: HArea.Props
+  override __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)

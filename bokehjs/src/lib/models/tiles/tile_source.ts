@@ -26,7 +26,7 @@ export namespace TileSource {
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
-  properties: TileSource.Props
+  override properties: TileSource.Props
 
   constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)
@@ -48,13 +48,13 @@ export abstract class TileSource extends Model {
 
   tiles: Map<string, Tile>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.tiles = new Map()
     this._normalize_case()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.change, () => this._clear_cache())
   }

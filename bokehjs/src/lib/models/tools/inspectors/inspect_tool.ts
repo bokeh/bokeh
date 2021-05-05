@@ -4,7 +4,7 @@ import {OnOffButtonView} from "../on_off_button"
 import * as p from "core/properties"
 
 export abstract class InspectToolView extends ButtonToolView {
-  model: InspectTool
+  override model: InspectTool
 }
 
 export namespace InspectTool {
@@ -18,8 +18,8 @@ export namespace InspectTool {
 export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
-  properties: InspectTool.Props
-  __view_type__: InspectToolView
+  override properties: InspectTool.Props
+  override __view_type__: InspectToolView
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
     super(attrs)
@@ -37,5 +37,5 @@ export abstract class InspectTool extends ButtonTool {
     })
   }
 
-  event_type = "move" as "move"
+  override event_type = "move" as "move"
 }

@@ -3,9 +3,9 @@ import {Column as ColumnLayout, RowsSizing} from "core/layout/grid"
 import * as p from "core/properties"
 
 export class ColumnView extends BoxView {
-  model: Column
+  override model: Column
 
-  _update_layout(): void {
+  override _update_layout(): void {
     const items = this.child_views.map((child) => child.layout)
     this.layout = new ColumnLayout(items)
     this.layout.rows = this.model.rows
@@ -25,8 +25,8 @@ export namespace Column {
 export interface Column extends Column.Attrs {}
 
 export class Column extends Box {
-  properties: Column.Props
-  __view_type__: ColumnView
+  override properties: Column.Props
+  override __view_type__: ColumnView
 
   constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)

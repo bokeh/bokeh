@@ -34,7 +34,7 @@ const load_google_api = function(api_key: string, api_version: string): void {
 }
 
 export class GMapPlotView extends PlotView {
-  model: GMapPlot
+  override model: GMapPlot
 
   protected _tiles_loaded: boolean
 
@@ -48,7 +48,7 @@ export class GMapPlotView extends PlotView {
   private map: google.maps.Map
   protected map_types: any
 
-  initialize(): void {
+  override initialize(): void {
     this.pause()
 
     super.initialize()
@@ -77,12 +77,12 @@ export class GMapPlotView extends PlotView {
     this.unpause()
   }
 
-  remove(): void {
+  override remove(): void {
     remove(this.map_el)
     super.remove()
   }
 
-  update_range(range_info: GMapRangeInfo | null, options?: RangeOptions): void {
+  override update_range(range_info: GMapRangeInfo | null, options?: RangeOptions): void {
     // RESET -------------------------
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})
@@ -182,7 +182,7 @@ export class GMapPlotView extends PlotView {
     this.notify_finished()
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     return super.has_finished() && this._tiles_loaded === true
   }
 
@@ -248,7 +248,7 @@ export class GMapPlotView extends PlotView {
   }
 
   // this method is expected and called by PlotView.render
-  protected _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
+  protected override _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
     if (this.map == null && typeof google !== "undefined" && google.maps != null)
       this._build_map()
 
@@ -262,7 +262,7 @@ export class GMapPlotView extends PlotView {
   }
 
   // this overrides the standard _paint_empty to make the inner canvas transparent
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
+  protected override _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
     const ow = this.layout.bbox.width
     const oh = this.layout.bbox.height
     const [left, top, iw, ih] = frame_box

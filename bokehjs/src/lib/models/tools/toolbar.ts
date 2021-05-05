@@ -54,7 +54,7 @@ function _supports_auto(et: string): boolean {
 }
 
 export class Toolbar extends ToolbarBase {
-  properties: Toolbar.Props
+  override properties: Toolbar.Props
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)
@@ -72,14 +72,14 @@ export class Toolbar extends ToolbarBase {
     }))
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
     this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => this._init_tools())
   }
 
-  protected _init_tools(): void {
+  protected override _init_tools(): void {
     super._init_tools()
 
     if (this.active_inspect == 'auto') {

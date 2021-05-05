@@ -35,8 +35,8 @@ export interface TickCoords {
 }
 
 export class AxisView extends GuideRendererView {
-  model: Axis
-  visuals: Axis.Visuals
+  override model: Axis
+  override visuals: Axis.Visuals
 
   panel: Panel
   layout: Layoutable
@@ -79,12 +79,12 @@ export class AxisView extends GuideRendererView {
 
   protected _paint?(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_layout())
   }
 
-  get needs_clip(): boolean {
+  override get needs_clip(): boolean {
     return this.model.fixed_location != null
   }
 
@@ -528,7 +528,7 @@ export class AxisView extends GuideRendererView {
   }
   // }}}
 
-  serializable_state(): SerializableState {
+  override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
       bbox: this.layout.bbox.box,
@@ -575,8 +575,8 @@ export namespace Axis {
 export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
-  properties: Axis.Props
-  __view_type__: AxisView
+  override properties: Axis.Props
+  override __view_type__: AxisView
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)

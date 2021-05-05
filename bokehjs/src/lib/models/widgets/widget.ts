@@ -4,17 +4,17 @@ import {BoxSizing, SizingPolicy} from "core/layout"
 import * as p from "core/properties"
 
 export abstract class WidgetView extends HTMLBoxView {
-  model: Widget
+  override model: Widget
 
-  protected _width_policy(): SizingPolicy {
+  protected override _width_policy(): SizingPolicy {
     return this.model.orientation == "horizontal" ? super._width_policy() : "fixed"
   }
 
-  protected _height_policy(): SizingPolicy {
+  protected override _height_policy(): SizingPolicy {
     return this.model.orientation == "horizontal" ? "fixed" : super._height_policy()
   }
 
-  box_sizing(): Partial<BoxSizing> {
+  override box_sizing(): Partial<BoxSizing> {
     const sizing = super.box_sizing()
     if (this.model.orientation == "horizontal") {
       if (sizing.width == null)
@@ -39,8 +39,8 @@ export namespace Widget {
 export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends HTMLBox {
-  properties: Widget.Props
-  __view_type__: WidgetView
+  override properties: Widget.Props
+  override __view_type__: WidgetView
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)

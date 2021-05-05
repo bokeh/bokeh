@@ -7,10 +7,10 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
-  model: Label
-  visuals: Label.Visuals
+  override model: Label
+  override visuals: Label.Visuals
 
-  protected _get_size(): Size {
+  protected override _get_size(): Size {
     const {ctx} = this.layer
     this.visuals.text.set_value(ctx)
     const {width} = ctx.measureText(this.model.text)
@@ -64,8 +64,8 @@ export namespace Label {
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
-  properties: Label.Props
-  __view_type__: LabelView
+  override properties: Label.Props
+  override __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)

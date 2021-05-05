@@ -15,7 +15,7 @@ export namespace MercatorTileSource {
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
-  properties: MercatorTileSource.Props
+  override properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)
@@ -36,7 +36,7 @@ export class MercatorTileSource extends TileSource {
 
   protected _resolutions: number[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._resolutions = range(this.min_zoom, this.max_zoom+1).map((z) => this.get_resolution(z))
   }

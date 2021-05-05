@@ -20,8 +20,8 @@ export type VAreaData = AreaData & {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  model: VArea
-  visuals: VArea.Visuals
+  override model: VArea
+  override visuals: VArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -58,7 +58,7 @@ export class VAreaView extends AreaView {
     return [scx, scy]
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const L = this.sx.length
     const sx = new ScreenArray(2*L)
     const sy = new ScreenArray(2*L)
@@ -80,7 +80,7 @@ export class VAreaView extends AreaView {
     return result
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     this.sx  = this.renderer.xscale.v_compute(this._x)
     this.sy1 = this.renderer.yscale.v_compute(this._y1)
     this.sy2 = this.renderer.yscale.v_compute(this._y2)
@@ -102,8 +102,8 @@ export namespace VArea {
 export interface VArea extends VArea.Attrs {}
 
 export class VArea extends Area {
-  properties: VArea.Props
-  __view_type__: VAreaView
+  override properties: VArea.Props
+  override __view_type__: VAreaView
 
   constructor(attrs?: Partial<VArea.Attrs>) {
     super(attrs)

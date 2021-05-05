@@ -16,7 +16,7 @@ export namespace RangeTransform {
 export interface RangeTransform extends RangeTransform.Attrs {}
 
 export abstract class RangeTransform extends Transform {
-  properties: RangeTransform.Props
+  override properties: RangeTransform.Props
 
   constructor(attrs?: Partial<RangeTransform.Attrs>) {
     super(attrs)

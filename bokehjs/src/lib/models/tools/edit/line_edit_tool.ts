@@ -11,13 +11,12 @@ export interface HasLineGlyph {
 }
 
 export class LineEditToolView extends LineToolView {
-  model: LineEditTool
+  override model: LineEditTool
 
   _selected_renderer: GlyphRenderer | null
-  _basepoint: [number, number] | null
   _drawing: boolean = false
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     if (!this.model.active)
       return
 
@@ -58,7 +57,7 @@ export class LineEditToolView extends LineToolView {
     this._set_intersection(x, y)
   }
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     const renderer = this.model.intersection_renderer
     const point = this._map_drag(ev.sx, ev.sy, renderer)
     if (point == null)
@@ -90,12 +89,12 @@ export class LineEditToolView extends LineToolView {
     this._emit_cds_changes(this._selected_renderer.data_source, true, true, false)
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this._select_event(ev, "append", [this.model.intersection_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.intersection_renderer], this.model.dimensions)
@@ -103,7 +102,7 @@ export class LineEditToolView extends LineToolView {
       this._selected_renderer.data_source.change.emit()
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.intersection_renderer])
@@ -114,11 +113,11 @@ export class LineEditToolView extends LineToolView {
     this._basepoint = null
   }
 
-  activate(): void {
+  override activate(): void {
     this._drawing = true
   }
 
-  deactivate(): void {
+  override deactivate(): void {
     if (!this._selected_renderer) {
       return
     } else if (this._drawing) {
@@ -139,10 +138,10 @@ export namespace LineEditTool {
 export interface LineEditTool extends LineEditTool.Attrs { }
 
 export class LineEditTool extends LineTool {
-  properties: LineEditTool.Props
-  __view_type__: LineEditToolView
+  override properties: LineEditTool.Props
+  override __view_type__: LineEditToolView
 
-  renderers: (GlyphRenderer & HasLineGlyph)[]
+  override renderers: (GlyphRenderer & HasLineGlyph)[]
 
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
@@ -155,12 +154,12 @@ export class LineEditTool extends LineTool {
     }))
   }
 
-  tool_name = "Line Edit Tool"
-  icon = tool_icon_line_edit
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
-  default_order = 4
+  override tool_name = "Line Edit Tool"
+  override icon = tool_icon_line_edit
+  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override default_order = 4
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 }

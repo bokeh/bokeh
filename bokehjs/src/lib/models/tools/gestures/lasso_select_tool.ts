@@ -9,12 +9,12 @@ import * as p from "core/properties"
 import {tool_icon_lasso_select} from "styles/icons.css"
 
 export class LassoSelectToolView extends SelectToolView {
-  model: LassoSelectTool
+  override model: LassoSelectTool
 
   protected sxs: number[] = []
   protected sys: number[] = []
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => this._active_change())
   }
@@ -24,19 +24,19 @@ export class LassoSelectToolView extends SelectToolView {
       this._clear_overlay()
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Enter)
       this._clear_overlay()
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     this.sxs = []
     this.sys = []
     const {sx, sy} = ev
     this._append_overlay(sx, sy)
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     const [sx, sy] = this.plot_view.frame.bbox.clip(ev.sx, ev.sy)
     this._append_overlay(sx, sy)
 
@@ -45,7 +45,7 @@ export class LassoSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     const {sxs, sys} = this
     this._clear_overlay()
     this._do_select(sxs, sys, true, this._select_mode(ev))
@@ -83,11 +83,10 @@ export namespace LassoSelectTool {
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
-  properties: LassoSelectTool.Props
-  __view_type__: LassoSelectToolView
+  override properties: LassoSelectTool.Props
+  override __view_type__: LassoSelectToolView
 
-  /** @override */
-  overlay: PolyAnnotation
+  override overlay: PolyAnnotation
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
@@ -104,8 +103,8 @@ export class LassoSelectTool extends SelectTool {
     this.register_alias("lasso_select", () => new LassoSelectTool())
   }
 
-  tool_name = "Lasso Select"
-  icon = tool_icon_lasso_select
-  event_type = "pan" as "pan"
-  default_order = 12
+  override tool_name = "Lasso Select"
+  override icon = tool_icon_lasso_select
+  override event_type = "pan" as "pan"
+  override default_order = 12
 }

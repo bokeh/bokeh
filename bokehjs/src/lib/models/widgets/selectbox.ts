@@ -7,11 +7,11 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class SelectView extends InputWidgetView {
-  model: Select
+  override model: Select
 
-  protected input_el: HTMLSelectElement
+  protected override input_el: HTMLSelectElement
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const {value, options} = this.model.properties
     this.on_change(value, () => {
@@ -50,7 +50,7 @@ export class SelectView extends InputWidgetView {
       return entries(options).map(([label, values]) => optgroup({label}, build_options(values)))
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.input_el = select({
@@ -65,7 +65,7 @@ export class SelectView extends InputWidgetView {
     this.group_el.appendChild(this.input_el)
   }
 
-  change_input(): void {
+  override change_input(): void {
     const value = this.input_el.value
     this.model.value = value
     super.change_input()
@@ -92,8 +92,8 @@ export namespace Select {
 export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
-  properties: Select.Props
-  __view_type__: SelectView
+  override properties: Select.Props
+  override __view_type__: SelectView
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)

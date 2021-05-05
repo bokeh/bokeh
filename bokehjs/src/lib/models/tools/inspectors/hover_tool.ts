@@ -63,20 +63,20 @@ export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: num
 }
 
 export class HoverToolView extends InspectToolView {
-  model: HoverTool
+  override model: HoverTool
 
   protected _ttviews: Map<Tooltip, TooltipView>
   protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
   protected _template_view?: TemplateView
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._ttmodels = new Map()
     this._ttviews = new Map()
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._update_ttmodels()
 
@@ -87,13 +87,13 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  remove(): void {
+  override remove(): void {
     this._template_view?.remove()
     remove_views(this._ttviews)
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const plot_renderers = this.plot_model.properties.renderers
@@ -169,7 +169,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
     const {sx, sy} = ev
@@ -179,7 +179,7 @@ export class HoverToolView extends InspectToolView {
       this._inspect(sx, sy)
   }
 
-  _move_exit(): void {
+  override _move_exit(): void {
     this._clear()
   }
 
@@ -556,8 +556,8 @@ export namespace HoverTool {
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-  properties: HoverTool.Props
-  __view_type__: HoverToolView
+  override properties: HoverTool.Props
+  override __view_type__: HoverToolView
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)
@@ -588,6 +588,6 @@ export class HoverTool extends InspectTool {
     this.register_alias("hover", () => new HoverTool())
   }
 
-  tool_name = "Hover"
-  icon = tool_icon_hover
+  override tool_name = "Hover"
+  override icon = tool_icon_hover
 }

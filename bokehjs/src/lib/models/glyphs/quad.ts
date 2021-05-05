@@ -17,8 +17,8 @@ export type QuadData = BoxData & {
 export interface QuadView extends QuadData {}
 
 export class QuadView extends BoxView {
-  model: Quad
-  visuals: Quad.Visuals
+  override model: Quad
+  override visuals: Quad.Visuals
 
   scenterxy(i: number): [number, number] {
     const scx = this.sleft[i]/2 + this.sright[i]/2
@@ -51,8 +51,8 @@ export namespace Quad {
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
-  properties: Quad.Props
-  __view_type__: QuadView
+  override properties: Quad.Props
+  override __view_type__: QuadView
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)

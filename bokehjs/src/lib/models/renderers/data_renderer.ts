@@ -5,8 +5,8 @@ import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 
 export abstract class DataRendererView extends RendererView {
-  model: DataRenderer
-  visuals: DataRenderer.Visuals
+  override model: DataRenderer
+  override visuals: DataRenderer.Visuals
 
   get xscale(): Scale {
     return this.coordinates.x_scale
@@ -30,8 +30,8 @@ export namespace DataRenderer {
 export interface DataRenderer extends DataRenderer.Attrs {}
 
 export abstract class DataRenderer extends Renderer {
-  properties: DataRenderer.Props
-  __view_type__: DataRendererView
+  override properties: DataRenderer.Props
+  override __view_type__: DataRendererView
 
   constructor(attrs?: Partial<DataRenderer.Attrs>) {
     super(attrs)

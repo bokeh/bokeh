@@ -25,10 +25,10 @@ export type BoxData = GlyphData & p.UniformsOf<Box.Mixins> & {
 export interface BoxView extends BoxData {}
 
 export abstract class BoxView extends GlyphView {
-  model: Box
-  visuals: Box.Visuals
+  override model: Box
+  override visuals: Box.Visuals
 
-  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
+  override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
     const right = Math.max(this.sright[i], this.sleft[i])
     const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
@@ -99,11 +99,11 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry)
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -112,7 +112,7 @@ export abstract class BoxView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
 
     let indices: number[]
@@ -131,7 +131,7 @@ export abstract class BoxView extends GlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -149,8 +149,8 @@ export namespace Box {
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
-  properties: Box.Props
-  __view_type__: BoxView
+  override properties: Box.Props
+  override __view_type__: BoxView
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)

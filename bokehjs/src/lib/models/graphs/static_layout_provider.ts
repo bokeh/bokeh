@@ -14,7 +14,7 @@ export namespace StaticLayoutProvider {
 export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
-  properties: StaticLayoutProvider.Props
+  override properties: StaticLayoutProvider.Props
 
   constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
     super(attrs)

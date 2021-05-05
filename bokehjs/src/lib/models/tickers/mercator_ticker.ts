@@ -15,7 +15,7 @@ export namespace MercatorTicker {
 export interface MercatorTicker extends MercatorTicker.Attrs {}
 
 export class MercatorTicker extends BasicTicker {
-  properties: MercatorTicker.Props
+  override properties: MercatorTicker.Props
 
   constructor(attrs?: Partial<MercatorTicker.Attrs>) {
     super(attrs)
@@ -27,7 +27,7 @@ export class MercatorTicker extends BasicTicker {
     }))
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     if (this.dimension == null) {
       throw new Error(`${this}.dimension wasn't configured`)
     }

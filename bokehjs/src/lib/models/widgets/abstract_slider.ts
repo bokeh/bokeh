@@ -21,7 +21,7 @@ export interface SliderSpec {
 }
 
 abstract class AbstractBaseSliderView extends ControlView {
-  model: AbstractSlider
+  override model: AbstractSlider
 
   protected group_el: HTMLElement
   protected slider_el: HTMLElement
@@ -35,7 +35,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     return (this.slider_el as noUiSlider.Instance).noUiSlider
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const {direction, orientation, tooltips} = this.model.properties
@@ -60,7 +60,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     this.on_change([value, title, show_value], () => this._update_title())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), nouislider_css, sliders_css]
   }
 
@@ -93,7 +93,7 @@ abstract class AbstractBaseSliderView extends ControlView {
 
   protected abstract _calc_from(values: number[]): number | number[]
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const {start, end, value, step} = this._calc_to()
@@ -221,7 +221,7 @@ export namespace AbstractSlider {
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Control {
-  properties: AbstractSlider.Props
+  override properties: AbstractSlider.Props
   // TODO: __view_type__: AbstractSliderView
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {

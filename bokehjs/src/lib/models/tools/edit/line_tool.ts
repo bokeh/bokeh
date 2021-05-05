@@ -10,7 +10,7 @@ export type HasLineGlyph = {
 }
 
 export abstract class LineToolView extends EditToolView {
-  model: LineTool
+  override model: LineTool
 
   _set_intersection(x: number[] | number, y: number[] | number): void {
     const point_glyph: any = this.model.intersection_renderer.glyph
@@ -48,8 +48,8 @@ export namespace LineTool {
 export interface LineTool extends LineTool.Attrs { }
 
 export abstract class LineTool extends EditTool {
-  properties: LineTool.Props
-  __view_type__: LineToolView
+  override properties: LineTool.Props
+  override __view_type__: LineToolView
 
   renderers: (GlyphRenderer & HasLineGlyph)[]
 

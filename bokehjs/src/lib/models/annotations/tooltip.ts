@@ -8,33 +8,33 @@ import tooltips_css, * as tooltips from "styles/tooltips.css"
 const arrow_size = 10  // XXX: keep in sync with less
 
 export class TooltipView extends AnnotationView {
-  model: Tooltip
+  override model: Tooltip
 
   protected el: HTMLElement
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.el = div({class: tooltips.tooltip})
     undisplay(this.el)
     this.plot_view.canvas_view.add_overlay(this.el)
   }
 
-  remove(): void {
+  override remove(): void {
     remove(this.el)
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.content.change, () => this.render())
     this.connect(this.model.properties.position.change, () => this._reposition())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), tooltips_css]
   }
 
-  render(): void {
+  override render(): void {
     if (!this.model.visible)
       undisplay(this.el)
 
@@ -136,8 +136,8 @@ export namespace Tooltip {
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
-  properties: Tooltip.Props
-  __view_type__: TooltipView
+  override properties: Tooltip.Props
+  override __view_type__: TooltipView
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)

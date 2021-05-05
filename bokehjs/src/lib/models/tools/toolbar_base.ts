@@ -36,7 +36,7 @@ export namespace ToolbarViewModel {
 export interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
 
 export class ToolbarViewModel extends Model {
-  properties: ToolbarViewModel.Props
+  override properties: ToolbarViewModel.Props
 
   constructor(attrs?: Partial<ToolbarViewModel.Attrs>) {
     super(attrs)
@@ -58,14 +58,14 @@ export class ToolbarViewModel extends Model {
 }
 
 export class ToolbarBaseView extends DOMView {
-  model: ToolbarBase
-  el: HTMLElement
+  override model: ToolbarBase
+  override el: HTMLElement
 
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
   protected _overflow_menu: ContextMenu
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._tool_button_views = new Map()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
@@ -80,12 +80,12 @@ export class ToolbarBaseView extends DOMView {
     })
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._build_tool_button_views()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, async () => {
       await this._build_tool_button_views()
@@ -98,11 +98,11 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), toolbars_css, logos_css]
   }
 
-  remove(): void {
+  override remove(): void {
     remove_views(this._tool_button_views)
     super.remove()
   }
@@ -123,7 +123,7 @@ export class ToolbarBaseView extends DOMView {
     classes(this.el).toggle(toolbars.toolbar_hidden, !visible)
   }
 
-  render(): void {
+  override render(): void {
     empty(this.el)
     this.el.classList.add(toolbars.toolbar)
     this.el.classList.add(toolbars[this.model.toolbar_location])
@@ -266,7 +266,7 @@ function create_gesture_map(): GesturesMap {
 }
 
 export class ToolbarBase extends Model {
-  properties: ToolbarBase.Props
+  override properties: ToolbarBase.Props
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {
     super(attrs)
@@ -310,7 +310,7 @@ export class ToolbarBase extends Model {
 
   _proxied_tools?: (Tool | ToolProxy)[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._init_tools()
   }

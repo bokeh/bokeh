@@ -19,7 +19,7 @@ export namespace Interpolator {
 export interface Interpolator extends Interpolator.Attrs {}
 
 export abstract class Interpolator extends Transform {
-  properties: Interpolator.Props
+  override properties: Interpolator.Props
 
   constructor(attrs?: Partial<Interpolator.Attrs>) {
     super(attrs)
@@ -38,7 +38,7 @@ export abstract class Interpolator extends Transform {
   protected _y_sorted: Arrayable<number>
   protected _sorted_dirty = true
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.change, () => this._sorted_dirty = true)
   }

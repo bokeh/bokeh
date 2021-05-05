@@ -11,7 +11,7 @@ export namespace CoordinateTransform {
 export interface CoordinateTransform extends CoordinateTransform.Attrs {}
 
 export abstract class CoordinateTransform extends Expression<{x: Float64Array, y: Float64Array}> {
-  properties: CoordinateTransform.Props
+  override properties: CoordinateTransform.Props
 
   constructor(attrs?: Partial<CoordinateTransform.Attrs>) {
     super(attrs)
@@ -39,7 +39,7 @@ export namespace XYComponent {
 export interface XYComponent extends XYComponent.Attrs {}
 
 export abstract class XYComponent extends Expression {
-  properties: XYComponent.Props
+  override properties: XYComponent.Props
 
   constructor(attrs?: Partial<XYComponent.Attrs>) {
     super(attrs)
@@ -60,7 +60,7 @@ export namespace XComponent {
 export interface XComponent extends XComponent.Attrs {}
 
 export class XComponent extends XYComponent {
-  properties: XComponent.Props
+  override properties: XComponent.Props
 
   constructor(attrs?: Partial<XComponent.Attrs>) {
     super(attrs)
@@ -79,7 +79,7 @@ export namespace YComponent {
 export interface YComponent extends YComponent.Attrs {}
 
 export class YComponent extends XYComponent {
-  properties: YComponent.Props
+  override properties: YComponent.Props
 
   constructor(attrs?: Partial<YComponent.Attrs>) {
     super(attrs)

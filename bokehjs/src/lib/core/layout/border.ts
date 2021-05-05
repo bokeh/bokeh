@@ -3,7 +3,7 @@ import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
-  *[Symbol.iterator]() {
+  override *[Symbol.iterator]() {
     yield this.top_panel
     yield this.bottom_panel
     yield this.left_panel
@@ -52,7 +52,7 @@ export class BorderLayout extends Layoutable {
     return {width, height, inner: {left, right, top, bottom}, align}
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     this.center_panel.set_geometry(inner)

@@ -15,7 +15,7 @@ export namespace DataRange {
 export interface DataRange extends DataRange.Attrs {}
 
 export abstract class DataRange extends Range {
-  properties: DataRange.Props
+  override properties: DataRange.Props
 
   constructor(attrs?: Partial<DataRange.Attrs>) {
     super(attrs)

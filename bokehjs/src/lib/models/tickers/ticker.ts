@@ -29,7 +29,7 @@ export namespace Ticker{
 export interface Ticker extends Ticker.Attrs {}
 
 export abstract class Ticker extends Model {
-  properties: Ticker.Props
+  override properties: Ticker.Props
 
   constructor(attrs?: Partial<Ticker.Attrs>) {
     super(attrs)

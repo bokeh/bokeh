@@ -24,10 +24,10 @@ export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
 export interface PatchesView extends PatchesData {}
 
 export class PatchesView extends GlyphView {
-  model: Patches
-  visuals: Patches.Visuals
+  override model: Patches
+  override visuals: Patches.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
   }
 
@@ -43,7 +43,7 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  protected _mask_data(): Indices {
+  protected override _mask_data(): Indices {
     const {x_range, y_range} = this.renderer.plot_view.frame
     return this.index.indices({
       x0: x_range.min, x1: x_range.max,
@@ -86,7 +86,7 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  protected _hit_rect(geometry: RectGeometry): Selection {
+  protected override _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
     const xs = [sx0, sx1, sx1, sx0]
     const ys = [sy0, sy0, sy1, sy1]
@@ -116,7 +116,7 @@ export class PatchesView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -185,7 +185,7 @@ export class PatchesView extends GlyphView {
     unreachable()
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -206,8 +206,8 @@ export namespace Patches {
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
-  properties: Patches.Props
-  __view_type__: PatchesView
+  override properties: Patches.Props
+  override __view_type__: PatchesView
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)

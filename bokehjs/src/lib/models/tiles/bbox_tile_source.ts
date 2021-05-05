@@ -12,7 +12,7 @@ export namespace BBoxTileSource {
 export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
-  properties: BBoxTileSource.Props
+  override properties: BBoxTileSource.Props
 
   constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
     super(attrs)
@@ -24,7 +24,7 @@ export class BBoxTileSource extends MercatorTileSource {
     }))
   }
 
-  get_image_url(x: number, y: number, z: number): string {
+  override get_image_url(x: number, y: number, z: number): string {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
 
     let xmax: number, xmin: number, ymax: number, ymin: number

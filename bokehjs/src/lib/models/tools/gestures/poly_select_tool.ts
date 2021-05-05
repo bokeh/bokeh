@@ -9,16 +9,16 @@ import {copy} from "core/util/array"
 import {tool_icon_polygon_select} from "styles/icons.css"
 
 export class PolySelectToolView extends SelectToolView {
-  model: PolySelectTool
+  override model: PolySelectTool
 
   protected data: {sx: number[], sy: number[]}
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.data = {sx: [], sy: []}
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => this._active_change())
   }
@@ -28,12 +28,12 @@ export class PolySelectToolView extends SelectToolView {
       this._clear_data()
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Enter)
       this._clear_data()
   }
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
     this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
     this._clear_data()
@@ -44,7 +44,7 @@ export class PolySelectToolView extends SelectToolView {
     this.model.overlay.update({xs: [], ys: []})
   }
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     const {sx, sy} = ev
 
     const frame = this.plot_view.frame
@@ -88,10 +88,10 @@ export namespace PolySelectTool {
 export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
-  properties: PolySelectTool.Props
-  __view_type__: PolySelectToolView
+  override properties: PolySelectTool.Props
+  override __view_type__: PolySelectToolView
 
-  /*override*/ overlay: PolyAnnotation
+  override overlay: PolyAnnotation
 
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
@@ -107,8 +107,8 @@ export class PolySelectTool extends SelectTool {
     this.register_alias("poly_select", () => new PolySelectTool())
   }
 
-  tool_name = "Poly Select"
-  icon = tool_icon_polygon_select
-  event_type = "tap" as "tap"
-  default_order = 11
+  override tool_name = "Poly Select"
+  override icon = tool_icon_polygon_select
+  override event_type = "tap" as "tap"
+  override default_order = 11
 }

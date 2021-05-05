@@ -43,7 +43,7 @@ export namespace DaysTicker {
 export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
-  properties: DaysTicker.Props
+  override properties: DaysTicker.Props
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
     super(attrs)
@@ -59,7 +59,7 @@ export class DaysTicker extends SingleIntervalTicker {
     })
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     const days = this.days
     if (days.length > 1)
@@ -68,7 +68,7 @@ export class DaysTicker extends SingleIntervalTicker {
       this.interval = 31*ONE_DAY
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     const month_dates = date_range_by_month(data_low, data_high)
 
     const days = this.days

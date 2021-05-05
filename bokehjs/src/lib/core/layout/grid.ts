@@ -140,7 +140,7 @@ class Container<T> {
 }
 
 export class Grid extends Layoutable {
-  *[Symbol.iterator]() {
+  override *[Symbol.iterator]() {
     for (const {layout} of this.items) {
       yield layout
     }
@@ -157,7 +157,7 @@ export class Grid extends Layoutable {
     super()
   }
 
-  is_width_expanding(): boolean {
+  override is_width_expanding(): boolean {
     if (super.is_width_expanding())
       return true
 
@@ -168,7 +168,7 @@ export class Grid extends Layoutable {
     return some(cols, (col) => col.policy == "max")
   }
 
-  is_height_expanding(): boolean {
+  override is_height_expanding(): boolean {
     if (super.is_height_expanding())
       return true
 
@@ -179,7 +179,7 @@ export class Grid extends Layoutable {
     return some(rows, (row) => row.policy == "max")
   }
 
-  protected _init(): void {
+  protected override _init(): void {
     super._init()
 
     const items = new Container<Layoutable>()
@@ -493,7 +493,7 @@ export class Grid extends Layoutable {
     return size
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const {nrows, ncols, rspacing, cspacing} = this._state
