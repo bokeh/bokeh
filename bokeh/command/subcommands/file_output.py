@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,11 +25,16 @@ import argparse
 import sys
 from abc import abstractmethod
 from os.path import splitext
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Union
 
 # Bokeh imports
 from ...document import Document
-from ..subcommand import Subcommand
+from ..subcommand import (
+    Arg,
+    Args,
+    Argument,
+    Subcommand,
+)
 from ..util import build_single_handler_applications, die
 
 #-----------------------------------------------------------------------------
@@ -55,7 +62,7 @@ class FileOutputSubcommand(Subcommand):
     extension: str
 
     @classmethod
-    def files_arg(cls, output_type_name: str) -> Tuple[str, Dict[str, Optional[str]]]:
+    def files_arg(cls, output_type_name: str) -> Arg:
         ''' Returns a positional arg for ``files`` to specify file inputs to
         the command.
 
@@ -76,18 +83,15 @@ class FileOutputSubcommand(Subcommand):
                     ) + FileOutputSubcommand.other_args()
 
         '''
-        return ('files', dict(
+        return ('files', Argument(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
             help=("The app directories or scripts to generate %s for" % (output_type_name)),
             default=None
         ))
 
-    # TODO - unsure how to specify a suitable return type. The mypy suggested was very specific to this method datastructure
-    # Tuple[Tuple[Tuple[str, str], Dict[Any, Union[str, Type[str]]]], Tuple[str, Dict[Any, str]]]
-    # Sequence[str, dict] does not work because then added to another Tuple in subclasses
     @classmethod
-    def other_args(cls) -> Tuple[Tuple[Tuple[str, str], Dict[str, object]], Tuple[str, Dict[str, str]]]:
+    def other_args(cls) -> Args:
         ''' Return args for ``-o`` / ``--output`` to specify where output
         should be written, and for a ``--args`` to pass on any additional
         command line args to the subcommand.
@@ -110,16 +114,16 @@ class FileOutputSubcommand(Subcommand):
 
         '''
         return (
-            (('-o', '--output'), dict(
+            (('-o', '--output'), Argument(
                 metavar='FILENAME',
                 action='append',
                 type=str,
                 help="Name of the output file or - for standard output."
             )),
 
-            ('--args', dict(
+            ('--args', Argument(
                 metavar='COMMAND-LINE-ARGS',
-                nargs=argparse.REMAINDER,
+                nargs="...",
                 help="Any command line arguments remaining are passed on to the application handler",
             )),
         )

@@ -18,7 +18,7 @@ source = ColumnDataSource(data=dict(
 # Select the tools that will be available to the chart
 TOOLS = 'pan,wheel_zoom,box_zoom,reset,save'
 
-p = figure(tools=TOOLS, plot_width=800, plot_height=500,
+p = figure(tools=TOOLS, width=800, height=500,
            tooltips='<font face="Arial" size="3">@$name{0.0} $name per 1,000 people in @year</font>')
 
 # Customize the chart

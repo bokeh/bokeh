@@ -29,10 +29,10 @@ export type GlyphData = {}
 export interface GlyphView extends GlyphData {}
 
 export abstract class GlyphView extends View {
-  model: Glyph
+  override model: Glyph
   visuals: Glyph.Visuals
 
-  readonly parent: GlyphRendererView
+  override readonly parent: GlyphRendererView
 
   get renderer(): GlyphRendererView {
     return this.parent
@@ -67,7 +67,7 @@ export abstract class GlyphView extends View {
       throw new Error(`${this}.set_data() wasn't called`)
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
   }
@@ -92,11 +92,11 @@ export abstract class GlyphView extends View {
 
   protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     return true
   }
 
-  notify_finished(): void {
+  override notify_finished(): void {
     this.renderer.notify_finished()
   }
 
@@ -261,7 +261,7 @@ export abstract class GlyphView extends View {
   }
 
   set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
-    const {x_range, y_range} = this.renderer.coordinates
+    const {x_source, y_source} = this.renderer.coordinates
     const visual_props = new Set(this._iter_visuals())
 
     this._data_size = indices.count
@@ -277,7 +277,7 @@ export abstract class GlyphView extends View {
         const base_array = prop.array(source)
         let array = indices.select(base_array)
 
-        const range = prop.dimension == "x" ? x_range : y_range
+        const range = prop.dimension == "x" ? x_source : y_source
         if (range instanceof FactorRange) {
           if (prop instanceof p.CoordinateSpec) {
             array = range.v_synthetic(array as Arrayable<number | Factor>)
@@ -380,8 +380,8 @@ export namespace Glyph {
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-  properties: Glyph.Props
-  __view_type__: GlyphView
+  override properties: Glyph.Props
+  override __view_type__: GlyphView
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)

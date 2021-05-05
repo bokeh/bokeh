@@ -5,19 +5,19 @@ import * as p from "core/properties"
 import * as inputs from "styles/buttons.css"
 
 export class ToggleView extends AbstractButtonView {
-  model: Toggle
+  override model: Toggle
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.active.change, () => this._update_active())
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     this._update_active()
   }
 
-  click(): void {
+  override click(): void {
     this.model.active = !this.model.active
     super.click()
   }
@@ -38,8 +38,8 @@ export namespace Toggle {
 export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
-  properties: Toggle.Props
-  __view_type__: ToggleView
+  override properties: Toggle.Props
+  override __view_type__: ToggleView
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)

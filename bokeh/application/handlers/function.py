@@ -32,6 +32,8 @@ For complete examples of this technique, see
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -77,6 +79,8 @@ class FunctionHandler(Handler):
 
     This handler could be configured on an Application, and the Application
     would run this function every time a new session is created.
+
+    .. autoclasstoc::
 
     '''
 

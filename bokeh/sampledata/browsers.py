@@ -4,17 +4,28 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Browser market share by version from November 2013.
 
-http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
+Data sourced from http://gs.statcounter.com/#browser_version-ww-monthly-201311-201311-bar
 
-https://github.com/alrra/browser-logos
+Icon images sourced from https://github.com/alrra/browser-logos
+
+This module contains one pandas Dataframe: ``browsers_nov_2013``.
+
+.. rubric:: ``browsers_nov_2013``
+
+:bokeh-dataframe:`bokeh.sampledata.browsers.browsers_nov_2013`
+
+The module also contains a dictionary ``icons`` with base64-encoded PNGs of the
+logos for Chrome, Firefox, Safari, Opera, and IE.
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

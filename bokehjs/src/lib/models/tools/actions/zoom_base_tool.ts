@@ -4,7 +4,7 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
 export abstract class ZoomBaseToolView extends ActionToolView {
-  model: ZoomBaseTool
+  override model: ZoomBaseTool
 
   doit(): void {
     const frame = this.plot_view.frame
@@ -17,9 +17,11 @@ export abstract class ZoomBaseToolView extends ActionToolView {
     const zoom_info = scale_range(frame, this.model.sign*this.model.factor, h_axis, v_axis)
 
     this.plot_view.state.push("zoom_out", {range: zoom_info})
-    this.plot_view.update_range(zoom_info, {scrolling: true})
+    this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus: this.model.maintain_focus})
 
     this.model.document?.interactive_start(this.plot_model)
+
+    this.plot_view.trigger_ranges_update_event()
   }
 }
 
@@ -35,8 +37,8 @@ export namespace ZoomBaseTool {
 export interface ZoomBaseTool extends ZoomBaseTool.Attrs {}
 
 export abstract class ZoomBaseTool extends ActionTool {
-  properties: ZoomBaseTool.Props
-  __view_type__: ZoomBaseToolView
+  override properties: ZoomBaseTool.Props
+  override __view_type__: ZoomBaseToolView
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
@@ -51,7 +53,8 @@ export abstract class ZoomBaseTool extends ActionTool {
 
   readonly sign: -1 | 1
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
+  readonly maintain_focus: boolean = true
 }

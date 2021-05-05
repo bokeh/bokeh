@@ -397,8 +397,8 @@ class TestEventCallbackManager:
     def test__trigger_event_wraps_curdoc(self) -> None:
         # This test is pretty clunky by assures that callbacks triggered by
         # events use the correct value of curdoc()
-        from bokeh.io.doc import set_curdoc
         from bokeh.io import curdoc
+        from bokeh.io.doc import set_curdoc
         oldcd = curdoc()
         d1 = Document()
         d2 = Document()

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -175,6 +177,8 @@ yellow               = NamedColor("yellow",                255,  255,  0  )
 yellowgreen          = NamedColor("yellowgreen",           154,  205,  50 )
 
 __all__ = NamedColor.__all__
+
+colors = NamedColor.colors
 
 #-----------------------------------------------------------------------------
 # General API

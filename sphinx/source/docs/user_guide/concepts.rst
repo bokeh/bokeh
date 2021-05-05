@@ -1,6 +1,6 @@
 .. _userguide_concepts:
 
-Defining Key Concepts
+Defining key concepts
 =====================
 
 .. _userguide_glossary:
@@ -70,9 +70,8 @@ throughout Bokeh's documentation:
         Containers that hold all the various objects (such as
         :term:`renderers<Renderer>`, :term:`glyphs<Glyph>`, or
         :term:`annotations<Annotation>`) of a visualization. The
-        :ref:`userguide_interfaces_plotting` interface provides the
-        :func:`~bokeh.plotting.figure` function to help with assembling all the
-        necessary objects.
+        :ref:`userguide_interfaces_plotting` interface provides the |figure|
+        function to help with assembling all the necessary objects.
 
     Renderer
         General term for any method or function that draws elements of the plot.
@@ -134,6 +133,49 @@ Another way to generate various kinds of output is by using Bokeh's powerful
 :ref:`command line tool <userguide_cli>`.
 
 .. _userguide_interfaces:
+
+Bokeh settings
+--------------
+
+There are various global settings that influence how Bokeh operates. You can use
+several methods to change Bokeh's configuration: Directly in the Python code, in
+a YAML configuration file, or with environment variables, for example. The full
+list of all available settings and how to change them is available at
+:ref:`bokeh.settings`.
+
+Some of most useful settings are:
+
+``browser`` (environment variable ``BOKEH_BROWSER``)
+    Set this configuration value to the browser you want Bokeh to use (for
+    example when calling :func:`~bokeh.io.show`). Valid values are any of the
+    predefined browser names of the Python webbrowser_ module. For example:
+    ``chromium-browser`` or ``windows-default``. You can also set this variable
+    to the full path of your browser. For example:
+
+    .. code-block:: PowerShell
+
+        $env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
+
+``legacy`` (environment variable ``BOKEH_LEGACY``)
+    Set this configuration value to ``True`` to enable support for legacy
+    browsers (IE and phantomjs).
+
+``resources`` (environment variable ``BOKEH_RESOURCES``)
+    To display interactive visualizations in a browser, Bokeh needs to load
+    :term:`BokehJS`. Set this configuration value to define where to load
+    BokehJS from. For example:
+
+    * ``cdn`` to load BokehJS from Bokeh's Content Delivery Network (CDN)
+    * ``server`` to load from a Bokeh server
+    * ``relative`` to load a local version relative to the given directory.
+
+    All available options are listed at :class:`~bokeh.resources.Resources`.
+
+    You can combine some of the values for this variable with other
+    configuration values, such as ``cdn_version`` (``BOKEH_CDN_VERSION``) and
+    ``rootdir`` (``BOKEH_ROOTDIR``). See :ref:`bokeh.settings` for details.
+
+.. _webbrowser: https://docs.python.org/3/library/webbrowser.html
 
 Interfaces
 ----------
@@ -278,8 +320,6 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 
-.. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
@@ -291,6 +331,5 @@ For more information on Bokeh models, consult the :ref:`refguide`.
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
-.. |figure|          replace:: :func:`~bokeh.plotting.figure`
 .. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`

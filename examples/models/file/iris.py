@@ -1,7 +1,7 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, Grid, LinearAxis,
-                          PanTool, Plot, Title, WheelZoomTool,)
+                          PanTool, Plot, Title, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
@@ -20,7 +20,7 @@ source = ColumnDataSource(
     )
 )
 
-plot = Plot(plot_width=800, plot_height=400)
+plot = Plot(width=800, height=400)
 plot.title.text = "Iris Data"
 
 circle = Circle(

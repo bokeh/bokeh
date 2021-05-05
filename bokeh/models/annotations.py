@@ -11,6 +11,8 @@ Bokeh plots
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -74,10 +76,7 @@ from ..core.property_mixins import (
     TextProps,
 )
 from ..core.validation import error
-from ..core.validation.errors import (
-    BAD_COLUMN_NAME,
-    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS,
-)
+from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ..model import Model
 from ..util.serialization import convert_datetime_type
 from .formatters import TickFormatter

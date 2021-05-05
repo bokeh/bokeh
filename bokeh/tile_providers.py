@@ -43,80 +43,102 @@ to obtain a tile provider to use with a Bokeh plot. Representative samples of
 each tile provider are shown below.
 
 CARTODBPOSITRON
-    Tile Source for CartoDB Tile Service
+---------------
 
-    .. raw:: html
+Tile Source for CartoDB Tile Service
 
-        <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331.png" />
 
 CARTODBPOSITRON_RETINA
-    Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
+----------------------
 
-    .. raw:: html
+Tile Source for CartoDB Tile Service (tiles at 'retina' resolution)
 
-        <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
+.. raw:: html
+
+    <img src="https://tiles.basemaps.cartocdn.com/light_all/14/2627/6331@2x.png" />
 
 ESRI_IMAGERY
-    Tile Source for ESRI public tiles.
+------------
 
-    .. raw:: html
+Tile Source for ESRI public tiles.
 
-        <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6331/2627.jpg" />
+.. raw:: html
+
+    <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/14/6331/2627.jpg" />
 
 OSM
-    Tile Source for Open Street Maps.
+---
 
-    .. raw:: html
+Tile Source for Open Street Maps.
 
-        <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
 STAMEN_TERRAIN
-    Tile Source for Stamen Terrain Service
+--------------
 
-    .. raw:: html
+Tile Source for Stamen Terrain Service
 
-        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
 
 STAMEN_TERRAIN_RETINA
-    Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
+---------------------
 
-    .. raw:: html
+Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
 
-        <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
 
 STAMEN_TONER
-    Tile Source for Stamen Toner Service
+------------
 
-    .. raw:: html
+Tile Source for Stamen Toner Service
 
-        <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
 
 STAMEN_TONER_BACKGROUND
-    Tile Source for Stamen Toner Background Service which does not include labels
+-----------------------
 
-    .. raw:: html
+Tile Source for Stamen Toner Background Service which does not include labels
 
-        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
 
 STAMEN_TONER_LABELS
-    Tile Source for Stamen Toner Service which includes only labels
+-------------------
 
-    .. raw:: html
+Tile Source for Stamen Toner Service which includes only labels
 
-        <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+.. raw:: html
+
+    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
 
 WIKIMEDIA
-    Tile Source for Wikimedia tile service.
+---------
 
-    .. raw:: html
+Tile Source for Wikimedia tile service.
 
-        <img src="https://maps.wikimedia.org/osm-intl/14/2627/6331@2x.png" />
+.. raw:: html
+
+    <img src="https://maps.wikimedia.org/osm-intl/14/2627/6331@2x.png" />
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 
 log = logging.getLogger(__name__)

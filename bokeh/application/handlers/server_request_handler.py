@@ -12,6 +12,8 @@ in a specified Python module.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -46,6 +48,8 @@ __all__ = (
 
 class ServerRequestHandler(RequestHandler):
     ''' Load a script which contains server request handler callbacks.
+
+    .. autoclasstoc::
 
     '''
 

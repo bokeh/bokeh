@@ -8,7 +8,7 @@ y = [4, 5, 5, 7, 2]
 p = figure(
     title="Plot responsive sizing example",
     sizing_mode="stretch_width",
-    plot_height=250,
+    height=250,
     x_axis_label="x",
     y_axis_label="y",
 )

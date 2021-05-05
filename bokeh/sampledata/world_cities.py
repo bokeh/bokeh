@@ -4,22 +4,27 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' The data in world_cities.csv was taken from GeoNames ``cities5000.zip``
-downloaded from
+''' Names and locations of world cities with at least 5000 inhabitants.
 
-.. code-block:: none
+Derived from ``cities5000.zip`` file downloaded from http://www.geonames.org/export/
 
-    http://www.geonames.org/export/
+Licensed under `CC-BY`_.
 
-on Tuesday September 15, 2015.
+This module contains one pandas Dataframe: ``data``.
 
-Under ``CC-BY`` license (creative commons attributions license).
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.world_cities.data`
+
+.. _CC-BY: https://creativecommons.org/licenses/by/2.0/
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

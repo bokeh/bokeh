@@ -15,9 +15,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Int, Interval, List, Regex
+from bokeh.core.properties import (
+    Int,
+    Interval,
+    List,
+    Regex,
+)
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.either as bcpe # isort:skip

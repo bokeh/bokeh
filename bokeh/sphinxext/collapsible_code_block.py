@@ -39,6 +39,8 @@ The inline example code above produces the following output:
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging  # isort:skip
 
 log = logging.getLogger(__name__)
@@ -55,9 +57,6 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from sphinx.directives.code import CodeBlock
 
-# Bokeh imports
-from .templates import CCB_EPILOGUE, CCB_PROLOGUE
-
 # -----------------------------------------------------------------------------
 # Globals and constants
 # -----------------------------------------------------------------------------
@@ -65,8 +64,6 @@ from .templates import CCB_EPILOGUE, CCB_PROLOGUE
 __all__ = (
     "collapsible_code_block",
     "CollapsibleCodeBlock",
-    "html_depart_collapsible_code_block",
-    "html_visit_collapsible_code_block",
     "setup",
 )
 
@@ -80,7 +77,16 @@ __all__ = (
 
 
 class collapsible_code_block(nodes.General, nodes.Element):
-    pass
+    @staticmethod
+    def visit_html(visitor, node):
+        heading = node["heading"]
+        visitor.body.append(f"<details><summary>{heading}</summary>")
+
+    @staticmethod
+    def depart_html(visitor, _node):
+        visitor.body.append("</details>")
+
+    html = visit_html.__func__, depart_html.__func__
 
 
 class CollapsibleCodeBlock(CodeBlock):
@@ -110,17 +116,9 @@ class CollapsibleCodeBlock(CodeBlock):
         return [target_node, node]
 
 
-def html_visit_collapsible_code_block(self, node):
-    self.body.append(CCB_PROLOGUE.render(id=node["target_id"], heading=node["heading"]))
-
-
-def html_depart_collapsible_code_block(self, node):
-    self.body.append(CCB_EPILOGUE.render())
-
-
 def setup(app):
     """ Required Sphinx extension setup function. """
-    app.add_node(collapsible_code_block, html=(html_visit_collapsible_code_block, html_depart_collapsible_code_block))
+    app.add_node(collapsible_code_block, html=collapsible_code_block.html)
     app.add_directive("collapsible-code-block", CollapsibleCodeBlock)
 
 

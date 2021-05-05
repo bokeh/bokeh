@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 from typing import Set
+
+# Bokeh imports
+from ...settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -76,6 +81,18 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
         __silencers__.remove(warning)
     return __silencers__
 
+def is_silenced(warning):
+    ''' Check if a warning has been silenced.
+
+    Args:
+        warning (Warning) : Bokeh warning to check
+
+    Returns:
+        bool
+
+    '''
+    return warning[0] in __silencers__
+
 @contextlib.contextmanager
 def silenced(warning: int) -> None:
     silence(warning, True)
@@ -85,24 +102,30 @@ def silenced(warning: int) -> None:
         silence(warning, False)
 
 def check_integrity(models):
-    ''' Apply validation and integrity checks to a collection of Bokeh models.
+    ''' Collect all warnings associated with a collection of Bokeh models.
 
     Args:
         models (seq[Model]) : a collection of Models to test
 
     Returns:
-        None
+        dict(error=[], warning=[]): A dictionary of all warning and error messages
 
-    This function will emit log warning and error messages for all error or
-    warning conditions that are detected. For example, layouts without any
-    children will trigger a warning:
+    This function will return a dictionary containing all errors or
+    warning conditions that are detected. For example, layouts without
+    any children will add a warning to the dictionary:
 
     .. code-block:: python
 
         >>> empty_row = Row
 
         >>> check_integrity([empty_row])
-        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+        {
+            "warning": [
+                (1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...),
+                ...
+            ],
+            "error": [...]
+        }
 
     '''
     messages = dict(error=[], warning=[])
@@ -117,17 +140,48 @@ def check_integrity(models):
         for func in validators:
             messages[func.validator_type].extend(func())
 
-    for msg in sorted(messages['error']):
-        log.error("E-%d (%s): %s: %s" % msg)
+    return messages
 
-    for msg in sorted(messages['warning']):
-        code, name, desc, obj = msg
-        if code not in __silencers__:
-            log.warning("W-%d (%s): %s: %s" % msg)
+def process_validation_issues(issues):
+    ''' Log warning and error messages for a dictionary containing warnings and error messages.
 
-    # This will be turned on in a future release
-    # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
-    #     raise RuntimeError("Errors encountered during validation (see log output)")
+    Args:
+        issues (dict(error=[], warning=[])) : A dictionary of all warning and error messages
+
+    Returns:
+        None
+
+    This function will emit log warning and error messages for all error or
+    warning conditions in the dictionary. For example, a dictionary
+    containing a warning for empty layout will trigger a warning:
+
+    .. code-block:: python
+
+        >>> process_validation_issues(validations)
+        W-1002 (EMPTY_LAYOUT): Layout has no children: Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...)
+
+    '''
+    errors = issues['error']
+    warnings = [item for item in issues['warning'] if not is_silenced(item)]
+
+    warning_messages = []
+    for code, name, desc, obj in sorted(warnings):
+        msg = f"W-{code} ({name}): {desc}: {obj}"
+        warning_messages.append(msg)
+        log.warning(msg)
+
+    error_messages = []
+    for code, name, desc, obj in sorted(errors):
+        msg = f"E-{code} ({name}): {desc}: {obj}"
+        error_messages.append(msg)
+        log.error(msg)
+
+    if settings.validation_level() == "errors":
+        if len(errors):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages}")
+    elif settings.validation_level() == "all":
+        if len(errors) or len(warnings):
+            raise RuntimeError(f"Errors encountered during validation: {error_messages+warning_messages}")
 
 #-----------------------------------------------------------------------------
 # Dev API

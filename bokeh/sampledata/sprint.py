@@ -4,13 +4,21 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Historical results for Olympic sprints by year.
+
+This module contains one pandas Dataframe: ``sprint``.
+
+.. rubric:: ``sprint``
+
+:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

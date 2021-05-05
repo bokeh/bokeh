@@ -53,7 +53,8 @@ const style = {
 }
 
 export class CanvasView extends DOMView {
-  model: Canvas
+  override model: Canvas
+  override el: HTMLElement
 
   bbox: BBox = new BBox()
 
@@ -67,7 +68,7 @@ export class CanvasView extends DOMView {
 
   ui_event_bus: UIEventBus
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     if (this.model.output_backend == "webgl") {
@@ -94,7 +95,7 @@ export class CanvasView extends DOMView {
     this.ui_event_bus = new UIEventBus(this)
   }
 
-  remove(): void {
+  override remove(): void {
     this.ui_event_bus.destroy()
     super.remove()
   }
@@ -213,8 +214,8 @@ export namespace Canvas {
 export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
-  properties: Canvas.Props
-  __view_type__: CanvasView
+  override properties: Canvas.Props
+  override __view_type__: CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)

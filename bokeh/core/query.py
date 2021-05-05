@@ -12,6 +12,8 @@ models for instances that match specified criteria.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Callable, Dict, Iterator, Optional, Type, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    Optional,
+    Type,
+    Union,
+)
 
 # Bokeh imports
 from ..model import Model
@@ -113,12 +123,12 @@ def match(obj: Model, selector: SelectorType, context: ContextType = None) -> bo
     .. code-block:: python
 
         >>> from bokeh.plotting import figure
-        >>> p = figure(plot_width=400)
+        >>> p = figure(width=400)
 
-        >>> match(p, {'plot_width': {EQ: 400}})
+        >>> match(p, {'width': {EQ: 400}})
         True
 
-        >>> match(p, {'plot_width': {GT: 500}})
+        >>> match(p, {'width': {GT: 500}})
         False
 
     There are two selector keys that are handled especially. The first

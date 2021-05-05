@@ -12,7 +12,7 @@ export namespace LayoutProvider {
 export interface LayoutProvider extends LayoutProvider.Attrs {}
 
 export abstract class LayoutProvider extends Model {
-  properties: LayoutProvider.Props
+  override properties: LayoutProvider.Props
 
   constructor(attrs?: Partial<LayoutProvider.Attrs>) {
     super(attrs)

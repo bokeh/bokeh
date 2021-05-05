@@ -43,6 +43,8 @@ This will produce output like what is shown below
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ from bokeh.util.compiler import nodejs_version, npmjs_version
 from bokeh.util.dependencies import import_optional
 
 # Bokeh imports
-from ..subcommand import Subcommand
+from ..subcommand import Argument, Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -107,8 +109,8 @@ class Info(Subcommand):
 
     args = (
 
-        ('--static', dict(
-            action='store_true',
+        ('--static', Argument(
+            action="store_true",
             help="Print the locations of BokehJS static files",
         )),
 
@@ -121,14 +123,14 @@ class Info(Subcommand):
         if args.static:
             print(settings.bokehjsdir())
         else:
-
-            print("Python version      :  %s" % sys.version.split('\n')[0])
-            print("IPython version     :  %s" % if_installed(_version('IPython', '__version__')))
-            print("Tornado version     :  %s" % if_installed(_version('tornado', 'version')))
-            print("Bokeh version       :  %s" % __version__)
-            print("BokehJS static path :  %s" % settings.bokehjsdir())
-            print("node.js version     :  %s" % if_installed(nodejs_version()))
-            print("npm version         :  %s" % if_installed(npmjs_version()))
+            newline = '\n'
+            print(f"Python version      :  {sys.version.split(newline)[0]}")
+            print(f"IPython version     :  {if_installed(_version('IPython', '__version__'))}")
+            print(f"Tornado version     :  {if_installed(_version('tornado', 'version'))}")
+            print(f"Bokeh version       :  {__version__}")
+            print(f"BokehJS static path :  {settings.bokehjsdir()}")
+            print(f"node.js version     :  {if_installed(nodejs_version())}")
+            print(f"npm version         :  {if_installed(npmjs_version())}")
 
 #-----------------------------------------------------------------------------
 # Dev API

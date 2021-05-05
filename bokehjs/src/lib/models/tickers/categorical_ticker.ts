@@ -16,7 +16,7 @@ export namespace CategoricalTicker {
 export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 
 export class CategoricalTicker extends Ticker {
-  properties: CategoricalTicker.Props
+  override properties: CategoricalTicker.Props
 
   constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
     super(attrs)

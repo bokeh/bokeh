@@ -183,7 +183,7 @@ export namespace Figure {
 }
 
 export class Figure extends Plot {
-  static __name__ = "Plot"
+  static override __name__ = "Plot"
 
   get xgrid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
@@ -193,10 +193,17 @@ export class Figure extends Plot {
   }
 
   get xaxis(): Axis[] {
-    return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)
+    return [...this.below, ...this.above].filter((r): r is Axis => r instanceof Axis)
   }
   get yaxis(): Axis[] {
-    return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
+    return [...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
+  }
+
+  get grid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid)
+  }
+  get axis(): Axis[] {
+    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r): r is Axis => r instanceof Axis)
   }
 
   get legend(): Legend {
@@ -748,12 +755,15 @@ export class Figure extends Plot {
     }
     const _is_visual = function(ft: string): boolean {
       const [feature, trait] = _split_feature_trait(ft)
-      return includes(['line', 'fill', 'text', 'global'], feature) && trait !== ""
+      return includes(['line', 'fill', 'hatch', 'text', 'global'], feature) && trait !== ""
     }
 
     defaults = {...defaults}
     if (!hasOwnProperty.call(defaults, 'text_color')) {
       defaults.text_color = 'black'
+    }
+    if (!hasOwnProperty.call(defaults, 'hatch_color')) {
+      defaults.hatch_color = 'black'
     }
     const trait_defaults: Attrs = {}
     if (!hasOwnProperty.call(trait_defaults, 'color')) {

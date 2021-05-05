@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": false,
+    "alwaysStrict": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": false,
+    "allowJs": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "importHelpers": false,
+    "experimentalDecorators": true,
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "target": "ES2017",
+    "lib": ["es2017", "dom", "dom.iterable"],
+    "baseUrl": ".",
+    "outDir": "./dist/lib",
+    "paths": {
+      "@bokehjs/*": [
+        "./node_modules/bokehjs/build/js/lib/*",
+        "./node_modules/bokehjs/build/js/types/*"
+      ]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

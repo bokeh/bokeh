@@ -29,6 +29,8 @@ applications that run off scripts and notebooks.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -63,6 +65,8 @@ __all__ = (
 
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
+
+    .. autoclasstoc::
 
     '''
 

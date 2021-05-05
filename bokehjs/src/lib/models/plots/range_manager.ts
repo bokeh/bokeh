@@ -1,6 +1,7 @@
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CoordinateMapping} from "../canvas/coordinates"
 import type {PlotView} from "./plot_canvas"
 import {Interval} from "core/types"
 import {logger} from "core/logging"
@@ -54,17 +55,17 @@ export class RangeManager {
     this.update(null)
   }
 
-  update_dataranges(): void {
+  protected _update_dataranges(frame: CartesianFrame | CoordinateMapping): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()
 
     let calculate_log_bounds = false
-    for (const [, xr] of this.frame.x_ranges) {
+    for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d && xr.scale_hint == "log")
         calculate_log_bounds = true
     }
-    for (const [, yr] of this.frame.y_ranges) {
+    for (const [, yr] of frame.y_ranges) {
       if (yr instanceof DataRange1d && yr.scale_hint == "log")
         calculate_log_bounds = true
     }
@@ -88,12 +89,15 @@ export class RangeManager {
     let follow_enabled = false
     let has_bounds = false
 
-    const {width, height} = this.frame.bbox
+    //const {width, height} = frame.bbox
+    const width = frame.x_target.span
+    const height = frame.y_target.span
+
     let r: number | undefined
     if (this.parent.model.match_aspect !== false && width != 0 && height != 0)
       r = (1/this.parent.model.aspect_scale)*(width/height)
 
-    for (const [, xr] of this.frame.x_ranges) {
+    for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.parent.model, r)
@@ -105,7 +109,7 @@ export class RangeManager {
         has_bounds = true
     }
 
-    for (const [, yr] of this.frame.y_ranges) {
+    for (const [, yr] of frame.y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.parent.model, r)
@@ -119,12 +123,22 @@ export class RangeManager {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.')
-      for (const [, xr] of this.frame.x_ranges) {
+      for (const [, xr] of frame.x_ranges) {
         xr.bounds = null
       }
-      for (const [, yr] of this.frame.y_ranges) {
+      for (const [, yr] of frame.y_ranges) {
         yr.bounds = null
       }
+    }
+  }
+
+  update_dataranges(): void {
+    this._update_dataranges(this.frame)
+
+    for (const renderer of this.parent.model.renderers) {
+      const {coordinates} = renderer
+      if (coordinates != null)
+        this._update_dataranges(coordinates)
     }
 
     this.invalidate_dataranges = false

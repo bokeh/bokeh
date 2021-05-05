@@ -1,7 +1,7 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, GMapOptions,
-                          GMapPlot, Label, PanTool, WheelZoomTool,)
+                          GMapPlot, Label, PanTool, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view
@@ -13,7 +13,7 @@ API_KEY = "GOOGLE_API_KEY"
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
 plot = GMapPlot(
-    plot_width=1000, plot_height=500,
+    width=1000, height=500,
     map_options=map_options, api_key=API_KEY, output_backend="webgl",
 )
 

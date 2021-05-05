@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,7 +21,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import Any, Bool, Dict, Float, Int, NonNullable, Nullable, Override, String
+from ..core.properties import (
+    Any,
+    Bool,
+    Dict,
+    Float,
+    Int,
+    NonNullable,
+    Nullable,
+    Override,
+    String,
+)
 from ..model import Model
 
 #-----------------------------------------------------------------------------

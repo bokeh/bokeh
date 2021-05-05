@@ -15,6 +15,8 @@ instead for standard usage.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -60,7 +62,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class ClientConnection:
-    ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
+    ''' A low-level class used to connect to a Bokeh server.
+
+    .. autoclasstoc::
 
     '''
 

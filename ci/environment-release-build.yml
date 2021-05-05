@@ -34,10 +34,11 @@ dependencies:
   - pydot
   - pygments
   - scipy
-  - sphinx
+  - sphinx >=3.5
   - sphinx-panels
   - pip
   - pip:
+    - autoclasstoc
     - pydata_sphinx_theme
     - sphinxext-opengraph
     - sphinx-reredirects

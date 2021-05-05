@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,13 +21,28 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Dict, Optional, Sequence, Tuple, Type, Union, cast
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 # External imports
 from jinja2 import Template
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, MACROS, ROOT_DIV
+from ..core.templates import (
+    AUTOLOAD_JS,
+    AUTOLOAD_TAG,
+    FILE,
+    MACROS,
+    ROOT_DIV,
+)
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..resources import CSSResources, JSResources, Resources
@@ -241,7 +258,7 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     return script, result
 
 def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]],
+              resources: Optional[Union[Resources, Tuple[JSResources, CSSResources]]],
               title: Optional[str] = None,
               template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},

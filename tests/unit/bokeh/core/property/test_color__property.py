@@ -15,9 +15,10 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 from bokeh.colors import RGB
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.color as bcpc # isort:skip

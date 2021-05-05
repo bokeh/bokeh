@@ -4,22 +4,21 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide Fisher's Iris flower data set. This module has an attribute
-``flowers`` which is a pandas DataFrame with the following fields:
+''' Provide Fisher's Iris flower data set.
 
-.. code-block:: python
+This module contains one pandas Dataframe: ``flowers``.
 
-    flowers['petal_length']
-    flowers['petal_width']
-    flowers['sepal_length']
-    flowers['sepal_width']
-    flowers['species']
+.. rubric:: ``flowers``
+
+:bokeh-dataframe:`bokeh.sampledata.iris.flowers`
 
 '''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.layouts import column, gridplot
 from bokeh.models import (Circle, ColumnDataSource, Div, Grid,
-                          Line, LinearAxis, Plot, Range1d,)
+                          Line, LinearAxis, Plot, Range1d)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -47,7 +47,7 @@ xdr = Range1d(start=-0.5, end=20.5)
 ydr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
-    plot = Plot(x_range=xdr, y_range=ydr, plot_width=400, plot_height=400,
+    plot = Plot(x_range=xdr, y_range=ydr, width=400, height=400,
                 background_fill_color='#efefef')
     plot.title.text = title
 

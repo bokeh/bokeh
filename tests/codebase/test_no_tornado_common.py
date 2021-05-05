@@ -16,19 +16,21 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from subprocess import PIPE, Popen
-from sys import executable
+from subprocess import run
+from sys import executable as python
+
+from . import verify_clean_imports
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
-BASIC_IMPORTS = [
-    "import bokeh.client",
-    "import bokeh.embed",
-    "import bokeh.io",
-    "import bokeh.models",
-    "import bokeh.plotting",
+modules = [
+    "bokeh.client",
+    "bokeh.embed",
+    "bokeh.io",
+    "bokeh.models",
+    "bokeh.plotting",
 ]
 
 def test_no_tornado_common() -> None:
@@ -37,10 +39,5 @@ def test_no_tornado_common() -> None:
     Tornado.
 
     '''
-    proc = Popen([
-        executable, "-c", "import sys; %s; sys.exit(1 if any('tornado' in x for x in sys.modules.keys()) else 0)" % ";".join(BASIC_IMPORTS)
-    ],stdout=PIPE)
-    proc.communicate()
-    proc.wait()
-    if proc.returncode != 0:
-        assert False
+    proc = run([python, "-c", verify_clean_imports('tornado', modules)])
+    assert proc.returncode == 0, "Tornado imported in common modules"

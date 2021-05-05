@@ -30,6 +30,8 @@ always be active regardless of what other tools are currently active.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -40,6 +42,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+
+# External imports
 from typing_extensions import Literal
 
 # Bokeh imports
@@ -93,7 +97,15 @@ from ..util.deprecation import deprecated
 from ..util.string import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
-from .glyphs import Line, LineGlyph, MultiLine, Patches, Rect, XYGlyph
+from .dom import Template
+from .glyphs import (
+    Line,
+    LineGlyph,
+    MultiLine,
+    Patches,
+    Rect,
+    XYGlyph,
+)
 from .layouts import LayoutDOM
 from .ranges import Range1d
 from .renderers import DataRenderer, GlyphRenderer
@@ -305,7 +317,7 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
-    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Nullable(Instance(GestureTool), help="""
+    active_multi: tp.Union[Literal["auto"], GestureTool, None] = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range
     tool.
 
@@ -465,9 +477,10 @@ class WheelZoomTool(Scroll):
     """)
 
     maintain_focus = Bool(default=True, help="""
-    Whether or not zooming tool maintains its focus position. Setting to False
-    results in a more "gliding" behavior, allowing one to zoom out more
-    smoothly, at the cost of losing the focus position.
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
     """)
 
     zoom_on_axis = Bool(default=True, help="""
@@ -752,6 +765,13 @@ class ZoomOutTool(ActionTool):
 
     factor = Percent(default=0.1, help="""
     Percentage to zoom for each click of the zoom-in tool.
+    """)
+
+    maintain_focus = Bool(default=True, help="""
+    If True, then hitting a range bound in any one dimension will prevent all
+    further zooming all dimensions. If False, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even if
+    that causes overall focus or aspect ratio to change.
     """)
 
 class BoxSelectTool(Drag, SelectTool):
@@ -1041,7 +1061,7 @@ class HoverTool(InspectTool):
     :geometry: object containing the coordinates of the hover cursor
     """)
 
-    tooltips = Either(Null, String, List(Tuple(String, String)),
+    tooltips = Either(Null, Instance(Template), String, List(Tuple(String, String)),
             default=[
                 ("index","$index"),
                 ("data (x, y)","($x, $y)"),

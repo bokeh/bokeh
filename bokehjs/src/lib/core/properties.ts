@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import {Arrayable, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
+import {Arrayable, IntArray, FloatArray, TypedArray, RGBAArray, ColorArray, uint32} from "./types"
 import * as types from "./types"
 import {includes, repeat} from "./util/array"
 import {mul} from "./util/arrayable"
@@ -211,40 +211,40 @@ export class Any extends Property<any> {}
 
 /** @deprecated */
 export class Array extends Property<any[]> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isArray(value) || isTypedArray(value)
   }
 }
 
 /** @deprecated */
 export class Boolean extends Property<boolean> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isBoolean(value)
   }
 }
 
 /** @deprecated */
 export class Color extends Property<types.Color> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return is_Color(value)
   }
 }
 
 /** @deprecated */
 export class Instance extends Property<any /*HasProps*/> {
-  //valid(value: unknown): boolean { return  value.properties != null }
+  //override valid(value: unknown): boolean { return  value.properties != null }
 }
 
 /** @deprecated */
 export class Number extends Property<number> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isNumber(value)
   }
 }
 
 /** @deprecated */
 export class Int extends Number {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isNumber(value) && (value | 0) == value
   }
 }
@@ -254,21 +254,21 @@ export class Angle extends Number {}
 
 /** @deprecated */
 export class Percent extends Number {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isNumber(value) && 0 <= value && value <= 1.0
   }
 }
 
 /** @deprecated */
 export class String extends Property<string> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isString(value)
   }
 }
 
 /** @deprecated */
 export class NullString extends Property<string | null> {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return value === null || isString(value)
   }
 }
@@ -278,7 +278,7 @@ export class FontSize extends String {}
 
 /** @deprecated */
 export class Font extends String {
-  _default_override(): string | undefined {
+  override _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
   }
 }
@@ -291,7 +291,7 @@ export class Font extends String {
 export abstract class EnumProperty<T extends string> extends Property<T> {
   abstract get enum_values(): T[]
 
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isString(value) && includes(this.enum_values, value)
   }
 }
@@ -310,7 +310,7 @@ export class Direction extends EnumProperty<enums.Direction> {
     return [...enums.Direction]
   }
 
-  normalize(values: any): any {
+  override normalize(values: any): any {
     const result = new Uint8Array(values.length)
     for (let i = 0; i < values.length; i++) {
       switch (values[i]) {
@@ -375,10 +375,10 @@ export class Direction extends EnumProperty<enums.Direction> {
 //
 
 export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
-  __value__: T
+  override __value__: T
   __scalar__: S
 
-  get_value(): S {
+  override get_value(): S {
     // XXX: denormalize value for serialization, because bokeh doens't support scalar properties
     const {value, expr, transform} = this.spec
     return (expr != null || transform != null ? this.spec : value) as any
@@ -386,7 +386,7 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
     // return this.spec.value === null ? null : this.spec as any
   }
 
-  protected _update(attr_value: S | T): void {
+  protected override _update(attr_value: S | T): void {
     if (isSpec(attr_value))
       this.spec = attr_value
     else
@@ -433,7 +433,7 @@ export class LineJoinScalar extends ScalarSpec<enums.LineJoin> {}
 export class LineCapScalar extends ScalarSpec<enums.LineCap> {}
 export class LineDashScalar extends ScalarSpec<enums.LineDash | number[]> {}
 export class FontScalar extends ScalarSpec<string> {
-  _default_override(): string | undefined {
+  override _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
   }
 }
@@ -443,15 +443,15 @@ export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
-  __value__: T
+  override __value__: T
   __vector__: V
 
-  get_value(): V {
+  override get_value(): V {
     // XXX: allow obj.x = null; obj.x == null
     return this.spec.value === null ? null : this.spec as any
   }
 
-  protected _update(attr_value: V | T): void {
+  protected override _update(attr_value: V | T): void {
     if (isSpec(attr_value))
       this.spec = attr_value
     else
@@ -545,9 +545,9 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
   abstract get default_units(): Units
   abstract get valid_units(): Units[]
 
-  spec: Spec<T> & {units?: Units}
+  override spec: Spec<T> & {units?: Units}
 
-  _update(attr_value: any): void {
+  override _update(attr_value: any): void {
     super._update(attr_value)
 
     const {units} = this.spec
@@ -569,7 +569,7 @@ export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vect
 }
 
 export abstract class NumberUnitsSpec<Units> extends UnitsSpec<number, Units> {
-  array(source: ColumnarDataSource): FloatArray {
+  override array(source: ColumnarDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
@@ -595,19 +595,19 @@ export class AngleSpec extends NumberUnitsSpec<enums.AngleUnits> {
   get default_units(): enums.AngleUnits { return "rad" }
   get valid_units(): enums.AngleUnits[] { return [...enums.AngleUnits] }
 
-  materialize(value: number): number {
+  override materialize(value: number): number {
     const coeff = -to_radians_coeff(this.units)
     return value*coeff
   }
 
-  v_materialize(values: Arrayable<number>): Float32Array {
+  override v_materialize(values: Arrayable<number>): Float32Array {
     const coeff = -to_radians_coeff(this.units)
     const result = new Float32Array(values.length)
     mul(values, coeff, result) // TODO: in-place?
     return result
   }
 
-  array(_source: ColumnarDataSource): Float32Array {
+  override array(_source: ColumnarDataSource): Float32Array {
     throw new Error("not supported")
   }
 }
@@ -618,44 +618,54 @@ export class DistanceSpec extends NumberUnitsSpec<enums.SpatialUnits> {
 }
 
 export class NullDistanceSpec extends DistanceSpec { // TODO: T = number | null
-  materialize(value: number | null): number {
+  override materialize(value: number | null): number {
     return value ?? NaN
   }
 }
 
 
 export class BooleanSpec extends DataSpec<boolean> {
-  v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
+  override v_materialize(values: Arrayable<boolean>): Arrayable<boolean> /* Uint8Array */ {
     return new Uint8Array(values as any) as any
   }
 
-  array(source: ColumnarDataSource): Uint8Array {
+  override array(source: ColumnarDataSource): Uint8Array {
     return new Uint8Array(super.array(source) as any)
   }
 }
 
+export class IntSpec extends DataSpec<number> {
+  override v_materialize(values: Arrayable<number>): TypedArray {
+    return isTypedArray(values) ? values : new Int32Array(values)
+  }
+
+  override array(source: ColumnarDataSource): IntArray {
+    return new Int32Array(super.array(source) as Arrayable<number>)
+  }
+}
+
 export class NumberSpec extends DataSpec<number> {
-  v_materialize(values: Arrayable<number>): TypedArray {
+  override v_materialize(values: Arrayable<number>): TypedArray {
     return isTypedArray(values) ? values : new Float64Array(values)
   }
 
-  array(source: ColumnarDataSource): FloatArray {
+  override array(source: ColumnarDataSource): FloatArray {
     return new Float64Array(super.array(source) as Arrayable<number>)
   }
 }
 
 export class ScreenSizeSpec extends NumberSpec {
-  valid(value: unknown): boolean {
+  override valid(value: unknown): boolean {
     return isNumber(value) && value >= 0
   }
 }
 
 export class ColorSpec extends DataSpec<types.Color | null> {
-  materialize(color: types.Color | null): uint32 {
+  override materialize(color: types.Color | null): uint32 {
     return encode_rgba(color2rgba(color))
   }
 
-  v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
+  override v_materialize(colors: Arrayable<types.Color | null>): ColorArray {
     if (is_NDArray(colors)) {
       if (colors.dtype == "uint32" && colors.dimension == 1) {
         return to_big_endian(colors)
@@ -716,7 +726,7 @@ export class ColorSpec extends DataSpec<types.Color | null> {
     throw new Error("invalid color array")
   }
 
-  vector(values: ColorArray): ColorUniformVector {
+  override vector(values: ColorArray): ColorUniformVector {
     return new ColorUniformVector(values)
   }
 }
@@ -733,7 +743,7 @@ export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
 export class LineCapSpec extends DataSpec<enums.LineCap> {}
 export class LineDashSpec extends DataSpec<enums.LineDash | number[]> {}
 export class FontSpec extends DataSpec<string> {
-  _default_override(): string | undefined {
+  override _default_override(): string | undefined {
     return settings.dev ? "Bokeh" : undefined
   }
 }

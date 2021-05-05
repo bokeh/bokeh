@@ -60,18 +60,12 @@ class TestFigure:
 
     def test_width_height(self) -> None:
         p = bpf.figure(width=100, height=120)
-        assert p.plot_width == 100
-        assert p.plot_height == 120
+        assert p.plot_width == p.width == 100
+        assert p.plot_height == p.height == 120
 
-        p = bpf.figure(plot_width=100, plot_height=120)
-        assert p.plot_width == 100
-        assert p.plot_height == 120
-
-        with pytest.raises(ValueError):
-            bpf.figure(plot_width=100, width=120)
-
-        with pytest.raises(ValueError):
-            bpf.figure(plot_height=100, height=120)
+        p = bpf.figure(width=100, height=120)
+        assert p.width == p.plot_width == 100
+        assert p.height == p.plot_height == 120
 
     def test_xaxis(self) -> None:
         p = bpf.figure()
@@ -240,9 +234,9 @@ class TestFigure:
             p.circle(x='x', y=[1,2,3], line_color=["red", "green", "blue"], source=source)
         with pytest.raises(RuntimeError) as e:
             p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
-        m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
+        m = re.search (r"Expected y, (.+), (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
-        assert set(m.groups()) == {"fill_color", "line_color"}
+        assert set(m.groups()) == {"fill_color", "hatch_color", "line_color"}
 
 
 class TestMarkers:

@@ -31,6 +31,7 @@ import requests
 
 # Bokeh imports
 import bokeh.command.subcommands.serve as scserve
+from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
 
 #-----------------------------------------------------------------------------
@@ -47,6 +48,7 @@ from bokeh.resources import DEFAULT_SERVER_PORT
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scserve.Serve(parser=argparse.ArgumentParser())
@@ -65,21 +67,21 @@ def test_args() -> None:
     from bokeh.util.string import nice_join
 
     assert scserve.Serve.args == (
-        ('--port', dict(
+        ('--port', Argument(
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
             default = DEFAULT_SERVER_PORT
         )),
 
-        ('--address', dict(
+        ('--address', Argument(
             metavar = 'ADDRESS',
             type    = str,
             help    = "Address to listen on",
             default = None,
         )),
 
-        ('--log-level', dict(
+        ('--log-level', Argument(
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
@@ -87,35 +89,35 @@ def test_args() -> None:
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
-        ('--log-format', dict(
+        ('--log-format', Argument(
             metavar ='LOG-FORMAT',
             action  = 'store',
             default = scserve.DEFAULT_LOG_FORMAT,
             help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
         )),
 
-        ('--log-file', dict(
+        ('--log-file', Argument(
             metavar ='LOG-FILE',
             action  = 'store',
             default = None,
             help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
         )),
 
-        ('--use-config', dict(
+        ('--use-config', Argument(
             metavar = 'CONFIG',
             type    = str,
             help    = "Use a YAML config file for settings",
             default = None,
         )),
 
-        ('files', dict(
+        ('files', Argument(
             metavar = 'DIRECTORY-OR-SCRIPT',
             nargs   = '*',
             help    = "The app directories or scripts to serve (serve empty document if not specified)",
             default = None,
         )),
 
-        ('--args', dict(
+        ('--args', Argument(
             metavar = 'COMMAND-LINE-ARGS',
             nargs   = argparse.REMAINDER,
             help    = "Command line arguments remaining to passed on to the application handler. "
@@ -123,7 +125,7 @@ def test_args() -> None:
                       "--show, must be placed before the directory or script. ",
         )),
 
-        ('--dev', dict(
+        ('--dev', Argument(
             metavar ='FILES-TO-WATCH',
             action  ='store',
             default = None,
@@ -142,80 +144,80 @@ def test_args() -> None:
                       "server",
         )),
 
-        ('--show', dict(
+        ('--show', Argument(
             action = 'store_true',
             help   = "Open server app(s) in a browser",
         )),
 
-        ('--allow-websocket-origin', dict(
+        ('--allow-websocket-origin', Argument(
             metavar = 'HOST[:PORT]',
             action  = 'append',
             type    = str,
             help    = "Public hostnames which may connect to the Bokeh websocket",
         )),
 
-        ('--prefix', dict(
+        ('--prefix', Argument(
             metavar = 'PREFIX',
             type    = str,
             help    = "URL prefix for Bokeh server URLs",
             default = None,
         )),
 
-        ('--keep-alive', dict(
+        ('--keep-alive', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to send a keep-alive ping to clients, 0 to disable.",
             default = None,
         )),
 
-        ('--check-unused-sessions', dict(
+        ('--check-unused-sessions', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to check for unused sessions",
             default = None,
         )),
 
-        ('--unused-session-lifetime', dict(
+        ('--unused-session-lifetime', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How long unused sessions last",
             default = None,
         )),
 
-        ('--stats-log-frequency', dict(
+        ('--stats-log-frequency', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to log stats",
             default = None,
         )),
 
-        ('--mem-log-frequency', dict(
+        ('--mem-log-frequency', Argument(
             metavar = 'MILLISECONDS',
             type    = int,
             help    = "How often to log memory usage information",
             default = None,
         )),
 
-        ('--use-xheaders', dict(
+        ('--use-xheaders', Argument(
             action = 'store_true',
             help   = "Prefer X-headers for IP/protocol information",
         )),
 
-        ('--ssl-certfile', dict(
+        ('--ssl-certfile', Argument(
             metavar = 'CERTFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a certificate file for SSL termination',
         )),
 
-        ('--ssl-keyfile', dict(
+        ('--ssl-keyfile', Argument(
             metavar = 'KEYFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a private key file for SSL termination',
         )),
 
-        ('--session-ids', dict(
+        ('--session-ids', Argument(
             metavar = 'MODE',
             action  = 'store',
             default = None,
@@ -223,14 +225,14 @@ def test_args() -> None:
             help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
         )),
 
-        ('--auth-module', dict(
+        ('--auth-module', Argument(
             metavar = 'AUTH_MODULE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a Python module that implements auth hooks',
         )),
 
-        ('--enable-xsrf-cookies', dict(
+        ('--enable-xsrf-cookies', Argument(
             action  = 'store_true',
             default = False,
             help    = 'Whether to enable Tornado support for XSRF cookies. All '
@@ -238,7 +240,7 @@ def test_args() -> None:
                       'when this setting is enabled.'
         )),
 
-        ('--exclude-headers', dict(
+        ('--exclude-headers', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -246,7 +248,7 @@ def test_args() -> None:
                       'context (by default all headers are included).'
         )),
 
-        ('--exclude-cookies', dict(
+        ('--exclude-cookies', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -254,7 +256,7 @@ def test_args() -> None:
                       'context (by default all cookies are included).'
         )),
 
-        ('--include-headers', dict(
+        ('--include-headers', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -262,7 +264,7 @@ def test_args() -> None:
                       'context (by default all headers are included).'
         )),
 
-        ('--include-cookies', dict(
+        ('--include-cookies', Argument(
             action  = 'store',
             default = None,
             nargs='+',
@@ -270,31 +272,31 @@ def test_args() -> None:
                       'context (by default all cookies are included).'
         )),
 
-        ('--cookie-secret', dict(
+        ('--cookie-secret', Argument(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
             default = None,
             help    = 'Configure to enable getting/setting secure cookies',
         )),
 
-        ('--index', dict(
+        ('--index', Argument(
             metavar = 'INDEX',
             action  = 'store',
             default = None,
             help    = 'Path to a template to use for the site index',
         )),
 
-        ('--disable-index', dict(
+        ('--disable-index', Argument(
             action = 'store_true',
             help   = 'Do not use the default index on the root path',
         )),
 
-        ('--disable-index-redirect', dict(
+        ('--disable-index-redirect', Argument(
             action = 'store_true',
             help   = 'Do not redirect to running app from root path',
         )),
 
-        ('--num-procs', dict(
+        ('--num-procs', Argument(
              metavar = 'N',
              action  = 'store',
              help    = "Number of worker processes for an app. Using "
@@ -303,7 +305,7 @@ def test_args() -> None:
              type    =int,
          )),
 
-        ('--session-token-expiration', dict(
+        ('--session-token-expiration', Argument(
             metavar = 'N',
             action  = 'store',
             help    = "Duration in seconds that a new session token "
@@ -314,7 +316,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-         ('--websocket-max-message-size', dict(
+         ('--websocket-max-message-size', Argument(
             metavar = 'BYTES',
             action  = 'store',
             help    = "Set the Tornado websocket_max_message_size value "
@@ -323,7 +325,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--websocket-compression-level', dict(
+        ('--websocket-compression-level', Argument(
             metavar = 'LEVEL',
             action  = 'store',
             help    = "Set the Tornado WebSocket compression_level",
@@ -331,7 +333,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--websocket-compression-mem-level', dict(
+        ('--websocket-compression-mem-level', Argument(
             metavar = 'LEVEL',
             action  = 'store',
             help    = "Set the Tornado WebSocket compression mem_level",
@@ -339,7 +341,7 @@ def test_args() -> None:
             type    = int,
         )),
 
-        ('--glob', dict(
+        ('--glob', Argument(
             action='store_true',
             help='Process all filename arguments as globs',
         )),

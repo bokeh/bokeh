@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -66,6 +68,7 @@ def marker_method():
         return wrapped
 
     return decorator
+
 def glyph_method(glyphclass):
     def decorator(func):
         parameters = glyphclass.parameters()
@@ -78,7 +81,9 @@ def glyph_method(glyphclass):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
             for arg, param in zip(args, sigparams[1:]):
                 kwargs[param.name] = arg
-            return create_renderer(glyphclass, self, **kwargs)
+            if self.coordinates is not None:
+                kwargs.setdefault("coordinates", self.coordinates)
+            return create_renderer(glyphclass, self.plot, **kwargs)
 
         wrapped.__signature__ = Signature(parameters=sigparams)
         wrapped.__name__ = func.__name__

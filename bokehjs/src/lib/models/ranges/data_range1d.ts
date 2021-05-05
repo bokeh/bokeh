@@ -1,6 +1,6 @@
 import {DataRange} from "./data_range"
-import {Renderer} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
+import type {Renderer} from "../renderers/renderer"
+import type {DataRenderer} from "../renderers/data_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
 import {concat} from "core/util/array"
@@ -34,7 +34,7 @@ export namespace DataRange1d {
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
-  properties: DataRange1d.Props
+  override properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)
@@ -68,9 +68,9 @@ export class DataRange1d extends DataRange {
 
   protected _plot_bounds: Map<Plot, Rect>
 
-  have_updated_interactively: boolean = false
+  override have_updated_interactively: boolean = false
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
 
     this._initial_start = this.start

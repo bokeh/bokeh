@@ -44,7 +44,7 @@ template = """
 {% endblock %}
 """
 
-opts = dict(plot_width=300, plot_height=300, toolbar_location=None)
+opts = dict(width=300, height=300, toolbar_location=None)
 
 circle_red = figure(name="circle_red", **opts)
 circle_red.circle(0, 0, radius=1, fill_color="red")

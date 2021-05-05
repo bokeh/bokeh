@@ -87,7 +87,7 @@ async function run_tests(): Promise<boolean> {
   let handle_exceptions = true
   try {
     client = await CDP({port})
-    const {Emulation, Network, Page, Runtime, Log} = client
+    const {Emulation, Network, Page, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -185,6 +185,7 @@ async function run_tests(): Promise<boolean> {
 
       await Runtime.enable()
       await Log.enable()
+      await Performance.enable({timeDomain: "timeTicks"})
 
       async function override_metrics(dpr: number = 1): Promise<void> {
         await Emulation.setDeviceMetricsOverride({
@@ -331,6 +332,38 @@ async function run_tests(): Promise<boolean> {
 
       progress.start(test_suite.length, 0, state())
 
+      type MetricKeys = "JSEventListeners" | "Nodes" | "Resources" | "LayoutCount" |
+        "RecalcStyleCount" | "JSHeapUsedSize" | "JSHeapTotalSize"
+      const metrics: {[key in MetricKeys]: number[]} = {
+        JSEventListeners: [],
+        Nodes: [],
+        Resources: [],
+        LayoutCount: [],
+        RecalcStyleCount: [],
+        JSHeapUsedSize: [],
+        JSHeapTotalSize: [],
+      }
+
+      async function add_datapoint(): Promise<void> {
+        if (baselines_root == null)
+          return
+        const data = await Performance.getMetrics()
+        for (const {name, value} of data.metrics) {
+          switch (name) {
+            case "JSEventListeners":
+            case "Nodes":
+            case "Resources":
+            case "LayoutCount":
+            case "RecalcStyleCount":
+            case "JSHeapUsedSize":
+            case "JSHeapTotalSize":
+              metrics[name].push(value)
+          }
+        }
+      }
+
+      await add_datapoint()
+
       try {
         for (const [suites, test, status] of test_suite) {
           entries = []
@@ -361,6 +394,7 @@ async function run_tests(): Promise<boolean> {
                     override_metrics()
                 }
               })()
+              await add_datapoint()
               try {
                 const errors = entries.filter((entry) => entry.level == "error")
                 if (errors.length != 0) {
@@ -504,10 +538,11 @@ async function run_tests(): Promise<boolean> {
       }
 
       if (baselines_root != null) {
-        const json = JSON.stringify(test_suite.map(([suites, test, status]) => {
+        const results = test_suite.map(([suites, test, status]) => {
           const {failure, image, image_diff, reference} = status
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
-        }), (_key, value) => {
+        })
+        const json = JSON.stringify({results, metrics}, (_key, value) => {
           if (value?.type == "Buffer")
             return Buffer.from(value.data).toString("base64")
           else
@@ -557,14 +592,14 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chrome_min_version = 87
+const chromium_min_version = 90
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
   const major = parseInt(match?.groups?.major ?? "0")
-  const ok = chrome_min_version <= major
+  const ok = chromium_min_version <= major
   if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chrome_min_version)}`)
+    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chromium_min_version)}`)
   return ok
 }
 

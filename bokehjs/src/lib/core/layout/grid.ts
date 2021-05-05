@@ -140,7 +140,7 @@ class Container<T> {
 }
 
 export class Grid extends Layoutable {
-  *[Symbol.iterator]() {
+  override *[Symbol.iterator]() {
     for (const {layout} of this.items) {
       yield layout
     }
@@ -157,7 +157,7 @@ export class Grid extends Layoutable {
     super()
   }
 
-  is_width_expanding(): boolean {
+  override is_width_expanding(): boolean {
     if (super.is_width_expanding())
       return true
 
@@ -168,7 +168,7 @@ export class Grid extends Layoutable {
     return some(cols, (col) => col.policy == "max")
   }
 
-  is_height_expanding(): boolean {
+  override is_height_expanding(): boolean {
     if (super.is_height_expanding())
       return true
 
@@ -179,7 +179,7 @@ export class Grid extends Layoutable {
     return some(rows, (row) => row.policy == "max")
   }
 
-  protected _init(): void {
+  protected override _init(): void {
     super._init()
 
     const items = new Container<Layoutable>()
@@ -361,14 +361,14 @@ export class Grid extends Layoutable {
       if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
         available_height = this.sizing.height
       else if (viewport.height != Infinity && this.is_height_expanding())
-        available_height = viewport.height
+        available_height = Math.max(viewport.height, size_hint.size.height)
       else
         available_height = size_hint.size.height
 
       let height_flex = 0
       for (let y = 0; y < nrows; y++) {
         const row = rows[y]
-        if (row.policy == "fit" || row.policy == "max")
+        if (/*row.policy == "fit" ||*/ row.policy == "max")
           height_flex += row.flex
         else
           available_height -= size_hint.row_heights[y]
@@ -379,7 +379,7 @@ export class Grid extends Layoutable {
       if (height_flex != 0 && available_height > 0) {
         for (let y = 0; y < nrows; y++) {
           const row = rows[y]
-          if (row.policy == "fit" || row.policy == "max") {
+          if (/*row.policy == "fit" ||*/ row.policy == "max") {
             const height = round(available_height * (row.flex/height_flex))
             available_height -= height
             size_hint.row_heights[y] = height
@@ -493,7 +493,7 @@ export class Grid extends Layoutable {
     return size
   }
 
-  protected _set_geometry(outer: BBox, inner: BBox): void {
+  protected override _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const {nrows, ncols, rspacing, cspacing} = this._state

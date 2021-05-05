@@ -23,6 +23,8 @@ There are two public classes in this module:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -43,7 +45,13 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
-from ..core.properties import Bool, Int, List, Nullable, String
+from ..core.properties import (
+    Bool,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
@@ -77,6 +85,8 @@ class BaseServer:
     initialize the ``BokehTornado`` instance on the ``io_loop``. The
     ``http_server`` must have been previously created and initialized with the
     ``BokehTornado`` instance.
+
+    .. autoclasstoc::
 
     '''
 
@@ -323,6 +333,8 @@ class Server(BaseServer):
     not possible to set an explicit ``io_loop`` and ``num_procs`` other than 1
     at the same time. To do that, it is necessary to use ``BaseServer`` and
     coordinate the three components above explicitly.
+
+    .. autoclasstoc::
 
     '''
 

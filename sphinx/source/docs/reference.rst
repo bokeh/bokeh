@@ -26,8 +26,7 @@ be especially useful.
 
 :ref:`bokeh.plotting`
     The ``bokeh.plotting`` API is centered around the
-    :func:`~bokeh.plotting.figure` command,
-    and the associated glyph functions such as
+    |figure| command, and the associated glyph functions such as
     :func:`~bokeh.plotting.Figure.circle`,
     :func:`~bokeh.plotting.Figure.wedge`, etc.
     This section has detailed information on these elements.

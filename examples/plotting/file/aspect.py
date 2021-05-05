@@ -8,8 +8,8 @@ p1.circle(x=0, y=0, radius=150, line_color='black', fill_color='grey',
 
 def draw_test_figure(aspect_scale=1, width=300, height=300):
     p = figure(
-        plot_width=width,
-        plot_height=height,
+        width=width,
+        height=height,
         match_aspect=True,
         aspect_scale=aspect_scale,
         title=f"Aspect scale = {aspect_scale}",

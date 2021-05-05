@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+from typing import Optional
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
@@ -62,9 +65,19 @@ from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
-from .ranges import DataRange1d, FactorRange, Range, Range1d
+from .ranges import (
+    DataRange1d,
+    FactorRange,
+    Range,
+    Range1d,
+)
 from .renderers import GlyphRenderer, Renderer, TileRenderer
-from .scales import CategoricalScale, LinearScale, LogScale, Scale
+from .scales import (
+    CategoricalScale,
+    LinearScale,
+    LogScale,
+    Scale,
+)
 from .sources import ColumnDataSource, DataSource
 from .tools import HoverTool, Tool, Toolbar
 
@@ -509,15 +522,15 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width = Override(default=600)
+    width: Optional[int] = Override(default=600)
 
-    height = Override(default=600)
+    height: Optional[int] = Override(default=600)
 
-    plot_width: int = Alias("width", help="""
+    plot_width: Optional[int] = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
     """)
 
-    plot_height: int = Alias("height", help="""
+    plot_height: Optional[int] = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
     """)
 

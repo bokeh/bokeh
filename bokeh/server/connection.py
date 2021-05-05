@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -35,6 +37,9 @@ __all__ = (
 
 class ServerConnection:
     ''' Wraps a websocket connection to a client.
+
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, protocol, socket, application_context, session):

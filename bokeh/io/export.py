@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -24,7 +26,15 @@ import os
 import warnings
 from os.path import abspath
 from tempfile import mkstemp
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 # External imports
 from PIL import Image
@@ -277,13 +287,13 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
         else:
             resize = True
 
-            old_width = obj.plot_width
-            old_height = obj.plot_height
+            old_width = obj.width
+            old_height = obj.height
 
             if width is not None:
-                obj.plot_width = width
+                obj.width = width
             if height is not None:
-                obj.plot_height = height
+                obj.height = height
 
     template = r"""\
     {% block preamble %}
@@ -306,8 +316,8 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
     finally:
         if resize:
             assert isinstance(obj, Plot)
-            obj.plot_width = old_width
-            obj.plot_height = old_height
+            obj.width = old_width
+            obj.height = old_height
 
     return html
 
@@ -315,8 +325,8 @@ def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
     '''
 
     '''
-    from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.support.ui import WebDriverWait
 
     def is_bokeh_loaded(driver: "WebDriver") -> bool:
         return cast(bool, driver.execute_script('''

@@ -18,9 +18,15 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from _util_property import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
-from bokeh.core.properties import Float, Instance, Int, String
+from bokeh.core.properties import (
+    Float,
+    Instance,
+    Int,
+    String,
+)
+
+from _util_property import _TestHasProps, _TestModel
 
 # Module under test
 import bokeh.core.property.container as bcpc # isort:skip

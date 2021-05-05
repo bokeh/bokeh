@@ -16,7 +16,7 @@ namespace SubclassWithProps {
 }
 interface SubclassWithProps extends SubclassWithProps.Attrs {}
 class SubclassWithProps extends HasProps {
-  properties: SubclassWithProps.Props
+  override properties: SubclassWithProps.Props
   constructor(attrs?: Partial<SubclassWithProps.Attrs>) {
     super(attrs)
   }
@@ -36,7 +36,7 @@ namespace SubSubclassWithProps {
 }
 interface SubSubclassWithProps extends SubSubclassWithProps.Attrs {}
 class SubSubclassWithProps extends SubclassWithProps {
-  properties: SubSubclassWithProps.Props
+  override properties: SubSubclassWithProps.Props
   constructor(attrs?: Partial<SubSubclassWithProps.Attrs>) {
     super(attrs)
   }

@@ -1,4 +1,5 @@
-from bokeh.models import Arrow, Label, NormalHead, OpenHead, Plot, Range1d, TeeHead, VeeHead
+from bokeh.models import (Arrow, Label, NormalHead, OpenHead,
+                          Plot, Range1d, TeeHead, VeeHead)
 from bokeh.plotting import output_file, show
 
 output_file("arrow_heads.html")
@@ -6,7 +7,7 @@ output_file("arrow_heads.html")
 ARROW_HEADS = [TeeHead, OpenHead, NormalHead, VeeHead]
 HEIGHT = 35 * len(ARROW_HEADS)
 
-p = Plot(plot_width=150, plot_height=HEIGHT,
+p = Plot(width=150, height=HEIGHT,
          x_range=Range1d(0,1), y_range=Range1d(-0.5, len(ARROW_HEADS) - 0.5),
          toolbar_location=None, outline_line_color=None, min_border_left=0,
          min_border_right=0, min_border_top=0, min_border_bottom=0)

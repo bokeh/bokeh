@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -53,8 +55,8 @@ class Theme:
     ''' Provide new default values for Bokeh models.
 
     Bokeh Model properties all have some built-in default value. If a property
-    has not been explicitly set (e.g. ``m.foo = 10``) then accessing the
-    property with return the default value. It may be useful for users to be
+    has not been explicitly set (e.g. ``m.foo = 10``), accessing the
+    property will return the default value. It may be useful for users to be
     able to specify a different set of default values than the built-in
     default. The ``Theme`` class allows collections of custom default values
     to be easily applied to Bokeh documents.

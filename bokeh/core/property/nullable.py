@@ -9,6 +9,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import SingleParameterizedProperty
 from .singletons import Undefined
 
@@ -42,7 +45,7 @@ class Nullable(SingleParameterizedProperty):
     def __init__(self, type_param, *, default=None, help=None, serialized=None, readonly=False):
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         return None if json is None else super().from_json(json, models=models)
 
     def transform(self, value):
@@ -82,3 +85,8 @@ class NonNullable(SingleParameterizedProperty):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Nullable)
+@register_type_link(NonNullable)
+def _sphinx_type_link(obj):
+    return f"{property_link(obj)}({type_link(obj.type_param)})"

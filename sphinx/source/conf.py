@@ -1,3 +1,10 @@
+# -----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2021, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+# -----------------------------------------------------------------------------
+
 # Standard library imports
 import os
 from datetime import date
@@ -24,6 +31,7 @@ add_module_names = False
 exclude_patterns = ['docs/releases/*']
 
 extensions = [
+    'autoclasstoc',
     'sphinxext.opengraph',
     'sphinx_panels',
 #    'sphinx_reredirects',
@@ -34,6 +42,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'bokeh.sphinxext.bokeh_autodoc',
+    'bokeh.sphinxext.bokeh_dataframe',
     'bokeh.sphinxext.bokeh_color',
     'bokeh.sphinxext.bokeh_enum',
     'bokeh.sphinxext.bokeh_gallery',
@@ -52,23 +61,16 @@ extensions = [
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
-needs_sphinx = '1.8'
+needs_sphinx = '3.5'
 
-rst_epilog = """
-.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
-.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
-.. |Document|           replace:: :py:class:`~bokeh.document.Document`
-.. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
-.. |Model|              replace:: :py:class:`~bokeh.model.Model`
-.. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
-.. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
-.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
-.. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
-.. |field|              replace:: :py:func:`~bokeh.core.properties.field`
-.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
-"""
+rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
+
+autoclasstoc_sections = [
+        'public-attrs',
+        'public-methods',
+]
 
 autodoc_member_order = 'groupwise'
 
@@ -89,6 +91,14 @@ intersphinx_mapping = {
 
 napoleon_include_init_with_doc = True
 
+ogp_site_url = 'https://docs.bokeh.org/en/latest/'
+ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta property="twitter:site" content="@bokeh" />',
+    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
+]
+
 panels_add_bootstrap_css = False
 
 pygments_style = 'sphinx'
@@ -97,15 +107,6 @@ redirects = {
     "docs/installation": "first_steps/installation.html",
     "docs/user_guide/quickstart": "../first_steps.html",
 }
-
-# configuration for sphinxext.opengraph
-ogp_site_url = 'https://docs.bokeh.org/en/latest/'
-ogp_image = 'http://static.bokeh.org/og/logotype-on-hex.png'
-ogp_custom_meta_tags = [
-    '<meta name="twitter:card" content="summary_large_image" />',
-    '<meta property="twitter:site" content="@bokeh" />',
-    '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
-]
 
 # -- Options for HTML output ---------------------------------------------------
 

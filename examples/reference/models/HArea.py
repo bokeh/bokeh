@@ -11,7 +11,7 @@ x2 = 10 - y**2
 source = ColumnDataSource(dict(x1=x1, x2=x2, y=y))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = HArea(x1="x1", x2="x2", y="y", fill_color="#f46d43")

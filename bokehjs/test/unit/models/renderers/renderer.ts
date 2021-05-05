@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
 
 class SomeRendererView extends RendererView {
-  model: SomeRenderer
+  override model: SomeRenderer
 
   protected _render(): void {}
 }

@@ -99,10 +99,10 @@ export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
 export interface BezierView extends BezierData {}
 
 export class BezierView extends GlyphView {
-  model: Bezier
-  visuals: Bezier.Visuals
+  override model: Bezier
+  override visuals: Bezier.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -156,7 +156,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -187,8 +187,8 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-  properties: Bezier.Props
-  __view_type__: BezierView
+  override properties: Bezier.Props
+  override __view_type__: BezierView
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)

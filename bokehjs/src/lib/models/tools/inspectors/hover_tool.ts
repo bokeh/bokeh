@@ -18,7 +18,7 @@ import {color2hex, color2css} from "core/util/color"
 import {isEmpty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
-import {build_views, remove_views} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
@@ -27,6 +27,7 @@ import {tool_icon_hover} from "styles/icons.css"
 import {Signal} from "core/signaling"
 import {compute_renderers} from "../../util"
 import * as styles from "styles/tooltips.css"
+import {Template, TemplateView} from "../../dom"
 
 export type TooltipVars = {index: number} & Vars
 
@@ -62,29 +63,37 @@ export function _line_hit(xs: Arrayable<number>, ys: Arrayable<number>, ind: num
 }
 
 export class HoverToolView extends InspectToolView {
-  model: HoverTool
+  override model: HoverTool
 
   protected _ttviews: Map<Tooltip, TooltipView>
   protected _ttmodels: Map<GlyphRenderer, Tooltip>
   protected _template_el?: HTMLElement
+  protected _template_view?: TemplateView
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._ttmodels = new Map()
     this._ttviews = new Map()
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._update_ttmodels()
+
+    const {tooltips} = this.model
+    if (tooltips instanceof Template) {
+      this._template_view = await build_view(tooltips, {parent: this})
+      this._template_view.render()
+    }
   }
 
-  remove(): void {
+  override remove(): void {
+    this._template_view?.remove()
     remove_views(this._ttviews)
     super.remove()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     const plot_renderers = this.plot_model.properties.renderers
@@ -160,7 +169,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
     const {sx, sy} = ev
@@ -170,7 +179,7 @@ export class HoverToolView extends InspectToolView {
       this._inspect(sx, sy)
   }
 
-  _move_exit(): void {
+  override _move_exit(): void {
     this._clear()
   }
 
@@ -513,6 +522,9 @@ export class HoverToolView extends InspectToolView {
       return div({}, content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
+    } else if (tooltips instanceof Template) {
+      this._template_view!.update(ds, i, vars)
+      return this._template_view!.el
     } else if (tooltips != null) {
       const template = this._template_el ?? (this._template_el = this._create_template(tooltips))
       return this._render_template(template, tooltips, ds, i, vars)
@@ -525,7 +537,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<null | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
+    tooltips: p.Property<null | Template | string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<Formatters>
     renderers: p.Property<DataRenderer[] | "auto">
     /** @deprecated */
@@ -544,8 +556,8 @@ export namespace HoverTool {
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-  properties: HoverTool.Props
-  __view_type__: HoverToolView
+  override properties: HoverTool.Props
+  override __view_type__: HoverToolView
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)
@@ -555,7 +567,7 @@ export class HoverTool extends InspectTool {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>(({Any, Boolean, String, Array, Tuple, Dict, Or, Ref, Function, Auto, Nullable}) => ({
-      tooltips: [ Nullable(Or(String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
+      tooltips: [ Nullable(Or(Ref(Template), String, Array(Tuple(String, String)), Function<[ColumnarDataSource, TooltipVars], HTMLElement>())), [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
@@ -576,6 +588,6 @@ export class HoverTool extends InspectTool {
     this.register_alias("hover", () => new HoverTool())
   }
 
-  tool_name = "Hover"
-  icon = tool_icon_hover
+  override tool_name = "Hover"
+  override icon = tool_icon_hover
 }

@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.io import curdoc, output_file, show
 from bokeh.models import (ColumnDataSource, Ellipse, HBar, Line,
-                          LinearAxis, Plot, Scatter, Text, Title,)
+                          LinearAxis, Plot, Scatter, Text, Title)
 from bokeh.models.formatters import BasicTickFormatter
 from bokeh.models.tickers import BasicTicker
 from bokeh.themes import Theme
@@ -43,7 +43,7 @@ source2 = ColumnDataSource({"x": x, "y": y})
 source3 = ColumnDataSource({"x": x2, "y": z})
 source4 = ColumnDataSource({"y": [2.5], "x": [0.5]})
 
-plot = Plot(plot_width=300, plot_height=300)
+plot = Plot(width=300, height=300)
 plot.title = Title(text="Themed glyphs")
 
 xaxis = LinearAxis(ticker=BasicTicker(), formatter=BasicTickFormatter())

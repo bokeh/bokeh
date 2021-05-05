@@ -20,7 +20,7 @@ source = ColumnDataSource(data=dict(
     west=[ 5, 7, 9, 4, 5, 4, 7, 7, 7, 6, 6, 7 ],
 ))
 
-p = figure(x_range=FactorRange(*factors), plot_height=250,
+p = figure(x_range=FactorRange(*factors), height=250,
            toolbar_location=None, tools="")
 
 p.vbar_stack(regions, x='x', width=0.9, alpha=0.5, color=["blue", "red"], source=source,

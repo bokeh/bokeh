@@ -13,7 +13,7 @@ group = df.groupby(['cyl', 'mfr'])
 
 index_cmap = factor_cmap('cyl_mfr', palette=Spectral5, factors=sorted(df.cyl.unique()), end=1)
 
-p = figure(plot_width=800, plot_height=300, title="Mean MPG by # Cylinders and Manufacturer",
+p = figure(width=800, height=300, title="Mean MPG by # Cylinders and Manufacturer",
            x_range=group, toolbar_location=None, tooltips=[("MPG", "@mpg_mean"), ("Cyl, Mfr", "@cyl_mfr")])
 
 p.vbar(x='cyl_mfr', top='mpg_mean', width=1, source=group,

@@ -5,6 +5,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -48,6 +50,8 @@ class AuthProvider:
 
     The properties ``logout_url`` and ``get_logout_handler`` are analogous to
     the corresponding login properties, and are optional.
+
+    .. autoclasstoc::
 
     '''
 
@@ -189,6 +193,8 @@ class AuthModule(AuthProvider):
     The ``logout_handler`` property will return a ``LogoutHandler`` class from
     the module, or None otherwise.
 
+    .. autoclasstoc::
+
     '''
 
     def __init__(self, module_path):
@@ -231,6 +237,8 @@ class NullAuth(AuthProvider):
     ''' A default no-auth AuthProvider.
 
     All of the properties of this provider return None.
+
+    .. autoclasstoc::
 
     '''
     @property

@@ -154,7 +154,7 @@ class Test_DatePicker:
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_js_on_change_executes(self, bokeh_model_page) -> None:
+    def _test_js_on_change_executes(self, bokeh_model_page) -> None:
         dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
         dp.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
@@ -177,10 +177,10 @@ class Test_DatePicker:
         assert page.has_no_console_errors()
 
     @flaky(max_runs=10)
-    def test_server_on_change_round_trip(self, bokeh_server_page) -> None:
+    def _test_server_on_change_round_trip(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])
@@ -205,10 +205,10 @@ class Test_DatePicker:
         assert results['data']['val'] == ['2019-09-20', '2019-09-16']
 
     @flaky(max_runs=10)
-    def test_server_update_disabled(self, bokeh_server_page) -> None:
+    def _test_server_update_disabled(self, bokeh_server_page) -> None:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             dp = DatePicker(title='Select date', value=date(2019, 9, 20), min_date=date(2019, 9, 1), max_date="2019-09-30", css_classes=["foo"])

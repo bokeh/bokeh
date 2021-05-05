@@ -40,7 +40,7 @@ export namespace MonthsTicker {
 export interface MonthsTicker extends MonthsTicker.Attrs {}
 
 export class MonthsTicker extends SingleIntervalTicker {
-  properties: MonthsTicker.Props
+  override properties: MonthsTicker.Props
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
     super(attrs)
@@ -52,7 +52,7 @@ export class MonthsTicker extends SingleIntervalTicker {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     const months = this.months
     if (months.length > 1)
@@ -61,7 +61,7 @@ export class MonthsTicker extends SingleIntervalTicker {
       this.interval = 12*ONE_MONTH
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
+  override get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
     const year_dates = date_range_by_year(data_low, data_high)
 
     const months = this.months

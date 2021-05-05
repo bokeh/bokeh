@@ -16,7 +16,6 @@ dependencies:
 
   # tests
   - beautifulsoup4
-  - black
   - channels
   - click
   - colorama
@@ -27,7 +26,7 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort <5.0
+  - isort 5.8
   - mock
   - mypy
   - nbconvert >=5.4
@@ -46,10 +45,11 @@ dependencies:
   - requests >=1.2.3
   - selenium >=3.8
   - scipy
-  - sphinx
+  - sphinx >=3.5
   - sphinx-panels
   - pip
   - pip:
+    - autoclasstoc
     - pydata_sphinx_theme
     - sphinxext-opengraph
     - sphinx-reredirects

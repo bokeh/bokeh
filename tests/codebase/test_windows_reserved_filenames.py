@@ -19,6 +19,9 @@ import pytest ; pytest
 import os
 from os.path import join, splitext
 
+# Bokeh imports
+from bokeh.util.string import nice_join
+
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
@@ -36,7 +39,7 @@ def test_windows_reserved_filenames() -> None:
             if splitext(file)[0].upper() in RESERVED_NAMES:
                 bad.append(join(path, file))
 
-    assert len(bad) == 0, "Windows reserved filenames detected:\n%s" % "\n".join(bad)
+    assert len(bad) == 0, f"Windows reserved filenames detected:\n{nice_join(bad)}"
 
 #-----------------------------------------------------------------------------
 # Support

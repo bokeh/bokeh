@@ -17,10 +17,8 @@ import pytest ; pytest
 
 # Standard library imports
 from os import chdir
-from pathlib import Path
 from subprocess import run
 
-# Bokeh imports
 from . import TOP_PATH
 
 #-----------------------------------------------------------------------------
@@ -31,7 +29,7 @@ def test_eslint() -> None:
     ''' Assures that the BokehJS codebase passes configured eslint checks
 
     '''
-    chdir(Path(TOP_PATH) / "bokehjs")
+    chdir(TOP_PATH/"bokehjs")
     proc = run(["node", "make", "lint"], capture_output=True)
     assert proc.returncode == 0, f"eslint issues:\n{proc.stdout.decode('utf-8')}"
 

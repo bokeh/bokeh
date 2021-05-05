@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -94,6 +96,8 @@ def current_time():
 
 class ServerSession:
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
+
+    .. autoclasstoc::
 
     '''
 

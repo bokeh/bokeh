@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -16,8 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import HorizontalLocation, VerticalLocation
-from ..core.properties import Auto, Either, Enum, Instance, Int, Seq, String
 from ..models import (
     GMapPlot,
     LinearAxis,
@@ -25,12 +25,11 @@ from ..models import (
     MercatorTickFormatter,
     Range1d,
     Title,
-    Tool,
 )
-from ..models.tools import Drag, InspectTool, Scroll, Tap
-from ..util.options import Options
+from ._plot import _get_num_minor_ticks
 from ._tools import process_active_tools, process_tools_arg
-from .figure import Figure
+from .figure import BaseFigureOptions
+from .glyph_api import GlyphAPI
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,7 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class GMap(GMapPlot):
+class GMap(GMapPlot, GlyphAPI):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
 
@@ -74,16 +73,6 @@ class GMap(GMapPlot):
     __view_model__ = "GMapPlot"
 
     def __init__(self, **kw):
-
-        if 'plot_width' in kw and 'width' in kw:
-            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kw and 'height' in kw:
-            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
-        if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
-
         opts = GMapFigureOptions(kw)
 
         title = kw.get("title", None)
@@ -92,124 +81,37 @@ class GMap(GMapPlot):
 
         super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
-        xf = MercatorTickFormatter(dimension="lon")
-        xt = MercatorTicker(dimension="lon")
-        self.add_layout(LinearAxis(formatter=xf, ticker=xt), 'below')
+        if opts.x_axis_location is not None:
+            xf = MercatorTickFormatter(dimension="lon")
+            xt = MercatorTicker(dimension="lon")
+            xt.num_minor_ticks = _get_num_minor_ticks(LinearAxis, opts.x_minor_ticks)
+            self.add_layout(LinearAxis(formatter=xf, ticker=xt, axis_label=opts.x_axis_label), opts.x_axis_location)
 
-        yf = MercatorTickFormatter(dimension="lat")
-        yt = MercatorTicker(dimension="lat")
-        self.add_layout(LinearAxis(formatter=yf, ticker=yt), 'left')
+        if opts.y_axis_location is not None:
+            yf = MercatorTickFormatter(dimension="lat")
+            yt = MercatorTicker(dimension="lat")
+            yt.num_minor_ticks = _get_num_minor_ticks(LinearAxis, opts.y_minor_ticks)
+            self.add_layout(LinearAxis(formatter=yf, ticker=yt, axis_label=opts.y_axis_label), opts.y_axis_location)
 
-        tool_objs, tool_map = process_tools_arg(self, opts.tools)
+        tool_objs, tool_map = process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
-        process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+        process_active_tools(
+            self.toolbar,
+            tool_map,
+            opts.active_drag,
+            opts.active_inspect,
+            opts.active_scroll,
+            opts.active_tap,
+            opts.active_multi,
+        )
 
+    @property
+    def plot(self):
+        return self
 
-    annular_wedge = Figure.annular_wedge
-
-    annulus = Figure.annulus
-
-    arc = Figure.arc
-
-    asterisk = Figure.asterisk
-
-    bezier = Figure.bezier
-
-    circle = Figure.circle
-
-    circle_cross = Figure.circle_cross
-
-    circle_x = Figure.circle_x
-
-    cross = Figure.cross
-
-    dash = Figure.dash
-
-    diamond = Figure.diamond
-
-    diamond_cross = Figure.diamond_cross
-
-    graph = Figure.graph
-
-    harea = Figure.harea
-
-    harea_stack = Figure.harea_stack
-
-    hbar = Figure.hbar
-
-    hbar_stack = Figure.hbar_stack
-
-    hline_stack = Figure.hline_stack
-
-    ellipse = Figure.ellipse
-
-    hex = Figure.hex
-
-    hexbin = Figure.hexbin
-
-    hex_tile = Figure.hex_tile
-
-    image = Figure.image
-
-    image_rgba = Figure.image_rgba
-
-    image_url = Figure.image_url
-
-    inverted_triangle = Figure.inverted_triangle
-
-    line = Figure.line
-
-    multi_line = Figure.multi_line
-
-    multi_polygons = Figure.multi_polygons
-
-    oval = Figure.oval
-
-    patch = Figure.patch
-
-    patches = Figure.patches
-
-    quad = Figure.quad
-
-    quadratic = Figure.quadratic
-
-    ray = Figure.ray
-
-    rect = Figure.rect
-
-    star = Figure.star
-
-    star_dot = Figure.star_dot
-
-    step = Figure.step
-
-    scatter = Figure.scatter
-
-    segment = Figure.segment
-
-    square = Figure.square
-
-    square_cross = Figure.square_cross
-
-    square_x = Figure.square_x
-
-    text = Figure.text
-
-    triangle = Figure.triangle
-
-    varea = Figure.varea
-
-    varea_stack = Figure.varea_stack
-
-    vbar = Figure.vbar
-
-    vbar_stack = Figure.vbar_stack
-
-    vline_stack = Figure.vline_stack
-
-    wedge = Figure.wedge
-
-    x = Figure.x
+    @property
+    def coordinates(self):
+        return None
 
 def gmap(google_api_key, map_options, **kwargs):
     ''' Create a new :class:`~bokeh.plotting.gmap.GMap` for plotting.
@@ -226,7 +128,7 @@ def gmap(google_api_key, map_options, **kwargs):
             Configuration specific to a Google Map
 
     In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
-    arguments (e.g. ``plot_width`` or ``sizing_mode``), the following
+    arguments (e.g. ``width`` or ``sizing_mode``), the following
     additional options can be passed as well:
 
     .. bokeh-options:: GMapFigureOptions
@@ -242,51 +144,8 @@ def gmap(google_api_key, map_options, **kwargs):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class GMapFigureOptions(Options):
-
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
-    Tools the plot should start with.
-    """)
-
-    x_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent x-axis major ticks.
-    """)
-
-    y_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent y-axis major ticks.
-    """)
-
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
-    Where the x-axis should be located.
-    """)
-
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
-    Where the y-axis should be located.
-    """)
-
-    x_axis_label = String(default="", help="""
-    A label for the x-axis.
-    """)
-
-    y_axis_label = String(default="", help="""
-    A label for the y-axis.
-    """)
-
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_inspect = Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
-    Which scroll tool should initially be active.
-    """)
-
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
-    Which tap tool should initially be active.
-    """)
+class GMapFigureOptions(BaseFigureOptions):
+    pass
 
 #-----------------------------------------------------------------------------
 # Private API

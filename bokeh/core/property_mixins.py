@@ -61,6 +61,8 @@ specific to each property.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -93,11 +95,11 @@ from .properties import (
     FontSizeSpec,
     FontStyleSpec,
     HatchPatternSpec,
+    Instance,
+    Int,
     IntSpec,
     LineCapSpec,
     LineJoinSpec,
-    Instance,
-    Int,
     Nullable,
     NumberSpec,
     Size,

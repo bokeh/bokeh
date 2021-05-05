@@ -5,7 +5,7 @@ from numpy import exp, linspace, pi, sin
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, DatetimeAxis,
-                          PanTool, Plot, WheelZoomTool,)
+                          PanTool, Plot, WheelZoomTool)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
@@ -18,7 +18,7 @@ times = (linspace(0, 24*3600, N) + time.time()) * 1000
 
 source = ColumnDataSource(data=dict(x=x, y=y, times=times))
 
-plot = Plot(min_border=80, plot_width=800, plot_height=350, background_fill_color="#efefef")
+plot = Plot(min_border=80, width=800, height=350, background_fill_color="#efefef")
 
 circle = Circle(x="times", y="y", fill_color="red", size=3, line_color=None, fill_alpha=0.5)
 plot.add_glyph(source, circle)

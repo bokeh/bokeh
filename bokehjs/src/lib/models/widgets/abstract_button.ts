@@ -9,7 +9,7 @@ import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
-  model: AbstractButton
+  override model: AbstractButton
 
   protected icon_view?: AbstractIconView
 
@@ -20,7 +20,7 @@ export abstract class AbstractButtonView extends ControlView {
     yield this.button_el
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const {icon} = this.model
     if (icon != null) {
@@ -28,18 +28,18 @@ export abstract class AbstractButtonView extends ControlView {
     }
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
   }
 
-  remove(): void {
+  override remove(): void {
     if (this.icon_view != null)
       this.icon_view.remove()
     super.remove()
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), buttons_css]
   }
 
@@ -51,7 +51,7 @@ export abstract class AbstractButtonView extends ControlView {
     }, ...children)
   }
 
-  render(): void {
+  override render(): void {
     super.render()
 
     this.button_el = this._render_button(this.model.label)
@@ -86,8 +86,8 @@ export namespace AbstractButton {
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Control {
-  properties: AbstractButton.Props
-  __view_type__: AbstractButtonView
+  override properties: AbstractButton.Props
+  override __view_type__: AbstractButtonView
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)

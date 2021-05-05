@@ -8,7 +8,8 @@ import {DTINDEX_NAME, Item} from "./definitions"
 import * as tables from "styles/widgets/tables.css"
 
 export abstract class CellEditorView extends DOMView {
-  model: CellEditor
+  override model: CellEditor
+  override el: HTMLElement
 
   defaultValue: any
 
@@ -30,21 +31,21 @@ export abstract class CellEditorView extends DOMView {
     this.render()     // XXX: this isn't governed by layout
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.inputEl = this._createInput()
     this.defaultValue = null
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     throw new Error("unsupported")
   }
 
-  css_classes(): string[] {
+  override css_classes(): string[] {
     return super.css_classes().concat(tables.cell_editor)
   }
 
-  render(): void {
+  override render(): void {
     super.render()
     this.args.container.append(this.el)
     this.el.appendChild(this.inputEl)
@@ -136,16 +137,16 @@ export namespace CellEditor {
 export interface CellEditor extends CellEditor.Attrs {}
 
 export abstract class CellEditor extends Model {
-  properties: CellEditor.Props
-  __view_type__: CellEditorView
+  override properties: CellEditor.Props
+  override __view_type__: CellEditorView
 }
 
 export class StringEditorView extends CellEditorView {
-  model: StringEditor
+  override model: StringEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
-  get emptyValue(): string {
+  override get emptyValue(): string {
     return ""
   }
 
@@ -153,7 +154,7 @@ export class StringEditorView extends CellEditorView {
     return input({type: "text"})
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     //completions = @model.completions
     //if completions.length != 0
     //  @inputEl.classList.add("bk-cell-editor-completion")
@@ -163,7 +164,7 @@ export class StringEditorView extends CellEditorView {
     this.inputEl.select()
   }
 
-  loadValue(item: Item): void {
+  override loadValue(item: Item): void {
     super.loadValue(item)
     this.inputEl.defaultValue = this.defaultValue
     this.inputEl.select()
@@ -181,7 +182,7 @@ export namespace StringEditor {
 export interface StringEditor extends StringEditor.Attrs {}
 
 export class StringEditor extends CellEditor {
-  properties: StringEditor.Props
+  override properties: StringEditor.Props
 
   static init_StringEditor(): void {
     this.prototype.default_view = StringEditorView
@@ -192,15 +193,15 @@ export class StringEditor extends CellEditor {
 }
 
 export class TextEditorView extends CellEditorView {
-  model: TextEditor
+  override model: TextEditor
 
-  inputEl: HTMLTextAreaElement
+  override inputEl: HTMLTextAreaElement
 
   protected _createInput(): HTMLTextAreaElement {
     return textarea()
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     this.inputEl.focus()
     this.inputEl.select()
   }
@@ -215,7 +216,7 @@ export namespace TextEditor {
 export interface TextEditor extends TextEditor.Attrs {}
 
 export class TextEditor extends CellEditor {
-  properties: TextEditor.Props
+  override properties: TextEditor.Props
 
   static init_TextEditor(): void {
     this.prototype.default_view = TextEditorView
@@ -223,15 +224,15 @@ export class TextEditor extends CellEditor {
 }
 
 export class SelectEditorView extends CellEditorView {
-  model: SelectEditor
+  override model: SelectEditor
 
-  inputEl: HTMLSelectElement
+  override inputEl: HTMLSelectElement
 
   protected _createInput(): HTMLSelectElement {
     return select()
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     for (const opt of this.model.options) {
       this.inputEl.appendChild(option({value: opt}, opt))
     }
@@ -250,7 +251,7 @@ export namespace SelectEditor {
 export interface SelectEditor extends SelectEditor.Attrs {}
 
 export class SelectEditor extends CellEditor {
-  properties: SelectEditor.Props
+  override properties: SelectEditor.Props
 
   static init_SelectEditor(): void {
     this.prototype.default_view = SelectEditorView
@@ -261,9 +262,9 @@ export class SelectEditor extends CellEditor {
 }
 
 export class PercentEditorView extends CellEditorView {
-  model: PercentEditor
+  override model: PercentEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -279,7 +280,7 @@ export namespace PercentEditor {
 export interface PercentEditor extends PercentEditor.Attrs {}
 
 export class PercentEditor extends CellEditor {
-  properties: PercentEditor.Props
+  override properties: PercentEditor.Props
 
   static init_PercentEditor(): void {
     this.prototype.default_view = PercentEditorView
@@ -287,24 +288,24 @@ export class PercentEditor extends CellEditor {
 }
 
 export class CheckboxEditorView extends CellEditorView {
-  model: CheckboxEditor
+  override model: CheckboxEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "checkbox"})
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     this.focus()
   }
 
-  loadValue(item: Item): void {
+  override loadValue(item: Item): void {
     this.defaultValue = !!item[this.args.column.field]
     this.inputEl.checked = this.defaultValue
   }
 
-  serializeValue(): any {
+  override serializeValue(): any {
     return this.inputEl.checked
   }
 }
@@ -318,7 +319,7 @@ export namespace CheckboxEditor {
 export interface CheckboxEditor extends CheckboxEditor.Attrs {}
 
 export class CheckboxEditor extends CellEditor {
-  properties: CheckboxEditor.Props
+  override properties: CheckboxEditor.Props
 
   static init_CheckboxEditor(): void {
     this.prototype.default_view = CheckboxEditorView
@@ -326,36 +327,36 @@ export class CheckboxEditor extends CellEditor {
 }
 
 export class IntEditorView extends CellEditorView {
-  model: IntEditor
+  override model: IntEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     //$(@inputEl).spinner({step: @model.step})
     this.inputEl.focus()
     this.inputEl.select()
   }
 
-  remove(): void {
+  override remove(): void {
     //$(@inputEl).spinner("destroy")
     super.remove()
   }
 
-  serializeValue(): any {
+  override serializeValue(): any {
     return parseInt(this.getValue(), 10) ?? 0
   }
 
-  loadValue(item: Item): void {
+  override loadValue(item: Item): void {
     super.loadValue(item)
     this.inputEl.defaultValue = this.defaultValue
     this.inputEl.select()
   }
 
-  validateValue(value: any): any {
+  override validateValue(value: any): any {
     if (isNaN(value))
       return {valid: false, msg: "Please enter a valid integer"}
     else
@@ -374,7 +375,7 @@ export namespace IntEditor {
 export interface IntEditor extends IntEditor.Attrs {}
 
 export class IntEditor extends CellEditor {
-  properties: IntEditor.Props
+  override properties: IntEditor.Props
 
   static init_IntEditor(): void {
     this.prototype.default_view = IntEditorView
@@ -385,36 +386,36 @@ export class IntEditor extends CellEditor {
 }
 
 export class NumberEditorView extends CellEditorView {
-  model: NumberEditor
+  override model: NumberEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     //$(@inputEl).spinner({step: @model.step})
     this.inputEl.focus()
     this.inputEl.select()
   }
 
-  remove(): void {
+  override remove(): void {
     //$(@inputEl).spinner("destroy")
     super.remove()
   }
 
-  serializeValue(): any {
+  override serializeValue(): any {
     return parseFloat(this.getValue()) ?? 0.0
   }
 
-  loadValue(item: Item): void {
+  override loadValue(item: Item): void {
     super.loadValue(item)
     this.inputEl.defaultValue = this.defaultValue
     this.inputEl.select()
   }
 
-  validateValue(value: any): any {
+  override validateValue(value: any): any {
     if (isNaN(value))
       return {valid: false, msg: "Please enter a valid number"}
     else
@@ -433,7 +434,7 @@ export namespace NumberEditor {
 export interface NumberEditor extends NumberEditor.Attrs {}
 
 export class NumberEditor extends CellEditor {
-  properties: NumberEditor.Props
+  override properties: NumberEditor.Props
 
   static init_NumberEditor(): void {
     this.prototype.default_view = NumberEditorView
@@ -444,9 +445,9 @@ export class NumberEditor extends CellEditor {
 }
 
 export class TimeEditorView extends CellEditorView {
-  model: TimeEditor
+  override model: TimeEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -462,7 +463,7 @@ export namespace TimeEditor {
 export interface TimeEditor extends TimeEditor.Attrs {}
 
 export class TimeEditor extends CellEditor {
-  properties: TimeEditor.Props
+  override properties: TimeEditor.Props
 
   static init_TimeEditor(): void {
     this.prototype.default_view = TimeEditorView
@@ -470,19 +471,19 @@ export class TimeEditor extends CellEditor {
 }
 
 export class DateEditorView extends CellEditorView {
-  model: DateEditor
+  override model: DateEditor
 
-  inputEl: HTMLInputElement
+  override inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
-  get emptyValue(): Date {
+  override get emptyValue(): Date {
     return new Date()
   }
 
-  renderEditor(): void {
+  override renderEditor(): void {
     //this.calendarOpen = false
 
     //@$datepicker = $(@inputEl).datepicker({
@@ -497,36 +498,36 @@ export class DateEditorView extends CellEditorView {
     this.inputEl.select()
   }
 
-  destroy(): void {
+  override destroy(): void {
     //$.datepicker.dpDiv.stop(true, true)
     //@$datepicker.datepicker("hide")
     //@$datepicker.datepicker("destroy")
     super.destroy()
   }
 
-  show(): void {
+  override show(): void {
     //if @calendarOpen
     //  $.datepicker.dpDiv.stop(true, true).show()
     super.show()
   }
 
-  hide(): void {
+  override hide(): void {
     //if @calendarOpen
     //  $.datepicker.dpDiv.stop(true, true).hide()
     super.hide()
   }
 
-  position(/*_position*/): any {
+  override position(/*_position*/): any {
     //if @calendarOpen
     //  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
     return super.position()
   }
 
-  getValue(): any {
+  override getValue(): any {
     //return @$datepicker.datepicker("getDate").getTime()
   }
 
-  setValue(_val: any): void {
+  override setValue(_val: any): void {
     //@$datepicker.datepicker("setDate", new Date(val))
   }
 }
@@ -540,7 +541,7 @@ export namespace DateEditor {
 export interface DateEditor extends DateEditor.Attrs {}
 
 export class DateEditor extends CellEditor {
-  properties: DateEditor.Props
+  override properties: DateEditor.Props
 
   static init_DateEditor(): void {
     this.prototype.default_view = DateEditorView

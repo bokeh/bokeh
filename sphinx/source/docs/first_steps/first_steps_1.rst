@@ -68,8 +68,7 @@ Follow these steps to recreate this simple line chart:
         x = [1, 2, 3, 4, 5]
         y = [6, 7, 2, 4, 5]
 
-3. Use the :func:`~bokeh.plotting.figure` function to create your plot. Pass the
-   following arguments:
+3. Use the |figure| function to create your plot. Pass the following arguments:
 
    * ``title``: the title of your line chart (optional)
    * ``x_axis_label``: a text label to put on the chart's x-axis (optional)
@@ -130,7 +129,7 @@ First, add more data as the basis for additional graphs:
     y3 = [4, 5, 5, 7, 2]
 
 Next, update the title for your plot by changing the string for the ``title``
-argument in the :func:`~bokeh.plotting.figure` function:
+argument in the |figure| function:
 
 .. code-block:: python
 
@@ -193,9 +192,7 @@ Bokeh's |bokeh.plotting| interface require:
     :height: 19px
     :alt: Help symbol
 
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <userguide_plotting>`
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.Figure.line`
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`

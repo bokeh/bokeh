@@ -18,7 +18,7 @@ export namespace LogColorMapper {
 export interface LogColorMapper extends LogColorMapper.Attrs {}
 
 export class LogColorMapper extends ContinuousColorMapper {
-  properties: LogColorMapper.Props
+  override properties: LogColorMapper.Props
 
   constructor(attrs?: Partial<LogColorMapper.Attrs>) {
     super(attrs)

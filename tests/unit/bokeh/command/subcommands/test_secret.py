@@ -34,6 +34,7 @@ import bokeh.command.subcommands.secret as scsecret # isort:skip
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scsecret.Secret(parser=argparse.ArgumentParser())

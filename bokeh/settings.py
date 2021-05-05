@@ -107,6 +107,8 @@ There are a few methods on the ``settings`` object:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -242,6 +244,30 @@ def convert_logging(value):
         return _log_levels[value]
 
     raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
+
+def convert_validation(value):
+    '''Convert a string to a validation level
+
+    If a validation level is passed in, it is returned as-is.
+
+    Args:
+        value (str):
+            A string value to convert to a validation level
+
+    Returns:
+        string
+
+    Raises:
+        ValueError
+
+    '''
+    VALID_LEVELS = {"none", "errors", "all"}
+
+    lowered = value.lower()
+    if lowered in VALID_LEVELS:
+        return lowered
+
+    raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
 
 class _Unset: pass
 
@@ -401,6 +427,7 @@ class PrioritizedSetting:
         if self._convert is convert_bool: return "Bool"
         if self._convert is convert_logging: return "Log Level"
         if self._convert is convert_str_seq: return "List[String]"
+        if self._convert is convert_validation: return "Validation Level"
 
 _config_user_locations = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),
@@ -454,10 +481,10 @@ class Settings:
     browser = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
     The default browser that Bokeh should use to show documents with.
 
-    Valid values are any of the browser names understood by the python
-    standard library webbrowser_ module.
+    Valid values are any of the predefined browser names understood by the
+    Python standard library webbrowser_ module.
 
-    .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+    .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
     """)
 
     cdn_version = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
@@ -470,6 +497,11 @@ class Settings:
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
     long, random sequence of bytes
+    """)
+
+    docs_alert = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
+    Text for an alert banner to display when building the docs locally (for
+    testing the alert banner capability).
     """)
 
     docs_cdn = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
@@ -603,8 +635,15 @@ class Settings:
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
-    Whether validation checks should be strict (i.e. raise errors).
+    validation_level = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none", convert=convert_validation, help="""
+    Whether validation checks should log or raise exceptions on errors and warnings.
+
+    Valid values are:
+
+    - ``none``: no exceptions raised (default).
+    - ``errors``: exception raised on errors (but not on warnings)
+    - ``all``: exception raised on both errors and warnings
+
     """)
 
     xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""

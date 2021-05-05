@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -65,9 +67,6 @@ class Auto(Enum):
 
     def __str__(self):
         return self.__class__.__name__
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -62,7 +62,7 @@ For example:
 
     curdoc().theme = 'dark_minimal'
 
-    p = figure(title='dark_minimal', plot_width=300, plot_height=300)
+    p = figure(title='dark_minimal', width=300, height=300)
     p.line(x, y)
 
     show(p)
@@ -368,8 +368,8 @@ However, the instructions apply regardless of how a Bokeh plot was created.
 Dimensions
 ~~~~~~~~~~
 
-To change the width and height of a |Plot|, use its ``plot_width`` and
-``plot_height`` attributes. Those two attributes use screen units. They
+To change the width and height of a |Plot|, use its ``width`` and
+``height`` attributes. Those two attributes use screen units. They
 control the size of the entire canvas area, including any axes or titles (but
 not the toolbar).
 
@@ -393,8 +393,8 @@ To control how the plot scales to fill its container, see the documentation for
 :class:`~bokeh.models.layouts.LayoutDOM`.
 
 If you set ``sizing_mode`` to anything different than ``fixed``, Bokeh adjusts
-the ``plot_width`` and ``plot_height`` as soon as a plot is rendered. However,
-Bokeh uses ``plot_width`` and ``plot_height`` to calculate the initial aspect
+the ``width`` and ``height`` as soon as a plot is rendered. However,
+Bokeh uses ``width`` and ``height`` to calculate the initial aspect
 ratio of your plot.
 
 Plots will only resize down to a minimum of 100px (height or width) to prevent
@@ -1114,10 +1114,6 @@ You can see a complete example with output in the section
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
 .. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
-
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 

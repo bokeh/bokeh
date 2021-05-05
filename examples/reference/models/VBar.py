@@ -10,7 +10,7 @@ y = x**2
 source = ColumnDataSource(dict(x=x,top=y,))
 
 plot = Plot(
-    title=None, plot_width=300, plot_height=300,
+    title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
 glyph = VBar(x="x", top="top", bottom=0, width=0.5, fill_color="#b3de69")

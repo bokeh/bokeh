@@ -186,7 +186,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  toString(): string {
+  override toString(): string {
     return `${this.type}(${this.id})`
   }
 

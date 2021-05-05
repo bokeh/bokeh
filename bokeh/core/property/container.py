@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -19,10 +21,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Container, Iterable, Mapping, Sequence, Sized
+from collections.abc import (
+    Container,
+    Iterable,
+    Mapping,
+    Sequence,
+    Sized,
+)
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
+from ._sphinx import property_link, register_type_link, type_link
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
@@ -65,9 +74,9 @@ class Seq(ContainerProperty):
     def type_params(self):
         return [self.item_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return self._new_instance([ self.item_type.from_json(item, models) for item in json ])
+            return self._new_instance([ self.item_type.from_json(item, models=models) for item in json ])
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 
@@ -101,11 +110,6 @@ class Seq(ContainerProperty):
 
     def _new_instance(self, value):
         return value
-
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        item_type = self.item_type._sphinx_type()
-        return f"{prop_link}({item_type})"
 
 class List(Seq):
     """ Accept Python list values.
@@ -169,9 +173,9 @@ class Dict(ContainerProperty):
     def type_params(self):
         return [self.keys_type, self.values_type]
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, dict):
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
+            return { self.keys_type.from_json(key, models=models): self.values_type.from_json(value, models=models) for key, value in json.items() }
         else:
             raise DeserializationError(f"{self} expected a dict, got {json}")
 
@@ -197,12 +201,6 @@ class Dict(ContainerProperty):
                 return PropertyValueDict(value)
         else:
             return value
-
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        key_type = self.keys_type._sphinx_type()
-        value_type = self.values_type._sphinx_type()
-        return f"{prop_link}({key_type}, {value_type})"
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
@@ -230,14 +228,14 @@ class ColumnData(Dict):
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         """ Decodes column source data encoded as lists or base64 strings.
         """
         if not isinstance(json, dict):
             raise DeserializationError(f"{self} expected a dict, got {json}")
         new_data = {}
         for key, value in json.items():
-            key = self.keys_type.from_json(key, models)
+            key = self.keys_type.from_json(key, models=models)
             if isinstance(value, dict) and '__ndarray__' in value:
                 new_data[key] = decode_base64_dict(value)
             elif isinstance(value, list) and any(isinstance(el, dict) and '__ndarray__' in el for el in value):
@@ -250,7 +248,7 @@ class ColumnData(Dict):
                     new_list.append(el)
                 new_data[key] = new_list
             else:
-                new_data[key] = self.values_type.from_json(value, models)
+                new_data[key] = self.values_type.from_json(value, models=models)
         return new_data
 
     def serialize_value(self, value):
@@ -284,9 +282,9 @@ class Tuple(ContainerProperty):
     def type_params(self):
         return self._type_params
 
-    def from_json(self, json, models=None):
+    def from_json(self, json, *, models=None):
         if isinstance(json, list):
-            return tuple(type_param.from_json(item, models) for type_param, item in zip(self.type_params, json))
+            return tuple(type_param.from_json(item, models=models) for type_param, item in zip(self.type_params, json))
         else:
             raise DeserializationError(f"{self} expected a list, got {json}")
 
@@ -311,13 +309,6 @@ class Tuple(ContainerProperty):
 
         """
         return tuple(typ.serialize_value(x) for (typ, x) in zip(self.type_params, value))
-
-    def _sphinx_type(self):
-        prop_link = self._sphinx_prop_link()
-        item_types = ", ".join(x._sphinx_type() for x in self.type_params)
-        return f"{prop_link}({item_types})"
-
-
 
 class RelativeDelta(Dict):
     """ Accept RelativeDelta dicts for time delta values.
@@ -361,3 +352,16 @@ class RestrictedDict(Dict):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Dict)
+def _sphinx_type_dict(obj):
+    return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
+
+@register_type_link(Seq)
+def _sphinx_type_seq(obj):
+    return f"{property_link(obj)}({type_link(obj.item_type)})"
+
+@register_type_link(Tuple)
+def _sphinx_type_tuple(obj):
+    item_types = ", ".join(type_link(x) for x in obj.type_params)
+    return f"{property_link(obj)}({item_types})"

@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,11 +25,13 @@ import base64
 import datetime  # lgtm [py/import-and-import-from]
 import re
 from io import BytesIO
+from pathlib import Path
 
 # External imports
 import PIL.Image
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
@@ -102,9 +106,6 @@ class DashPattern(Either):
         else:
             return value
 
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
-
 class FontSize(String):
 
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
@@ -135,14 +136,13 @@ class HatchPatternType(Either):
     def __str__(self):
         return self.__class__.__name__
 
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
-
 class Image(Property):
     """ Accept image file types, e.g PNG, JPEG, TIFF, etc.
 
     This property can be configured with:
 
+    * A ``pathlib.Path`` image file path
+    * A data URL encoded image string
     * A string filename to be loaded with ``PIL.Image.open``
     * An RGB(A) NumPy array, will be converted to PNG
     * A ``PIL.Image.Image`` object
@@ -154,7 +154,7 @@ class Image(Property):
     def validate(self, value, detail=True):
         import numpy as np
 
-        if isinstance(value, (str, PIL.Image.Image)):
+        if isinstance(value, (str, Path, PIL.Image.Image)):
             return
 
         if isinstance(value, np.ndarray):
@@ -169,7 +169,14 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
+        if isinstance(value, str) and value.startswith("data:image/"):
+            return value
+
         if isinstance(value, str):
+            deprecated((2, 4, 0), "raw string path", "pathlib.Path")
+            value = Path(value)
+
+        if isinstance(value, Path):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):
@@ -232,9 +239,6 @@ class MinMaxBounds(Either):
 
         msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
         raise ValueError(msg)
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 class MarkerType(Enum):
     """

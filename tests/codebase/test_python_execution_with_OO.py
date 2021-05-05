@@ -18,9 +18,8 @@ import pytest ; pytest
 # Standard library imports
 import os
 from subprocess import PIPE, Popen
-from sys import executable
+from sys import executable as python
 
-# Bokeh imports
 from . import TOP_PATH
 
 #-----------------------------------------------------------------------------
@@ -61,12 +60,11 @@ def test_python_execution_with_OO() -> None:
 
             imports.append("import " + mod)
 
-    test_env = os.environ.copy()
-    test_env['BOKEH_DOCS_MISSING_API_KEY_OK'] = 'yes'
+    env = os.environ.copy()
+    env['BOKEH_DOCS_MISSING_API_KEY_OK'] = 'yes'
 
-    proc = Popen([executable, "-OO", "-"], stdout=PIPE, stdin=PIPE, env=test_env)
+    proc = Popen([python, "-OO", "-"], stdout=PIPE, stdin=PIPE, env=env)
     proc.communicate("\n".join(imports).encode("utf-8"))
     proc.wait()
 
-    if proc.returncode != 0:
-        assert False
+    assert proc.returncode == 0, "Execution with -OO failed"

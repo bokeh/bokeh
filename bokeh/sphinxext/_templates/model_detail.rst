@@ -6,9 +6,11 @@
     :show-inheritance:
     :inherited-members:
 
-.. _{{ name }}.json:
+    .. _{{ name }}.json:
 
-.. collapsible-code-block:: javascript
-    :heading: JSON Prototype
+    .. collapsible-code-block:: javascript
+        :heading: JSON Prototype
 
-    {{ model_json|indent(4) }}
+        {{ model_json|indent(8) }}
+
+    .. autoclasstoc::

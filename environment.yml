@@ -22,17 +22,17 @@ dependencies:
   # docs
   - colorcet
   - pygments
-  - sphinx >=1.8
+  - sphinx >=3.5
   - sphinx-panels
   - pip
   - pip:
+    - autoclasstoc
     - pydata_sphinx_theme
     - sphinxext-opengraph
     - sphinx-reredirects
 
   # tests
   - beautifulsoup4
-  - black
   - channels
   - click
   - colorama
@@ -42,7 +42,7 @@ dependencies:
   - flaky
   - geckodriver
   - ipython
-  - isort <5.0
+  - isort 5.8
   - mock
   - mypy <=0.782
   - nbconvert >=5.4

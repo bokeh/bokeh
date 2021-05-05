@@ -22,10 +22,10 @@ export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
 export interface AnnulusView extends AnnulusData {}
 
 export class AnnulusView extends XYGlyphView {
-  model: Annulus
-  visuals: Annulus.Visuals
+  override model: Annulus
+  override visuals: Annulus.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
     else
@@ -77,7 +77,7 @@ export class AnnulusView extends XYGlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -114,7 +114,7 @@ export class AnnulusView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -149,8 +149,8 @@ export namespace Annulus {
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
-  properties: Annulus.Props
-  __view_type__: AnnulusView
+  override properties: Annulus.Props
+  override __view_type__: AnnulusView
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)

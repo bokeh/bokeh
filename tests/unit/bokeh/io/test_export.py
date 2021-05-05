@@ -25,7 +25,12 @@ from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
 from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
-from bokeh.models import ColumnDataSource, Plot, Range1d, Rect
+from bokeh.models import (
+    ColumnDataSource,
+    Plot,
+    Range1d,
+    Rect,
+)
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 
@@ -60,7 +65,7 @@ def test_get_screenshot_as_png(webdriver, dimensions: Tuple[int, int]) -> None:
     border = 5
 
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=width, plot_width=height,
+                  height=width, width=height,
                   min_border=border,
                   hidpi=False,
                   toolbar_location=None,
@@ -85,7 +90,7 @@ def test_get_screenshot_as_png_with_glyph(webdriver, dimensions: Tuple[int, int]
     border = 5
 
     layout = Plot(x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
-                  plot_height=width, plot_width=height,
+                  height=width, width=height,
                   toolbar_location=None,
                   min_border=border,
                   hidpi=False,
@@ -134,7 +139,7 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svg(layout)
@@ -154,7 +159,7 @@ def test_get_svg_no_svg_present() -> None:
 def test_get_svg_with_svg_present(webdriver) -> None:
     plot = lambda color: Plot(
         x_range=Range1d(), y_range=Range1d(),
-        plot_height=20, plot_width=20, toolbar_location=None,
+        height=20, width=20, toolbar_location=None,
         outline_line_color=None, border_fill_color=None,
         background_fill_color=color, output_backend="svg",
     )
@@ -181,7 +186,7 @@ def test_get_svg_with_svg_present(webdriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
-    layout = Plot(x_range=Range1d(), y_range=Range1d(), plot_height=20, plot_width=20, toolbar_location=None)
+    layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
 
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svgs(layout)
@@ -193,7 +198,7 @@ def test_get_svgs_no_svg_present() -> None:
 def test_get_svgs_with_svg_present(webdriver) -> None:
     plot = lambda color: Plot(
         x_range=Range1d(), y_range=Range1d(),
-        plot_height=20, plot_width=20, toolbar_location=None,
+        height=20, width=20, toolbar_location=None,
         outline_line_color=None, border_fill_color=None,
         background_fill_color=color, output_backend="svg",
     )
@@ -222,13 +227,13 @@ def test_get_layout_html_resets_plot_dims() -> None:
     initial_height, initial_width = 200, 250
 
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=initial_height, plot_width=initial_width)
+                  height=initial_height, width=initial_width)
 
     with silenced(MISSING_RENDERERS):
         bie.get_layout_html(layout, height=100, width=100)
 
-    assert layout.plot_height == initial_height
-    assert layout.plot_width == initial_width
+    assert layout.height == initial_height
+    assert layout.width == initial_width
 
 def test_layout_html_on_child_first() -> None:
     p = Plot(x_range=Range1d(), y_range=Range1d())

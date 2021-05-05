@@ -11,6 +11,8 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -46,9 +48,20 @@ from ..core.validation.errors import (
     NO_SOURCE_FOR_GLYPH,
 )
 from ..model import Model
-from .glyphs import Circle, ConnectedXYGlyph, Glyph, MultiLine
+from .canvas import CoordinateMapping
+from .glyphs import (
+    Circle,
+    ConnectedXYGlyph,
+    Glyph,
+    MultiLine,
+)
 from .graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
-from .sources import CDSView, ColumnDataSource, DataSource, WebDataSource
+from .sources import (
+    CDSView,
+    ColumnDataSource,
+    DataSource,
+    WebDataSource,
+)
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------
@@ -61,6 +74,7 @@ __all__ = (
     'GraphRenderer',
     'GuideRenderer',
     'Renderer',
+    'RendererGroup',
     'TileRenderer',
 )
 
@@ -71,6 +85,15 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+class RendererGroup(Model):
+    '''A collection of renderers.
+
+    '''
+
+    visible = Bool(default=True, help="""
+    Makes all groupped renderers visible or not.
+    """)
 
 @abstract
 class Renderer(Model):
@@ -86,6 +109,8 @@ class Renderer(Model):
     Is the renderer visible.
     """)
 
+    coordinates = Nullable(Instance(CoordinateMapping))
+
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default x-range.
@@ -95,6 +120,8 @@ class Renderer(Model):
     A particular (named) y-range to use for computing screen locations when
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
+
+    group = Nullable(Instance(RendererGroup))
 
 class TileRenderer(Renderer):
     '''

@@ -15,7 +15,7 @@ source = ColumnDataSource(dict(
     ma=[], macd=[], macd9=[], macdh=[], color=[]
 ))
 
-p = figure(plot_height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None, y_axis_location="right")
+p = figure(height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None, y_axis_location="right")
 p.x_range.follow = "end"
 p.x_range.follow_interval = 100
 p.x_range.range_padding = 0
@@ -25,7 +25,7 @@ p.line(x='time', y='ma', alpha=0.8, line_width=2, color='orange', source=source)
 p.segment(x0='time', y0='low', x1='time', y1='high', line_width=2, color='black', source=source)
 p.segment(x0='time', y0='open', x1='time', y1='close', line_width=8, color='color', source=source)
 
-p2 = figure(plot_height=250, x_range=p.x_range, tools="xpan,xwheel_zoom,xbox_zoom,reset", y_axis_location="right")
+p2 = figure(height=250, x_range=p.x_range, tools="xpan,xwheel_zoom,xbox_zoom,reset", y_axis_location="right")
 p2.line(x='time', y='macd', color='red', source=source)
 p2.line(x='time', y='macd9', color='blue', source=source)
 p2.segment(x0='time', y0=0, x1='time', y1='macdh', line_width=6, color='black', alpha=0.5, source=source)
@@ -94,6 +94,6 @@ def update(t):
 
     source.stream(new_data, 300)
 
-curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", plot_width=1000)))
+curdoc().add_root(column(row(mean, stddev, mavg), gridplot([[p], [p2]], toolbar_location="left", width=1000)))
 curdoc().add_periodic_callback(update, 50)
 curdoc().title = "OHLC"

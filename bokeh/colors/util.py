@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -88,6 +90,7 @@ class NamedColor(RGB):
     '''
 
     __all__ = []
+    colors = []
 
     def __init__(self, name, r, g, b):
         '''
@@ -108,6 +111,7 @@ class NamedColor(RGB):
         '''
         if name not in self.__all__:
             self.__all__.append(name)
+            self.colors.append(self)
 
         self.name = name
         super().__init__(r, g, b)

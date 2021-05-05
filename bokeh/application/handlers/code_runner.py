@@ -12,6 +12,8 @@ Python source code.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -48,6 +50,8 @@ __all__ = (
 
 class CodeRunner:
     ''' Compile and run Python source code.
+
+    .. autoclasstoc::
 
     '''
 

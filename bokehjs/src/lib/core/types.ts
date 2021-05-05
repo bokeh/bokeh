@@ -16,11 +16,19 @@ export const ColorArray = Uint32Array
 export type RGBAArray = Uint8ClampedArray
 export const RGBAArray = Uint8ClampedArray
 
-import {TypedArray} from "./util/ndarray"
-export {TypedArray}
+export type DataType = "uint8" | "int8" | "uint16" | "int16" | "uint32" | "int32" | "float32" | "float64"
+
+export type TypedArray =
+  Uint8Array   | Int8Array    |
+  Uint16Array  | Int16Array   |
+  Uint32Array  | Int32Array   |
+  Float32Array | Float64Array
 
 export type FloatArray = Float32Array | Float64Array
 export type FloatArrayConstructor = Float32ArrayConstructor | Float64ArrayConstructor
+
+export type IntArray = Int8Array | Int16Array | Int32Array
+export type IntArrayConstructor = Int8ArrayConstructor | Int16ArrayConstructor | Int32ArrayConstructor
 
 export function infer_type(a0: Float64Array, a1?: FloatArray): Float64ArrayConstructor
 export function infer_type(a0: FloatArray, a1: Float64Array): Float64ArrayConstructor

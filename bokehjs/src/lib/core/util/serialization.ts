@@ -1,7 +1,6 @@
-import {ID, ByteOrder} from "../types"
+import {ID, ByteOrder, DataType} from "../types"
 import {isPlainObject} from "./types"
-import {DataType, NDArray} from "./ndarray"
-import * as ndarray from "./ndarray"
+import type {NDArray} from "./ndarray"
 import {BYTE_ORDER} from "./platform"
 import {swap, base64_to_buffer, buffer_to_base64} from "./buffer"
 
@@ -15,7 +14,7 @@ export type BufferRef = {
 }
 
 export type NDArrayRef = {
-  __ndarray__: string
+  __ndarray__: string | {toJSON(): string}
   order: ByteOrder
   dtype: DataType
   shape: Shape
@@ -27,7 +26,7 @@ export function is_NDArray_ref(v: unknown): v is BufferRef | NDArrayRef {
 
 export type Buffers = Map<ID, ArrayBuffer>
 
-export function decode_NDArray(ref: BufferRef | NDArrayRef, buffers: Buffers): NDArray {
+export function decode_NDArray(ref: BufferRef | NDArrayRef, buffers: Buffers): {buffer: ArrayBuffer, dtype: DataType, shape: Shape} {
   const {shape, dtype, order} = ref
 
   let bytes: ArrayBuffer
@@ -38,27 +37,14 @@ export function decode_NDArray(ref: BufferRef | NDArrayRef, buffers: Buffers): N
     else
       throw new Error(`buffer for ${ref.__buffer__} not found`)
   } else {
-    bytes = base64_to_buffer(ref.__ndarray__)
+    bytes = base64_to_buffer(ref.__ndarray__ as string)
   }
-
-  const array = (() => {
-    switch (dtype) {
-      case "uint8":   return new ndarray.Uint8NDArray(bytes, shape)
-      case "int8":    return new ndarray.Int8NDArray(bytes, shape)
-      case "uint16":  return new ndarray.Uint16NDArray(bytes, shape)
-      case "int16":   return new ndarray.Int16NDArray(bytes, shape)
-      case "uint32":  return new ndarray.Uint32NDArray(bytes, shape)
-      case "int32":   return new ndarray.Int32NDArray(bytes, shape)
-      case "float32": return new ndarray.Float32NDArray(bytes, shape)
-      case "float64": return new ndarray.Float64NDArray(bytes, shape)
-    }
-  })()
 
   if (order !== BYTE_ORDER) {
-    swap(array)
+    swap(bytes, dtype)
   }
 
-  return array
+  return {buffer: bytes, dtype, shape}
 }
 
 export function encode_NDArray(array: NDArray, buffers?: Buffers): BufferRef | NDArrayRef {
@@ -73,7 +59,11 @@ export function encode_NDArray(array: NDArray, buffers?: Buffers): BufferRef | N
     buffers.set(__buffer__, array.buffer)
     return {__buffer__, ...data}
   } else {
-    const __ndarray__ = buffer_to_base64(array.buffer)
+    const __ndarray__ = {
+      toJSON(): string {
+        return buffer_to_base64(array.buffer)
+      },
+    }
     return {__ndarray__, ...data}
   }
 }

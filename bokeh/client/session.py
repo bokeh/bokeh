@@ -24,6 +24,8 @@ A client session has two primary uses:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -238,6 +240,8 @@ class ClientSession:
 
     If you do not use ``ClientSession`` in this way, it is up to you to ensure
     that ``mysession.close()`` is called.
+
+    .. autoclasstoc::
 
     '''
 

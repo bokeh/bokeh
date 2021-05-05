@@ -1,4 +1,4 @@
-import {Models} from "../base"
+import {ModelResolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
@@ -8,6 +8,7 @@ import {ID, Attrs, Data, PlainObject} from "core/types"
 import {Signal0} from "core/signaling"
 import {Struct, is_ref} from "core/util/refs"
 import {Buffers, is_NDArray_ref, decode_NDArray} from "core/util/serialization"
+import {ndarray} from "core/util/ndarray"
 import {difference, intersection, copy, includes} from "core/util/array"
 import {values, entries} from "core/util/object"
 import * as sets from "core/util/set"
@@ -73,19 +74,22 @@ export class Document {
   readonly idle: Signal0<this>
 
   protected readonly _init_timestamp: number
+  protected readonly _resolver: ModelResolver
   protected _title: string
   protected _roots: Model[]
   /*protected*/ _all_models: Map<ID, HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
-  private _idle_roots: WeakMap<Model, boolean>
+  private _idle_roots: WeakMap<HasProps, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
+  protected _interactive_finalize: (() => void)| null
 
-  constructor() {
+  constructor(options?: {resolver?: ModelResolver}) {
     documents.push(this)
     this._init_timestamp = Date.now()
+    this._resolver = options?.resolver ?? new ModelResolver()
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -111,7 +115,7 @@ export class Document {
     return true
   }
 
-  notify_idle(model: Model): void {
+  notify_idle(model: HasProps): void {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
@@ -131,20 +135,25 @@ export class Document {
     }
   }
 
-  interactive_start(plot: Model): void {
+  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())
     }
+    this._interactive_finalize = finalize
     this._interactive_timestamp = Date.now()
   }
 
   interactive_stop(): void {
     if (this._interactive_plot != null) {
       this._interactive_plot.trigger_event(new LODEnd())
+      if (this._interactive_finalize != null) {
+        this._interactive_finalize()
+      }
     }
     this._interactive_plot = null
     this._interactive_timestamp = null
+    this._interactive_finalize = null
   }
 
   interactive_duration(): number {
@@ -336,15 +345,15 @@ export class Document {
     this._trigger_on_change(new ModelChangedEvent(this, model, attr, old_value, new_value, options?.setter_id, options?.hint))
   }
 
-  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
+  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs, resolver: ModelResolver): HasProps {
     const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
-    const model = Models(obj_type)
+    const model = resolver.get(obj_type)
     return new (model as any)(full_attrs)
   }
 
   // given a JSON representation of all models in a graph, return a
   // dict of new model objects
-  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap): RefMap {
+  static _instantiate_references_json(references_json: Struct[], existing_models: RefMap, resolver: ModelResolver): RefMap {
     // Create all instances, but without setting their props
     const references = new Map()
     for (const obj of references_json) {
@@ -354,7 +363,7 @@ export class Document {
 
       let instance = existing_models.get(obj_id)
       if (instance == null) {
-        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs)
+        instance = Document._instantiate_object(obj_id, obj_type, obj_attrs, resolver)
         if (obj.subtype != null)
           instance.set_subtype(obj.subtype)
       }
@@ -374,7 +383,8 @@ export class Document {
         else
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (is_NDArray_ref(v)) {
-        return decode_NDArray(v, buffers)
+        const {buffer, dtype, shape} = decode_NDArray(v, buffers)
+        return ndarray(buffer, {dtype, shape})
       } else if (isArray(v))
         return resolve_array(v)
       else if (isPlainObject(v))
@@ -621,18 +631,19 @@ export class Document {
     } else
       logger.debug(versions_string)
 
+    const resolver = new ModelResolver()
     if (json.defs != null) {
-      resolve_defs(json.defs)
+      resolve_defs(json.defs, resolver)
     }
 
     const roots_json = json.roots
     const root_ids = roots_json.root_ids
     const references_json = roots_json.references
 
-    const references = Document._instantiate_references_json(references_json, new Map())
+    const references = Document._instantiate_references_json(references_json, new Map(), resolver)
     Document._initialize_references_json(references_json, new Map(), references, new Map())
 
-    const doc = new Document()
+    const doc = new Document({resolver})
     for (const id of root_ids) {
       const root = references.get(id)
       if (root != null) {
@@ -678,7 +689,7 @@ export class Document {
   apply_json_patch(patch: Patch, buffers: Buffers | ReturnType<Buffers["entries"]> = new Map(), setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
-    const references = Document._instantiate_references_json(references_json, this._all_models)
+    const references = Document._instantiate_references_json(references_json, this._all_models, this._resolver)
 
     if (!(buffers instanceof Map)) {
       buffers = new Map(buffers)

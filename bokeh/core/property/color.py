@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -140,9 +142,6 @@ class Color(Either):
         if isinstance(value, tuple):
             value = colors.RGB(*value).to_css()
         return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 
 class ColorHex(Color):

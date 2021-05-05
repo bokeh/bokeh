@@ -12,6 +12,8 @@ on the Document.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -36,6 +38,8 @@ __all__ = (
 
 class DocumentLifecycleHandler(LifecycleHandler):
     ''' Calls on_session_destroyed callbacks defined on the Document.
+
+    .. autoclasstoc::
 
     '''
 

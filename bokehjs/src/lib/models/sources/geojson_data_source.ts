@@ -39,7 +39,7 @@ function orNaN(v: number | undefined): number {
 const {hasOwnProperty} = Object.prototype
 
 export class GeoJSONDataSource extends ColumnarDataSource {
-  properties: GeoJSONDataSource.Props
+  override properties: GeoJSONDataSource.Props
 
   constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
     super(attrs)
@@ -55,12 +55,12 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._update_data()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.properties.geojson.change, () => this._update_data())
   }

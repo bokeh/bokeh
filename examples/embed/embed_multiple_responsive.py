@@ -9,7 +9,7 @@ from bokeh.util.browser import view
 
 ########## BUILD FIGURES ################
 
-PLOT_OPTIONS = dict(plot_width=800, plot_height=300)
+PLOT_OPTIONS = dict(width=800, height=300)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]

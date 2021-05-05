@@ -3,15 +3,19 @@ import * as p from "core/properties"
 import {tool_icon_undo} from "styles/icons.css"
 
 export class UndoToolView extends ActionToolView {
-  model: UndoTool
+  override model: UndoTool
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.plot_view.state.changed, () => this.model.disabled = !this.plot_view.state.can_undo)
   }
 
   doit(): void {
-    this.plot_view.state.undo()
+    const state = this.plot_view.state.undo()
+
+    if (state?.range != null) {
+      this.plot_view.trigger_ranges_update_event()
+    }
   }
 }
 
@@ -24,8 +28,8 @@ export namespace UndoTool {
 export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
-  properties: UndoTool.Props
-  __view_type__: UndoToolView
+  override properties: UndoTool.Props
+  override __view_type__: UndoToolView
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)
@@ -41,6 +45,6 @@ export class UndoTool extends ActionTool {
     this.register_alias("undo", () => new UndoTool())
   }
 
-  tool_name = "Undo"
-  icon = tool_icon_undo
+  override tool_name = "Undo"
+  override icon = tool_icon_undo
 }

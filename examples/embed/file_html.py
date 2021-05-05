@@ -3,7 +3,7 @@ import yaml
 from bokeh.document import Document
 from bokeh.models import (CDSView, Circle, ColumnDataSource, DataRange1d,
                           Grid, HoverTool, IndexFilter, LinearAxis, Plot,
-                          Range1d, SingleIntervalTicker, Text,)
+                          Range1d, SingleIntervalTicker, Text)
 from bokeh.resources import INLINE
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme
@@ -54,7 +54,7 @@ source = ColumnDataSource(sprint)
 xdr =Range1d(start=25, end=-0.5)
 ydr = DataRange1d(range_padding=2, range_padding_units="absolute")
 
-plot = Plot(plot_width=1000, x_range=xdr, y_range=ydr, toolbar_location=None)
+plot = Plot(width=1000, x_range=xdr, y_range=ydr, toolbar_location=None)
 plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
 
 xticker = SingleIntervalTicker(interval=5, num_minor_ticks=0)

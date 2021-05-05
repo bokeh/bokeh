@@ -56,7 +56,3 @@ Bokeh documents, or in Bokeh server applications.
 See :ref:`userguide_interaction_widgets` for more information about different
 widgets, and :ref:`userguide_interaction_jscallbacks` for more information about
 creating arbitrary JavaScript callbacks.
-
-.. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`

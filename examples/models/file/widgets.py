@@ -9,7 +9,7 @@ from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
                           RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
                           Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
-                          TextAreaInput, TextInput, Toggle,)
+                          TextAreaInput, TextInput, Toggle)
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -65,7 +65,7 @@ div = Div(text="some <b>text</b>")
 pre_text = PreText(text="some text")
 
 def mk_tab(color):
-    plot = figure(plot_width=300, plot_height=300)
+    plot = figure(width=300, height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
     return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
 

@@ -125,7 +125,7 @@ class Test_DateSlider:
 
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             slider = DateSlider(start=start, end=end, value=value, css_classes=["foo"], width=300, step=24*3600*1000)
@@ -170,7 +170,7 @@ class Test_DateSlider:
         junk = dict(v=0, vt=0)
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = DateSlider(start=start, end=end, value=value, css_classes=["foo"], width=300)
 
             def cbv(attr, old, new): junk['v'] += 1
@@ -204,7 +204,7 @@ class Test_DateSlider:
     def test_server_bar_color_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = DateSlider(start=start, end=end, value=value, css_classes=["foo"], width=300, bar_color="red")
 
             def cb(attr, old, new):
@@ -228,7 +228,7 @@ class Test_DateSlider:
     def test_server_title_updates(self, bokeh_server_page) -> None:
 
         def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = DateSlider(start=start, end=end, value=value, css_classes=["foo"], width=300)
 
             def cb(attr, old, new):

@@ -13,6 +13,8 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -46,7 +48,6 @@ from ..core.properties import (
 from ..core.validation import error
 from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
-from .renderers import DataRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -161,7 +162,7 @@ class DataRange(Range):
 
     """)
 
-    renderers = Either(List(Instance(DataRenderer)), Auto, help="""
+    renderers = Either(List(Instance(Model)), Auto, help="""
     An explicit list of renderers to autorange against. If unset,
     defaults to all renderers on a plot.
     """)

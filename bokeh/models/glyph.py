@@ -18,6 +18,8 @@ All these glyphs share a minimal common interface through their base class
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -30,6 +32,7 @@ from inspect import Parameter
 
 # Bokeh imports
 from ..core.has_props import abstract
+from ..core.property._sphinx import type_link
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -81,7 +84,7 @@ class Glyph(Model):
                 # For positional arg properties, default=None means no default.
                 default=Parameter.empty if no_more_defaults else default
             )
-            typ = descriptor.property._sphinx_type()
+            typ = type_link(descriptor.property)
             arg_params.insert(0, (param, typ, descriptor.__doc__))
 
         # these are not really useful, and should also really be private, just skip them
@@ -89,7 +92,7 @@ class Glyph(Model):
 
         kwarg_params = []
 
-        kws = cls.properties() - set(cls._args) - omissions
+        kws = set(cls.properties()) - set(cls._args) - omissions
         for kw in kws:
             descriptor = cls.lookup(kw)
             param = Parameter(
@@ -97,7 +100,7 @@ class Glyph(Model):
                 kind=Parameter.KEYWORD_ONLY,
                 default=descriptor.class_default(cls)
             )
-            typ = descriptor.property._sphinx_type()
+            typ = type_link(descriptor.property)
             kwarg_params.append((param, typ, descriptor.__doc__))
 
         for kw, (typ, doc) in cls._extra_kws.items():

@@ -18,6 +18,7 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
+from bokeh.core.templates import FILE
 from bokeh.io.state import curstate
 from bokeh.models import Plot
 
@@ -57,7 +58,7 @@ def test__get_save_args_explicit_resources() -> None:
 def test__get_save_args_default_resources() -> None:
     curstate().reset()
     curstate().output_file("filename")
-    curstate().file['resources'] = "resources"
+    curstate().file.resources = "resources"
     filename, resources, title = bis._get_save_args(curstate(), "filename", None, "title")
     assert resources == "resources"
 
@@ -79,7 +80,7 @@ def test__get_save_args_explicit_title() -> None:
 def test__get_save_args_default_title() -> None:
     curstate().reset()
     curstate().output_file("filename")
-    curstate().file['title'] = "title"
+    curstate().file.title = "title"
     filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", None)
     assert title == "title"
 
@@ -105,7 +106,7 @@ def test__save_helper(mock_file_html, mock_open) -> None:
 
     assert mock_file_html.call_count == 1
     assert mock_file_html.call_args[0] == (obj, resources)
-    assert mock_file_html.call_args[1] == dict(title="title", template=None, theme=None)
+    assert mock_file_html.call_args[1] == dict(title="title", template=FILE, theme=None)
 
     assert mock_open.call_count == 1
     assert mock_open.call_args[0] == (filename,)

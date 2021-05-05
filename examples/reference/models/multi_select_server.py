@@ -14,7 +14,7 @@ df=pd.DataFrame({'x':x,'y':y,'label':label}) #create a dataframe for future use
 
 source = ColumnDataSource(data=dict(x=x, y=y,label=label))
 
-plot_figure = figure(title='Multi-Select',plot_height=450, plot_width=600,
+plot_figure = figure(title='Multi-Select',height=450, width=600,
               tools="save,reset", toolbar_location="below")
 
 plot_figure.scatter('x', 'y',color='label', source=source, size=10)
