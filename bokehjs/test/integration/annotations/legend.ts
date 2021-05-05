@@ -52,15 +52,15 @@ describe("Legend annotation", () => {
   })
 
   type PlotFn = ({
-    figure_dimensions,
     glyphs,
     legend_items,
     legends,
+    figure_dimensions,
   }: {
     figure_dimensions?: [width: number, height: number]
     glyphs?: {
-      x: number
-      y: number
+      x: number | number[]
+      y: number | number[]
       type: "circle" | "line"
       options: Partial<CircleArgs | LineArgs>
     }[]
@@ -74,24 +74,47 @@ describe("Legend annotation", () => {
     orientation: Orientation
   }): PlotFn {
     return async ({
-      figure_dimensions,
       glyphs,
       legend_items,
+      figure_dimensions,
       legends,
     }) => {
-      const p = fig(figure_dimensions ?? [225, 225])
+      const p = fig(figure_dimensions ??
+          orientation === "horizontal"
+            ? [250, 150]
+            : [150, 250]
+      )
 
       p.add_layout(new LinearAxis(), "above")
       p.add_layout(new LinearAxis(), "right")
 
+      const random = new Random(1)
+      const x = range(0, 10)
+      const y0 = random.floats(10)
+      const y1 = random.floats(10)
+      const y2 = random.floats(10)
+
       if (!glyphs?.length) {
-        glyphs = [{x: 2, y: 1, type: 'circle', options: {fill_color: "red"}}]
+        glyphs = [
+          {type: "circle", x, y: y0, options: {fill_color: "red"}},
+          {type: "circle", x, y: y1, options: {fill_color: "blue"}},
+          {type: "line", x, y: y1, options: {line_color: "orange"}},
+          {type: "circle", x, y: y2, options: {fill_color: "green"}},
+        ]
       }
 
-      const gls = glyphs.map(({x, y, options}) => p.circle(x, y, options))
+      const gls = glyphs.map(({x, y, type, options}) =>
+        type === "line"
+          ? p.line(x, y, options as Partial<LineArgs>)
+          : p.circle(x, y, options)
+      )
 
       if (!legend_items?.length) {
-        legend_items = [{label: "#0", renderers: [0]}]
+        legend_items = [
+          {label: "#0", renderers: [0]},
+          {label: "#1", renderers: [1, 2]},
+          {label: "#2", renderers: [3]},
+        ]
       }
 
       const items = legend_items.map(
@@ -117,7 +140,7 @@ describe("Legend annotation", () => {
     }
   }
 
-  function test(plot: PlotFn) {
+  function test(plot: PlotFn, orientation?: Orientation) {
     it("should display title correctly", async () => {
       await plot({legends: [{title: "title"}]})
     })
@@ -144,10 +167,13 @@ describe("Legend annotation", () => {
     })
 
     it("should display glyph_width correctly", async () => {
-      await plot({legends: [{
-        title: "title",
-        glyph_width: 50,
-      }]})
+      await plot({
+        legends: [{
+          title: "title",
+          glyph_width: 30,
+        }],
+        figure_dimensions: orientation === "horizontal" ? [350, 150] : undefined,
+      })
     })
 
     it("should display label_height correctly", async () => {
@@ -179,23 +205,13 @@ describe("Legend annotation", () => {
     })
 
     it("should display spacing correctly", async () => {
-      await plot({
-        legends: [{
-          title: "title",
-          spacing: 20,
-        }],
-        legend_items: [
-          {label: "#0", renderers: [0]},
-          {label: "#1", renderers: [1]},
-        ],
-        glyphs: [
-          {type: 'circle', x: 1, y: 2, options: {fill_color: "red"}},
-          {type: 'circle', x: 2, y: 1, options: {fill_color: "blue"}},
-        ],
-      })
+      await plot({legends: [{
+        title: "title",
+        spacing: 20,
+      }]})
     })
   }
 
-  describe("in horizontal orientation", () => test(plot({orientation: "horizontal"})))
-  describe("in vertical orientation", () => test(plot({orientation: "vertical"})))
+  describe("in horizontal orientation", () => test(plot({orientation: "horizontal"}), "horizontal"))
+  describe("in vertical orientation", () => test(plot({orientation: "vertical"}), "vertical"))
 })
