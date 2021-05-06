@@ -9,7 +9,6 @@ export type HTMLChild = HTMLItem | HTMLItem[]
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
-    element.classList.add("bk")
 
     if (!isPlainObject(attrs)) {
       children = [attrs, ...children]
