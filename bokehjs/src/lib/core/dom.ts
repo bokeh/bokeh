@@ -9,7 +9,6 @@ export type HTMLChild = HTMLItem | HTMLItem[]
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
   return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
-    element.classList.add("bk")
 
     for (let [attr, value] of entries(attrs)) {
       if (value == null || isBoolean(value) && !value)
