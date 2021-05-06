@@ -106,7 +106,11 @@ Preparing your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To build the documentation, follow the instructions in :ref:`devguide_setup`
-and make sure you have activated the ``bkdev`` environment.
+and make sure you have activated the ``bkdev`` environment:
+
+.. code-block:: sh
+
+    conda activate bkdev
 
 Some of the examples in the documentation require additional sample
 data. Use this command on a console to automatically download and install the
@@ -130,24 +134,26 @@ options:
 * Use a placeholder value like ``some_value`` instead of a valid API key. If
   you use a placeholder, some map plots in Bokeh's documentation might not be
   rendered correctly, but the documentation should otherwise be built correctly.
+  This will only affect your local environment and should have no effect on any
+  changes you might commit to the Bokeh repository.
 
-On Linux or macOS, use the following command to set the environment variable:
+After activating your conda environment, use the following command to set the
+environment variable:
 
 .. code-block:: sh
 
-    GOOGLE_API_KEY=some_value
+    conda env config vars set GOOGLE_API_KEY=some_value
 
-With the Windows PowerShell, use this command:
+Next, you have to reactivate your environment:
 
-.. code-block:: PowerShell
+.. code-block:: sh
 
-    $env:GOOGLE_API_KEY="some_value"
+    conda deactivate
+    conda activate bkdev
 
-In a Windows terminal, use this command:
-
-.. code-block:: doscon
-
-    set GOOGLE_API_KEY=some_value
+Using ``conda env config vars set`` makes this environment variable part of your
+``bkdev`` environment. When you activate your ``bkdev`` environment, conda will from
+now on set this environment variable for you.
 
 Building Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
