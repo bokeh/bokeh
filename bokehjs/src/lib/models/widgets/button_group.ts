@@ -47,7 +47,7 @@ export abstract class ButtonGroupView extends OrientedControlView {
 
     const orient = this.model.orientation == "horizontal" ? buttons.horizontal : buttons.vertical
     const group = div({class: [buttons.btn_group, orient]}, this._buttons)
-    this.el.appendChild(group)
+    this.shadow_el.appendChild(group)
   }
 
   abstract change_active(i: number): void

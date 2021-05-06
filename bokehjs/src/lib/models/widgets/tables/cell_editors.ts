@@ -1,13 +1,13 @@
 import * as p from "core/properties"
 import {input, textarea, select, option, Keys} from "core/dom"
 
-import {DOMView} from "core/dom_view"
+import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../../model"
 import {DTINDEX_NAME, Item} from "./definitions"
 
 import * as tables from "styles/widgets/tables.css"
 
-export abstract class CellEditorView extends DOMView {
+export abstract class CellEditorView extends DOMComponentView {
   override model: CellEditor
   override el: HTMLElement
 
@@ -48,7 +48,7 @@ export abstract class CellEditorView extends DOMView {
   override render(): void {
     super.render()
     this.args.container.append(this.el)
-    this.el.appendChild(this.inputEl)
+    this.shadow_el.appendChild(this.inputEl)
     this.renderEditor()
     this.disableNavigation()
   }

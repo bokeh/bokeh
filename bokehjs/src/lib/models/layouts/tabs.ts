@@ -9,8 +9,6 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {Panel} from "./panel"
 
 import tabs_css, * as tabs from "styles/tabs.css"
-import buttons_css, * as buttons from "styles/buttons.css"
-import menus_css, * as menus from "styles/menus.css"
 
 export class TabsView extends LayoutDOMView {
   override model: Tabs
@@ -31,7 +29,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), buttons_css, menus_css, tabs_css]
+    return [...super.styles(), tabs_css]
   }
 
   get child_models(): LayoutDOM[] {
@@ -173,7 +171,7 @@ export class TabsView extends LayoutDOMView {
 
     const loc = this.model.tabs_location
     this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
-    this.el.appendChild(this.header_el)
+    this.shadow_el.appendChild(this.header_el)
   }
 
   private _scroll_index = 0

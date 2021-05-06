@@ -167,7 +167,7 @@ export class ToolbarBaseView extends DOMComponentView {
 
     let overflowed = false
     const overflow_size = 15
-    this.root.el.appendChild(this._overflow_menu.el)
+    this.root.shadow_el.appendChild(this._overflow_menu.el)
     const overflow_button = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     const toggle_menu = () => {
       const at = (() => {

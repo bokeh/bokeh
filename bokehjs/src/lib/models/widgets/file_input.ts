@@ -23,7 +23,7 @@ export class FileInputView extends WidgetView {
           this.load_files(files)
         }
       }
-      this.el.appendChild(this.dialog_el)
+      this.shadow_el.appendChild(this.dialog_el)
     }
 
     if (accept != "") {
