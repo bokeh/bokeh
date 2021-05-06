@@ -1,11 +1,8 @@
 import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
-import {StyleSheet, stylesheet} from "./dom"
 import {isArray} from "./util/types"
 import {Box} from "./types"
-
-import root_css from "styles/root.css"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -70,12 +67,6 @@ export class View implements ISignalable {
 
   initialize(): void {
     this._has_finished = false
-    if (this.is_root) {
-      this._stylesheet = stylesheet
-    }
-    for (const style of this.styles()) {
-      this.stylesheet.append(style)
-    }
   }
 
   async lazy_initialize(): Promise<void> {}
@@ -122,19 +113,6 @@ export class View implements ISignalable {
   }
 
   on_hit?(sx: number, sy: number): boolean
-
-  private _stylesheet: StyleSheet
-
-  get stylesheet(): StyleSheet {
-    if (this.is_root)
-      return this._stylesheet
-    else
-      return this.root.stylesheet
-  }
-
-  styles(): string[] {
-    return [root_css]
-  }
 
   private _idle_notified: boolean = false
   notify_finished(): void {
