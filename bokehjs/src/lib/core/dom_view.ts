@@ -27,6 +27,10 @@ export abstract class DOMView extends View {
     return []
   }
 
+  styles(): string[] {
+    return []
+  }
+
   render(): void {}
 
   renderTo(element: Node): void {

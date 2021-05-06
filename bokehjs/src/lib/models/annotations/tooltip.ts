@@ -41,8 +41,8 @@ export class TooltipView extends AnnotationView {
     this.connect(this.model.properties.position.change, () => this._reposition())
   }
 
-  override styles(): string[] {
-    return [/*...super.styles(),*/ base_css, tooltips_css]
+  styles(): string[] {
+    return [base_css, tooltips_css]
   }
 
   override render(): void {
