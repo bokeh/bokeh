@@ -451,18 +451,18 @@ class Figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if all(isinstance(val, (list, tuple)) for val in (x,y)):
+        if not isinstance(x, str) and not isinstance(y, str):
             raise ValueError("Only one of x or y may be a list of stackers")
 
         result = []
 
-        if isinstance(y, (list, tuple)):
+        if isinstance(x, str):
             kw['x'] = x
             for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
-        if isinstance(x, (list, tuple)):
+        if isinstance(y, str):
             kw['y'] = y
             for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
