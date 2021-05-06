@@ -103,7 +103,7 @@ RESULTS = 'return Bokeh._testing.results'
 
 def SCROLL(amt: float) -> str:
     return """
-    const elt = document.getElementsByClassName("bk-canvas-events")[0];
+    const elt = Object.values(Bokeh.index)[0].canvas_view.events_el;
     const event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt

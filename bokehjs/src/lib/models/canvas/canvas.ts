@@ -99,7 +99,7 @@ export class CanvasView extends DOMView {
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
     this.overlays_el = div({style})
-    this.events_el = div({class: "bk-canvas-events", style})
+    this.events_el = div({style})
 
     const elements = [
       this.underlays_el,
