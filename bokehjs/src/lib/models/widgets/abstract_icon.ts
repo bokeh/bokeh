@@ -1,8 +1,8 @@
 import {Model} from "model"
-import {DOMView} from "core/dom_view"
+import {DOMComponentView} from "core/dom_view"
 import * as p from "core/properties"
 
-export abstract class AbstractIconView extends DOMView {
+export abstract class AbstractIconView extends DOMComponentView {
   override model: AbstractIcon
   override el: HTMLElement
 }

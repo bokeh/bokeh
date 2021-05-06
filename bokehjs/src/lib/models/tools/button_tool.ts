@@ -83,7 +83,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     this.el.title = this.model.tooltip
 
     if (this._menu != null) {
-      this.root.el.appendChild(this._menu.el)
+      this.root.shadow_el.appendChild(this._menu.el)
     }
   }
 

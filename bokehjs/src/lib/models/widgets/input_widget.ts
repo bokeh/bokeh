@@ -36,7 +36,7 @@ export abstract class InputWidgetView extends ControlView {
     this.label_el = label({style: {display: title.length == 0 ? "none" : ""}}, title)
 
     this.group_el = div({class: inputs.input_group}, this.label_el)
-    this.el.appendChild(this.group_el)
+    this.shadow_el.appendChild(this.group_el)
   }
 
   change_input(): void {}

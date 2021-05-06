@@ -1,24 +1,24 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
-import {empty, position, classes, extents, undisplayed} from "core/dom"
+import {position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
-import {DOMView} from "core/dom_view"
+import {DOMComponentView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 import {root} from "styles/root.css"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
-export abstract class LayoutDOMView extends DOMView {
+export abstract class LayoutDOMView extends DOMComponentView {
   override model: LayoutDOM
 
   override root: LayoutDOMView
-  override readonly parent: DOMView
+  override readonly parent: DOMComponentView
 
   override el: HTMLElement
 
@@ -118,7 +118,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   override render(): void {
     super.render()
-    empty(this.el) // XXX: this should be in super
+    this.empty() // XXX: this should be in super
 
     const {background} = this.model
     this.el.style.backgroundColor = background != null ? color2css(background) : ""
@@ -126,7 +126,7 @@ export abstract class LayoutDOMView extends DOMView {
     classes(this.el).clear().add(...this.css_classes())
 
     for (const child_view of this.child_views) {
-      this.el.appendChild(child_view.el)
+      this.shadow_el.appendChild(child_view.el)
       child_view.render()
     }
   }

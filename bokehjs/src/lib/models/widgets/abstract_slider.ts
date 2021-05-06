@@ -154,7 +154,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     this._update_title()
 
     this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
-    this.el.appendChild(this.group_el)
+    this.shadow_el.appendChild(this.group_el)
   }
 
   protected _slide(values: number[]): void {
