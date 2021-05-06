@@ -1,9 +1,10 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment} from "core/enums"
-import {div, display, undisplay, empty, remove, classes} from "core/dom"
+import {div, style, display, undisplay, empty, remove, classes} from "core/dom"
 import * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
+import base_css from "styles/base.css"
 
 const arrow_size = 10  // XXX: keep in sync with less
 
@@ -11,12 +12,22 @@ export class TooltipView extends AnnotationView {
   override model: Tooltip
 
   protected el: HTMLElement
+  protected shadow_el: ShadowRoot
+  protected stylesheet_el: HTMLStyleElement
 
   override initialize(): void {
     super.initialize()
-    this.el = div({class: tooltips.tooltip})
+    this.el = div()
+    this.shadow_el = this.el.attachShadow({mode: "open"})
+    this.stylesheet_el = style({}, ...this.styles())
+    this.shadow_el.appendChild(this.stylesheet_el)
     undisplay(this.el)
     this.plot_view.canvas_view.add_overlay(this.el)
+  }
+
+  empty(): void {
+    empty(this.shadow_el)
+    this.shadow_el.appendChild(this.stylesheet_el)
   }
 
   override remove(): void {
@@ -31,7 +42,7 @@ export class TooltipView extends AnnotationView {
   }
 
   override styles(): string[] {
-    return [...super.styles(), tooltips_css]
+    return [/*...super.styles(),*/ base_css, tooltips_css]
   }
 
   override render(): void {
@@ -44,9 +55,9 @@ export class TooltipView extends AnnotationView {
   protected _render(): void {
     const {content} = this.model
 
-    empty(this.el)
+    this.empty()
     classes(this.el).toggle("bk-tooltip-custom", this.model.custom)
-    this.el.appendChild(content)
+    this.shadow_el.appendChild(content)
 
     if (this.model.show_arrow)
       this.el.classList.add(tooltips.tooltip_arrow)
