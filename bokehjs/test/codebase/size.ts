@@ -9,12 +9,12 @@ const LIMITS = new Map([
   ["js/bokeh.min.js",                 950],
   ["js/bokeh-widgets.min.js",         300],
   ["js/bokeh-tables.min.js",          350],
-  ["js/bokeh-api.min.js",              90],
+  ["js/bokeh-api.min.js",             100],
   // legacy (es5)
   ["js/bokeh.legacy.min.js",         1200],
   ["js/bokeh-widgets.legacy.min.js",  350],
   ["js/bokeh-tables.legacy.min.js",   350],
-  ["js/bokeh-api.legacy.min.js",       90],
+  ["js/bokeh-api.legacy.min.js",      110],
 ])
 
 const n = Math.max(...[...LIMITS.keys()].map((l) => l.length))
