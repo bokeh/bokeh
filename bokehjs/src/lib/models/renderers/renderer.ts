@@ -16,7 +16,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   needs_webgl_blit: boolean
 
-  private _coordinates?: CoordinateTransform
+  protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
     if (_coordinates != null)
