@@ -33,7 +33,10 @@ export class Stack extends Expression {
       const column = source.data[f]
       if (column != null) {
         for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
-          result[i] += column[i]
+          if (Number.isNaN(column[i]))
+              result[i] += 0
+          else
+            result[i] += column[i]
         }
       }
     }
