@@ -63,7 +63,7 @@ capabilities of Bokeh.
 
 The first steps guides are for anybody who is new to Bokeh. The only
 prerequisites for using these guides are a basic understanding of Python and a
-working :ref:`installation<first_steps_installing>` of Bokeh.
+working :ref:`installation<installation>` of Bokeh.
 
 The first steps guides include lots of examples that you can copy to your
 development environment. There are also many links to the more in-depth
