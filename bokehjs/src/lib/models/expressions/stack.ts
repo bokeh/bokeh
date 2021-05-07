@@ -34,7 +34,7 @@ export class Stack extends Expression {
       if (column != null) {
         for (let i = 0, k = Math.min(n, column.length); i < k; i++) {
           if (Number.isNaN(column[i]))
-              result[i] += 0
+            result[i] += 0
           else
             result[i] += column[i]
         }
