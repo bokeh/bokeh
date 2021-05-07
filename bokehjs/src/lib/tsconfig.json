@@ -31,7 +31,9 @@
     "rootDir": ".",
     "outDir": "../../build/js/lib",
     "declarationDir": "../../build/js/types",
-    "rootDirs": [".", "../../build/dts/"]
+    "rootDirs": [".", "../../build/dts/"],
+    "incremental": true,
+    "tsBuildInfoFile": "../../build/js/bokehjs.tsbuildinfo"
   },
   "include": ["./**/*.ts", "../../build/dts"]
 }
