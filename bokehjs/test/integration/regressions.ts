@@ -2,7 +2,7 @@ import {display, fig, row, column, grid} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -28,7 +28,7 @@ import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
-import {Spectral11} from "@bokehjs/api/palettes"
+import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 
 const n_marker_types = [...MarkerType].length
@@ -930,6 +930,29 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #11231", () => {
+    it("doesn't allow to reposition inner axes after layout", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+
+      p.width = 300
+      p.height = 300
+
+      await view.ready
     })
   })
 })
