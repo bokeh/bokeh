@@ -42,6 +42,7 @@ export class ReglWrapper {
         gl,
         extensions: [
           "ANGLE_instanced_arrays",
+          "EXT_blend_minmax",
         ],
       })
       this._regl_available = true
@@ -185,11 +186,12 @@ function regl_solid_line(regl: Regl): ReglRenderFunction {
 
     blend: {
       enable: true,
+      equation: 'max',
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB: 1,
+        srcAlpha: 1,
+        dstRGB: 1,
+        dstAlpha: 1,
       },
     },
     depth: {enable: false},
@@ -269,11 +271,12 @@ function regl_dashed_line(regl: Regl): ReglRenderFunction {
 
     blend: {
       enable: true,
+      equation: 'max',
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB: 1,
+        srcAlpha: 1,
+        dstRGB: 1,
+        dstAlpha: 1,
       },
     },
     depth: {enable: false},
