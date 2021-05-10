@@ -19,6 +19,7 @@ export class LineGL extends BaseGLGlyph {
 
   protected _antialias: number
   protected _color: number[]
+  protected _linewidth: number
   protected _miter_limit: number
   protected _line_dash: number[]
   protected _is_closed: boolean
@@ -52,8 +53,6 @@ export class LineGL extends BaseGLGlyph {
     }
 
     const line_visuals = this.glyph.visuals.line
-    const linewidth = line_visuals.line_width.value
-    const antialias = Math.min(this._antialias, linewidth)
     const line_cap = cap_lookup[line_visuals.line_cap.value]
     const line_join = join_lookup[line_visuals.line_join.value]
 
@@ -62,8 +61,8 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
-        linewidth,
-        antialias,
+        linewidth: this._linewidth,
+        antialias: this._antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
@@ -81,8 +80,8 @@ export class LineGL extends BaseGLGlyph {
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
-        linewidth,
-        antialias,
+        linewidth: this._linewidth,
+        antialias: this._antialias,
         miter_limit: this._miter_limit,
         points: this._points,
         nsegments: this._nsegments,
@@ -153,6 +152,13 @@ export class LineGL extends BaseGLGlyph {
 
     const color = color2rgba(line_visuals.line_color.value, line_visuals.line_alpha.value)
     this._color = color.map((val) => val/255)
+
+    this._linewidth = line_visuals.line_width.value
+    if (this._linewidth < 1.0) {
+      // Linewidth less than 1 is implemented as 1 but with reduced alpha.
+      this._color[3] *= this._linewidth
+      this._linewidth = 1.0
+    }
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
     if (this._line_dash.length == 1)
