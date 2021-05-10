@@ -1,3 +1,20 @@
+2021-05-10    2.3.2:
+--------------------
+  * bugfixes:
+    - #11169 [component: bokehjs] [BUG] Python callback triggered by SelectionGeometry event is slow compared to js equivalent
+    - #11182 [component: bokehjs] [BUG] Forward slash is changed to %2F in link
+    - #11203 [component: bokehjs] [BUG] Cannot clear active of RadiGroup
+    - #11231 [component: bokehjs] [BUG] Colorbar ticks don't re-align on plot size changes
+    - #11247 [component: docs] Minor error in mappers documentation
+
+  * tasks:
+    - #9636 Remove Black Formatting
+    - #11175 Replace jinja2.Markup deprecated with Jinja 3.1
+    - #11209 [NO SQUASH] 2.4 backports
+    - #11235 updates for 2.3.2 release
+    - #11250 [component: docs] Update installation link
+    - #11253 [NO SQUASH] More 2.4 backports
+
 2021-04-07    2.3.1:
 --------------------
   * bugfixes:
