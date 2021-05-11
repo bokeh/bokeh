@@ -191,7 +191,7 @@ class ColumnDataSource(ColumnarDataSource):
     """).accepts(
         PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
     ).accepts(
-        PandasSeries, lambda: ColumnDataSource._data_from_series(x)
+        PandasSeries, lambda x: ColumnDataSource._data_from_series(x)
     ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
