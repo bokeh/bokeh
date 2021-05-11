@@ -28,7 +28,7 @@ type Position = {
 }
 
 export class MathText extends Model {
-  properties: MathText.Props
+  override properties: MathText.Props
 
   image: CanvasImage
   height: number
