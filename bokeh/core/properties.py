@@ -235,7 +235,7 @@ __all__ = (
     'NumberSpec',
     'Override',
     'PandasDataFrame',
-    'PandasSeries'
+    'PandasSeries',
     'PandasGroupBy',
     'Percent',
     'PositiveInt',
