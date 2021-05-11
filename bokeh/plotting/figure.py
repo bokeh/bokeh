@@ -453,8 +453,8 @@ class Figure(Plot, GlyphAPI):
         '''
         source = kw.get('source', None)
         if source is not None and not isinstance(source, ColumnDataSource):
-            kw['source'] = ColumnDataSource(source)       
-        
+            kw['source'] = ColumnDataSource(source)
+
         if all(is_stacker(val) for val in (x,y)):
             raise ValueError("Only one of x or y may be a list of stackers")
 
