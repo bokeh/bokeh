@@ -58,6 +58,8 @@ export class LineGL extends BaseGLGlyph {
 
     if (this._is_dashed()) {
       const props: LineDashGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
@@ -77,6 +79,8 @@ export class LineGL extends BaseGLGlyph {
       this.regl_wrapper.dashed_line()(props)
     } else {
       const props: LineGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
