@@ -25,6 +25,7 @@ from ..transform import stack
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'is_stacker',
     'double_stack',
     'single_stack',
 )
@@ -36,6 +37,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+def is_stacker(stacker):
+    return isinstance(stacker, (list, tuple))
 
 def single_stack(stackers, spec, **kw):
     if spec in kw:
