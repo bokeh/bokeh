@@ -44,6 +44,7 @@ export class AxisView extends GuideRendererView {
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+    this.layout.on_resize(() => this._coordinates = undefined)
   }
 
   get_size(): Size {
