@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
+import os  # lgtm [py/unused-import]
 from typing import Any, Union
 
 #-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-PathLike = Union[str, os.PathLike[str]]
+PathLike = Union[str, "os.PathLike[str]"]
 
 Unknown = Any
 
