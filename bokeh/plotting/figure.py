@@ -58,7 +58,7 @@ from ..transform import linear_cmap
 from ..util.options import Options
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
-from ._stack import double_stack, single_stack
+from ._stack import is_stacker, double_stack, single_stack
 from ._tools import process_active_tools, process_tools_arg
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
@@ -451,18 +451,22 @@ class Figure(Plot, GlyphAPI):
                 p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
-        if not isinstance(x, str) and not isinstance(y, str):
+        source = kw.get('source', None)
+        if source is not None and not isinstance(source, ColumnDataSource):
+            kw['source'] = ColumnDataSource(source)       
+        
+        if all(is_stacker(val) for val in (x,y)):
             raise ValueError("Only one of x or y may be a list of stackers")
 
         result = []
 
-        if isinstance(x, str):
+        if is_stacker(y):
             kw['x'] = x
             for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
-        if isinstance(y, str):
+        if is_stacker(y):
             kw['y'] = y
             for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
