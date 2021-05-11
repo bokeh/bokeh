@@ -58,7 +58,7 @@ from ..transform import linear_cmap
 from ..util.options import Options
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
-from ._stack import is_stacker, double_stack, single_stack
+from ._stack import double_stack, is_stacker, single_stack
 from ._tools import process_active_tools, process_tools_arg
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
