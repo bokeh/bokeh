@@ -25,8 +25,8 @@ from ..transform import stack
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'is_stacker',
     'double_stack',
+    'is_stacker',
     'single_stack',
 )
 
