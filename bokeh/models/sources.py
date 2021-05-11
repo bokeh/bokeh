@@ -35,6 +35,7 @@ from ..core.properties import (
     NonNullable,
     Nullable,
     PandasDataFrame,
+    PandasSeries,
     PandasGroupBy,
     Readonly,
     Seq,
@@ -133,6 +134,22 @@ class ColumnDataSource(ColumnarDataSource):
       flattened/determined, the ``reset_index`` function will name the index column
       ``index``, or ``level_0`` if the name ``index`` is not available.
 
+    * A Pandas ``Series`` object
+
+      .. code-block:: python
+
+          source = ColumnDataSource(s)
+
+      In this case the CDS will have one column corresponding to name of
+      the ``Series``.
+      The index of the ``Series`` will be flattened to an ``Index`` of tuples
+      if it's a ``MultiIndex``, and then reset using ``reset_index``. The result
+      will be a column with the same name if the index was named, or
+      level_0_name_level_1_name if it was a named ``MultiIndex``. If the
+      ``Index`` did not have a name or the ``MultiIndex`` name could not be
+      flattened/determined, the ``reset_index`` function will name the index column
+      ``index``, or ``level_0`` if the name ``index`` is not available.
+
     * A Pandas ``GroupBy`` object
 
       .. code-block:: python
@@ -174,6 +191,8 @@ class ColumnDataSource(ColumnarDataSource):
     """).accepts(
         PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
     ).accepts(
+        PandasSeries, lambda: ColumnDataSource._data_from_series(x)
+    ).accepts(
         PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warnings.warn(
@@ -194,10 +213,12 @@ class ColumnDataSource(ColumnarDataSource):
         if not isinstance(raw_data, dict):
             if pd and isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
+            elif pd and isinstance(raw_data, pd.Series):
+                raw_data = self._data_from_series(raw_data)
             elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
-                raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+                raise ValueError("expected a dict, pandas Series or pandas.DataFrame, got %s" % raw_data)
         super().__init__(**kw)
         self.data.update(raw_data)
 
@@ -247,6 +268,22 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[k] = v
 
         return new_data
+
+    @staticmethod
+    def _data_from_series(s):
+        ''' Create a ``dict`` of columns from a Pandas ``Series``,
+        suitable for creating a ColumnDataSource.
+
+        Args:
+            s (Series) : data to convert
+
+        Returns:
+            dict[str, np.array]
+
+        '''
+        _s = s.copy()
+        _s = _s.to_frame()
+        return ColumnDataSource._data_from_df(_s)
 
     @staticmethod
     def _data_from_groupby(group):
