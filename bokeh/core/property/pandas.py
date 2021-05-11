@@ -32,8 +32,8 @@ pd = import_optional('pandas')
 
 __all__ = (
     'PandasDataFrame',
-    'PandasSeries',
     'PandasGroupBy',
+    'PandasSeries',
 )
 
 #-----------------------------------------------------------------------------
