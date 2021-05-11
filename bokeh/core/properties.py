@@ -150,8 +150,8 @@ Validation-only Properties
 --------------------------
 
 .. autoclass:: PandasDataFrame
-.. autoclass:: PandasSeries
 .. autoclass:: PandasGroupBy
+.. autoclass:: PandasSeries
 
 Validation Control
 ------------------
@@ -235,8 +235,8 @@ __all__ = (
     'NumberSpec',
     'Override',
     'PandasDataFrame',
-    'PandasSeries',
     'PandasGroupBy',
+    'PandasSeries',
     'Percent',
     'PositiveInt',
     'PropertyUnitsSpec',
@@ -343,8 +343,8 @@ from .property.numeric import Size; Size
 from .property.override import Override ; Override
 
 from .property.pandas import PandasDataFrame ; PandasDataFrame
-from .property.pandas import PandasSeries ; PandasSeries
 from .property.pandas import PandasGroupBy ; PandasGroupBy
+from .property.pandas import PandasSeries ; PandasSeries
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex
