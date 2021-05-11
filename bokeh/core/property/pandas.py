@@ -32,6 +32,7 @@ pd = import_optional('pandas')
 
 __all__ = (
     'PandasDataFrame',
+    'PandasSeries',
     'PandasGroupBy',
 )
 
@@ -54,6 +55,23 @@ class PandasDataFrame(Property):
             return
 
         msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
+        raise ValueError(msg)
+
+class PandasSeries(Property):
+    """ Accept Pandas Series values.
+
+    This property only exists to support type validation, e.g. for "accepts"
+    clauses. It is not serializable itself, and is not useful to add to
+    Bokeh models directly.
+
+    """
+    def validate(self, value, detail=True):
+        super().validate(value, detail)
+
+        if pd and isinstance(value, pd.Series):
+            return
+
+        msg = "" if not detail else f"expected Pandas Series, got {value!r}"
         raise ValueError(msg)
 
 class PandasGroupBy(Property):
