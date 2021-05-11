@@ -14,7 +14,7 @@ import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 
-import tiles_css, {tile_attribution} from "styles/tiles.css"
+import attribution_css from "styles/attribution.css"
 
 export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
@@ -28,8 +28,6 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
 
 export class TileRendererView extends RendererView {
   override model: TileRenderer
-
-  protected attribution_el?: HTMLElement
 
   protected _tiles: TileData[]
 
@@ -46,6 +44,12 @@ export class TileRendererView extends RendererView {
     super.initialize()
   }
 
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    //const {attribution} = this.model.tile_source
+    //build_view(
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
@@ -56,10 +60,6 @@ export class TileRendererView extends RendererView {
     if (this.attribution_el != null)
       removeElement(this.attribution_el)
     super.remove()
-  }
-
-  override styles(): string[] {
-    return [...super.styles(), tiles_css]
   }
 
   get_extent(): Extent {
@@ -92,6 +92,7 @@ export class TileRendererView extends RendererView {
     this._last_width = undefined
   }
 
+  /*
   protected _update_attribution(): void {
     if (this.attribution_el != null)
       removeElement(this.attribution_el)
@@ -104,28 +105,24 @@ export class TileRendererView extends RendererView {
       const offset_bottom = layout.bbox.height - frame.bbox.bottom
       const max_width = frame.bbox.width
       this.attribution_el = div({
-        class: tile_attribution,
         style: {
-          position: "absolute",
           right: `${offset_right}px`,
           bottom: `${offset_bottom}px`,
-          "max-width": `${max_width - 4 /*padding*/}px`,
-          padding: "2px",
-          "background-color": "rgba(255,255,255,0.5)",
-          "font-size": "9px",
-          "line-height": "1.05",
-          "white-space": "nowrap",
-          overflow: "hidden",
-          "text-overflow": "ellipsis",
+          'max-width': `${max_width}px`,
         },
       })
+  override styles(): string[] {
+    return [...super.styles(), attribution_css]
+  }
 
       this.plot_view.canvas_view.add_event(this.attribution_el)
 
       this.attribution_el.innerHTML = attribution
-      this.attribution_el.title = this.attribution_el.textContent!.replace(/\s*\n\s*/g, " ")
-    }
-  }
+  */
+      //this.attribution_el.title = this.attribution_el.textContent!.replace(/\s*\n\s*/g, " ")
+    //}
+  //}
+    // TODO: add support for DOMElement
 
   protected _map_data(): void {
     this.initial_extent = this.get_extent()
