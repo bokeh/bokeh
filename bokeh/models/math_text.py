@@ -1,8 +1,7 @@
+# Bokeh imports
+from ..core.properties import Nullable, String
 from ..model import Model
-from ..core.properties import (
-    String,
-    Nullable
-)
+
 
 class MathText(Model):
     """

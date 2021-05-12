@@ -51,8 +51,8 @@ from .formatters import (
     TickFormatter,
 )
 from .labeling import AllLabels, LabelingPolicy
-from .renderers import GuideRenderer
 from .math_text import MathText
+from .renderers import GuideRenderer
 from .tickers import (
     BasicTicker,
     CategoricalTicker,
