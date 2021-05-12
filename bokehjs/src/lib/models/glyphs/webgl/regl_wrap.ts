@@ -1,5 +1,5 @@
 import createRegl from "regl"
-import {Regl, DrawConfig, AttributeConfig} from "regl"
+import {Regl, DrawConfig, AttributeConfig, BoundingBox} from "regl"
 import * as t from "./types"
 import {DashCache, DashReturn} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
@@ -36,6 +36,10 @@ export class ReglWrapper {
   private _rect_no_hatch: ReglRenderFunction
   private _rect_hatch: ReglRenderFunction
 
+  // WebGL state variables.
+  private _scissor: BoundingBox
+  private _viewport: BoundingBox
+
   constructor(gl: WebGLRenderingContext) {
     try {
       this._regl = createRegl({
@@ -51,8 +55,25 @@ export class ReglWrapper {
     }
   }
 
+  clear(width: number, height: number): void {
+    this._viewport = {x: 0, y: 0, width, height}
+    this._regl.clear({color: [0, 0, 0, 0]})
+  }
+
   get has_webgl(): boolean {
     return this._regl_available
+  }
+
+  get scissor(): BoundingBox {
+    return this._scissor
+  }
+
+  set_scissor(x: number, y: number, width: number, height: number): void {
+    this._scissor = {x, y, width, height}
+  }
+
+  get viewport(): BoundingBox {
+    return this._viewport
   }
 
   public dashed_line(): ReglRenderFunction {
@@ -195,6 +216,11 @@ function regl_solid_line(regl: Regl): ReglRenderFunction {
       },
     },
     depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -280,6 +306,11 @@ function regl_dashed_line(regl: Regl): ReglRenderFunction {
       },
     },
     depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -365,6 +396,11 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
       },
     },
     depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -440,6 +476,11 @@ function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
       },
     },
     depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -527,6 +568,11 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
       },
     },
     depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
   }
 
   return regl<Uniforms, Attributes, Props>(config)

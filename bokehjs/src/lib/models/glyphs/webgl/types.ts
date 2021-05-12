@@ -1,7 +1,9 @@
-import {AttributeConfig, Texture2D, Vec2, Vec4} from "regl"
+import {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
 type CommonProps = {
+  scissor: BoundingBox
+  viewport: BoundingBox
   canvas_size: Vec2
   pixel_ratio: number
   antialias: number

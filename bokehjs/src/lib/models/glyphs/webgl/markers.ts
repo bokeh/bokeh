@@ -119,6 +119,8 @@ export class MarkerGL extends BaseGLGlyph {
     }
 
     const props: MarkerGlyphProps = {
+      scissor: this.regl_wrapper.scissor,
+      viewport: this.regl_wrapper.viewport,
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
       center: mainGlGlyph._centers,

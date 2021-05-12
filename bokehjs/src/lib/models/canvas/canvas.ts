@@ -9,6 +9,7 @@ import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
+import {get_regl, ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
 export type FrameBox = [number, number, number, number]
 
@@ -25,7 +26,7 @@ export type FrameBox = [number, number, number, number]
 
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
-  readonly gl: WebGLRenderingContext
+  readonly regl_wrapper: ReglWrapper
 }
 
 const global_webgl: WebGLState | undefined = (() => {
@@ -34,11 +35,17 @@ const global_webgl: WebGLState | undefined = (() => {
   const canvas = document.createElement("canvas")
   const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
 
-  // If WebGL is available, we store a reference to the gl canvas on
+  // If WebGL is available, we store a reference to the ReGL wrapper on
   // the ctx object, because that's what gets passed everywhere.
-  if (gl != null)
-    return {canvas, gl}
-  else {
+  if (gl != null) {
+    const regl_wrapper = get_regl(gl)
+    if (regl_wrapper.has_webgl) {
+      return {canvas, regl_wrapper}
+    } else {
+      logger.trace("WebGL is supported, but not the required extensions")
+      return undefined
+    }
+  } else {
     logger.trace("WebGL is not supported")
     return undefined
   }
@@ -131,15 +138,12 @@ export class CanvasView extends DOMView {
       const {width, height} = this.bbox
       webgl.canvas.width = this.pixel_ratio*width
       webgl.canvas.height = this.pixel_ratio*height
-      const {gl} = webgl
-      // Clipping
-      gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
       const {xview, yview} = this.bbox
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
       const ratio = this.pixel_ratio
-      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
+      webgl.regl_wrapper.set_scissor(ratio*vx, ratio*vy, ratio*w, ratio*h)
       this._clear_webgl()
     }
   }
@@ -169,10 +173,8 @@ export class CanvasView extends DOMView {
     const {webgl} = this
     if (webgl != null) {
       // Prepare GL for drawing
-      const {gl, canvas} = webgl
-      gl.viewport(0, 0, canvas.width, canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      const {regl_wrapper, canvas} = webgl
+      regl_wrapper.clear(canvas.width, canvas.height)
     }
   }
 
