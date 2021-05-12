@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {tool_icon_help} from "styles/icons.css"
 
 export class HelpToolView extends ActionToolView {
-  model: HelpTool
+  override model: HelpTool
 
   doit(): void {
     window.open(this.model.redirect)
@@ -21,8 +21,8 @@ export namespace HelpTool {
 export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
-  properties: HelpTool.Props
-  __view_type__: HelpToolView
+  override properties: HelpTool.Props
+  override __view_type__: HelpToolView
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
     super(attrs)
@@ -42,6 +42,6 @@ export class HelpTool extends ActionTool {
     this.register_alias("help", () => new HelpTool())
   }
 
-  tool_name = "Help"
-  icon = tool_icon_help
+  override tool_name = "Help"
+  override icon = tool_icon_help
 }

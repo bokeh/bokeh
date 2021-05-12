@@ -26,6 +26,8 @@ the ``BOKEH_SECRET_KEY`` environment variable.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -63,9 +65,6 @@ class Secret(Subcommand):
     name = "secret"
 
     help = "Create a Bokeh secret key for use with Bokeh server"
-
-    args = (
-    )
 
     def invoke(self, args: Namespace) -> None:
         '''

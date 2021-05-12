@@ -19,6 +19,7 @@ from os.path import join
 
 # Bokeh imports
 from bokeh.command.bootstrap import main
+from bokeh.command.subcommand import Argument
 
 # Module under test
 import bokeh.command.subcommands.info as scinfo # isort:skip
@@ -37,6 +38,7 @@ import bokeh.command.subcommands.info as scinfo # isort:skip
 
 def test_create() -> None:
     import argparse
+
     from bokeh.command.subcommand import Subcommand
 
     obj = scinfo.Info(parser=argparse.ArgumentParser())
@@ -50,7 +52,7 @@ def test_help() -> None:
 
 def test_args() -> None:
     assert scinfo.Info.args == (
-        ('--static', dict(
+        ('--static', Argument(
             action='store_true',
             help="Print the locations of BokehJS static files",
         )),

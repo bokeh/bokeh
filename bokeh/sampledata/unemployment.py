@@ -24,6 +24,8 @@ has the unemployment rate (2009) as the value.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 

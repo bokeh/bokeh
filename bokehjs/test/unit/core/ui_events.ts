@@ -575,14 +575,14 @@ describe("ui_event_bus module", () => {
 
     it("multi-gesture tool should receive multiple events", async () => {
       class MultiToolView extends SelectToolView {
-        _tap(_e: TapEvent): void {}
-        _pan_start(_e: PanEvent): void {}
+        override _tap(_e: TapEvent): void {}
+        override _pan_start(_e: PanEvent): void {}
       }
 
       class MultiTool extends SelectTool {
-        default_view = MultiToolView
-        tool_name = "Multi Tool"
-        event_type = ["tap" as "tap", "pan" as "pan"]
+        override default_view = MultiToolView
+        override tool_name = "Multi Tool"
+        override event_type = ["tap" as "tap", "pan" as "pan"]
       }
 
       const tool = new MultiTool()

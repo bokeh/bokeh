@@ -7,9 +7,9 @@ import {is_mobile} from "core/util/platform"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 
 export class WheelZoomToolView extends GestureToolView {
-  model: WheelZoomTool
+  override model: WheelZoomTool
 
-  _pinch(ev: PinchEvent): void {
+  override _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
     const {sx, sy, scale, ctrlKey, shiftKey} = ev
 
@@ -22,7 +22,7 @@ export class WheelZoomToolView extends GestureToolView {
     this._scroll({type: "wheel", sx, sy, delta, ctrlKey, shiftKey})
   }
 
-  _scroll(ev: ScrollEvent): void {
+  override _scroll(ev: ScrollEvent): void {
     const {frame} = this.plot_view
 
     const hr = frame.bbox.h_range
@@ -67,8 +67,8 @@ export namespace WheelZoomTool {
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
-  properties: WheelZoomTool.Props
-  __view_type__: WheelZoomToolView
+  override properties: WheelZoomTool.Props
+  override __view_type__: WheelZoomToolView
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)
@@ -89,12 +89,12 @@ export class WheelZoomTool extends GestureTool {
     this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: 'height'}))
   }
 
-  tool_name = "Wheel Zoom"
-  icon = tool_icon_wheel_zoom
-  event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
-  default_order = 10
+  override tool_name = "Wheel Zoom"
+  override icon = tool_icon_wheel_zoom
+  override event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
+  override default_order = 10
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 }

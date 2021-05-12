@@ -17,7 +17,7 @@ export namespace Callback {
 export interface Callback extends Callback.Attrs {}
 
 export abstract class Callback extends Model implements CallbackLike<unknown, any> {
-  properties: Callback.Props
+  override properties: Callback.Props
 
   constructor(attrs?: Partial<Callback.Attrs>) {
     super(attrs)

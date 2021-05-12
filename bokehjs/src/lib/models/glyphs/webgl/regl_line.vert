@@ -23,8 +23,8 @@ uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
 uniform float u_linewidth;
 uniform float u_antialias;
-uniform float u_join_type;
-uniform float u_cap_type;
+uniform float u_line_join;
+uniform float u_line_cap;
 uniform float u_miter_limit;
 
 varying float v_segment_length;
@@ -66,8 +66,8 @@ void main()
 
     const float min_miter_factor_round_join_mesh = sqrt(2.0);
 
-    int join_type = int(u_join_type + 0.5);
-    int cap_type = int(u_cap_type + 0.5);
+    int join_type = int(u_line_join + 0.5);
+    int cap_type = int(u_line_cap + 0.5);
     float halfwidth = 0.5*(u_linewidth + u_antialias);
     vec2 segment_along = normalize(a_point_end - a_point_start); // unit vector.
     v_segment_length = length(a_point_end - a_point_start);

@@ -12,6 +12,8 @@ line application.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -22,7 +24,24 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
-from typing import Union
+from typing import (
+    Any,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
+
+# External imports
+from typing_extensions import Literal
+
+# Bokeh imports
+from ..util.dataclasses import (
+    NotRequired,
+    Unspecified,
+    dataclass,
+    entries,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,6 +58,21 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@dataclass
+class Argument:
+    action: NotRequired[Literal["store", "store_const", "store_true", "append", "append_const", "count", "help", "version", "extend"]] = Unspecified
+    nargs: NotRequired[Union[int, Literal["?", "*", "+", "..."]]] = Unspecified
+    const: NotRequired[Any] = Unspecified
+    default: NotRequired[Any] = Unspecified
+    type: NotRequired[Type[Any]] = Unspecified
+    choices: NotRequired[Sequence[Any]] = Unspecified
+    required: NotRequired[bool] = Unspecified
+    help: NotRequired[str] = Unspecified
+    metavar: NotRequired[str] = Unspecified
+
+Arg = Tuple[Union[str, Tuple[str, str]], Argument]
+Args = Tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands
@@ -58,7 +92,7 @@ class Subcommand(metaclass=ABCMeta):
 
     .. code-block:: python
 
-        ('argname', dict(
+        ('argname', Argument(
             metavar='ARGNAME',
             nargs='+',
         ))
@@ -74,7 +108,7 @@ class Subcommand(metaclass=ABCMeta):
                 name = "foo"
                 help = "performs the Foo action"
                 args = (
-                    ('--yell', dict(
+                    ('--yell', Argument(
                         action='store_true',
                         help="Make it loud",
                     )),
@@ -90,10 +124,9 @@ class Subcommand(metaclass=ABCMeta):
 
     '''
 
-    # specifying static typing of instance attributes
-    # see https://stackoverflow.com/a/51191130
     name: str
     help: str
+    args: Args = ()
 
     def __init__(self, parser: ArgumentParser) -> None:
         ''' Initialize the subcommand with its parser
@@ -110,10 +143,10 @@ class Subcommand(metaclass=ABCMeta):
         self.parser = parser
         args = getattr(self, 'args', ())
         for arg in args:
-            flags = arg[0]
+            flags, spec = arg
             if not isinstance(flags, tuple):
                 flags = (flags,)
-            self.parser.add_argument(*flags, **arg[1])
+            self.parser.add_argument(*flags, **dict(entries(spec)))
 
     @abstractmethod
     def invoke(self, args: Namespace) -> Union[bool, None]:

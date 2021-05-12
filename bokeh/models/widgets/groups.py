@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -20,7 +22,13 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, List, Nullable, String
+from ...core.properties import (
+    Bool,
+    Int,
+    List,
+    Nullable,
+    String,
+)
 from .buttons import ButtonLike
 from .widget import Widget
 
@@ -106,8 +114,7 @@ class RadioGroup(Group):
     '''
 
     active = Nullable(Int, help="""
-    The index of the selected radio box, or ``None`` if nothing is
-    selected.
+    The index of the selected radio box, or ``None`` if nothing is selected.
     """)
 
 class CheckboxButtonGroup(ButtonGroup):

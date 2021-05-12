@@ -2,7 +2,7 @@ import {display, fig, row, column, grid} from "./_util"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, Legend, LegendItem, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Legend, LegendItem, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -13,7 +13,7 @@ import {
   Plot,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -28,7 +28,7 @@ import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer} from "@bokehjs/core/util/defer"
 import {Figure, MarkerArgs} from "@bokehjs/api/plotting"
-import {Spectral11} from "@bokehjs/api/palettes"
+import {Spectral11, turbo} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 
 const n_marker_types = [...MarkerType].length
@@ -226,6 +226,7 @@ describe("Bug", () => {
 
       const glyph = r.selection_glyph as Circle
       glyph.line_color = "black"
+      glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
 
       await view.ready
@@ -721,7 +722,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10507", () => {
-    it("prevents changing MultiSelect.disabled property", async () => {
+    it.allowing(22)("prevents changing MultiSelect.disabled property", async () => {
       const widget = new MultiSelect({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
       const {view} = await display(widget, [250, 100])
       widget.disabled = true
@@ -730,7 +731,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #10695", () => {
-    it("prevents showing MultiChoice's dropdown menu", async () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown menu", async () => {
       const random = new Random(1)
 
       const N = 10
@@ -887,6 +888,18 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #11154", () => {
+    it("does not allow the plotting API to consider hatch visuals", async () => {
+      const p = fig([200, 200])
+      const r = p.rect({
+        x: [0, 1, 2], y: 3, width: 0.7, height: 0.7, angle: [0.0, 0.3, 0.6],
+        hatch_pattern: "x", fill_color: "orange",
+      })
+      r.data_source.selected.indices = [1]
+      await display(p)
+    })
+  })
+
   describe("in issue #10407", () => {
     it.allowing(2)("displays incorrect value in Select widget when options change", async () => {
       const widget = new Select({options: ["1", "2", "3"], value: "2", width: 200})
@@ -899,6 +912,15 @@ describe("Bug", () => {
       const widget = new Select({options: ["1", "2", "3"], value: "3", width: 200})
       const {view} = await display(widget, [250, 100])
       widget.options = ["1", "2"]
+      await view.ready
+    })
+  })
+
+  describe("in issue #11203", () => {
+    it("doesn't allow to set RadioGroup.active = null", async () => {
+      const widget = new RadioGroup({labels: ["1", "2", "3"], active: 1, inline: true, width: 200})
+      const {view} = await display(widget, [250, 50])
+      widget.active = null
       await view.ready
     })
   })
@@ -941,6 +963,63 @@ describe("Bug", () => {
       })
 
       await display(p)
+    })
+  })
+
+  describe("in issue #11149", () => {
+    it("makes hatch patterns rotate with glyph's rotation", async () => {
+      const p = fig([300, 300])
+
+      const x = [0, 1, 2]
+      const angle = [0.0, 0.3, 0.6]
+      const common = {x, angle, hatch_pattern: "|", fill_color: "orange"}
+
+      p.rect({y: 3, width: 0.7, height: 0.7, ...common})
+      p.square({y: 2, size: 50, ...common})
+      p.ellipse({y: 1, width: 0.8, height: 0.5, ...common})
+      p.hex({y: 0, size: 50, ...common})
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11162", () => {
+    it("makes axis allocate space for invisible tick labels", async () => {
+      const p = fig([200, 200])
+      p.line([0, 1], [0, 1])
+
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "right")
+      p.add_layout(new LinearAxis({major_label_text_color: null}), "above")
+
+      p.axis.map((ax) => ax.major_tick_in = 10)
+      p.axis.map((ax) => ax.major_tick_out = 0)
+      p.axis.map((ax) => ax.minor_tick_in = 5)
+      p.axis.map((ax) => ax.minor_tick_out = 0)
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11231", () => {
+    it("doesn't allow to reposition inner axes after layout", async () => {
+      const random = new Random(1)
+      const p = fig([200, 200])
+
+      const color_mapper = new LinearColorMapper({palette: turbo(50), low: 0, high: 1})
+      const color_bar = new ColorBar({color_mapper, label_standoff: 12})
+      p.add_layout(color_bar, "right")
+
+      const dw = 10
+      const dh = 10
+      const img = ndarray(random.floats(dw*dh), {dtype: "float64", shape: [dw, dw]})
+      p.image({image: [img], x: 0, y: 0, dw, dh, color_mapper})
+
+      const {view} = await display(p, [350, 350])
+
+      p.width = 300
+      p.height = 300
+
+      await view.ready
     })
   })
 })

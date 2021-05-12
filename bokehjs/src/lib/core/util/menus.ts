@@ -1,22 +1,29 @@
 import {div, classes, display, undisplay, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
-import {enumerate} from "./iterator"
+import {reversed} from "./array"
 
 import /*menus_css,*/ * as menus from "styles/menus.css"
 
 export type ScreenPoint = {left?: number, right?: number, top?: number, bottom?: number}
+export type At = ScreenPoint |
+  {left_of:  HTMLElement} | {right_of: HTMLElement} | {below: HTMLElement} | {above: HTMLElement}
 
-export type MenuItem = {
+export type MenuEntry = {
   icon?: string
   label?: string
   tooltip?: string
+  class?: string
+  content?: HTMLElement
   active?: () => boolean
-  handler: () => void
+  handler?: () => void
   if?: () => boolean
-} | null
+}
+
+export type MenuItem = MenuEntry | null
 
 export type MenuOptions = {
   orientation?: Orientation
+  reversed?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
 }
 
@@ -32,12 +39,19 @@ export class ContextMenu {
     return this.items.length != 0
   }
 
-  constructor(readonly items: MenuItem[], readonly options: MenuOptions = {}) {
+  readonly orientation: Orientation
+  readonly reversed: boolean
+  readonly prevent_hide?: (event: MouseEvent) => boolean
+
+  constructor(readonly items: MenuItem[], options: MenuOptions = {}) {
+    this.orientation = options.orientation ?? "vertical"
+    this.reversed = options.reversed ?? false
+    this.prevent_hide = options.prevent_hide
     undisplay(this.el)
   }
 
-  protected _item_click = (i: number) => {
-    this.items[i]?.handler()
+  protected _item_click = (entry: MenuEntry) => {
+    entry.handler?.()
     this.hide()
   }
 
@@ -46,7 +60,7 @@ export class ContextMenu {
     if (target instanceof Node && this.el.contains(target))
       return
 
-    if (this.options.prevent_hide?.(event))
+    if (this.prevent_hide?.(event))
       return
 
     this.hide()
@@ -78,45 +92,68 @@ export class ContextMenu {
     window.removeEventListener("blur", this._on_blur)
   }
 
-  protected _position(at: ScreenPoint): void {
+  protected _position(at: At): void {
     const parent_el = this.el.parentElement
     if (parent_el != null) {
+      const pos = (() => {
+        if ("left_of" in at) {
+          const {left, top} = at.left_of.getBoundingClientRect()
+          return {right: left, top}
+        }
+        if ("right_of" in at) {
+          const {top, right} = at.right_of.getBoundingClientRect()
+          return {left: right, top}
+        }
+        if ("below" in at) {
+          const {left, bottom} = at.below.getBoundingClientRect()
+          return {left, top: bottom}
+        }
+        if ("above" in at) {
+          const {left, top} = at.above.getBoundingClientRect()
+          return {left, bottom: top}
+        }
+        return at
+      })()
+
       const parent = parent_el.getBoundingClientRect()
-      this.el.style.left = at.left != null ? `${at.left - parent.left}px` : ""
-      this.el.style.top = at.top != null ? `${at.top - parent.top}px` : ""
-      this.el.style.right = at.right != null ? `${parent.right - at.right}px` : ""
-      this.el.style.bottom = at.bottom != null ? `${parent.bottom - at.bottom}px` : ""
+      this.el.style.left = pos.left != null ? `${pos.left - parent.left}px` : ""
+      this.el.style.top = pos.top != null ? `${pos.top - parent.top}px` : ""
+      this.el.style.right = pos.right != null ? `${parent.right - pos.right}px` : ""
+      this.el.style.bottom = pos.bottom != null ? `${parent.bottom - pos.bottom}px` : ""
     }
   }
 
   /*
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), menus_css]
   }
   */
 
   render(): void {
     empty(this.el, true)
-    const orientation = this.options.orientation ?? "vertical"
-    classes(this.el).add("bk-context-menu", `bk-${orientation}`)
+    classes(this.el).add("bk-context-menu", `bk-${this.orientation}`)
 
-    for (const [item, i] of enumerate(this.items)) {
+    const items = this.reversed ? reversed(this.items) : this.items
+    for (const item of items) {
       let el: HTMLElement
       if (item == null) {
         el = div({class: menus.divider})
       } else if (item.if != null && !item.if()) {
         continue
+      } else if (item.content != null) {
+        el = item.content
       } else {
         const icon = item.icon != null ? div({class: ["bk-menu-icon", item.icon]}) : null
-        el = div({class: item.active?.() ? "bk-active": null, title: item.tooltip}, icon, item.label)
+        const classes = [item.active?.() ? "bk-active": null, item.class]
+        el = div({class: classes, title: item.tooltip}, icon, item.label, item.content)
+        el.addEventListener("click", () => this._item_click(item))
       }
 
-      el.addEventListener("click", () => this._item_click(i))
       this.el.appendChild(el)
     }
   }
 
-  show(at?: ScreenPoint): void {
+  show(at?: At): void {
     if (this.items.length == 0)
       return
 
@@ -139,7 +176,7 @@ export class ContextMenu {
     }
   }
 
-  toggle(at?: ScreenPoint): void {
+  toggle(at?: At): void {
     this._open ? this.hide() : this.show(at)
   }
 }

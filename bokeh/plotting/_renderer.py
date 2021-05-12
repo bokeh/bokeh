@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -41,7 +43,7 @@ __all__ = (
     'pop_visuals',
 )
 
-RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
+RENDERER_ARGS = ['name', 'coordinates', 'x_range_name', 'y_range_name',
                  'level', 'view', 'visible', 'muted']
 
 #-----------------------------------------------------------------------------
@@ -156,8 +158,8 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         props (dict) :
             Maps properties and prefixed properties to their values.
             Keys in `props` matching `glyphclass` visual properties (those of
-            'line_', 'fill_' or 'text_') with added `prefix` will get popped,
-            other keys will be ignored.
+            'line_', 'fill_', 'hatch_' or 'text_') with added `prefix` will get
+            popped, other keys will be ignored.
             Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
               must not contain underscores.
             Keys of the form '{prefix}{trait}' work as lower precedence aliases
@@ -187,49 +189,41 @@ def pop_visuals(glyphclass, props, prefix="", defaults={}, override_defaults={})
         Feature trait 'text_color', as well as traits 'color' and 'alpha', have
         ultimate defaults in case those can't be deduced.
     """
-    def split_feature_trait(ft):
-        """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
-        ft = ft.split('_', 1)
-        return ft if len(ft)==2 else ft+[None]
-
-    def is_visual(ft):
-        """Whether a feature trait name is visual"""
-        feature, trait = split_feature_trait(ft)
-        return feature in ('line', 'fill', 'text', 'global') and trait is not None
 
     defaults = defaults.copy()
     defaults.setdefault('text_color', 'black')
+    defaults.setdefault('hatch_color', 'black')
 
     trait_defaults = {}
     trait_defaults.setdefault('color', get_default_color())
     trait_defaults.setdefault('alpha', 1.0)
 
     result, traits = dict(), set()
-    glyphprops = glyphclass.properties()
-    for pname in filter(is_visual, glyphprops):
-        _, trait = split_feature_trait(pname)
+    prop_names = set(glyphclass.properties())
+    for name in filter(_is_visual, prop_names):
+        _, trait = _split_feature_trait(name)
 
         # e.g. "line_color", "selection_fill_alpha"
-        if prefix+pname in props:
-            result[pname] = props.pop(prefix+pname)
+        if prefix+name in props:
+            result[name] = props.pop(prefix+name)
 
         # e.g. "nonselection_alpha"
-        elif trait not in glyphprops and prefix+trait in props:
-            result[pname] = props[prefix+trait]
+        elif trait not in prop_names and prefix+trait in props:
+            result[name] = props[prefix+trait]
 
         # e.g. an alpha to use for nonselection if none is provided
         elif trait in override_defaults:
-            result[pname] = override_defaults[trait]
+            result[name] = override_defaults[trait]
 
         # e.g use values off the main glyph
-        elif pname in defaults:
-            result[pname] = defaults[pname]
+        elif name in defaults:
+            result[name] = defaults[name]
 
         # e.g. not specificed anywhere else
         elif trait in trait_defaults:
-            result[pname] = trait_defaults[trait]
+            result[name] = trait_defaults[trait]
 
-        if trait not in glyphprops:
+        if trait not in prop_names:
             traits.add(trait)
     for trait in traits:
         props.pop(prefix+trait, None)
@@ -249,10 +243,7 @@ def _convert_data_source(kwargs):
                 # try converting the source to ColumnDataSource
                 source = ColumnDataSource(source)
             except ValueError as err:
-                msg = "Failed to auto-convert {curr_type} to ColumnDataSource.\n Original error: {err}".format(
-                    curr_type=str(type(source)),
-                    err=err.message
-                )
+                msg = f"Failed to auto-convert {type(source)} to ColumnDataSource.\n Original error: {err}"
                 raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
             # update kwargs so that others can use the new source
@@ -269,7 +260,7 @@ def _pop_renderer_args(kwargs):
 
 def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
     incompatible_literal_spec_values = []
-    dataspecs = glyphclass.dataspecs_with_props()
+    dataspecs = glyphclass.dataspecs()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
@@ -289,11 +280,11 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
-        if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple) and len(val) in (3, 4) and all(isinstance(v, (float, int)) for v in val)):
+        if isinstance(dataspecs[var], ColorSpec) and dataspecs[var].is_color_tuple_shape(val):
             continue
 
         if isinstance(val, np.ndarray):
-            if isinstance(dataspecs[var].property, ColorSpec):
+            if isinstance(dataspecs[var], ColorSpec):
                 if val.dtype == "uint32" and val.ndim == 1:   # 0xRRGGBBAA
                     pass # TODO: handle byteorder
                 elif val.dtype == "uint8" and val.ndim == 1:  # greys
@@ -315,6 +306,16 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             kwargs[var] = var
 
     return incompatible_literal_spec_values
+
+def _split_feature_trait(ft):
+    """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
+    ft = ft.split('_', 1)
+    return ft if len(ft)==2 else ft+[None]
+
+def _is_visual(ft):
+    """Whether a feature trait name is visual"""
+    feature, trait = _split_feature_trait(ft)
+    return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None
 
 _GLYPH_SOURCE_MSG = """
 

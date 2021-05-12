@@ -39,6 +39,6 @@ p5.circle(x='x', y='y', alpha=0.8, source=source, size=6,
          fill_color=transform('x', mapper), line_color=None)
 
 show(column(
-    gridplot([p1, p2, p3, p4], ncols=2, plot_width=400, plot_height=300, toolbar_location=None),
+    gridplot([p1, p2, p3, p4], ncols=2, width=400, height=300, toolbar_location=None),
     p5
 ))

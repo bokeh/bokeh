@@ -7,10 +7,10 @@ export type OvalData = EllipseOvalData
 export interface OvalView extends OvalData {}
 
 export class OvalView extends EllipseOvalView {
-  model: Oval
-  visuals: Oval.Visuals
+  override model: Oval
+  override visuals: Oval.Visuals
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     super._map_data()
     mul(this.sw, 0.75) // oval drawn from bezier curves = ellipse with width reduced by 3/4
   }
@@ -27,8 +27,8 @@ export namespace Oval {
 export interface Oval extends Oval.Attrs {}
 
 export class Oval extends EllipseOval {
-  properties: Oval.Props
-  __view_type__: OvalView
+  override properties: Oval.Props
+  override __view_type__: OvalView
 
   constructor(attrs?: Partial<Oval.Attrs>) {
     super(attrs)

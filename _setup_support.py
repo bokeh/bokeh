@@ -43,7 +43,7 @@ MIN_PYTHON_VERSION = (3, 7)
 
 # state our runtime deps here, also used by meta.yaml (so KEEP the spaces)
 INSTALL_REQUIRES = [
-    'Jinja2 >=2.7',
+    'Jinja2 >=2.9',
     'numpy >=1.11.3',
     'packaging >=16.8',
     'pillow >=7.1.0',
@@ -146,9 +146,9 @@ def build_or_install_bokehjs():
         jsbuild = False
         sys.argv.remove('--install-js')
 
-    jsbuild_ok = ('install', 'develop', 'sdist', 'egg_info', 'build')
+    jsbuild_ok = ('install', 'develop', 'sdist', 'bdist_wheel', 'egg_info', 'build')
     if jsbuild and not any(arg in sys.argv for arg in jsbuild_ok):
-        print("Error: Option '--build-js' only valid with 'install', 'develop', 'sdist', or 'build', exiting.")
+        print("Error: Option '--build-js' only valid with 'install', 'develop', 'sdist', 'bdist_wheel', or 'build', exiting.")
         sys.exit(1)
 
     if jsbuild:
@@ -166,21 +166,21 @@ def check_python():
     if sys.version_info[:2] < MIN_PYTHON_VERSION:
         raise RuntimeError("Bokeh requires Python >= " + ".".join(str(x) for x in MIN_PYTHON_VERSION))
 
-def check_building_sdist():
-    ''' Check for 'sdist' and ensure we always build or install BokehJS when
-    packaging
+def check_building_dist():
+    ''' Check for 'sdist' or `bdist_wheel` and ensure we always build or install
+    BokehJS when packaging.
 
-    Source distributions do not ship with BokehJS source code, but must ship
-    with a pre-built BokehJS library. This function checks ``sys.argv`` to
-    ensure that ``--build-js`` or ``--install-js` is present.
+    Source distributions (sdists) and wheels do not ship with BokehJS source
+    code, but  must ship with a pre-built BokehJS library. This function checks
+    ``sys.argv`` to ensure that ``--build-js`` or ``--install-js` is present.
 
     Returns:
         None
 
     '''
-    if "sdist" in sys.argv:
-        if "--install-js" not in sys.argv and "--build-js" not in sys.argv:
-            print("Error: Option '--build-js' or '--install-js' must be present with 'sdist', exiting.")
+    for dist in ("sdist", "bdist_wheel"):
+        if dist in sys.argv and ("--install-js" not in sys.argv and "--build-js" not in sys.argv):
+            print(f"Error: Option '--build-js' or '--install-js' must be present with {dist!r}, exiting.")
             sys.exit(1)
 
 def fixup_for_packaged():

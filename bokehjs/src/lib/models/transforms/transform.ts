@@ -8,16 +8,16 @@ export namespace Transform {
   export type Props = Model.Props
 }
 
-export interface Transform<To = number> extends Transform.Attrs {}
+export interface Transform<From = number, To = number> extends Transform.Attrs {}
 
-export abstract class Transform<To = number> extends Model {
-  properties: Transform.Props
+export abstract class Transform<From = number, To = number> extends Model {
+  override properties: Transform.Props
 
   constructor(attrs?: Partial<Transform.Attrs>) {
     super(attrs)
   }
 
-  abstract compute(x: number): To
+  abstract compute(x: From): To
 
-  abstract v_compute(xs: Arrayable<number>): Arrayable<To>
+  abstract v_compute(xs: Arrayable<From>): Arrayable<To>
 }

@@ -15,7 +15,7 @@ export namespace Panel {
 export interface Panel extends Panel.Attrs {}
 
 export class Panel extends Model {
-  properties: Panel.Props
+  override properties: Panel.Props
 
   constructor(attrs?: Partial<Panel.Attrs>) {
     super(attrs)

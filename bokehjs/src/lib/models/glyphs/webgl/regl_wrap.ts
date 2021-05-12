@@ -1,5 +1,6 @@
 import createRegl from "regl"
-import {Regl} from "regl"
+import {Regl, DrawConfig, AttributeConfig, BoundingBox} from "regl"
+import * as t from "./types"
 import {DashCache, DashReturn} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
@@ -8,7 +9,6 @@ import marker_fragment_shader from "./markers.frag"
 import {MarkerType} from "core/enums"
 import rect_vertex_shader from "./rect.vert"
 import rect_fragment_shader from "./rect.frag"
-
 
 // All access to regl is performed via the get_regl() function that returns a
 // ReglWrapper object.  This ensures that regl is correctly initialised before
@@ -22,9 +22,7 @@ export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   return regl_wrapper
 }
 
-
 type ReglRenderFunction = ({}) => void
-
 
 export class ReglWrapper {
   private _regl: Regl
@@ -34,10 +32,13 @@ export class ReglWrapper {
   // Drawing functions.
   private _solid_line: ReglRenderFunction
   private _dashed_line: ReglRenderFunction
-  private _line_mesh: ReglRenderFunction
   private _marker_map: Map<MarkerType, ReglRenderFunction>
   private _rect_no_hatch: ReglRenderFunction
   private _rect_hatch: ReglRenderFunction
+
+  // WebGL state variables.
+  private _scissor: BoundingBox
+  private _viewport: BoundingBox
 
   constructor(gl: WebGLRenderingContext) {
     try {
@@ -45,6 +46,7 @@ export class ReglWrapper {
         gl,
         extensions: [
           "ANGLE_instanced_arrays",
+          "EXT_blend_minmax",
         ],
       })
       this._regl_available = true
@@ -53,8 +55,25 @@ export class ReglWrapper {
     }
   }
 
+  clear(width: number, height: number): void {
+    this._viewport = {x: 0, y: 0, width, height}
+    this._regl.clear({color: [0, 0, 0, 0]})
+  }
+
   get has_webgl(): boolean {
     return this._regl_available
+  }
+
+  get scissor(): BoundingBox {
+    return this._scissor
+  }
+
+  set_scissor(x: number, y: number, width: number, height: number): void {
+    this._scissor = {x, y, width, height}
+  }
+
+  get viewport(): BoundingBox {
+    return this._viewport
   }
 
   public dashed_line(): ReglRenderFunction {
@@ -68,12 +87,6 @@ export class ReglWrapper {
       this._dash_cache = new DashCache(this._regl)
 
     return this._dash_cache.get(line_dash)
-  }
-
-  public line_mesh(): ReglRenderFunction {
-    if (this._line_mesh == null)
-      this._line_mesh = regl_line_mesh(this._regl)
-    return this._line_mesh
   }
 
   public marker(marker_type: MarkerType): ReglRenderFunction {
@@ -107,7 +120,6 @@ export class ReglWrapper {
   }
 }
 
-
 // Regl rendering functions are here as some will be reused, e.g. lines may also
 // be used around polygons or for bezier curves.
 
@@ -134,15 +146,12 @@ const line_instance_geometry = [
 
 const line_triangle_indices = [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]]
 
-// Indices for debug drawing of mesh used for lines.
-const line_mesh_indices = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0],  // Edges.
-  [1, 5], [2, 5], [2, 4], // Diagonals.
-]
+function regl_solid_line(regl: Regl): ReglRenderFunction {
+  type Props = t.LineGlyphProps
+  type Uniforms = t.LineGlyphUniforms
+  type Attributes = t.LineGlyphAttributes
 
-
-function regl_solid_line(regl: any): ReglRenderFunction {
-  return regl({
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: line_vertex_shader,
     frag: line_fragment_shader,
 
@@ -151,60 +160,78 @@ function regl_solid_line(regl: any): ReglRenderFunction {
         buffer: regl.buffer(line_instance_geometry),
         divisor: 0,
       },
-      a_point_prev: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 0,
+      a_point_prev(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+        }
       },
-      a_point_start: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 2,
+      a_point_start(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 2,
+        }
       },
-      a_point_end: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 4,
+      a_point_end(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 4,
+        }
       },
-      a_point_next: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 6,
+      a_point_next(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 6,
+        }
       },
     },
 
     uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_color: regl.prop('color'),
-      u_linewidth: regl.prop('linewidth'),
-      u_antialias: regl.prop('antialias'),
-      u_miter_limit: regl.prop('miter_limit'),
-      u_join_type: regl.prop('join_type'),
-      u_cap_type: regl.prop('cap_type'),
+      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
+      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
+      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
+      u_line_color: regl.prop<Props, 'line_color'>('line_color'),
+      u_linewidth: regl.prop<Props, 'linewidth'>('linewidth'),
+      u_miter_limit: regl.prop<Props, 'miter_limit'>('miter_limit'),
+      u_line_join: regl.prop<Props, 'line_join'>('line_join'),
+      u_line_cap: regl.prop<Props, 'line_cap'>('line_cap'),
     },
 
     elements: line_triangle_indices,
     count: 3*line_triangle_indices.length,
     primitive: 'triangles',
-    instances: regl.prop("nsegments"),
+    instances: regl.prop<Props, 'nsegments'>("nsegments"),
 
     blend: {
       enable: true,
+      equation: 'max',
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB: 1,
+        srcAlpha: 1,
+        dstRGB: 1,
+        dstAlpha: 1,
       },
     },
     depth: {enable: false},
-  })
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
 }
 
+function regl_dashed_line(regl: Regl): ReglRenderFunction {
+  type Props = t.LineDashGlyphProps
+  type Uniforms = t.LineDashGlyphUniforms
+  type Attributes = t.LineDashGlyphAttributes
 
-function regl_dashed_line(regl: any): ReglRenderFunction {
-  return regl({
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: '#define DASHED\n\n' + line_vertex_shader,
     frag: '#define DASHED\n\n' + line_fragment_shader,
 
@@ -213,153 +240,104 @@ function regl_dashed_line(regl: any): ReglRenderFunction {
         buffer: regl.buffer(line_instance_geometry),
         divisor: 0,
       },
-      a_point_prev: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 0,
+      a_point_prev(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+        }
       },
-      a_point_start: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 2,
+      a_point_start(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 2,
+        }
       },
-      a_point_end: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 4,
+      a_point_end(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 4,
+        }
       },
-      a_point_next: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 6,
+      a_point_next(_, props) {
+        return {
+          buffer: regl.buffer(props.points),
+          divisor: 1,
+          offset: Float32Array.BYTES_PER_ELEMENT * 6,
+        }
       },
-      a_length_so_far: {
-        buffer: regl.prop("length_so_far"),
-        divisor: 1,
+      a_length_so_far(_, props) {
+        return {
+          buffer: regl.buffer(props.length_so_far),
+          divisor: 1,
+        }
       },
     },
 
     uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_color: regl.prop('color'),
-      u_linewidth: regl.prop('linewidth'),
-      u_antialias: regl.prop('antialias'),
-      u_miter_limit: regl.prop('miter_limit'),
-      u_join_type: regl.prop('join_type'),
-      u_cap_type: regl.prop('cap_type'),
-      u_dash_tex: regl.prop('dash_tex'),
-      u_dash_tex_info: regl.prop('dash_tex_info'),
-      u_dash_scale: regl.prop('dash_scale'),
-      u_dash_offset: regl.prop('dash_offset'),
+      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
+      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
+      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
+      u_line_color: regl.prop<Props, 'line_color'>('line_color'),
+      u_linewidth: regl.prop<Props, 'linewidth'>('linewidth'),
+      u_miter_limit: regl.prop<Props, 'miter_limit'>('miter_limit'),
+      u_line_join: regl.prop<Props, 'line_join'>('line_join'),
+      u_line_cap: regl.prop<Props, 'line_cap'>('line_cap'),
+      u_dash_tex: regl.prop<Props, 'dash_tex'>('dash_tex'),
+      u_dash_tex_info: regl.prop<Props, 'dash_tex_info'>('dash_tex_info'),
+      u_dash_scale: regl.prop<Props, 'dash_scale'>('dash_scale'),
+      u_dash_offset: regl.prop<Props, 'dash_offset'>('dash_offset'),
     },
 
     elements: line_triangle_indices,
     count: 3*line_triangle_indices.length,
     primitive: 'triangles',
-    instances: regl.prop("nsegments"),
+    instances: regl.prop<Props, 'nsegments'>("nsegments"),
 
     blend: {
       enable: true,
+      equation: 'max',
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB: 1,
+        srcAlpha: 1,
+        dstRGB: 1,
+        dstAlpha: 1,
       },
     },
     depth: {enable: false},
-  })
-}
-
-
-function regl_line_mesh(regl: any): ReglRenderFunction {
-  return regl({
-    vert: line_vertex_shader,
-    frag: `
-    precision mediump float;
-    uniform vec4 u_color;
-    void main ()
-    {
-        gl_FragColor = u_color;
-    }`,
-
-    attributes: {
-      a_position: {
-        buffer: regl.buffer(line_instance_geometry),
-        divisor: 0,
-      },
-      a_point_prev: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 0,
-      },
-      a_point_start: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 2,
-      },
-      a_point_end: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 4,
-      },
-      a_point_next: {
-        buffer: regl.prop("points"),
-        divisor: 1,
-        offset: Float32Array.BYTES_PER_ELEMENT * 6,
-      },
-    },
-
-    uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_color: regl.prop('color'),
-      u_linewidth: regl.prop('linewidth'),
-      u_antialias: regl.prop('antialias'),
-      u_miter_limit: regl.prop('miter_limit'),
-      u_join_type: regl.prop('join_type'),
-      u_cap_type: regl.prop('cap_type'),
-    },
-
-    elements: line_mesh_indices,
-    count: 2*line_mesh_indices.length,
-    primitive: 'lines',
-    instances: regl.prop("nsegments"),
-
-    blend: {
+    scissor: {
       enable: true,
-      func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
-      },
+      box: regl.prop<Props, 'scissor'>('scissor'),
     },
-    depth: {enable: false},
-  })
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
 }
 
-
-// Return a dictionary for a ReGL attribute that corresponds to one value for
+// Return a ReGL AttributeConfig that corresponds to one value for
 // each marker or the same value for all markers.  Instanced rendering supports
 // the former using 'divisor = 1', but does not support the latter directly.
 // We have to either repeat the attribute once for each marker, which is
 // wasteful for a large number of markers, or the solution used here which is to
 // repeat the value 4 times, once for each of the instanced vertices (using
 // 'divisor = 0').
-function one_each_or_constant(prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean, nmarkers: number): {[key: string]: any} {
+function one_each_or_constant(regl: Regl, prop: Float32Array | Uint8Array | number[], nitems: number, norm: boolean, nmarkers: number): AttributeConfig {
   const divisor = prop.length == nitems && nmarkers > 1 ? 0 : 1
   return {
-    buffer: divisor == 1 ? prop : [prop, prop, prop, prop],
+    buffer: regl.buffer(divisor == 1 ? prop : [prop, prop, prop, prop]),
     divisor,
     normalized: norm,
   }
 }
 
+function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
+  type Props = t.MarkerGlyphProps
+  type Uniforms = t.CommonUniforms
+  type Attributes = t.MarkerGlyphAttributes
 
-function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
-  return regl({
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: marker_vertex_shader,
     frag: '#define USE_' + marker_type.toUpperCase() + '\n\n' + marker_fragment_shader,
 
@@ -368,41 +346,45 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: {
-        buffer: regl.prop('center'),
-        divisor: 1,
+      a_center(_, props) {
+        return {
+          buffer: regl.buffer(props.center),
+          divisor: 1,
+        }
       },
-      a_size: (_: any, props: any) => {
-        return one_each_or_constant(props.size, 1, false, props.nmarkers)
+      a_size(_, props) {
+        return one_each_or_constant(regl, props.size, 1, false, props.nmarkers)
       },
-      a_angle: (_: any, props: any) => {
-        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
+      a_angle(_, props) {
+        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: any, props: any) => {
-        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
+      a_linewidth(_, props) {
+        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: any, props: any) => {
-        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
+      a_line_color(_, props) {
+        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: any, props: any) => {
-        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      a_fill_color(_, props) {
+        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_show: {
-        buffer: regl.prop('show'),
-        normalized: true,
-        divisor: 1,
+      a_show(_, props) {
+        return {
+          buffer: regl.buffer(props.show),
+          normalized: true,
+          divisor: 1,
+        }
       },
     },
 
     uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_antialias: regl.prop('antialias'),
+      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
+      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
+      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
     },
 
     count: 4,
     primitive: 'triangle fan',
-    instances: regl.prop('nmarkers'),
+    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
 
     blend: {
       enable: true,
@@ -414,12 +396,22 @@ function regl_marker(regl: any, marker_type: MarkerType): ReglRenderFunction {
       },
     },
     depth: {enable: false},
-  })
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
 }
 
+function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
+  type Props = t.RectGlyphProps
+  type Uniforms = t.CommonUniforms
+  type Attributes = t.RectGlyphAttributes
 
-function regl_rect_no_hatch(regl: any): ReglRenderFunction {
-  return regl({
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: rect_vertex_shader,
     frag: rect_fragment_shader,
 
@@ -428,47 +420,51 @@ function regl_rect_no_hatch(regl: any): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: {
-        buffer: regl.prop('center'),
-        divisor: 1,
+      a_center(_, props) {
+        return {
+          buffer: regl.buffer(props.center),
+          divisor: 1,
+        }
       },
-      a_width: (_: any, props: any) => {
-        return one_each_or_constant(props.width, 1, false, props.nmarkers)
+      a_width(_, props) {
+        return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
       },
-      a_height: (_: any, props: any) => {
-        return one_each_or_constant(props.height, 1, false, props.nmarkers)
+      a_height(_, props) {
+        return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
       },
-      a_angle: (_: any, props: any) => {
-        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
+      a_angle(_, props) {
+        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: any, props: any) => {
-        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
+      a_linewidth(_, props) {
+        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: any, props: any) => {
-        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
+      a_line_color(_, props) {
+        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: any, props: any) => {
-        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      a_fill_color(_, props) {
+        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_line_join: (_: any, props: any) => {
-        return one_each_or_constant(props.line_join, 1, false, props.nmarkers)
+      a_line_join(_, props) {
+        return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
       },
-      a_show: {
-        buffer: regl.prop('show'),
-        normalized: true,
-        divisor: 1,
+      a_show(_, props) {
+        return {
+          buffer: regl.buffer(props.show),
+          normalized: true,
+          divisor: 1,
+        }
       },
     },
 
     uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_antialias: regl.prop('antialias'),
+      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
+      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
+      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
     },
 
     count: 4,
     primitive: 'triangle fan',
-    instances: regl.prop('nmarkers'),
+    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
 
     blend: {
       enable: true,
@@ -480,12 +476,22 @@ function regl_rect_no_hatch(regl: any): ReglRenderFunction {
       },
     },
     depth: {enable: false},
-  })
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
 }
 
+function regl_rect_hatch(regl: Regl): ReglRenderFunction {
+  type Props = t.RectHatchGlyphProps
+  type Uniforms = t.CommonUniforms
+  type Attributes = t.RectHatchGlyphAttributes
 
-function regl_rect_hatch(regl: any): ReglRenderFunction {
-  return regl({
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: '#define HATCH\n\n' + rect_vertex_shader,
     frag: '#define HATCH\n\n' + rect_fragment_shader,
 
@@ -494,59 +500,63 @@ function regl_rect_hatch(regl: any): ReglRenderFunction {
         buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
         divisor: 0,
       },
-      a_center: {
-        buffer: regl.prop('center'),
-        divisor: 1,
+      a_center(_, props) {
+        return {
+          buffer: regl.buffer(props.center),
+          divisor: 1,
+        }
       },
-      a_width: (_: any, props: any) => {
-        return one_each_or_constant(props.width, 1, false, props.nmarkers)
+      a_width(_, props) {
+        return one_each_or_constant(regl, props.width, 1, false, props.nmarkers)
       },
-      a_height: (_: any, props: any) => {
-        return one_each_or_constant(props.height, 1, false, props.nmarkers)
+      a_height(_, props) {
+        return one_each_or_constant(regl, props.height, 1, false, props.nmarkers)
       },
-      a_angle: (_: any, props: any) => {
-        return one_each_or_constant(props.angle, 1, false, props.nmarkers)
+      a_angle(_, props) {
+        return one_each_or_constant(regl, props.angle, 1, false, props.nmarkers)
       },
-      a_linewidth: (_: any, props: any) => {
-        return one_each_or_constant(props.linewidth, 1, false, props.nmarkers)
+      a_linewidth(_, props) {
+        return one_each_or_constant(regl, props.linewidth, 1, false, props.nmarkers)
       },
-      a_line_color: (_: any, props: any) => {
-        return one_each_or_constant(props.line_color, 4, true, props.nmarkers)
+      a_line_color(_, props) {
+        return one_each_or_constant(regl, props.line_color, 4, true, props.nmarkers)
       },
-      a_fill_color: (_: any, props: any) => {
-        return one_each_or_constant(props.fill_color, 4, true, props.nmarkers)
+      a_fill_color(_, props) {
+        return one_each_or_constant(regl, props.fill_color, 4, true, props.nmarkers)
       },
-      a_line_join: (_: any, props: any) => {
-        return one_each_or_constant(props.line_join, 1, false, props.nmarkers)
+      a_line_join(_, props) {
+        return one_each_or_constant(regl, props.line_join, 1, false, props.nmarkers)
       },
-      a_show: {
-        buffer: regl.prop('show'),
-        normalized: true,
-        divisor: 1,
+      a_show(_, props) {
+        return {
+          buffer: regl.buffer(props.show),
+          normalized: true,
+          divisor: 1,
+        }
       },
-      a_hatch_pattern: (_: any, props: any) => {
-        return one_each_or_constant(props.hatch_pattern, 1, false, props.nmarkers)
+      a_hatch_pattern(_, props) {
+        return one_each_or_constant(regl, props.hatch_pattern, 1, false, props.nmarkers)
       },
-      a_hatch_scale: (_: any, props: any) => {
-        return one_each_or_constant(props.hatch_scale, 1, false, props.nmarkers)
+      a_hatch_scale(_, props) {
+        return one_each_or_constant(regl, props.hatch_scale, 1, false, props.nmarkers)
       },
-      a_hatch_weight: (_: any, props: any) => {
-        return one_each_or_constant(props.hatch_weight, 1, false, props.nmarkers)
+      a_hatch_weight(_, props) {
+        return one_each_or_constant(regl, props.hatch_weight, 1, false, props.nmarkers)
       },
-      a_hatch_color: (_: any, props: any) => {
-        return one_each_or_constant(props.hatch_color, 4, true, props.nmarkers)
+      a_hatch_color(_, props) {
+        return one_each_or_constant(regl, props.hatch_color, 4, true, props.nmarkers)
       },
     },
 
     uniforms: {
-      u_canvas_size: regl.prop('canvas_size'),
-      u_pixel_ratio: regl.prop('pixel_ratio'),
-      u_antialias: regl.prop('antialias'),
+      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
+      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
+      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
     },
 
     count: 4,
     primitive: 'triangle fan',
-    instances: regl.prop('nmarkers'),
+    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
 
     blend: {
       enable: true,
@@ -558,5 +568,12 @@ function regl_rect_hatch(regl: any): ReglRenderFunction {
       },
     },
     depth: {enable: false},
-  })
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, 'scissor'>('scissor'),
+    },
+    viewport: regl.prop<Props, 'viewport'>('viewport'),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
 }

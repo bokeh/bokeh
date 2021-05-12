@@ -14,16 +14,16 @@ export interface HasRectCDS {
 }
 
 export class BoxEditToolView extends EditToolView {
-  model: BoxEditTool
+  override model: BoxEditTool
   _draw_basepoint: [number, number] | null
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     if ((this._draw_basepoint != null) || (this._basepoint != null))
       return
     this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -82,7 +82,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     if (!this.model.active)
       return
     if (this._draw_basepoint != null) {
@@ -95,11 +95,11 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     this._update_box(ev, false, false)
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint != null)
         return
@@ -113,7 +113,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
+  override _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint == null)
         return
@@ -125,7 +125,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     this._pan(ev, false, true)
     if (ev.shiftKey) {
       this._draw_basepoint = null
@@ -150,8 +150,8 @@ export namespace BoxEditTool {
 export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
-  properties: BoxEditTool.Props
-  __view_type__: BoxEditToolView
+  override properties: BoxEditTool.Props
+  override __view_type__: BoxEditToolView
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 
@@ -168,8 +168,8 @@ export class BoxEditTool extends EditTool {
     }))
   }
 
-  tool_name = "Box Edit Tool"
-  icon = tool_icon_box_edit
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
-  default_order = 1
+  override tool_name = "Box Edit Tool"
+  override icon = tool_icon_box_edit
+  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override default_order = 1
 }

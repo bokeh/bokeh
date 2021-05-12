@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -21,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...util.string import nice_join
 from .. import enums
+from ._sphinx import model_link, property_link, register_type_link
 from .primitive import String
 from .singletons import Intrinsic
 
@@ -72,17 +75,6 @@ class Enum(String):
         msg = "" if not detail else f"invalid value: {value!r}; allowed values are {nice_join(self.allowed_values)}"
         raise ValueError(msg)
 
-    def _sphinx_type(self):
-        # try to return a link to a proper enum in bokeh.core.enums if possible
-        if self._enum in enums.__dict__.values():
-            for name, obj in enums.__dict__.items():
-                if self._enum is obj:
-                    val = self._sphinx_model_link(f"{self._enum.__module__}.{name}")
-                    return f"{self._sphinx_prop_link()}({val})"
-
-        # otherwise just a basic str name format
-        return f"{self._sphinx_prop_link()}({self._enum})"
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -94,3 +86,15 @@ class Enum(String):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+@register_type_link(Enum)
+def _sphinx_type(obj):
+    # try to return a link to a proper enum in bokeh.core.enums if possible
+    if obj._enum in enums.__dict__.values():
+        for name, value in enums.__dict__.items():
+            if obj._enum is value:
+                fullname = f"{obj._enum.__module__}.{name}"
+                return f"{property_link(obj)}({model_link(fullname)})"
+
+    # otherwise just a basic str name format
+    return f"{property_link(obj)}({obj._enum})"

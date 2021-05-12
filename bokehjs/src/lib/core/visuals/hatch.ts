@@ -11,7 +11,7 @@ export class Hatch extends VisualProperties {
   protected _hatch_image: CanvasImageSource | null
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
     this._hatch_image = null
 
@@ -62,7 +62,7 @@ export class Hatch extends VisualProperties {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }
@@ -118,7 +118,7 @@ export class HatchScalar extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length
@@ -168,7 +168,7 @@ export class HatchScalar extends VisualUniforms {
     const {doit} = this
     if (doit) {
       this.set_value(ctx)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }
@@ -231,7 +231,7 @@ export class HatchVector extends VisualUniforms {
 
   protected _update_iteration: number = 0
 
-  update(): void {
+  override update(): void {
     this._update_iteration++
 
     const n = this.hatch_color.length
@@ -308,7 +308,7 @@ export class HatchVector extends VisualUniforms {
     const {doit} = this
     if (doit) {
       this.set_vectorize(ctx, i)
-      ctx.fill(rule)
+      ctx.layer.undo_transform(() => ctx.fill(rule))
     }
     return doit
   }

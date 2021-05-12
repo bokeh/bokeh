@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -26,7 +28,12 @@ import_required("selenium.webdriver",
 # Standard library imports
 import atexit
 import os
-from os.path import devnull, dirname, isfile, join
+from os.path import (
+    devnull,
+    dirname,
+    isfile,
+    join,
+)
 from shutil import which
 from typing import List, Optional
 

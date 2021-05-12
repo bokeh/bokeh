@@ -22,6 +22,7 @@ __all__ = (
     "build_conda_packages",
     "build_docs",
     "build_sdist_packages",
+    "build_wheel_packages",
     "dev_install",
     "install_bokehjs",
     "npm_install",
@@ -78,6 +79,14 @@ def build_sdist_packages(config: Config, system: System) -> ActionReturn:
         return FAILED("sdist package build did NOT succeed", details=e.args)
 
 
+def build_wheel_packages(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("python setup.py bdist_wheel --install-js")
+        return PASSED("wheel package build succeeded")
+    except RuntimeError as e:
+        return FAILED("wheel package build did NOT succeed", details=e.args)
+
+
 def dev_install(config: Config, system: System) -> ActionReturn:
     try:
         system.run("python setup.py develop --install-js")
@@ -111,7 +120,8 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"mkdir {dirname}")
         system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
         system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
-        system.run(f"cp dist/bokeh-*.tar.gz {dirname}")  # TODO: handle .dev version variant better
+        system.run(f"cp dist/bokeh-{config.pep440_version}.tar.gz {dirname}")
+        system.run(f"cp dist/bokeh-{config.pep440_version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
         system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
         system.run(f"mkdir -p {dirname}/sphinx/build")

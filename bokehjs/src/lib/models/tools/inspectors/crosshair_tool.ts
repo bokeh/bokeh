@@ -9,9 +9,9 @@ import {values} from "core/util/object"
 import {tool_icon_crosshair} from "styles/icons.css"
 
 export class CrosshairToolView extends InspectToolView {
-  model: CrosshairTool
+  override model: CrosshairTool
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
 
@@ -23,7 +23,7 @@ export class CrosshairToolView extends InspectToolView {
       this._update_spans(sx, sy)
   }
 
-  _move_exit(_e: MoveEvent): void {
+  override _move_exit(_e: MoveEvent): void {
     this._update_spans(null, null)
   }
 
@@ -52,8 +52,8 @@ export namespace CrosshairTool {
 export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
-  properties: CrosshairTool.Props
-  __view_type__: CrosshairToolView
+  override properties: CrosshairTool.Props
+  override __view_type__: CrosshairToolView
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)
@@ -94,14 +94,14 @@ export class CrosshairTool extends InspectTool {
     this.register_alias("crosshair", () => new CrosshairTool())
   }
 
-  tool_name = "Crosshair"
-  icon = tool_icon_crosshair
+  override tool_name = "Crosshair"
+  override icon = tool_icon_crosshair
 
-  get tooltip(): string {
+  override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
   }
 
-  get synthetic_renderers(): Renderer[] {
+  override get synthetic_renderers(): Renderer[] {
     return values(this.spans)
   }
 }

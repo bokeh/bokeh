@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -238,8 +240,8 @@ class BokehTornado(TornadoApplication):
         # This will be set when initialize is called
         self._loop = None
 
-        from bokeh.application.handlers.function import FunctionHandler
         from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
+        from bokeh.application.handlers.function import FunctionHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
@@ -694,6 +696,7 @@ class BokehTornado(TornadoApplication):
             return
 
         import gc
+
         from ..document import Document
         from ..model import Model
         from .session import ServerSession

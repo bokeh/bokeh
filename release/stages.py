@@ -51,7 +51,7 @@ from .deploy import (
     publish_conda_package,
     publish_documentation,
     publish_npm_package,
-    publish_pip_package,
+    publish_pip_packages,
     unpack_deployment_tarball,
 )
 from .git import (
@@ -65,11 +65,7 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .remote import (
-    download_deployment_tarball,
-    publish_bokehjs_to_cdn,
-    upload_deployment_tarball,
-)
+from .remote import download_deployment_tarball, publish_bokehjs_to_cdn, upload_deployment_tarball
 
 __all__ = (
     "BUILD_CHECKS",
@@ -139,6 +135,6 @@ DEPLOY_STEPS: StepListType = (
     unpack_deployment_tarball,
     publish_npm_package,
     publish_conda_package,
-    publish_pip_package,
+    publish_pip_packages,
     publish_documentation,
 )

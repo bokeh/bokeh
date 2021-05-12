@@ -1,20 +1,23 @@
 import {View} from "./view"
 import {createElement, remove} from "./dom"
 
-export class DOMView extends View {
-  tagName: keyof HTMLElementTagNameMap
+export interface DOMView extends View {
+  constructor: Function & {tag_name: keyof HTMLElementTagNameMap}
+}
 
-  el: HTMLElement
+export abstract class DOMView extends View {
+  static tag_name: keyof HTMLElementTagNameMap = "div"
 
-  /** @override */
-  readonly root: DOMView
+  el: Node
 
-  initialize(): void {
+  override readonly root: DOMView
+
+  override initialize(): void {
     super.initialize()
     this.el = this._createElement()
   }
 
-  remove(): void {
+  override remove(): void {
     remove(this.el)
     super.remove()
   }
@@ -25,14 +28,14 @@ export class DOMView extends View {
 
   render(): void {}
 
-  renderTo(element: HTMLElement): void {
+  renderTo(element: Node): void {
     element.appendChild(this.el)
     this.render()
+    this._has_finished = true
+    this.notify_finished()
   }
 
-  protected _createElement(): HTMLElement {
-    return createElement(this.tagName, {class: this.css_classes()})
+  protected _createElement(): this["el"] {
+    return createElement(this.constructor.tag_name, {class: this.css_classes()})
   }
 }
-
-DOMView.prototype.tagName = "div"

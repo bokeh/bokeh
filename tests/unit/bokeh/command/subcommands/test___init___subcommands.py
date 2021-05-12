@@ -40,8 +40,8 @@ def test_all_types() -> None:
     assert all(issubclass(x, Subcommand) for x in sc.all)
 
 def test_all_count() -> None:
-    from os.path import dirname
     from os import listdir
+    from os.path import dirname
 
     files = listdir(dirname(sc.__file__))
     pyfiles = [x for x in files if x.endswith(".py")]

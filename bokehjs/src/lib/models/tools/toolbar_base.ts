@@ -1,11 +1,12 @@
 import {logger} from "core/logging"
-import {empty, div, a} from "core/dom"
+import {classes, empty, div, a} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {some, every} from "core/util/array"
+import {join} from "core/util/iterator"
 import {values} from "core/util/object"
 import {isString} from "core/util/types"
 import {CanvasLayer} from "core/util/canvas"
@@ -18,6 +19,7 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
 import logos_css, * as logos from "styles/logo.css"
@@ -26,50 +28,64 @@ export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    _visible: p.Property<boolean | null>
     autohide: p.Property<boolean>
+    _visible: p.Property<boolean | null>
   }
 }
 
 export interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
 
 export class ToolbarViewModel extends Model {
-  properties: ToolbarViewModel.Props
+  override properties: ToolbarViewModel.Props
 
   constructor(attrs?: Partial<ToolbarViewModel.Attrs>) {
     super(attrs)
   }
 
   static init_ToolbarViewModel(): void {
-    this.define<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
-      _visible: [ Nullable(Boolean), null ],
+    this.define<ToolbarViewModel.Props>(({Boolean}) => ({
       autohide: [ Boolean, false ],
+    }))
+
+    this.internal<ToolbarViewModel.Props>(({Boolean, Nullable}) => ({
+      _visible: [ Nullable(Boolean), null ],
     }))
   }
 
   get visible(): boolean {
-    return (!this.autohide) ? true : (this._visible == null) ? false : this._visible
+    return !this.autohide || (this._visible ?? false)
   }
 }
 
 export class ToolbarBaseView extends DOMView {
-  model: ToolbarBase
+  override model: ToolbarBase
+  override el: HTMLElement
 
   protected _tool_button_views: Map<ButtonTool, ButtonToolButtonView>
   protected _toolbar_view_model: ToolbarViewModel
+  protected _overflow_menu: ContextMenu
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._tool_button_views = new Map()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
+
+    const {toolbar_location} = this.model
+    const reversed = toolbar_location == "left" || toolbar_location == "above"
+    const orientation = this.model.horizontal ? "vertical" : "horizontal"
+    this._overflow_menu = new ContextMenu([], {
+      orientation,
+      reversed,
+      //prevent_hide: (event) => event.target == this.el,
+    })
   }
 
-  async lazy_initialize(): Promise<void> {
+  override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this._build_tool_button_views()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, async () => {
       await this._build_tool_button_views()
@@ -82,11 +98,11 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), toolbars_css, logos_css]
   }
 
-  remove(): void {
+  override remove(): void {
     remove_views(this._tool_button_views)
     super.remove()
   }
@@ -103,26 +119,26 @@ export class ToolbarBaseView extends DOMView {
   }
 
   protected _on_visible_change(): void {
-    const visible = this._toolbar_view_model.visible
-    const hidden_class = toolbars.toolbar_hidden
-    if (this.el.classList.contains(hidden_class) && visible) {
-      this.el.classList.remove(hidden_class)
-    } else if (!visible) {
-      this.el.classList.add(hidden_class)
-    }
+    const {visible} = this._toolbar_view_model
+    classes(this.el).toggle(toolbars.toolbar_hidden, !visible)
   }
 
-  render(): void {
+  override render(): void {
     empty(this.el)
     this.el.classList.add(toolbars.toolbar)
     this.el.classList.add(toolbars[this.model.toolbar_location])
     this._toolbar_view_model.autohide = this.model.autohide
     this._on_visible_change()
 
+    const {horizontal} = this.model
+    let size = 0
+
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
       this.el.appendChild(logo_el)
+      const {width, height} = logo_el.getBoundingClientRect()
+      size += horizontal ? width : height
     }
 
     for (const [, button_view] of this._tool_button_views) {
@@ -143,10 +159,43 @@ export class ToolbarBaseView extends DOMView {
     bars.push(this.model.actions.map(el))
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
 
-    for (const bar of bars) {
-      if (bar.length !== 0) {
-        const el = div({class: toolbars.button_bar}, bar)
+    const non_empty = bars.filter((bar) => bar.length != 0)
+    const divider = () => div({class: toolbars.divider})
+
+    const {bbox} = this.layout
+
+    let overflowed = false
+    const overflow_size = 15
+    this.root.el.appendChild(this._overflow_menu.el)
+    const overflow_button = div({class: toolbars.tool_overflow}, horizontal ? "⋮" : "⋯")
+    overflow_button.addEventListener("click", () => {
+      const at = (() => {
+        switch (this.model.toolbar_location) {
+          case "right": return {left_of:  overflow_button}
+          case "left":  return {right_of: overflow_button}
+          case "above": return {below: overflow_button}
+          case "below": return {above: overflow_button}
+        }
+      })()
+      this._overflow_menu.toggle(at)
+    })
+
+    for (const el of join<HTMLElement>(non_empty, divider)) {
+      if (overflowed) {
+        this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
+      } else {
         this.el.appendChild(el)
+        const {width, height} = el.getBoundingClientRect()
+        size += horizontal ? width : height
+        overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size
+        if (overflowed) {
+          this.el.removeChild(el)
+          this.el.appendChild(overflow_button)
+
+          const {items} = this._overflow_menu
+          items.splice(0, items.length)
+          items.push({content: el})
+        }
       }
     }
   }
@@ -217,7 +266,7 @@ function create_gesture_map(): GesturesMap {
 }
 
 export class ToolbarBase extends Model {
-  properties: ToolbarBase.Props
+  override properties: ToolbarBase.Props
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {
     super(attrs)
@@ -261,7 +310,7 @@ export class ToolbarBase extends Model {
 
   _proxied_tools?: (Tool | ToolProxy)[]
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._init_tools()
   }

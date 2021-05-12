@@ -7,9 +7,9 @@ import {InputGroup, InputGroupView} from "./input_group"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends InputGroupView {
-  model: RadioGroup
+  override model: RadioGroup
 
-  render(): void {
+  override render(): void {
     super.render()
 
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
@@ -43,7 +43,7 @@ export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputGroup.Props & {
-    active: p.Property<number>
+    active: p.Property<number | null>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
   }
@@ -52,8 +52,8 @@ export namespace RadioGroup {
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends InputGroup {
-  properties: RadioGroup.Props
-  __view_type__: RadioGroupView
+  override properties: RadioGroup.Props
+  override __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)
@@ -62,8 +62,8 @@ export class RadioGroup extends InputGroup {
   static init_RadioGroup(): void {
     this.prototype.default_view = RadioGroupView
 
-    this.define<RadioGroup.Props>(({Boolean, Int, String, Array}) => ({
-      active:   [ Int ],
+    this.define<RadioGroup.Props>(({Boolean, Int, String, Array, Nullable}) => ({
+      active:   [ Nullable(Int), null ],
       labels:   [ Array(String), [] ],
       inline:   [ Boolean, false ],
     }))

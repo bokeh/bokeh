@@ -20,7 +20,7 @@ export namespace CDSView {
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
-  properties: CDSView.Props
+  override properties: CDSView.Props
 
   constructor(attrs?: Partial<CDSView.Attrs>) {
     super(attrs)
@@ -39,12 +39,12 @@ export class CDSView extends Model {
     }))
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.compute_indices()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
 
     this.connect(this.properties.filters.change, () => this.compute_indices())

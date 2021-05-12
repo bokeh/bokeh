@@ -21,7 +21,7 @@ export namespace ToolProxy {
 export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
-  properties: ToolProxy.Props
+  override properties: ToolProxy.Props
 
   constructor(attrs?: Partial<ToolProxy.Attrs>) {
     super(attrs)
@@ -68,12 +68,12 @@ export class ToolProxy extends Model {
     return tool instanceof InspectTool && tool.toggleable
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.do = new Signal0(this, "do")
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.do, () => this.doit())
     this.connect(this.properties.active.change, () => this.set_active())
@@ -108,7 +108,7 @@ export class ToolProxy extends Model {
       else {
         const handler = () => {
           for (const tool of this.tools) {
-            tool.menu?.[i]?.handler()
+            tool.menu?.[i]?.handler?.()
           }
         }
         items.push({...item, handler})

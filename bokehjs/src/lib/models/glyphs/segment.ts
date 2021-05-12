@@ -26,10 +26,10 @@ export type SegmentData = GlyphData & p.UniformsOf<Segment.Mixins> & {
 export interface SegmentView extends SegmentData {}
 
 export class SegmentView extends GlyphView {
-  model: Segment
-  visuals: Segment.Visuals
+  override model: Segment
+  override visuals: Segment.Visuals
 
-  protected _project_data(): void {
+  protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
     inplace.project_xy(this._x1, this._y1)
   }
@@ -70,7 +70,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const point = {x: sx, y: sy}
 
@@ -95,7 +95,7 @@ export class SegmentView extends GlyphView {
     return new Selection({indices})
   }
 
-  protected _hit_span(geometry: SpanGeometry): Selection {
+  protected override _hit_span(geometry: SpanGeometry): Selection {
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges
     const {sx, sy} = geometry
 
@@ -144,7 +144,7 @@ export class SegmentView extends GlyphView {
     return [scx, scy]
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -167,8 +167,8 @@ export namespace Segment {
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
-  properties: Segment.Props
-  __view_type__: SegmentView
+  override properties: Segment.Props
+  override __view_type__: SegmentView
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)

@@ -16,15 +16,15 @@ export type SplineData = XYGlyphData & {
 export interface SplineView extends SplineData {}
 
 export class SplineView extends XYGlyphView {
-  model: Spline
-  visuals: Spline.Visuals
+  override model: Spline
+  override visuals: Spline.Visuals
 
-  protected _set_data(): void {
+  protected override _set_data(): void {
     const {tension, closed} = this.model
     ;[this._xt, this._yt] = catmullrom_spline(this._x, this._y, 20, tension, closed)
   }
 
-  protected _map_data(): void {
+  protected override _map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates
     this.sxt = x_scale.v_compute(this._xt)
     this.syt = y_scale.v_compute(this._yt)
@@ -73,8 +73,8 @@ export namespace Spline {
 export interface Spline extends Spline.Attrs {}
 
 export class Spline extends XYGlyph {
-  properties: Spline.Props
-  __view_type__: SplineView
+  override properties: Spline.Props
+  override __view_type__: SplineView
 
   constructor(attrs?: Partial<Spline.Attrs>) {
     super(attrs)

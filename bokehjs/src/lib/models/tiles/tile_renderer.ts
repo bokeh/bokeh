@@ -27,7 +27,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
 }
 
 export class TileRendererView extends RendererView {
-  model: TileRenderer
+  override model: TileRenderer
 
   protected attribution_el?: HTMLElement
 
@@ -41,18 +41,18 @@ export class TileRendererView extends RendererView {
   protected render_timer?: number
   protected prefetch_timer?: number
 
-  initialize(): void {
+  override initialize(): void {
     this._tiles = []
     super.initialize()
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
-  styles(): string[] {
+  override styles(): string[] {
     return [...super.styles(), tiles_css]
   }
 
@@ -190,7 +190,7 @@ export class TileRendererView extends RendererView {
     }
   }
 
-  has_finished(): boolean {
+  override has_finished(): boolean {
     if (!super.has_finished()) {
       return false
     }
@@ -389,8 +389,8 @@ export namespace TileRenderer {
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
-  properties: TileRenderer.Props
-  __view_type__: TileRendererView
+  override properties: TileRenderer.Props
+  override __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)

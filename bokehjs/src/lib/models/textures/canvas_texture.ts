@@ -15,7 +15,7 @@ export namespace CanvasTexture {
 export interface CanvasTexture extends CanvasTexture.Attrs {}
 
 export abstract class CanvasTexture extends Texture {
-  properties: CanvasTexture.Props
+  override properties: CanvasTexture.Props
 
   constructor(attrs?: Partial<CanvasTexture.Attrs>) {
     super(attrs)

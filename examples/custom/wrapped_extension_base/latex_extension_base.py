@@ -6,6 +6,7 @@ from scipy.special import jv
 from bokeh.io import show
 from bokeh.palettes import Spectral4
 from bokeh.plotting import figure
+
 from latex_label import LatexLabel
 
 p = figure(title="LaTex Extension Demonstration", width=800, height=350,

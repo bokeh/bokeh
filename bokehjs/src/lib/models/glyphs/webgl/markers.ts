@@ -1,17 +1,16 @@
 import {BaseGLGlyph, Transform} from "./base"
 import {ReglWrapper} from "./regl_wrap"
+import {MarkerGlyphProps} from "./types"
 import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
 import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
 import {MarkerType} from "core/enums"
 
-
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
 // value instead.
 const missing_point = -10000
-
 
 type MarkerLikeView = ScatterView | CircleView
 
@@ -72,7 +71,7 @@ export class MarkerGL extends BaseGLGlyph {
     }
   }
 
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: MarkerLikeView, readonly marker_type: MarkerType) {
     super(regl_wrapper, glyph)
 
     this._marker_type = marker_type
@@ -119,7 +118,9 @@ export class MarkerGL extends BaseGLGlyph {
         this._show[i] = 255
     }
 
-    this.regl_wrapper.marker(this._marker_type)({
+    const props: MarkerGlyphProps = {
+      scissor: this.regl_wrapper.scissor,
+      viewport: this.regl_wrapper.viewport,
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
       center: mainGlGlyph._centers,
@@ -131,7 +132,8 @@ export class MarkerGL extends BaseGLGlyph {
       line_color: this._line_rgba,
       fill_color: this._fill_rgba,
       show: this._show,
-    })
+    }
+    this.regl_wrapper.marker(this._marker_type)(props)
   }
 
   protected _set_data(): void {

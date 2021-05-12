@@ -1,10 +1,11 @@
 from math import pi
 
-from bokeh.plotting import figure
-from bokeh.layouts import column
 from bokeh.io import show
+from bokeh.layouts import column
+from bokeh.plotting import figure
 
 from gear import Gear
+
 
 def pitch_radius(module, teeth):
     return float(module*teeth)/2

@@ -13,11 +13,11 @@ export interface HasPolyGlyph {
 }
 
 export class PolyDrawToolView extends PolyToolView {
-  model: PolyDrawTool
+  override model: PolyDrawTool
   _drawing: boolean = false
   _initialized: boolean = false
 
-  _tap(ev: TapEvent): void {
+  override _tap(ev: TapEvent): void {
     if (this._drawing)
       this._draw(ev, 'add', true)
     else
@@ -108,7 +108,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._set_vertices(xs, ys)
   }
 
-  _doubletap(ev: TapEvent): void {
+  override _doubletap(ev: TapEvent): void {
     if (!this.model.active)
       return
     if (this._drawing) {
@@ -120,7 +120,7 @@ export class PolyDrawToolView extends PolyToolView {
     }
   }
 
-  _move(ev: MoveEvent): void {
+  override _move(ev: MoveEvent): void {
     if (this._drawing) {
       this._draw(ev, 'edit')
     }
@@ -144,7 +144,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._emit_cds_changes(cds)
   }
 
-  _keyup(ev: KeyEvent): void {
+  override _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
@@ -160,14 +160,14 @@ export class PolyDrawToolView extends PolyToolView {
     }
   }
 
-  _pan_start(ev: PanEvent): void {
+  override _pan_start(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._select_event(ev, "append", this.model.renderers)
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: PanEvent): void {
+  override _pan(ev: PanEvent): void {
     if (this._basepoint == null || !this.model.drag)
       return
     const [bx, by] = this._basepoint
@@ -206,7 +206,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan_end(ev: PanEvent): void {
+  override _pan_end(ev: PanEvent): void {
     if (!this.model.drag)
       return
     this._pan(ev)
@@ -215,7 +215,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._basepoint = null
   }
 
-  activate(): void {
+  override activate(): void {
     if (!this.model.vertex_renderer || !this.model.active)
       return
     this._show_vertices()
@@ -228,7 +228,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._initialized = true
   }
 
-  deactivate(): void {
+  override deactivate(): void {
     if (this._drawing) {
       this._remove()
       this._drawing = false
@@ -250,10 +250,10 @@ export namespace PolyDrawTool {
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
-  properties: PolyDrawTool.Props
-  __view_type__: PolyDrawToolView
+  override properties: PolyDrawTool.Props
+  override __view_type__: PolyDrawToolView
 
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
+  override renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
@@ -268,8 +268,8 @@ export class PolyDrawTool extends PolyTool {
     }))
   }
 
-  tool_name = "Polygon Draw Tool"
-  icon = tool_icon_poly_draw
-  event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
-  default_order = 3
+  override tool_name = "Polygon Draw Tool"
+  override icon = tool_icon_poly_draw
+  override event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
+  override default_order = 3
 }

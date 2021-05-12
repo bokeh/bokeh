@@ -17,7 +17,7 @@ export interface RowAggregator extends RowAggregator.Attrs {
 }
 
 export abstract class RowAggregator extends Model {
-  properties: RowAggregator.Props
+  override properties: RowAggregator.Props
 
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
     super(attrs)
@@ -36,7 +36,7 @@ export abstract class RowAggregator extends Model {
 
 const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
-  readonly key = 'avg'
+  override readonly key = 'avg'
 
   init = avg.init
   accumulate = avg.accumulate
@@ -45,7 +45,7 @@ export class AvgAggregator extends RowAggregator {
 
 const min = new Min()
 export class MinAggregator extends RowAggregator {
-  readonly key = 'min'
+  override readonly key = 'min'
 
   init = min.init
   accumulate = min.accumulate
@@ -54,7 +54,7 @@ export class MinAggregator extends RowAggregator {
 
 const max = new Max()
 export class MaxAggregator extends RowAggregator {
-  readonly key = 'max'
+  override readonly key = 'max'
 
   init = max.init
   accumulate = max.accumulate
@@ -63,7 +63,7 @@ export class MaxAggregator extends RowAggregator {
 
 const sum = new Sum()
 export class SumAggregator extends RowAggregator {
-  readonly key = 'sum'
+  override readonly key = 'sum'
 
   init = sum.init
   accumulate = sum.accumulate

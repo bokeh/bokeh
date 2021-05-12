@@ -38,6 +38,8 @@ A full directory layout might look like:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -47,7 +49,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
-from os.path import basename, dirname, exists, join
+from os.path import (
+    basename,
+    dirname,
+    exists,
+    join,
+)
 
 # External imports
 from jinja2 import Environment, FileSystemLoader

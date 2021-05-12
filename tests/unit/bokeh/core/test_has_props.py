@@ -18,12 +18,19 @@ import pytest ; pytest
 from mock import patch
 
 # Bokeh imports
-from bokeh.core.properties import Alias, AngleSpec, Either, Int, List, Nullable, NumberSpec, Override, String
-from bokeh.core.property.dataspec import field, value
-from bokeh.core.property.descriptors import (
-    BasicPropertyDescriptor,
-    DataSpecPropertyDescriptor,
+from bokeh.core.properties import (
+    Alias,
+    AngleSpec,
+    Either,
+    Int,
+    List,
+    Nullable,
+    NumberSpec,
+    Override,
+    String,
 )
+from bokeh.core.property.dataspec import field, value
+from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor
 from bokeh.core.property.singletons import Intrinsic
 
 # Module under test
@@ -252,8 +259,8 @@ def test_HasProps_update_from_json_passes_models_and_setter(mock_set) -> None:
     c = Child()
     c.update_from_json(dict(lst1=[1,2]), models="foo", setter="bar")
     assert mock_set.called
-    assert mock_set.call_args[0] == ('lst1', [1, 2], 'foo', 'bar')
-    assert mock_set.call_args[1] == {}
+    assert mock_set.call_args[0] == ('lst1', [1, 2])
+    assert mock_set.call_args[1] == {'models': 'foo', 'setter': 'bar'}
 
 def test_HasProps_set() -> None:
     c = Child()
@@ -283,13 +290,13 @@ def test_HasProps_set_error() -> None:
 def test_HasProps_lookup() -> None:
     p = Parent()
     d = p.lookup('int1')
-    assert isinstance(d, BasicPropertyDescriptor)
+    assert isinstance(d, PropertyDescriptor)
     assert d.name == 'int1'
     d = p.lookup('ds1')
     assert isinstance(d, DataSpecPropertyDescriptor)
     assert d.name == 'ds1'
     d = p.lookup('lst1')
-    assert isinstance(d, BasicPropertyDescriptor)
+    assert isinstance(d, PropertyDescriptor)
     assert d.name == 'lst1'
 
 def test_HasProps_apply_theme() -> None:

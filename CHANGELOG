@@ -1,3 +1,56 @@
+2021-05-05    2.3.2:
+--------------------
+  * bugfixes:
+    - #11169 [component: bokehjs] [BUG] Python callback triggered by SelectionGeometry event is slow compared to js equivalent
+    - #11182 [component: bokehjs] [BUG] Forward slash is changed to %2F in link
+    - #11203 [component: bokehjs] [BUG] Cannot clear active of RadiGroup
+
+  * tasks:
+    - #9636 Remove Black Formatting
+    - #11175 Replace jinja2.Markup deprecated with Jinja 3.1
+
+2021-04-07    2.3.1:
+--------------------
+  * bugfixes:
+    - #10822 `DataModel` is always serialized
+    - #10887 [component: bokehjs] [BUG] FileInput cancel operation throws error
+    - #10912 [component: bokehjs] [BUG] 'freehand_draw' is not in name space for tools
+    - #10942 [component: examples] [BUG] Spectrogram example does not compile
+    - #11000 [component: bokehjs] Make `FuncTickFormatter` always produce strings
+    - #11006 [component: bokehjs] [BUG] Log axis exponents react differently when font size is defined in anything but px (e.g. pt)
+    - #11026 [component: bokehjs] [BUG] Serialization of MessageSent document event includes all model references
+    - #11028 [component: bokehjs] [BUG] Figure events raise errors in the presence of edit tools
+    - #11029 [component: bokehjs] [BUG] DataModel warns about being registered multiple times
+    - #11054 [component: bokehjs] [BUG] Invalid BBox of BoxSelection
+    - #11057 [component: bokehjs] [BUG] Sizing mode example layout broken in docs
+    - #11061 [component: bokehjs] [BUG] Tilerenderer snap_back path issue with setv
+    - #11062 [component: bokehjs] [Bug] ColorPicker color not updated on selection
+
+  * features:
+    - #10569 [FEATURE] JupyterLab 3 dynamic extension loading
+
+  * tasks:
+    - #10888 [component: docs] [BUG] FileInput accept-type '.txt' file-extension filtering does not work as expected
+    - #10897 [component: docs] Docs: remove reference of outdated 'nbserverproxy'
+    - #10919 [component: docs] [BUG] Deprecate broken HSL objects
+    - #10926 [component: docs] [BUG] BokehJS component default value not passing through
+    - #10934 [component: docs] bokeh_releases needs to process files more carefully
+    - #10941 Minor cleanup after PR #10939
+    - #10943 [component: build] [BUG] Cloudfront invalidation error on full release
+    - #10957 [component: build] Update versioneer version?
+    - #11002 [component: docs] PolyAnnotation is missing from the user guide
+    - #11013 [component: bokehjs] [FEATURE] BokehJS usage : documentation updates
+    - #11097 [component: docs] Document new JLab install process
+    - #11112 [component: build] Update build jobs for base OS update
+    - #10953 [component: docs] Add information about Bokeh channel for installation
+    - #10973 Add missing comma in example code
+    - #10986 Bryanv/2 3 1 backports
+    - #10997 [component: docs] Clarify explanation in First Steps 1
+    - #11024 [component: bokehjs] Simplify rendering of Line and MultiLine glyphs
+    - #11043 Backport: Simplify rendering of Line and MultiLine glyphs (#11024)
+    - #11086 Fixed missing f in f-string
+    - #11137 [component: docs] Release notes for 2.3.1
+
 2021-02-24      2.3:
 --------------------
   * bugfixes:
@@ -12,7 +65,7 @@
     - #10411 [component: examples] [BUG] issues with latex_example_full
     - #10452 [component: bokehjs] [BUG] MultiChoice disabled attribute is not working
     - #10454 [component: bokehjs] LabelSet does not display with categorical coordinates
-    - #10457 [component: bokehjs] [BUG]Reverse Y axis range with circle 
+    - #10457 [component: bokehjs] [BUG]Reverse Y axis range with circle
     - #10458 [component: bokehjs] [BUG]multi_line doesn't support hover.
     - #10468 [component: bokehjs] [BUG] `DateSlider` and `DateRangeSlider` ignore `format` set to an instance of `TickFormatter`
     - #10481 [component: bokehjs] [BUG] Unable to use CustomJS callback on HoverTool with GraphRenderer
@@ -43,7 +96,7 @@
     - #10721 [component: build] CI is failing with ModuleNotFoundError: No module named 'bokeh'
     - #10725 [component: bokehjs] [BUG] SVG backend mirrors image in plot
     - #10738 [component: bokehjs] [BUG] MultiLine datetime precision loss
-    - #10754 [component: bokehjs] [BUG] Hover indices broken 
+    - #10754 [component: bokehjs] [BUG] Hover indices broken
     - #10755 [component: bokehjs] Unequal length columns cause size mismatch error
     - #10784 [component: bokehjs] [FEATURE] Differential re-rendering of updated plots
     - #10809 [component: bokehjs] [BUG]figure labels missing after updating the CDS
@@ -53,9 +106,9 @@
     - #10841 [BUG] Ensure non-nullable properties in JS are validated in Python
     - #10851 [BUG] Layout regressions
     - #10852 [component: bokehjs] [BUG] Lasso tool does not render
-    - #10853 [component: bokehjs] [BUG] Ajax and Server sent examples broken  
+    - #10853 [component: bokehjs] [BUG] Ajax and Server sent examples broken
     - #10855 [component: bokehjs] Only main glyphs has signals connected in `GlyphRenderer`
-    - #10875 [component: docs] [BUG] Marker docs require updating 
+    - #10875 [component: docs] [BUG] Marker docs require updating
     - #10879 [component: docs] [BUG] Link to export_svg() in export.rst is broken
     - #10880 [BUG] ProxyToolbar.logo: expected a value of type str, got None
     - #10913 [BUG] Error while testing 2.3.0dev13 with Dask
@@ -100,13 +153,13 @@
     - #8260 [component: tests] Strict "image diff" selenium tests
     - #9007 [component: docs] [DOCS] Add mention of Themes to "Styling Visual Attributes" docs page
     - #9297 [component: bokehjs] Relese dev npm packages along conda packages
-    - #9341 [component: build] Archive release artifacts 
+    - #9341 [component: build] Archive release artifacts
     - #9858 [component: bokehjs] Publish prerelease npm packages under `dev` tag
     - #9910 Remove Explicit Marker Models
     - #9958 [BUG] Better warn about passing source in the CustomJSFilter args dict for 2.0 and above
     - #10224 Rename main branch
     - #10333 bokeh build includes copyright statement from Anaconda in my bokeh extension
-    - #10341 [component: docs] Developer Docs have outdated info on @gen.coroutine decorator 
+    - #10341 [component: docs] Developer Docs have outdated info on @gen.coroutine decorator
     - #10343 [component: bokehjs] Upgrade to TypeScript 4.0
     - #10413 marker_compare.py does not exercise webgl
     - #10420 Delete old pypi packages at anaconda.org?
@@ -122,7 +175,7 @@
     - #10614 [component: docs] Storing static PNG for OpenGraph
     - #10628 [component: docs] Reference guide should display property defaults
     - #10667 [component: docs] Cross reference user guide widgets examples to reference guide
-    - #10671 [component: docs] Unclear which Events `on_event` is compatible with 
+    - #10671 [component: docs] Unclear which Events `on_event` is compatible with
     - #10673 [component: bokehjs] Unintended (?) changes to package(-lock).json
     - #10728 [component: docs] [FEATURE] Linting for docs
     - #10744 [component: docs] [BUG] Stamen Images Broken in Documentation in Chrome
@@ -198,7 +251,7 @@
     - #10843 Update copyright dates and bokehjs' license
     - #10848 [component: docs] Incorrect Example updated
     - #10862 Add Bokeh8 palette
-    - #10865 [component: bokehjs] Miscellaneous bokehjs build changes 
+    - #10865 [component: bokehjs] Miscellaneous bokehjs build changes
     - #10873 [component: docs] Update URL for numpy intersphinx inventory
     - #10922 [component: bokehjs] Fix LogAxis' labels under rotation and add tests
     - #10923 [component: bokehjs] Bump minimum nodejs version to 14+

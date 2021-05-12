@@ -11,7 +11,7 @@ export namespace ServerSentDataSource {
 export interface ServerSentDataSource extends ServerSentDataSource.Attrs {}
 
 export class ServerSentDataSource extends WebDataSource {
-  properties: ServerSentDataSource.Props
+  override properties: ServerSentDataSource.Props
 
   constructor(attrs?: Partial<ServerSentDataSource.Attrs>) {
     super(attrs)

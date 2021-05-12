@@ -11,6 +11,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -25,7 +27,16 @@ log = logging.getLogger(__name__)
 import hashlib
 import json
 from os import mkdir, remove
-from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
+from os.path import (
+    abspath,
+    dirname,
+    exists,
+    expanduser,
+    isdir,
+    isfile,
+    join,
+    splitext,
+)
 from sys import stdout
 from typing import Any, TextIO, cast
 from urllib.parse import urljoin

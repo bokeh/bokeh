@@ -1,4 +1,5 @@
-from bokeh.models import Arrow, Label, NormalHead, OpenHead, Plot, Range1d, TeeHead, VeeHead
+from bokeh.models import (Arrow, Label, NormalHead, OpenHead,
+                          Plot, Range1d, TeeHead, VeeHead)
 from bokeh.plotting import output_file, show
 
 output_file("arrow_heads.html")

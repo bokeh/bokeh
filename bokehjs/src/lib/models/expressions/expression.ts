@@ -9,27 +9,27 @@ export namespace Expression {
   export type Props = Model.Props
 }
 
-export interface Expression extends Expression.Attrs {}
+export interface Expression<T = Arrayable> extends Expression.Attrs {}
 
-export abstract class Expression extends Model {
-  properties: Expression.Props
+export abstract class Expression<T = Arrayable> extends Model {
+  override properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)
   }
 
   protected _connected: Set<ColumnarDataSource>
-  protected _result: Map<ColumnarDataSource, Arrayable>
+  protected _result: Map<ColumnarDataSource, T>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._connected = new Set()
     this._result = new Map()
   }
 
-  protected abstract _v_compute(source: ColumnarDataSource): Arrayable
+  protected abstract _v_compute(source: ColumnarDataSource): T
 
-  v_compute(source: ColumnarDataSource): Arrayable {
+  v_compute(source: ColumnarDataSource): T {
     if (!this._connected.has(source)) {
       this.connect(source.change, () => this._result.delete(source))
       this.connect(source.patching, () => this._result.delete(source))
@@ -55,7 +55,7 @@ export namespace ScalarExpression {
 export interface ScalarExpression<T> extends ScalarExpression.Attrs {}
 
 export abstract class ScalarExpression<T> extends Model {
-  properties: ScalarExpression.Props
+  override properties: ScalarExpression.Props
 
   constructor(attrs?: Partial<ScalarExpression.Attrs>) {
     super(attrs)
@@ -64,7 +64,7 @@ export abstract class ScalarExpression<T> extends Model {
   protected _connected: Set<ColumnarDataSource>
   protected _result: Map<ColumnarDataSource, T>
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this._connected = new Set()
     this._result = new Map()

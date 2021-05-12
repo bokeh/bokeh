@@ -67,12 +67,6 @@ class TestFigure:
         assert p.width == p.plot_width == 100
         assert p.height == p.plot_height == 120
 
-        with pytest.raises(ValueError):
-            bpf.figure(plot_width=100, width=120)
-
-        with pytest.raises(ValueError):
-            bpf.figure(plot_height=100, height=120)
-
     def test_xaxis(self) -> None:
         p = bpf.figure()
         p.circle([1, 2, 3], [1, 2, 3])
@@ -240,9 +234,9 @@ class TestFigure:
             p.circle(x='x', y=[1,2,3], line_color=["red", "green", "blue"], source=source)
         with pytest.raises(RuntimeError) as e:
             p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
-        m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
+        m = re.search (r"Expected y, (.+), (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
         assert m is not None
-        assert set(m.groups()) == {"fill_color", "line_color"}
+        assert set(m.groups()) == {"fill_color", "hatch_color", "line_color"}
 
 
 class TestMarkers:

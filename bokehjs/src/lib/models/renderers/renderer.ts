@@ -6,17 +6,40 @@ import {Model} from "../../model"
 import {CanvasLayer} from "core/util/canvas"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
-import {CoordinateTransform} from "../canvas/coordinates"
+import {CoordinateTransform, CoordinateMapping} from "../canvas/coordinates"
+
+export namespace RendererGroup {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = Model.Props & {
+    visible: p.Property<boolean>
+  }
+}
+
+export interface RendererGroup extends RendererGroup.Attrs {}
+
+export class RendererGroup extends Model {
+  override properties: RendererGroup.Props
+
+  constructor(attrs?: Partial<RendererGroup.Attrs>) {
+    super(attrs)
+  }
+
+  static init_RendererGroup(): void {
+    this.define<RendererGroup.Props>(({Boolean}) => ({
+      visible: [ Boolean, true ],
+    }))
+  }
+}
 
 export abstract class RendererView extends View implements visuals.Renderable {
-  model: Renderer
+  override model: Renderer
   visuals: Renderer.Visuals
 
-  readonly parent: PlotView
+  override readonly parent: PlotView
 
   needs_webgl_blit: boolean
 
-  private _coordinates?: CoordinateTransform
+  protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
     if (_coordinates != null)
@@ -25,24 +48,35 @@ export abstract class RendererView extends View implements visuals.Renderable {
       return this._coordinates = this._initialize_coordinates()
   }
 
-  initialize(): void {
+  override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
     this.needs_webgl_blit = false
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => this._initialize_coordinates())
+    const {group} = this.model
+    if (group != null) {
+      this.on_change(group.properties.visible, () => {
+        this.model.visible = group.visible
+      })
+    }
   }
 
   protected _initialize_coordinates(): CoordinateTransform {
-    const {x_range_name, y_range_name} = this.model
+    const {coordinates} = this.model
     const {frame} = this.plot_view
-    const x_scale = frame.x_scales.get(x_range_name)!
-    const y_scale = frame.y_scales.get(y_range_name)!
-    return new CoordinateTransform(x_scale, y_scale)
+    if (coordinates != null) {
+      return coordinates.get_transform(frame)
+    } else {
+      const {x_range_name, y_range_name} = this.model
+      const x_scale = frame.x_scales.get(x_range_name)!
+      const y_scale = frame.y_scales.get(y_range_name)!
+      return new CoordinateTransform(x_scale, y_scale)
+    }
   }
 
   get plot_view(): PlotView {
@@ -70,7 +104,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
     this.plot_view.request_paint(this)
   }
 
-  notify_finished(): void {
+  override notify_finished(): void {
     this.plot_view.notify_finished()
   }
 
@@ -83,6 +117,13 @@ export abstract class RendererView extends View implements visuals.Renderable {
   get has_webgl(): boolean {
     return false
   }
+
+  /*
+  get visible(): boolean {
+    const {visible, group} = this.model
+    return !visible ? false : (group?.visible ?? true)
+  }
+  */
 
   render(): void {
     if (this.model.visible) {
@@ -102,10 +143,12 @@ export namespace Renderer {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    group: p.Property<RendererGroup | null>
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
+    coordinates: p.Property<CoordinateMapping | null>
   }
 
   export type Visuals = visuals.Visuals
@@ -114,19 +157,21 @@ export namespace Renderer {
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
-  properties: Renderer.Props
-  __view_type__: RendererView
+  override properties: Renderer.Props
+  override __view_type__: RendererView
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)
   }
 
   static init_Renderer(): void {
-    this.define<Renderer.Props>(({Boolean, String}) => ({
+    this.define<Renderer.Props>(({Boolean, String, Ref, Nullable}) => ({
+      group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],
       visible:      [ Boolean, true ],
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],
+      coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
     }))
   }
 }

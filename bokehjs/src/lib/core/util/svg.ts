@@ -1223,4 +1223,16 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   private _to_number(val: number | SVGAnimatedLength): number {
     return isNumber(val) ? val : val.baseVal.value
   }
+
+  getTransform(): DOMMatrix {
+    return this._transform.to_DOMMatrix()
+  }
+
+  setTransform(matrix: DOMMatrix): void {
+    this._transform = AffineTransform.from_DOMMatrix(matrix)
+  }
+
+  resetTransform(): void {
+    this._transform = new AffineTransform()
+  }
 }
