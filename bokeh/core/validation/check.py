@@ -23,24 +23,29 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 from typing import (
-    Any,
+    Generic,
     Iterator,
     List,
-    Set,
     Sequence,
-    Tuple,
+    Set,
+    TypeVar,
+    cast,
 )
+
+# External imports
+from typing_extensions import Literal, Protocol
 
 # Bokeh imports
 from ...model import Model
 from ...settings import settings
 from ...util.dataclasses import dataclass
+from .issue import Error, Issue, Warning
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__silencers__: Set[int] = set()
+__silencers__: Set[Warning] = set()
 
 __all__ = (
     'check_integrity',
@@ -52,18 +57,32 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-ValidationIssue = Tuple[int, str, str, Any]
+I = TypeVar("I", bound=Issue)
+
+@dataclass
+class ValidationIssue(Generic[I]):
+    code: int
+    name: str
+    text: str
+    extra: str
+    origin: I
 
 @dataclass
 class ValidationIssues:
-    warning: List[ValidationIssue]
-    error: List[ValidationIssue]
+    error: List[ValidationIssue[Error]]
+    warning: List[ValidationIssue[Warning]]
 
-def silence(warning: int, silence: bool = True) -> Set[int]:
+ValidatorType = Literal["error", "warning"]
+
+class Validator(Protocol):
+    def __call__(self) -> List[ValidationIssue[Issue]]: ...
+    validator_type: ValidatorType
+
+def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
     ''' Silence a particular warning on all Bokeh models.
 
     Args:
-        warning (Warning) : Bokeh warning to silence
+        warning (int) : Bokeh warning to silence
         silence (bool) : Whether or not to silence the warning
 
     Returns:
@@ -88,7 +107,7 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
         set()
 
     '''
-    if not isinstance(warning, int):
+    if not isinstance(warning, Warning): # type: ignore
         raise ValueError(f"Input to silence should be a warning object - not of type {type(warning)}")
     if silence:
         __silencers__.add(warning)
@@ -96,20 +115,20 @@ def silence(warning: int, silence: bool = True) -> Set[int]:
         __silencers__.remove(warning)
     return __silencers__
 
-def is_silenced(warning: ValidationIssue) -> bool:
+def is_silenced(warning: Warning) -> bool:
     ''' Check if a warning has been silenced.
 
     Args:
-        warning (Warning) : Bokeh warning to check
+        warning (ValidationIssue) : Bokeh warning to check
 
     Returns:
         bool
 
     '''
-    return warning[0] in __silencers__
+    return warning in __silencers__
 
 @contextlib.contextmanager
-def silenced(warning: int) -> Iterator[None]:
+def silenced(warning: Warning) -> Iterator[None]:
     silence(warning, True)
     try:
         yield
@@ -146,7 +165,7 @@ def check_integrity(models: Sequence[Model]) -> ValidationIssues:
     issues = ValidationIssues(error=[], warning=[])
 
     for model in models:
-        validators = []
+        validators: List[Validator] = []
         for name in dir(model):
             if not name.startswith("_check"):
                 continue
@@ -154,7 +173,10 @@ def check_integrity(models: Sequence[Model]) -> ValidationIssues:
             if getattr(obj, "validator_type", None):
                 validators.append(obj)
         for func in validators:
-            getattr(issues, func.validator_type).extend(func())
+            if func.validator_type == "error":
+                issues.error.extend(cast(List[ValidationIssue[Error]], func()))
+            else:
+                issues.warning.extend(cast(List[ValidationIssue[Warning]], func()))
 
     return issues
 
@@ -178,17 +200,17 @@ def process_validation_issues(issues: ValidationIssues) -> None:
 
     '''
     errors = issues.error
-    warnings = [item for item in issues.warning if not is_silenced(item)]
+    warnings = [issue for issue in issues.warning if not is_silenced(issue.origin)]
 
-    warning_messages = []
-    for code, name, desc, obj in sorted(warnings):
-        msg = f"W-{code} ({name}): {desc}: {obj}"
+    warning_messages: List[str] = []
+    for warning in sorted(warnings, key=lambda warning: warning.code):
+        msg = f"W-{warning.code} ({warning.name}): {warning.text}: {warning.extra}"
         warning_messages.append(msg)
         log.warning(msg)
 
-    error_messages = []
-    for code, name, desc, obj in sorted(errors):
-        msg = f"E-{code} ({name}): {desc}: {obj}"
+    error_messages: List[str] = []
+    for error in sorted(errors, key=lambda error: error.code):
+        msg = f"E-{error.code} ({error.name}): {error.text}: {error.extra}"
         error_messages.append(msg)
         log.error(msg)
 
@@ -197,7 +219,7 @@ def process_validation_issues(issues: ValidationIssues) -> None:
             raise RuntimeError(f"Errors encountered during validation: {error_messages}")
     elif settings.validation_level() == "all":
         if len(errors) or len(warnings):
-            raise RuntimeError(f"Errors encountered during validation: {error_messages+warning_messages}")
+            raise RuntimeError(f"Errors encountered during validation: {error_messages + warning_messages}")
 
 #-----------------------------------------------------------------------------
 # Dev API
