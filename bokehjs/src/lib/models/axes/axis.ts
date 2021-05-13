@@ -16,8 +16,7 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {color2css} from "core/util/color"
-import {MathText} from "models/tools/math_text"
+import {MathText, MathTextView} from "models/tools/math_text"
 
 const {abs} = Math
 
@@ -139,20 +138,33 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    const text = this.model.axis_label
-    if (!text || text instanceof MathText)
+    const axis_label = this.model.axis_label
+    if (!axis_label)
       return 0
 
-    const axis_label = new TextBox({text})
-    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-    axis_label.visuals = this.visuals.axis_label_text
-
-    const size = axis_label.size()
-    const extent = this.dimension == 0 ? size.height : size.width
-
-    const standoff = this.model.axis_label_standoff
     const padding = 3
-    return extent > 0 ? standoff + extent + padding : 0
+
+    if (axis_label instanceof MathText) {
+      axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+      axis_label.visuals = this.visuals.axis_label_text
+
+      const size = axis_label.size()
+      const extent = this.dimension == 0 ? size.height : size.width
+      const standoff = this.model.axis_label_standoff
+
+      return extent > 0 ? standoff + extent + padding : 0
+    } else {
+      const axis_label_text_box = new TextBox({text: axis_label})
+      axis_label_text_box.angle = this.panel.get_label_angle_heuristic("parallel")
+      axis_label_text_box.visuals = this.visuals.axis_label_text
+
+      const size = axis_label_text_box.size()
+      const extent = this.dimension == 0 ? size.height : size.width
+
+      const standoff = this.model.axis_label_standoff
+      return extent > 0 ? standoff + extent + padding : 0
+    }
+
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
@@ -188,16 +200,18 @@ export class AxisView extends GuideRendererView {
     }
 
     if (axis_label instanceof MathText) {
-      const {text_color, text_alpha} = this.visuals.axis_label_text
-      const color = text_color.get_value()
-      const alpha = text_alpha.get_value()
+      // NEEDS FIX; How to access MathTextView here?
+      axis_label.default_view.angle = angle
+
+      axis_label.visuals = this.visuals.axis_label_text
+      axis_label.position = position
 
       if (!axis_label.image) {
         this.request_render()
-        return axis_label.load_image(color2css(color, alpha))
+        return axis_label.load_image()
       }
 
-      axis_label.draw_image(ctx, position, angle)
+      axis_label.draw_image(ctx)
 
       return this.notify_finished()
     } else {
@@ -563,6 +577,7 @@ export namespace Axis {
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | MathText | null>
+    math_text_view: p.Property<MathTextView>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
