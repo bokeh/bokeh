@@ -406,18 +406,18 @@ class ClientSession:
             self._attach_document(doc)
 
     def push(self, document=None):
-        ''' Push the given document to the server and record it as session.document.
+        ''' Push the given document to the server and record it as ``session.document``.
 
         If this is called more than once, the Document has to be the same (or None
-        to mean "session.document").
+        to mean ``session.document``).
 
         .. note::
             Automatically calls :func:`~connect` before pushing.
 
         Args:
             document (|Document|, optional) :
-                The document which will be kept in sync with the server document.
-                None to use session.document or create a new document.
+                The document that will be kept in sync with the server document.
+                None to use ``session.document`` or create a new document.
 
         '''
         if self.document is None:
