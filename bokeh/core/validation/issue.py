@@ -36,16 +36,17 @@ __all__ = ()
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dataclass
+@dataclass(frozen=True)
 class Issue:
     code: int
+    name: str
     description: str
 
-@dataclass
+@dataclass(frozen=True)
 class Warning(Issue):
     pass
 
-@dataclass
+@dataclass(frozen=True)
 class Error(Issue):
     pass
 

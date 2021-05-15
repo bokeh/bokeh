@@ -40,14 +40,38 @@ from .issue import Warning
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-MISSING_RENDERERS               = Warning(1000, "Plot has no renderers")
-EMPTY_LAYOUT                    = Warning(1002, "Layout has no children")
-BOTH_CHILD_AND_ROOT             = Warning(1004, "Models should not be a document root if they are in a layout box")
-FIXED_SIZING_MODE               = Warning(1005, "'fixed' sizing mode requires width and height to be set")
-FIXED_WIDTH_POLICY              = Warning(1006, "'fixed' width policy requires width to be set")
-FIXED_HEIGHT_POLICY             = Warning(1007, "'fixed' height policy requires height to be set")
-PALETTE_LENGTH_FACTORS_MISMATCH = Warning(1008, "Palette length does not match number of factors")
-EXT                             = Warning(9999, "Custom extension reports warning")
+MISSING_RENDERERS = Warning(
+    1000,
+    "MISSING_RENDERERS",
+    "Plot has no renderers")
+EMPTY_LAYOUT = Warning(
+    1002,
+    "EMPTY_LAYOUT",
+    "Layout has no children")
+BOTH_CHILD_AND_ROOT = Warning(
+    1004,
+    "BOTH_CHILD_AND_ROOT",
+    "Models should not be a document root if they are in a layout box")
+FIXED_SIZING_MODE = Warning(
+    1005,
+    "FIXED_SIZING_MODE",
+    "'fixed' sizing mode requires width and height to be set")
+FIXED_WIDTH_POLICY = Warning(
+    1006,
+    "FIXED_WIDTH_POLICY",
+    "'fixed' width policy requires width to be set")
+FIXED_HEIGHT_POLICY = Warning(
+    1007,
+    "FIXED_HEIGHT_POLICY",
+    "'fixed' height policy requires height to be set")
+PALETTE_LENGTH_FACTORS_MISMATCH = Warning(
+    1008,
+    "PALETTE_LENGTH_FACTORS_MISMATCH",
+    "Palette length does not match number of factors")
+EXT = Warning(
+    9999,
+    "EXT",
+    "Custom extension reports warning")
 
 __all__ = ()
 
