@@ -46,7 +46,7 @@ export abstract class BaseGLGlyph {
   abstract draw(indices: number[], mainglyph: any, trans: Transform): void
 
   // Return array from FloatBuffer, creating it if necessary.
-  protected get_buffer_array(float_buffer: FloatBuffer, length: number): Float32Array {
+  protected get_buffer_array(float_buffer: FloatBuffer | null, length: number): Float32Array {
     if (float_buffer == null || float_buffer.array.length != length)
       return new Float32Array(length)
     else
@@ -54,7 +54,7 @@ export abstract class BaseGLGlyph {
   }
 
   // Update FloatBuffer with data contained in array.
-  protected update_buffer(float_buffer: FloatBuffer, array: Float32Array): FloatBuffer {
+  protected update_buffer(float_buffer: FloatBuffer | null, array: Float32Array): FloatBuffer {
     if (float_buffer == null) {
       // Create new buffer.
       float_buffer = {
