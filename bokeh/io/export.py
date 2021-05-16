@@ -67,7 +67,7 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> str:
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -118,7 +118,7 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
     return abspath(filename)
 
 def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -154,7 +154,7 @@ def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -199,7 +199,7 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
@@ -241,7 +241,7 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[
                  .crop((0, 0, width*dpr, height*dpr))
                  .resize((width, height)))
 
-def get_svg(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_svg(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
     from .webdriver import webdriver_control
 
@@ -257,7 +257,7 @@ def get_svg(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = 
 
     return svgs
 
-def get_svgs(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
     from .webdriver import webdriver_control
 
@@ -321,14 +321,14 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
 
     return html
 
-def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
+def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     '''
 
     '''
     from selenium.common.exceptions import TimeoutException
     from selenium.webdriver.support.ui import WebDriverWait
 
-    def is_bokeh_loaded(driver: "WebDriver") -> bool:
+    def is_bokeh_loaded(driver: WebDriver) -> bool:
         return cast(bool, driver.execute_script('''
             return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
         '''))
@@ -341,7 +341,7 @@ def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
 
     driver.execute_script(_WAIT_SCRIPT)
 
-    def is_bokeh_render_complete(driver: "WebDriver") -> bool:
+    def is_bokeh_render_complete(driver: WebDriver) -> bool:
         return cast(bool, driver.execute_script('return window._bokeh_render_complete;'))
 
     try:
@@ -375,7 +375,7 @@ def _write_collection(items: List[str], filename: Union[str, None], ext: str) ->
 
     return filenames
 
-def _log_console(driver: "WebDriver") -> None:
+def _log_console(driver: WebDriver) -> None:
     levels = {'WARNING', 'ERROR', 'SEVERE'}
     try:
         logs = driver.get_log('browser')
@@ -387,7 +387,7 @@ def _log_console(driver: "WebDriver") -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
+def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int, int]:
     calculate_viewport_size = """\
         const root = document.getElementsByClassName("bk-root")[0]
         const {width, height} = root.children[0].getBoundingClientRect()
