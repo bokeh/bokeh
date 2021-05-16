@@ -22,8 +22,8 @@ from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Int
-from bokeh.core.validation import errors, warnings
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
+from bokeh.core.validation.issue import Error, Warning
 from bokeh.model import Model
 
 # Module under test
@@ -41,31 +41,29 @@ import bokeh.core.validation as v # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-"""
 def test_error_decorator_code() -> None:
-    for code in ec:
-        @v.error(code)
+    for error in Error.all():
+        @v.error(error)
         def good():
             return None
         assert good() == []
 
-        @v.error(code)
+        @v.error(error)
         def bad():
             return "bad"
-        assert bad() == [(code,) + ec[code] + ('bad',)]
+        assert bad() == [ValidationIssue(error.code, error.name, error.description, "bad")]
 
 def test_warning_decorator_code() -> None:
-    for code in wc:
-        @v.warning(code)
+    for warning in Warning.all():
+        @v.warning(warning)
         def good():
             return None
         assert good() == []
 
-        @v.warning(code)
+        @v.warning(warning)
         def bad():
             return "bad"
-        assert bad() == [(code,) + wc[code] + ('bad',)]
-"""
+        assert bad() == [ValidationIssue(warning.code, warning.name, warning.description, "bad")]
 
 def test_error_decorator_custom() -> None:
     @v.error("E1")
@@ -76,7 +74,7 @@ def test_error_decorator_custom() -> None:
     @v.error("E2")
     def bad():
         return "bad"
-    assert bad() == [ValidationIssue(9999, "EXT:E2", "Custom extension reports error", "bad", errors.EXT)]
+    assert bad() == [ValidationIssue(9999, "EXT:E2", "Custom extension reports error", "bad")]
 
 def test_warning_decorator_custom() -> None:
     @v.warning("W1")
@@ -87,7 +85,7 @@ def test_warning_decorator_custom() -> None:
     @v.warning("W2")
     def bad():
         return "bad"
-    assert bad() == [ValidationIssue(9999, "EXT:W2", "Custom extension reports warning", "bad", warnings.EXT)]
+    assert bad() == [ValidationIssue(9999, "EXT:W2", "Custom extension reports warning", "bad")]
 
 class Mod(Model):
 
@@ -109,7 +107,7 @@ def test_check_integrity_pass() -> None:
 def test_check_integrity_error() -> None:
     m = Mod(foo = 10)
     issues = ValidationIssues(
-        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err", errors.EXT)],
+        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err")],
         warning=[],
     )
     assert v.check_integrity([m]) == issues
@@ -118,7 +116,7 @@ def test_check_integrity_warning() -> None:
     m = Mod(foo = -10)
     issues = ValidationIssues(
         error=[],
-        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn", warnings.EXT)],
+        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn")],
     )
     assert v.check_integrity([m]) == issues
 
@@ -232,7 +230,7 @@ def test_process_validation_issues_pass(mock_warn: Mock, mock_error: Mock) -> No
 @patch('bokeh.core.validation.check.log.warning')
 def test_process_validation_issues_warn(mock_warn: Mock, mock_error: Mock) -> None:
     issues = ValidationIssues(
-        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err", errors.EXT)],
+        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err")],
         warning=[],
     )
     v.process_validation_issues(issues)
@@ -244,7 +242,7 @@ def test_process_validation_issues_warn(mock_warn: Mock, mock_error: Mock) -> No
 def test_process_validation_issues_error(mock_warn: Mock, mock_error: Mock) -> None:
     issues = ValidationIssues(
         error=[],
-        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn", warnings.EXT)],
+        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn")],
     )
     v.process_validation_issues(issues)
     assert not mock_error.called

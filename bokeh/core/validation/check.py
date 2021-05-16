@@ -23,13 +23,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 from typing import (
-    Generic,
     Iterator,
     List,
     Sequence,
     Set,
-    TypeVar,
-    cast,
 )
 
 # External imports
@@ -39,7 +36,7 @@ from typing_extensions import Literal, Protocol
 from ...model import Model
 from ...settings import settings
 from ...util.dataclasses import dataclass
-from .issue import Error, Issue, Warning
+from .issue import Warning
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -57,32 +54,29 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-I = TypeVar("I", bound=Issue)
-
 @dataclass
-class ValidationIssue(Generic[I]):
+class ValidationIssue:
     code: int
     name: str
     text: str
     extra: str
-    origin: I
 
 @dataclass
 class ValidationIssues:
-    error: List[ValidationIssue[Error]]
-    warning: List[ValidationIssue[Warning]]
+    error: List[ValidationIssue]
+    warning: List[ValidationIssue]
 
 ValidatorType = Literal["error", "warning"]
 
 class Validator(Protocol):
-    def __call__(self) -> List[ValidationIssue[Issue]]: ...
+    def __call__(self) -> List[ValidationIssue]: ...
     validator_type: ValidatorType
 
 def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
     ''' Silence a particular warning on all Bokeh models.
 
     Args:
-        warning (int) : Bokeh warning to silence
+        warning (Warning) : Bokeh warning to silence
         silence (bool) : Whether or not to silence the warning
 
     Returns:
@@ -115,16 +109,18 @@ def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
         __silencers__.remove(warning)
     return __silencers__
 
-def is_silenced(warning: Warning) -> bool:
+def is_silenced(warning: Warning | int) -> bool:
     ''' Check if a warning has been silenced.
 
     Args:
-        warning (ValidationIssue) : Bokeh warning to check
+        warning (Warning or int) : Bokeh warning to check
 
     Returns:
         bool
 
     '''
+    if isinstance(warning, int):
+        warning = Warning.get_by_code(warning)
     return warning in __silencers__
 
 @contextlib.contextmanager
@@ -174,9 +170,9 @@ def check_integrity(models: Sequence[Model]) -> ValidationIssues:
                 validators.append(obj)
         for func in validators:
             if func.validator_type == "error":
-                issues.error.extend(cast(List[ValidationIssue[Error]], func()))
+                issues.error.extend(func())
             else:
-                issues.warning.extend(cast(List[ValidationIssue[Warning]], func()))
+                issues.warning.extend(func())
 
     return issues
 
@@ -200,7 +196,7 @@ def process_validation_issues(issues: ValidationIssues) -> None:
 
     '''
     errors = issues.error
-    warnings = [issue for issue in issues.warning if not is_silenced(issue.origin)]
+    warnings = [issue for issue in issues.warning if not is_silenced(issue.code)]
 
     warning_messages: List[str] = []
     for warning in sorted(warnings, key=lambda warning: warning.code):

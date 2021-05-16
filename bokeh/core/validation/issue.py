@@ -19,6 +19,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import ClassVar, Dict, List
+
 # Bokeh imports
 from ...util.dataclasses import dataclass
 
@@ -44,11 +47,45 @@ class Issue:
 
 @dataclass(frozen=True)
 class Warning(Issue):
-    pass
+    _code_map: ClassVar[Dict[int, Warning]] = {}
+    _name_map: ClassVar[Dict[str, Warning]] = {}
+
+    def __post_init__(self) -> None:
+        Warning._code_map[self.code] = self
+        Warning._name_map[self.name] = self
+
+    @classmethod
+    def get_by_code(cls, code: int) -> Warning:
+        return cls._code_map[code]
+
+    @classmethod
+    def get_by_name(cls, name: str) -> Warning:
+        return cls._name_map[name]
+
+    @classmethod
+    def all(cls) -> List[Warning]:
+        return list(cls._code_map.values())
 
 @dataclass(frozen=True)
 class Error(Issue):
-    pass
+    _code_map: ClassVar[Dict[int, Error]] = {}
+    _name_map: ClassVar[Dict[str, Error]] = {}
+
+    def __post_init__(self) -> None:
+        Error._code_map[self.code] = self
+        Error._name_map[self.name] = self
+
+    @classmethod
+    def get_by_code(cls, code: int) -> Error:
+        return cls._code_map[code]
+
+    @classmethod
+    def get_by_name(cls, name: str) -> Error:
+        return cls._name_map[name]
+
+    @classmethod
+    def all(cls) -> List[Error]:
+        return list(cls._code_map.values())
 
 #-----------------------------------------------------------------------------
 # Private API

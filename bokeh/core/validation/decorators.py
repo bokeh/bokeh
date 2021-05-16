@@ -24,16 +24,16 @@ log = logging.getLogger(__name__)
 from typing import (
     Any,
     Callable,
-    Dict,
     List,
     Optional,
+    Type,
     Union,
     cast,
 )
 
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType
-from .issue import Issue
+from .issue import Error, Issue, Warning
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -63,44 +63,31 @@ def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorTy
         validation decorator
 
     """
-    def collect(ns: object) -> Dict[str, Issue]:
-        entries = [ (k, getattr(ns, k)) for k in dir(ns) ]
-        return { k: v for k, v in entries if isinstance(v, Issue) }
-
-    issues: Dict[str, Issue]
-    if validator_type == "error":
-        from . import errors
-        issues = collect(errors)
-    else:
-        from . import warnings
-        issues = collect(warnings)
+    issues: Type[Error] | Type[Warning] = \
+        Error if validator_type == "error" else Warning
 
     def decorator(func: ValidationFunction) -> Validator:
-        def _wrapper(*args: Any, **kwargs: Any) -> List[ValidationIssue[Issue]]:
+        def _wrapper(*args: Any, **kwargs: Any) -> List[ValidationIssue]:
             extra = func(*args, **kwargs)
             if extra is None:
                 return []
             issue: Issue
             name: str
             if isinstance(code_or_name, str):
-                issue = issues["EXT"]
+                issue = issues.get_by_name("EXT")
                 name = f"{issue.name}:{code_or_name}"
             elif isinstance(code_or_name, int):
-                code = code_or_name
-                for attr in dir(issues):
-                    value = getattr(issues, attr)
-                    if isinstance(value, Issue) and value.code == code:
-                        issue = value
-                        name = issue.name
-                        break
-                else:
-                    raise ValueError(f"unknown {validator_type} code {code}")
+                try:
+                    issue = issues.get_by_code(code_or_name)
+                    name = issue.name
+                except KeyError:
+                    raise ValueError(f"unknown {validator_type} code {code_or_name}")
             else:
                 issue = code_or_name
                 name = issue.name
             code = issue.code
             text = issue.description
-            return [ValidationIssue(code, name, text, extra, issue)]
+            return [ValidationIssue(code, name, text, extra)]
 
         wrapper = cast(Validator, _wrapper)
         wrapper.validator_type = validator_type
