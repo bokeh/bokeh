@@ -2,6 +2,7 @@
 import {Context2d} from "core/util/canvas"
 import {GlyphView} from "../glyph"
 import {ReglWrapper} from "./regl_wrap"
+import {FloatBuffer} from "./types"
 
 export abstract class BaseGLGlyph {
   protected regl_wrapper: ReglWrapper
@@ -43,6 +44,34 @@ export abstract class BaseGLGlyph {
   }
 
   abstract draw(indices: number[], mainglyph: any, trans: Transform): void
+
+  // Return array from FloatBuffer, creating it if necessary.
+  protected get_buffer_array(float_buffer: FloatBuffer | null, length: number): Float32Array {
+    if (float_buffer == null || float_buffer.array.length != length)
+      return new Float32Array(length)
+    else
+      return float_buffer.array
+  }
+
+  // Update FloatBuffer with data contained in array.
+  protected update_buffer(float_buffer: FloatBuffer | null, array: Float32Array): FloatBuffer {
+    if (float_buffer == null) {
+      // Create new buffer.
+      float_buffer = {
+        array,
+        buffer: this.regl_wrapper.buffer({
+          usage: 'dynamic',
+          type: 'float',
+          data: array,
+        }),
+      }
+    } else {
+      // Reuse existing buffer.
+      float_buffer.array = array
+      float_buffer.buffer({data: array})
+    }
+    return float_buffer
+  }
 }
 
 export type Transform = {
