@@ -1,4 +1,11 @@
-import {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
+import {AttributeConfig, BoundingBox, Buffer, Texture2D, Vec2, Vec4} from "regl"
+
+// Arrays are sent to GPU using ReGL Buffer objects.  CPU-side arrays used to
+// update the Buffers are also kept for reuse to avoid unnecessary reallocation.
+export type FloatBuffer = {
+  buffer: Buffer
+  array: Float32Array
+}
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
 type CommonProps = {
@@ -25,7 +32,7 @@ type FillProps = {
 }
 
 type DashProps = {
-  length_so_far: Float32Array
+  length_so_far: Buffer
   dash_tex: Texture2D
   dash_tex_info: number[]
   dash_scale: number
@@ -43,7 +50,7 @@ export type LineGlyphProps = CommonProps & {
   line_color: number[]
   linewidth: number
   miter_limit: number
-  points: Float32Array
+  points: Buffer
   nsegments: number
   line_cap: number
   line_join: number
