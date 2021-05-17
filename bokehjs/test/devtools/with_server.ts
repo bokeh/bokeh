@@ -41,7 +41,7 @@ export function with_server<T>(f: (url: string) => T): Promise<T> {
   const mark_done = () => all_done = true
   promise.then(mark_done, mark_done)
 
-  const basedir = path.normalize(process.cwd() + "/..")
+  const basedir = path.normalize(`${process.cwd()}/..`)
   const oldpath = process.env.PYTHONPATH
   const pypath = oldpath != null ? `${basedir}:${oldpath}` : basedir
   const port = next_port()

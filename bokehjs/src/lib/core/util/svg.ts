@@ -40,9 +40,9 @@ function createNamedToNumberedLookup(input: string, radix: number): Map<string, 
   radix = radix ?? 10
   // Map from named to numbered entities.
   for (let i = 0; i < items.length; i += 2) {
-    const entity = "&" + items[i + 1] + ";"
+    const entity = `&${items[i + 1]};`
     const base10 = parseInt(items[i], radix)
-    lookup.set(entity, "&#"+base10+";")
+    lookup.set(entity, `&#${base10};`)
   }
   // FF and IE need to create a regex from hex values ie &nbsp; == \xa0
   lookup.set("\\xa0", "&#160;")
@@ -453,11 +453,11 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
             if (globalAlpha != null) {
               opacity *= globalAlpha
             }
-            currentElement.setAttribute(style.svgAttr+"-opacity", `${opacity}`)
+            currentElement.setAttribute(`${style.svgAttr}-opacity`, `${opacity}`)
           } else {
             let attr = style.svgAttr!
             if (keys[i] === "globalAlpha") {
-              attr = type+"-"+style.svgAttr
+              attr = `${type}-${style.svgAttr}`
               if (currentElement.getAttribute(attr)) {
                 // fill-opacity or stroke-opacity has already been set by stroke or fill.
                 continue
@@ -694,7 +694,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
 
     // Negative values for radius must cause the implementation to throw an IndexSizeError exception.
     if (radius < 0) {
-      throw new Error("IndexSizeError: The radius provided (" + radius + ") is negative.")
+      throw new Error(`IndexSizeError: The radius provided (${radius}) is negative.`)
     }
 
     // If the point (x0, y0) is equal to the point (x1, y1),

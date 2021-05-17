@@ -308,7 +308,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, bokehjs_dir)
 
-  print(`Compiling TypeScript (${magenta(files.length + " files")})`)
+  print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
   const tsoutput = compile_files(files, options, transformers, host)
 
   if (is_failed(tsoutput)) {
@@ -366,7 +366,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     return null
   })()
 
-  const license_text = license ? preludes.comment(license) + "\n" : ""
+  const license_text = license ? `${preludes.comment(license)}\n` : ""
 
   const prelude_base = `${license_text}${preludes.plugin_prelude()}`
   const prelude = {main: prelude_base, plugin: prelude_base}

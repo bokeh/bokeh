@@ -24,7 +24,7 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
   } else
     app_path = loc.pathname.replace(/\/+$/, "")
 
-  return protocol + "//" + loc.host + app_path + "/ws"
+  return `${protocol}//${loc.host}${app_path}/ws`
 }
 
 // map { websocket url to map { session id to promise of ClientSession } }

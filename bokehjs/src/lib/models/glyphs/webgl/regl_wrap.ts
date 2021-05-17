@@ -241,8 +241,8 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   type Attributes = t.LineDashGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: "#define DASHED\n\n" + line_vertex_shader,
-    frag: "#define DASHED\n\n" + line_fragment_shader,
+    vert: `#define DASHED\n\n${line_vertex_shader}`,
+    frag: `#define DASHED\n\n${line_fragment_shader}`,
 
     attributes: {
       a_position: {
@@ -346,7 +346,7 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: marker_vertex_shader,
-    frag: "#define USE_" + marker_type.toUpperCase() + "\n\n" + marker_fragment_shader,
+    frag: `#define USE_${marker_type.toUpperCase()}\n\n${marker_fragment_shader}`,
 
     attributes: {
       a_position: {
@@ -499,8 +499,8 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
   type Attributes = t.RectHatchGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: "#define HATCH\n\n" + rect_vertex_shader,
-    frag: "#define HATCH\n\n" + rect_fragment_shader,
+    vert: `#define HATCH\n\n${rect_vertex_shader}`,
+    frag: `#define HATCH\n\n${rect_fragment_shader}`,
 
     attributes: {
       a_position: {

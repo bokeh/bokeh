@@ -73,13 +73,13 @@ task("scripts:styles", ["styles:compile"], async () => {
     dts_internal.push("  export default \"\"")
     dts_internal.push("}")
 
-    const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"
-    const dts_file = join(paths.build_dir.types, "styles", sub_path) + ".d.ts"
-    const dts_internal_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
+    const js_file = `${join(paths.build_dir.lib, "styles", sub_path)}.js`
+    const dts_file = `${join(paths.build_dir.types, "styles", sub_path)}.d.ts`
+    const dts_internal_file = `${join(paths.build_dir.all, "dts", "styles", sub_path)}.d.ts`
 
-    write(js_file, js.join("\n") + "\n")
-    write(dts_file, dts.join("\n") + "\n")
-    write(dts_internal_file, dts_internal.join("\n") + "\n")
+    write(js_file, `${js.join("\n")}\n`)
+    write(dts_file, `${dts.join("\n")}\n`)
+    write(dts_internal_file, `${dts_internal.join("\n")}\n`)
   }
 })
 
@@ -101,8 +101,8 @@ declare const shader: string;
 export default shader;
 `
 
-    write(join(js_base, sub_path) + ".js", js)
-    write(join(dts_base, sub_path) + ".d.ts", dts)
+    write(`${join(js_base, sub_path)}.js`, js)
+    write(`${join(dts_base, sub_path)}.d.ts`, dts)
   }
 })
 

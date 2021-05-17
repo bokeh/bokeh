@@ -815,7 +815,7 @@ export class Document {
           break
         }
         default:
-          throw new Error("Unknown patch event " + JSON.stringify(event_json))
+          throw new Error(`Unknown patch event ${JSON.stringify(event_json)}`)
       }
     }
   }

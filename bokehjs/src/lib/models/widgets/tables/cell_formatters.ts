@@ -30,7 +30,7 @@ export abstract class CellFormatter extends Model {
     if (value == null)
       return ""
     else
-      return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      return `${value}`.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   }
 }
 
