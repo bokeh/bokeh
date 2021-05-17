@@ -59,7 +59,7 @@ class error(Message):
 
     msgtype  = 'ERROR'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         msg = super().__repr__()
         msg += " --- "
         msg += self.content['text']

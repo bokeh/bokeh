@@ -72,6 +72,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Dict
+
+# External imports
+from typing_extensions import Literal
+
 # Bokeh imports
 from .. import colors, palettes
 
@@ -163,7 +169,7 @@ class Enumeration:
             value = value.lower()
         return value in self._values
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._quote:
             return "Enumeration(%s)" % ", ".join(repr(x) for x in self._values)
         else:
@@ -174,7 +180,7 @@ class Enumeration:
 
     __repr__ = __str__
 
-def enumeration(*values, **kwargs):
+def enumeration(*values: str, case_sensitive: bool = True, quote: bool = False):
     ''' Create an |Enumeration| object from a sequence of values.
 
     Call ``enumeration`` with a sequence of (unique) strings to create an
@@ -213,12 +219,12 @@ def enumeration(*values, **kwargs):
     if len(values) != len(set(values)):
         raise ValueError("enumeration items must be unique, got %s" % values)
 
-    attrs = {value: value for value in values}
+    attrs: Dict[str, Any] = {value: value for value in values}
     attrs.update({
         "_values": list(values),
         "_default": values[0],
-        "_case_sensitive": kwargs.get("case_sensitive", True),
-        "_quote": kwargs.get("quote", False),
+        "_case_sensitive": case_sensitive,
+        "_quote": quote,
     })
 
     return type("Enumeration", (Enumeration,), attrs)()
@@ -345,7 +351,8 @@ LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 LineJoin = enumeration("miter", "round", "bevel")
 
 #: Specify a location in plot layouts
-Location = enumeration("above", "below", "left", "right")
+_Location = Literal["above", "below", "left", "right"]
+Location = enumeration(*_Location.__args__)
 
 #: Specify a style for a Google map
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
@@ -396,9 +403,9 @@ RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil",
 SelectionMode = enumeration("replace", "append", "intersect", "subtract")
 
 #: Sizing mode policies
-SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
-                         "scale_width", "scale_height", "scale_both",
-                         "fixed")
+_SizingMode = Literal["stretch_width", "stretch_height", "stretch_both",
+                      "scale_width", "scale_height", "scale_both", "fixed"]
+SizingMode = enumeration(*_SizingMode.__args__)
 
 #: Individual sizing mode policies
 SizingPolicy = enumeration("fixed", "fit", "min", "max")

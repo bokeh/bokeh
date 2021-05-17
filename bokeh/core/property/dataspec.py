@@ -403,7 +403,7 @@ class UnitsSpec(NumberSpec):
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         units_default = self._units_type._default
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 

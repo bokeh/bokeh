@@ -91,7 +91,7 @@ class CompilationError(RuntimeError):
         else:
             self.text = error
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()

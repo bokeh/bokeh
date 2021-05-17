@@ -135,7 +135,7 @@ class Color(Either):
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def transform(self, value):

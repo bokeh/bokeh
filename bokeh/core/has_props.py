@@ -29,15 +29,35 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import difflib
-from functools import lru_cache
 from typing import (
+    TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
+    Iterable,
+    List,
+    NoReturn,
     Optional,
     Set,
+    Type,
+    TypeVar,
     Union,
+    overload,
 )
 from warnings import warn
+
+# External imports
+from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    F = TypeVar("F", bound=Callable[..., Any])
+    def lru_cache(arg: Optional[int]) -> Callable[[F], F]: ...
+else:
+    from functools import lru_cache
+
+if TYPE_CHECKING:
+    from .property.dataspec import DataSpec
+    from .property.bases import Property
 
 # Bokeh imports
 from ..util.string import append_docstring, nice_join
@@ -57,6 +77,8 @@ __all__ = (
     'MetaHasProps',
 )
 
+JSON = Any
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -65,7 +87,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def abstract(cls):
+C = TypeVar("C", bound=Type[Any])
+
+def abstract(cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''
@@ -74,12 +98,12 @@ def abstract(cls):
     cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
 
-def is_DataModel(cls):
+def is_DataModel(cls: Type[Any]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
-def _overridden_defaults(class_dict):
-    overridden_defaults = {}
+def _overridden_defaults(class_dict: Dict[str, Any]) -> Dict[str, Any]:
+    overridden_defaults: Dict[str, Any] = {}
     for name, prop in tuple(class_dict.items()):
         if isinstance(prop, Override):
             del class_dict[name]
@@ -87,8 +111,8 @@ def _overridden_defaults(class_dict):
                 overridden_defaults[name] = prop.default
     return overridden_defaults
 
-def _generators(class_dict):
-    generators = dict()
+def _generators(class_dict: Dict[str, Any]):
+    generators: Dict[str, PropertyDescriptorFactory[Any]] = {}
     for name, generator in tuple(class_dict.items()):
         if isinstance(generator, PropertyDescriptorFactory):
             del class_dict[name]
@@ -106,7 +130,7 @@ class MetaHasProps(type):
 
     '''
 
-    def __new__(cls, class_name, bases, class_dict):
+    def __new__(cls, class_name: str, bases: List[Type[Any]], class_dict: Dict[str, Any]):
         '''
 
         '''
@@ -129,9 +153,9 @@ class MetaHasProps(type):
 
         return super().__new__(cls, class_name, bases, class_dict)
 
-    def __init__(cls, class_name, bases, __):
+    def __init__(cls, class_name: str, bases: List[Type[Any]], __):
         # Check for improperly redeclared a Property attribute.
-        base_properties = {}
+        base_properties: Dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
             base_properties.update(base.properties(_with_props=True))
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
@@ -155,21 +179,25 @@ class HasProps(metaclass=MetaHasProps):
     '''
     _initialized: bool = False
 
-    def __init__(self, **properties):
+    _property_values: Dict[str, Any]
+    _unstable_default_values: Dict[str, Any]
+    _unstable_themed_values: Dict[str, Any]
+
+    def __init__(self, **properties: Any):
         '''
 
         '''
         super().__init__()
-        self._property_values = dict()
-        self._unstable_default_values = dict()
-        self._unstable_themed_values = dict()
+        self._property_values = {}
+        self._unstable_default_values = {}
+        self._unstable_themed_values = {}
 
         for name, value in properties.items():
             setattr(self, name, value)
 
         self._initialized = True
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -197,7 +225,7 @@ class HasProps(metaclass=MetaHasProps):
 
         self._raise_attribute_error_with_matches(name, properties)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -225,7 +253,7 @@ class HasProps(metaclass=MetaHasProps):
 
         self._raise_attribute_error_with_matches(name, properties)
 
-    def _raise_attribute_error_with_matches(self, name, properties):
+    def _raise_attribute_error_with_matches(self, name: str, properties: Iterable[str]) -> NoReturn:
         matches, text = difflib.get_close_matches(name.lower(), properties), "similar"
 
         if not matches:
@@ -247,7 +275,7 @@ class HasProps(metaclass=MetaHasProps):
     #
     # [1] https://docs.python.org/3/reference/datamodel.html#object.__hash__
     #
-    def equals(self, other):
+    def equals(self, other: HasProps) -> bool:
         ''' Structural equality of models.
 
         Args:
@@ -308,7 +336,8 @@ class HasProps(metaclass=MetaHasProps):
     def to_serializable(self, serializer):
         pass # TODO: new serializer, hopefully in near future
 
-    def set_from_json(self, name, json, *, models=None, setter=None):
+    def set_from_json(self, name: str, json: JSON, *,
+            models: Dict[str, HasProps] | None =None, setter: HasProps | None = None):
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -337,13 +366,13 @@ class HasProps(metaclass=MetaHasProps):
 
         '''
         if name in self.properties(_with_props=True):
-            log.trace("Patching attribute %r of %r with %r", name, self, json)
+            log.trace(f"Patching attribute {name!r} of {self!r} with {json!r}")
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models=models, setter=setter)
         else:
             log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
-    def update(self, **kwargs):
+    def update(self, **kwargs: Any) -> None:
         ''' Updates the object's properties from the given keyword arguments.
 
         Returns:
@@ -367,10 +396,11 @@ class HasProps(metaclass=MetaHasProps):
                 r.update(start=10, end=20)
 
         '''
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
-    def update_from_json(self, json_attributes, *, models=None, setter=None):
+    def update_from_json(self, json_attributes: Dict[str, JSON], *,
+            models: Dict[str, HasProps] | None = None, setter: HasProps | None = None) -> None:
         ''' Updates the object's properties from a JSON attributes dictionary.
 
         Args:
@@ -399,8 +429,16 @@ class HasProps(metaclass=MetaHasProps):
         for k, v in json_attributes.items():
             self.set_from_json(k, v, models=models, setter=setter)
 
+    @overload
     @classmethod
-    def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor]:
+    def lookup(cls, name: str, *, raises: Literal[True] = True) -> PropertyDescriptor[Any]: ...
+
+    @overload
+    @classmethod
+    def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | None: ...
+
+    @classmethod
+    def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor[Any]]:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 
@@ -417,9 +455,19 @@ class HasProps(metaclass=MetaHasProps):
             return attr
         raise AttributeError(f"{cls.__name__}.{name} property descriptor does not exist")
 
+    @overload
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, PropertyDescriptorFactory]]:
+    def properties(cls, *, _with_props: Literal[False] = False) -> Set[str]: ...
+
+    @overload
+    @classmethod
+    @lru_cache(None)
+    def properties(cls, *, _with_props: Literal[True] = True) -> Dict[str, Property[Any]]: ...
+
+    @classmethod
+    @lru_cache(None)
+    def properties(cls, *, _with_props: bool = False) -> Union[Set[str], Dict[str, Property[Any]]]:
         ''' Collect the names of properties on this class.
 
         .. warning::
@@ -431,7 +479,7 @@ class HasProps(metaclass=MetaHasProps):
             property names
 
         '''
-        props = dict()
+        props: Dict[str, Property[Any]] = {}
         for c in cls.__mro__:
             props.update(getattr(c, "__properties__", {}))
 
@@ -442,7 +490,7 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties_with_refs(cls):
+    def properties_with_refs(cls) -> Dict[str, Property[Any]]:
         ''' Collect the names of all properties on this class that also have
         references.
 
@@ -457,7 +505,7 @@ class HasProps(metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def dataspecs(cls):
+    def dataspecs(cls) -> Dict[str, DataSpec]:
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
         This method *always* traverses the class hierarchy and includes
@@ -495,19 +543,20 @@ class HasProps(metaclass=MetaHasProps):
             include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
-    def _overridden_defaults(cls):
+    def _overridden_defaults(cls) -> Dict[str, Any]:
         ''' Returns a dictionary of defaults that have been overridden.
 
         .. note::
             This is an implementation detail of ``Property``.
 
         '''
-        defaults = dict()
+        defaults: Dict[str, Any] = {}
         for c in reversed(cls.__mro__):
             defaults.update(getattr(c, "__overridden_defaults__", {}))
         return defaults
 
-    def query_properties_with_values(self, query, *, include_defaults: bool = True, include_undefined: bool = False):
+    def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
+            include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Any]:
         ''' Query the properties values of |HasProps| instances with a
         predicate.
 
@@ -524,8 +573,9 @@ class HasProps(metaclass=MetaHasProps):
             dict : mapping of property names and values for matching properties
 
         '''
-        themed_keys = set()
-        result = dict()
+        themed_keys: Set[str] = set()
+        result: Dict[str, Any] = {}
+
         if include_defaults:
             keys = self.properties(_with_props=True)
         else:
@@ -559,7 +609,7 @@ class HasProps(metaclass=MetaHasProps):
 
         return result
 
-    def themed_values(self):
+    def themed_values(self) -> Dict[str, Any] | None:
         ''' Get any theme-provided overrides.
 
         Results are returned as a dict from property name to value, or
@@ -571,7 +621,7 @@ class HasProps(metaclass=MetaHasProps):
         '''
         return getattr(self, '__themed_values__', None)
 
-    def apply_theme(self, property_values):
+    def apply_theme(self, property_values: Dict[str, Any]) -> None:
         ''' Apply a set of theme values which will be used rather than
         defaults, but will not override application-set values.
 
@@ -592,13 +642,13 @@ class HasProps(metaclass=MetaHasProps):
         if old_dict is property_values:  # lgtm [py/comparison-using-is]
             return
 
-        removed = set()
+        removed: Set[str] = set()
         # we're doing a little song-and-dance to avoid storing __themed_values__ or
         # an empty dict, if there's no theme that applies to this HasProps instance.
         if old_dict is not None:
             removed.update(set(old_dict.keys()))
         added = set(property_values.keys())
-        old_values = dict()
+        old_values: Dict[str, Any] = {}
         for k in added.union(removed):
             old_values[k] = getattr(self, k)
 
@@ -619,16 +669,16 @@ class HasProps(metaclass=MetaHasProps):
             if isinstance(descriptor, PropertyDescriptor):
                 descriptor.trigger_if_changed(self, v)
 
-    def unapply_theme(self):
+    def unapply_theme(self) -> None:
         ''' Remove any themed values and restore defaults.
 
         Returns:
             None
 
         '''
-        self.apply_theme(property_values=dict())
+        self.apply_theme(property_values={})
 
-    def _clone(self):
+    def _clone(self) -> HasProps:
         ''' Duplicate a HasProps object.
 
         Values that are containers are shallow-copied.

@@ -72,7 +72,7 @@ class Protocol:
     def __init__(self):
         self._messages = SPEC
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Protocol()"
 
     def create(self, msgtype, *args, **kwargs):

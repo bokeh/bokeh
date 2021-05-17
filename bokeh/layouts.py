@@ -23,9 +23,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from collections import namedtuple
+from typing import Any, List, Optional
 
 # Bokeh imports
-from .core.enums import Location
+from .core.enums import (
+    Location,
+    SizingMode,
+    _Location,
+    _SizingMode,
+)
 from .models.layouts import (
     Box,
     Column,
@@ -207,9 +213,16 @@ def layout(*args, **kwargs):
     # Make the grid
     return _create_grid(children, sizing_mode, **kwargs)
 
-def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
-             width=None, height=None, plot_width=None, plot_height=None,
-             toolbar_options=None, merge_tools=True):
+def gridplot(children: List[List[LayoutDOM]] | GridSpec, *,
+        sizing_mode: _SizingMode | None = None,
+        toolbar_location: _Location = "above",
+        ncols: int | None = None,
+        width: int | None = None,
+        height: int | None = None,
+        plot_width: int | None = None,
+        plot_height: int | None = None,
+        toolbar_options: Any = None,
+        merge_tools: bool =True):
     ''' Create a grid of plots rendered on separate canvases.
 
     The ``gridplot`` function builds a single toolbar for all the plots in the
@@ -274,7 +287,7 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
 
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
-            raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
+            raise ValueError(f"Invalid value of toolbar_location: {toolbar_location}")
 
     children = _parse_children_arg(children=children)
     if ncols:
@@ -335,7 +348,8 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     elif toolbar_location == 'right':
         return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
 
-def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
+def grid(children: List[LayoutDOM] | List[List[LayoutDOM]] | Row | Column = [], *,
+        sizing_mode: Optional[SizingMode] = None, nrows: int | None = None, ncols: int | None = None):
     """
     Conveniently create a grid of layoutable objects.
 
@@ -391,13 +405,13 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
         Item = namedtuple("Item", ["layout", "r0", "c0", "r1", "c1"])
         Grid = namedtuple("Grid", ["nrows", "ncols", "items"])
 
-        def gcd(a, b):
+        def gcd(a: int, b: int) -> int:
             a, b = abs(a), abs(b)
             while b != 0:
                 a, b = b, a % b
             return a
 
-        def lcm(a, *rest):
+        def lcm(a: int, *rest: int) -> int:
             for b in rest:
                 a = (a*b) // gcd(a, b)
             return a

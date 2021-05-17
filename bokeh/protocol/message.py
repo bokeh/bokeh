@@ -111,7 +111,7 @@ class Message:
         self.content = content
         self._buffers = []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Message %r content: %r" % (self.msgtype, self.content)
 
     @classmethod
