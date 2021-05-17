@@ -72,27 +72,27 @@ describe("CustomJS", () => {
 
     it("should execute the code and return the result", () => {
       const r = new CustomJS({code: "return 10"})
-      expect(r.execute('foo')).to.be.equal(10)
+      expect(r.execute("foo")).to.be.equal(10)
     })
 
     it("should execute the code with args parameters passed", () => {
       const r = new CustomJS({args: {foo: 5}, code: "return 10 + foo"})
-      expect(r.execute('foo')).to.be.equal(15)
+      expect(r.execute("foo")).to.be.equal(15)
     })
 
     it("should return the cb_obj passed an args parameter to execute", () => {
       const r = new CustomJS({code: "return cb_obj"})
-      expect(r.execute('foo')).to.be.equal('foo')
+      expect(r.execute("foo")).to.be.equal("foo")
     })
 
     it("should return cb_data with default value if cb_data kwarg is unset", () => {
       const r = new CustomJS({code: "return cb_data"})
-      expect(r.execute('foo')).to.be.equal({})
+      expect(r.execute("foo")).to.be.equal({})
     })
 
     it("should return cb_data with value of kwarg parameter to execute", () => {
       const r = new CustomJS({code: "return cb_data.foo"})
-      expect(r.execute('foo', {foo: 'bar'})).to.be.equal('bar')
+      expect(r.execute("foo", {foo: "bar"})).to.be.equal("bar")
     })
 
     it("should execute the code with args parameters correctly mapped", () => {

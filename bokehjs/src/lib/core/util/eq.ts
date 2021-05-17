@@ -38,13 +38,13 @@ export class Comparator {
       return false
 
     switch (class_name) {
-      case '[object Number]':
+      case "[object Number]":
         return this.numbers(a, b)
-      case '[object RegExp]':
-      case '[object String]':
+      case "[object RegExp]":
+      case "[object String]":
         return `${a}` == `${b}`
-      case '[object Date]':
-      case '[object Boolean]':
+      case "[object Date]":
+      case "[object Boolean]":
         return +a === +b
     }
 

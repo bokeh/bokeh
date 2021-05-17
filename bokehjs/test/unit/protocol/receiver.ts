@@ -34,7 +34,7 @@ describe("protocol/receiver module", () => {
       describe("empty metadata consume", () => {
 
         it("should should leave message null", () => {
-          const res = r.consume('{}')
+          const res = r.consume("{}")
           expect(res).to.be.undefined
           expect(r.message).to.be.null
         })
@@ -95,7 +95,7 @@ describe("protocol/receiver module", () => {
         })
 
         it("should should leave message null", () => {
-          const res = r.consume('{}')
+          const res = r.consume("{}")
           expect(res).to.be.undefined
           expect(r.message).to.be.null
         })

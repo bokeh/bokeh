@@ -863,8 +863,8 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
 
 export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
   const name = basename(module.file)
-  const min_js = rename(name, {ext: '.min.js'})
-  const min_js_map = rename(name, {ext: '.min.js.map'})
+  const min_js = rename(name, {ext: ".min.js"})
+  const min_js_map = rename(name, {ext: ".min.js.map"})
 
   const minify_opts: terser.MinifyOptions = {
     ecma,

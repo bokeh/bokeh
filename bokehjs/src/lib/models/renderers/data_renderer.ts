@@ -39,7 +39,7 @@ export abstract class DataRenderer extends Renderer {
 
   static init_DataRenderer(): void {
     this.override<DataRenderer.Props>({
-      level: 'glyph',
+      level: "glyph",
     })
   }
 

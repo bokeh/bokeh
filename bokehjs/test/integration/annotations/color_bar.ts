@@ -11,7 +11,7 @@ import {Side} from "@bokehjs/core/enums"
 import {Spectral11} from "@bokehjs/api/palettes"
 
 describe("ColorBar annotation", () => {
-  it(`should support various combinations of locations and orientations`, async () => {
+  it("should support various combinations of locations and orientations", async () => {
     const random = new Random(1)
 
     const p = fig([600, 600], {border_fill_color: "lightgray"})
@@ -55,7 +55,7 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  it(`should support horizontal orientation and positioning within the center panel`, async () => {
+  it("should support horizontal orientation and positioning within the center panel", async () => {
     const random = new Random(1)
 
     const color_mapper = new LinearColorMapper({palette: Spectral11})
@@ -94,7 +94,7 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  it(`should support vertical orientation and positioning within the center panel`, async () => {
+  it("should support vertical orientation and positioning within the center panel", async () => {
     const random = new Random(1)
 
     const color_mapper = new LinearColorMapper({palette: Spectral11})
@@ -228,91 +228,91 @@ describe("ColorBar annotation", () => {
     return p
   }
 
-  it(`should allow to be placed above frame in horizontal (auto) orientation`, async () => {
+  it("should allow to be placed above frame in horizontal (auto) orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
-  it(`should allow to be placed above frame in horizontal (auto) orientation with height=50px`, async () => {
+  it("should allow to be placed above frame in horizontal (auto) orientation with height=50px", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, height: 50})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
-  it(`should allow to be placed above frame in vertical orientation`, async () => {
+  it("should allow to be placed above frame in vertical orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, orientation: "vertical", width: 200, height: 100})
     const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 
-  it(`should allow to be placed below frame in horizontal (auto) orientation`, async () => {
+  it("should allow to be placed below frame in horizontal (auto) orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
-  it(`should allow to be placed below frame in horizontal (auto) orientation with height=50px`, async () => {
+  it("should allow to be placed below frame in horizontal (auto) orientation with height=50px", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, height: 50})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
-  it(`should allow to be placed below frame in vertical orientation`, async () => {
+  it("should allow to be placed below frame in vertical orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, orientation: "vertical", width: 200, height: 100})
     const p = make_plot(color_mapper, color_bar, "below")
     await display(p)
   })
 
-  it(`should allow to be placed left of frame in vertical (auto) orientation`, async () => {
+  it("should allow to be placed left of frame in vertical (auto) orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
-  it(`should allow to be placed left of frame in vertical (auto) orientation with width=50px`, async () => {
+  it("should allow to be placed left of frame in vertical (auto) orientation with width=50px", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, width: 50})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
-  it(`should allow to be placed left of frame in horizontal orientation`, async () => {
+  it("should allow to be placed left of frame in horizontal orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, orientation: "horizontal", width: 100, height: 200})
     const p = make_plot(color_mapper, color_bar, "left")
     await display(p)
   })
 
-  it(`should allow to be placed right of frame in vertical (auto) orientation`, async () => {
+  it("should allow to be placed right of frame in vertical (auto) orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
-  it(`should allow to be placed right of frame in vertical (auto) orientation with width=50px`, async () => {
+  it("should allow to be placed right of frame in vertical (auto) orientation with width=50px", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, width: 50})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
-  it(`should allow to be placed right of frame in horizontal orientation`, async () => {
+  it("should allow to be placed right of frame in horizontal orientation", async () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, orientation: "horizontal", width: 100, height: 200})
     const p = make_plot(color_mapper, color_bar, "right")
     await display(p)
   })
 
-  it(`should support LinearColorMapper`, async () => {
+  it("should support LinearColorMapper", async () => {
     const random = new Random(1)
 
     const color_mapper = new LinearColorMapper({palette: Spectral11})
@@ -331,7 +331,7 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  it(`should support LogColorMapper`, async () => {
+  it("should support LogColorMapper", async () => {
     const random = new Random(1)
 
     const color_mapper = new LogColorMapper({palette: Spectral11})
@@ -354,7 +354,7 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  it(`should support EqHistColorMapper`, async () => {
+  it("should support EqHistColorMapper", async () => {
     const random = new Random(1)
 
     const color_mapper = new EqHistColorMapper({palette: Spectral11})
@@ -377,7 +377,7 @@ describe("ColorBar annotation", () => {
     await display(p)
   })
 
-  it(`should support CategoricalColorMapper`, async () => {
+  it("should support CategoricalColorMapper", async () => {
     const random = new Random(1)
 
     const factors = ["foo", "bar", "baz", "qux", "quux", "corge", "grault", "garply", "waldo", "fred", "plugh"]

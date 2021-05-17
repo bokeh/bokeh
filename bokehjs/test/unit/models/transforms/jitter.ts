@@ -13,7 +13,7 @@ describe("Jitter transform module", () => {
     return new Jitter({
       width: 1,
       mean: 0,
-      distribution: 'uniform',
+      distribution: "uniform",
     })
   }
 
@@ -34,7 +34,7 @@ describe("Jitter transform module", () => {
 
   describe("Jitter with uniform", () => {
     const transform = generate_jitter()
-    transform.distribution = 'uniform'
+    transform.distribution = "uniform"
 
     it("should average the fixed values", () => {
       const N = 100
@@ -61,7 +61,7 @@ describe("Jitter transform module", () => {
 
   describe("Jitter with normal", () => {
     const transform = generate_jitter()
-    transform.distribution = 'normal'
+    transform.distribution = "normal"
 
     it("should average the fixed values", () => {
       const N = 100
@@ -89,7 +89,7 @@ describe("Jitter transform module", () => {
 
   describe("Jitter with FactorRange", () => {
     const transform = generate_jitter()
-    transform.distribution = 'uniform'
+    transform.distribution = "uniform"
     transform.range = new FactorRange({factors: ["a", "b"]})
 
     it("should work with a supplied range", () => {

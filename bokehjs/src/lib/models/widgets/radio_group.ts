@@ -20,7 +20,7 @@ export class RadioGroupView extends InputGroupView {
 
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
-      const radio = input({type: `radio`, name, value: `${i}`})
+      const radio = input({type: "radio", name, value: `${i}`})
       radio.addEventListener("change", () => this.change_active(i))
       this._inputs.push(radio)
 

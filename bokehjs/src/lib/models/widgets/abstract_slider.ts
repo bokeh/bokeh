@@ -120,19 +120,19 @@ abstract class AbstractBaseSliderView extends ControlView {
         direction: this.model.direction,
       })
 
-      this._noUiSlider.on('slide',  (_, __, values) => this._slide(values))
-      this._noUiSlider.on('change', (_, __, values) => this._change(values))
+      this._noUiSlider.on("slide",  (_, __, values) => this._slide(values))
+      this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
       const toggleTooltip = (i: number, show: boolean): void => {
         if (!tooltips)
           return
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
         const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
-        tooltip.style.display = show ? 'block' : ''
+        tooltip.style.display = show ? "block" : ""
       }
 
-      this._noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      this._noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+      this._noUiSlider.on("start", (_, i) => toggleTooltip(i, true))
+      this._noUiSlider.on("end",   (_, i) => toggleTooltip(i, false))
     } else {
       this._noUiSlider.updateOptions({
         range: {min: start, max: end},
@@ -144,9 +144,9 @@ abstract class AbstractBaseSliderView extends ControlView {
     this._set_bar_color()
 
     if (this.model.disabled)
-      this.slider_el.setAttribute('disabled', 'true')
+      this.slider_el.setAttribute("disabled", "true")
     else
-      this.slider_el.removeAttribute('disabled')
+      this.slider_el.removeAttribute("disabled")
 
     this.title_el = div({class: sliders.slider_title})
     this._update_title()

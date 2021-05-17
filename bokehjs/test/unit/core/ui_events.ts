@@ -1,5 +1,5 @@
 import {expect} from "assertions"
-import * as sinon from 'sinon'
+import * as sinon from "sinon"
 
 import * as dom from "@bokehjs/core/dom"
 import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"

@@ -21,12 +21,12 @@ export class FreehandDrawToolView extends EditToolView {
     const cds = renderer.data_source
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-    if (mode == 'new') {
+    if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
       if (xkey) cds.get_array(xkey).push([x])
       if (ykey) cds.get_array(ykey).push([y])
       this._pad_empty_columns(cds, [xkey, ykey])
-    } else if (mode == 'add') {
+    } else if (mode == "add") {
       if (xkey) {
         const xidx = cds.data[xkey].length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
@@ -50,15 +50,15 @@ export class FreehandDrawToolView extends EditToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    this._draw(ev, 'new')
+    this._draw(ev, "new")
   }
 
   override _pan(ev: PanEvent): void {
-    this._draw(ev, 'add')
+    this._draw(ev, "add")
   }
 
   override _pan_end(ev: PanEvent): void {
-    this._draw(ev, 'add', true)
+    this._draw(ev, "add", true)
   }
 
   override _tap(ev: TapEvent): void {

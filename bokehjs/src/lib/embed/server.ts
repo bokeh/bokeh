@@ -7,13 +7,13 @@ import {add_document_standalone} from "./standalone"
 
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
-  let protocol = 'ws:'
-  if (window.location.protocol == 'https:')
-    protocol = 'wss:'
+  let protocol = "ws:"
+  if (window.location.protocol == "https:")
+    protocol = "wss:"
 
   let loc: HTMLAnchorElement | Location
   if (absolute_url != null) {
-    loc = document.createElement('a')
+    loc = document.createElement("a")
     loc.href = absolute_url
   } else
     loc = window.location
@@ -22,9 +22,9 @@ export function _get_ws_url(app_path: string | undefined, absolute_url: string |
     if (app_path == "/")
       app_path = ""
   } else
-    app_path = loc.pathname.replace(/\/+$/, '')
+    app_path = loc.pathname.replace(/\/+$/, "")
 
-  return protocol + '//' + loc.host + app_path + '/ws'
+  return protocol + "//" + loc.host + app_path + "/ws"
 }
 
 // map { websocket url to map { session id to promise of ClientSession } }

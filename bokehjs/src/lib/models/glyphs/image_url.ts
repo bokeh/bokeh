@@ -203,20 +203,20 @@ export class ImageURLView extends XYGlyphView {
 
   protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
     switch (anchor) {
-      case 'top_left':      return [sx, sy         ]
-      case 'top':
-      case 'top_center':    return [sx - (sw/2), sy         ]
-      case 'top_right':     return [sx - sw, sy         ]
-      case 'right':
-      case 'center_right':  return [sx - sw, sy - (sh/2)]
-      case 'bottom_right':  return [sx - sw, sy - sh    ]
-      case 'bottom':
-      case 'bottom_center': return [sx - (sw/2), sy - sh    ]
-      case 'bottom_left':   return [sx, sy - sh    ]
-      case 'left':
-      case 'center_left':   return [sx, sy - (sh/2)]
-      case 'center':
-      case 'center_center': return [sx - (sw/2), sy - (sh/2)]
+      case "top_left":      return [sx, sy         ]
+      case "top":
+      case "top_center":    return [sx - (sw/2), sy         ]
+      case "top_right":     return [sx - sw, sy         ]
+      case "right":
+      case "center_right":  return [sx - sw, sy - (sh/2)]
+      case "bottom_right":  return [sx - sw, sy - sh    ]
+      case "bottom":
+      case "bottom_center": return [sx - (sw/2), sy - sh    ]
+      case "bottom_left":   return [sx, sy - sh    ]
+      case "left":
+      case "center_left":   return [sx, sy - (sh/2)]
+      case "center":
+      case "center_center": return [sx - (sw/2), sy - (sh/2)]
     }
   }
 

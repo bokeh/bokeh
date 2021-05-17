@@ -15,7 +15,7 @@ import pkg from "../../package.json"
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
-  const dts = `export declare const version: string;\n`
+  const dts = "export declare const version: string;\n"
 
   write(join(paths.build_dir.lib, "version.js"), js)
   write(join(paths.build_dir.types, "version.d.ts"), dts)
@@ -111,7 +111,7 @@ task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], a
 })
 
 function min_js(js: string): string {
-  return rename(js, {ext: '.min.js'})
+  return rename(js, {ext: ".min.js"})
 }
 
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {

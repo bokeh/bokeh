@@ -782,7 +782,7 @@ export function linear_palette<T>(palette: T[], n: number): T[] {
   if (n <= palette.length)
     return linspace(0, palette.length - 1, n).map((i) => palette[i|0])
   else
-    throw new Error(`too many color entries requested`)
+    throw new Error("too many color entries requested")
 }
 
 export function magma(n: number) {

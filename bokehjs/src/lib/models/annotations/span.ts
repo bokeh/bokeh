@@ -27,14 +27,14 @@ export class SpanView extends AnnotationView {
     const yscale = this.coordinates.y_scale
 
     const _calc_dim = (scale: Scale, view: CoordinateMapper): number => {
-      if (this.model.location_units == 'data')
+      if (this.model.location_units == "data")
         return scale.compute(location)
       else
         return this.model.for_hover ? location : view.compute(location)
     }
 
     let height: number, sleft: number, stop: number, width: number
-    if (this.model.dimension == 'width') {
+    if (this.model.dimension == "width") {
       stop = _calc_dim(yscale, frame.bbox.yview)
       sleft = frame.bbox.left
       width = frame.bbox.width
@@ -106,7 +106,7 @@ export class Span extends Annotation {
     }))
 
     this.override<Span.Props>({
-      line_color: 'black',
+      line_color: "black",
     })
   }
 }
