@@ -9,7 +9,7 @@ function outputLine(line: string) {
 }
 
 function handleOutput(data: string) {
-  ("" + data).replace(/\s*$/, "")
+  `${data}`.replace(/\s*$/, "")
     .split("\n")
     .forEach(outputLine)
 }

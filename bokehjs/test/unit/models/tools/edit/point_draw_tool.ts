@@ -136,7 +136,7 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null, 'Test'])
+      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
     })
 
     it("should delete selected on delete key", async () => {

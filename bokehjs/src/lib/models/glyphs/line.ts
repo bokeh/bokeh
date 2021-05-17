@@ -94,7 +94,7 @@ export class LineView extends XYGlyphView {
 
     let val: number
     let values: Arrayable<number>
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       values = this._y
     } else {

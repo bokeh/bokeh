@@ -122,7 +122,7 @@ export class RangeManager {
     }
 
     if (follow_enabled && has_bounds) {
-      logger.warn('Follow enabled so bounds are unset.')
+      logger.warn("Follow enabled so bounds are unset.")
       for (const [, xr] of frame.x_ranges) {
         xr.bounds = null
       }
@@ -171,7 +171,7 @@ export class RangeManager {
     if (good_vals)
       return {xrs, yrs}
     else {
-      logger.warn('could not set initial ranges')
+      logger.warn("could not set initial ranges")
       return null
     }
   }

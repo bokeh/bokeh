@@ -88,7 +88,7 @@ export class PolyEditToolView extends PolyToolView {
 
     let xs: number[]
     let ys: number[]
-    if (xkey && index != null) {  // redundant xkey null check to satisfy build-time checks
+    if (xkey && index != null) { // redundant xkey null check to satisfy build-time checks
       xs = cds.data[xkey][index]
       if (!isArray(xs))
         cds.data[xkey][index] = xs = Array.from(xs)

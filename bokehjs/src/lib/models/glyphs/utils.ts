@@ -75,13 +75,13 @@ export function line_interpolation(renderer: GlyphRendererView, geometry: PointG
   let x0: number, x1: number
   let y0: number, y1: number
 
-  if (geometry.type == 'point') {
+  if (geometry.type == "point") {
     // The +/- adjustments here are to dilate the hit point into a virtual "segment" to use below
     [y0, y1] = renderer.yscale.r_invert(sy-1, sy+1)
     ;[x0, x1] = renderer.xscale.r_invert(sx-1, sx+1)
   } else {
     // The +/- adjustments here are to handle cases such as purely horizontal or vertical lines
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       [y0, y1] = renderer.yscale.r_invert(sy, sy)
       ;[x0, x1] = [Math.min(x2-1, x3-1), Math.max(x2+1, x3+1)]
     } else {

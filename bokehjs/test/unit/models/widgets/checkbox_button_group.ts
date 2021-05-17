@@ -28,11 +28,11 @@ describe("CheckboxButtonGroup", () => {
       const g = new CheckboxButtonGroup({active: [0, 1, 2], labels: ["foo", "bar", "baz"]})
       const view = (await build_view(g)).build()
 
-      const spy = sinon.spy(view, 'change_active')
+      const spy = sinon.spy(view, "change_active")
       expect(spy.called).to.be.false
       expect(g.active).to.be.equal([0, 1, 2])
 
-      const button = view.el.querySelector<HTMLElement>('.bk-btn:nth-child(1)')
+      const button = view.el.querySelector<HTMLElement>(".bk-btn:nth-child(1)")
       button!.click()
 
       expect(spy.callCount).to.be.equal(1)

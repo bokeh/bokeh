@@ -22,7 +22,7 @@ type LineProps = {
   line_join: number[] | Float32Array
 }
 
-type LinePropsNoJoin = {  // Only needed until Markers support line joins.
+type LinePropsNoJoin = { // Only needed until Markers support line joins.
   linewidth: number[] | Float32Array
   line_color: Uint8Array
 }
@@ -108,7 +108,7 @@ type LineAttributes = {
   a_line_join: AttributeConfig
 }
 
-type LineAttributesNoJoin = {  // Only needed until Markers support line joins.
+type LineAttributesNoJoin = { // Only needed until Markers support line joins.
   a_linewidth: AttributeConfig
   a_line_color: AttributeConfig
 }

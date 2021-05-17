@@ -76,7 +76,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     const icon = this.model.computed_icon
     if (isString(icon)) {
       if (startsWith(icon, "data:image"))
-        this.el.style.backgroundImage = "url('" + icon + "')"
+        this.el.style.backgroundImage = `url("${icon}")`
       else
         this.el.classList.add(icon)
     }

@@ -53,7 +53,7 @@ export namespace TappyScatter {
       if (indices.length == 1)
         console.log(`Selected index: ${indices[0]}`)
       else if (indices.length > 1)
-        console.log(`Selected indices: ${indices.join(', ')}`)
+        console.log(`Selected indices: ${indices.join(", ")}`)
       else
         console.log("Nothing selected")
     },

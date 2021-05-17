@@ -30,7 +30,7 @@ export abstract class CellFormatter extends Model {
     if (value == null)
       return ""
     else
-      return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      return `${value}`.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   }
 }
 
@@ -277,7 +277,7 @@ export class DateFormatter extends StringFormatter {
     if ((value == null || isNaN(value) || value === -9223372036854776) && nan_format != null)
       date = nan_format
     else
-      date = value == null ? '' : tz(value, this.getFormat())
+      date = value == null ? "" : tz(value, this.getFormat())
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
@@ -301,7 +301,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
 
   static init_HTMLTemplateFormatter(): void {
     this.define<HTMLTemplateFormatter.Props>(({String}) => ({
-      template: [ String, '<%= value %>' ],
+      template: [ String, "<%= value %>" ],
     }))
   }
 

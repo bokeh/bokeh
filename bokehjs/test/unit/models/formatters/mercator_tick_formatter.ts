@@ -14,7 +14,7 @@ describe("mercator_tick_formatter module", () => {
   // these tests assume default superclass BasicTickFormatter behavior, re: displayed precision
 
   it("should compute latitude tick labels when dimension=lat", () => {
-    const obj = new MercatorTickFormatter({dimension: 'lat'})
+    const obj = new MercatorTickFormatter({dimension: "lat"})
     for (const lat of [-72, -60.5, -30, -2, 1, -0.5, 0, 0.5, 1, 10, 33.7, 42.123, 50]) {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
@@ -25,7 +25,7 @@ describe("mercator_tick_formatter module", () => {
   })
 
   it("should compute longitude tick labels when dimension=lon", () => {
-    const obj = new MercatorTickFormatter({dimension: 'lon'})
+    const obj = new MercatorTickFormatter({dimension: "lon"})
     for (const lat of [-72, -60.5, -30, -2, 1, -0.5, 0, 0.5, 1, 10, 33.7, 42.123, 50]) {
       for (const lon of [-120, -90, -88, -32.7, -10, -1, 0, 0.5, 1, 5, 12.3, 57, 60.123, 95, 110.1, 120, 130]) {
         const [mlon, mlat] = wgs84_mercator.compute(lon, lat)
