@@ -69,8 +69,8 @@ task("scripts:styles", ["styles:compile"], async () => {
 
     const css_out = CSS.stringify(ast, {compress: true})
     js.push(`export default \`${css_out}\``)
-    dts.push("export default \`\`")
-    dts_internal.push("  export default \`\`")
+    dts.push("export default \"\"")
+    dts_internal.push("  export default \"\"")
     dts_internal.push("}")
 
     const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"

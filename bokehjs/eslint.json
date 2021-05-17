@@ -88,6 +88,7 @@
       "nonwords": false,
       "overrides": {}
     }],
-    "guard-for-in": ["error"]
+    "guard-for-in": ["error"],
+    "quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": false}]
   }
 }
