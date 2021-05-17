@@ -112,7 +112,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       }
       case "Polygon": {
         if (geometry.coordinates.length > 1)
-          logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
+          logger.warn("Bokeh does not support Polygons with holes in, only exterior ring used.")
 
         const exterior_ring = geometry.coordinates[0]
         for (let j = 0; j < exterior_ring.length; j++) {
@@ -124,7 +124,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         break
       }
       case "MultiPoint": {
-        logger.warn('MultiPoint not supported in Bokeh')
+        logger.warn("MultiPoint not supported in Bokeh")
         break
       }
       case "MultiLineString": {
@@ -141,7 +141,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
         const exterior_rings = []
         for (const polygon of geometry.coordinates) {
           if (polygon.length > 1)
-            logger.warn('Bokeh does not support Polygons with holes in, only exterior ring used.')
+            logger.warn("Bokeh does not support Polygons with holes in, only exterior ring used.")
           exterior_rings.push(polygon[0])
         }
 
@@ -166,32 +166,32 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     switch (geojson.type) {
       case "GeometryCollection": {
         if (geojson.geometries == null)
-          throw new Error('No geometries found in GeometryCollection')
+          throw new Error("No geometries found in GeometryCollection")
 
         if (geojson.geometries.length === 0)
-          throw new Error('geojson.geometries must have one or more items')
+          throw new Error("geojson.geometries must have one or more items")
 
         items = geojson.geometries
         break
       }
       case "FeatureCollection": {
         if (geojson.features == null)
-          throw new Error('No features found in FeaturesCollection')
+          throw new Error("No features found in FeaturesCollection")
 
         if (geojson.features.length == 0)
-          throw new Error('geojson.features must have one or more items')
+          throw new Error("geojson.features must have one or more items")
 
         items = geojson.features
         break
       }
       default:
-        throw new Error('Bokeh only supports type GeometryCollection and FeatureCollection at top level')
+        throw new Error("Bokeh only supports type GeometryCollection and FeatureCollection at top level")
     }
 
     let item_count = 0
     for (const item of items) {
-      const geometry = item.type === 'Feature' ? item.geometry! : item
-      if (geometry.type == 'GeometryCollection')
+      const geometry = item.type === "Feature" ? item.geometry! : item
+      if (geometry.type == "GeometryCollection")
         item_count += geometry.geometries.length
       else
         item_count += 1
@@ -208,18 +208,18 @@ export class GeoJSONDataSource extends ColumnarDataSource {
 
     let arr_index = 0
     for (const item of items) {
-      const geometry = item.type == 'Feature' ? item.geometry! : item
+      const geometry = item.type == "Feature" ? item.geometry! : item
 
       if (geometry.type == "GeometryCollection") {
         for (const g of geometry.geometries) {
           this._add_geometry(g, data, arr_index)
-          if (item.type === 'Feature')
+          if (item.type === "Feature")
             this._add_properties(item, data, arr_index, item_count)
           arr_index += 1
         }
       } else {
         this._add_geometry(geometry, data, arr_index)
-        if (item.type === 'Feature')
+        if (item.type === "Feature")
           this._add_properties(item, data, arr_index, item_count)
         arr_index += 1
       }

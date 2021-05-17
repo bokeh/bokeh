@@ -106,7 +106,7 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          if (event_type == 'multi') {
+          if (event_type == "multi") {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
@@ -123,7 +123,7 @@ export class ProxyToolbar extends ToolbarBase {
 
     this.actions = []
     for (const [tool_type, tools] of entries(actions)) {
-      if (tool_type == 'CustomAction') {
+      if (tool_type == "CustomAction") {
         for (const tool of tools)
           this.actions.push(make_proxy([tool]) as any)
       } else if (tools.length > 0) {
@@ -143,7 +143,7 @@ export class ProxyToolbar extends ToolbarBase {
 
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
 
-      if (!(et == 'pinch' || et == 'scroll' || et == 'multi'))
+      if (!(et == "pinch" || et == "scroll" || et == "multi"))
         gesture.tools[0].active = true
     }
   }

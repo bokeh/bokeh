@@ -25,7 +25,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   override initialize(): void {
     super.initialize()
 
-    if (this.model.render_mode == 'css') {
+    if (this.model.render_mode == "css") {
       this.el = div()
       this.plot_view.canvas_view.add_overlay(this.el)
     }
@@ -39,7 +39,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
-    if (this.model.render_mode == 'css') {
+    if (this.model.render_mode == "css") {
       // dispatch CSS update immediately
       this.connect(this.model.change, () => this.render())
     } else {
@@ -65,9 +65,9 @@ export abstract class TextAnnotationView extends AnnotationView {
 
     let x_offset: number
     switch (ctx.textAlign) {
-      case 'left':   x_offset = 0;          break
-      case 'center': x_offset = -width / 2; break
-      case 'right':  x_offset = -width;     break
+      case "left":   x_offset = 0;          break
+      case "center": x_offset = -width / 2; break
+      case "right":  x_offset = -width;     break
       default:
         unreachable()
     }
@@ -75,12 +75,12 @@ export abstract class TextAnnotationView extends AnnotationView {
     // guestimated from https://www.w3.org/TR/2dcontext/#dom-context-2d-textbaseline
     let y_offset: number
     switch (ctx.textBaseline) {
-      case 'top':         y_offset =  0.0;           break
-      case 'middle':      y_offset = -0.5  * height; break
-      case 'bottom':      y_offset = -1.0  * height; break
-      case 'alphabetic':  y_offset = -0.8  * height; break
-      case 'hanging':     y_offset = -0.17 * height; break
-      case 'ideographic': y_offset = -0.83 * height; break
+      case "top":         y_offset =  0.0;           break
+      case "middle":      y_offset = -0.5  * height; break
+      case "bottom":      y_offset = -1.0  * height; break
+      case "alphabetic":  y_offset = -0.8  * height; break
+      case "hanging":     y_offset = -0.17 * height; break
+      case "ideographic": y_offset = -0.83 * height; break
       default:
         unreachable()
     }

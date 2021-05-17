@@ -216,9 +216,9 @@ export class Artifact {
   write(path: string): void {
     const dir = dirname(path)
     const name = basename(path, ".js")
-    write(path, this.full_source(name + ".js.map"))
+    write(path, this.full_source(`${name}.js.map`))
     if (this.sourcemap != null) {
-      write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
+      write(join(dir, `${name}.js.map`), JSON.stringify(this.sourcemap))
     }
   }
 }
@@ -527,10 +527,10 @@ export class Linker {
     if (file_exists(path))
       return path
 
-    const js_file = path + ".js"
+    const js_file = `${path}.js`
     if (file_exists(js_file))
       return js_file
-    const json_file = path + ".json"
+    const json_file = `${path}.json`
     if (file_exists(json_file))
       return json_file
 
@@ -549,8 +549,8 @@ export class Linker {
     if (file_exists(path))
       return path
 
-    const js_file = path + ".js"
-    const json_file = path + ".json"
+    const js_file = `${path}.js`
+    const json_file = `${path}.json`
     const has_js_file = file_exists(js_file)
     const has_json_file = file_exists(json_file)
     const has_file = has_js_file ?? has_json_file
@@ -579,10 +579,10 @@ export class Linker {
       if (file_exists(path))
         return path
 
-      const js_file = path + ".js"
+      const js_file = `${path}.js`
       if (file_exists(js_file))
         return js_file
-      const json_file = path + ".json"
+      const json_file = `${path}.json`
       if (file_exists(json_file))
         return json_file
 
@@ -863,8 +863,8 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
 
 export async function minify(module: ModuleInfo, source: string, ecma: terser.ECMA): Promise<{min_source: string, min_map?: string}> {
   const name = basename(module.file)
-  const min_js = rename(name, {ext: '.min.js'})
-  const min_js_map = rename(name, {ext: '.min.js.map'})
+  const min_js = rename(name, {ext: ".min.js"})
+  const min_js_map = rename(name, {ext: ".min.js.map"})
 
   const minify_opts: terser.MinifyOptions = {
     ecma,

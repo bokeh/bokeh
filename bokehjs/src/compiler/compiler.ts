@@ -106,9 +106,9 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file) ||
-            ts.sys.fileExists(module_file + ".ts") ||
+            ts.sys.fileExists(`${module_file}.ts`) ||
             ts.sys.fileExists(join(module_file, "index.ts")) ||
-            options.outDir != null && ts.sys.fileExists(join(options.outDir, module_path + ".js"))) {
+            options.outDir != null && ts.sys.fileExists(join(options.outDir, `${module_path}.js`))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
         }
@@ -186,6 +186,6 @@ export function compile_typescript(tsconfig_path: Path, config: CompileConfig = 
 
   if (is_failed(result)) {
     const {count, text} = report_diagnostics(result.diagnostics)
-    throw new BuildError("typescript", `There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
+    throw new BuildError("typescript", `There were ${chalk.red(`${count}`)} TypeScript errors:\n${text}`)
   }
 }

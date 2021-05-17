@@ -6,7 +6,7 @@ import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Geometry} from "@bokehjs/core/geometry"
-import {ScreenArray} from '@bokehjs/core/types'
+import {ScreenArray} from "@bokehjs/core/types"
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
 
@@ -15,7 +15,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
     let glyph: Rect
 
     before_each(() => {
-      stub = sinon.stub((RectView.prototype as any), '_bounds').callsFake((bounds) => bounds) // XXX: protected
+      stub = sinon.stub((RectView.prototype as any), "_bounds").callsFake((bounds) => bounds) // XXX: protected
 
       glyph = new Rect({
         x: {field: "x"},

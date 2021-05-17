@@ -185,11 +185,11 @@ export class HoverToolView extends InspectToolView {
 
   _inspect(sx: number, sy: number): void {
     let geometry: PointGeometry | SpanGeometry
-    if (this.model.mode == 'mouse')
-      geometry = {type: 'point', sx, sy}
+    if (this.model.mode == "mouse")
+      geometry = {type: "point", sx, sy}
     else {
-      const direction = this.model.mode == 'vline' ? 'h' : 'v'
-      geometry = {type: 'span', direction, sx, sy}
+      const direction = this.model.mode == "vline" ? "h" : "v"
+      geometry = {type: "span", direction, sx, sy}
     }
 
     for (const r of this.computed_renderers) {
@@ -212,7 +212,7 @@ export class HoverToolView extends InspectToolView {
     if (!(renderer instanceof GlyphRenderer)) // || renderer instanceof GraphRenderer))
       return
 
-    if (this.model.muted_policy == 'ignore' && renderer.muted)
+    if (this.model.muted_policy == "ignore" && renderer.muted)
       return
 
     const tooltip = this.ttmodels.get(renderer)
@@ -354,7 +354,7 @@ export class HoverToolView extends InspectToolView {
 
         let rx: number
         let ry: number
-        if (this.model.point_policy == 'snap_to_data') { // and renderer.glyph.sx? and renderer.glyph.sy?
+        if (this.model.point_policy == "snap_to_data") { // and renderer.glyph.sx? and renderer.glyph.sy?
           // Pass in our screen position so we can determine which patch we're
           // over if there are discontinuous patches.
           let pt = glyph.get_anchor_point(this.model.anchor, i, [sx, sy])

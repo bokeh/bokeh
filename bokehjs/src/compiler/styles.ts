@@ -38,7 +38,7 @@ export default css;
 `
 
     const sub_path = relative(css_dir, css_path)
-    write(join(js_dir, "styles", sub_path) + ".js", js)
-    write(join(dts_dir, "styles", sub_path) + ".d.ts", dts)
+    write(`${join(js_dir, "styles", sub_path)}.js`, js)
+    write(`${join(dts_dir, "styles", sub_path)}.d.ts`, dts)
   }
 }

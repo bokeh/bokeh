@@ -96,34 +96,34 @@ export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEventBus>
 
 export class UIEventBus implements EventListenerObject {
-  readonly pan_start:    UISignal<PanEvent> = new Signal(this, 'pan:start')
-  readonly pan:          UISignal<PanEvent> = new Signal(this, 'pan')
-  readonly pan_end:      UISignal<PanEvent> = new Signal(this, 'pan:end')
+  readonly pan_start:    UISignal<PanEvent> = new Signal(this, "pan:start")
+  readonly pan:          UISignal<PanEvent> = new Signal(this, "pan")
+  readonly pan_end:      UISignal<PanEvent> = new Signal(this, "pan:end")
 
-  readonly pinch_start:  UISignal<PinchEvent> = new Signal(this, 'pinch:start')
-  readonly pinch:        UISignal<PinchEvent> = new Signal(this, 'pinch')
-  readonly pinch_end:    UISignal<PinchEvent> = new Signal(this, 'pinch:end')
+  readonly pinch_start:  UISignal<PinchEvent> = new Signal(this, "pinch:start")
+  readonly pinch:        UISignal<PinchEvent> = new Signal(this, "pinch")
+  readonly pinch_end:    UISignal<PinchEvent> = new Signal(this, "pinch:end")
 
-  readonly rotate_start: UISignal<RotateEvent> = new Signal(this, 'rotate:start')
-  readonly rotate:       UISignal<RotateEvent> = new Signal(this, 'rotate')
-  readonly rotate_end:   UISignal<RotateEvent> = new Signal(this, 'rotate:end')
+  readonly rotate_start: UISignal<RotateEvent> = new Signal(this, "rotate:start")
+  readonly rotate:       UISignal<RotateEvent> = new Signal(this, "rotate")
+  readonly rotate_end:   UISignal<RotateEvent> = new Signal(this, "rotate:end")
 
-  readonly tap:          UISignal<TapEvent>     = new Signal(this, 'tap')
-  readonly doubletap:    UISignal<TapEvent>     = new Signal(this, 'doubletap')
-  readonly press:        UISignal<TapEvent>     = new Signal(this, 'press')
-  readonly pressup:      UISignal<TapEvent>     = new Signal(this, 'pressup')
+  readonly tap:          UISignal<TapEvent>     = new Signal(this, "tap")
+  readonly doubletap:    UISignal<TapEvent>     = new Signal(this, "doubletap")
+  readonly press:        UISignal<TapEvent>     = new Signal(this, "press")
+  readonly pressup:      UISignal<TapEvent>     = new Signal(this, "pressup")
 
-  readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, 'move:enter')
-  readonly move:         UISignal<MoveEvent>    = new Signal(this, 'move')
-  readonly move_exit:    UISignal<MoveEvent>    = new Signal(this, 'move:exit')
+  readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, "move:enter")
+  readonly move:         UISignal<MoveEvent>    = new Signal(this, "move")
+  readonly move_exit:    UISignal<MoveEvent>    = new Signal(this, "move:exit")
 
-  readonly scroll:       UISignal<ScrollEvent>  = new Signal(this, 'scroll')
+  readonly scroll:       UISignal<ScrollEvent>  = new Signal(this, "scroll")
 
-  readonly keydown:      UISignal<KeyEvent>     = new Signal(this, 'keydown')
-  readonly keyup:        UISignal<KeyEvent>     = new Signal(this, 'keyup')
+  readonly keydown:      UISignal<KeyEvent>     = new Signal(this, "keydown")
+  readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
   private readonly hammer = new Hammer(this.hit_area, {
-    touchAction: 'auto',
+    touchAction: "auto",
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
 
@@ -174,29 +174,29 @@ export class UIEventBus implements EventListenerObject {
 
   protected _configure_hammerjs(): void {
     // This is to be able to distinguish double taps from single taps
-    this.hammer.get('doubletap').recognizeWith('tap')
-    this.hammer.get('tap').requireFailure('doubletap')
-    this.hammer.get('doubletap').dropRequireFailure('tap')
+    this.hammer.get("doubletap").recognizeWith("tap")
+    this.hammer.get("tap").requireFailure("doubletap")
+    this.hammer.get("doubletap").dropRequireFailure("tap")
 
-    this.hammer.on('doubletap', (e) => this._doubletap(e))
-    this.hammer.on('tap', (e) => this._tap(e))
-    this.hammer.on('press', (e) => this._press(e))
-    this.hammer.on('pressup', (e) => this._pressup(e))
+    this.hammer.on("doubletap", (e) => this._doubletap(e))
+    this.hammer.on("tap", (e) => this._tap(e))
+    this.hammer.on("press", (e) => this._press(e))
+    this.hammer.on("pressup", (e) => this._pressup(e))
 
-    this.hammer.get('pan').set({direction: Hammer.DIRECTION_ALL})
-    this.hammer.on('panstart', (e) => this._pan_start(e))
-    this.hammer.on('pan', (e) => this._pan(e))
-    this.hammer.on('panend', (e) => this._pan_end(e))
+    this.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL})
+    this.hammer.on("panstart", (e) => this._pan_start(e))
+    this.hammer.on("pan", (e) => this._pan(e))
+    this.hammer.on("panend", (e) => this._pan_end(e))
 
-    this.hammer.get('pinch').set({enable: true})
-    this.hammer.on('pinchstart', (e) => this._pinch_start(e))
-    this.hammer.on('pinch', (e) => this._pinch(e))
-    this.hammer.on('pinchend', (e) => this._pinch_end(e))
+    this.hammer.get("pinch").set({enable: true})
+    this.hammer.on("pinchstart", (e) => this._pinch_start(e))
+    this.hammer.on("pinch", (e) => this._pinch(e))
+    this.hammer.on("pinchend", (e) => this._pinch_end(e))
 
-    this.hammer.get('rotate').set({enable: true})
-    this.hammer.on('rotatestart', (e) => this._rotate_start(e))
-    this.hammer.on('rotate', (e) => this._rotate(e))
-    this.hammer.on('rotateend', (e) => this._rotate_end(e))
+    this.hammer.get("rotate").set({enable: true})
+    this.hammer.on("rotatestart", (e) => this._rotate_start(e))
+    this.hammer.on("rotate", (e) => this._rotate(e))
+    this.hammer.on("rotateend", (e) => this._rotate_end(e))
   }
 
   register_tool(tool_view: ToolView): void {
@@ -281,7 +281,7 @@ export class UIEventBus implements EventListenerObject {
     // This is a hack for laptops with touch screen who may be pinching or scrolling
     // in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
     // will be linked to pinch. But we also want to trigger in the case of a scroll.
-    if (is_mobile && v._scroll != null && et == 'pinch') {
+    if (is_mobile && v._scroll != null && et == "pinch") {
       logger.debug("Registering scroll on touch screen")
       v.connect(this.scroll, conditionally(v._scroll.bind(v)))
     }

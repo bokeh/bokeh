@@ -90,7 +90,7 @@ export class Slope extends Annotation {
     }))
 
     this.override<Slope.Props>({
-      line_color: 'black',
+      line_color: "black",
     })
   }
 }

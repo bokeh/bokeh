@@ -99,7 +99,7 @@ export abstract class MarkerView extends XYGlyphView {
     const ms = this.max_size/2
 
     let x0, x1, y0, y1
-    if (geometry.direction == 'h') {
+    if (geometry.direction == "h") {
       y0 = bounds.y0
       y1 = bounds.y1
       const sx0 = sx - ms

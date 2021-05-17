@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import * as sinon from 'sinon'
+import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {AjaxDataSource} from "@bokehjs/models/sources/ajax_data_source"
@@ -115,15 +115,15 @@ describe("ajax_data_source module", () => {
       it("should return an xhr with method set from this.method", () => {
         const s0 = new AjaxDataSource({data_url: "http://foo.com"})
         s0.prepare_request()
-        expect(last(requests).method).to.be.equal('POST')
+        expect(last(requests).method).to.be.equal("POST")
 
         const s1 = new AjaxDataSource({data_url: "http://foo.com", method: "POST"})
         s1.prepare_request()
-        expect(last(requests).method).to.be.equal('POST')
+        expect(last(requests).method).to.be.equal("POST")
 
         const s2 = new AjaxDataSource({data_url: "http://foo.com", method: "GET"})
         s2.prepare_request()
-        expect(last(requests).method).to.be.equal('GET')
+        expect(last(requests).method).to.be.equal("GET")
       })
 
       it("should return an xhr with Content-Type header set to json", () => {

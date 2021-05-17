@@ -20,8 +20,8 @@ describe("core/util/pretty module", () => {
     })
 
     it("that supports T[]", () => {
-      expect(to_string([])).to.be.equal('[]')
-      expect(to_string([1, 2, 3])).to.be.equal('[1, 2, 3]')
+      expect(to_string([])).to.be.equal("[]")
+      expect(to_string([1, 2, 3])).to.be.equal("[1, 2, 3]")
     })
 
     it("that supports Map<K, V>", () => {

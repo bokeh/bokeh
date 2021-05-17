@@ -62,7 +62,7 @@ describe("ZoomOutTool", () => {
     })
 
     it("should zoom the x-axis only", async () => {
-      const zoom_out_tool = new ZoomOutTool({dimensions: 'width'})
+      const zoom_out_tool = new ZoomOutTool({dimensions: "width"})
       const plot_view = await mkplot(zoom_out_tool)
 
       const zoom_out_tool_view = plot_view.tool_views.get(zoom_out_tool)! as ZoomBaseToolView
@@ -78,7 +78,7 @@ describe("ZoomOutTool", () => {
     })
 
     it("should zoom the y-axis only", async () => {
-      const zoom_out_tool = new ZoomOutTool({dimensions: 'height'})
+      const zoom_out_tool = new ZoomOutTool({dimensions: "height"})
       const plot_view = await mkplot(zoom_out_tool)
 
       const zoom_out_tool_view = plot_view.tool_views.get(zoom_out_tool)! as ZoomBaseToolView

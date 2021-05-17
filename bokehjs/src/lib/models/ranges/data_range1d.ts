@@ -221,9 +221,9 @@ export class DataRange1d extends DataRange {
 
     const follow_interval = this.follow_interval
     if (follow_interval != null && Math.abs(start - end) > follow_interval) {
-      if (this.follow == 'start')
+      if (this.follow == "start")
         end = start + follow_sign*follow_interval
-      else if (this.follow == 'end')
+      else if (this.follow == "end")
         start = end - follow_sign*follow_interval
     }
 

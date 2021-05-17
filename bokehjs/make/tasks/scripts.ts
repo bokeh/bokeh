@@ -15,7 +15,7 @@ import pkg from "../../package.json"
 
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
-  const dts = `export declare const version: string;\n`
+  const dts = "export declare const version: string;\n"
 
   write(join(paths.build_dir.lib, "version.js"), js)
   write(join(paths.build_dir.types, "version.d.ts"), dts)
@@ -69,17 +69,17 @@ task("scripts:styles", ["styles:compile"], async () => {
 
     const css_out = CSS.stringify(ast, {compress: true})
     js.push(`export default \`${css_out}\``)
-    dts.push("export default \`\`")
-    dts_internal.push("  export default \`\`")
+    dts.push("export default \"\"")
+    dts_internal.push("  export default \"\"")
     dts_internal.push("}")
 
-    const js_file = join(paths.build_dir.lib, "styles", sub_path) + ".js"
-    const dts_file = join(paths.build_dir.types, "styles", sub_path) + ".d.ts"
-    const dts_internal_file = join(paths.build_dir.all, "dts", "styles", sub_path) + ".d.ts"
+    const js_file = `${join(paths.build_dir.lib, "styles", sub_path)}.js`
+    const dts_file = `${join(paths.build_dir.types, "styles", sub_path)}.d.ts`
+    const dts_internal_file = `${join(paths.build_dir.all, "dts", "styles", sub_path)}.d.ts`
 
-    write(js_file, js.join("\n") + "\n")
-    write(dts_file, dts.join("\n") + "\n")
-    write(dts_internal_file, dts_internal.join("\n") + "\n")
+    write(js_file, `${js.join("\n")}\n`)
+    write(dts_file, `${dts.join("\n")}\n`)
+    write(dts_internal_file, `${dts_internal.join("\n")}\n`)
   }
 })
 
@@ -101,8 +101,8 @@ declare const shader: string;
 export default shader;
 `
 
-    write(join(js_base, sub_path) + ".js", js)
-    write(join(dts_base, sub_path) + ".d.ts", dts)
+    write(`${join(js_base, sub_path)}.js`, js)
+    write(`${join(dts_base, sub_path)}.d.ts`, dts)
   }
 })
 
@@ -111,7 +111,7 @@ task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], a
 })
 
 function min_js(js: string): string {
-  return rename(js, {ext: '.min.js'})
+  return rename(js, {ext: ".min.js"})
 }
 
 task("scripts:bundle", [passthrough("scripts:compile")], async () => {

@@ -163,7 +163,7 @@ export abstract class Tool extends Model {
 
     const hr = frame.bbox.h_range
     let sxlim: [number, number]
-    if (dims == 'width' || dims == 'both') {
+    if (dims == "width" || dims == "both") {
       sxlim = [min([sx0, sx1]),           max([sx0, sx1])]
       sxlim = [max([sxlim[0], hr.start]), min([sxlim[1], hr.end])]
     } else
@@ -171,7 +171,7 @@ export abstract class Tool extends Model {
 
     const vr = frame.bbox.v_range
     let sylim: [number, number]
-    if (dims == 'height' || dims == 'both') {
+    if (dims == "height" || dims == "both") {
       sylim = [min([sy0, sy1]),           max([sy0, sy1])]
       sylim = [max([sylim[0], vr.start]), min([sylim[1], vr.end])]
     } else

@@ -85,7 +85,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the x-axis only because dimensions arg is set", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: 'width'})
+      const wheel_zoom = new WheelZoomTool({dimensions: "width"})
       const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
@@ -104,7 +104,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the x-axis only because sy is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
+      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
       const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
@@ -123,7 +123,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the y-axis only because dimensions arg is set", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: 'height'})
+      const wheel_zoom = new WheelZoomTool({dimensions: "height"})
       const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
@@ -142,7 +142,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom the y-axis only because sx is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
+      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
       const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
@@ -161,7 +161,7 @@ describe("WheelZoomTool", () => {
     })
 
     it("should zoom centered around the zoom point", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: 'both'})
+      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
       const plot_view = await mkplot(wheel_zoom)
 
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView

@@ -57,7 +57,7 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
-    const geometry: RectGeometry = {type: 'rect', sx0, sx1, sy0, sy1}
+    const geometry: RectGeometry = {type: "rect", sx0, sx1, sy0, sy1}
     this._select(geometry, final, mode)
   }
 }
@@ -112,8 +112,8 @@ export class BoxSelectTool extends SelectTool {
     }))
 
     this.register_alias("box_select", () => new BoxSelectTool())
-    this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: 'width'}))
-    this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: 'height'}))
+    this.register_alias("xbox_select", () => new BoxSelectTool({dimensions: "width"}))
+    this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: "height"}))
   }
 
   override tool_name = "Box Select"

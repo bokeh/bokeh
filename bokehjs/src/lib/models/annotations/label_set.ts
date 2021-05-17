@@ -32,7 +32,7 @@ export class LabelSetView extends TextAnnotationView {
     super.initialize()
     this.set_data(this.model.source)
 
-    if (this.model.render_mode == 'css') {
+    if (this.model.render_mode == "css") {
       for (let i = 0, end = this.text.length; i < end; i++) {
         const el = div({style: {display: "none"}})
         this.el!.appendChild(el)
@@ -77,7 +77,7 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _render(): void {
-    const draw = this.model.render_mode == 'canvas' ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
+    const draw = this.model.render_mode == "canvas" ? this._v_canvas_text.bind(this) : this._v_css_text.bind(this)
     const {ctx} = this.layer
 
     const [sx, sy] = this._map_data()

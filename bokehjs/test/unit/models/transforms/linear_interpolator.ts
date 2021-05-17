@@ -7,8 +7,8 @@ describe("linear_interpolator_transform module", () => {
 
   function generate_interpolator_ColumnDataSource() {
     return new LinearInterpolator({
-      x: 'var1',
-      y: 'var2',
+      x: "var1",
+      y: "var2",
       data: new ColumnDataSource({
         data: {var1: [0, 5, 15], var2: [10, 20, 30]},
       }),

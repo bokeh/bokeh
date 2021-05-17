@@ -10,7 +10,7 @@ import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {values, entries, extend} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
-import {is_equal} from './util/eq'
+import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer} from "./serializer"
 import type {Document} from "../document/document"
 import {DocumentEvent, DocumentEventBatch, ModelChangedEvent} from "../document/events"

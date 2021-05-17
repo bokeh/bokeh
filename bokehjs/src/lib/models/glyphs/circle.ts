@@ -183,7 +183,7 @@ export class CircleView extends XYGlyphView {
     const bounds = this.bounds()
 
     let x0, x1, y0, y1
-    if (geometry.direction == 'h') {
+    if (geometry.direction == "h") {
       // use circle bounds instead of current pointer y coordinates
       let sx0, sx1
       y0 = bounds.y0

@@ -15,18 +15,18 @@ describe("Legend", () => {
     it("should return the results of get_labels_from_glyph_label_prop", () => {
       const source = new ColumnDataSource({
         data: {
-          label: ['l1', 'l2', 'l2', 'l1'],
+          label: ["l1", "l2", "l2", "l1"],
         },
       })
       const gr = new GlyphRenderer({data_source: source})
-      const item_1 = new LegendItem({label: {field: 'label'}, renderers: [gr]})
-      const item_2 = new LegendItem({label: {value: 'l3'}})
+      const item_1 = new LegendItem({label: {field: "label"}, renderers: [gr]})
+      const item_2 = new LegendItem({label: {value: "l3"}})
 
       const legend = new Legend({
         items: [item_1, item_2],
       })
       const labels = legend.get_legend_names()
-      expect(labels).to.be.equal(['l1', 'l2', 'l3'])
+      expect(labels).to.be.equal(["l1", "l2", "l3"])
     })
   })
 })

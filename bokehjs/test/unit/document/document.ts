@@ -36,7 +36,7 @@ class AnotherModel extends Model {
   }
 }
 
-Models.register('AnotherModel', AnotherModel)
+Models.register("AnotherModel", AnotherModel)
 
 namespace SomeModel {
   export type Attrs = p.AttrsOf<Props>
@@ -63,7 +63,7 @@ class SomeModel extends Model {
   }
 }
 
-Models.register('SomeModel', SomeModel)
+Models.register("SomeModel", SomeModel)
 
 namespace SomeModelWithChildren {
   export type Attrs = p.AttrsOf<Props>
@@ -88,7 +88,7 @@ class SomeModelWithChildren extends Model {
   }
 }
 
-Models.register('SomeModelWithChildren', SomeModelWithChildren)
+Models.register("SomeModelWithChildren", SomeModelWithChildren)
 
 namespace ModelWithConstructTimeChanges {
   export type Attrs = p.AttrsOf<Props>
@@ -121,7 +121,7 @@ class ModelWithConstructTimeChanges extends Model {
   }
 }
 
-Models.register('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
+Models.register("ModelWithConstructTimeChanges", ModelWithConstructTimeChanges)
 
 namespace ComplicatedModelWithConstructTimeChanges {
   export type Attrs = p.AttrsOf<Props>
@@ -160,13 +160,13 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
   }
 }
 
-Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
+Models.register("ComplicatedModelWithConstructTimeChanges", ComplicatedModelWithConstructTimeChanges)
 
 describe("Document", () => {
   let date_stub: sinon.SinonStub
 
   before_each(() => {
-    date_stub = sinon.stub(Date, 'now')
+    date_stub = sinon.stub(Date, "now")
     date_stub.onCall(0).returns(5)
     date_stub.onCall(1).returns(10)
     date_stub.onCall(2).returns(12)
@@ -338,7 +338,7 @@ describe("Document", () => {
     const m2 = new AnotherModel({name: "foo"})
     d.add_root(m)
     d.add_root(m2)
-    expect(() => d.get_model_by_name('foo')).to.throw(Error, /Multiple models/)
+    expect(() => d.get_model_by_name("foo")).to.throw(Error, /Multiple models/)
   })
 
   it("can have all_models with multiple references", () => {
@@ -468,7 +468,7 @@ describe("Document", () => {
     const event = events[0] as ev.ModelChangedEvent
     expect(event.document).to.be.equal(d)
     expect(event.model).to.be.equal(m)
-    expect(event.attr).to.be.equal('bar')
+    expect(event.attr).to.be.equal("bar")
     expect(event.old).to.be.equal(1)
     expect(event.new_).to.be.equal(42)
   })
@@ -567,13 +567,13 @@ describe("Document", () => {
     const events: ev.DocumentEvent[] = []
     d.on_change((event) => events.push(event))
 
-    d.set_title('Foo')
-    expect(d.title()).to.be.equal('Foo')
+    d.set_title("Foo")
+    expect(d.title()).to.be.equal("Foo")
     expect(events.length).to.be.equal(1)
     expect(events[0]).to.be.instanceof(ev.TitleChangedEvent)
     const event = events[0] as ev.TitleChangedEvent
     expect(event.document).to.be.equal(d)
-    expect(event.title).to.be.equal('Foo')
+    expect(event.title).to.be.equal("Foo")
   })
 
   it("can clear", () => {
@@ -582,14 +582,14 @@ describe("Document", () => {
     expect(d.title()).to.be.equal(DEFAULT_TITLE)
     d.add_root(new AnotherModel())
     d.add_root(new AnotherModel())
-    d.set_title('Foo')
+    d.set_title("Foo")
     expect(d.roots().length).to.be.equal(2)
-    expect(d.title()).to.be.equal('Foo')
+    expect(d.title()).to.be.equal("Foo")
     d.clear()
     expect(d.roots().length).to.be.equal(0)
     expect(d._all_models.size).to.be.equal(0)
     // does not reset title
-    expect(d.title()).to.be.equal('Foo')
+    expect(d.title()).to.be.equal("Foo")
   })
 
   it("throws on destructive move of itself", () => {
@@ -598,9 +598,9 @@ describe("Document", () => {
     expect(d.title()).to.be.equal(DEFAULT_TITLE)
     d.add_root(new AnotherModel())
     d.add_root(new AnotherModel())
-    d.set_title('Foo')
+    d.set_title("Foo")
     expect(d.roots().length).to.be.equal(2)
-    expect(d.title()).to.be.equal('Foo')
+    expect(d.title()).to.be.equal("Foo")
     expect(() => d.destructively_move(d)).to.throw(Error, "Attempted to overwrite a document with itself")
   })
 
@@ -610,24 +610,24 @@ describe("Document", () => {
     expect(d.title()).to.be.equal(DEFAULT_TITLE)
     d.add_root(new AnotherModel())
     d.add_root(new AnotherModel())
-    d.set_title('Foo')
+    d.set_title("Foo")
     expect(d.roots().length).to.be.equal(2)
-    expect(d.title()).to.be.equal('Foo')
+    expect(d.title()).to.be.equal("Foo")
 
     const d2 = new Document()
     expect(d2.roots().length).to.be.equal(0)
     expect(d2.title()).to.be.equal(DEFAULT_TITLE)
     d2.add_root(new SomeModel())
-    d2.set_title('Bar')
+    d2.set_title("Bar")
     expect(d2.roots().length).to.be.equal(1)
-    expect(d2.title()).to.be.equal('Bar')
+    expect(d2.title()).to.be.equal("Bar")
 
     d2.destructively_move(d)
     expect(d.roots().length).to.be.equal(1)
     expect(d.roots()[0]).to.be.instanceof(SomeModel)
     const root0 = d.roots()[0] as SomeModel
     expect(root0.foo).to.be.equal(2)
-    expect(d.title()).to.be.equal('Bar')
+    expect(d.title()).to.be.equal("Bar")
 
     expect(d2.roots().length).to.be.equal(0)
   })
@@ -699,7 +699,7 @@ describe("Document", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)
     const root1 = new SomeModel()
-    root1.name = 'bar'
+    root1.name = "bar"
     d.add_root(root1)
     expect(d.roots().length).to.be.equal(1)
 
@@ -710,23 +710,23 @@ describe("Document", () => {
 
     expect(copy.roots().length).to.be.equal(1)
     expect(copy.roots()[0]).to.be.instanceof(SomeModel)
-    expect(copy.roots()[0].name).to.be.equal('bar')
+    expect(copy.roots()[0].name).to.be.equal("bar")
 
     // be sure defaults were NOT included
     const attrs0 = parsed.roots.references[0].attributes
-    expect('tags' in attrs0).to.be.false
-    expect('foo' in attrs0).to.be.false
-    expect('child' in attrs0).to.be.false
+    expect("tags" in attrs0).to.be.false
+    expect("foo" in attrs0).to.be.false
+    expect("child" in attrs0).to.be.false
     // this should be included, non-default
-    expect('name' in attrs0).to.be.true
+    expect("name" in attrs0).to.be.true
 
     // double-check different results if we do include_defaults
     const parsed_with_defaults = JSON.parse(d.to_json_string(true))
     const attrs1 = parsed_with_defaults.roots.references[0].attributes
     //expect('tags' in attrs1).to.be.true
-    expect('foo' in attrs1).to.be.true
-    expect('child' in attrs1).to.be.true
-    expect('name' in attrs1).to.be.true
+    expect("foo" in attrs1).to.be.true
+    expect("child" in attrs1).to.be.true
+    expect("name" in attrs1).to.be.true
   })
 
   // TODO copy the following tests from test_document.py here
@@ -746,13 +746,13 @@ describe("Document", () => {
     d.add_root(root2)
     expect(d.roots().length).to.be.equal(2)
 
-    const event1 = new ev.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
     const patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch(JSON.parse(patch1))
 
     expect(root1.foo).to.be.equal(57)
 
-    const event2 = new ev.ModelChangedEvent(d, child1, 'foo', child1.foo, 67)
+    const event2 = new ev.ModelChangedEvent(d, child1, "foo", child1.foo, 67)
     const patch2 = d.create_json_patch_string([event2])
     d.apply_json_patch(JSON.parse(patch2))
 
@@ -779,7 +779,7 @@ describe("Document", () => {
     expect(d._all_models.has(child2.id)).to.be.false
     expect(d._all_models.has(child2.id)).to.be.false
 
-    const event1 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child3)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child3)
     const patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch(JSON.parse(patch1))
 
@@ -792,7 +792,7 @@ describe("Document", () => {
     expect(d._all_models.has(child3.id)).to.be.true
 
     // put it back how it was before
-    const event2 = new ev.ModelChangedEvent(d, root1, 'child', child1.child, child1)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", child1.child, child1)
     const patch2 = d.create_json_patch_string([event2])
     d.apply_json_patch(JSON.parse(patch2))
 
@@ -818,8 +818,8 @@ describe("Document", () => {
 
     const child2 = new SomeModel({foo: 44})
 
-    const event1 = new ev.ModelChangedEvent(d, root1, 'foo', root1.foo, 57)
-    const event2 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child2)
+    const event1 = new ev.ModelChangedEvent(d, root1, "foo", root1.foo, 57)
+    const event2 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child2)
     const patch1 = d.create_json_patch_string([event1, event2])
     d.apply_json_patch(JSON.parse(patch1))
 
@@ -847,7 +847,7 @@ describe("Document", () => {
     expect(root1.document!.roots().length).to.be.equal(1)
     expect(root1.child).to.be.null
 
-    const event1 = new ev.ModelChangedEvent(d, root1, 'child', root1.child, child1)
+    const event1 = new ev.ModelChangedEvent(d, root1, "child", root1.child, child1)
     const patch1 = d.create_json_patch_string([event1])
     d.apply_json_patch(JSON.parse(patch1))
 
@@ -921,8 +921,8 @@ describe("Document", () => {
     const root1 = new ComplicatedModelWithConstructTimeChanges()
     // change it so it doesn't match what initialize() does
     const serialized_values = {
-      name: 'foo',
-      tags: ['bar'],
+      name: "foo",
+      tags: ["bar"],
       list_prop: [new AnotherModel({bar: 42})],
       dict_prop: {foo: new AnotherModel({bar: 43})},
       obj_prop: new ModelWithConstructTimeChanges(),
@@ -957,8 +957,8 @@ describe("Document", () => {
     // ComplicatedModelWithConstructTimeChanges changes (not name
     // and tags)
     d.apply_json_patch(patch)
-    expect(root1.name).to.be.equal('foo')
-    expect(root1.tags).to.be.equal(['bar'])
+    expect(root1.name).to.be.equal("foo")
+    expect(root1.tags).to.be.equal(["bar"])
     expect(root1.list_prop.length).to.be.equal(1)
     expect(root1.list_prop[0].bar).to.be.equal(1)
     expect(Object.keys(root1.dict_prop).length).to.be.equal(1)

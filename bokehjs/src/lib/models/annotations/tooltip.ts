@@ -159,7 +159,7 @@ export class Tooltip extends Annotation {
     }))
 
     this.override<Tooltip.Props>({
-      level: 'overlay',
+      level: "overlay",
     })
   }
 

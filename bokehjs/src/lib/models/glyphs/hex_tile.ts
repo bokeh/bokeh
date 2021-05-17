@@ -178,7 +178,7 @@ export class HexTileView extends GlyphView {
     const {sx, sy} = geometry
 
     let indices: number[]
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
       const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)

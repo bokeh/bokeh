@@ -1,12 +1,12 @@
-import * as p from 'core/properties'
-import {span} from 'core/dom'
-import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from '@bokeh/slickgrid'
+import * as p from "core/properties"
+import {span} from "core/dom"
+import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {DTINDEX_NAME, Item} from "./definitions"
-import {TableDataProvider, DataTableView, DataTable} from './data_table'
-import {ColumnDataSource} from '../../sources/column_data_source'
-import {CDSView} from '../../sources/cds_view'
-import {RowAggregator} from './row_aggregators'
-import {Model} from 'model'
+import {TableDataProvider, DataTableView, DataTable} from "./data_table"
+import {ColumnDataSource} from "../../sources/column_data_source"
+import {CDSView} from "../../sources/cds_view"
+import {RowAggregator} from "./row_aggregators"
+import {Model} from "model"
 
 interface GroupDataContext {
   collapsed: boolean
@@ -18,11 +18,11 @@ function groupCellFormatter(_row: number, _cell: number, _value: unknown, _colum
   const {collapsed, level, title} = dataContext
 
   const toggle = span({
-    class: `slick-group-toggle ${collapsed ? 'collapsed' : 'expanded'}`,
-    style: {'margin-left': `${level * 15}px`},
+    class: `slick-group-toggle ${collapsed ? "collapsed" : "expanded"}`,
+    style: {"margin-left": `${level * 15}px`},
   })
   const titleElement = span({
-    class: 'slick-group-title',
+    class: "slick-group-title",
     level,
   }, title)
   return `${toggle.outerHTML}${titleElement.outerHTML}`
@@ -31,19 +31,19 @@ function groupCellFormatter(_row: number, _cell: number, _value: unknown, _colum
 function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatter<Item> {
   return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item) => {
     const spacer = span({
-      class: 'slick-group-toggle',
-      style: {'margin-left': `${(indent ?? 0) * 15}px`},
+      class: "slick-group-toggle",
+      style: {"margin-left": `${(indent ?? 0) * 15}px`},
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
-    return `${spacer.outerHTML}${formatted && formatted.replace(/^<div/, '<span').replace(/div>$/, 'span>')}`
+    return `${spacer.outerHTML}${formatted && formatted.replace(/^<div/, "<span").replace(/div>$/, "span>")}`
   }
 }
 
 function handleGridClick(this: SlickGrid<Item>, event: Event, args: { row: number }): void {
   const item = this.getDataItem(args.row)
 
-  if (item instanceof Group && (event.target as HTMLElement).classList.contains('slick-group-toggle')) {
+  if (item instanceof Group && (event.target as HTMLElement).classList.contains("slick-group-toggle")) {
     if (item.collapsed) {
       this.getData().expandGroup(item.groupingKey)
     } else {
@@ -102,7 +102,7 @@ export class DataCubeProvider extends TableDataProvider {
     super(source, view)
     this.columns = columns
     this.groupingInfos = []
-    this.groupingDelimiter = ':|:'
+    this.groupingDelimiter = ":|:"
     this.target = target
   }
 
@@ -233,7 +233,7 @@ export class DataCubeProvider extends TableDataProvider {
         const {key} = aggregator
         return {
           formatter(row: number, cell: number, _value: unknown, columnDef: Column<Item>, dataContext: Item): string {
-            return formatter ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ''
+            return formatter ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ""
           },
         }
       }
@@ -244,7 +244,7 @@ export class DataCubeProvider extends TableDataProvider {
       ? {
         selectable: false,
         focusable: false,
-        cssClasses: 'slick-group',
+        cssClasses: "slick-group",
         columns: [{formatter: groupCellFormatter}, ...columns.map(adapter)] as any,
       }
       : {}

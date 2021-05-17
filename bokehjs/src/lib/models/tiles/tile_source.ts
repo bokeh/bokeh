@@ -72,14 +72,14 @@ export abstract class TileSource extends Model {
      * Note: should probably be refactored into subclasses.
      */
     const url = this.url
-      .replace('{x}', '{X}')
-      .replace('{y}', '{Y}')
-      .replace('{z}', '{Z}')
-      .replace('{q}', '{Q}')
-      .replace('{xmin}', '{XMIN}')
-      .replace('{ymin}', '{YMIN}')
-      .replace('{xmax}', '{XMAX}')
-      .replace('{ymax}', '{YMAX}')
+      .replace("{x}", "{X}")
+      .replace("{y}", "{Y}")
+      .replace("{z}", "{Z}")
+      .replace("{q}", "{Q}")
+      .replace("{xmin}", "{XMIN}")
+      .replace("{ymin}", "{YMIN}")
+      .replace("{xmax}", "{XMAX}")
+      .replace("{ymax}", "{YMAX}")
     this.url = url
   }
 
@@ -92,7 +92,7 @@ export abstract class TileSource extends Model {
   }
 
   key_to_tile_xyz(key: string): [number, number, number] {
-    const [x, y, z] = key.split(':').map((c) => parseInt(c))
+    const [x, y, z] = key.split(":").map((c) => parseInt(c))
     return [x, y, z]
   }
 
@@ -111,7 +111,7 @@ export abstract class TileSource extends Model {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
     return image_url
       .replace("{X}", x.toString())
-      .replace('{Y}', y.toString())
+      .replace("{Y}", y.toString())
       .replace("{Z}", z.toString())
   }
 

@@ -1,4 +1,4 @@
-import {PointGeometry} from 'core/geometry'
+import {PointGeometry} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"

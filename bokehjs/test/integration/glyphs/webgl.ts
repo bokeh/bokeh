@@ -7,8 +7,8 @@ describe("webgl", () => {
     const x1 = [0, 0.3, NaN, 0.9, 0.95, 1.0]
     const y = [1, 0.9, 0.9, 1.0, 0.0, 1.0]
 
-    const p0 = fig([300, 300], {output_backend: 'webgl', title: 'All finite'})
-    const p1 = fig([300, 300], {output_backend: 'webgl', title: 'With NaN'})
+    const p0 = fig([300, 300], {output_backend: "webgl", title: "All finite"})
+    const p1 = fig([300, 300], {output_backend: "webgl", title: "With NaN"})
 
     p0.line(x0, y)
     p1.line(x1, y)
@@ -29,9 +29,9 @@ describe("webgl", () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
 
-      p.line(x0, y0, {line_color: "green", line_width: lw, line_join: 'bevel'})
-      p.line(x1, y1, {line_color: "blue", line_width: lw, line_join: 'round'})
-      p.line(x2, y2, {line_color: "red", line_width: lw, line_join: 'miter'})
+      p.line(x0, y0, {line_color: "green", line_width: lw, line_join: "bevel"})
+      p.line(x1, y1, {line_color: "blue", line_width: lw, line_join: "round"})
+      p.line(x2, y2, {line_color: "red", line_width: lw, line_join: "miter"})
 
       return p
     }
@@ -53,13 +53,13 @@ describe("webgl", () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
 
-      p.rect({x, y: 3, width, height, angle: 0.0, line_join: 'round', fill_color,
+      p.rect({x, y: 3, width, height, angle: 0.0, line_join: "round", fill_color,
               hatch_pattern: [".", "o", "-", "|"], line_color, line_alpha: 1.0, line_width})
-      p.rect({x, y: 2, width, height, angle: 0.2, line_join: 'miter', fill_color,
+      p.rect({x, y: 2, width, height, angle: 0.2, line_join: "miter", fill_color,
               hatch_pattern: ["+", '"', ":", "@"], line_color, line_alpha: 0.7, line_width})
-      p.rect({x, y: 1, width, height, angle: 0.4, line_join: 'bevel', fill_color,
+      p.rect({x, y: 1, width, height, angle: 0.4, line_join: "bevel", fill_color,
               hatch_pattern: ["/", "\\", "x", ","], line_color, line_alpha: 0.4, line_width})
-      p.rect({x, y: 0, width, height, angle: 0.6, line_join: 'round', fill_color,
+      p.rect({x, y: 0, width, height, angle: 0.6, line_join: "round", fill_color,
               hatch_pattern: ["`", "v", ">", "*"], line_color, line_alpha: 0, line_width})
 
       return p

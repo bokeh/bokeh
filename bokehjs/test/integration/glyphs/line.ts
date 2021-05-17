@@ -3,9 +3,9 @@ import {OutputBackend, LineCap, LineJoin, LineDash} from "@bokehjs/core/enums"
 
 describe("Line glyph", () => {
   const linewidths = [15, 2, 5, 1]
-  const caps: LineCap[] = ['butt', 'round', 'square']
-  const joins: LineJoin[] = ['miter', 'round', 'bevel']
-  const colors = ['orangered', 'seagreen', 'purple']
+  const caps: LineCap[] = ["butt", "round", "square"]
+  const joins: LineJoin[] = ["miter", "round", "bevel"]
+  const colors = ["orangered", "seagreen", "purple"]
   const alphas = [1.0, 0.8, 0.5]
 
   it("should support solid lines with caps and joins", async () => {
@@ -149,7 +149,7 @@ describe("Line glyph", () => {
             line_width: linewidths[j],
             line_color: colors[i],
             line_alpha: alphas[i],
-            line_cap: 'butt',
+            line_cap: "butt",
             line_join: joins[i],
             line_dash: dashes[i],
           })
@@ -182,7 +182,7 @@ describe("Line glyph", () => {
             line_width: linewidths[j],
             line_color: colors[i],
             line_alpha: alphas[i],
-            line_cap: 'butt',
+            line_cap: "butt",
             line_join: joins[i],
             line_dash: dashes[i],
           })
@@ -216,7 +216,7 @@ describe("Line glyph", () => {
             line_width: 5,
             line_color: colors[i],
             line_alpha: alphas[i],
-            line_cap: 'butt',
+            line_cap: "butt",
             line_join: joins[i],
             line_dash: dashes[i],
             line_dash_offset: offsets[j],
@@ -250,7 +250,7 @@ describe("Line glyph", () => {
             line_width: linewidths[j],
             line_color: colors[i],
             line_alpha: alphas[i],
-            line_cap: 'round',
+            line_cap: "round",
             line_join: joins[i],
             line_dash: dashes[i],
           })
@@ -283,7 +283,7 @@ describe("Line glyph", () => {
             line_width: linewidths[j],
             line_color: colors[i],
             line_alpha: alphas[i],
-            line_cap: 'square',
+            line_cap: "square",
             line_join: joins[i],
             line_dash: dashes[i],
           })

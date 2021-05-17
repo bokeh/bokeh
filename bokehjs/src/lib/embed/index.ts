@@ -77,7 +77,7 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
         console.log("Error rendering Bokeh items:", error)
       }
     } else
-      throw new Error(`Error rendering Bokeh items: either 'docid' or 'token' was expected.`)
+      throw new Error("Error rendering Bokeh items: either 'docid' or 'token' was expected.")
   }
 
   return views

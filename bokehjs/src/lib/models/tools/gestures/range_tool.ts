@@ -268,7 +268,7 @@ export class RangeTool extends GestureTool {
       this.overlay.right = null
       this.overlay.bottom = null
       this.overlay.top = null
-      logger.warn('RangeTool not configured with any Ranges.')
+      logger.warn("RangeTool not configured with any Ranges.")
     }
 
     if (this.x_range == null) {

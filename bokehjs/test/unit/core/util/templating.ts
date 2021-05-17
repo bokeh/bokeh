@@ -101,7 +101,7 @@ describe("templating module", () => {
       data: {
         arrs: [[[0, 10, 20], [30, 40, 50]]],
         floats: [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]],
-        labels: ['test label'],
+        labels: ["test label"],
       },
     })
     const imindex1 = {index: 0, dim1: 2, dim2: 1, flat_index: 5}
@@ -147,10 +147,10 @@ describe("templating module", () => {
 
     it("should index scalar data format for images", () => {
       const v1 = tmpl.get_value("@labels", imsource, imindex1, {})
-      expect(v1).to.be.equal('test label')
+      expect(v1).to.be.equal("test label")
 
       const v2 = tmpl.get_value("@labels", imsource, imindex2, {})
-      expect(v2).to.be.equal('test label')
+      expect(v2).to.be.equal("test label")
     })
   })
 

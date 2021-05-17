@@ -25,7 +25,7 @@ class _FlatBush extends FlatBush {
 
   search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
     if (this._pos !== this._boxes.length) {
-      throw new Error('Data not yet indexed - call index.finish().')
+      throw new Error("Data not yet indexed - call index.finish().")
     }
 
     let nodeIndex = this._boxes.length - 4

@@ -57,7 +57,7 @@ describe("WheelPanTool", () => {
     })
 
     it("should translate y-range in negative direction", async () => {
-      const x_wheel_pan_tool = new WheelPanTool({dimension: 'height'})
+      const x_wheel_pan_tool = new WheelPanTool({dimension: "height"})
       const plot_view = await mkplot(x_wheel_pan_tool)
 
       const wheel_pan_tool_view = plot_view.tool_views.get(x_wheel_pan_tool)! as WheelPanToolView

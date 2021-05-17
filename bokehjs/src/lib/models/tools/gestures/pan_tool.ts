@@ -82,7 +82,7 @@ export class PanToolView extends GestureToolView {
     let sx0: number
     let sx1: number
     let sdx: number
-    if ((dims == 'width' || dims == 'both') && !this.v_axis_only) {
+    if ((dims == "width" || dims == "both") && !this.v_axis_only) {
       sx0 = sx_low
       sx1 = sx_high
       sdx = -new_dx
@@ -95,7 +95,7 @@ export class PanToolView extends GestureToolView {
     let sy0: number
     let sy1: number
     let sdy: number
-    if ((dims == 'height' || dims == 'both') && !this.h_axis_only) {
+    if ((dims == "height" || dims == "both") && !this.h_axis_only) {
       sy0 = sy_low
       sy1 = sy_high
       sdy = -new_dy
@@ -156,9 +156,9 @@ export class PanTool extends GestureTool {
       }],
     }))
 
-    this.register_alias("pan", () => new PanTool({dimensions: 'both'}))
-    this.register_alias("xpan", () => new PanTool({dimensions: 'width'}))
-    this.register_alias("ypan", () => new PanTool({dimensions: 'height'}))
+    this.register_alias("pan", () => new PanTool({dimensions: "both"}))
+    this.register_alias("xpan", () => new PanTool({dimensions: "width"}))
+    this.register_alias("ypan", () => new PanTool({dimensions: "height"}))
   }
 
   override tool_name = "Pan"

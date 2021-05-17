@@ -45,7 +45,7 @@ function _strftime(t: number, format: string | ((t: number) => string)): string 
 
 // Labels of time units, from finest to coarsest.
 const format_order = [
-  'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years',
+  "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years",
 ]
 
 export namespace DatetimeTickFormatter {
@@ -76,16 +76,16 @@ export class DatetimeTickFormatter extends TickFormatter {
 
   static init_DatetimeTickFormatter(): void {
     this.define<DatetimeTickFormatter.Props>(({String, Array}) => ({
-      microseconds: [ Array(String), ['%fus'] ],
-      milliseconds: [ Array(String), ['%3Nms', '%S.%3Ns'] ],
-      seconds:      [ Array(String), ['%Ss'] ],
-      minsec:       [ Array(String), [':%M:%S'] ],
-      minutes:      [ Array(String), [':%M', '%Mm'] ],
-      hourmin:      [ Array(String), ['%H:%M'] ],
-      hours:        [ Array(String), ['%Hh', '%H:%M'] ],
-      days:         [ Array(String), ['%m/%d', '%a%d'] ],
-      months:       [ Array(String), ['%m/%Y', '%b %Y'] ],
-      years:        [ Array(String), ['%Y'] ],
+      microseconds: [ Array(String), ["%fus"] ],
+      milliseconds: [ Array(String), ["%3Nms", "%S.%3Ns"] ],
+      seconds:      [ Array(String), ["%Ss"] ],
+      minsec:       [ Array(String), [":%M:%S"] ],
+      minutes:      [ Array(String), [":%M", "%Mm"] ],
+      hourmin:      [ Array(String), ["%H:%M"] ],
+      hours:        [ Array(String), ["%Hh", "%H:%M"] ],
+      days:         [ Array(String), ["%m/%d", "%a%d"] ],
+      months:       [ Array(String), ["%m/%Y", "%b %Y"] ],
+      years:        [ Array(String), ["%Y"] ],
     }))
   }
 

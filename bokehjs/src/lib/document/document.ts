@@ -623,7 +623,7 @@ export class Document {
     }
 
     const py_version = json.version! // XXX!
-    const is_dev = py_version.indexOf('+') !== -1 || py_version.indexOf('-') !== -1
+    const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
     const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
     if (!is_dev && pyify(js_version) != py_version) {
       logger.warn("JS/Python version mismatch")
@@ -726,7 +726,7 @@ export class Document {
 
     for (const event_json of events_json) {
       switch (event_json.kind) {
-        case 'MessageSent': {
+        case "MessageSent": {
           const {msg_type, msg_data} = event_json
           let data: unknown
           if (msg_data === undefined) {
@@ -743,7 +743,7 @@ export class Document {
           this._trigger_on_message(msg_type, data)
           break
         }
-        case 'ModelChanged': {
+        case "ModelChanged": {
           const patched_id = event_json.model.id
           const patched_obj = this._all_models.get(patched_id)
           if (patched_obj == null) {
@@ -754,7 +754,7 @@ export class Document {
           patched_obj.setv({[attr]: value}, {setter_id})
           break
         }
-        case 'ColumnDataChanged': {
+        case "ColumnDataChanged": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id) as ColumnDataSource | undefined
           if (column_source == null) {
@@ -771,7 +771,7 @@ export class Document {
           column_source.setv({data}, {setter_id, check_eq: false})
           break
         }
-        case 'ColumnsStreamed': {
+        case "ColumnsStreamed": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id)
           if (column_source == null) {
@@ -785,7 +785,7 @@ export class Document {
           column_source.stream(data, rollover, setter_id)
           break
         }
-        case 'ColumnsPatched': {
+        case "ColumnsPatched": {
           const column_source_id = event_json.column_source.id
           const column_source = this._all_models.get(column_source_id)
           if (column_source == null) {
@@ -798,24 +798,24 @@ export class Document {
           column_source.patch(patches, setter_id)
           break
         }
-        case 'RootAdded': {
+        case "RootAdded": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
           this.add_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
-        case 'RootRemoved': {
+        case "RootRemoved": {
           const root_id = event_json.model.id
           const root_obj = references.get(root_id)
           this.remove_root(root_obj as Model, setter_id) // XXX: HasProps
           break
         }
-        case 'TitleChanged': {
+        case "TitleChanged": {
           this.set_title(event_json.title, setter_id)
           break
         }
         default:
-          throw new Error("Unknown patch event " + JSON.stringify(event_json))
+          throw new Error(`Unknown patch event ${JSON.stringify(event_json)}`)
       }
     }
   }

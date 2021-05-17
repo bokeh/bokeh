@@ -25,7 +25,7 @@ import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
-import {DataRange1d} from '../ranges/data_range1d'
+import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
 

@@ -60,8 +60,8 @@ export abstract class BaseGLGlyph {
       float_buffer = {
         array,
         buffer: this.regl_wrapper.buffer({
-          usage: 'dynamic',
-          type: 'float',
+          usage: "dynamic",
+          type: "float",
           data: array,
         }),
       }

@@ -11,8 +11,8 @@ export abstract class ZoomBaseToolView extends ActionToolView {
     const dims = this.model.dimensions
 
     // restrict to axis configured in tool's dimensions property
-    const h_axis = dims == 'width'  || dims == 'both'
-    const v_axis = dims == 'height' || dims == 'both'
+    const h_axis = dims == "width"  || dims == "both"
+    const v_axis = dims == "height" || dims == "both"
 
     const zoom_info = scale_range(frame, this.model.sign*this.model.factor, h_axis, v_axis)
 

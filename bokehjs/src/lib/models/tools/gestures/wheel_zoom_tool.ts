@@ -33,8 +33,8 @@ export class WheelZoomToolView extends GestureToolView {
 
     // restrict to axis configured in tool's dimensions property and if
     // zoom origin is inside of frame range/domain
-    const h_axis = (dims == 'width' || dims == 'both') && hr.start < sx && sx < hr.end
-    const v_axis = (dims == 'height' || dims == 'both') && vr.start < sy && sy < vr.end
+    const h_axis = (dims == "width" || dims == "both") && hr.start < sx && sx < hr.end
+    const v_axis = (dims == "height" || dims == "both") && vr.start < sy && sy < vr.end
 
     if ((!h_axis || !v_axis) && !this.model.zoom_on_axis) {
       return
@@ -84,9 +84,9 @@ export class WheelZoomTool extends GestureTool {
       speed:          [ Number, 1/600 ],
     }))
 
-    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: 'both'}))
-    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: 'width'}))
-    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: 'height'}))
+    this.register_alias("wheel_zoom", () => new WheelZoomTool({dimensions: "both"}))
+    this.register_alias("xwheel_zoom", () => new WheelZoomTool({dimensions: "width"}))
+    this.register_alias("ywheel_zoom", () => new WheelZoomTool({dimensions: "height"}))
   }
 
   override tool_name = "Wheel Zoom"

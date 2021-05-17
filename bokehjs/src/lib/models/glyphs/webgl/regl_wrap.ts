@@ -57,14 +57,14 @@ export class ReglWrapper {
 
       // Initialise static Buffers/Elements.
       this._line_geometry = this._regl.buffer({
-        usage: 'static',
-        type: 'float',
+        usage: "static",
+        type: "float",
         data: [[-2, 0], [-1, -1], [1, -1], [2, 0], [1, 1], [-1,  1]],
       })
 
       this._line_triangles = this._regl.elements({
-        usage: 'static',
-        primitive: 'triangles',
+        usage: "static",
+        primitive: "triangles",
         data: [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]],
       })
     } catch (err: unknown) {
@@ -201,22 +201,22 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
     },
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
-      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
-      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
-      u_line_color: regl.prop<Props, 'line_color'>('line_color'),
-      u_linewidth: regl.prop<Props, 'linewidth'>('linewidth'),
-      u_miter_limit: regl.prop<Props, 'miter_limit'>('miter_limit'),
-      u_line_join: regl.prop<Props, 'line_join'>('line_join'),
-      u_line_cap: regl.prop<Props, 'line_cap'>('line_cap'),
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
+      u_line_color: regl.prop<Props, "line_color">("line_color"),
+      u_linewidth: regl.prop<Props, "linewidth">("linewidth"),
+      u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
+      u_line_join: regl.prop<Props, "line_join">("line_join"),
+      u_line_cap: regl.prop<Props, "line_cap">("line_cap"),
     },
 
     elements: line_triangles,
-    instances: regl.prop<Props, 'nsegments'>("nsegments"),
+    instances: regl.prop<Props, "nsegments">("nsegments"),
 
     blend: {
       enable: true,
-      equation: 'max',
+      equation: "max",
       func: {
         srcRGB: 1,
         srcAlpha: 1,
@@ -227,9 +227,9 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, 'scissor'>('scissor'),
+      box: regl.prop<Props, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, 'viewport'>('viewport'),
+    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -241,8 +241,8 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   type Attributes = t.LineDashGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: '#define DASHED\n\n' + line_vertex_shader,
-    frag: '#define DASHED\n\n' + line_fragment_shader,
+    vert: `#define DASHED\n\n${line_vertex_shader}`,
+    frag: `#define DASHED\n\n${line_fragment_shader}`,
 
     attributes: {
       a_position: {
@@ -285,26 +285,26 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
     },
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
-      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
-      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
-      u_line_color: regl.prop<Props, 'line_color'>('line_color'),
-      u_linewidth: regl.prop<Props, 'linewidth'>('linewidth'),
-      u_miter_limit: regl.prop<Props, 'miter_limit'>('miter_limit'),
-      u_line_join: regl.prop<Props, 'line_join'>('line_join'),
-      u_line_cap: regl.prop<Props, 'line_cap'>('line_cap'),
-      u_dash_tex: regl.prop<Props, 'dash_tex'>('dash_tex'),
-      u_dash_tex_info: regl.prop<Props, 'dash_tex_info'>('dash_tex_info'),
-      u_dash_scale: regl.prop<Props, 'dash_scale'>('dash_scale'),
-      u_dash_offset: regl.prop<Props, 'dash_offset'>('dash_offset'),
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
+      u_line_color: regl.prop<Props, "line_color">("line_color"),
+      u_linewidth: regl.prop<Props, "linewidth">("linewidth"),
+      u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
+      u_line_join: regl.prop<Props, "line_join">("line_join"),
+      u_line_cap: regl.prop<Props, "line_cap">("line_cap"),
+      u_dash_tex: regl.prop<Props, "dash_tex">("dash_tex"),
+      u_dash_tex_info: regl.prop<Props, "dash_tex_info">("dash_tex_info"),
+      u_dash_scale: regl.prop<Props, "dash_scale">("dash_scale"),
+      u_dash_offset: regl.prop<Props, "dash_offset">("dash_offset"),
     },
 
     elements: line_triangles,
-    instances: regl.prop<Props, 'nsegments'>("nsegments"),
+    instances: regl.prop<Props, "nsegments">("nsegments"),
 
     blend: {
       enable: true,
-      equation: 'max',
+      equation: "max",
       func: {
         srcRGB: 1,
         srcAlpha: 1,
@@ -315,9 +315,9 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, 'scissor'>('scissor'),
+      box: regl.prop<Props, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, 'viewport'>('viewport'),
+    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -346,7 +346,7 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: marker_vertex_shader,
-    frag: '#define USE_' + marker_type.toUpperCase() + '\n\n' + marker_fragment_shader,
+    frag: `#define USE_${marker_type.toUpperCase()}\n\n${marker_fragment_shader}`,
 
     attributes: {
       a_position: {
@@ -384,30 +384,30 @@ function regl_marker(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
     },
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
-      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
-      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
     },
 
     count: 4,
-    primitive: 'triangle fan',
-    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
+    primitive: "triangle fan",
+    instances: regl.prop<Props, "nmarkers">("nmarkers"),
 
     blend: {
       enable: true,
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
       },
     },
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, 'scissor'>('scissor'),
+      box: regl.prop<Props, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, 'viewport'>('viewport'),
+    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -464,30 +464,30 @@ function regl_rect_no_hatch(regl: Regl): ReglRenderFunction {
     },
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
-      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
-      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
     },
 
     count: 4,
-    primitive: 'triangle fan',
-    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
+    primitive: "triangle fan",
+    instances: regl.prop<Props, "nmarkers">("nmarkers"),
 
     blend: {
       enable: true,
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
       },
     },
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, 'scissor'>('scissor'),
+      box: regl.prop<Props, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, 'viewport'>('viewport'),
+    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
   return regl<Uniforms, Attributes, Props>(config)
@@ -499,8 +499,8 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
   type Attributes = t.RectHatchGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: '#define HATCH\n\n' + rect_vertex_shader,
-    frag: '#define HATCH\n\n' + rect_fragment_shader,
+    vert: `#define HATCH\n\n${rect_vertex_shader}`,
+    frag: `#define HATCH\n\n${rect_fragment_shader}`,
 
     attributes: {
       a_position: {
@@ -556,30 +556,30 @@ function regl_rect_hatch(regl: Regl): ReglRenderFunction {
     },
 
     uniforms: {
-      u_canvas_size: regl.prop<Props, 'canvas_size'>('canvas_size'),
-      u_pixel_ratio: regl.prop<Props, 'pixel_ratio'>('pixel_ratio'),
-      u_antialias: regl.prop<Props, 'antialias'>('antialias'),
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_antialias: regl.prop<Props, "antialias">("antialias"),
     },
 
     count: 4,
-    primitive: 'triangle fan',
-    instances: regl.prop<Props, 'nmarkers'>('nmarkers'),
+    primitive: "triangle fan",
+    instances: regl.prop<Props, "nmarkers">("nmarkers"),
 
     blend: {
       enable: true,
       func: {
-        srcRGB:   'one',
-        srcAlpha: 'one',
-        dstRGB:   'one minus src alpha',
-        dstAlpha: 'one minus src alpha',
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
       },
     },
     depth: {enable: false},
     scissor: {
       enable: true,
-      box: regl.prop<Props, 'scissor'>('scissor'),
+      box: regl.prop<Props, "scissor">("scissor"),
     },
-    viewport: regl.prop<Props, 'viewport'>('viewport'),
+    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
   return regl<Uniforms, Attributes, Props>(config)

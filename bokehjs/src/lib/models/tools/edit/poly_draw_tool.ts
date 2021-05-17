@@ -19,7 +19,7 @@ export class PolyDrawToolView extends PolyToolView {
 
   override _tap(ev: TapEvent): void {
     if (this._drawing)
-      this._draw(ev, 'add', true)
+      this._draw(ev, "add", true)
     else
       this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
@@ -39,12 +39,12 @@ export class PolyDrawToolView extends PolyToolView {
     const cds = renderer.data_source
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
-    if (mode == 'new') {
+    if (mode == "new") {
       this._pop_glyphs(cds, this.model.num_objects)
       if (xkey) cds.get_array(xkey).push([x, x])
       if (ykey) cds.get_array(ykey).push([y, y])
       this._pad_empty_columns(cds, [xkey, ykey])
-    } else if (mode == 'edit') {
+    } else if (mode == "edit") {
       if (xkey) {
         const xs = cds.data[xkey][cds.data[xkey].length-1]
         xs[xs.length-1] = x
@@ -53,7 +53,7 @@ export class PolyDrawToolView extends PolyToolView {
         const ys = cds.data[ykey][cds.data[ykey].length-1]
         ys[ys.length-1] = y
       }
-    } else if (mode == 'add') {
+    } else if (mode == "add") {
       if (xkey) {
         const xidx = cds.data[xkey].length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
@@ -113,16 +113,16 @@ export class PolyDrawToolView extends PolyToolView {
       return
     if (this._drawing) {
       this._drawing = false
-      this._draw(ev, 'edit', true)
+      this._draw(ev, "edit", true)
     } else {
       this._drawing = true
-      this._draw(ev, 'new', true)
+      this._draw(ev, "new", true)
     }
   }
 
   override _move(ev: MoveEvent): void {
     if (this._drawing) {
-      this._draw(ev, 'edit')
+      this._draw(ev, "edit")
     }
   }
 

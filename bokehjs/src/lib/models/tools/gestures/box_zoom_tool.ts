@@ -93,7 +93,7 @@ export class BoxZoomToolView extends GestureToolView {
 
     let sx: [number, number]
     let sy: [number, number]
-    if (this.model.match_aspect && dims == 'both')
+    if (this.model.match_aspect && dims == "both")
       [sx, sy] = this._match_aspect(base_point, curpoint, frame)
     else
       [sx, sy] = this.model._get_dim_limits(base_point, curpoint, frame, dims)
@@ -199,9 +199,9 @@ export class BoxZoomTool extends GestureTool {
       origin:       [ BoxOrigin, "corner" ],
     }))
 
-    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: 'both'}))
-    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: 'width'}))
-    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: 'height'}))
+    this.register_alias("box_zoom", () => new BoxZoomTool({dimensions: "both"}))
+    this.register_alias("xbox_zoom", () => new BoxZoomTool({dimensions: "width"}))
+    this.register_alias("ybox_zoom", () => new BoxZoomTool({dimensions: "height"}))
   }
 
   override tool_name = "Box Zoom"

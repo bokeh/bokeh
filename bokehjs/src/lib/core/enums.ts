@@ -43,15 +43,15 @@ export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
 
 export type HatchPatternType =
-  'blank' | 'dot' | 'ring' | 'horizontal_line' | 'vertical_line' | 'cross' | 'horizontal_dash' |
-  'vertical_dash' | 'spiral' | 'right_diagonal_line' | 'left_diagonal_line' | 'diagonal_cross' |
-  'right_diagonal_dash' | 'left_diagonal_dash' | 'horizontal_wave' | 'vertical_wave' | 'criss_cross' |
-  ' ' | '.' | 'o' | '-' | '|' | '+' | '"' | ':' | '@' | '/' | '\\' | 'x' | ',' | '`' | 'v' | '>' | '*'
+  "blank" | "dot" | "ring" | "horizontal_line" | "vertical_line" | "cross" | "horizontal_dash" |
+  "vertical_dash" | "spiral" | "right_diagonal_line" | "left_diagonal_line" | "diagonal_cross" |
+  "right_diagonal_dash" | "left_diagonal_dash" | "horizontal_wave" | "vertical_wave" | "criss_cross" |
+  " " | "." | "o" | "-" | "|" | "+" | '"' | ":" | "@" | "/" | "\\" | "x" | "," | "`" | "v" | ">" | "*"
 export const HatchPatternType = Enum(
-  'blank', 'dot', 'ring', 'horizontal_line', 'vertical_line', 'cross', 'horizontal_dash',
-  'vertical_dash', 'spiral', 'right_diagonal_line', 'left_diagonal_line', 'diagonal_cross',
-  'right_diagonal_dash', 'left_diagonal_dash', 'horizontal_wave', 'vertical_wave', 'criss_cross',
-  ' ', '.', 'o', '-', '|', '+', '"', ':', '@',  '/', '\\', 'x', ',', '`', 'v', '>', '*',
+  "blank", "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash",
+  "vertical_dash", "spiral", "right_diagonal_line", "left_diagonal_line", "diagonal_cross",
+  "right_diagonal_dash", "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross",
+  " ", ".", "o", "-", "|", "+", '"', ":", "@",  "/", "\\", "x", ",", "`", "v", ">", "*",
 )
 
 export type HTTPMethod = "POST" | "GET"

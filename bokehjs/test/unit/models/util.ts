@@ -33,7 +33,7 @@ describe("compute_renderers", () => {
   })
 
   it("should return all_renderers for renderers='auto'", () => {
-    const r = compute_renderers('auto', [g0, g1, g2], [])
+    const r = compute_renderers("auto", [g0, g1, g2], [])
     expect(r).to.be.equal([g0, g1, g2])
   })
 
@@ -44,7 +44,7 @@ describe("compute_renderers", () => {
     const r1 = compute_renderers([g0, g1, g2], [], ["g0", "g2"])
     expect(r1).to.be.equal([g0, g2])
 
-    const r2 = compute_renderers('auto', [g0, g1, g2], ["g0", "g2"])
+    const r2 = compute_renderers("auto", [g0, g1, g2], ["g0", "g2"])
     expect(r2).to.be.equal([g0, g2])
   })
 })

@@ -1,4 +1,4 @@
-import {MercatorTileSource} from './mercator_tile_source'
+import {MercatorTileSource} from "./mercator_tile_source"
 import * as p from "core/properties"
 
 export namespace TMSTileSource {
@@ -20,7 +20,7 @@ export class TMSTileSource extends MercatorTileSource {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
     return image_url
       .replace("{X}", x.toString())
-      .replace('{Y}', y.toString())
+      .replace("{Y}", y.toString())
       .replace("{Z}", z.toString())
   }
 }

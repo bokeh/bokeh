@@ -36,7 +36,7 @@ export class BoxAnnotationView extends AnnotationView {
         if (this.model.screen)
           sdim = dim
         else {
-          if (dim_units == 'data')
+          if (dim_units == "data")
             sdim = scale.compute(dim)
           else
             sdim = view.compute(dim)
@@ -159,9 +159,9 @@ export class BoxAnnotation extends Annotation {
     }))
 
     this.override<BoxAnnotation.Props>({
-      fill_color: '#fff9ba',
+      fill_color: "#fff9ba",
       fill_alpha: 0.4,
-      line_color: '#cccccc',
+      line_color: "#cccccc",
       line_alpha: 0.3,
     })
   }

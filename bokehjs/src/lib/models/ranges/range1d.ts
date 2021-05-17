@@ -39,7 +39,7 @@ export class Range1d extends Range {
   }
 
   protected _set_auto_bounds(): void {
-    if (this.bounds == 'auto') {
+    if (this.bounds == "auto") {
       const min = Math.min(this._reset_start, this._reset_end)
       const max = Math.max(this._reset_start, this._reset_end)
       this.setv({bounds: [min, max]}, {silent: true})

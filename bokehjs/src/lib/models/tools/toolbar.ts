@@ -40,17 +40,17 @@ export interface Toolbar extends Toolbar.Attrs {}
 
 function _get_active_attr(et: string): keyof ActiveGestureToolsProps | null {
   switch (et) {
-    case 'tap': return 'active_tap'
-    case 'pan': return 'active_drag'
-    case 'pinch':
-    case 'scroll': return 'active_scroll'
-    case 'multi': return 'active_multi'
+    case "tap": return "active_tap"
+    case "pan": return "active_drag"
+    case "pinch":
+    case "scroll": return "active_scroll"
+    case "multi": return "active_multi"
   }
   return null
 }
 
 function _supports_auto(et: string): boolean {
-  return et == 'tap' || et == 'pan'
+  return et == "tap" || et == "pan"
 }
 
 export class Toolbar extends ToolbarBase {
@@ -82,7 +82,7 @@ export class Toolbar extends ToolbarBase {
   protected override _init_tools(): void {
     super._init_tools()
 
-    if (this.active_inspect == 'auto') {
+    if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect instanceof InspectTool) {
       let found = false
@@ -129,7 +129,7 @@ export class Toolbar extends ToolbarBase {
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
-        if (active_tool == 'auto') {
+        if (active_tool == "auto") {
           if (gesture.tools.length != 0 && _supports_auto(et)) {
             _activate_gesture(gesture.tools[0])
           }

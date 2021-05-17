@@ -143,7 +143,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
       return encode ? encode("???") : "???"
 
     // 'safe' format, return the value as-is
-    if (format == 'safe') {
+    if (format == "safe") {
       has_html = true
       return `${value}`
     }

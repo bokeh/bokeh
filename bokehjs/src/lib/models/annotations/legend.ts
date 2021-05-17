@@ -97,44 +97,44 @@ export class LegendView extends AnnotationView {
     let sx: number, sy: number
     if (isString(location)) {
       switch (location) {
-        case 'top_left':
+        case "top_left":
           sx = hr.start + legend_margin
           sy = vr.start + legend_margin
           break
-        case 'top':
-        case 'top_center':
+        case "top":
+        case "top_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.start + legend_margin
           break
-        case 'top_right':
+        case "top_right":
           sx = hr.end - legend_margin - legend_width
           sy = vr.start + legend_margin
           break
-        case 'bottom_right':
+        case "bottom_right":
           sx = hr.end - legend_margin - legend_width
           sy = vr.end - legend_margin - legend_height
           break
-        case 'bottom':
-        case 'bottom_center':
+        case "bottom":
+        case "bottom_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = vr.end - legend_margin - legend_height
           break
-        case 'bottom_left':
+        case "bottom_left":
           sx = hr.start + legend_margin
           sy = vr.end - legend_margin - legend_height
           break
-        case 'left':
-        case 'center_left':
+        case "left":
+        case "center_left":
           sx = hr.start + legend_margin
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        case 'center':
-        case 'center_center':
+        case "center":
+        case "center_center":
           sx = (hr.end + hr.start)/2 - legend_width/2
           sy = (vr.end + vr.start)/2 - legend_height/2
           break
-        case 'right':
-        case 'center_right':
+        case "right":
+        case "center_right":
           sx = hr.end - legend_margin - legend_width
           sy = (vr.end + vr.start)/2 - legend_height/2
           break

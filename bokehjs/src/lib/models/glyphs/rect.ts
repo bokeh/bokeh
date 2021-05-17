@@ -177,7 +177,7 @@ export class RectView extends CenterRotatableView {
     const spt0 = scale.v_compute(pt0)
     const spt1 = scale.v_compute(pt1)
 
-    const sside_length = this.sdist(scale, pt0, side_length, 'edge', this.model.dilate)
+    const sside_length = this.sdist(scale, pt0, side_length, "edge", this.model.dilate)
 
     let spt_corner = spt0
     for (let i = 0; i < n; i++) {

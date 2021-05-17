@@ -7,7 +7,7 @@ import {button, div, toggle_attribute, Keys} from "core/dom"
 const {min, max, floor, abs} = Math
 
 function precision(num: number): number { // get number of digits
-  return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, '').split(".")[1].length : 0
+  return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, "").split(".")[1].length : 0
 }
 
 function debounce(func: () => void, wait: number, immediate: boolean = false) {

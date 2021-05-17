@@ -750,26 +750,26 @@ export class Figure extends Plot {
       defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
     const _split_feature_trait = function(ft: string): string[] {
-      const fta: string[] = ft.split('_', 2)
-      return fta.length == 2 ? fta : fta.concat([''])
+      const fta: string[] = ft.split("_", 2)
+      return fta.length == 2 ? fta : fta.concat([""])
     }
     const _is_visual = function(ft: string): boolean {
       const [feature, trait] = _split_feature_trait(ft)
-      return includes(['line', 'fill', 'hatch', 'text', 'global'], feature) && trait !== ""
+      return includes(["line", "fill", "hatch", "text", "global"], feature) && trait !== ""
     }
 
     defaults = {...defaults}
-    if (!hasOwnProperty.call(defaults, 'text_color')) {
-      defaults.text_color = 'black'
+    if (!hasOwnProperty.call(defaults, "text_color")) {
+      defaults.text_color = "black"
     }
-    if (!hasOwnProperty.call(defaults, 'hatch_color')) {
-      defaults.hatch_color = 'black'
+    if (!hasOwnProperty.call(defaults, "hatch_color")) {
+      defaults.hatch_color = "black"
     }
     const trait_defaults: Attrs = {}
-    if (!hasOwnProperty.call(trait_defaults, 'color')) {
+    if (!hasOwnProperty.call(trait_defaults, "color")) {
       trait_defaults.color = _default_color
     }
-    if (!hasOwnProperty.call(trait_defaults, 'alpha')) {
+    if (!hasOwnProperty.call(trait_defaults, "alpha")) {
       trait_defaults.alpha = _default_alpha
     }
 
@@ -1140,7 +1140,7 @@ export async function show<T extends LayoutDOM>(obj: T | T[], target?: HTMLEleme
       throw new Error(`'${target}' selector didn't match any elements`)
   } else if (target instanceof HTMLElement) {
     element = target
-  } else if (typeof $ !== 'undefined' && (target as any) instanceof $) {
+  } else if (typeof $ !== "undefined" && (target as any) instanceof $) {
     element = (target as any)[0]
   } else {
     throw new Error("target should be HTMLElement, string selector, $ or null")

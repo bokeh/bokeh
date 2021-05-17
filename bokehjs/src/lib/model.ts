@@ -77,7 +77,7 @@ export class Model extends HasProps {
 
   protected _update_event_callbacks(): void {
     if (this.document == null) {
-      logger.warn('WARNING: Document not defined for updating event callbacks')
+      logger.warn("WARNING: Document not defined for updating event callbacks")
       return
     }
     this.document.event_manager.subscribed_models.add(this)

@@ -136,7 +136,7 @@ export abstract class ImageBaseView extends XYGlyphView {
                                _image_data.height == this._height[i])
       return _image_data
     else {
-      const canvas = document.createElement('canvas')
+      const canvas = document.createElement("canvas")
       canvas.width = this._width[i]
       canvas.height = this._height[i]
       return canvas
@@ -145,7 +145,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected _set_image_data_from_buffer(i: number, buf8: Uint8ClampedArray): void {
     const canvas = this._get_or_create_canvas(i)
-    const ctx = canvas.getContext('2d')!
+    const ctx = canvas.getContext("2d")!
     const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i])
     image_data.data.set(buf8)
     ctx.putImageData(image_data, 0, 0)
@@ -154,12 +154,12 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.dw.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, 'edge', this.model.dilate)
+      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, "edge", this.model.dilate)
     else
       this.sw = to_screen(this.dw)
 
     if (this.model.properties.dh.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, 'edge', this.model.dilate)
+      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, "edge", this.model.dilate)
     else
       this.sh = to_screen(this.dh)
   }

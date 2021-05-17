@@ -112,7 +112,7 @@ export class MultiLineView extends GlyphView {
 
     let val: number
     let vs: RaggedArray<FloatArray>
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       vs = this._ys
     } else {

@@ -100,7 +100,7 @@ describe("Bug", () => {
       const filter = new BooleanFilter({booleans: [true, true, false, false]})
       const view = new CDSView({filters: [filter]})
       const data_source = new ColumnDataSource({data: {x: [1, 2, 3, 4], y: [5, 6, 7, 8], fld: ["a", "a", "b", "b"]}})
-      const r = plot.square('x', 'y', {fill_color: ["red", "red", "green", "green"], view, source: data_source})
+      const r = plot.square("x", "y", {fill_color: ["red", "red", "green", "green"], view, source: data_source})
       const legend = new Legend({items: [new LegendItem({label: {field: "fld"}, renderers: [r]})]})
       plot.add_layout(legend)
       await display(plot)

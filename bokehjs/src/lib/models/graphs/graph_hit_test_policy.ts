@@ -157,9 +157,9 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
   get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
     let node_indices = []
-    if (mode == 'selection') {
+    if (mode == "selection") {
       node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
-    } else if (mode == 'inspection') {
+    } else if (mode == "inspection") {
       node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
     }
     const edge_indices = []
@@ -185,7 +185,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     node_selection.update(hit_test_result, final, mode)
 
     const edge_selection = graph.edge_renderer.data_source.selected
-    const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
+    const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
     edge_selection.update(linked_edges_selection, final, mode)
 
     graph.node_renderer.data_source._select.emit()
@@ -202,7 +202,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
-    const linked_edges = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
+    const linked_edges = this.get_linked_edges(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
     edge_inspection.update(linked_edges, final, mode)
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
@@ -234,9 +234,9 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
   get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
     let edge_indices: number[] = []
-    if (mode == 'selection')
+    if (mode == "selection")
       edge_indices = edge_source.selected.indices
-    else if (mode == 'inspection')
+    else if (mode == "inspection")
       edge_indices = edge_source.inspected.indices
     const nodes = []
     for (const i of edge_indices) {
@@ -256,7 +256,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     edge_selection.update(hit_test_result, final, mode)
 
     const node_selection = graph.node_renderer.data_source.selected
-    const linked_nodes = this.get_linked_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
+    const linked_nodes = this.get_linked_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
     node_selection.update(linked_nodes, final, mode)
 
     graph.edge_renderer.data_source._select.emit()
@@ -273,7 +273,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
-    const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, 'inspection')
+    const linked_nodes = this.get_linked_nodes(graph_view.node_view.model.data_source, graph_view.edge_view.model.data_source, "inspection")
     node_inspection.update(linked_nodes, final, mode)
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender

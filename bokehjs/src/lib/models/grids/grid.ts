@@ -30,7 +30,7 @@ export class GridView extends GuideRendererView {
     if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
       return
 
-    const [xs, ys] = this.grid_coords('major', false)
+    const [xs, ys] = this.grid_coords("major", false)
     for (let i = 0; i < xs.length-1; i++) {
       if (i % 2 != 1)
         continue
@@ -49,14 +49,14 @@ export class GridView extends GuideRendererView {
   protected _draw_grids(ctx: Context2d): void {
     if (!this.visuals.grid_line.doit)
       return
-    const [xs, ys] = this.grid_coords('major')
+    const [xs, ys] = this.grid_coords("major")
     this._draw_grid_helper(ctx, this.visuals.grid_line, xs, ys)
   }
 
   protected _draw_minor_grids(ctx: Context2d): void {
     if (!this.visuals.minor_grid_line.doit)
       return
-    const [xs, ys] = this.grid_coords('minor')
+    const [xs, ys] = this.grid_coords("minor")
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
 
@@ -227,7 +227,7 @@ export class Grid extends GuideRenderer {
       level: "underlay",
       band_fill_color: null,
       band_fill_alpha: 0,
-      grid_line_color: '#e5e5e5',
+      grid_line_color: "#e5e5e5",
       minor_grid_line_color: null,
     })
   }

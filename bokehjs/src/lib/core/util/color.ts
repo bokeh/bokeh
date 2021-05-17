@@ -134,7 +134,7 @@ export function css4_parse(color: string): RGBA | null {
   else if (is_named_color(color)) {
     return decode_rgba(named_colors[color])
   } else if (color[0] == "#") {
-    const v = Number("0x" + color.substr(1))
+    const v = Number(`0x${color.substr(1)}`)
     if (isNaN(v))
       return null
     switch (color.length - 1) {

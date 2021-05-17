@@ -83,9 +83,9 @@ export class Message {
 
   // return the reason we should close on bad protocol, if there is one
   problem(): string | null {
-    if (!('msgid' in this.header))
+    if (!("msgid" in this.header))
       return "No msgid in header"
-    else if (!('msgtype' in this.header))
+    else if (!("msgtype" in this.header))
       return "No msgtype in header"
     else
       return null
