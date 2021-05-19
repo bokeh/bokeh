@@ -148,11 +148,15 @@ def check_integrity(models: Sequence[Model]) -> ValidationIssues:
 
         >>> check_integrity([empty_row])
         ValidationIssues(
-            warning: [
-                (1002, EMPTY_LAYOUT, Layout has no children, Row(id='2404a029-c69b-4e30-9b7d-4b7b6cdaad5b', ...),
-                ...
+            error=[],
+            warning=[
+                ValidationIssue(
+                    code=1002,
+                    name="EMPTY_LAYOUT",
+                    text="Layout has no children",
+                    extra="Row(id='1001', ...)",
+                ),
             ],
-            error: [...],
         )
 
     '''
