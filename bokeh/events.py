@@ -65,6 +65,24 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Dict,
+    Type,
+)
+
+# External imports
+from typing_extensions import Literal, TypedDict
+
+## Bokeh imports
+if TYPE_CHECKING:
+    from .core.types import ID, GeometryData, Unknown
+    from .model import Model
+    from .models.plots import Plot
+    from .models.widgets.buttons import AbstractButton
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -106,11 +124,15 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES = {}
+_CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class EventJson(TypedDict):
+    event_name: str
+    event_values: Dict[str, Unknown]
 
 class Event:
     ''' Base class for all Bokeh events.
@@ -118,7 +140,7 @@ class Event:
     This base class is not typically useful to instantiate on its own.
 
     '''
-    event_name: str
+    event_name: ClassVar[str]
 
     @classmethod
     def __init_subclass__(cls):
@@ -128,7 +150,7 @@ class Event:
             _CONCRETE_EVENT_CLASSES[cls.event_name] = cls
 
     @classmethod
-    def decode_json(cls, dct):
+    def decode_json(cls, dct: EventJson) -> Event:
         ''' Custom JSON decoder for Events.
 
         Can be used as the ``object_hook`` argument of ``json.load`` or
@@ -193,7 +215,9 @@ class ModelEvent(Event):
 
     '''
 
-    def __init__(self, model):
+    _model_id: ID | None
+
+    def __init__(self, model: Model | None):
         ''' Create a new base event.
 
         Args:
@@ -212,11 +236,11 @@ class ButtonClick(ModelEvent):
     '''
     event_name = 'button_click'
 
-    def __init__(self, model):
+    def __init__(self, model: AbstractButton | None):
         from .models.widgets import AbstractButton
         if model is not None and not isinstance(model, AbstractButton):
-            msg ='{clsname} event only applies to button models'
-            raise ValueError(msg.format(clsname=self.__class__.__name__))
+            clsname = self.__class__.__name__
+            raise ValueError(f"{clsname} event only applies to button models")
         super().__init__(model=model)
 
 class MenuItemClick(ModelEvent):
@@ -225,7 +249,7 @@ class MenuItemClick(ModelEvent):
     '''
     event_name = 'menu_item_click'
 
-    def __init__(self, model, item=None):
+    def __init__(self, model: Model, item: str | None = None):
         self.item = item
         super().__init__(model=model)
 
@@ -233,7 +257,7 @@ class PlotEvent(ModelEvent):
     ''' The base class for all events applicable to Plot models.
 
     '''
-    def __init__(self, model):
+    def __init__(self, model: Plot | None):
         from .models import Plot
         if model is not None and not isinstance(model, Plot):
             raise ValueError(f"{self.__class__.__name__} event only applies to Plot models")
@@ -281,7 +305,11 @@ class RangesUpdate(PlotEvent):
     '''
     event_name = 'rangesupdate'
 
-    def __init__(self, model, x0=None, x1=None, y0=None, y1=None):
+    def __init__(self, model: Plot | None, *,
+            x0: float | None = None,
+            x1: float | None = None,
+            y0: float | None = None,
+            y1: float | None = None):
         self.x0 = x0
         self.x1 = x1
         self.y0 = y0
@@ -300,7 +328,7 @@ class SelectionGeometry(PlotEvent):
     '''
     event_name = "selectiongeometry"
 
-    def __init__(self, model, geometry=None, final=True):
+    def __init__(self, model: Plot | None, geometry: GeometryData | None = None, final: bool = True):
         self.geometry = geometry
         self.final = final
         super().__init__(model=model)
@@ -311,7 +339,7 @@ class Reset(PlotEvent):
     '''
     event_name = "reset"
 
-    def __init__(self, model):
+    def __init__(self, model: Plot | None):
         super().__init__(model=model)
 
 class PointEvent(PlotEvent):
@@ -328,7 +356,8 @@ class PointEvent(PlotEvent):
     the HTML canvas.
 
     '''
-    def __init__(self, model, sx=None, sy=None, x=None, y=None):
+    def __init__(self, model: Plot | None, sx: float | None = None, sy:
+            float | None = None, x: float | None = None, y: float | None = None):
         self.sx = sx
         self.sy = sy
         self.x = x
@@ -450,9 +479,16 @@ class MouseWheel(PointEvent):
     '''
     event_name = 'wheel'
 
-    def __init__(self, model, delta=None, **kwargs):
+    def __init__(self,
+            model: Plot | None,
+            *,
+            delta: float | None = None,
+            sx: float | None = None,
+            sy: float | None = None,
+            x: float | None = None,
+            y: float | None = None):
         self.delta = delta
-        super().__init__(model, **kwargs)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
 
 class Pan(PointEvent):
     ''' Announce a pan event on a Bokeh plot.
@@ -469,11 +505,20 @@ class Pan(PointEvent):
     '''
     event_name = 'pan'
 
-    def __init__(self, model, delta_x=None, delta_y=None, direction=None, **kwargs):
+    def __init__(self,
+            model: Plot | None,
+            *,
+            delta_x: float | None = None,
+            delta_y: float | None = None,
+            direction: Literal[-1, -1] | None = None,
+            sx: float | None = None,
+            sy: float | None = None,
+            x: float | None = None,
+            y: float | None = None):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.direction = direction
-        super().__init__(model, **kwargs)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
 
 class PanEnd(PointEvent):
     ''' Announce the end of a pan event on a Bokeh plot.
@@ -515,9 +560,16 @@ class Pinch(PointEvent):
     '''
     event_name = 'pinch'
 
-    def __init__(self, model, scale=None, **kwargs):
+    def __init__(self,
+            model: Plot | None,
+            *,
+            scale: float | None = None,
+            sx: float | None = None,
+            sy: float | None = None,
+            x: float | None = None,
+            y: float | None = None):
         self.scale = scale
-        super().__init__(model, **kwargs)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
 
 class PinchEnd(PointEvent):
     ''' Announce the end of a pinch event on a Bokeh plot.
@@ -565,9 +617,16 @@ class Rotate(PointEvent):
     '''
     event_name = 'rotate'
 
-    def __init__(self, model, rotation=None, **kwargs):
+    def __init__(self,
+            model: Plot | None,
+            *,
+            rotation: float | None = None,
+            sx: float | None = None,
+            sy: float | None = None,
+            x: float | None = None,
+            y: float | None = None):
         self.rotation = rotation
-        super().__init__(model, **kwargs)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
 
 class RotateEnd(PointEvent):
     ''' Announce the end of a rotate event on a Bokeh plot.

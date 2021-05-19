@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Set, Tuple, Type
+
 # Bokeh imports
 from bokeh.core.properties import (
     Any,
@@ -39,7 +42,7 @@ from bokeh.model import Model
 # General API
 #-----------------------------------------------------------------------------
 
-def large_plot(n):
+def large_plot(n: int) -> Tuple[Model, Set[Model]]:
     from bokeh.models import (
         BoxSelectTool,
         BoxZoomTool,
@@ -60,7 +63,7 @@ def large_plot(n):
     )
 
     col = Column()
-    objects = {col}
+    objects: Set[Model] = {col}
 
     for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
@@ -150,7 +153,7 @@ class TestCollectModels:
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
         # here.
-        for i in range(900):
+        for _ in range(900):
             model = DeepModel()
             objects.add(model)
             parent.child = model
@@ -164,7 +167,9 @@ class SomeModelToJson(Model):
 
 
 class TestModel:
-    def setup_method(self):
+    pObjectClass: Type[SomeModel]
+
+    def setup_method(self) -> None:
         self.pObjectClass = SomeModel
         self.maxDiff = None
 
@@ -197,7 +202,11 @@ class TestModel:
 
     def test_struct(self) -> None:
         testObject = self.pObjectClass(id='test_id')
-        assert {'type': 'test_objects.SomeModel', 'id': 'test_id'} == testObject.struct
+        assert testObject.struct == dict(
+            id='test_id',
+            type='test_objects.SomeModel',
+            attributes={},
+        )
 
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps
@@ -356,15 +365,16 @@ class TestModel:
         assert dict(hello=42, world=57) == obj.value
 
     def test_func_default_with_counter(self) -> None:
-        counter = dict(value=0)
-        def next_value():
-            counter['value'] += 1
-            return counter['value']
+        counter = 0
+        def next_value() -> int:
+            nonlocal counter
+            counter += 1
+            return counter
         class HasFuncDefaultInt(Model):
             value = Int(default=next_value)
         obj1 = HasFuncDefaultInt()
         obj2 = HasFuncDefaultInt()
-        assert obj1.value+1 == obj2.value
+        assert obj1.value + 1 == obj2.value
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.

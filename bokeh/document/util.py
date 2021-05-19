@@ -22,11 +22,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Dict
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    Iterable,
+    List,
+)
 
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..model import get_class
+
+if TYPE_CHECKING:
+    from ..core.has_props import Setter
+    from ..core.types import ID
+    from ..model import Model, ReferenceJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +56,8 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def initialize_references_json(references_json, references, setter=None):
+def initialize_references_json(references_json: List[ReferenceJson],
+        references: Dict[ID, Model], setter: Setter | None = None) -> None:
     ''' Given a JSON representation of the models in a graph, and new model
     objects, set the properties on the models from the JSON
 
@@ -89,7 +100,7 @@ def initialize_references_json(references_json, references, setter=None):
 
         instance.update_from_json(obj_attrs, models=references, setter=setter)
 
-def instantiate_references_json(references_json, existing_instances: Dict[str, HasProps]):
+def instantiate_references_json(references_json: List[ReferenceJson], existing_instances: Dict[ID, Model]) -> Dict[ID, Model]:
     ''' Given a JSON representation of all the models in a graph, return a
     dict of new model objects.
 
@@ -103,10 +114,10 @@ def instantiate_references_json(references_json, existing_instances: Dict[str, H
     '''
 
     # Create all instances, but without setting their props
-    references = {}
+    references: Dict[ID, Model] = {}
     for obj in references_json:
         obj_id = obj['id']
-        obj_type = obj.get('subtype', obj['type'])
+        obj_type = obj.get('subtype', None) or obj['type']
 
         if obj_id in existing_instances:
             references[obj_id] = existing_instances[obj_id]
@@ -119,7 +130,7 @@ def instantiate_references_json(references_json, existing_instances: Dict[str, H
 
     return references
 
-def references_json(references):
+def references_json(references: Iterable[Model]) -> List[ReferenceJson]:
     ''' Given a list of all models in a graph, return JSON representing
     them and their properties.
 
@@ -132,7 +143,7 @@ def references_json(references):
 
     '''
 
-    references_json = []
+    references_json: List[ReferenceJson] = []
     for r in references:
         struct = r.struct
         struct['attributes'] = r._to_json_like(include_defaults=False)

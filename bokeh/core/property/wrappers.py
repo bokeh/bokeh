@@ -65,12 +65,27 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import copy
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Set,
+    Tuple,
+)
 
 # External imports
 import numpy as np
 
 # Bokeh imports
 from ...util.dependencies import import_optional
+
+if TYPE_CHECKING:
+    from ...document import Document
+    from ...document.events import DocumentPatchedEvent
+    from ...models.sources import ColumnarDataSource
+    from ..has_props import HasProps, Setter
+    from ..types import Unknown
+    from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -137,17 +152,19 @@ class PropertyValueContainer:
     those owners when mutating changes occur.
 
     """
+    _owners: Set[Tuple[HasProps, PropertyDescriptor[Any]]]
+
     def __init__(self, *args, **kwargs):
         self._owners = set()
         super().__init__(*args, **kwargs)
 
-    def _register_owner(self, owner, descriptor):
+    def _register_owner(self, owner: HasProps, descriptor: PropertyDescriptor[Any]) -> None:
         self._owners.add((owner, descriptor))
 
-    def _unregister_owner(self, owner, descriptor):
+    def _unregister_owner(self, owner: HasProps, descriptor: PropertyDescriptor[Any]) -> None:
         self._owners.discard((owner, descriptor))
 
-    def _notify_owners(self, old, hint=None):
+    def _notify_owners(self, old: Unknown, hint: DocumentPatchedEvent | None = None) -> None:
         for (owner, descriptor) in self._owners:
             descriptor._notify_mutated(owner, old, hint=hint)
 
@@ -382,7 +399,8 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc, source, new_data, rollover=None, setter=None):
+    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: Dict[str, Any],
+            rollover: int | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
 
@@ -413,7 +431,7 @@ class PropertyValueColumnData(PropertyValueDict):
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
-        for k, v in  new_data.items():
+        for k, v in new_data.items():
             if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
@@ -428,11 +446,10 @@ class PropertyValueColumnData(PropertyValueDict):
 
         from ...document.events import ColumnsStreamedEvent
 
-        self._notify_owners(old,
-                            hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
+        self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, new_data, rollover, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _patch(self, doc, source, patches, setter=None):
+    def _patch(self, doc: Document, source: ColumnarDataSource, patches, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing patch events
         on ``ColumnDataSource`` columns.
 
@@ -469,8 +486,7 @@ class PropertyValueColumnData(PropertyValueDict):
 
         from ...document.events import ColumnsPatchedEvent
 
-        self._notify_owners(old,
-                            hint=ColumnsPatchedEvent(doc, source, patches, setter))
+        self._notify_owners(old, hint=ColumnsPatchedEvent(doc, source, patches, setter))
 
 #-----------------------------------------------------------------------------
 # Private API

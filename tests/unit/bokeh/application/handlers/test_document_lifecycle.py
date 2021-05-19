@@ -30,7 +30,7 @@ import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
 #-----------------------------------------------------------------------------
 
 class MockSessionContext:
-    def __init__(self, doc):
+    def __init__(self, doc: Document):
         self._document = doc
         self.status = None
         self.counter = 0
@@ -93,7 +93,7 @@ class Test_DocumentLifecycleHandler:
         await handler.on_session_destroyed(session_context)
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
 
-    async def test_document_on_session_destroyed_exceptions(self, caplog) -> None:
+    async def test_document_on_session_destroyed_exceptions(self, caplog: pytest.LogCaptureFixture) -> None:
         doc = Document()
 
         def blowup(session_context):

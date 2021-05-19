@@ -17,8 +17,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ..message import Message
+from ..message import Empty, Message
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class server_info_req(Message):
+class server_info_req(Message[Empty]):
     ''' Define the ``SERVER-INFO-REQ`` message for requesting a Bokeh server
     provide information about itself.
 
@@ -44,10 +47,10 @@ class server_info_req(Message):
 
     '''
 
-    msgtype   = 'SERVER-INFO-REQ'
+    msgtype  = 'SERVER-INFO-REQ'
 
     @classmethod
-    def create(cls, **metadata):
+    def create(cls, **metadata: Any) -> server_info_req:
         ''' Create an ``SERVER-INFO-REQ`` message
 
         Any keyword arguments will be put into the message ``metadata``
@@ -55,7 +58,7 @@ class server_info_req(Message):
 
         '''
         header = cls.create_header()
-        content = {}
+        content = Empty()
         return cls(header, metadata, content)
 
 #-----------------------------------------------------------------------------

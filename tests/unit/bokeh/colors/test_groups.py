@@ -204,7 +204,7 @@ def test__all__() -> None:
     assert bcg.__all__ == ('black', 'blue', 'brown', 'cyan', 'green', 'orange', 'pink', 'purple', 'red', 'white', 'yellow')
 
 @pytest.mark.parametrize('group', bcg.__all__)
-def test_color(group) -> None:
+def test_color(group: bcg.ColorGroup) -> None:
     assert group in bcg.__all__
     g = getattr(bcg, group)
     ref = globals().get("_"+group)

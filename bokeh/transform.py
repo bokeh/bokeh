@@ -21,6 +21,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Sequence,
+    Tuple,
+    Union,
+)
+
 # Bokeh imports
 from .core.properties import expr, field
 from .models.expressions import CumSum, Stack
@@ -32,6 +40,13 @@ from .models.mappers import (
     LogColorMapper,
 )
 from .models.transforms import Dodge, Jitter
+
+if TYPE_CHECKING:
+    from .colors import Color
+    from .core.enums import JitterRandomDistributionType
+    from .core.property.dataspec import Expr, Field
+    from .models.ranges import Range
+    from .models.transforms import Transform
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -54,7 +69,12 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def cumsum(field, include_zero=False):
+if TYPE_CHECKING:
+    ColorLike = Union[str, Color, Tuple[int, int, int], Tuple[int, int, int, float]]
+
+    Factors = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
+
+def cumsum(field: str, include_zero: bool = False) -> Expr:
     ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression
     for a ``ColumnDataSource``.
 
@@ -75,7 +95,7 @@ def cumsum(field, include_zero=False):
     '''
     return expr(CumSum(field=field, include_zero=include_zero))
 
-def dodge(field_name, value, range=None):
+def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Dodge``
     transformation to a ``ColumnDataSource`` column.
 
@@ -94,7 +114,8 @@ def dodge(field_name, value, range=None):
     '''
     return field(field_name, Dodge(value=value, range=range))
 
-def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray"):
+def factor_cmap(field_name: str, palette: Sequence[ColorLike], factors: Factors,
+        start: float = 0, end: float | None = None, nan_color: ColorLike = "gray"):
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -126,7 +147,8 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
                                                     end=end,
                                                     nan_color=nan_color))
 
-def factor_hatch(field_name, patterns, factors, start=0, end=None):
+def factor_hatch(field_name: str, patterns: Sequence[str], factors: Factors,
+        start: float = 0, end: float | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -156,7 +178,8 @@ def factor_hatch(field_name, patterns, factors, start=0, end=None):
                                                       start=start,
                                                       end=end))
 
-def factor_mark(field_name, markers, factors, start=0, end=None):
+def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
+        start: float = 0, end: float | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -188,7 +211,8 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
                                                      start=start,
                                                      end=end))
 
-def jitter(field_name, width, mean=0, distribution="uniform", range=None):
+def jitter(field_name: str, width: float, mean: float = 0,
+        distribution: JitterRandomDistributionType = "uniform", range: Range | None = None) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
@@ -215,7 +239,8 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
                                     distribution=distribution,
                                     range=range))
 
-def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
+def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
+        low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
     ''' Create a ``DataSpec`` dict that applyies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
@@ -249,7 +274,8 @@ def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None,
                                                low_color=low_color,
                                                high_color=high_color))
 
-def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
+def log_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
+        low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 
@@ -283,7 +309,7 @@ def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, na
                                             low_color=low_color,
                                             high_color=high_color))
 
-def stack(*fields):
+def stack(*fields: str) -> Expr:
     ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
     for a ``ColumnDataSource``.
 
@@ -301,7 +327,7 @@ def stack(*fields):
 
     return expr(Stack(fields=fields))
 
-def transform(field_name, transform):
+def transform(field_name: str, transform: Transform) -> Field:
     ''' Create a ``DataSpec`` dict that applies an arbitrary client-side
     ``Transform`` to a ``ColumnDataSource`` column.
 

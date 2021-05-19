@@ -116,7 +116,7 @@ def test_view_args() -> None:
     bub.DummyWebBrowser = db
 
 def test_NEW_PARAM() -> None:
-    assert bub.NEW_PARAM == {'tab': 2, 'window': 1}
+    assert bub.NEW_PARAM == {"same": 0, "window": 1, "tab": 2}
 
 #-----------------------------------------------------------------------------
 # Dev API

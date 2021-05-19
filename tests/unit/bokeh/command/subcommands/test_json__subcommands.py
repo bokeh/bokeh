@@ -34,6 +34,7 @@ import bokeh.command.subcommands.json as scjson # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+Capture = pytest.CaptureFixture[str]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -59,7 +60,6 @@ def test_help() -> None:
 
 def test_args() -> None:
     assert scjson.JSON.args == (
-
         ('files', Argument(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
@@ -86,24 +86,23 @@ def test_args() -> None:
             nargs=argparse.REMAINDER,
             help="Any command line arguments remaining are passed on to the application handler",
         )),
-
     )
 
-def test_no_script(capsys) -> None:
-    with (TmpDir(prefix="bokeh-json-no-script")) as dirname:
+def test_no_script(capsys: Capture) -> None:
+    with TmpDir(prefix="bokeh-json-no-script") as dirname:
         with WorkingDir(dirname):
             with pytest.raises(SystemExit):
                 main(["bokeh", "json"])
         out, err = capsys.readouterr()
         too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
-        assert err == """usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME] [--args ...]
+        assert err == f"""usage: bokeh json [-h] [--indent LEVEL] [-o FILENAME] [--args ...]
                   DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
-bokeh json: error: %s
-""" % (too_few)
+bokeh json: error: {too_few}
+"""
         assert out == ""
 
-def test_basic_script(capsys) -> None:
-    def run(dirname):
+def test_basic_script(capsys: Capture) -> None:
+    def run(dirname: str) -> None:
         with WorkingDir(dirname):
             main(["bokeh", "json", "scatter.py"])
         out, err = capsys.readouterr()
@@ -112,11 +111,10 @@ def test_basic_script(capsys) -> None:
 
         assert {"scatter.json", "scatter.py"} == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({'scatter.py': basic_scatter_script}, run)
 
-def test_basic_script_with_output_after(capsys) -> None:
-    def run(dirname):
+def test_basic_script_with_output_after(capsys: Capture) -> None:
+    def run(dirname: str) -> None:
         with WorkingDir(dirname):
             main(["bokeh", "json", "scatter.py", "--output", "foo.json"])
         out, err = capsys.readouterr()
@@ -125,11 +123,10 @@ def test_basic_script_with_output_after(capsys) -> None:
 
         assert {"foo.json", "scatter.py"} == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({'scatter.py': basic_scatter_script}, run)
 
-def test_basic_script_with_output_before(capsys) -> None:
-    def run(dirname):
+def test_basic_script_with_output_before(capsys: Capture) -> None:
+    def run(dirname: str) -> None:
         with WorkingDir(dirname):
             main(["bokeh", "json", "--output", "foo.json", "scatter.py"])
         out, err = capsys.readouterr()
@@ -138,8 +135,7 @@ def test_basic_script_with_output_before(capsys) -> None:
 
         assert {"foo.json", "scatter.py"} == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({'scatter.py': basic_scatter_script}, run)
 
 #-----------------------------------------------------------------------------
 # Private API

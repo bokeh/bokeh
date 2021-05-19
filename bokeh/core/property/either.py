@@ -74,7 +74,7 @@ class Either(ParameterizedProperty):
         for tp in self._type_params:
             self.alternatives.extend(tp.alternatives)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{class_name}({item_types})"

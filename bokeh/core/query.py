@@ -26,7 +26,7 @@ from typing import (
     Any,
     Callable,
     Dict,
-    Iterator,
+    Iterable,
     Optional,
     Type,
     Union,
@@ -60,7 +60,7 @@ SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 # General API
 #-----------------------------------------------------------------------------
 
-def find(objs: Iterator[Model], selector: SelectorType, context: ContextType = None) -> Iterator[Model]:
+def find(objs: Iterable[Model], selector: SelectorType, context: ContextType = None) -> Iterable[Model]:
     ''' Query a collection of Bokeh models and yield any that match the
     a selector.
 
@@ -358,7 +358,7 @@ _operators: Dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
 }
 
 # realization of the OR operator
-def _or(obj: Model, selectors: Iterator[SelectorType]) -> bool:
+def _or(obj: Model, selectors: Iterable[SelectorType]) -> bool:
     return any(match(obj, selector) for selector in selectors)
 
 #-----------------------------------------------------------------------------

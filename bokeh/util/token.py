@@ -42,7 +42,8 @@ from typing import (
 )
 
 # Bokeh imports
-from bokeh.settings import settings
+from ..core.types import ID
+from ..settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -70,24 +71,24 @@ def generate_secret_key() -> str:
     '''
     return _get_random_string()
 
-def generate_session_id(secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                        signed: bool = settings.sign_sessions()) -> str:
+def generate_session_id(secret_key: bytes | None = settings.secret_key_bytes(),
+                        signed: bool = settings.sign_sessions()) -> ID:
     ''' Generate a random session ID.
 
     Typically, each browser tab connected to a Bokeh application has its own
-    session ID.  In production deployments of a Bokeh app, session IDs should be
+    session ID. In production deployments of a Bokeh app, session IDs should be
     random and unguessable - otherwise users of the app could interfere with one
     another.
     '''
     session_id = _get_random_string()
     if signed:
         session_id = '.'.join([session_id, _signature(session_id, secret_key)])
-    return session_id
+    return ID(session_id)
 
-def generate_jwt_token(session_id: str,
-                       secret_key: Optional[bytes] = settings.secret_key_bytes(),
+def generate_jwt_token(session_id: ID,
+                       secret_key: bytes | None = settings.secret_key_bytes(),
                        signed: bool = settings.sign_sessions(),
-                       extra_payload: Optional[Dict[str, Any]] = None,
+                       extra_payload: Dict[str, Any] | None = None,
                        expiration: int = 300) -> str:
     """Generates a JWT token given a session_id and additional payload.
 
@@ -112,7 +113,7 @@ def generate_jwt_token(session_id: str,
         str
     """
     now = calendar.timegm(dt.datetime.utcnow().utctimetuple())
-    payload = {'session_id': session_id, 'session_expiry': now+expiration}
+    payload = {'session_id': session_id, 'session_expiry': now + expiration}
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
@@ -123,7 +124,7 @@ def generate_jwt_token(session_id: str,
         return token
     return token + '.' + _signature(token, secret_key)
 
-def get_session_id(token: str) -> Any:
+def get_session_id(token: str) -> ID:
     """Extracts the session id from a JWT token.
 
     Args:
@@ -151,8 +152,8 @@ def get_token_payload(token: str) -> Any:
     return decoded
 
 def check_token_signature(token: str,
-                          secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                          signed: Optional[bool] = settings.sign_sessions()) -> bool:
+                          secret_key: bytes | None = settings.secret_key_bytes(),
+                          signed: bool = settings.sign_sessions()) -> bool:
     """Check the signature of a token and the contained signature.
 
     The server uses this function to check whether a token and the
@@ -288,16 +289,17 @@ def _base64_decode(encoded: Union[bytes, str], encoding: Optional[str] = None) -
         return codecs.decode(result, 'utf-8')
     return result
 
-def _signature(base_id: str, secret_key: Optional[bytes]) -> str:
+def _signature(base_id: str, secret_key: bytes | None) -> str:
     secret_key = _ensure_bytes(secret_key)
     base_id_encoded = codecs.encode(base_id, "utf-8")
-    signer = hmac.new(secret_key, base_id_encoded, hashlib.sha256)  # type: ignore
+    assert secret_key is not None
+    signer = hmac.new(secret_key, base_id_encoded, hashlib.sha256)
     return _base64_encode(signer.digest())
 
-def _get_random_string(length: int = 44,
-                       allowed_chars: str = 'abcdefghijklmnopqrstuvwxyz'
-                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-                       secret_key: Optional[bytes] = settings.secret_key_bytes()) -> str:
+def _get_random_string(
+        length: int = 44,
+        allowed_chars: str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+        secret_key: Optional[bytes] = settings.secret_key_bytes()) -> str:
     """
     Return a securely generated random string.
     With the a-z, A-Z, 0-9 character set:

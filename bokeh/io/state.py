@@ -46,20 +46,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Dict,
-    Optional,
-    Union,
-)
-
-# External imports
-from typing_extensions import Literal
+from typing import TYPE_CHECKING, Dict, cast
 
 # Bokeh imports
 from ..core.types import PathLike
 from ..document import Document
 from ..resources import Resources, ResourcesMode
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..server.server import Server
+    from .notebook import CommsHandle, NotebookType
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -70,15 +67,12 @@ __all__ = (
     'State',
 )
 
-NotebookType = Union[Literal["jupyter"], str]
-UUID = str
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
 # XXX: move this to the bottom when Python 3.7 is dropped
-_STATE: Optional[State] = None
+_STATE: State | None = None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -91,12 +85,12 @@ class State:
 
     '''
 
-    _file: Optional[FileConfig]
-    _notebook: bool
-    _notebook_type: Optional[NotebookType]
+    _file: FileConfig | None
 
-    last_comms_handle: Optional[Any] # TODO
-    uuid_to_server: Dict[UUID, Any] # TODO
+    _notebook: bool
+    _notebook_type: NotebookType | None
+    last_comms_handle: CommsHandle | None
+    uuid_to_server: Dict[ID, Server]
 
     def __init__(self) -> None:
         self.last_comms_handle = None
@@ -117,7 +111,7 @@ class State:
         self._document = doc
 
     @property
-    def file(self) -> Optional[FileConfig]:
+    def file(self) -> FileConfig | None:
         ''' A structure with the default configuration for file output (READ ONLY)
 
             See :class:`~bokeh.io.state.FileConfig`.
@@ -133,7 +127,7 @@ class State:
         return self._notebook
 
     @property
-    def notebook_type(self) -> Optional[NotebookType]:
+    def notebook_type(self) -> NotebookType | None:
         ''' Notebook type
 
         '''
@@ -147,12 +141,12 @@ class State:
         '''
         if notebook_type is None or not isinstance(notebook_type, str):
             raise ValueError("Notebook type must be a string")
-        self._notebook_type = notebook_type.lower()
+        self._notebook_type = cast("NotebookType", notebook_type.lower())
 
     # Public methods ----------------------------------------------------------
 
     def output_file(self, filename: PathLike, title: str = "Bokeh Plot",
-            mode: Optional[ResourcesMode] = None, root_dir: Optional[str] = None) -> None:
+            mode: ResourcesMode | None = None, root_dir: PathLike | None = None) -> None:
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to
