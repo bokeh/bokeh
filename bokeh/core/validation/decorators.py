@@ -4,9 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide decorators help with define Bokeh validation checks.
+""" Provide decorators help with define Bokeh validation checks.
 
-'''
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -21,60 +21,79 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from functools import partial
+from typing import (
+    Any,
+    Callable,
+    List,
+    Optional,
+    Type,
+    Union,
+    cast,
+)
+
+# Bokeh imports
+from .check import ValidationIssue, Validator, ValidatorType
+from .issue import Error, Issue, Warning
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'error',
-    'warning',
+    "error",
+    "warning",
 )
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _validator(code_or_name, validator_type):
-    ''' Internal shared implementation to handle both error and warning
+ValidationFunction = Callable[..., Optional[str]]
+ValidationDecorator = Callable[[ValidationFunction], Validator]
+
+def _validator(code_or_name: Union[int, str, Issue], validator_type: ValidatorType) -> ValidationDecorator:
+    """ Internal shared implementation to handle both error and warning
     validation checks.
 
     Args:
-        code code_or_name (int or str) : a defined error code or custom message
+        code code_or_name (int, str or Issue) : a defined error code or custom message
         validator_type (str) : either "error" or "warning"
 
     Returns:
         validation decorator
 
-    '''
-    if validator_type == "error":
-        from .errors import EXT, codes
-    elif validator_type == "warning":
-        from .warnings import EXT, codes
-    else:
-        pass # TODO (bev) ValueError?
+    """
+    issues: Type[Error] | Type[Warning] = \
+        Error if validator_type == "error" else Warning
 
-    def decorator(func):
-        def wrapper(*args, **kw):
-            extra = func(*args, **kw)
-            if extra is None: return []
+    def decorator(func: ValidationFunction) -> Validator:
+        def _wrapper(*args: Any, **kwargs: Any) -> List[ValidationIssue]:
+            extra = func(*args, **kwargs)
+            if extra is None:
+                return []
+            issue: Issue
+            name: str
             if isinstance(code_or_name, str):
-                code = EXT
-                name = codes[code][0] + ":" + code_or_name
+                issue = issues.get_by_name("EXT")
+                name = f"{issue.name}:{code_or_name}"
+            elif isinstance(code_or_name, int):
+                try:
+                    issue = issues.get_by_code(code_or_name)
+                    name = issue.name
+                except KeyError:
+                    raise ValueError(f"unknown {validator_type} code {code_or_name}")
             else:
-                code = code_or_name
-                name = codes[code][0]
-            text = codes[code][1]
-            return [(code, name, text, extra)]
+                issue = code_or_name
+                name = issue.name
+            code = issue.code
+            text = issue.description
+            return [ValidationIssue(code, name, text, extra)]
+
+        wrapper = cast(Validator, _wrapper)
         wrapper.validator_type = validator_type
         return wrapper
 
     return decorator
-
-_error = partial(_validator, validator_type="error")
-
-_warning = partial(_validator, validator_type="warning")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -84,11 +103,11 @@ _warning = partial(_validator, validator_type="warning")
 # Dev API
 #-----------------------------------------------------------------------------
 
-def error(code_or_name):
-    ''' Decorator to mark a validator method for a Bokeh error condition
+def error(code_or_name: Union[int, str, Issue]) -> ValidationDecorator:
+    """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
-        code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+        code_or_name (int, str or Issue) : a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
         callable : decorator for Bokeh model methods
@@ -121,14 +140,14 @@ def error(code_or_name):
         def _check_my_custom_warning(self):
             if bad_condition: return "message"
 
-    '''
-    return _error(code_or_name)
+    """
+    return _validator(code_or_name, "error")
 
-def warning(code_or_name):
-    ''' Decorator to mark a validator method for a Bokeh error condition
+def warning(code_or_name: Union[int, str, Issue]) -> ValidationDecorator:
+    """ Decorator to mark a validator method for a Bokeh error condition
 
     Args:
-        code_or_name (int or str) : a code from ``bokeh.validation.errors`` or a string label for a custom check
+        code_or_name (int, str or Issue) : a code from ``bokeh.validation.errors`` or a string label for a custom check
 
     Returns:
         callable : decorator for Bokeh model methods
@@ -161,8 +180,8 @@ def warning(code_or_name):
         def _check_my_custom_warning(self):
             if bad_condition: return "message"
 
-    '''
-    return _warning(code_or_name)
+    """
+    return _validator(code_or_name, "warning")
 
 #-----------------------------------------------------------------------------
 # Code

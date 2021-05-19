@@ -4,22 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' These define the standard warning codes and messages for Bokeh
-validation checks.
-
-1000 *(MISSING_RENDERERS)*
-    A |Plot| object has no renderers configured (will result in a blank plot).
-
-1002 *(EMPTY_LAYOUT)*
-    A layout model has no children (will result in a blank layout).
-
-1004 *(BOTH_CHILD_AND_ROOT)*
-    Each component can be rendered in only one place, can't be both a root and in a layout.
-
-9999 *(EXT)*
-    Indicates that a custom warning check has failed.
-
-'''
+"""
+"""
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -33,45 +19,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import ClassVar, Dict, List
+
 # Bokeh imports
-from .issue import Warning
+from ...util.dataclasses import dataclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
-
-MISSING_RENDERERS = Warning(
-    1000,
-    "MISSING_RENDERERS",
-    "Plot has no renderers")
-EMPTY_LAYOUT = Warning(
-    1002,
-    "EMPTY_LAYOUT",
-    "Layout has no children")
-BOTH_CHILD_AND_ROOT = Warning(
-    1004,
-    "BOTH_CHILD_AND_ROOT",
-    "Models should not be a document root if they are in a layout box")
-FIXED_SIZING_MODE = Warning(
-    1005,
-    "FIXED_SIZING_MODE",
-    "'fixed' sizing mode requires width and height to be set")
-FIXED_WIDTH_POLICY = Warning(
-    1006,
-    "FIXED_WIDTH_POLICY",
-    "'fixed' width policy requires width to be set")
-FIXED_HEIGHT_POLICY = Warning(
-    1007,
-    "FIXED_HEIGHT_POLICY",
-    "'fixed' height policy requires height to be set")
-PALETTE_LENGTH_FACTORS_MISMATCH = Warning(
-    1008,
-    "PALETTE_LENGTH_FACTORS_MISMATCH",
-    "Palette length does not match number of factors")
-EXT = Warning(
-    9999,
-    "EXT",
-    "Custom extension reports warning")
 
 __all__ = ()
 
@@ -82,6 +38,54 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Issue:
+    code: int
+    name: str
+    description: str
+
+@dataclass(frozen=True)
+class Warning(Issue):
+    _code_map: ClassVar[Dict[int, Warning]] = {}
+    _name_map: ClassVar[Dict[str, Warning]] = {}
+
+    def __post_init__(self) -> None:
+        Warning._code_map[self.code] = self
+        Warning._name_map[self.name] = self
+
+    @classmethod
+    def get_by_code(cls, code: int) -> Warning:
+        return cls._code_map[code]
+
+    @classmethod
+    def get_by_name(cls, name: str) -> Warning:
+        return cls._name_map[name]
+
+    @classmethod
+    def all(cls) -> List[Warning]:
+        return list(cls._code_map.values())
+
+@dataclass(frozen=True)
+class Error(Issue):
+    _code_map: ClassVar[Dict[int, Error]] = {}
+    _name_map: ClassVar[Dict[str, Error]] = {}
+
+    def __post_init__(self) -> None:
+        Error._code_map[self.code] = self
+        Error._name_map[self.name] = self
+
+    @classmethod
+    def get_by_code(cls, code: int) -> Error:
+        return cls._code_map[code]
+
+    @classmethod
+    def get_by_name(cls, name: str) -> Error:
+        return cls._name_map[name]
+
+    @classmethod
+    def all(cls) -> List[Error]:
+        return list(cls._code_map.values())
 
 #-----------------------------------------------------------------------------
 # Private API
