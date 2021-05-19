@@ -109,18 +109,16 @@ def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
         __silencers__.remove(warning)
     return __silencers__
 
-def is_silenced(warning: Warning | int) -> bool:
+def is_silenced(warning: Warning) -> bool:
     ''' Check if a warning has been silenced.
 
     Args:
-        warning (Warning or int) : Bokeh warning to check
+        warning (Warning) : Bokeh warning to check
 
     Returns:
         bool
 
     '''
-    if isinstance(warning, int):
-        warning = Warning.get_by_code(warning)
     return warning in __silencers__
 
 @contextlib.contextmanager
@@ -196,7 +194,7 @@ def process_validation_issues(issues: ValidationIssues) -> None:
 
     '''
     errors = issues.error
-    warnings = [issue for issue in issues.warning if not is_silenced(issue.code)]
+    warnings = [issue for issue in issues.warning if not is_silenced(Warning.get_by_code(issue.code))]
 
     warning_messages: List[str] = []
     for warning in sorted(warnings, key=lambda warning: warning.code):
