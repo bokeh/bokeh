@@ -14,18 +14,20 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, cast
+
 # External imports
-from mock import patch
+from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Int
-from bokeh.core.validation.errors import codes as ec
-from bokeh.core.validation.warnings import codes as wc
+from bokeh.core.validation.check import ValidationIssue, ValidationIssues
+from bokeh.core.validation.issue import Error, Warning
 from bokeh.model import Model
 
 # Module under test
 import bokeh.core.validation as v # isort:skip
-
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -40,28 +42,28 @@ import bokeh.core.validation as v # isort:skip
 #-----------------------------------------------------------------------------
 
 def test_error_decorator_code() -> None:
-    for code in ec:
-        @v.error(code)
+    for error in Error.all():
+        @v.error(error)
         def good():
             return None
         assert good() == []
 
-        @v.error(code)
+        @v.error(error)
         def bad():
             return "bad"
-        assert bad() == [(code,) + ec[code] + ('bad',)]
+        assert bad() == [ValidationIssue(error.code, error.name, error.description, "bad")]
 
 def test_warning_decorator_code() -> None:
-    for code in wc:
-        @v.warning(code)
+    for warning in Warning.all():
+        @v.warning(warning)
         def good():
             return None
         assert good() == []
 
-        @v.warning(code)
+        @v.warning(warning)
         def bad():
             return "bad"
-        assert bad() == [(code,) + wc[code] + ('bad',)]
+        assert bad() == [ValidationIssue(warning.code, warning.name, warning.description, "bad")]
 
 def test_error_decorator_custom() -> None:
     @v.error("E1")
@@ -72,7 +74,7 @@ def test_error_decorator_custom() -> None:
     @v.error("E2")
     def bad():
         return "bad"
-    assert bad() == [(9999, 'EXT:E2', 'Custom extension reports error', 'bad')]
+    assert bad() == [ValidationIssue(9999, "EXT:E2", "Custom extension reports error", "bad")]
 
 def test_warning_decorator_custom() -> None:
     @v.warning("W1")
@@ -83,7 +85,7 @@ def test_warning_decorator_custom() -> None:
     @v.warning("W2")
     def bad():
         return "bad"
-    assert bad() == [ (9999, 'EXT:W2', 'Custom extension reports warning', 'bad')]
+    assert bad() == [ValidationIssue(9999, "EXT:W2", "Custom extension reports warning", "bad")]
 
 class Mod(Model):
 
@@ -99,22 +101,28 @@ class Mod(Model):
 
 def test_check_integrity_pass() -> None:
     m = Mod()
-    issues = {'error': [], 'warning': []}
+    issues = ValidationIssues(error=[], warning=[])
     assert v.check_integrity([m]) == issues
 
 def test_check_integrity_error() -> None:
     m = Mod(foo = 10)
-    issues = {'error': [(9999, 'EXT:E', 'Custom extension reports error', 'err')], 'warning': []}
+    issues = ValidationIssues(
+        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err")],
+        warning=[],
+    )
     assert v.check_integrity([m]) == issues
 
 def test_check_integrity_warning() -> None:
     m = Mod(foo = -10)
-    issues = {'error': [], 'warning': [(9999, 'EXT:W', 'Custom extension reports warning', 'wrn')]}
+    issues = ValidationIssues(
+        error=[],
+        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn")],
+    )
     assert v.check_integrity([m]) == issues
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_pass(mock_warn, mock_error) -> None:
+def test_check_pass(mock_warn: Mock, mock_error: Mock) -> None:
     m = Mod()
 
     issues = v.check_integrity([m])
@@ -124,7 +132,7 @@ def test_check_pass(mock_warn, mock_error) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_error(mock_warn, mock_error) -> None:
+def test_check_error(mock_warn: Mock, mock_error: Mock) -> None:
     m = Mod(foo=10)
     issues = v.check_integrity([m])
     v.process_validation_issues(issues)
@@ -133,7 +141,7 @@ def test_check_error(mock_warn, mock_error) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_check_warn(mock_warn, mock_error) -> None:
+def test_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
     m = Mod(foo=-10)
     issues = v.check_integrity([m])
     v.process_validation_issues(issues)
@@ -142,7 +150,7 @@ def test_check_warn(mock_warn, mock_error) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_and_check_warn(mock_warn, mock_error) -> None:
+def test_silence_and_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
@@ -160,11 +168,10 @@ def test_silence_and_check_warn(mock_warn, mock_error) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error) -> None:
+def test_silence_with_bad_input_and_check_warn(mock_warn: Mock, mock_error: Mock) -> None:
     m = Mod(foo=-10)
-    with pytest.raises(ValueError, match=('Input to silence should be a '
-                                          'warning object')):
-        v.silence('EXT:W')
+    with pytest.raises(ValueError, match="Input to silence should be a warning object"):
+        v.silence(cast(Any, "EXT:W"))
     issues = v.check_integrity([m])
     v.process_validation_issues(issues)
     assert not mock_error.called
@@ -172,11 +179,11 @@ def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error) -> None:
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error) -> None:
+def test_silence_warning_already_in_silencers_is_ok(mock_warn: Mock, mock_error: Mock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
     try:
-        silencers0= v.silence(EXT)  # turn the warning off
+        silencers0 = v.silence(EXT)  # turn the warning off
         silencers1 = v.silence(EXT)  # do it a second time - no-op
         assert len(silencers0) == 1
         assert silencers0 == silencers1  # silencers is same as before
@@ -194,7 +201,7 @@ def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error) -> No
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_error) -> None:
+def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn: Mock, mock_error: Mock) -> None:
     from bokeh.core.validation.warnings import EXT
     m = Mod(foo=-10)
 
@@ -213,24 +220,30 @@ def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_e
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_pass(mock_warn, mock_error) -> None:
-    issues = {'error': [], 'warning': []}
+def test_process_validation_issues_pass(mock_warn: Mock, mock_error: Mock) -> None:
+    issues = ValidationIssues(error=[], warning=[])
     v.process_validation_issues(issues)
     assert not mock_error.called
     assert not mock_warn.called
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_warn(mock_warn, mock_error) -> None:
-    issues = {'error': [(9999, 'EXT:E', 'Custom extension reports error', 'err')], 'warning': []}
+def test_process_validation_issues_warn(mock_warn: Mock, mock_error: Mock) -> None:
+    issues = ValidationIssues(
+        error=[ValidationIssue(9999, "EXT:E", "Custom extension reports error", "err")],
+        warning=[],
+    )
     v.process_validation_issues(issues)
     assert mock_error.called
     assert not mock_warn.called
 
 @patch('bokeh.core.validation.check.log.error')
 @patch('bokeh.core.validation.check.log.warning')
-def test_process_validation_issues_error(mock_warn, mock_error) -> None:
-    issues = {'error': [], 'warning': [(9999, 'EXT:W', 'Custom extension reports warning', 'wrn')]}
+def test_process_validation_issues_error(mock_warn: Mock, mock_error: Mock) -> None:
+    issues = ValidationIssues(
+        error=[],
+        warning=[ValidationIssue(9999, "EXT:W", "Custom extension reports warning", "wrn")],
+    )
     v.process_validation_issues(issues)
     assert not mock_error.called
     assert mock_warn.called
