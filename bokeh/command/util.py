@@ -87,10 +87,10 @@ def build_single_handler_application(path: str, argv: Optional[Sequence[str]] = 
     notebook, or directory.
 
     In general a Bokeh :class:`~bokeh.application.application.Application` may
-    have any number of handlers to initialize :class:`~bokeh.document.Document`
-    objects for new client sessions. However, in many cases only a single
-    handler is needed. This function examines the ``path`` provided, and
-    returns an ``Application`` initialized with one of the following handlers:
+    have any number of handlers to initialize |Document| objects for new client
+    sessions. However, in many cases only a single handler is needed. This
+    function examines the ``path`` provided, and returns an ``Application``
+    initialized with one of the following handlers:
 
     * :class:`~bokeh.application.handlers.script.ScriptHandler` when ``path``
       is to a ``.py`` script.
