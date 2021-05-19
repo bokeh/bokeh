@@ -14,7 +14,7 @@ which uses it to render the plot.
 
 Where space permits, the attributes of the model are shown inline. Not all
 objects are shown below, and some information might be outdated; see the
-:ref:`refguide` for full details.
+|reference guide| for full details.
 
 .. image:: /_images/objects.png
     :align: center

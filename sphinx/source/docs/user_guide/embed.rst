@@ -598,8 +598,6 @@ Here's a full template with all the sections that you can override:
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`
 
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
 .. |components|      replace:: :func:`~bokeh.embed.components`

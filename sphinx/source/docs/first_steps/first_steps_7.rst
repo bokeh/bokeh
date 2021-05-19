@@ -24,12 +24,12 @@ necessary information to display your plot.
 * ``title``: the title for you document (to be used in the HTML's ``<title>``
   tag)
 
-Bokeh creates the HTML file when you call the :func:`~bokeh.io.show` function.
-This function also automatically opens a web browser to display the HTML file.
+Bokeh creates the HTML file when you call the |show| function. This function
+also automatically opens a web browser to display the HTML file.
 
 If you want Bokeh to only generate the file but not open it in a web browser,
-use the :func:`~bokeh.io.save` function instead. You need to import the
-``save()`` function before using it, just like you did for ``show()``.
+use the |save| function instead. You need to import the ``save()`` function
+before using it, just like you did for ``show()``.
 
 .. literalinclude:: examples/first_steps_7_export_html.py
    :language: python
@@ -54,8 +54,8 @@ Displaying in a Jupyter notebook
 If you use Jupyter notebooks, switch out Bokeh's :func:`~bokeh.io.output_file`
 for :func:`~bokeh.io.output_notebook`.
 
-Use the :func:`~bokeh.io.show` function to display your visualization right
-inside your notebook:
+Use the |show| function to display your visualization right inside your
+notebook:
 
 .. image:: /_images/notebook_inline.png
     :scale: 50 %

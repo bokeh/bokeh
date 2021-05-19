@@ -145,8 +145,6 @@ You can export an SVG plot in several ways:
 .. |export_png|      replace:: :func:`~bokeh.io.export_png`
 .. |export_svg|      replace:: :func:`~bokeh.io.export_svg`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
-.. |save|            replace:: :func:`~bokeh.io.save`
-.. |show|            replace:: :func:`~bokeh.io.show`
 
 .. _Conda: https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html?highlight=conda#id4
 .. _SVG-Crowbar: http://nytimes.github.io/svg-crowbar/

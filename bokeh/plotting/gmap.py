@@ -48,8 +48,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class GMap(GMapPlot, GlyphAPI):
-    ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
-    creation with default axes, grids, tools, etc.
+    ''' A subclass of |Plot| that simplifies plot creation with default axes,
+    grids, tools, etc.
 
     Args:
         google_api_key (str):

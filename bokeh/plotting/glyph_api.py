@@ -102,7 +102,7 @@ Examples:
         """
 .. note::
     Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
-    defaults to data units.
+    defaults to |data units|.
 
 Examples:
 
@@ -960,7 +960,7 @@ Examples:
 
             y (str or seq[float]) : values or field names of center y coordinates
 
-            size (str or list[float]) : values or field names of sizes in screen units
+            size (str or list[float]) : values or field names of sizes in |screen units|
 
             marker (str, or list[str]): values or field names of marker types
 
@@ -970,7 +970,7 @@ Examples:
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 
-            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+            **kwargs: |line properties| and |fill properties|
 
         Examples:
 
@@ -979,9 +979,9 @@ Examples:
 
         .. note::
             When passing ``marker="circle"`` it is also possible to supply a
-            ``radius`` value in data-space units. When configuring marker type
+            ``radius`` value in |data units|. When configuring marker type
             from a data source column, *all* markers including circles may only
-            be configured with ``size`` in screen units.
+            be configured with ``size`` in |screen units|.
 
         '''
         marker_type = kwargs.pop("marker", "circle")

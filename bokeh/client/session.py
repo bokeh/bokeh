@@ -196,8 +196,8 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
-                "opera", "windows-default" (see the ``webbrowser`` module
-                documentation in the standard lib for more details).
+                "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
+                module documentation in the standard lib for more details).
 
             new (str, optional) : new file output mode (default: "tab")
                 For file-based output, opens or raises the browser window
@@ -326,8 +326,8 @@ class ClientSession:
 
     @property
     def document(self):
-        ''' A :class:`~bokeh.document.Document` that will be kept in sync with
-        the corresponding Document on the server.
+        ''' A |Document| that will be kept in sync with the corresponding
+        ``Document`` on the server.
 
         This value is initialized when :func:`pull` or :func:`push` succeeds.
         It will be ``None`` until then.
@@ -406,18 +406,18 @@ class ClientSession:
             self._attach_document(doc)
 
     def push(self, document=None):
-        ''' Push the given document to the server and record it as session.document.
+        ''' Push the given document to the server and record it as ``session.document``.
 
         If this is called more than once, the Document has to be the same (or None
-        to mean "session.document").
+        to mean ``session.document``).
 
         .. note::
             Automatically calls :func:`~connect` before pushing.
 
         Args:
-            document (:class:`~bokeh.document.Document`, optional) :
-                The document which will be kept in sync with the server document.
-                None to use session.document or create a new document.
+            document (|Document|, optional) :
+                The document that will be kept in sync with the server document.
+                None to use ``session.document`` or create a new document.
 
         '''
         if self.document is None:
@@ -457,8 +457,8 @@ class ClientSession:
             browser (str, optional) : browser to show with (default: None)
                 For systems that support it, the **browser** argument allows
                 specifying which browser to display in, e.g. "safari", "firefox",
-                "opera", "windows-default" (see the ``webbrowser`` module
-                documentation in the standard lib for more details).
+                "opera", "windows-default" (see the :doc:`webbrowser <python:library/webbrowser>`
+                module documentation in the standard lib for more details).
 
             new (str, optional) : new file output mode (default: "tab")
                 For file-based output, opens or raises the browser window

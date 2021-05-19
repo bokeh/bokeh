@@ -167,18 +167,18 @@ on git hooks, see `this tutorial`_.
 
 ``pre-push``
 
-    This git hook prevents accidental pushes to ``master`` on GitHub.
+    This git hook prevents accidental pushes to ``main`` on GitHub.
 
     .. code-block:: sh
 
         #!/bin/bash
 
-        protected_branch='master'
+        protected_branch='main'
         current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
         if [ $protected_branch = $current_branch ]
         then
-            read -p "You're about to push master, is that what you intended? [y|n] " -n 1 -r < /dev/tty
+            read -p "You're about to push main, is that what you intended? [y|n] " -n 1 -r < /dev/tty
             echo
             if echo $REPLY | grep -E '^[Yy]$' > /dev/null
             then

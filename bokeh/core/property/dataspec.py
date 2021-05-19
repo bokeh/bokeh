@@ -532,14 +532,12 @@ class ColorSpec(DataSpec):
     _default_help = """\
     Acceptable values are:
 
-    - any of the named `CSS colors`_, e.g ``'green'``, ``'indigo'``
+    - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
     - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
     - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
-
-    .. _CSS colors: https://www.w3.org/TR/css-color-4/#named-colors
 
     """
 
@@ -621,7 +619,7 @@ class ColorSpec(DataSpec):
 
 def expr(expression, transform=None):
     """ Convenience function to explicitly return an "expr" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         expression (Expression) : a computed expression for a
@@ -644,7 +642,7 @@ def expr(expression, transform=None):
 
 def field(name, transform=None):
     """ Convenience function to explicitly return a "field" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         name (str) : name of a data source field to reference for a
@@ -666,7 +664,7 @@ def field(name, transform=None):
 
 def value(val, transform=None):
     """ Convenience function to explicitly return a "value" specification for
-    a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
+    a Bokeh |DataSpec| property.
 
     Args:
         val (any) : a fixed value to specify for a ``DataSpec`` property.

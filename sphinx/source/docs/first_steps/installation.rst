@@ -81,14 +81,15 @@ the `"bokeh" tag on Stack Overflow`_ or asking a question in the
     Once you have Bokeh installed, build your first visualization by following
     the :ref:`first steps guides <first_steps_overview>`.
 
-    Check the :ref:`user guide <userguide>` for a comprehensive overview of all
-    the things you can do with Bokeh.
+    Check the |user guide| for a comprehensive overview of all the things you
+    can do with Bokeh.
 
 Installing for development
 --------------------------
 
-If you want to install a development version of Bokeh to contribute to the project,
-please see the :ref:`devguide_setup` instructions in the :ref:`devguide`.
+If you want to install a development version of Bokeh to contribute to the
+project, please see the :ref:`devguide_setup` instructions in the
+|developers guide|.
 
 .. _install_required:
 

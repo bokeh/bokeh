@@ -39,5 +39,4 @@ later. This simplifies the above example as follows:
 You can now run ``bokeh html foo.py`` to generate a standalone HTML file
 or ``bokeh serve foo.py`` to start serving this document as a web application.
 
-See :ref:`bokeh.command` in the :ref:`reference guide <refguide>` for more
-information.
+See :ref:`bokeh.command` in the |reference guide| for more information.

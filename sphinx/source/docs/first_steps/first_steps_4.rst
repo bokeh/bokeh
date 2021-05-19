@@ -50,8 +50,8 @@ guide.
 Resizing your plot
 ------------------
 
-Bokeh's :class:`~bokeh.models.plots.Plot` objects have various attributes that
-influence the way your plot looks.
+Bokeh's |Plot| objects have various attributes that influence the way your plot
+looks.
 
 Setting width and height
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,7 +93,7 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 .. seealso::
     To learn more about how to control the size of plots, see
     :ref:`userguide_styling_plots` in the user guide and the entry for
-    :class:`~bokeh.models.plots.Plot` in the reference guide.
+    |Plot| in the reference guide.
 
     For more information on responsive sizing, see
     :ref:`userguide_layout_sizing_mode` in the user guide and
@@ -135,8 +135,8 @@ a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the
 :func:`~bokeh.models.plots.Plot.y_range` function or the
-:func:`~bokeh.models.plots.Plot.y_range` properties of your
-:class:`~bokeh.models.plots.Plot` object when you call the |figure| function:
+:func:`~bokeh.models.plots.Plot.y_range` properties of your |Plot| object when
+you call the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
    :language: python
@@ -159,7 +159,7 @@ To display dollar amounts instead of just numbers on your y-axis, use the
 :class:`~bokeh.models.formatters.NumeralTickFormatter`:
 
 First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
-Bokeh's :class:`~bokeh.models` collection:
+|bokeh.models|:
 
 .. code-block:: python
 
@@ -231,8 +231,7 @@ Customizing the grid
 To change the appearance of the grid, set the various properties of the
 :func:`~bokeh.models.plots.Plot.xgrid`,
 :func:`~bokeh.models.plots.Plot.ygrid`, and
-:func:`~bokeh.models.plots.Plot.grid` methods of your
-:class:`~bokeh.models.plots.Plot` object.
+:func:`~bokeh.models.plots.Plot.grid` methods of your |Plot| object.
 
 Styling lines
 ~~~~~~~~~~~~~
@@ -277,14 +276,13 @@ Setting background colors
 You have several options to :ref:`define colors <userguide_styling_colors>` in
 Bokeh. For example:
 
-* Use one of the named CSS colors (for example, ``"firebrick"``)
+* Use one of the |named CSS colors| (for example, ``"firebrick"``)
 * Use hexadecimal values, prefaced with a ``#`` (for example ``"#00ff00"``)
 * Use a 3-tuple for RGB colors (for example, ``(100, 100, 255)``
 * Use a 4-tuple for RGBA colors (for example ``(100, 100, 255, 0.5)``)
 
 To change the appearance of the plane that Bokeh draws your plot elements on,
-use the various ``fill_color`` attributes of your
-:class:`~bokeh.models.plots.Plot` object:
+use the various ``fill_color`` attributes of your |Plot| object:
 
 .. literalinclude:: examples/first_steps_4_background.py
    :language: python
@@ -294,8 +292,8 @@ use the various ``fill_color`` attributes of your
     :source-position: none
 
 .. seealso::
-    For more information on colors in Bokeh, see the entry for
-    :class:`~bokeh.core.properties.Color` in the reference guide.
+    For more information on colors in Bokeh, see the entry for |Color| in the
+    reference guide.
 
 .. _first_steps_4_toolbar:
 

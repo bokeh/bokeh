@@ -1,14 +1,40 @@
-.. |bokeh.models|       replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
-.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
-.. |Document|           replace:: :py:class:`~bokeh.document.Document`
+.. |bokeh.models|       replace:: :ref:`bokeh.models`
+.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
+.. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <userguide_data_cds>`
+.. |data units|         replace:: :ref:`data units <userguide_styling_units>`
+.. |developers guide|   replace:: :ref:`developers guide <devguide>`
+.. |fill properties|    replace:: :ref:`fill properties <userguide_styling_fill_properties>`
+.. |hatch properties|   replace:: :ref:`hatch properties <userguide_styling_hatch_properties>`
+.. |interactive legends| replace:: :ref:`interactive legends <userguide_interaction_legends>`
+.. |line properties|    replace:: :ref:`line properties <userguide_styling_line_properties>`
+.. |models interface|   replace:: :ref:`bokeh.models interface <userguide_interfaces_models>`
+.. |plotting interface| replace:: :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`
+.. |reference guide|    replace:: :ref:`reference guide <refguide>`
+.. |screen units|       replace:: :ref:`screen units <userguide_styling_units>`
+.. |text properties|    replace:: :ref:`text properties <userguide_styling_text_properties>`
+.. |unit|               replace:: :ref:`unit <userguide_styling_units>`
+.. |user guide|         replace:: :ref:`user guide <userguide>`
+
+.. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
 .. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
+.. |save|               replace:: :py:func:`~bokeh.io.save`
+.. |show|               replace:: :py:func:`~bokeh.io.show`
+.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
+
+.. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`
+.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
+.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |Document|           replace:: :py:class:`~bokeh.document.document.Document`
+.. |Figure|             replace:: :py:class:`~bokeh.plotting.Figure`
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Legend|             replace:: :py:class:`~bokeh.models.annotations.Legend`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
+.. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 .. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
 .. |PropertyUnitsSpec|  replace:: :py:class:`~bokeh.core.properties.PropertyUnitsSpec`
-.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
+
+.. |named CSS colors| replace:: `named CSS colors`_
+.. _`named CSS colors`: https://www.w3.org/TR/css-color-4/#named-colors

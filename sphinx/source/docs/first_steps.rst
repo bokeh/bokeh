@@ -67,9 +67,8 @@ working :ref:`installation<first_steps_installing>` of Bokeh.
 
 The first steps guides include lots of examples that you can copy to your
 development environment. There are also many links to the more in-depth
-resources of the :ref:`user guide <userguide>` and
-:ref:`reference guide <refguide>` in case you want to learn more about any of
-the topics covered in the first steps guides.
+resources of the |user guide| and |reference guide| in case you want to learn
+more about any of the topics covered in the first steps guides.
 
 .. panels::
     :container: container-fluid pb-3

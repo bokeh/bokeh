@@ -560,8 +560,8 @@ class BoxAnnotation(Annotation):
     """)
 
     left_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the left attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the left attribute. Interpreted as |data units| by
+    default.
     """)
 
     right = Either(Null, Auto, NumberSpec(), help="""
@@ -572,8 +572,8 @@ class BoxAnnotation(Annotation):
     """)
 
     right_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the right attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the right attribute. Interpreted as |data units| by
+    default.
     """)
 
     bottom = Either(Null, Auto, NumberSpec(), help="""
@@ -584,8 +584,8 @@ class BoxAnnotation(Annotation):
     """)
 
     bottom_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the bottom attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the bottom attribute. Interpreted as |data units| by
+    default.
     """)
 
     top = Either(Null, Auto, NumberSpec(), help="""
@@ -596,8 +596,8 @@ class BoxAnnotation(Annotation):
     """)
 
     top_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the top attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the top attribute. Interpreted as |data units| by
+    default.
     """)
 
     line_props = Include(ScalarLineProps, help="""
@@ -700,8 +700,8 @@ class Label(TextAnnotation):
     """).accepts(Datetime, convert_datetime_type)
 
     x_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the x attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the x attribute. Interpreted as |data units| by
+    default.
     """)
 
     y = NonNullable(Float, help="""
@@ -712,8 +712,8 @@ class Label(TextAnnotation):
     """).accepts(Datetime, convert_datetime_type)
 
     y_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the y attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the y attribute. Interpreted as |data units| by
+    default.
     """)
 
     text = String(default="", help="""
@@ -738,14 +738,14 @@ class Label(TextAnnotation):
     Offset value to apply to the x-coordinate.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     y_offset = Float(default=0, help="""
     Offset value to apply to the y-coordinate.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     text_props = Include(ScalarTextProps, help="""
@@ -794,8 +794,8 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     """)
 
     x_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ``xs`` attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the ``xs`` attribute. Interpreted as |data units| by
+    default.
     """)
 
     y = NumberSpec(default=field("y"), help="""
@@ -803,8 +803,8 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ``ys`` attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the ``ys`` attribute. Interpreted as |data units| by
+    default.
     """)
 
     text = StringSpec(default=field("text"), help="""
@@ -825,14 +825,14 @@ class LabelSet(TextAnnotation): # TODO: DataAnnotation
     Offset values to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     y_offset = NumberSpec(default=0, help="""
     Offset values to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
-    distance in screen units from a given data position.
+    distance in |screen units| from a given data position.
     """)
 
     text_props = Include(TextProps, help="""
@@ -868,8 +868,8 @@ class PolyAnnotation(Annotation):
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ``xs`` attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the ``xs`` attribute. Interpreted as |data units| by
+    default.
     """)
 
     ys = Seq(Float, default=[], help="""
@@ -877,8 +877,8 @@ class PolyAnnotation(Annotation):
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ``ys`` attribute. Interpreted as "data space" units
-    by default.
+    The unit type for the ``ys`` attribute. Interpreted as |data units| by
+    default.
     """)
 
     line_props = Include(ScalarLineProps, help="""
@@ -909,11 +909,11 @@ class Slope(Annotation):
     """
 
     gradient = Nullable(Float, help="""
-    The gradient of the line, in data units
+    The gradient of the line, in |data units|
     """)
 
     y_intercept = Nullable(Float, help="""
-    The y intercept of the line, in data units
+    The y intercept of the line, in |data units|
     """)
 
     line_props = Include(ScalarLineProps, help="""

@@ -64,7 +64,7 @@ def row(*args, **kwargs):
 
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
-            the row. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            the row. Can be any of the following - |Plot|,
             :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
@@ -102,7 +102,7 @@ def column(*args, **kwargs):
 
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
-            the column. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            the column. Can be any of the following - |Plot|,
             :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
@@ -170,7 +170,7 @@ def layout(*args, **kwargs):
 
     Args:
         children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
-            for a grid layout. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
+            for a grid layout. Can be any of the following - |Plot|,
             :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
@@ -217,11 +217,10 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
-        children (list of lists of :class:`~bokeh.models.plots.Plot` ): An
-            array of plots to display in a grid, given as a list of lists of Plot
-            objects. To leave a position in the grid empty, pass None for that
-            position in the children list. OR list of :class:`~bokeh.models.plots.Plot` if called with
-            ncols. OR an instance of GridSpec.
+        children (list of lists of |Plot|): An array of plots to display in a
+            grid, given as a list of lists of Plot objects. To leave a position
+            in the grid empty, pass None for that position in the children list.
+            OR list of |Plot| if called with ncols. OR an instance of GridSpec.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.

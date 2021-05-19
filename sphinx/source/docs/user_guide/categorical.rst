@@ -28,7 +28,7 @@ example below shows a sequence of simple 1-level categories.
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 
 To assign these categories to the x-axis, pass this list as the
-``x_range`` argument to :func:`~bokeh.plotting.Figure`.
+``x_range`` argument to |figure|.
 
 .. code-block:: python
 

@@ -72,7 +72,7 @@ outside of the area where the axis is drawn.
 Specifying tools
 ----------------
 
-At the lowest ``bokeh.models`` level, you can add tools to a ``Plot`` by
+At the lowest |bokeh.models| level, you can add tools to a ``Plot`` by
 passing instances of ``Tool`` objects to the ``add_tools()`` method:
 
 .. code-block:: python
@@ -120,7 +120,7 @@ Bokeh toolbars can have at most one active tool from each kind of gesture
 (drag, scroll, tap).
 
 However, it is possible to exert control over which tool is active. At the
-lowest ``bokeh.models`` level, you can do this by using the ``active_drag``,
+lowest |bokeh.models| level, you can do this by using the ``active_drag``,
 ``active_inspect``, ``active_scroll``, and ``active_tap`` properties of
 ``Toolbar``. These properties can take the following values:
 
@@ -972,7 +972,8 @@ performance. In order to accommodate large data sizes, Bokeh plots offer
 
 To maintain performance while handling large data sizes, the plot only draws
 a small fraction of data points during interactive operations (panning
-or zooming, for example). There are four properties on |Plot| objects that control LOD behavior:
+or zooming, for example). There are four properties on |Plot| objects that
+control LOD behavior:
 
 .. bokeh-prop:: Plot.lod_factor
     :module: bokeh.models.plots
@@ -986,8 +987,6 @@ or zooming, for example). There are four properties on |Plot| objects that contr
 .. bokeh-prop:: Plot.lod_timeout
     :module: bokeh.models.plots
 
-
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
 .. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`

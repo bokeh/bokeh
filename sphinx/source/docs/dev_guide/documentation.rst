@@ -214,6 +214,11 @@ elements:
   Bokeh. This includes sections like the `User guide`_, `Developer guide`_ or
   Gallery_.
 
+In the file :bokeh-tree:`sphinx/source/rst_epilog.txt`, you can find many common
+substitutions used across the narrative documentation as well as docstrings and
+model help texts. This file is loaded as the
+`epilog.rst environment variable`_ for Bokeh's Sphinx configuration.
+
 Contributing to Bokeh's source code documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All functions and methods in Bokeh use docstrings_. In addition, Bokeh uses its
@@ -338,5 +343,6 @@ Sphinx build will automatically add this content to the list of all releases.
 .. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
 .. _`reStructuredText primer on the Sphinx website`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _`official reStructuredText website`: https://docutils.sourceforge.io/rst.html
+.. _epilog.rst environment variable: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-rst_epilog
 .. _`Release Notes`: https://docs.bokeh.org/en/latest/docs/releases.html
 .. _`release management`: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
