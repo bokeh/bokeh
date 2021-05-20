@@ -139,11 +139,11 @@ from typing import (
 import yaml
 from typing_extensions import Literal
 
-if TYPE_CHECKING:
-    from .resources import ResourcesMode
-
 # Bokeh imports
 from .util.paths import bokehjsdir
+
+if TYPE_CHECKING:
+    from .resources import ResourcesMode
 
 #-----------------------------------------------------------------------------
 # Globals and constants

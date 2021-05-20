@@ -39,6 +39,9 @@ from typing import (
 # External imports
 from PIL import Image
 
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
+
 # Bokeh imports
 from ..core.types import PathLike
 from ..document import Document
@@ -59,9 +62,6 @@ __all__ = (
     'get_screenshot_as_png',
     'get_svgs',
 )
-
-if TYPE_CHECKING:
-    from selenium.webdriver.remote.webdriver import WebDriver
 
 #-----------------------------------------------------------------------------
 # General API
