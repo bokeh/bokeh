@@ -17,6 +17,7 @@ import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {MathText, MathTextView} from "models/tools/math_text"
+import {build_view} from "core/build_views"
 
 const {abs} = Math
 
@@ -40,6 +41,17 @@ export class AxisView extends GuideRendererView {
 
   panel: Panel
   layout: Layoutable
+
+  axis_label_math_text_view: MathTextView
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {axis_label} = this.model
+
+    if (axis_label != null && axis_label instanceof MathText)
+      this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+  }
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -145,10 +157,11 @@ export class AxisView extends GuideRendererView {
     const padding = 3
 
     if (axis_label instanceof MathText) {
-      axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
-      axis_label.visuals = this.visuals.axis_label_text
+      const {axis_label_math_text_view} = this
+      axis_label_math_text_view.angle = this.panel.get_label_angle_heuristic("parallel")
+      axis_label_math_text_view.visuals = this.visuals.axis_label_text
 
-      const size = axis_label.size()
+      const size = axis_label_math_text_view.size()
       const extent = this.dimension == 0 ? size.height : size.width
       const standoff = this.model.axis_label_standoff
 
@@ -200,18 +213,18 @@ export class AxisView extends GuideRendererView {
     }
 
     if (axis_label instanceof MathText) {
-      // NEEDS FIX; How to access MathTextView here?
-      axis_label.default_view.angle = angle
+      const {axis_label_math_text_view} = this
+      axis_label_math_text_view.angle = angle
 
-      axis_label.visuals = this.visuals.axis_label_text
-      axis_label.position = position
+      axis_label_math_text_view.visuals = this.visuals.axis_label_text
+      axis_label_math_text_view.position = position
 
-      if (!axis_label.image) {
+      if (!axis_label_math_text_view.svg_image) {
         this.request_render()
-        return axis_label.load_image()
+        return axis_label_math_text_view.load_image()
       }
 
-      axis_label.draw_image(ctx)
+      axis_label_math_text_view.draw_image(ctx)
 
       return this.notify_finished()
     } else {
