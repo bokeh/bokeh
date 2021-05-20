@@ -153,12 +153,11 @@ export class MathTextView extends View {
    * Starts Mathjax script loading if its not present in the global context.
    */
   load_image(): void {
-    if (!window._bokeh_mathjax_instantiated && typeof MathJax === 'undefined') {
+    if (!document.getElementById('bokeh_mathjax_script') && typeof MathJax === 'undefined') {
       const script = document.createElement('script')
+      script.id = "bokeh_mathjax_script"
       script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'
       document.head.appendChild(script)
-
-      window._bokeh_mathjax_instantiated = true
     }
 
     if (typeof MathJax === 'undefined') return
