@@ -132,14 +132,14 @@ export class MathTextView extends View {
    * Get width and height from SVGElement
    */
   private getDimensions(): Size {
-    if (typeof MathJax === 'undefined') return {width: 0, height: 0}
+    if (typeof MathJax === "undefined") return {width: 0, height: 0}
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
 
     document.body.appendChild(mathjax_element)
 
     const svg_element = mathjax_element.children[0] as SVGElement
-    svg_element.setAttribute('font', this.font)
+    svg_element.setAttribute("font", this.font)
 
     const {width, height} = svg_element.getBoundingClientRect()
 
@@ -153,25 +153,25 @@ export class MathTextView extends View {
    * Starts Mathjax script loading if its not present in the global context.
    */
   load_image(): void {
-    if (!document.getElementById('bokeh_mathjax_script') && typeof MathJax === 'undefined') {
-      const script = document.createElement('script')
+    if (!document.getElementById("bokeh_mathjax_script") && typeof MathJax === "undefined") {
+      const script = document.createElement("script")
       script.id = "bokeh_mathjax_script"
-      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js'
+      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
       document.head.appendChild(script)
     }
 
-    if (typeof MathJax === 'undefined') return
+    if (typeof MathJax === "undefined") return
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
 
     document.body.appendChild(mathjax_element)
 
     const svg_element = mathjax_element.children[0] as SVGElement
-    svg_element.setAttribute('font', this.font)
-    svg_element.setAttribute('stroke', this.color)
+    svg_element.setAttribute("font", this.font)
+    svg_element.setAttribute("stroke", this.color)
 
     const outer_HTML = svg_element.outerHTML
-    const blob = new Blob([outer_HTML], {type: 'image/svg+xml;charset=utf-8'})
+    const blob = new Blob([outer_HTML], {type: "image/svg+xml;charset=utf-8"})
     const url = URL.createObjectURL(blob)
 
     const {width, height} = svg_element.getBoundingClientRect()
