@@ -29,7 +29,7 @@ export class RadioGroupView extends InputGroupView {
       if (i == active)
         radio.checked = true
 
-      const label_el = label({}, radio, span({}, labels[i]))
+      const label_el = label(radio, span(labels[i]))
       group.appendChild(label_el)
     }
   }

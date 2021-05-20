@@ -39,7 +39,7 @@ export class DropdownView extends AbstractButtonView {
         return div({class: menus.divider})
       else {
         const label = isString(item) ? item : item[0]
-        const el = div({}, label)
+        const el = div(label)
         el.addEventListener("click", () => this._item_click(i))
         return el
       }

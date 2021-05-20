@@ -50,7 +50,7 @@ export class AutocompleteInputView extends TextInputView {
     empty(this.menu)
 
     for (const text of completions) {
-      const item = div({}, text)
+      const item = div(text)
       this.menu.appendChild(item)
     }
     if (completions.length > 0)

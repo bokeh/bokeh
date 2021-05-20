@@ -2,14 +2,19 @@ import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
 import {Size, Box, Extents} from "./types"
 
-export type HTMLAttrs = {[name: string]: any}
+export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
-  return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+  return (attrs: HTMLAttrs | HTMLChild = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
     const element = document.createElement(tag)
     element.classList.add("bk")
+
+    if (!isPlainObject(attrs)) {
+      children = [attrs, ...children]
+      attrs = {}
+    }
 
     for (let [attr, value] of entries(attrs)) {
       if (value == null || isBoolean(value) && !value)
@@ -20,7 +25,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
           value = value.split(/\s+/)
 
         if (isArray(value)) {
-          for (const cls of (value as string[])) {
+          for (const cls of value as string[]) {
             if (cls != null)
               element.classList.add(cls)
           }
@@ -42,7 +47,7 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
         continue
       }
 
-      element.setAttribute(attr, value)
+      element.setAttribute(attr, value as string)
     }
 
     function append(child: HTMLItem) {
