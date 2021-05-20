@@ -64,7 +64,7 @@ export class StringFormatter extends CellFormatter {
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
-    const text = div({}, value == null ? "" : `${value}`)
+    const text = div(value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
         text.style.fontWeight = "bold"

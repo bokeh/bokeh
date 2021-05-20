@@ -519,7 +519,7 @@ export class HoverToolView extends InspectToolView {
     const {tooltips} = this.model
     if (isString(tooltips)) {
       const content = replace_placeholders({html: tooltips}, ds, i, this.model.formatters, vars)
-      return div({}, content)
+      return div(content)
     } else if (isFunction(tooltips)) {
       return tooltips(ds, vars)
     } else if (tooltips instanceof Template) {
