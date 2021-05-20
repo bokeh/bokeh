@@ -29,7 +29,7 @@ export class CheckboxGroupView extends InputGroupView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const label_el = label({}, checkbox, span({}, labels[i]))
+      const label_el = label(checkbox, span(labels[i]))
       group.appendChild(label_el)
     }
   }
