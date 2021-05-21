@@ -46,22 +46,3 @@ export const lib = {
     output: join(build_dir.js, "bokeh-tables.js"),
   },
 }
-
-export const lib_legacy = {
-  bokehjs: {
-    main: join(build_dir.lib, "legacy.js"),
-    output: join(build_dir.js, "bokeh.legacy.js"),
-  },
-  api: {
-    main: join(build_dir.lib, "api/main.js"),
-    output: join(build_dir.js, "bokeh-api.legacy.js"),
-  },
-  widgets: {
-    main: join(build_dir.lib, "models/widgets/main.js"),
-    output: join(build_dir.js, "bokeh-widgets.legacy.js"),
-  },
-  tables: {
-    main: join(build_dir.lib, "models/widgets/tables/main.js"),
-    output: join(build_dir.js, "bokeh-tables.legacy.js"),
-  },
-}

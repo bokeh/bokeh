@@ -170,53 +170,13 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
     throw new BuildError("scripts:bundle", "unable to bundle modules")
 })
 
-task("scripts:bundle-legacy", [passthrough("scripts:compile")], async () => {
-  const {bokehjs, api, widgets, tables} = paths.lib_legacy
-  const packages = [bokehjs, api, widgets, tables]
-
-  const linker = new Linker({
-    entries: packages.map((pkg) => pkg.main),
-    bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.legacy.json") : undefined,
-    target: "ES2015",
-  })
-
-  if (!argv.rebuild) linker.load_cache()
-  const {bundles, status} = await linker.link()
-  linker.store_cache()
-
-  const outputs = packages.map((pkg) => pkg.output)
-
-  const prelude = {
-    main: preludes.prelude(),
-    plugin: preludes.plugin_prelude({version: pkg.version}),
-  }
-
-  const postlude = {
-    main: preludes.postlude(),
-    plugin: preludes.plugin_postlude(),
-  }
-
-  function bundle(minified: boolean, outputs: string[]) {
-    bundles
-      .map((bundle) => bundle.assemble({prelude, postlude, minified}))
-      .map((artifact, i) => artifact.write(outputs[i]))
-  }
-
-  bundle(false, outputs)
-  bundle(true, outputs.map(min_js))
-
-  if (!status)
-    throw new BuildError("scripts:bundle", "unable to bundle modules")
-})
-
 task("lib:build", ["scripts:bundle"])
 
-task("scripts:build", ["lib:build", "scripts:bundle-legacy"])
+task("scripts:build", ["lib:build"])
 
 task("packages:prepare", ["scripts:bundle"], async () => {
   const bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables"]
-  const suffixes = ["", ".esm", ".legacy"]
+  const suffixes = ["", ".esm"]
   const pkgs_dir = paths.build_dir.packages
 
   for (const suffix of suffixes) {

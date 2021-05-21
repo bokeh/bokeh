@@ -22,7 +22,6 @@
   },
   "files": [
     "build/js/bokeh*.min.js",
-    "build/js/legacy/bokeh*.min.js",
     "build/js/lib/**/*.js",
     "build/js/types/**/*.d.ts"
   ],

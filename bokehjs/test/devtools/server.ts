@@ -18,16 +18,14 @@ nunjucks.configure(".", {
 app.use("/static", express.static("build/"))
 app.use("/fonts", express.static("test/fonts/"))
 
-const js_path = (name: string, legacy: boolean = false): string => {
-  const legacy_suffix = legacy ? ".legacy" : ""
-  return `/static/js/${name}${legacy_suffix}.js`
+const js_path = (name: string): string => {
+  return `/static/js/${name}.js`
 }
 
 const test = (main: string, title: string) => {
   return (run: boolean = false) => {
     return (req: express.Request, res: express.Response) => {
-      const legacy = "legacy" in req.query
-      const js = (name: string) => js_path(name, legacy)
+      const js = (name: string) => js_path(name)
       res.render("test/devtools/test.html", {main, title, run, js})
     }
   }

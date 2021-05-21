@@ -213,9 +213,8 @@ function opt(name: string, value: unknown): string {
 }
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
-  const legacy = argv.legacy === true ? "?legacy" : ""
   const args = [
-    `http://localhost:${server_port}/${name}${legacy}`,
+    `http://localhost:${server_port}/${name}`,
     opt("k", argv.k),
     opt("grep", argv.grep),
     opt("ref", argv.ref),

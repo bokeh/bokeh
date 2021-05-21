@@ -155,10 +155,6 @@ Some of most useful settings are:
 
         $env:BOKEH_BROWSER="C:/Program\ Files/Google/Chrome/Application/chrome.exe %s &"
 
-``legacy`` (environment variable ``BOKEH_LEGACY``)
-    Set this configuration value to ``True`` to enable support for legacy
-    browsers (IE and phantomjs).
-
 ``resources`` (environment variable ``BOKEH_RESOURCES``)
     To display interactive visualizations in a browser, Bokeh needs to load
     :term:`BokehJS`. Set this configuration value to define where to load
