@@ -30,8 +30,9 @@ from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import FILE
+from ..core.types import PathLike
 from ..models.layouts import LayoutDOM
-from ..resources import Resources
+from ..resources import Resources, ResourcesLike
 from ..settings import settings
 from ..themes import Theme
 from .state import State, curstate
@@ -51,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: LayoutDOM, filename: Optional[str] = None, resources: Optional[Resources] = None,
+def save(obj: LayoutDOM, filename: Optional[PathLike] = None, resources: Optional[ResourcesLike] = None,
         title: Optional[str] = None, template: Optional[Template] = None, state: Optional[State] = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -64,10 +65,10 @@ def save(obj: LayoutDOM, filename: Optional[str] = None, resources: Optional[Res
     Args:
         obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (str, optional) : filename to save document under (default: None)
+        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, use the default state configuration.
 
-        resources (Resources, optional) : A Resources config to use (default: None)
+        resources (Resources or ResourcesMode, optional) : A Resources config to use (default: None)
             If None, use the default state configuration, if there is one.
             otherwise use ``resources.INLINE``.
 
@@ -105,8 +106,8 @@ def save(obj: LayoutDOM, filename: Optional[str] = None, resources: Optional[Res
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_save_args(state: State, filename: Optional[str], resources: Optional[Resources],
-        title: Optional[str]) -> Tuple[str, Resources, str]:
+def _get_save_args(state: State, filename: Optional[PathLike], resources: Optional[ResourcesLike],
+        title: Optional[str]) -> Tuple[PathLike, Resources, str]:
     '''
 
     '''
@@ -118,7 +119,7 @@ def _get_save_args(state: State, filename: Optional[str], resources: Optional[Re
 
     return filename, resources, title
 
-def _get_save_filename(state: State, filename: Optional[str]) -> Tuple[str, bool]:
+def _get_save_filename(state: State, filename: Optional[PathLike]) -> Tuple[PathLike, bool]:
     if filename is not None:
         return filename, False
 
@@ -127,9 +128,12 @@ def _get_save_filename(state: State, filename: Optional[str]) -> Tuple[str, bool
 
     return default_filename("html"), True
 
-def _get_save_resources(state: State, resources: Optional[Resources], suppress_warning: bool) -> Resources:
+def _get_save_resources(state: State, resources: Optional[ResourcesLike], suppress_warning: bool) -> Resources:
     if resources is not None:
-        return resources
+        if isinstance(resources, Resources):
+            return resources
+        else:
+            return Resources(mode=resources)
 
     if state.file:
         return state.file.resources
@@ -137,7 +141,6 @@ def _get_save_resources(state: State, resources: Optional[Resources], suppress_w
     if not suppress_warning:
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
 
-    from ..resources import Resources
     return Resources(mode=settings.resources())
 
 def _get_save_title(state: State, title: Optional[str], suppress_warning: bool) -> str:
@@ -152,7 +155,7 @@ def _get_save_title(state: State, title: Optional[str], suppress_warning: bool) 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: LayoutDOM, filename: str, resources: Optional[Resources],
+def _save_helper(obj: LayoutDOM, filename: PathLike, resources: Optional[Resources],
         title: Optional[str], template: Optional[Template], theme: Optional[Theme] = None) -> None:
     '''
 

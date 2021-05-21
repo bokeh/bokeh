@@ -147,7 +147,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 # Private API
 #-----------------------------------------------------------------------------
 
-_BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
+_BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be one of:
 
 * a LayoutDOM (e.g. a Plot or Widget or Layout)
 * a Bokeh Application
