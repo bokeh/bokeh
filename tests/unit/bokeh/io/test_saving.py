@@ -14,13 +14,17 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from pathlib import Path
+
 # External imports
-from mock import patch
+from mock import Mock, patch
 
 # Bokeh imports
 from bokeh.core.templates import FILE
 from bokeh.io.state import curstate
 from bokeh.models import Plot
+from bokeh.resources import INLINE
 
 # Module under test
 import bokeh.io.saving as bis # isort:skip
@@ -42,30 +46,38 @@ import bokeh.io.saving as bis # isort:skip
 #-----------------------------------------------------------------------------
 
 def test__get_save_args_explicit_filename() -> None:
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
+    filename, _, _ = bis._get_save_args(curstate(), "filename", "inline", "title")
     assert filename == "filename"
+
+    filename, _, _ = bis._get_save_args(curstate(), Path("some") / "path" / "filename", "inline", "title")
+    assert filename == Path("some") / "path" / "filename"
 
 def test__get_save_args_default_filename() -> None:
     curstate().reset()
     curstate().output_file("filename")
-    filename, resources, title = bis._get_save_args(curstate(), None, "resources", "title")
+    filename, _, _ = bis._get_save_args(curstate(), None, "inline", "title")
     assert filename == "filename"
 
 def test__get_save_args_explicit_resources() -> None:
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
-    assert resources == "resources"
+    _, resources, _ = bis._get_save_args(curstate(), "filename", "inline", "title")
+    assert resources.mode == "inline" # TODO: == Resources(mode="inline")
+
+    _, resources, _ = bis._get_save_args(curstate(), "filename", INLINE, "title")
+    assert resources == INLINE
 
 def test__get_save_args_default_resources() -> None:
-    curstate().reset()
-    curstate().output_file("filename")
-    curstate().file.resources = "resources"
-    filename, resources, title = bis._get_save_args(curstate(), "filename", None, "title")
-    assert resources == "resources"
+    state = curstate()
+    state.reset()
+    state.output_file("filename")
+    assert state.file is not None
+    state.file.resources = INLINE
+    _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
+    assert resources == INLINE
 
 @patch('bokeh.io.saving.warn')
-def test__get_save_args_missing_resources(mock_warn) -> None:
+def test__get_save_args_missing_resources(mock_warn: Mock) -> None:
     curstate().reset()
-    filename, resources, title = bis._get_save_args(curstate(), "filename", None, "title")
+    _, resources, _ = bis._get_save_args(curstate(), "filename", None, "title")
     assert resources.mode == "cdn"
     assert mock_warn.call_count == 1
     assert mock_warn.call_args[0] == (
@@ -74,20 +86,22 @@ def test__get_save_args_missing_resources(mock_warn) -> None:
     assert mock_warn.call_args[1] == {}
 
 def test__get_save_args_explicit_title() -> None:
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
+    _, _, title = bis._get_save_args(curstate(), "filename", "inline", "title")
     assert title == "title"
 
 def test__get_save_args_default_title() -> None:
-    curstate().reset()
-    curstate().output_file("filename")
-    curstate().file.title = "title"
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", None)
+    state = curstate()
+    state.reset()
+    state.output_file("filename")
+    assert state.file is not None
+    state.file.title = "title"
+    _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "title"
 
 @patch('bokeh.io.saving.warn')
-def test__get_save_args_missing_title(mock_warn) -> None:
+def test__get_save_args_missing_title(mock_warn: Mock) -> None:
     curstate().reset()
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", None)
+    _, _, title = bis._get_save_args(curstate(), "filename", "inline", None)
     assert title == "Bokeh Plot"
     assert mock_warn.call_count == 1
     assert mock_warn.call_args[0] == (
@@ -98,9 +112,9 @@ def test__get_save_args_missing_title(mock_warn) -> None:
 
 @patch("builtins.open")
 @patch("bokeh.embed.file_html")
-def test__save_helper(mock_file_html, mock_open) -> None:
+def test__save_helper(mock_file_html: Mock, mock_open: Mock) -> None:
     obj = Plot()
-    filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
+    filename, resources, title = bis._get_save_args(curstate(), "filename", "inline", "title")
 
     bis._save_helper(obj, filename, resources, title, None)
 

@@ -78,7 +78,6 @@ ResourcesMode = Union[
 # Dev API
 # -----------------------------------------------------------------------------
 
-
 _SRI_HASHES = None
 
 
@@ -217,6 +216,8 @@ def verify_sri_hashes():
 class BaseResources:
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
+
+    mode: ResourcesMode
 
     def __init__(
         self,
@@ -730,6 +731,8 @@ def _compute_single_hash(path):
 # -----------------------------------------------------------------------------
 # Code
 # -----------------------------------------------------------------------------
+
+ResourcesLike = Union[Resources, ResourcesMode]
 
 CDN = Resources(mode="cdn")
 
