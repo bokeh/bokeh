@@ -141,17 +141,12 @@ export class CanvasLayer {
 
   undo_transform(fn: (ctx: Context2d) => void) {
     const {ctx} = this
-    if (typeof ctx.getTransform === "undefined") {
-      // XXX: remove this when IE/legacy is dropped
+    const current_transform = ctx.getTransform()
+    ctx.setTransform(this._base_transform)
+    try {
       fn(ctx)
-    } else {
-      const current_transform = ctx.getTransform()
-      ctx.setTransform(this._base_transform)
-      try {
-        fn(ctx)
-      } finally {
-        ctx.setTransform(current_transform)
-      }
+    } finally {
+      ctx.setTransform(current_transform)
     }
   }
 
