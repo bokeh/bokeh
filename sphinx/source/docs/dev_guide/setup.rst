@@ -83,8 +83,14 @@ At the top level of the repository, issue the following command in a terminal:
 .. code-block:: sh
 
     conda env create environment.yml
+    
+Then, initialize Anaconda after creating a conda environment:
 
-Then, to activate the environment:
+.. code-block:: sh
+
+    conda init
+
+And finally, activate the environment:
 
 .. code-block:: sh
 
