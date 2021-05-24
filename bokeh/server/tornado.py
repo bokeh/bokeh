@@ -28,8 +28,7 @@ from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
-from tornado.web import Application as TornadoApplication
-from tornado.web import StaticFileHandler
+from tornado.web import Application as TornadoApplication, StaticFileHandler
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop

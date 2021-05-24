@@ -64,8 +64,7 @@ from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
 from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
-from ..themes import Theme, built_in_themes
-from ..themes import default as default_theme
+from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
