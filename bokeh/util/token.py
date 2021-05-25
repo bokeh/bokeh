@@ -29,6 +29,7 @@ import base64
 import calendar
 import codecs
 import datetime as dt
+import gzip
 import hashlib
 import hmac
 import json
@@ -116,7 +117,8 @@ def generate_jwt_token(session_id: str,
     if extra_payload:
         if "session_id" in extra_payload:
             raise RuntimeError("extra_payload for session tokens may not contain 'session_id'")
-        payload.update(extra_payload)
+        compressed = gzip.compress(json.dumps(extra_payload).encode('utf-8'))
+        payload['__gzip__'] = _base64_encode(compressed)
     token = _base64_encode(json.dumps(payload))
     secret_key = _ensure_bytes(secret_key)
     if not signed:
@@ -147,6 +149,9 @@ def get_token_payload(token: str) -> Any:
         dict
     """
     decoded = json.loads(_base64_decode(token.split('.')[0]))
+    if '__gzip__' in decoded:
+        decompressed = gzip.decompress(_base64_decode(decoded['__gzip__']))
+        decoded.update(json.loads(decompressed.decode('utf-8')))
     del decoded['session_id']
     return decoded
 

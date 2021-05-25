@@ -65,6 +65,7 @@ class SessionHandler(AuthMixin, RequestHandler):
 
     @authenticated
     async def get_session(self):
+        app = self.application
         token = self.get_argument("bokeh-token", default=None)
         session_id = self.get_argument("bokeh-session-id", default=None)
         if 'Bokeh-Session-Id' in self.request.headers:
@@ -79,43 +80,47 @@ class SessionHandler(AuthMixin, RequestHandler):
                 raise HTTPError(status_code=403, reason="Both token and session ID were provided")
             session_id = get_session_id(token)
         elif session_id is None:
-            if self.application.generate_session_ids:
-                session_id = generate_session_id(secret_key=self.application.secret_key,
-                                                 signed=self.application.sign_sessions)
+            if app.generate_session_ids:
+                session_id = generate_session_id(secret_key=app.secret_key,
+                                                 signed=app.sign_sessions)
             else:
                 log.debug("Server configured not to generate session IDs and none was provided")
                 raise HTTPError(status_code=403, reason="No bokeh-session-id provided")
 
         if token is None:
-            if self.application.include_headers is None:
-                excluded_headers = (self.application.exclude_headers or [])
+            if app.include_headers is None:
+                excluded_headers = (app.exclude_headers or [])
                 allowed_headers = [header for header in self.request.headers
                                    if header not in excluded_headers]
             else:
-                allowed_headers = self.application.include_headers
+                allowed_headers = app.include_headers
             headers = {k: v for k, v in self.request.headers.items()
                        if k in allowed_headers}
 
-            if self.application.include_cookies is None:
-                excluded_cookies = (self.application.exclude_cookies or [])
+            if app.include_cookies is None:
+                excluded_cookies = (app.exclude_cookies or [])
                 allowed_cookies = [cookie for cookie in self.request.cookies
                                    if cookie not in excluded_cookies]
             else:
-                allowed_cookies = self.application.include_cookies
+                allowed_cookies = app.include_cookies
             cookies = {k: v.value for k, v in self.request.cookies.items()
                        if k in allowed_cookies}
+
+            if cookies and 'Cookie' in headers and 'Cookie' not in (app.include_headers or []):
+                # Do not include Cookie header since cookies can be restored from cookies dict
+                del headers['Cookie']
 
             payload = {'headers': headers, 'cookies': cookies}
             payload.update(self.application_context.application.process_request(self.request))
             token = generate_jwt_token(session_id,
-                                       secret_key=self.application.secret_key,
-                                       signed=self.application.sign_sessions,
-                                       expiration=self.application.session_token_expiration,
+                                       secret_key=app.secret_key,
+                                       signed=app.sign_sessions,
+                                       expiration=app.session_token_expiration,
                                        extra_payload=payload)
 
         if not check_token_signature(token,
-                                     secret_key=self.application.secret_key,
-                                     signed=self.application.sign_sessions):
+                                     secret_key=app.secret_key,
+                                     signed=app.sign_sessions):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid token or session ID")
 
