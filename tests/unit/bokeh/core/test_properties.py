@@ -94,6 +94,7 @@ ALL = (
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
+    'PandasSeries',
     'Percent',
     'PositiveInt',
     'PropertyUnitsSpec',
