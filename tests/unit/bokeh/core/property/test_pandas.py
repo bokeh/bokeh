@@ -29,6 +29,7 @@ import bokeh.core.property.pandas as bcpp # isort:skip
 ALL = (
     'PandasDataFrame',
     'PandasGroupBy',
+    'PandasSeries',
 )
 
 #-----------------------------------------------------------------------------
@@ -59,6 +60,21 @@ class Test_PandasGroupBy:
 
     def test_invalid(self) -> None:
         prop = bcpp.PandasGroupBy()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+class Test_PandasSeries:
+    def test_valid(self, pd) -> None:
+        prop = bcpp.PandasDataFrame()
+        assert prop.is_valid(pd.DataFrame())
+
+    def test_invalid(self) -> None:
+        prop = bcpp.PandasDataFrame()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())
