@@ -120,13 +120,30 @@ log = logging.getLogger(__name__)
 import codecs
 import os
 from os.path import abspath, expanduser, join
-from typing import Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 # External imports
 import yaml
+from typing_extensions import Literal
 
 # Bokeh imports
 from .util.paths import bokehjsdir
+
+if TYPE_CHECKING:
+    from .resources import ResourcesMode
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -144,13 +161,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def convert_str(value):
-    ''' Return a string as-is
+def convert_str(value: str) -> str:
+    ''' Return a string as-is.
     '''
     return value
 
-def convert_bool(value):
-    ''' Convert a string to True or False
+def convert_bool(value: Union[bool, str]) -> bool:
+    ''' Convert a string to True or False.
 
     If a boolean is passed in, it is returned as-is. Otherwise the function
     maps the following strings, ignoring case:
@@ -169,7 +186,7 @@ def convert_bool(value):
         ValueError
 
     '''
-    if value in (True, False):
+    if isinstance(value, bool):
         return value
 
     val = value.lower()
@@ -180,13 +197,13 @@ def convert_bool(value):
 
     raise ValueError(f"Cannot convert {value} to boolean value")
 
-def convert_str_seq(value):
-    ''' Convert a string to a lit of strings
+def convert_str_seq(value: Union[List[str], str]) -> List[str]:
+    ''' Convert a string to a list of strings.
 
     If a list or tuple is passed in, it is returned as-is.
 
     Args:
-        value (str) :
+        value (seq[str] or str) :
             A string to convert to a list of strings
 
     Returns
@@ -201,6 +218,11 @@ def convert_str_seq(value):
     except Exception:
         raise ValueError(f"Cannot convert {value} to list value")
 
+
+LogLevel = Literal["trace", "debug", "info", "warn", "error", "fatal"]
+
+PyLogLevel = Union[int, None]
+
 _log_levels = {
     "CRITICAL" : logging.CRITICAL,
     "ERROR"    : logging.ERROR,
@@ -211,7 +233,7 @@ _log_levels = {
     "NONE"     : None,
 }
 
-def convert_logging(value):
+def convert_logging(value: Union[str, int]) -> PyLogLevel:
     '''Convert a string to a Python logging level
 
     If a log level is passed in, it is returned as-is. Otherwise the function
@@ -236,16 +258,19 @@ def convert_logging(value):
         ValueError
 
     '''
-    if value in set(_log_levels.values()):
-        return value
+    if value is None or isinstance(value, int):
+        if value in set(_log_levels.values()):
+            return value
+    else:
+        value = value.upper()
+        if value in _log_levels:
+            return _log_levels[value]
 
-    value = value.upper()
-    if value in _log_levels:
-        return _log_levels[value]
+    raise ValueError(f"Cannot convert {value} to log level, valid values are: {', '.join(_log_levels)}")
 
-    raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
+ValidationLevel = Literal["none", "errors", "all"]
 
-def convert_validation(value):
+def convert_validation(value: Union[str, ValidationLevel]) -> ValidationLevel:
     '''Convert a string to a validation level
 
     If a validation level is passed in, it is returned as-is.
@@ -265,16 +290,20 @@ def convert_validation(value):
 
     lowered = value.lower()
     if lowered in VALID_LEVELS:
-        return lowered
+        return cast(ValidationLevel, lowered)
 
     raise ValueError(f"Cannot convert {value!r} to validation level, valid values are: {VALID_LEVELS!r}")
 
 class _Unset: pass
 
-def is_dev():
+T = TypeVar("T")
+
+Unset = Union[T, Type[_Unset]]
+
+def is_dev() -> bool:
     return convert_bool(os.environ.get("BOKEH_DEV", False))
 
-class PrioritizedSetting:
+class PrioritizedSetting(Generic[T]):
     ''' Return a value for a global setting according to configuration precedence.
 
     The following methods are searched in order for the setting:
@@ -303,7 +332,11 @@ class PrioritizedSetting:
     to ``logging`` module values.
     '''
 
-    def __init__(self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""):
+    _parent: Optional[Settings]
+    _user_value: Unset[Union[str, T]]
+
+    def __init__(self, name: str, env_var: Optional[str] = None, default: Unset[T] = _Unset,
+            dev_default: Unset[T] = _Unset, convert: Optional[Callable[[Union[T, str]], T]] = None, help: str = ""):
         self._convert = convert if convert else convert_str
         self._default = default
         self._dev_default = dev_default
@@ -313,7 +346,7 @@ class PrioritizedSetting:
         self._parent = None
         self._user_value = _Unset
 
-    def __call__(self, value=None, default=_Unset):
+    def __call__(self, value: Optional[Union[T, str]] = None, default: Unset[T] = _Unset) -> T:
         '''Return the setting value according to the standard precedence.
 
         Args:
@@ -368,15 +401,15 @@ class PrioritizedSetting:
         if self._default is not _Unset:
             return self._convert(self._default)
 
-        raise RuntimeError("No configured value found for setting %r" % self._name)
+        raise RuntimeError(f"No configured value found for setting {self._name!r}")
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: Any, owner: Type[Any]) -> PrioritizedSetting[T]:
         return self
 
-    def __set__(self, instance, value):
+    def __set__(self, instance: Any, value: Union[str, T]) -> None:
         self.set_value(value)
 
-    def set_value(self, value):
+    def set_value(self, value: Union[str, T]) -> None:
         ''' Specify a value for this setting programmatically.
 
         A value set this way takes precedence over all other methods except
@@ -429,16 +462,18 @@ class PrioritizedSetting:
         if self._convert is convert_str_seq: return "List[String]"
         if self._convert is convert_validation: return "Validation Level"
 
-_config_user_locations = (
+_config_user_locations: Sequence[str] = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),
 )
-
-_config_system_locations = ()
 
 class Settings:
     '''
 
     '''
+
+    _config_override: Dict[str, Any]
+    _config_user: Dict[str, Any]
+    _config_system: Dict[str, Any]
 
     def __init__(self):
         self._config_override = {}
@@ -450,26 +485,26 @@ class Settings:
                 x._parent = self
 
     @property
-    def config_system(self):
+    def config_system(self) -> Dict[str, Any]:
         return dict(self._config_system)
 
     @property
-    def config_user(self):
+    def config_user(self) -> Dict[str, Any]:
         return dict(self._config_user)
 
     @property
-    def config_override(self):
+    def config_override(self) -> Dict[str, Any]:
         return dict(self._config_override)
 
     @property
-    def dev(self):
+    def dev(self) -> bool:
         return is_dev()
 
-    allowed_ws_origin = PrioritizedSetting("allowed_ws_origin", "BOKEH_ALLOW_WS_ORIGIN", default=[], convert=convert_str_seq, help="""
+    allowed_ws_origin: PrioritizedSetting[List[str]] = PrioritizedSetting("allowed_ws_origin", "BOKEH_ALLOW_WS_ORIGIN", default=[], convert=convert_str_seq, help="""
     A comma-separated list of allowed websocket origins for Bokeh server applications.
     """)
 
-    auth_module = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
+    auth_module: PrioritizedSetting[Optional[str]] = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
     A path to a Python modules that implements user authentication functions for
     the Bokeh server.
 
@@ -478,33 +513,32 @@ class Settings:
 
     """)
 
-    browser = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
+    browser: PrioritizedSetting[Optional[str]] = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
     The default browser that Bokeh should use to show documents with.
 
     Valid values are any of the predefined browser names understood by the
-    Python standard library webbrowser_ module.
-
-    .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
+    Python standard library :doc:`webbrowser <python:library/webbrowser>`
+    module.
     """)
 
-    cdn_version = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
+    cdn_version: PrioritizedSetting[Optional[str]] = PrioritizedSetting("version", "BOKEH_CDN_VERSION", default=None, help="""
     What version of BokehJS to use with CDN resources.
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    cookie_secret = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
+    cookie_secret: PrioritizedSetting[Optional[str]] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
     long, random sequence of bytes
     """)
 
-    docs_alert = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
+    docs_alert: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_alert", "BOKEH_DOCS_ALERT", default=None, help="""
     Text for an alert banner to display when building the docs locally (for
     testing the alert banner capability).
     """)
 
-    docs_cdn = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
+    docs_cdn: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
     The version of BokehJS that should be use for loading CDN resources when
     building the docs.
 
@@ -527,18 +561,18 @@ class Settings:
     will build docs that use BokehJS version ``1.4.0rc1`` from CDN.
     """)
 
-    docs_version = PrioritizedSetting("docs_version", "BOKEH_DOCS_VERSION", default=None, help="""
+    docs_version: PrioritizedSetting[Optional[str]] = PrioritizedSetting("docs_version", "BOKEH_DOCS_VERSION", default=None, help="""
     The Bokeh version to stipulate when building the docs.
 
     This setting is necessary to re-deploy existing versions of docs with new
     fixes or changes.
     """)
 
-    ignore_filename = PrioritizedSetting("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""
+    ignore_filename: PrioritizedSetting[bool] = PrioritizedSetting("ignore_filename", "BOKEH_IGNORE_FILENAME", default=False, convert=convert_bool, help="""
     Whether to ignore the current script filename when saving Bokeh content.
     """)
 
-    log_level = PrioritizedSetting("log_level", "BOKEH_LOG_LEVEL", default="info", dev_default="debug", help="""
+    log_level: PrioritizedSetting[LogLevel] = PrioritizedSetting("log_level", "BOKEH_LOG_LEVEL", default="info", dev_default="debug", help="""
     Set the log level for JavaScript BokehJS code.
 
     Valid values are, in order of increasing severity:
@@ -552,15 +586,15 @@ class Settings:
 
     """)
 
-    minified = PrioritizedSetting("minified", "BOKEH_MINIFIED", convert=convert_bool, default=True, dev_default=False, help="""
+    minified: PrioritizedSetting[bool] = PrioritizedSetting("minified", "BOKEH_MINIFIED", convert=convert_bool, default=True, dev_default=False, help="""
     Whether Bokeh should use minified BokehJS resources.
     """)
 
-    legacy = PrioritizedSetting("legacy", "BOKEH_LEGACY", convert=convert_bool, default=False, dev_default=False, help="""
+    legacy: PrioritizedSetting[bool] = PrioritizedSetting("legacy", "BOKEH_LEGACY", convert=convert_bool, default=False, dev_default=False, help="""
     Whether Bokeh should use legacy (IE and phantomjs compatible) BokehJS resources.
     """)
 
-    nodejs_path = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
+    nodejs_path: PrioritizedSetting[Optional[str]] = PrioritizedSetting("nodejs_path", "BOKEH_NODEJS_PATH", default=None, help="""
     Path to the Node executable.
 
     NodeJS is an optional dependency that is required for PNG and SVG export,
@@ -569,17 +603,17 @@ class Settings:
     location Bokeh finds, or to point to a non-standard location.
     """)
 
-    perform_document_validation = PrioritizedSetting("validate_doc", "BOKEH_VALIDATE_DOC", convert=convert_bool, default=True, help="""
+    perform_document_validation: PrioritizedSetting[bool] = PrioritizedSetting("validate_doc", "BOKEH_VALIDATE_DOC", convert=convert_bool, default=True, help="""
     whether Bokeh should perform validation checks on documents.
 
     Setting this value to False may afford a small performance improvement.
     """)
 
-    pretty = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""
+    pretty: PrioritizedSetting[bool] = PrioritizedSetting("pretty", "BOKEH_PRETTY", default=False, dev_default=True, help="""
     Whether JSON strings should be pretty-printed.
     """)
 
-    py_log_level = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="none", dev_default="debug", convert=convert_logging, help="""
+    py_log_level: PrioritizedSetting[PyLogLevel] = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="none", dev_default="debug", convert=convert_logging, help="""
     The log level for Python Bokeh code.
 
     Valid values are, in order of increasing severity:
@@ -594,48 +628,48 @@ class Settings:
 
     """)
 
-    resources = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="absolute-dev", help="""
+    resources: PrioritizedSetting[ResourcesMode] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="absolute-dev", help="""
     What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    rootdir = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
+    rootdir: PrioritizedSetting[Optional[str]] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
     Root directory to use with ``relative`` resources
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    secret_key = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
+    secret_key: PrioritizedSetting[Optional[str]] = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
     A long, cryptographically-random secret unique to a Bokeh deployment.
     """)
 
-    sign_sessions = PrioritizedSetting("sign_sessions", "BOKEH_SIGN_SESSIONS", default=False, help="""
+    sign_sessions: PrioritizedSetting[bool] = PrioritizedSetting("sign_sessions", "BOKEH_SIGN_SESSIONS", default=False, help="""
     Whether the Boeh server should only allow sessions signed with a secret key.
 
     If True, ``BOKEH_SECRET_KEY`` must also be set.
     """)
 
-    simple_ids = PrioritizedSetting("simple_ids", "BOKEH_SIMPLE_IDS", default=True, convert=convert_bool, help="""
+    simple_ids: PrioritizedSetting[bool] = PrioritizedSetting("simple_ids", "BOKEH_SIMPLE_IDS", default=True, convert=convert_bool, help="""
     Whether Bokeh should use simple integers for model IDs (starting at 1000).
 
     If False, Bokeh will use UUIDs for object identifiers. This might be needed,
     e.g., if multiple processes are contributing to a single Bokeh Document.
     """)
 
-    ssl_certfile = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
+    ssl_certfile: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_certfile", "BOKEH_SSL_CERTFILE", default=None, help="""
     The path to a certificate file for SSL termination.
     """)
 
-    ssl_keyfile = PrioritizedSetting("ssl_keyfile", "BOKEH_SSL_KEYFILE", default=None, help="""
+    ssl_keyfile: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_keyfile", "BOKEH_SSL_KEYFILE", default=None, help="""
     The path to a private key file for SSL termination.
     """)
 
-    ssl_password = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
+    ssl_password: PrioritizedSetting[Optional[str]] = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
     A password to decrypt the SSL keyfile, if necessary.
     """)
 
-    validation_level = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none", convert=convert_validation, help="""
+    validation_level: PrioritizedSetting[ValidationLevel] = PrioritizedSetting("validation_level", "BOKEH_VALIDATION_LEVEL", default="none", convert=convert_validation, help="""
     Whether validation checks should log or raise exceptions on errors and warnings.
 
     Valid values are:
@@ -646,7 +680,7 @@ class Settings:
 
     """)
 
-    xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
+    xsrf_cookies: PrioritizedSetting[bool] = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
     Whether to enable Tornado XSRF cookie protection on the Bokeh server. This
     is only applicable when also using an auth module or custom handlers. See
 
@@ -665,29 +699,29 @@ class Settings:
         '''
         return bokehjsdir(self.dev)
 
-    def css_files(self):
+    def css_files(self) -> List[str]:
         ''' The CSS files in the BokehJS directory.
 
         '''
-        js_files = []
-        for root, dirnames, files in os.walk(self.bokehjsdir()):
+        css_files: List[str] = []
+        for root, _, files in os.walk(self.bokehjsdir()):
             for fname in files:
                 if fname.endswith(".css"):
-                    js_files.append(join(root, fname))
-        return js_files
+                    css_files.append(join(root, fname))
+        return css_files
 
-    def js_files(self):
+    def js_files(self) -> List[str]:
         ''' The JS files in the BokehJS directory.
 
         '''
-        js_files = []
-        for root, dirnames, files in os.walk(self.bokehjsdir()):
+        js_files: List[str] = []
+        for root, _, files in os.walk(self.bokehjsdir()):
             for fname in files:
                 if fname.endswith(".js"):
                     js_files.append(join(root, fname))
         return js_files
 
-    def load_config(self, location):
+    def load_config(self, location: str) -> None:
         ''' Load a user-specified override config file.
 
         The file should be a YAML format with ``key: value`` lines.
@@ -710,7 +744,7 @@ class Settings:
                 self._secret_key_bytes = codecs.encode(key, "utf-8")
         return self._secret_key_bytes
 
-    def _try_load_config(self, locations):
+    def _try_load_config(self, locations: Sequence[str]) -> Dict[str, Any]:
         for location in locations:
             try:
                 return yaml.load(open(location), Loader=yaml.SafeLoader)
@@ -728,10 +762,11 @@ class Settings:
 
 settings = Settings()
 
-if settings.secret_key() is not None:
-    if len(settings.secret_key()) < 32:
-        import warnings
-        warnings.warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
+_secret_key = settings.secret_key()
+if _secret_key is not None and len(_secret_key) < 32:
+    import warnings
+    warnings.warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
+del _secret_key
 
 if settings.sign_sessions() and settings.secret_key() is None:
     import warnings

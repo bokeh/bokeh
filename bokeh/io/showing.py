@@ -67,7 +67,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             For file output, the **browser** argument allows for specifying
             which browser to display in, e.g. "safari", "firefox", "opera",
             "windows-default". Not all platforms may support this option, see
-            the documentation for the standard library webbrowser_ module for
+            the documentation for the standard library
+            :doc:`webbrowser <python:library/webbrowser>` module for
             more information
 
         new (str, optional) :
@@ -121,8 +122,6 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
         and ``notebook_handle=True``, returns a handle that can be used by
         ``push_notebook``, None otherwise.
 
-    .. _webbrowser: https://docs.python.org/3/library/webbrowser.html
-
     '''
     state = curstate()
 
@@ -148,7 +147,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 # Private API
 #-----------------------------------------------------------------------------
 
-_BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
+_BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be one of:
 
 * a LayoutDOM (e.g. a Plot or Widget or Layout)
 * a Bokeh Application

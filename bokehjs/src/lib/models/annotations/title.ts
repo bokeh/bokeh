@@ -19,46 +19,46 @@ export class TitleView extends TextAnnotationView {
     let sx: number, sy: number
     const {bbox} = this.layout
     switch (this.panel.side) {
-      case 'above':
-      case 'below': {
+      case "above":
+      case "below": {
         switch (this.model.vertical_align) {
-          case 'top':    sy = bbox.top     + vmargin; break
-          case 'middle': sy = bbox.vcenter;           break
-          case 'bottom': sy = bbox.bottom  - vmargin; break
+          case "top":    sy = bbox.top     + vmargin; break
+          case "middle": sy = bbox.vcenter;           break
+          case "bottom": sy = bbox.bottom  - vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sx = bbox.left    + hmargin; break
-          case 'center': sx = bbox.hcenter;           break
-          case 'right':  sx = bbox.right   - hmargin; break
+          case "left":   sx = bbox.left    + hmargin; break
+          case "center": sx = bbox.hcenter;           break
+          case "right":  sx = bbox.right   - hmargin; break
         }
         break
       }
-      case 'left': {
+      case "left": {
         switch (this.model.vertical_align) {
-          case 'top':    sx = bbox.left    + vmargin; break
-          case 'middle': sx = bbox.hcenter;           break
-          case 'bottom': sx = bbox.right   - vmargin; break
+          case "top":    sx = bbox.left    + vmargin; break
+          case "middle": sx = bbox.hcenter;           break
+          case "bottom": sx = bbox.right   - vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = bbox.bottom  - hmargin; break
-          case 'center': sy = bbox.vcenter;           break
-          case 'right':  sy = bbox.top     + hmargin; break
+          case "left":   sy = bbox.bottom  - hmargin; break
+          case "center": sy = bbox.vcenter;           break
+          case "right":  sy = bbox.top     + hmargin; break
         }
         break
       }
-      case 'right': {
+      case "right": {
         switch (this.model.vertical_align) {
-          case 'top':    sx = bbox.right   - vmargin; break
-          case 'middle': sx = bbox.hcenter;           break
-          case 'bottom': sx = bbox.left    + vmargin; break
+          case "top":    sx = bbox.right   - vmargin; break
+          case "middle": sx = bbox.hcenter;           break
+          case "bottom": sx = bbox.left    + vmargin; break
         }
 
         switch (this.model.align) {
-          case 'left':   sy = bbox.top     + hmargin; break
-          case 'center': sy = bbox.vcenter;           break
-          case 'right':  sy = bbox.bottom  - hmargin; break
+          case "left":   sy = bbox.top     + hmargin; break
+          case "center": sy = bbox.vcenter;           break
+          case "right":  sy = bbox.bottom  - hmargin; break
         }
         break
       }
@@ -76,9 +76,9 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.panel.get_label_angle_heuristic('parallel')
+    const angle = this.panel.get_label_angle_heuristic("parallel")
 
-    const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
+    const draw = this.model.render_mode == "canvas" ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.layer.ctx, text, sx, sy, angle)
   }
 

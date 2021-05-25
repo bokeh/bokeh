@@ -18,20 +18,20 @@ export namespace Stocks {
     })
 
     // Add axis and grid
-    const xaxis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: 'time'})
-    const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: 'price'})
+    const xaxis = new Bokeh.DatetimeAxis({axis_line_color: null, axis_label: "time"})
+    const yaxis = new Bokeh.LinearAxis({axis_line_color: null, axis_label: "price"})
     plot.add_layout(xaxis, "below")
     plot.add_layout(yaxis, "left")
     plot.add_layout(new Bokeh.Grid({ticker: xaxis.ticker, dimension: 0}))
     plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}))
 
     // Add a line for each entry in the source
-    const colors = ['#aa0000', '#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa']
+    const colors = ["#aa0000", "#00aa00", "#0000aa", "#aaaa00", "#aa00aa", "#00aaaa"]
     let i = -1
     for (const key in source.data) {
-      if (key != 't') {
+      if (key != "t") {
         i += 1
-        plot.line({field: 't'}, {field: key}, {
+        plot.line({field: "t"}, {field: key}, {
           source, legend: key, line_color: colors[i%6], line_width: 2,
         })
       }
@@ -66,6 +66,6 @@ export namespace Stocks {
   setInterval(new_data, period*1000)
 
   // Create plot and attach to DOM
-  const plot = make_plot('Simple stocks demo', source)
+  const plot = make_plot("Simple stocks demo", source)
   plt.show(plot, "#plot")
 }

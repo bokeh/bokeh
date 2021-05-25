@@ -8,7 +8,6 @@ import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
-import {get_regl, ReglWrapper} from "./webgl/regl_wrap"
 import {RectGL} from "./webgl/rect"
 
 export type RectData = CenterRotatableData & {
@@ -31,7 +30,7 @@ export class RectView extends CenterRotatableView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      const regl_wrapper: ReglWrapper = get_regl(webgl.gl)
+      const {regl_wrapper} = webgl
       if (regl_wrapper.has_webgl) {
         this.glglyph = new RectGL(regl_wrapper, this)
       }
@@ -178,7 +177,7 @@ export class RectView extends CenterRotatableView {
     const spt0 = scale.v_compute(pt0)
     const spt1 = scale.v_compute(pt1)
 
-    const sside_length = this.sdist(scale, pt0, side_length, 'edge', this.model.dilate)
+    const sside_length = this.sdist(scale, pt0, side_length, "edge", this.model.dilate)
 
     let spt_corner = spt0
     for (let i = 0; i < n; i++) {

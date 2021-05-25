@@ -19,7 +19,7 @@ export class CheckboxGroupView extends InputGroupView {
 
     this._inputs = []
     for (let i = 0; i < labels.length; i++) {
-      const checkbox = input({type: `checkbox`, value: `${i}`})
+      const checkbox = input({type: "checkbox", value: `${i}`})
       checkbox.addEventListener("change", () => this.change_active(i))
       this._inputs.push(checkbox)
 
@@ -29,7 +29,7 @@ export class CheckboxGroupView extends InputGroupView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const label_el = label({}, checkbox, span({}, labels[i]))
+      const label_el = label(checkbox, span(labels[i]))
       group.appendChild(label_el)
     }
   }

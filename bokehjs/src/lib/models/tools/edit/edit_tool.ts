@@ -147,7 +147,7 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return []
     }
-    const geometry: PointGeometry = {type: 'point', sx, sy}
+    const geometry: PointGeometry = {type: "point", sx, sy}
     const selected = []
     for (const renderer of renderers) {
       const sm = renderer.get_selection_manager()

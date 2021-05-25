@@ -21,11 +21,11 @@ export type Token = {
 }
 
 export function parse_token(token: string): Token {
-  let payload = token.split('.')[0]
+  let payload = token.split(".")[0]
   const mod = payload.length % 4
   if (mod != 0)
     payload = payload + "=".repeat(4-mod)
-  return JSON.parse(atob(payload.replace(/_/g, '/').replace(/-/g, '+')))
+  return JSON.parse(atob(payload.replace(/_/g, "/").replace(/-/g, "+")))
 }
 
 export class ClientConnection {
@@ -45,7 +45,7 @@ export class ClientConnection {
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
               readonly token: string = DEFAULT_TOKEN,
               readonly args_string: string | null = null) {
-    this.id = parse_token(token).session_id.split('.')[0]
+    this.id = parse_token(token).session_id.split(".")[0]
     logger.debug(`Creating websocket ${this._number} to '${this.url}' session '${this.id}'`)
   }
 
@@ -156,7 +156,7 @@ export class ClientConnection {
           const patch = Document._compute_patch_since_json(doc_json, document)
           if (patch.events.length > 0) {
             logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
-            const patch_message = Message.create('PATCH-DOC', {}, patch)
+            const patch_message = Message.create("PATCH-DOC", {}, patch)
             this.send(patch_message)
           }
 
@@ -253,7 +253,7 @@ export class ClientConnection {
       pr.resolve(message)
     } else if (this.session) {
       this.session.handle(message)
-    } else if (message.msgtype() != 'PATCH-DOC') {
+    } else if (message.msgtype() != "PATCH-DOC") {
       // This branch can be executed only before we get the document.
       // When we get the document, all of the patches will already be incorporated.
       // In general, it's not possible to apply patches received before the document,

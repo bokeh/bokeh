@@ -5,12 +5,12 @@ import * as object from "@bokehjs/core/util/object"
 describe("object module", () => {
 
   it("values should return an array of the values of an object", () => {
-    const obj1 = {key1: 'val1', key2: 'val2'}
-    expect(object.values(obj1)).to.be.equal(['val1', 'val2'])
+    const obj1 = {key1: "val1", key2: "val2"}
+    expect(object.values(obj1)).to.be.equal(["val1", "val2"])
   })
 
   it("clone should create a new object with the same key/values", () => {
-    const obj1 = {key1: 'val1', key2: 'val2'}
+    const obj1 = {key1: "val1", key2: "val2"}
     expect(object.clone(obj1)).to.be.equal(obj1)
   })
 

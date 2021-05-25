@@ -15,11 +15,11 @@ export class ClientSession {
   handle(message: Message): void {
     const msgtype = message.msgtype()
 
-    if (msgtype === 'PATCH-DOC')
+    if (msgtype === "PATCH-DOC")
       this._handle_patch(message)
-    else if (msgtype === 'OK')
+    else if (msgtype === "OK")
       this._handle_ok(message)
-    else if (msgtype === 'ERROR')
+    else if (msgtype === "ERROR")
       this._handle_error(message)
     else
       logger.debug(`Doing nothing with message ${message.msgtype()}`)
@@ -37,7 +37,7 @@ export class ClientSession {
   // version. Returns a promise, the value of the promise is a free-form dictionary
   // of server details.
   async request_server_info(): Promise<unknown> {
-    const message = Message.create('SERVER-INFO-REQ', {})
+    const message = Message.create("SERVER-INFO-REQ", {})
     const reply = await this._connection.send_with_reply(message)
     return reply.content
   }
@@ -65,7 +65,7 @@ export class ClientSession {
 
     // TODO (havocp) the connection may be closed here, which will
     // cause this send to throw an error - need to deal with it more cleanly.
-    const message = Message.create('PATCH-DOC', {}, patch)
+    const message = Message.create("PATCH-DOC", {}, patch)
     this._connection.send(message)
   }
 

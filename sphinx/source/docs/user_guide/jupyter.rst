@@ -274,10 +274,7 @@ notebook below:
 
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |output_file| replace:: :func:`~bokeh.io.output_file`
-
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
-.. |show| replace:: :func:`~bokeh.io.show`
 
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 .. _Reveal.js: http://lab.hakim.se/reveal-js/#/

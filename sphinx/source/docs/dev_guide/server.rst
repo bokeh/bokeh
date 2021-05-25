@@ -24,11 +24,11 @@ Applications, sessions, and connections
 
 Each server contains one or more applications; you can think of an application
 as a session template, or a factory for sessions. Sessions have a 1-1
-relationship with instances of ``bokeh.document.Document``: each session has a
-document instance. When a browser connects to the server, it gets a new
-session; the application fills in the session's document with whatever plots,
-widgets, or other content it desires. The application can also set up
-callbacks, to run periodically or to run when the document changes.
+relationship with instances of |Document|: each session has a document instance.
+When a browser connects to the server, it gets a new session; the application
+fills in the session's document with whatever plots, widgets, or other content
+it desires. The application can also set up callbacks, to run periodically or to
+run when the document changes.
 
 Applications are represented by the ``Application`` class. This class
 contains a list of ``Handler`` instances and optional metadata. Handlers
