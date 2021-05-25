@@ -32,12 +32,12 @@ export function uniqueId(prefix?: string): string {
 export function escape(s: string): string {
   return s.replace(/(?:[&<>"'`])/g, (ch) => {
     switch (ch) {
-      case '&': return '&amp;'
-      case '<': return '&lt;'
-      case '>': return '&gt;'
-      case '"': return '&quot;'
-      case "'": return '&#x27;'
-      case '`': return '&#x60;'
+      case "&": return "&amp;"
+      case "<": return "&lt;"
+      case ">": return "&gt;"
+      case '"': return "&quot;"
+      case "'": return "&#x27;"
+      case "`": return "&#x60;"
       default:  return ch
     }
   })
@@ -46,12 +46,12 @@ export function escape(s: string): string {
 export function unescape(s: string): string {
   return s.replace(/&(amp|lt|gt|quot|#x27|#x60);/g, (_, entity) => {
     switch (entity) {
-      case 'amp':  return '&'
-      case 'lt':   return '<'
-      case 'gt':   return '>'
-      case 'quot': return '"'
-      case '#x27': return "'"
-      case '#x60': return '`'
+      case "amp":  return "&"
+      case "lt":   return "<"
+      case "gt":   return ">"
+      case "quot": return '"'
+      case "#x27": return "'"
+      case "#x60": return "`"
       default:     return entity
     }
   })

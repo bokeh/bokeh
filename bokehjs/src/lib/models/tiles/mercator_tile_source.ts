@@ -224,15 +224,15 @@ export class MercatorTileSource extends TileSource {
       const mask = 1 << (i - 1)
 
       switch (value) {
-        case '0':
+        case "0":
           continue
-        case '1':
+        case "1":
           tileX |= mask
           break
-        case '2':
+        case "2":
           tileY |= mask
           break
-        case '3':
+        case "3":
           tileX |= mask
           tileY |= mask
           break

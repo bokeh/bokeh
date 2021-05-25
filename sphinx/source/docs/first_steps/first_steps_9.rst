@@ -136,8 +136,8 @@ This is what the completed example looks like:
     To learn more about Bokeh's widgets and building interactive dashboards, see
     :ref:`userguide_interaction_widgets` in the user guide.
 
-    To learn about creating interactive legends, see
-    :ref:`userguide_interaction_legends` in the user guide.
+    To learn about creating interactive legends, see |interactive legends| in
+    the user guide.
 
     See :ref:`userguide_interaction_jscallbacks` in the user guide to learn more
     about adding custom JavaScript code that you can use in combination
@@ -215,9 +215,8 @@ Next steps
 
 Congratulations, you have completed all of Bokeh's first steps guides!
 
-More information about Bokeh is available in the :ref:`user guide <userguide>`.
-For more in-depth information about all aspects of Bokeh, see the
-:ref:`reference guide <refguide>`.
+More information about Bokeh is available in the |user guide|. For more in-depth
+information about all aspects of Bokeh, see the |reference guide|.
 
 For more examples of what you can do with Bokeh, check the :ref:`gallery` and
 the :bokeh-tree:`examples` directory in Bokeh's GitHub repository.

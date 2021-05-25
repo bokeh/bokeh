@@ -70,12 +70,12 @@ describe("core/has_props module", () => {
 
     it("should combine props from subclasses", () => {
       const obj = new SubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['foo', 'bar'])
+      expect(keys(obj.properties)).to.be.equal(["foo", "bar"])
     })
 
     it("should combine props from sub-subclasses", () => {
       const obj = new SubSubclassWithProps()
-      expect(keys(obj.properties)).to.be.equal(['foo', 'bar', 'baz'])
+      expect(keys(obj.properties)).to.be.equal(["foo", "bar", "baz"])
     })
 
     it("should combine mixins from subclasses", () => {

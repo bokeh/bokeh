@@ -1,4 +1,4 @@
-import * as noUiSlider from "nouislider"
+import noUiSlider, {API} from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
@@ -31,9 +31,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     yield this.slider_el as any
   }
 
-  private get noUiSlider(): noUiSlider.noUiSlider {
-    return (this.slider_el as noUiSlider.Instance).noUiSlider
-  }
+  private _noUiSlider: API
 
   override connect_signals(): void {
     super.connect_signals()
@@ -44,11 +42,11 @@ abstract class AbstractBaseSliderView extends ControlView {
     const {start, end, value, step, title} = this.model.properties
     this.on_change([start, end, value, step], () => {
       const {start, end, value, step} = this._calc_to()
-      this.noUiSlider.updateOptions({
+      this._noUiSlider.updateOptions({
         range: {min: start, max: end},
         start: value,
         step,
-      })
+      }, true)
     })
 
     const {bar_color} = this.model.properties
@@ -111,7 +109,7 @@ abstract class AbstractBaseSliderView extends ControlView {
     if (this.slider_el == null) {
       this.slider_el = div() as any
 
-      noUiSlider.create(this.slider_el, {
+      this._noUiSlider = noUiSlider.create(this.slider_el, {
         range: {min: start, max: end},
         start: value,
         step,
@@ -122,33 +120,33 @@ abstract class AbstractBaseSliderView extends ControlView {
         direction: this.model.direction,
       })
 
-      this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
-      this.noUiSlider.on('change', (_, __, values) => this._change(values))
+      this._noUiSlider.on("slide",  (_, __, values) => this._slide(values))
+      this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
       const toggleTooltip = (i: number, show: boolean): void => {
         if (!tooltips)
           return
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
         const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
-        tooltip.style.display = show ? 'block' : ''
+        tooltip.style.display = show ? "block" : ""
       }
 
-      this.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      this.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+      this._noUiSlider.on("start", (_, i) => toggleTooltip(i, true))
+      this._noUiSlider.on("end",   (_, i) => toggleTooltip(i, false))
     } else {
-      this.noUiSlider.updateOptions({
+      this._noUiSlider.updateOptions({
         range: {min: start, max: end},
         start: value,
         step,
-      })
+      }, true)
     }
 
     this._set_bar_color()
 
     if (this.model.disabled)
-      this.slider_el.setAttribute('disabled', 'true')
+      this.slider_el.setAttribute("disabled", "true")
     else
-      this.slider_el.removeAttribute('disabled')
+      this.slider_el.removeAttribute("disabled")
 
     this.title_el = div({class: sliders.slider_title})
     this._update_title()

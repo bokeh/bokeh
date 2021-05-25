@@ -110,11 +110,11 @@ export class DashCache {
     const tex: Texture2D = this._regl.texture({
       shape: [ntex, 1, 1],
       data: dist,
-      wrapS: 'repeat',
-      format: 'alpha',
-      type: 'uint8',
-      mag: 'linear',
-      min: 'linear',
+      wrapS: "repeat",
+      format: "alpha",
+      type: "uint8",
+      mag: "linear",
+      min: "linear",
     })
 
     return [[len, offset, dist_min, dist_max], tex]

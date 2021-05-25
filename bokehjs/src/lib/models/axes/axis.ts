@@ -43,6 +43,7 @@ export class AxisView extends GuideRendererView {
 
   update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
+    this.layout.on_resize(() => this._coordinates = undefined)
   }
 
   get_size(): Size {
@@ -518,11 +519,11 @@ export class AxisView extends GuideRendererView {
     const [, cross_range] = this.ranges
 
     switch (this.panel.side) {
-      case 'left':
-      case 'below':
+      case "left":
+      case "below":
         return cross_range.start
-      case 'right':
-      case 'above':
+      case "right":
+      case "above":
         return cross_range.end
     }
   }
@@ -611,10 +612,10 @@ export class Axis extends GuideRenderer {
     }))
 
     this.override<Axis.Props>({
-      axis_line_color: 'black',
+      axis_line_color: "black",
 
-      major_tick_line_color: 'black',
-      minor_tick_line_color: 'black',
+      major_tick_line_color: "black",
+      minor_tick_line_color: "black",
 
       major_label_text_font_size: "11px",
       major_label_text_align: "center",        // XXX: remove

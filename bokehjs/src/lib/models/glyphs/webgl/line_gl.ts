@@ -5,7 +5,7 @@ import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
 import {cap_lookup, join_lookup} from "./webgl_utils"
-import {LineGlyphProps, LineDashGlyphProps} from "./types"
+import {FloatBuffer, LineGlyphProps, LineDashGlyphProps} from "./types"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
@@ -15,16 +15,17 @@ const missing_point_threshold = -9000.0
 
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number
-  protected _points: Float32Array
+  protected _points: FloatBuffer
 
   protected _antialias: number
   protected _color: number[]
+  protected _linewidth: number
   protected _miter_limit: number
   protected _line_dash: number[]
   protected _is_closed: boolean
 
   // Only needed if line has dashes.
-  protected _length_so_far?: Float32Array
+  protected _length_so_far?: FloatBuffer
   protected _dash_tex?: Texture2D
   protected _dash_tex_info?: number[]
   protected _dash_scale?: number
@@ -52,24 +53,24 @@ export class LineGL extends BaseGLGlyph {
     }
 
     const line_visuals = this.glyph.visuals.line
-    const linewidth = line_visuals.line_width.value
-    const antialias = Math.min(this._antialias, linewidth)
     const line_cap = cap_lookup[line_visuals.line_cap.value]
     const line_join = join_lookup[line_visuals.line_join.value]
 
     if (this._is_dashed()) {
       const props: LineDashGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
-        linewidth,
-        antialias,
+        linewidth: this._linewidth,
+        antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: this._points,
-        nsegments: this._nsegments,
+        points: mainGlGlyph._points.buffer,
+        nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
-        length_so_far: this._length_so_far!,
+        length_so_far: mainGlGlyph._length_so_far!.buffer,
         dash_tex: this._dash_tex!,
         dash_tex_info: this._dash_tex_info!,
         dash_scale: this._dash_scale!,
@@ -78,14 +79,16 @@ export class LineGL extends BaseGLGlyph {
       this.regl_wrapper.dashed_line()(props)
     } else {
       const props: LineGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         line_color: this._color,
-        linewidth,
-        antialias,
+        linewidth: this._linewidth,
+        antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: this._points,
-        nsegments: this._nsegments,
+        points: mainGlGlyph._points.buffer,
+        nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
       }
@@ -108,43 +111,45 @@ export class LineGL extends BaseGLGlyph {
                          isFinite(this.glyph.sy[0]))
     }
 
-    if (this._points == null)
-      this._points = new Float32Array((npoints+2)*2)
+    const points_array = this.get_buffer_array(this._points, (npoints+2)*2)
 
     for (let i = 1; i < npoints+1; i++) {
       if (isFinite(this.glyph.sx[i-1]) && isFinite(this.glyph.sy[i-1])) {
-        this._points[2*i  ] = this.glyph.sx[i-1]
-        this._points[2*i+1] = this.glyph.sy[i-1]
+        points_array[2*i  ] = this.glyph.sx[i-1]
+        points_array[2*i+1] = this.glyph.sy[i-1]
       } else {
-        this._points[2*i  ] = missing_point
-        this._points[2*i+1] = missing_point
+        points_array[2*i  ] = missing_point
+        points_array[2*i+1] = missing_point
       }
     }
 
     if (this._is_closed) {
-      this._points[0] = this._points[2*npoints-2]  // Last but one point.
-      this._points[1] = this._points[2*npoints-1]
-      this._points[2*npoints+2] = this._points[4]  // Second point.
-      this._points[2*npoints+3] = this._points[5]
+      points_array[0] = points_array[2*npoints-2]  // Last but one point.
+      points_array[1] = points_array[2*npoints-1]
+      points_array[2*npoints+2] = points_array[4]  // Second point.
+      points_array[2*npoints+3] = points_array[5]
     } else {
-      this._points[0] = missing_point
-      this._points[1] = missing_point
-      this._points[2*npoints+2] = missing_point
-      this._points[2*npoints+3] = missing_point
+      points_array[0] = missing_point
+      points_array[1] = missing_point
+      points_array[2*npoints+2] = missing_point
+      points_array[2*npoints+3] = missing_point
     }
 
+    this._points = this.update_buffer(this._points, points_array)
+
     if (this._is_dashed()) {
-      if (this._length_so_far == null)
-        this._length_so_far = new Float32Array(this._nsegments)
+      const lengths_array = this.get_buffer_array(this._length_so_far!, this._nsegments)
 
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
-        this._length_so_far[i] = length
-        if (this._points[2*i+2] > missing_point_threshold &&
-            this._points[2*i+4] > missing_point_threshold)
-          length += Math.sqrt((this._points[2*i+4] - this._points[2*i+2])**2 +
-                              (this._points[2*i+5] - this._points[2*i+3])**2)
+        lengths_array[i] = length
+        if (points_array[2*i+2] > missing_point_threshold &&
+            points_array[2*i+4] > missing_point_threshold)
+          length += Math.sqrt((points_array[2*i+4] - points_array[2*i+2])**2 +
+                              (points_array[2*i+5] - points_array[2*i+3])**2)
       }
+
+      this._length_so_far = this.update_buffer(this._length_so_far!, lengths_array)
     }
   }
 
@@ -153,6 +158,13 @@ export class LineGL extends BaseGLGlyph {
 
     const color = color2rgba(line_visuals.line_color.value, line_visuals.line_alpha.value)
     this._color = color.map((val) => val/255)
+
+    this._linewidth = line_visuals.line_width.value
+    if (this._linewidth < 1.0) {
+      // Linewidth less than 1 is implemented as 1 but with reduced alpha.
+      this._color[3] *= this._linewidth
+      this._linewidth = 1.0
+    }
 
     this._line_dash = resolve_line_dash(line_visuals.line_dash.value)
     if (this._line_dash.length == 1)

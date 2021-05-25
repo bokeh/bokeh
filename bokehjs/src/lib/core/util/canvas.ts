@@ -107,7 +107,7 @@ export class CanvasLayer {
       case "webgl":
       case "canvas": {
         this._el = this._canvas = canvas({style})
-        const ctx = this.canvas.getContext('2d')
+        const ctx = this.canvas.getContext("2d")
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
         this._ctx = ctx

@@ -36,11 +36,10 @@ and ``hatch`` properties.
 
 .. note::
     When you draw ``circle`` markers with ``Scatter``, you can only assign a
-    size in :ref:`screen units <userguide_styling_units>` (by passing a
-    number of pixels to the ``size`` argument). In case you want to define
-    the radius of circles in :ref:`data units <userguide_styling_units>`,
-    use the :class:`~bokeh.models.glyphs.Circle` glyph instead of the
-    ``Scatter`` glyph with a ``circle`` marker.
+    size in |screen units| (by passing a number of pixels to the ``size``
+    property). In case you want to define the radius of circles in
+    |data units|, use the :class:`~bokeh.models.glyphs.Circle` glyph instead
+    of the ``Scatter`` glyph.
 
 '''
 

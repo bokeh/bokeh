@@ -1,6 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {MarkerGL} from "./webgl/markers"
-import {get_regl, ReglWrapper} from "./webgl/regl_wrap"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -40,7 +39,7 @@ export class CircleView extends XYGlyphView {
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
-      const regl_wrapper: ReglWrapper = get_regl(webgl.gl)
+      const {regl_wrapper} = webgl
       if (regl_wrapper.has_webgl) {
         this.glglyph = new MarkerGL(regl_wrapper, this, "circle")
       }
@@ -184,7 +183,7 @@ export class CircleView extends XYGlyphView {
     const bounds = this.bounds()
 
     let x0, x1, y0, y1
-    if (geometry.direction == 'h') {
+    if (geometry.direction == "h") {
       // use circle bounds instead of current pointer y coordinates
       let sx0, sx1
       y0 = bounds.y0

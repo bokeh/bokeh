@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 ''' Provide a ``Theme`` class for specifying new default values for Bokeh
-:class:`~bokeh.model.Model` properties.
+|Model| properties.
 
 '''
 #-----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ class Theme:
 
         .. warning::
             Typically, don't call this method directly. Instead, set the theme
-            on the :class:`~bokeh.document.Document` the model is a part of.
+            on the |Document| the model is a part of.
 
         '''
         model.apply_theme(self._for_class(model.__class__))

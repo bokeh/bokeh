@@ -102,7 +102,7 @@ export class SegmentView extends GlyphView {
     let v0: Arrayable<number>
     let v1: Arrayable<number>
     let val: number
-    if (geometry.direction == 'v') {
+    if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
       ;[v0, v1] = [this._y0, this._y1]
     } else {
@@ -123,7 +123,7 @@ export class SegmentView extends GlyphView {
       const threshold = 1.5 + (this.line_width.get(i)/2)// Maximum pixel difference to detect hit
 
       if (v0[i] == v1[i]) {
-        if (geometry.direction == 'h') {
+        if (geometry.direction == "h") {
           if (Math.abs(this.sx0[i] - sx) <= threshold) {
             indices.push(i)
           }

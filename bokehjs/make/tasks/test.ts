@@ -186,7 +186,7 @@ async function server(port: number): Promise<ChildProcess> {
     })
     proc.on("exit", (code, _signal) => {
       if (code !== 0) {
-        reject(new BuildError("devtools-server", `failed to start`))
+        reject(new BuildError("devtools-server", "failed to start"))
       }
     })
   })

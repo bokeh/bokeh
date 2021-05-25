@@ -3,9 +3,11 @@ import {display, fig} from "../_util"
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
+import {CircleArgs, LineArgs} from "@bokehjs/api/plotting"
+import {Orientation} from "@bokehjs/core/enums"
 
 describe("Legend annotation", () => {
-  it(`should support various combinations of locations and orientations`, async () => {
+  it("should support various combinations of locations and orientations", async () => {
     const random = new Random(1)
 
     const p = fig([600, 600])
@@ -48,4 +50,168 @@ describe("Legend annotation", () => {
 
     await display(p)
   })
+
+  type PlotFn = ({
+    glyphs,
+    legend_items,
+    legends,
+    figure_dimensions,
+  }: {
+    figure_dimensions?: [width: number, height: number]
+    glyphs?: {
+      x: number | number[]
+      y: number | number[]
+      type: "circle" | "line"
+      options: Partial<CircleArgs | LineArgs>
+    }[]
+    legend_items?: {label: string, renderers: number[]}[]
+    legends: Partial<Legend.Attrs>[]
+  }) => Promise<void>
+
+  function plot({
+    orientation,
+  }: {
+    orientation: Orientation
+  }): PlotFn {
+    return async ({
+      glyphs,
+      legend_items,
+      figure_dimensions,
+      legends,
+    }) => {
+      const p = fig(figure_dimensions ??
+          orientation === "horizontal"
+            ? [250, 150]
+            : [150, 250]
+      )
+
+      p.add_layout(new LinearAxis(), "above")
+      p.add_layout(new LinearAxis(), "right")
+
+      const random = new Random(1)
+      const x = range(0, 10)
+      const y0 = random.floats(10)
+      const y1 = random.floats(10)
+      const y2 = random.floats(10)
+
+      if (!glyphs?.length) {
+        glyphs = [
+          {type: "circle", x, y: y0, options: {fill_color: "red"}},
+          {type: "circle", x, y: y1, options: {fill_color: "blue"}},
+          {type: "line", x, y: y1, options: {line_color: "orange"}},
+          {type: "circle", x, y: y2, options: {fill_color: "green"}},
+        ]
+      }
+
+      const gls = glyphs.map(({x, y, type, options}) =>
+        type === "line"
+          ? p.line(x, y, options as Partial<LineArgs>)
+          : p.circle(x, y, options)
+      )
+
+      if (!legend_items?.length) {
+        legend_items = [
+          {label: "#0", renderers: [0]},
+          {label: "#1", renderers: [1, 2]},
+          {label: "#2", renderers: [3]},
+        ]
+      }
+
+      const items = legend_items.map(
+        ({label, renderers}) => new LegendItem({label, renderers: renderers.map(r => gls[r])})
+      )
+
+
+      if (!legends?.length) {
+        legends = [{}]
+      }
+
+      legends.map(attrs => {
+        p.add_layout(new Legend({
+          location: "center",
+          orientation,
+          items,
+          background_fill_alpha: 0.7,
+          ...attrs,
+        }))
+      })
+
+      await display(p)
+    }
+  }
+
+  function test(plot: PlotFn, orientation?: Orientation) {
+    it("should display title correctly", async () => {
+      await plot({legends: [{title: "title"}]})
+    })
+
+    it("should display title standoff correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        title_standoff: 20,
+      }]})
+    })
+
+    it("should display label standoff correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_standoff: 20,
+      }]})
+    })
+
+    it("should display glyph_height correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        glyph_height: 50,
+      }]})
+    })
+
+    it("should display glyph_width correctly", async () => {
+      await plot({
+        legends: [{
+          title: "title",
+          glyph_width: 30,
+        }],
+        figure_dimensions: orientation === "horizontal" ? [350, 150] : undefined,
+      })
+    })
+
+    it("should display label_height correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_height: 50,
+      }]})
+    })
+
+    it("should display label_width correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        label_width: 50,
+      }]})
+    })
+
+    it("should display margin correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        margin: 0,
+      }]})
+    })
+
+    it("should display padding correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        padding: 5,
+      }]})
+    })
+
+    it("should display spacing correctly", async () => {
+      await plot({legends: [{
+        title: "title",
+        spacing: 20,
+      }]})
+    })
+  }
+
+  describe("in horizontal orientation", () => test(plot({orientation: "horizontal"}), "horizontal"))
+  describe("in vertical orientation", () => test(plot({orientation: "vertical"}), "vertical"))
 })

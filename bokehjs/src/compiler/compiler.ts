@@ -53,7 +53,7 @@ export function report_diagnostics(diagnostics: Diagnostics): {count: number, te
 }
 
 export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokehjs_dir?: Path): ts.CompilerHost {
-  const default_host = ts.createCompilerHost(options)
+  const default_host = ts.createIncrementalCompilerHost(options)
 
   const host = {
     ...default_host,
@@ -65,9 +65,11 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokeh
     },
     getSourceFile(name: Path, target: ts.ScriptTarget, _onError?: (message: string) => void): ts.SourceFile | undefined {
       const source = inputs.get(name)
-      if (source != null)
-        return ts.createSourceFile(name, source, target)
-      else
+      if (source != null) {
+        const sf = ts.createSourceFile(name, source, target)
+        const version = default_host.createHash!(source)
+        return {...sf, version} as any // version is internal to the compiler
+      } else
         return default_host.getSourceFile(name, target, _onError)
     },
   }
@@ -104,9 +106,9 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file) ||
-            ts.sys.fileExists(module_file + ".ts") ||
+            ts.sys.fileExists(`${module_file}.ts`) ||
             ts.sys.fileExists(join(module_file, "index.ts")) ||
-            options.outDir != null && ts.sys.fileExists(join(options.outDir, module_path + ".js"))) {
+            options.outDir != null && ts.sys.fileExists(join(options.outDir, `${module_path}.js`))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
         }
@@ -122,10 +124,18 @@ export function default_transformers(options: ts.CompilerOptions): ts.CustomTran
 }
 
 export function compile_files(inputs: Path[], options: ts.CompilerOptions, transformers?: ts.CustomTransformers, host?: ts.CompilerHost): TSOutput {
-  const program = ts.createProgram(inputs, options, host)
+  const program = ts.createIncrementalProgram({rootNames: inputs, options, host})
   const emitted = program.emit(undefined, undefined, undefined, false, transformers)
 
-  const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
+  const diagnostics = [
+    ...program.getConfigFileParsingDiagnostics(),
+    ...program.getSyntacticDiagnostics(),
+    ...program.getOptionsDiagnostics(),
+    ...program.getGlobalDiagnostics(),
+    ...program.getSemanticDiagnostics(),
+    ...emitted.diagnostics,
+  ]
+
   return diagnostics.length != 0 ? {diagnostics} : {}
 }
 
@@ -176,6 +186,6 @@ export function compile_typescript(tsconfig_path: Path, config: CompileConfig = 
 
   if (is_failed(result)) {
     const {count, text} = report_diagnostics(result.diagnostics)
-    throw new BuildError("typescript", `There were ${chalk.red("" + count)} TypeScript errors:\n${text}`)
+    throw new BuildError("typescript", `There were ${chalk.red(`${count}`)} TypeScript errors:\n${text}`)
   }
 }

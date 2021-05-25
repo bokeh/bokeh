@@ -73,6 +73,8 @@ export class RectGL extends BaseGLGlyph {
 
     if (this._have_hatch) {
       const props: RectHatchGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         center: mainGlGlyph._centers,
@@ -94,6 +96,8 @@ export class RectGL extends BaseGLGlyph {
       this.regl_wrapper.rect_hatch()(props)
     } else {
       const props: RectGlyphProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
         center: mainGlGlyph._centers,

@@ -81,8 +81,8 @@ __all__ = (
 class Figure(Plot, GlyphAPI):
     ''' Create a new Figure for plotting.
 
-    A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
-    creation with default axes, grids, tools, etc.
+    A subclass of |Plot| that simplifies plot creation with default axes, grids,
+    tools, etc.
 
     Figure objects have many glyph methods that can be used to draw
     vectorized graphical glyphs:
@@ -653,7 +653,7 @@ class Figure(Plot, GlyphAPI):
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
 
-            **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+            **kwargs: |line properties| and |fill properties|
 
         '''
         kw = get_graph_kwargs(node_source, edge_source, **kwargs)
