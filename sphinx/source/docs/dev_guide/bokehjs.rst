@@ -61,9 +61,9 @@ the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-
 Development
 -----------
 
-BokehJS's source code is located in the ``bokehjs/`` directory in Bokeh's monorepo
-repository. All further instructions and shell commands assume that ``bokehjs/``
-is the current directory.
+BokehJS's source code is located in the :bokeh-tree:`bokehjs` directory in Bokeh's
+monorepo repository. All further instructions and shell commands assume that
+``bokehjs/`` is the current directory.
 
 Some guidelines to adhere to when working on BokehJS:
 
@@ -126,8 +126,9 @@ it for code emit, because we rely on AST transforms to produce viable library co
 Testing
 ~~~~~~~
 
-BokehJS comes with its own suites of tests. All tests for BokehJS are written
-using Chai "expect" style.
+BokehJS comes with its own suites of tests. All tests for BokehJS use ``describe()`` and
+``it()`` functions. Unit tests are written using Chai "expect" style. Visual integration
+tests use ``await()`` instead of ``expect()``.
 
 To launch BokehJS tests, run ``node make test`` from within the
 :bokeh-tree:`bokehjs/test` directory.
@@ -135,18 +136,20 @@ To launch BokehJS tests, run ``node make test`` from within the
 Instead of running all available BokehJS tests, you can also run individual test
 suites with ``node make test:suite_name``. Available tests suites are:
 
-* ``node make test:codebase``: [description TBD]
-* ``node make test:defaults``: [description TBD]
-* ``node make test:unit``: [description TBD]
+* ``node make test:codebase``: Codebase tests checking file size limits
+* ``node make test:defaults``: Tests checking synchronicity of defaults between Bokeh's
+  Python and TypeScript models
+* ``node make test:unit``: Unit tests for BokehJS
 * ``node make test:integration``:
-  :ref:`Visual tests <devguide_bokehjs_development_visual_testing>` comparing plots
-  against a set of baseline files.
+  :ref:`Visual integration tests <devguide_bokehjs_development_visual_testing>`
+  comparing generated plots against a set of baseline files
 
-The last two can be run with ``node make test:lib``. Unit and integration tests are
-run in a web browser (see requirements). The test suite automatically starts the
-webbrowser with the right settings to ensure consistent test results.
+You can combine the last two test suites by running ``node make test:lib``. Unit and
+integration tests are run in a web browser (see requirements). The test suite
+automatically starts the webbrowser with the right settings to ensure consistent test
+results.
 
-To review the visual tests' output, start BokehJS's devtools server:
+[TBD move this section to the visual testing section?]To review the visual tests' output, start BokehJS's devtools server:
 
 .. code-block:: sh
 
@@ -177,34 +180,78 @@ You can use ``?k=some%20text`` to filter tests by a keyword.
 CI and Visual Testing
 ~~~~~~~~~~~~~~~~~~~~~
 
-``test:integration`` does two types of tests and associated baseline files:
+BokehJS uses a series of visual baseline comparison tests. These tests help make sure
+that Bokeh's visual output is consistent with the output expected by design.
 
-* textual baseline tests: ``*.blf``
-* visual/screenshot tests: ``*.png``
+In the background, BokehJS' testing suite runs a headless browser and takes screenshots
+of the browser's output. The testing suite then compares the visual output to each
+test's dedicated baseline files.
 
-Textual baselines are mostly cross-platform compatible and usually can be generated
-locally (on supported platforms) or in CI. Visual testing is platform depended and
-fairly sensitive to system configuration (especially in regard to differences in
-font rendering). Visual tests can be performed locally, but given that baseline
-images for all three supported platforms have to be updated, the preferred approach
-is to generate images and compare them in CI.
+Each test in ``test:integration`` consists of two types of baseline comparison:
 
-The full procedure for visual testing is as follows:
+Textual baseline comparison
+  For each test, the testing suite compares the pixel location of certain elements in
+  the visual output to pixel locations in a baseline file. The pixel locations are a set
+  of bounding boxes. They are stored as plain text in each test's ``.blf`` files.
 
-1. Make changes to the repository and write new tests or update existing.
-2. Use ``node make tests`` to incrementally test your changes on your system.
-3. Push your changes to GitHub and wait for CI to finish.
-4. If you added new tests, CI will expectedly fail with "missing baseline
-   images" error message.
-5. If tests passed then you are done.
-6. If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
-   test run for your PR and download the associated ``bokehjs-report`` artifact.
-7. Unzip the artifact archive at the root of the repository.
-8. Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
-   where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
-   for each platform. If there are no unintentional differences, then commit all
-   new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
-9. Push your changes to GitHub again and verify that tests pass this time.
+Visual baseline comparison
+  For each test, the testing suite does a pixel-by-pixel comparison of a screenshot
+  and a baseline image. These baseline images are stored as ``.png`` files. In contrast
+  to textual baseline comparisons, visual baseline comparisons are platform-dependent.
+  Even minor differences in font rendering, for example, will make the pixel-by-pixel
+  comparison fail.
+
+:ref:`Bokeh's CI <devguide_testing_ci>` runs these tests on Linux, MacOS, and Windows
+environments. The visual baseline comparison tests are located in the
+:bokeh-tree:`bokehjs/test/integration/` folder and its sub-folders. The baseline files
+for each environment are located in the :bokeh-tree:`bokehjs/test/baselines/` folder.
+
+Follow these steps to write new visual tests or update existing tests:
+
+1. Write or update code:
+    To write a test for BokehJS' testing suite, start by importing the ``display()`` and
+    ``fig()`` functions from the ``_util`` module:
+
+    .. code-block:: TypeScript
+
+        import {display, fig} from "../_util"
+
+    The ``display()`` function in ``_util`` is similar to BokehJS' standard ``show()``
+    function: ``display()`` accepts the same arguments as ``show()`` but also captures
+    the visual output for comparison.
+
+    The ``fig()`` function in ``_util`` TBD
+
+2. Run tests locally:
+    [TBD]
+    Use ``node make tests`` to incrementally test your changes on your system.
+    TBD: optional: use BokehJS' devtools server to inspect results
+
+3. Generate baselines and commit test:
+    [TBD]
+
+    Push your changes to GitHub and wait for CI to finish.
+    If you added new tests, CI will expectedly fail with "missing baseline
+    images" error message.
+    If tests passed then you are done.
+    If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
+    test run for your PR and download the associated ``bokehjs-report`` artifact.
+    Unzip the artifact archive at the root of the repository.
+    Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
+    where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
+    for each platform. If there are no unintentional differences, then commit all
+    new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
+    Push your changes to GitHub again and verify that tests pass this time.
+
+    Textual baseline
+    comparisons are generally cross-platform compatible. Therefore, you can generate the
+    ``.blf`` files either locally (on supported platforms) or in
+    :ref:`Bokeh's CI <devguide_testing_ci>`.
+
+    Visual:  Therefore, you can run visual baseline comparisons locally
+    locally, but given that baseline
+    images for all three supported platforms have to be updated, the **preferred approach
+    is to generate images and compare them in CI**.
 
 .. note::
 

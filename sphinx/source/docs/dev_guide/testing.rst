@@ -185,6 +185,8 @@ various tests written in TypeScript. The BokehJS tests are located in
     :ref:`devguide_bokehjs_development_testing` in the
     :ref:`BokehJS section <devguide_bokehjs>` of this guide.
 
+    .. _devguide_testing_ci:
+
 Continuous Integration
 ----------------------
 
