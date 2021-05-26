@@ -121,20 +121,29 @@ Use ``node make help`` to list all available commands.
 You can use ``tsc`` directly for error checking (e.g. in an IDE). However, don't use
 it for code emit, because we rely on AST transforms to produce viable library code.
 
+.. _devguide_bokehjs_development_testing:
+
 Testing
 ~~~~~~~
 
-BokehJS testing is performed with the ``node make test`` command. You can run individual
-test suites with ``node make test:suite_name``. Known tests suites are:
+BokehJS comes with its own suites of tests. All tests for BokehJS are written
+using Chai "expect" style.
 
-* ``node make test:codebase``
-* ``node make test:defaults``
-* ``node make test:unit``
-* ``node make test:integration``
+To launch BokehJS tests, run ``node make test`` from within the
+:bokeh-tree:`bokehjs/test` directory.
+
+Instead of running all available BokehJS tests, you can also run individual test
+suites with ``node make test:suite_name``. Available tests suites are:
+
+* ``node make test:codebase``: [description TBD]
+* ``node make test:defaults``: [description TBD]
+* ``node make test:unit``: [description TBD]
+* ``node make test:integration``: Visual tests comparing plots against a set of
+  baseline images.
 
 The last two can be run with ``node make test:lib``. Unit and integration tests are
-run in a web browser (see requirements), which is started automatically with the
-right settings to guarantee consistent test results.
+run in a web browser (see requirements). The test suite automatically starts the
+webbrowser with the right settings to ensure consistent test results.
 
 To review the visual tests' output, start BokehJS's devtools server:
 
@@ -143,8 +152,9 @@ To review the visual tests' output, start BokehJS's devtools server:
     $ node test/devtools server
     listening on 127.0.0.1:5777
 
-and navigate to ``/integration/report``. Devtools server can also be used to
-manually inspect and debug tests. For that, the following endpoints are available:
+Open the server URL in a webbrowser and navigate to ``/integration/report``.
+You can also use the devtools server to manually inspect and debug tests. For that, the
+following endpoints are available:
 
 * ``/unit``
 * ``/defaults``
