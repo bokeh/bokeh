@@ -173,13 +173,17 @@ a new base image, add ``--set-new-base-screenshot`` to your standard
 to check this image into the repository. All future screenshot tests will then
 be compared against this base image.
 
-JavaScript Tests
-~~~~~~~~~~~~~~~~
+JavaScript Tests (BokehJS)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To maintain the functionality of all :term:`BokehJS` components, Bokeh includes
 various tests written in TypeScript. The BokehJS tests are located in
-:bokeh-tree:`bokehjs/test`. For more information on these tests, see
-:ref:`devguide_bokehjs_development_testing`.
+:bokeh-tree:`bokehjs/test`.
+
+.. seealso::
+    For more information on tests related to BokehJS, see
+    :ref:`devguide_bokehjs_development_testing` in the
+    :ref:`BokehJS section <devguide_bokehjs>` of this guide.
 
 Continuous Integration
 ----------------------

@@ -138,8 +138,9 @@ suites with ``node make test:suite_name``. Available tests suites are:
 * ``node make test:codebase``: [description TBD]
 * ``node make test:defaults``: [description TBD]
 * ``node make test:unit``: [description TBD]
-* ``node make test:integration``: Visual tests comparing plots against a set of
-  baseline images.
+* ``node make test:integration``:
+  :ref:`Visual tests <devguide_bokehjs_development_visual_testing>` comparing plots
+  against a set of baseline files.
 
 The last two can be run with ``node make test:lib``. Unit and integration tests are
 run in a web browser (see requirements). The test suite automatically starts the
@@ -170,6 +171,8 @@ you can run tests immediately with these endpoints:
 * ``/integration/run``
 
 You can use ``?k=some%20text`` to filter tests by a keyword.
+
+.. _devguide_bokehjs_development_visual_testing:
 
 CI and Visual Testing
 ~~~~~~~~~~~~~~~~~~~~~
