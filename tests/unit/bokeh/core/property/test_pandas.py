@@ -70,11 +70,11 @@ class Test_PandasGroupBy:
 
 class Test_PandasSeries:
     def test_valid(self, pd) -> None:
-        prop = bcpp.PandasDataFrame()
-        assert prop.is_valid(pd.DataFrame())
+        prop = bcpp.PandasSeries()
+        assert prop.is_valid(pd.Series())
 
     def test_invalid(self) -> None:
-        prop = bcpp.PandasDataFrame()
+        prop = bcpp.PandasSeries()
         assert not prop.is_valid(None)
         assert not prop.is_valid(1.0+1.0j)
         assert not prop.is_valid(())
