@@ -126,9 +126,9 @@ it for code emit, because we rely on AST transforms to produce viable library co
 Testing
 ~~~~~~~
 
-BokehJS comes with its own suites of tests. All tests for BokehJS use ``describe()`` and
-``it()`` functions. Unit tests are written using Chai "expect" style. [TBD: Visual integration
-tests use ``await()`` instead of ``expect()``.]
+BokehJS comes with its own suites of tests and testing framework. All tests for BokehJS
+use ``describe()`` and ``it()`` functions. Unit tests are written using Chai "expect"
+style. [TBD: How are style/setup different for visual integration tests?]
 
 To launch BokehJS tests, run ``node make test`` from within the
 :bokeh-tree:`bokehjs/test` directory.
@@ -149,6 +149,8 @@ You can combine the last two test suites by running ``node make test:lib``.
 Unit and integration tests are run in a web browser (see requirements). The test suite
 automatically starts the web browser with the right settings to ensure consistent test
 results.
+
+.. _devguide_bokehjs_development_devtoolsserver:
 
 [TBD]To review the visual tests' output [after running the tests!], start BokehJS's devtools server:
 
@@ -184,16 +186,16 @@ CI and Visual Testing
 BokehJS uses a series of visual baseline comparison tests. These tests help make sure
 that Bokeh's visual output is consistent with the output expected by design.
 
-In the background, BokehJS' testing suite runs a headless browser and takes screenshots
-of the browser's output. The testing suite then compares the visual output to each
-test's dedicated baseline files.
+In the background, BokehJS' testing framework runs a headless browser and takes
+screenshots of the browser's output. The testing framework then compares the visual
+output to each test's dedicated baseline files.
 
 Each test in ``test:integration`` consists of two types of baseline comparison:
 
 Textual baseline comparison
-  For each test, the testing suite compares the pixel location of certain elements in
-  the visual output to pixel locations in a baseline file. The pixel locations are a set
-  of bounding boxes. They are stored as plain text in each test's ``.blf`` files.
+  For each test, the testing framework compares the pixel location of certain elements
+  in the visual output to pixel locations in a baseline file. The pixel locations are a
+  set of bounding boxes. They are stored as plain text in each test's ``.blf`` files.
 
 Visual baseline comparison
   For each test, the testing suite does a pixel-by-pixel comparison of a screenshot
@@ -210,9 +212,9 @@ environments. The baseline files for each environment are located in the
 
 Follow these steps to write new visual tests or update existing tests:
 
-1. Write or update visual tests:
+1. Create or update visual testing scripts:
     To write a visual test for BokehJS' testing suite, start by importing the
-    ``display()`` and ``fig()`` functions from the ``_util`` module:
+    ``display()`` and ``fig()`` functions from the testing framework's ``_util`` module:
 
     .. code-block:: TypeScript
 
@@ -227,7 +229,7 @@ Follow these steps to write new visual tests or update existing tests:
     visual tests as efficient as possible, you should only use ``width`` and ``height``,
     if possible.
 
-    Keep the width and heights of your testing plot as small as possible while still
+    Keep the width and height of your testing plot as small as possible while still
     being able to see details the details you want to test with the naked eye. Have as
     few elements as possible on your plot.
 
@@ -245,15 +247,31 @@ Follow these steps to write new visual tests or update existing tests:
         })
 
 2. Run tests locally:
-    [TBD]
-    Use ``node make tests`` to incrementally test your changes on your system.
+    Run ``node make tests`` to test your changes on your system. To only run integration
+    tests, use ``node make test:integration``.
 
-    node make test:integration -k 'Legend annotation'
-    -> -k case sensitive search string, either in describe() or it()
+    If you want to only run a specific test, use the ``-k`` argument and supply a search
+    string. The search string is case sensitive. The BokehJS testing suite tries to
+    match your search string to the strings defined in the code's ``it()`` and
+    ``should()`` functions. For example:
 
-    TBD: optional: use BokehJS' devtools server to inspect results
+    .. code-block:: sh
 
-3. Generate baselines and commit test:
+      $ node make test:integration -k 'Legend annotation'
+
+    The first time you run a new or updated visual test, the BokehJS testing framework
+    will notify you that baseline files are missing our outdated. At this point, it will
+    also generate all missing or outdated baseline files for your operating system. The
+    baseline files will be in a subfolder of :bokeh-tree:`bokehjs/test/baselines/`.
+
+    You can use any png viewer to inspect the generated png files. Adjust your testing
+    code until the test's visual output matches your expectations.
+
+    Optionally, you can also use the BokehJS
+    :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to inspect
+    your local test results.
+
+3. Generate CI baselines and commit test:
     [TBD]
 
     Push your changes to GitHub and wait for CI to finish.
@@ -268,6 +286,11 @@ Follow these steps to write new visual tests or update existing tests:
     for each platform. If there are no unintentional differences, then commit all
     new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
     Push your changes to GitHub again and verify that tests pass this time.
+
+    .. warning::
+      Make sure to only push baseline files to the CI that were created by the CI. Do
+      not include any locally created baseline files in your pull request.
+
 
     Textual baseline
     comparisons are generally cross-platform compatible. Therefore, you can generate the
