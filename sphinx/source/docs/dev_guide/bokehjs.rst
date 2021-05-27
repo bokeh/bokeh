@@ -137,8 +137,8 @@ Instead of running all available BokehJS tests, you can also run individual test
 suites with ``node make test:suite_name``. Available tests suites are:
 
 * ``node make test:codebase``: Codebase tests checking file size limits
-* ``node make test:defaults``: Tests checking synchronicity of defaults between Bokeh's
-  Python and TypeScript models
+* ``node make test:defaults``: Tests checking whether the defaults in Bokeh's
+  Python models match those of Bokeh's TypeScript models
 * ``node make test:unit``: Unit tests for BokehJS
 * ``node make test:integration``:
   :ref:`Visual integration tests <devguide_bokehjs_development_visual_testing>`
@@ -233,7 +233,7 @@ Follow these steps to write new visual tests or update existing tests:
     being able to see details the details you want to test with the naked eye. Have as
     few elements as possible on your plot.
 
-    Follow this pattern for visual tests:
+    Follow this general pattern for visual tests:
 
     .. code-block:: TypeScript
 
@@ -268,10 +268,14 @@ Follow these steps to write new visual tests or update existing tests:
     code until the test's visual output matches your expectations.
 
     Optionally, you can also use the BokehJS
-    :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to inspect
+    :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to review
     your local test results.
 
 3. Generate CI baselines and commit test:
+    As a final step before pushing your visual tests to Bokeh's GitHub repository, you
+    need to generate and commit the baseline files using
+    :ref:`Bokeh's CI <devguide_testing_ci>`.
+
     [TBD]
 
     Push your changes to GitHub and wait for CI to finish.
@@ -281,7 +285,7 @@ Follow these steps to write new visual tests or update existing tests:
     If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
     test run for your PR and download the associated ``bokehjs-report`` artifact.
     Unzip the artifact archive at the root of the repository.
-    Assuming devtools server is running in the background, go to ``/integration/report?platform=name``
+    Assuming :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` is running in the background, go to ``/integration/report?platform=name``
     where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
     for each platform. If there are no unintentional differences, then commit all
     new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
@@ -307,6 +311,8 @@ Follow these steps to write new visual tests or update existing tests:
     Make sure to monitor the state of the ``test/baselines`` directory so that you
     don't commit unnecessary files. If you do so, subsequent tests will fail. Reset
     this directory after every failed test run (``git checkout`` and/or ``git clean``).
+
+    [TBD run: node make lint]
 
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
