@@ -127,8 +127,8 @@ Testing
 ~~~~~~~
 
 BokehJS comes with its own suites of tests. All tests for BokehJS use ``describe()`` and
-``it()`` functions. Unit tests are written using Chai "expect" style. Visual integration
-tests use ``await()`` instead of ``expect()``.
+``it()`` functions. Unit tests are written using Chai "expect" style. [TBD: Visual integration
+tests use ``await()`` instead of ``expect()``.]
 
 To launch BokehJS tests, run ``node make test`` from within the
 :bokeh-tree:`bokehjs/test` directory.
@@ -144,19 +144,20 @@ suites with ``node make test:suite_name``. Available tests suites are:
   :ref:`Visual integration tests <devguide_bokehjs_development_visual_testing>`
   comparing generated plots against a set of baseline files
 
-You can combine the last two test suites by running ``node make test:lib``. Unit and
-integration tests are run in a web browser (see requirements). The test suite
-automatically starts the webbrowser with the right settings to ensure consistent test
+You can combine the last two test suites by running ``node make test:lib``.
+
+Unit and integration tests are run in a web browser (see requirements). The test suite
+automatically starts the web browser with the right settings to ensure consistent test
 results.
 
-[TBD move this section to the visual testing section?]To review the visual tests' output, start BokehJS's devtools server:
+[TBD]To review the visual tests' output [after running the tests!], start BokehJS's devtools server:
 
 .. code-block:: sh
 
     $ node test/devtools server
     listening on 127.0.0.1:5777
 
-Open the server URL in a webbrowser and navigate to ``/integration/report``.
+Open the server URL in a web browser and navigate to ``/integration/report``.
 You can also use the devtools server to manually inspect and debug tests. For that, the
 following endpoints are available:
 
@@ -201,16 +202,17 @@ Visual baseline comparison
   Even minor differences in font rendering, for example, will make the pixel-by-pixel
   comparison fail.
 
-:ref:`Bokeh's CI <devguide_testing_ci>` runs these tests on Linux, MacOS, and Windows
-environments. The visual baseline comparison tests are located in the
-:bokeh-tree:`bokehjs/test/integration/` folder and its sub-folders. The baseline files
-for each environment are located in the :bokeh-tree:`bokehjs/test/baselines/` folder.
+The visual baseline comparison tests are located in the
+:bokeh-tree:`bokehjs/test/integration/` folder and sub-folders.
+:ref:`Bokeh's CI <devguide_testing_ci>` runs these tests on Linux, macOS, and Windows
+environments. The baseline files for each environment are located in the
+:bokeh-tree:`bokehjs/test/baselines/` folder.
 
 Follow these steps to write new visual tests or update existing tests:
 
-1. Write or update code:
-    To write a test for BokehJS' testing suite, start by importing the ``display()`` and
-    ``fig()`` functions from the ``_util`` module:
+1. Write or update visual tests:
+    To write a visual test for BokehJS' testing suite, start by importing the
+    ``display()`` and ``fig()`` functions from the ``_util`` module:
 
     .. code-block:: TypeScript
 
@@ -220,11 +222,35 @@ Follow these steps to write new visual tests or update existing tests:
     function: ``display()`` accepts the same arguments as ``show()`` but also captures
     the visual output for comparison.
 
-    The ``fig()`` function in ``_util`` TBD
+    The ``fig()`` function in ``_util`` is similar to BokehJS' standard ``figure()``
+    function: ``fig()`` accepts the same arguments as ``figure()``. However, to keep
+    visual tests as efficient as possible, you should only use ``width`` and ``height``,
+    if possible.
+
+    Keep the width and heights of your testing plot as small as possible while still
+    being able to see details the details you want to test with the naked eye. Have as
+    few elements as possible on your plot.
+
+    Follow this pattern for visual tests:
+
+    .. code-block:: TypeScript
+
+      describe("Object", () => {
+        it("should show certain behavior", async () => {
+          const p = fig([width, height])
+
+          ...
+
+          await display(p)
+        })
 
 2. Run tests locally:
     [TBD]
     Use ``node make tests`` to incrementally test your changes on your system.
+
+    node make test:integration -k 'Legend annotation'
+    -> -k case sensitive search string, either in describe() or it()
+
     TBD: optional: use BokehJS' devtools server to inspect results
 
 3. Generate baselines and commit test:
@@ -255,7 +281,7 @@ Follow these steps to write new visual tests or update existing tests:
 
 .. note::
 
-    Make sure to monitor the state of the ``test/baselines`` directory, so that you
+    Make sure to monitor the state of the ``test/baselines`` directory so that you
     don't commit unnecessary files. If you do so, subsequent tests will fail. Reset
     this directory after every failed test run (``git checkout`` and/or ``git clean``).
 
