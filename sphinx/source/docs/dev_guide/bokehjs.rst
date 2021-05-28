@@ -123,8 +123,8 @@ it for code emit, because we rely on AST transforms to produce viable library co
 
 .. _devguide_bokehjs_development_testing:
 
-Testing
-~~~~~~~
+Test suites
+~~~~~~~~~~~
 
 BokehJS comes with its own suites of tests and testing framework. All tests for BokehJS
 use ``describe()`` and ``it()`` functions. Unit tests are written using Chai "expect"
@@ -142,7 +142,7 @@ suites with ``node make test:suite_name``. Available tests suites are:
 * ``node make test:unit``: Unit tests for BokehJS
 * ``node make test:integration``:
   :ref:`Visual integration tests <devguide_bokehjs_development_visual_testing>`
-  comparing generated plots against a set of baseline files
+  comparing locally generated plots against a set of baseline files
 
 You can combine the last two test suites by running ``node make test:lib``.
 
@@ -152,31 +152,44 @@ results.
 
 .. _devguide_bokehjs_development_devtoolsserver:
 
-[TBD]To review the visual tests' output [after running the tests!], start BokehJS's devtools server:
+Testing with Devtool Server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to tests run from the command line, you can also use the BokehJS's devtools
+server. Use this system to run tests and review the visual tests' output.
+
+First, start the devtools server with the following command:
 
 .. code-block:: sh
 
     $ node test/devtools server
     listening on 127.0.0.1:5777
 
-Open the server URL in a web browser and navigate to ``/integration/report``.
-You can also use the devtools server to manually inspect and debug tests. For that, the
-following endpoints are available:
+Next, open the displayed server URL in a webbrowser and navigate to
+``/integration/report``, ``/unit/report``, or ``/defaults/report``.
 
-* ``/unit``
-* ``/defaults``
-* ``/integration``
+You can also use the devtools server to initiate test runs. You have two options:
 
-Those load BokehJS and the tests, but don't do anything. You have to issue ``Tests.run_all()``
-in a JavaScript console. This allows you to set breakpoints before running code. You
-can filter out tests by providing a string keyword or a regular expression. Alternatively,
-you can run tests immediately with these endpoints:
+Run tests from a JavaScript console
+  Open one of these three endpoints in your webbrowser:
 
-* ``/unit/run``
-* ``/defaults/run``
-* ``/integration/run``
+  * ``/unit``
+  * ``/defaults``
+  * ``/integration``
 
-You can use ``?k=some%20text`` to filter tests by a keyword.
+  This loads BokehJS and the tests. To run the tests, issue ``Tests.run_all()`` in your
+  browser's JavaScript console. This allows you to set breakpoints before running code.
+  You can filter out tests by providing a keyword or a regular expression.
+
+Trigger tests with endpoint
+  Initiate test runs by accessing one of the following endpoints with your browser:
+
+  * ``/unit/run``
+  * ``/defaults/run``
+  * ``/integration/run``
+
+  To only run specific tests, append ``?k=some%20text`` to the URL. This will filter
+  tests by keyword.
 
 .. _devguide_bokehjs_development_visual_testing:
 
@@ -317,17 +330,17 @@ Follow these steps to write new visual tests or update existing tests:
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Although testing in headless chrome and running tests manually in chrome should agree
-with each other most of the time, there are rare cases where headless and GUI chrome
-diverge. In this situation one has to debug bokehjs' code directly in the headless
+Although testing in headless Chrome and running tests manually in Chrome should agree
+with each other most of the time, there are rare cases where headless and GUI Chrome
+diverge. In this situation one has to debug BokehJS' code directly in the headless
 browser.
 
-Start bokehjs' devtools server in one console and run ``node make test:run:headless``
-in another. This starts chrome in headless mode preconfigured for bokehjs' testing
-setup. Then open chrome (or any other web browser), navigate to http://localhost:9222 and
+Start BokehJS' devtools server in one console and run ``node make test:run:headless``
+in another. This starts Chrome in headless mode preconfigured for bokehjs' testing
+setup. Then open Chrome (or any other web browser), navigate to http://localhost:9222 and
 click ``about:blank`` link. This opens remote devtools console. Use its navigation bar
 and navigate to e.g. http://localhost:5777/integration/run (or other URL mentioned in
-an earlier paragraph). You are now set up for debugging in headless chrome.
+an earlier paragraph). You are now set up for debugging in headless Chrome.
 
 Minimal Model/View Module
 ~~~~~~~~~~~~~~~~~~~~~~~~~
