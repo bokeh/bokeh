@@ -35,7 +35,7 @@
     "@types/express": "^4.17.12",
     "@types/flatbush": "^3.3.0",
     "@types/geojson": "^7946.0.6",
-    "@types/googlemaps": "^3.43.3",
+    "@types/google.maps": "^3.44.6",
     "@types/hammerjs": "^2.0.39",
     "@types/less": "^3.0.2",
     "@types/node": "^14.17.1",
