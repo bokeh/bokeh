@@ -23,14 +23,15 @@ import tempfile
 # External imports
 from mock import patch
 
+# Bokeh imports
+from bokeh._testing.util.types import Capture
+
 # Module under test
 import bokeh.command.util as util # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-Capture = pytest.CaptureFixture[str]
 
 #-----------------------------------------------------------------------------
 # General API
