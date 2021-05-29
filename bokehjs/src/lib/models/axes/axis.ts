@@ -16,7 +16,7 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "models/tools/math_text"
+import {MathText, MathTextView} from "core/math_text"
 import {build_view} from "core/build_views"
 
 const {abs} = Math
@@ -150,40 +150,30 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    const axis_label = this.model.axis_label
-    if (!axis_label)
+    const text = this.model.axis_label
+    if (!text)
       return 0
 
     const padding = 3
 
-    if (axis_label instanceof MathText) {
-      const {axis_label_math_text_view} = this
-      axis_label_math_text_view.angle = this.panel.get_label_angle_heuristic("parallel")
-      axis_label_math_text_view.visuals = this.visuals.axis_label_text
+    const axis_label = text instanceof MathText
+      ? this.axis_label_math_text_view
+      : new TextBox({text})
 
-      const size = axis_label_math_text_view.size()
-      const extent = this.dimension == 0 ? size.height : size.width
-      const standoff = this.model.axis_label_standoff
+    axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
+    axis_label.visuals = this.visuals.axis_label_text
 
-      return extent > 0 ? standoff + extent + padding : 0
-    } else {
-      const axis_label_text_box = new TextBox({text: axis_label})
-      axis_label_text_box.angle = this.panel.get_label_angle_heuristic("parallel")
-      axis_label_text_box.visuals = this.visuals.axis_label_text
+    const size = axis_label.size()
+    const extent = this.dimension == 0 ? size.height : size.width
+    const standoff = this.model.axis_label_standoff
 
-      const size = axis_label_text_box.size()
-      const extent = this.dimension == 0 ? size.height : size.width
-
-      const standoff = this.model.axis_label_standoff
-      return extent > 0 ? standoff + extent + padding : 0
-    }
-
+    return extent > 0 ? standoff + extent + padding : 0
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    const {axis_label} = this.model
+    const text = this.model.axis_label
 
-    if (!axis_label || this.model.fixed_location != null)
+    if (!text || this.model.fixed_location != null)
       return
 
     const [sx, sy] = (() => {
@@ -212,28 +202,25 @@ export class AxisView extends GuideRendererView {
       y_anchor: vertical_align,
     }
 
-    if (axis_label instanceof MathText) {
-      const {axis_label_math_text_view} = this
-      axis_label_math_text_view.angle = angle
+    const axis_label = text instanceof MathText
+      ? this.axis_label_math_text_view
+      : new TextBox({text})
 
-      axis_label_math_text_view.visuals = this.visuals.axis_label_text
-      axis_label_math_text_view.position = position
+    axis_label.angle = angle
+    axis_label.visuals = this.visuals.axis_label_text
+    axis_label.position = position
 
-      if (!axis_label_math_text_view.svg_image) {
+    if (axis_label instanceof MathTextView) {
+      if (!axis_label.svg_image) {
         this.request_render()
-        return axis_label_math_text_view.load_image()
+        return axis_label.load_image()
       }
 
-      axis_label_math_text_view.draw_image(ctx)
-
-      return this.notify_finished()
+      axis_label.draw_image(ctx)
+      this.notify_finished()
     } else {
-      const axis_label_text_box = new TextBox({text: axis_label})
-      axis_label_text_box.angle = angle
-      axis_label_text_box.visuals = this.visuals.axis_label_text
-      axis_label_text_box.position = position
-      axis_label_text_box.align = align
-      axis_label_text_box.paint(ctx)
+      axis_label.align = align
+      axis_label.paint(ctx)
     }
   }
 
