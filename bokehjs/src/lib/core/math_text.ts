@@ -4,16 +4,10 @@ import {isNumber} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {ImageLoader} from "core/util/image"
 import {CanvasImage} from "models/glyphs/image_url"
-import {Model} from "../../model"
+import {Model} from "../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
-
-declare global {
-  interface Window {
-    _bokeh_mathjax_instantiated: boolean
-  }
-}
 
 type Position = {
   sx: number
@@ -22,6 +16,11 @@ type Position = {
   y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
 }
 
+
+/**
+ * Helper class to rendering MathText into canvas
+ * @class
+ */
 export class MathTextView extends View {
   override model: MathText
 
@@ -33,6 +32,7 @@ export class MathTextView extends View {
   width: number
   color: string
   svg_image: CanvasImage
+
 
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
@@ -90,6 +90,10 @@ export class MathTextView extends View {
     return {x, y}
   }
 
+  /**
+   * Takes a Canvas' Context2d and if the image has already
+   * been loaded draws the image in it.
+  */
   draw_image(ctx: Context2d): void {
     if (this.svg_image) {
       ctx.save()
