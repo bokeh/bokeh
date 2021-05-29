@@ -110,16 +110,19 @@ export class GMapPlotView extends PlotView {
       const zoom_change = range_info.factor < 0 ?  -1 : 1
 
       const old_map_zoom = this.map.getZoom()
-      const new_map_zoom = old_map_zoom + zoom_change
 
-      // Zooming out too far causes problems
-      if (new_map_zoom >= 2) {
-        this.map.setZoom(new_map_zoom)
+      if (old_map_zoom != null) {
+        const new_map_zoom = old_map_zoom + zoom_change
 
-        // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend,, ] = this._get_projected_bounds()
-        if (proj_xend - proj_xstart < 0) {
-          this.map.setZoom(old_map_zoom)
+        // Zooming out too far causes problems
+        if (new_map_zoom >= 2) {
+          this.map.setZoom(new_map_zoom)
+
+          // Check we haven't gone out of bounds, and if we have undo the zoom
+          const [proj_xstart, proj_xend] = this._get_projected_bounds()
+          if (proj_xend - proj_xstart < 0) {
+            this.map.setZoom(old_map_zoom)
+          }
         }
       }
 
@@ -212,10 +215,12 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_center(fld: "lat" | "lng"): void {
-    const c = this.map.getCenter().toJSON()
-    c[fld] = this.model.map_options[fld]
-    this.map.setCenter(c)
-    this._set_bokeh_ranges()
+    const center = this.map.getCenter()?.toJSON()
+    if (center != null) {
+      center[fld] = this.model.map_options[fld]
+      this.map.setCenter(center)
+      this._set_bokeh_ranges()
+    }
   }
 
   protected _update_map_type(): void {

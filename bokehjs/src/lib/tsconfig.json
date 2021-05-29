@@ -26,7 +26,7 @@
     "skipLibCheck": true,
     "target": "ES2020",
     "lib": ["es2020", "dom", "dom.iterable"],
-    "types": ["hammerjs", "googlemaps"],
+    "types": ["hammerjs", "google.maps"],
     "baseUrl": ".",
     "rootDir": ".",
     "outDir": "../../build/js/lib",

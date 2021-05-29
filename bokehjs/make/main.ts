@@ -1,4 +1,4 @@
-import yargs = require("yargs")
+import yargs from "yargs"
 
 const {argv} = yargs.help(false)
 
