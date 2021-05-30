@@ -79,6 +79,16 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# XXX: move this to the bottom when Python 3.7 is dropped
+
+_HOOKS: Dict[str, Hooks] = {}
+
+_NOTEBOOK_LOADED: Resources | None = None
+
+#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
@@ -573,10 +583,6 @@ def show_doc(obj: Model, state: State, notebook_handle: CommsHandle | None = Non
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_HOOKS: Dict[str, Hooks] = {}
-
-_NOTEBOOK_LOADED: Resources | None = None
 
 def _loading_js(bundle: Bundle, element_id: ID | None, load_timeout: int = 5000, register_mime: bool = True) -> str:
     '''
