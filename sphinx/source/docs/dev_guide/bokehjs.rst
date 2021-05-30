@@ -188,8 +188,11 @@ Trigger tests with endpoint
   * ``/defaults/run``
   * ``/integration/run``
 
-  To only run specific tests, append ``?k=some%20text`` to the URL. This will filter
-  tests by keyword.
+  To only run or view specific tests, append ``?k=some%20text`` to the URL. This will
+  filter tests by keyword.
+
+  To only run or view tests for a specific plattform, append either ``platform=linux``
+  ``platform=macos``, or ``platform=windows`` to the URL.
 
 .. _devguide_bokehjs_development_visual_testing:
 
@@ -261,12 +264,14 @@ Follow these steps to write new visual tests or update existing tests:
           await display(p)
         })
 
+    Always run ``node make lint`` before committing TypeScript files.
+
 2. Run tests locally:
     Run ``node make tests`` to test your changes on your system. To only run integration
     tests, use ``node make test:integration``.
 
     If you want to only run a specific test, use the ``-k`` argument and supply a search
-    string. The search string is case sensitive. The BokehJS testing suite tries to
+    string. The search string is case-sensitive. The BokehJS testing suite tries to
     match your search string to the strings defined in the code's ``describe()`` and
     ``it()`` functions. For example:
 
@@ -279,55 +284,52 @@ Follow these steps to write new visual tests or update existing tests:
     also generate all missing or outdated baseline files for your operating system. The
     baseline files will be in a subfolder of :bokeh-tree:`bokehjs/test/baselines/`.
 
-    You can use any png viewer to inspect the generated png files. Adjust your testing
-    code until the test's visual output matches your expectations.
-
-    Optionally, you can also use the BokehJS
-    :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to review
-    your local test results.
+    Use the BokehJS :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>`
+    to review your local test results. Optionally, you can use any png viewer to inspect
+    the generated png files. Adjust your testing code until the test's visual output
+    matches your expectations.
 
 3. Generate CI baselines and commit test:
     As a final step before pushing your visual tests to Bokeh's GitHub repository, you
     need to generate and commit the baseline files using
     :ref:`Bokeh's CI <devguide_testing_ci>`.
 
-    [TBD]
+    The baseline files are platform-dependent. This is why the CI will only work
+    reliably if you upload baseline files that were created by the CI, not locally
+    created files.
 
-    Push your changes to GitHub and wait for CI to finish.
-    If you added new tests, CI will expectedly fail with "missing baseline
-    images" error message.
-    If tests passed then you are done.
-    If tests failed, go to BokehJS's GitHub_Actions_ page. Find the most recent
-    test run for your PR and download the associated ``bokehjs-report`` artifact.
-    Unzip the artifact archive at the root of the repository.
-    Assuming :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` is running in the background, go to ``/integration/report?platform=name``
-    where ``name`` is either ``linux``, ``macos`` or ``windows`` and review the test output
-    for each platform. If there are no unintentional differences, then commit all
-    new or modified ``*.blf`` and ``*.png`` files under ``test/baselines/{linux,macos,windows}``.
-    Push your changes to GitHub again and verify that tests pass this time.
+    Follow these steps to generate the necessary baseline files and upload them to
+    Bokeh's CI:
+
+    1. Push your changes to GitHub and wait for CI to finish.
+    2. The CI will expectedly fail because baseline images are either missing (in case
+       you created new tests) or outdated (in case you updated existing tests).
+    3. After the CI has finished running, go to BokehJS's GitHub_Actions_ page. Find the
+       most recent test run for your PR and download the associated ``bokehjs-report``
+       artifact.
+    4. Unzip the downloaded artifact file into the root folder of your local Bokeh
+       repository.
+    5. Use the :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to
+       review the baseline files the CI has created for each platform: first go to
+       ``/integration/report?platform=linux``, then to
+       ``/integration/report?platform=macos``, and finally to
+       ``/integration/report?platform=windows``.
+    6. If you did not detect any unintentional differences, commit all new or modified
+       ``*.blf`` and ``*.png`` files from the folders
+       :bokeh-tree:`bokehjs/test/baselines/linux`,
+       :bokeh-tree:`bokehjs/test/baselines/macos`, and
+       :bokeh-tree:`bokehjs/test/baselines/windows`.
+    7. Push your changes to GitHub again and verify that tests pass this time.
 
     .. warning::
       Make sure to only push baseline files to the CI that were created by the CI. Do
       not include any locally created baseline files in your pull request.
 
-
-    Textual baseline
-    comparisons are generally cross-platform compatible. Therefore, you can generate the
-    ``.blf`` files either locally (on supported platforms) or in
-    :ref:`Bokeh's CI <devguide_testing_ci>`.
-
-    Visual:  Therefore, you can run visual baseline comparisons locally
-    locally, but given that baseline
-    images for all three supported platforms have to be updated, the **preferred approach
-    is to generate images and compare them in CI**.
-
-.. note::
-
-    Make sure to monitor the state of the ``test/baselines`` directory so that you
-    don't commit unnecessary files. If you do so, subsequent tests will fail. Reset
-    this directory after every failed test run (``git checkout`` and/or ``git clean``).
-
-    [TBD run: node make lint]
+      After downloading and unpacking the baseline files from the CI, check your local
+      :bokeh-tree:`bokehjs/test/baselines` directory for any modified files that are not
+      part of your changes. Make sure to only commit baseline files that are necessary
+      for your pull request. Reset the ``baselines`` directory after every failed test
+      run (``git checkout`` and/or ``git clean``).
 
 Debugging in Headless Chrome
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
