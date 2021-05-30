@@ -392,7 +392,7 @@ def transform_array_to_list(array: np.ndarray) -> Sequence[Any]:
         return transformed.tolist()
     return array.tolist()
 
-def transform_series(series: pd.Series, force_list: bool = False, buffers: Buffers | None = None):
+def transform_series(series: pd.Series | pd.Index, force_list: bool = False, buffers: Buffers | None = None):
     ''' Transforms a Pandas series into serialized form
 
     Args:

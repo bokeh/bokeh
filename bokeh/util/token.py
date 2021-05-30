@@ -63,6 +63,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+TokenPayload = Dict[str, Any]
+
 def generate_secret_key() -> str:
     ''' Generate a new securely-generated secret key appropriate for SHA-256
     HMAC signatures.
@@ -88,7 +90,7 @@ def generate_session_id(secret_key: bytes | None = settings.secret_key_bytes(),
 def generate_jwt_token(session_id: ID,
                        secret_key: bytes | None = settings.secret_key_bytes(),
                        signed: bool = settings.sign_sessions(),
-                       extra_payload: Dict[str, Any] | None = None,
+                       extra_payload: TokenPayload | None = None,
                        expiration: int = 300) -> str:
     """Generates a JWT token given a session_id and additional payload.
 
@@ -137,7 +139,7 @@ def get_session_id(token: str) -> ID:
     decoded = json.loads(_base64_decode(token.split('.')[0]))
     return decoded['session_id']
 
-def get_token_payload(token: str) -> Any:
+def get_token_payload(token: str) -> TokenPayload:
     """Extract the payload from the token.
 
     Args:

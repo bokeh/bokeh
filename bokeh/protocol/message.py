@@ -99,9 +99,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Header(TypedDict, total=False):
+class _Header(TypedDict):
     msgid: ID
     msgtype: str
+
+class Header(_Header, total=False):
     reqid: ID
     num_buffers: int
 

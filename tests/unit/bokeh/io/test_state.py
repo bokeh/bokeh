@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.document import Document
@@ -56,7 +56,7 @@ class Test_State:
 
     @patch('bokeh.io.state.log')
     @patch('os.path.isfile')
-    def test_output_file_file_exists(self, mock_isfile, mock_log) -> None:
+    def test_output_file_file_exists(self, mock_isfile: MagicMock, mock_log: MagicMock) -> None:
         mock_isfile.return_value = True
         s = bis.State()
         s.output_file("foo.html")

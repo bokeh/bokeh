@@ -145,7 +145,7 @@ class RGB(Color):
         h, l, s = colorsys.rgb_to_hls(float(self.r)/255, float(self.g)/255, float(self.b)/255)
         return HSL(round(h*360), s, l, self.a)
 
-    def to_rgb(self):
+    def to_rgb(self) -> RGB:
         ''' Return a RGB copy for this RGB color.
 
         Returns:

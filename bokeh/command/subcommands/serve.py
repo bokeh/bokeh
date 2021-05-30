@@ -865,7 +865,7 @@ class Serve(Subcommand):
             if not os.path.isdir(path):
                 return
 
-            for path, subdirs, files in os.walk(path):
+            for path, _, files in os.walk(path):
                 for name in files:
                     if (fnmatch(name, '*.html') or
                         fnmatch(name, '*.css') or

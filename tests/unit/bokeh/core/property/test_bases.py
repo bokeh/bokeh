@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # External imports
 import numpy as np
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -46,7 +46,7 @@ ALL = (
 
 class TestProperty:
     @patch('bokeh.core.property.bases.Property.validate')
-    def test_is_valid_supresses_validation_detail(self, mock_validate) -> None:
+    def test_is_valid_supresses_validation_detail(self, mock_validate: MagicMock) -> None:
         p = bcpb.Property()
         p.is_valid(None)
         assert mock_validate.called

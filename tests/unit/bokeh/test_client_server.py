@@ -24,7 +24,7 @@ import sys
 
 # External imports
 from flaky import flaky
-from mock import patch
+from mock import MagicMock, patch
 from tornado.httpclient import HTTPError
 
 # Bokeh imports
@@ -1040,7 +1040,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch: pytest.MonkeyPatch, Man
         server.unlisten() # clean up so next test can run
 
 @patch('bokeh.client.session.show_session')
-def test_session_show_adds_obj_to_curdoc_if_necessary(m) -> None:
+def test_session_show_adds_obj_to_curdoc_if_necessary(m: MagicMock) -> None:
     session = ClientSession()
     session._document = Document()
     p = Plot()

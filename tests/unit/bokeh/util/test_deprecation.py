@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import Mock, patch
+from mock import MagicMock, patch
 
 # Module under test
 import bokeh.util.deprecation as dep # isort:skip
@@ -33,7 +33,7 @@ def foo(): pass
 #-----------------------------------------------------------------------------
 
 @patch('warnings.warn')
-def test_message(mock_warn: Mock) -> None:
+def test_message(mock_warn: MagicMock) -> None:
     dep.deprecated('test')
     assert mock_warn.called
     assert mock_warn.call_args[0] == ("test", dep.BokehDeprecationWarning)
@@ -70,14 +70,14 @@ def test_since_bad_tuple() -> None:
         dep.deprecated((1,2,"3"), old="foo", new="bar")
 
 @patch('warnings.warn')
-def test_since(mock_warn: Mock) -> None:
+def test_since(mock_warn: MagicMock) -> None:
     dep.deprecated((1,2,3), old="foo", new="bar")
     assert mock_warn.called
     assert mock_warn.call_args[0] == ("foo was deprecated in Bokeh 1.2.3 and will be removed, use bar instead.", dep.BokehDeprecationWarning)
     assert mock_warn.call_args[1] == {'stacklevel': 2}
 
 @patch('warnings.warn')
-def test_since_with_extra(mock_warn: Mock) -> None:
+def test_since_with_extra(mock_warn: MagicMock) -> None:
     dep.deprecated((1,2,3), old="foo", new="bar", extra="baz")
     assert mock_warn.called
     assert mock_warn.call_args[0] == ("foo was deprecated in Bokeh 1.2.3 and will be removed, use bar instead. baz", dep.BokehDeprecationWarning)

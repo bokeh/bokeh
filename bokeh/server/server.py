@@ -453,7 +453,7 @@ class Server(BaseServer):
         return self._port
 
     @property
-    def address(self):
+    def address(self) -> str | None:
         ''' The configured address that the server listens on for HTTP
         requests.
 
