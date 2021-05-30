@@ -63,7 +63,7 @@ class Seq(ContainerProperty):
 
     """
 
-    def __init__(self, item_type, default=Undefined, help=None):
+    def __init__(self, item_type, default=Undefined, help=None) -> None:
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 
@@ -116,7 +116,7 @@ class List(Seq):
 
     """
 
-    def __init__(self, item_type, default=[], help=None):
+    def __init__(self, item_type, default=[], help=None) -> None:
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -161,7 +161,7 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default={}, help=None):
+    def __init__(self, keys_type, values_type, default={}, help=None) -> None:
         self.keys_type = self._validate_type_param(keys_type)
         self.values_type = self._validate_type_param(values_type)
         super().__init__(default=default, help=help)
@@ -270,7 +270,7 @@ class Tuple(ContainerProperty):
     """ Accept Python tuple values.
 
     """
-    def __init__(self, tp1, tp2, *type_params, **kwargs):
+    def __init__(self, tp1, tp2, *type_params, **kwargs) -> None:
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
@@ -315,7 +315,7 @@ class RelativeDelta(Dict):
 
     """
 
-    def __init__(self, default={}, help=None):
+    def __init__(self, default={}, help=None) -> None:
         keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
         values = Int
         super().__init__(keys, values, default=default, help=help)
@@ -328,7 +328,7 @@ class RestrictedDict(Dict):
 
     """
 
-    def __init__(self, keys_type, values_type, disallow, default={}, help=None):
+    def __init__(self, keys_type, values_type, disallow, default={}, help=None) -> None:
         self._disallow = set(disallow)
         super().__init__(keys_type=keys_type, values_type=values_type, default=default, help=help)
 

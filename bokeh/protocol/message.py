@@ -137,7 +137,7 @@ class Message(Generic[Content]):
 
     _buffers: List[BufferRef]
 
-    def __init__(self, header: Header, metadata: Metadata, content: Content):
+    def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
         ''' Initialize a new message from header, metadata, and content
         dictionaries.
 

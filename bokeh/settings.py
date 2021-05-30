@@ -476,7 +476,7 @@ class Settings:
     _config_user: Dict[str, Any]
     _config_system: Dict[str, Any]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._config_override = {}
         self._config_user = self._try_load_config(_config_user_locations)
         self._config_system = {} # TODO (bev)

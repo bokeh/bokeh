@@ -170,7 +170,7 @@ class Figure(Plot, GlyphAPI):
     __subtype__ = "Figure"
     __view_model__ = "Plot"
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, *arg, **kw) -> None:
         opts = FigureOptions(kw)
 
         title = kw.get("title", None)

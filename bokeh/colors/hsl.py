@@ -55,7 +55,7 @@ class HSL(Color):
 
     '''
 
-    def __init__(self, h: float, s: float, l: float, a: float = 1.0):
+    def __init__(self, h: float, s: float, l: float, a: float = 1.0) -> None:
         '''
 
         Args:

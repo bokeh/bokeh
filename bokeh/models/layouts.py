@@ -379,7 +379,7 @@ class Box(LayoutDOM):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
 
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -509,7 +509,7 @@ class WidgetBox(Column):
     WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
 
     '''
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         from ..util.deprecation import deprecated
         deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

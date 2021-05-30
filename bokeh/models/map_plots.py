@@ -81,7 +81,7 @@ class MapPlot(Plot):
 
     '''
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         from ..models.ranges import Range1d
         for r in ('x_range', 'y_range'):
             if r in kw and not isinstance(kw.get(r), Range1d):

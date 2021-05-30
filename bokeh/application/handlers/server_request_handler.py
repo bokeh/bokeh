@@ -57,7 +57,7 @@ class ServerRequestHandler(RequestHandler):
 
     _module: ModuleType
 
-    def __init__(self, *, filename: PathLike, argv: Sequence[str] = [], package: ModuleType | None = None):
+    def __init__(self, *, filename: PathLike, argv: Sequence[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:

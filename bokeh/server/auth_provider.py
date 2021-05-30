@@ -55,7 +55,7 @@ class AuthProvider:
 
     '''
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._validate()
 
     @property
@@ -197,7 +197,7 @@ class AuthModule(AuthProvider):
 
     '''
 
-    def __init__(self, module_path):
+    def __init__(self, module_path) -> None:
         if not isfile(module_path):
             raise ValueError("no file exists at module_path: %r" % module_path)
 

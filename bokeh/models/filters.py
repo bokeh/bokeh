@@ -61,7 +61,7 @@ class IndexFilter(Filter):
     A list of integer indices representing the subset of data to select.
     """)
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         if len(args) == 1 and "indices" not in kw:
             kw["indices"] = args[0]
 
@@ -76,7 +76,7 @@ class BooleanFilter(Filter):
     A list of booleans indicating which rows of data to select.
     """)
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         if len(args) == 1 and "booleans" not in kw:
             kw["booleans"] = args[0]
 
@@ -95,7 +95,7 @@ class GroupFilter(Filter):
     The value of the column indicating the rows of data to keep.
     """)
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         if len(args) == 2 and "column_name" not in kw and "group" not in kw:
             kw["column_name"] = args[0]
             kw["group"] = args[1]

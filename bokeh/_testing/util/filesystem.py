@@ -57,7 +57,7 @@ class TmpDir:
 
     '''
 
-    def __init__(self, prefix: str):
+    def __init__(self, prefix: str) -> None:
         self._dir = tempfile.mkdtemp(prefix=prefix, dir=_LOCAL_TMP)
 
     def __exit__(self, type, value, traceback):

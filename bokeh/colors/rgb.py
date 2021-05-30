@@ -51,7 +51,7 @@ class RGB(Color):
 
     '''
 
-    def __init__(self, r: int, g: int, b: int, a: float = 1.0):
+    def __init__(self, r: int, g: int, b: int, a: float = 1.0) -> None:
         '''
 
         Args:

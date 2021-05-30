@@ -54,7 +54,7 @@ class MultiValuedDict(Generic[K, V]):
 
     _dict: Dict[K, V | Set[V]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         '''
 
         '''

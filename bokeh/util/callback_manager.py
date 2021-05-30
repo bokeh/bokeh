@@ -66,7 +66,7 @@ class EventCallbackManager:
     _event_callbacks: Dict[str, List[EventCallback]]
     _document: Document | None
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self._event_callbacks = {}
 
@@ -131,7 +131,7 @@ class PropertyCallbackManager:
     _callbacks: Dict[str, List[PropertyCallback]]
     _document: Document | None
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         self._callbacks = {}
 

@@ -70,7 +70,7 @@ class HookListModel(Model):
     hooks = List(String)
 
 class HookTestHandler(Handler):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.load_count = 0
         self.unload_count = 0

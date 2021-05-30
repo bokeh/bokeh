@@ -163,7 +163,7 @@ class MetaHasProps(type):
 
         return super().__new__(cls, class_name, bases, class_dict)
 
-    def __init__(cls, class_name: str, bases: Tuple[type, ...], _):
+    def __init__(cls, class_name: str, bases: Tuple[type, ...], _) -> None:
         # Check for improperly redeclared a Property attribute.
         base_properties: Dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
@@ -193,7 +193,7 @@ class HasProps(metaclass=MetaHasProps):
     _unstable_default_values: Dict[str, Unknown]
     _unstable_themed_values: Dict[str, Unknown]
 
-    def __init__(self, **properties: Any):
+    def __init__(self, **properties: Any) -> None:
         '''
 
         '''

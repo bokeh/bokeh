@@ -80,7 +80,7 @@ class Regex(String):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     """
-    def __init__(self, regex, default=Undefined, help=None):
+    def __init__(self, regex, default=Undefined, help=None) -> None:
         self.regex = re.compile(regex)
         super().__init__(default=default, help=help)
 

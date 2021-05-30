@@ -129,7 +129,7 @@ class DocumentChangedEvent:
     setter: Setter | None
     callback_invoker: Invoker | None
 
-    def __init__(self, document: Document, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+    def __init__(self, document: Document, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
 
         Args:
@@ -754,7 +754,7 @@ class RootAddedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+    def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
 
         Args:
@@ -819,7 +819,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+    def __init__(self, document: Document, model: Model, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         '''
 
         Args:
@@ -884,7 +884,7 @@ class SessionCallbackAdded(DocumentChangedEvent):
 
     '''
 
-    def __init__(self, document: Document, callback: SessionCallback):
+    def __init__(self, document: Document, callback: SessionCallback) -> None:
         '''
 
         Args:
@@ -916,7 +916,7 @@ class SessionCallbackRemoved(DocumentChangedEvent):
 
     '''
 
-    def __init__(self, document: Document, callback: SessionCallback):
+    def __init__(self, document: Document, callback: SessionCallback) -> None:
         '''
 
         Args:

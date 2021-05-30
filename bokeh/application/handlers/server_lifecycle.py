@@ -55,7 +55,7 @@ class ServerLifecycleHandler(LifecycleHandler):
 
     '''
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None):
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:

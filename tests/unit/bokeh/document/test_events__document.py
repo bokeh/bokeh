@@ -30,7 +30,7 @@ class FakeEmptyDispatcher:
     pass
 
 class FakeFullDispatcher:
-    def __init__(self):
+    def __init__(self) -> None:
         self.called = []
 
     def _document_changed(self, event):         self.called.append('_document_changed')

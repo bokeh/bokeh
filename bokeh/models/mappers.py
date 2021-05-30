@@ -91,7 +91,7 @@ class ColorMapper(Mapper):
     Color to be used if data is NaN or otherwise not mappable.
     """)
 
-    def __init__(self, palette=None, **kwargs):
+    def __init__(self, palette=None, **kwargs) -> None:
         if palette is not None:
             kwargs['palette'] = palette
         super().__init__(**kwargs)

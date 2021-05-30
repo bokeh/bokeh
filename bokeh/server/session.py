@@ -112,7 +112,7 @@ class ServerSession:
 
     _subscribed_connections: Set[ServerConnection]
 
-    def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None):
+    def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None) -> None:
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:

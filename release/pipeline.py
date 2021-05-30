@@ -31,7 +31,7 @@ def is_check(step: StepType) -> bool:
 class Pipeline:
     """"""
 
-    def __init__(self, steps: Sequence[StepType], config: Config, system: System):
+    def __init__(self, steps: Sequence[StepType], config: Config, system: System) -> None:
         self._steps = steps
         self._config = config
         self._system = system

@@ -80,24 +80,24 @@ class Artifact:
     pass
 
 class ScriptRef(Artifact):
-    def __init__(self, url: str, type: str = "text/javascript"):
+    def __init__(self, url: str, type: str = "text/javascript") -> None:
         self.url = url
         self.type = type
 
 
 class Script(Artifact):
-    def __init__(self, content: str, type: str = "text/javascript"):
+    def __init__(self, content: str, type: str = "text/javascript") -> None:
         self.content = content
         self.type = type
 
 
 class StyleRef(Artifact):
-    def __init__(self, url: str):
+    def __init__(self, url: str) -> None:
         self.url = url
 
 
 class Style(Artifact):
-    def __init__(self, content: str):
+    def __init__(self, content: str) -> None:
         self.content = content
 
 

@@ -62,7 +62,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
+    def __init__(self, tornado_app, *args, **kw) -> None:
         self.receiver = None
         self.handler = None
         self.connection = None

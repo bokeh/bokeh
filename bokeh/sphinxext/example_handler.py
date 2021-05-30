@@ -59,7 +59,7 @@ class ExampleHandler(Handler):
     _output_funcs = ["output_notebook", "output_file", "reset_output"]
     _io_funcs = ["show", "save"]
 
-    def __init__(self, source: str, filename: PathLike):
+    def __init__(self, source: str, filename: PathLike) -> None:
         super().__init__()
         self._runner = CodeRunner(source, filename, [])
 

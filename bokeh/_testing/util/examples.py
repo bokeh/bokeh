@@ -66,7 +66,7 @@ class Flags:
 
 
 class Example:
-    def __init__(self, path, flags, examples_dir, extensions = []):
+    def __init__(self, path, flags, examples_dir, extensions = []) -> None:
         self.path = normpath(path)
         self.flags = flags
         self.examples_dir = examples_dir

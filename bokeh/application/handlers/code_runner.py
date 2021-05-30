@@ -70,7 +70,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: List[str], package: ModuleType | None = None):
+    def __init__(self, source: str, path: PathLike, argv: List[str], package: ModuleType | None = None) -> None:
         '''
 
         Args:

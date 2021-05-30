@@ -90,7 +90,7 @@ class CodeHandler(Handler):
 
     _origin: ClassVar[str]
 
-    def __init__(self, *, source: str, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None):
+    def __init__(self, *, source: str, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Args:

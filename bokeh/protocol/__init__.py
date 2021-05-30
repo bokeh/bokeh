@@ -89,7 +89,7 @@ class Protocol:
 
     '''
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._messages = SPEC
 
     def __repr__(self) -> str:
