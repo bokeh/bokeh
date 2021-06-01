@@ -83,18 +83,17 @@ At the top level of the repository, issue the following command in a terminal:
 .. code-block:: sh
 
     conda env create environment.yml
-    
-Then, initialize Anaconda after creating a conda environment:
 
-.. code-block:: sh
-
-    conda init
-
-And finally, activate the environment:
+Then, activate the environment:
 
 .. code-block:: sh
 
     conda activate bkdev
+    
+.. note::
+    
+    Before creating a conda environment, initialize Anaconda with this command
+    ``conda init`` only once.
 
 .. _dev_guide_installing_node_packages:
 
