@@ -208,7 +208,7 @@ In the background, BokehJS' testing framework runs a headless browser and takes
 screenshots of the browser's output. The testing framework then compares the visual
 output to each test's dedicated baseline files.
 
-Each test in ``test:integration`` consists of two types of baseline comparison:
+Each test in ``test:integration`` consists of two types of baseline comparisons:
 
 Textual baseline comparison
   For each test, the testing framework compares the pixel location of certain elements
@@ -245,17 +245,17 @@ Follow these steps to write new visual tests or update existing tests:
     Similarly, replace BokehJS' standard ``figure()`` with the ``fig()`` function in
     ``_util``. ``fig()`` expects an array of ``[width, height]`` as the first argument,
     followed by the same arguments as ``figure()``. To keep visual tests as efficient as
-    possible, you should only use ``width`` and ``height``, if possible.
+    possible, you should only use ``width`` and ``height``.
 
     Keep the width and height of your testing plot as small as possible while still
-    being able to see details the details you want to test with the naked eye. Have as
-    few elements as possible on your plot.
+    being able to see details the details you want to test with the naked eye. Try to
+    keep the number of elements on your plot to a minimum.
 
     Follow this general pattern for visual tests:
 
     .. code-block:: TypeScript
 
-      describe("Object", () => {
+      describe("Your Object", () => {
         it("should show certain behavior", async () => {
           const p = fig([width, height])
 
@@ -285,8 +285,8 @@ Follow these steps to write new visual tests or update existing tests:
     baseline files will be in a subfolder of :bokeh-tree:`bokehjs/test/baselines/`.
 
     Use the BokehJS :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>`
-    to review your local test results. Optionally, you can use any png viewer to inspect
-    the generated png files. Adjust your testing code until the test's visual output
+    to review your local test results. Optionally, you can use any PNG viewer to inspect
+    the generated PNG files. Adjust your testing code until the test's visual output
     matches your expectations.
 
 3. Generate CI baselines and commit test:
@@ -321,9 +321,10 @@ Follow these steps to write new visual tests or update existing tests:
        :bokeh-tree:`bokehjs/test/baselines/windows`.
     7. Push your changes to GitHub again and verify that tests pass this time.
 
-    .. warning::
-      Make sure to only push baseline files to the CI that were created by the CI. Do
-      not include any locally created baseline files in your pull request.
+    .. note::
+      Make sure to only push baseline files to the CI that were created by the CI
+      for your specific pull request. Do not include any locally created baseline
+      files in your pull request.
 
       After downloading and unpacking the baseline files from the CI, check your local
       :bokeh-tree:`bokehjs/test/baselines` directory for any modified files that are not
