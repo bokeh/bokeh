@@ -33,7 +33,7 @@ export class LabelView extends TextAnnotationView {
     sx += this.model.x_offset
     sy -= this.model.y_offset
 
-    const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
+    const draw = this.model.render_mode == "canvas" ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.layer.ctx, this.model.text, sx, sy, rotation)
   }
 }

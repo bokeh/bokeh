@@ -80,7 +80,7 @@ describe("tile sources", () => {
 
   describe("tile source (base class)", () => {
     const tile_options = {
-      url: 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png',
+      url: "http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png",
     }
 
     const source = new AbstractTileSource(tile_options)
@@ -91,7 +91,7 @@ describe("tile sources", () => {
     })
 
     it("should convert tile key to tile xyz", () => {
-      const xyz = source.key_to_tile_xyz('1:1:1')
+      const xyz = source.key_to_tile_xyz("1:1:1")
       expect(xyz).to.be.equal([1, 1, 1])
     })
 
@@ -107,32 +107,32 @@ describe("tile sources", () => {
 
     it("should successfully set extra_url_vars property", () => {
       const test_extra_url_vars = {
-        test_key: 'test_value',
-        test_key2: 'test_value2',
+        test_key: "test_value",
+        test_key2: "test_value2",
       }
 
       const tile_options = {
-        url: 'http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png',
+        url: "http://{test_key}/{test_key2}/{X}/{Y}/{Z}.png",
         extra_url_vars: test_extra_url_vars,
       }
 
       const tile_source = new AbstractTileSource(tile_options)
-      const expect_url = 'http://test_value/test_value2/0/0/0.png'
+      const expect_url = "http://test_value/test_value2/0/0/0.png"
       expect(tile_source.extra_url_vars).to.be.equal(test_extra_url_vars)
       expect(tile_source.get_image_url(0, 0, 0)).to.be.equal(expect_url)
     })
 
     it("should handle case-insensitive url parameters (template url)", () => {
-      const expect_url = 'http://mock/0/0/0.png'
+      const expect_url = "http://mock/0/0/0.png"
 
       const tile_options0 = {
-        url: 'http://mock/{x}/{y}/{z}.png',
+        url: "http://mock/{x}/{y}/{z}.png",
       }
       const tile_source0 = new AbstractTileSource(tile_options0)
       expect(tile_source0.get_image_url(0, 0, 0)).to.be.equal(expect_url)
 
       const tile_options1 = {
-        url: 'http://mock/{X}/{Y}/{Z}.png',
+        url: "http://mock/{X}/{Y}/{Z}.png",
       }
       const tile_source1 = new AbstractTileSource(tile_options1)
       expect(tile_source1.get_image_url(0, 0, 0)).to.be.equal(expect_url)
@@ -158,18 +158,18 @@ describe("tile sources", () => {
 
     it("should invalidate cache on property change", () => {
       const tile_options = {
-        url: 'http://mock/{x}/{y}/{z}.png',
+        url: "http://mock/{x}/{y}/{z}.png",
       }
       const tile_source = new AbstractTileSource(tile_options)
       const tile = {tile_coords: [0, 1, 2]}
       tile_source.tiles.mock_key = tile
-      tile_source.url = 'http://mock/{x}/{y}/{z}.png'
+      tile_source.url = "http://mock/{x}/{y}/{z}.png"
       expect(tile_source.tiles).to.be.empty
     })
   })
 
   describe("tms tile source", () => {
-    const url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
+    const url = "http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png"
     const source = new TMSTileSource({url})
 
     it("should get tiles for extent correctly", () => {
@@ -204,7 +204,7 @@ describe("tile sources", () => {
 
   describe("wmts tile source", () => {
     const tile_options = {
-      url: 'http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga',
+      url: "http://mt0.google.com/vt/lyrs=m@169000000&hl=en&x={X}&y={Y}&z={Z}&s=Ga",
     }
 
     const source = new WMTSTileSource(tile_options)
@@ -238,7 +238,7 @@ describe("tile sources", () => {
 
   describe("quadkey tile source", () => {
     const tile_options = {
-      url: 'http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0',
+      url: "http://t0.tiles.virtualearth.net/tiles/a{Q}.jpeg?g=854&mkt=en-US&token=Anz84uRE1RULeLwuJ0qKu5amcu5rugRXy1vKc27wUaKVyIv1SVZrUjqaOfXJJoI0",
     }
     const source = new QUADKEYTileSource(tile_options)
 
@@ -247,23 +247,23 @@ describe("tile sources", () => {
     })
 
     it("should convert tile xyz to quadkey", () => {
-      expect(source.tile_xyz_to_quadkey(0, 0, 0)).to.be.equal('')
-      expect(source.tile_xyz_to_quadkey(0, 0, 1)).to.be.equal('0')
-      expect(source.tile_xyz_to_quadkey(0, 0, 2)).to.be.equal('00')
-      expect(source.tile_xyz_to_quadkey(20, 30, 10)).to.be.equal('0000032320')
+      expect(source.tile_xyz_to_quadkey(0, 0, 0)).to.be.equal("")
+      expect(source.tile_xyz_to_quadkey(0, 0, 1)).to.be.equal("0")
+      expect(source.tile_xyz_to_quadkey(0, 0, 2)).to.be.equal("00")
+      expect(source.tile_xyz_to_quadkey(20, 30, 10)).to.be.equal("0000032320")
     })
 
     it("should convert quadkey to tile xyz", () => {
-      expect(source.quadkey_to_tile_xyz('')).to.be.equal([0, 0, 0])
-      expect(source.quadkey_to_tile_xyz('0')).to.be.equal([0, 0, 1])
-      expect(source.quadkey_to_tile_xyz('00')).to.be.equal([0, 0, 2])
-      expect(source.quadkey_to_tile_xyz('0000032320')).to.be.equal([20, 30, 10])
+      expect(source.quadkey_to_tile_xyz("")).to.be.equal([0, 0, 0])
+      expect(source.quadkey_to_tile_xyz("0")).to.be.equal([0, 0, 1])
+      expect(source.quadkey_to_tile_xyz("00")).to.be.equal([0, 0, 2])
+      expect(source.quadkey_to_tile_xyz("0000032320")).to.be.equal([20, 30, 10])
     })
   })
 
   describe("bbox tile source", () => {
     const tile_options = {
-      url: 'http://maps.ngdc.noaa.gov/soap/web_mercator/dem_hillshades/MapServer/WMSServer?request=GetMap&service=WMS&styles=default&version=1.3.0&format=image/png&bbox={XMIN},{YMIN},{XMAX},{YMAX}&width=256&height=256&crs=3857&layers=DEM%20Hillshades&BGCOLOR=0x000000&transparent=true',
+      url: "http://maps.ngdc.noaa.gov/soap/web_mercator/dem_hillshades/MapServer/WMSServer?request=GetMap&service=WMS&styles=default&version=1.3.0&format=image/png&bbox={XMIN},{YMIN},{XMAX},{YMAX}&width=256&height=256&crs=3857&layers=DEM%20Hillshades&BGCOLOR=0x000000&transparent=true",
     }
     const source = new BBoxTileSource(tile_options)
 
@@ -272,21 +272,21 @@ describe("tile sources", () => {
     })
 
     it("should handle case-insensitive url parameters (template url)", () => {
-      const tile_options0 = {url: 'http://mock?bbox={xmin},{ymin},{xmax},{ymax}'}
+      const tile_options0 = {url: "http://mock?bbox={xmin},{ymin},{xmax},{ymax}"}
       const tile_source0 = new BBoxTileSource(tile_options0)
       const url0 = tile_source0.get_image_url(0, 0, 0)
-      expect(url0.indexOf('{xmin}')).to.be.equal(-1)
-      expect(url0.indexOf('{ymin}')).to.be.equal(-1)
-      expect(url0.indexOf('{xmax}')).to.be.equal(-1)
-      expect(url0.indexOf('{ymax}')).to.be.equal(-1)
+      expect(url0.indexOf("{xmin}")).to.be.equal(-1)
+      expect(url0.indexOf("{ymin}")).to.be.equal(-1)
+      expect(url0.indexOf("{xmax}")).to.be.equal(-1)
+      expect(url0.indexOf("{ymax}")).to.be.equal(-1)
 
-      const tile_options1 = {url: 'http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}'}
+      const tile_options1 = {url: "http://mock?bbox={XMIN},{YMIN},{XMAX},{YMAX}"}
       const tile_source1 = new BBoxTileSource(tile_options1)
       const url1 = tile_source1.get_image_url(0, 0, 0)
-      expect(url1.indexOf('{XMIN}')).to.be.equal(-1)
-      expect(url1.indexOf('{YMIN}')).to.be.equal(-1)
-      expect(url1.indexOf('{XMAX}')).to.be.equal(-1)
-      expect(url1.indexOf('{YMAX}')).to.be.equal(-1)
+      expect(url1.indexOf("{XMIN}")).to.be.equal(-1)
+      expect(url1.indexOf("{YMIN}")).to.be.equal(-1)
+      expect(url1.indexOf("{XMAX}")).to.be.equal(-1)
+      expect(url1.indexOf("{YMAX}")).to.be.equal(-1)
     })
   })
 
@@ -401,7 +401,7 @@ describe("tile sources", () => {
     //      Now it at least compiles, but is still broken.
     it.skip("should get tile urls by geographic extent", () => {
       const tile_options = {
-        url: 'http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png',
+        url: "http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
       }
 
       const source = new TMSTileSource(tile_options)
@@ -410,12 +410,12 @@ describe("tile sources", () => {
       const level = 11
 
       const expected_tiles = [
-        'http://c.tile.openstreetmap.org/11/510/1201.png',
-        'http://c.tile.openstreetmap.org/11/511/1201.png',
-        'http://c.tile.openstreetmap.org/11/512/1201.png',
-        'http://c.tile.openstreetmap.org/11/510/1202.png',
-        'http://c.tile.openstreetmap.org/11/511/1202.png',
-        'http://c.tile.openstreetmap.org/11/512/1202.png',
+        "http://c.tile.openstreetmap.org/11/510/1201.png",
+        "http://c.tile.openstreetmap.org/11/511/1201.png",
+        "http://c.tile.openstreetmap.org/11/512/1201.png",
+        "http://c.tile.openstreetmap.org/11/510/1202.png",
+        "http://c.tile.openstreetmap.org/11/511/1202.png",
+        "http://c.tile.openstreetmap.org/11/512/1202.png",
       ]
 
       const tiles = source.get_tiles_by_extent(extent, level)

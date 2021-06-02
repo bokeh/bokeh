@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {create_glyph_view} from "./_util"
 import {ImageRGBA} from "@bokehjs/models/glyphs/image_rgba"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {ScreenArray} from '@bokehjs/core/types'
+import {ScreenArray} from "@bokehjs/core/types"
 
 describe("ImageRGBA module", () => {
 

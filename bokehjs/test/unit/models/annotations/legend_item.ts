@@ -1,5 +1,5 @@
 import {expect} from "assertions"
-import * as sinon from 'sinon'
+import * as sinon from "sinon"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -20,14 +20,14 @@ describe("LegendItem", () => {
     })
 
     it("should log an error if _check_data_sources_on_renderers is false", () => {
-      const stub = sinon.stub(LegendItem.prototype, '_check_data_sources_on_renderers').returns(false)
+      const stub = sinon.stub(LegendItem.prototype, "_check_data_sources_on_renderers").returns(false)
       new LegendItem()
       sinon.assert.calledOnce(logger_stub)
       stub.restore()
     })
 
     it("should log an error if _check_field_label_on_data_source is false", () => {
-      const stub = sinon.stub(LegendItem.prototype, '_check_field_label_on_data_source').returns(false)
+      const stub = sinon.stub(LegendItem.prototype, "_check_field_label_on_data_source").returns(false)
       new LegendItem()
       sinon.assert.calledOnce(logger_stub)
       stub.restore()
@@ -40,7 +40,7 @@ describe("LegendItem", () => {
       const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: {field: 'label'},
+        label: {field: "label"},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -48,7 +48,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: {field: 'label'},
+        label: {field: "label"},
         renderers: [ ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.false
@@ -58,7 +58,7 @@ describe("LegendItem", () => {
       const gr_1 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const gr_2 = new GlyphRenderer({data_source: new ColumnDataSource()})
       const legend_item = new LegendItem({
-        label: {value: 'label'},
+        label: {value: "label"},
         renderers: [ gr_1, gr_2 ],
       })
       expect(legend_item._check_data_sources_on_renderers()).to.be.true
@@ -72,7 +72,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {foo: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: {field: 'label'},
+        label: {field: "label"},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -80,7 +80,7 @@ describe("LegendItem", () => {
 
     it("should return false if field label and no renderers", () => {
       const legend_item = new LegendItem({
-        label: {field: 'label'},
+        label: {field: "label"},
         renderers: [ ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.false
@@ -91,7 +91,7 @@ describe("LegendItem", () => {
         data_source: new ColumnDataSource({data: {label: [1]}}),
       })
       const legend_item = new LegendItem({
-        label: {field: 'label'},
+        label: {field: "label"},
         renderers: [ gr_1 ],
       })
       expect(legend_item._check_field_label_on_data_source()).to.be.true
@@ -107,15 +107,15 @@ describe("LegendItem", () => {
     })
 
     it("should return undefined if label property is value", () => {
-      const legend_item = new LegendItem({label: {value: 'milk'}})
+      const legend_item = new LegendItem({label: {value: "milk"}})
       const field = legend_item.get_field_from_label_prop()
       expect(field).to.be.null
     })
 
     it("should return field if label property is field", () => {
-      const legend_item = new LegendItem({label: {field: 'milk'}})
+      const legend_item = new LegendItem({label: {field: "milk"}})
       const field = legend_item.get_field_from_label_prop()
-      expect(field).to.be.equal('milk')
+      expect(field).to.be.equal("milk")
     })
   })
 
@@ -124,13 +124,13 @@ describe("LegendItem", () => {
     it("should return labels if field is valid", () => {
       const source = new ColumnDataSource({
         data: {
-          label: ['foo', 'bar', 'foo', 'bar'],
+          label: ["foo", "bar", "foo", "bar"],
         },
       })
       const gr = new GlyphRenderer({data_source: source})
-      const legend_item = new LegendItem({label: {field: 'label'}, renderers: [gr]})
+      const legend_item = new LegendItem({label: {field: "label"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(['foo', 'bar'])
+      expect(field).to.be.equal(["foo", "bar"])
     })
 
     it("should return 'Invalid field' list if field is not in datasource", () => {
@@ -140,28 +140,28 @@ describe("LegendItem", () => {
         },
       })
       const gr = new GlyphRenderer({data_source: source})
-      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
+      const legend_item = new LegendItem({label: {field: "milk"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(['Invalid field'])
+      expect(field).to.be.equal(["Invalid field"])
     })
 
     it("should return 'No source found' list if no renderer and field used", () => {
-      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: []})
+      const legend_item = new LegendItem({label: {field: "milk"}, renderers: []})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(['No source found'])
+      expect(field).to.be.equal(["No source found"])
     })
 
     it("should return 'No source found' list if no source on renderer", () => {
       const gr = new GlyphRenderer()
-      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
+      const legend_item = new LegendItem({label: {field: "milk"}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(['No source found'])
+      expect(field).to.be.equal(["No source found"])
     })
 
     it("should return value in single list if label is value", () => {
-      const legend_item = new LegendItem({label: {value: 'milk'}})
+      const legend_item = new LegendItem({label: {value: "milk"}})
       const field = legend_item.get_labels_list_from_label_prop()
-      expect(field).to.be.equal(['milk'])
+      expect(field).to.be.equal(["milk"])
     })
 
     it("should return empty list if label is null", () => {

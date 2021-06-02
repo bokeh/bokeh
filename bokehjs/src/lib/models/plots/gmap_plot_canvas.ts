@@ -27,8 +27,8 @@ const load_google_api = function(api_key: string, api_version: string): void {
   window._bokeh_gmaps_callback = () => gmaps_ready.emit()
 
   const enc = encodeURIComponent
-  const script = document.createElement('script')
-  script.type = 'text/javascript'
+  const script = document.createElement("script")
+  script.type = "text/javascript"
   script.src = `https://maps.googleapis.com/maps/api/js?v=${enc(api_version)}&key=${enc(api_key)}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
@@ -110,16 +110,19 @@ export class GMapPlotView extends PlotView {
       const zoom_change = range_info.factor < 0 ?  -1 : 1
 
       const old_map_zoom = this.map.getZoom()
-      const new_map_zoom = old_map_zoom + zoom_change
 
-      // Zooming out too far causes problems
-      if (new_map_zoom >= 2) {
-        this.map.setZoom(new_map_zoom)
+      if (old_map_zoom != null) {
+        const new_map_zoom = old_map_zoom + zoom_change
 
-        // Check we haven't gone out of bounds, and if we have undo the zoom
-        const [proj_xstart, proj_xend,, ] = this._get_projected_bounds()
-        if (proj_xend - proj_xstart < 0) {
-          this.map.setZoom(old_map_zoom)
+        // Zooming out too far causes problems
+        if (new_map_zoom >= 2) {
+          this.map.setZoom(new_map_zoom)
+
+          // Check we haven't gone out of bounds, and if we have undo the zoom
+          const [proj_xstart, proj_xend] = this._get_projected_bounds()
+          if (proj_xend - proj_xstart < 0) {
+            this.map.setZoom(old_map_zoom)
+          }
         }
       }
 
@@ -159,18 +162,18 @@ export class GMapPlotView extends PlotView {
     this.map = new maps.Map(this.map_el, map_options)
 
     // update bokeh ranges whenever the map idles, which should be after most UI action
-    maps.event.addListener(this.map, 'idle', () => this._set_bokeh_ranges())
+    maps.event.addListener(this.map, "idle", () => this._set_bokeh_ranges())
 
     // also need an event when bounds change so that map resizes trigger renders too
-    maps.event.addListener(this.map, 'bounds_changed', () => this._set_bokeh_ranges())
+    maps.event.addListener(this.map, "bounds_changed", () => this._set_bokeh_ranges())
 
-    maps.event.addListenerOnce(this.map, 'tilesloaded', () => this._render_finished())
+    maps.event.addListenerOnce(this.map, "tilesloaded", () => this._render_finished())
 
     // wire up listeners so that changes to properties are reflected
     this.connect(this.model.properties.map_options.change, () => this._update_options())
     this.connect(this.model.map_options.properties.styles.change, () => this._update_styles())
-    this.connect(this.model.map_options.properties.lat.change, () => this._update_center('lat'))
-    this.connect(this.model.map_options.properties.lng.change, () => this._update_center('lng'))
+    this.connect(this.model.map_options.properties.lat.change, () => this._update_center("lat"))
+    this.connect(this.model.map_options.properties.lng.change, () => this._update_center("lng"))
     this.connect(this.model.map_options.properties.zoom.change, () => this._update_zoom())
     this.connect(this.model.map_options.properties.map_type.change, () => this._update_map_type())
     this.connect(this.model.map_options.properties.scale_control.change, () => this._update_scale_control())
@@ -212,10 +215,12 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_center(fld: "lat" | "lng"): void {
-    const c = this.map.getCenter().toJSON()
-    c[fld] = this.model.map_options[fld]
-    this.map.setCenter(c)
-    this._set_bokeh_ranges()
+    const center = this.map.getCenter()?.toJSON()
+    if (center != null) {
+      center[fld] = this.model.map_options[fld]
+      this.map.setCenter(center)
+      this._set_bokeh_ranges()
+    }
   }
 
   protected _update_map_type(): void {
@@ -232,8 +237,8 @@ export class GMapPlotView extends PlotView {
 
   protected _update_options(): void {
     this._update_styles()
-    this._update_center('lat')
-    this._update_center('lng')
+    this._update_center("lat")
+    this._update_center("lng")
     this._update_zoom()
     this._update_map_type()
   }

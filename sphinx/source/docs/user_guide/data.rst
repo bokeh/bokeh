@@ -515,8 +515,7 @@ either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` needs to return a
-JSON dict that matches the standard
-:ref:`ColumnDataSource format <userguide_data_cds>`:
+JSON dict that matches the standard |ColumnDataSource| format:
 
 .. code-block:: python
 
@@ -586,12 +585,10 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`userguide_graph` and :ref:`userguide_geo`.
 
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
 .. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
 .. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
-.. |Figure| replace:: :class:`~bokeh.plotting.Figure`
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`

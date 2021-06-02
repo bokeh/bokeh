@@ -14,7 +14,7 @@
 
 Generating output for Bokeh plots requires coordinating several things:
 
-:class:`~bokeh.document.Document`
+|Document|
     Groups together Bokeh models that may be shared between plots (e.g.,
     range or data source objects) into one common structure.
 
@@ -57,6 +57,7 @@ from typing import (
 from typing_extensions import Literal
 
 # Bokeh imports
+from ..core.types import PathLike
 from ..document import Document
 from ..resources import Resources, ResourcesMode
 
@@ -106,8 +107,7 @@ class State:
 
     @property
     def document(self) -> Document:
-        ''' A default :class:`~bokeh.document.Document` to use for all
-        output operations.
+        ''' A default |Document| to use for all output operations.
 
         '''
         return self._document
@@ -151,7 +151,7 @@ class State:
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename: str, title: str = "Bokeh Plot",
+    def output_file(self, filename: PathLike, title: str = "Bokeh Plot",
             mode: Optional[ResourcesMode] = None, root_dir: Optional[str] = None) -> None:
         ''' Configure output to a standalone HTML file.
 
@@ -161,7 +161,7 @@ class State:
         to be active.
 
         Args:
-            filename (str) : a filename for saving the HTML document
+            filename (PathLike, e.g. str, Path) : a filename for saving the HTML document
 
             title (str, optional) : a title for the HTML document
 
@@ -253,7 +253,7 @@ def curstate() -> State:
 
 @dataclass
 class FileConfig:
-    filename: str
+    filename: PathLike
     resources: Resources
     title: str
 

@@ -19,9 +19,9 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter, bounds: [2, 8]})
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
@@ -36,9 +36,9 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter, bounds: [2, 8]})
-    plot.add_layout(axis, 'left')
+    plot.add_layout(axis, "left")
     const grid = new Grid({ticker})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
@@ -53,9 +53,9 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter, bounds: [2, 8]})
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const grid = new Grid({ticker, bounds: [1, 9]})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
@@ -70,13 +70,13 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
-    expect(grid_view.grid_coords('major')).to.be.equal([
+    expect(grid_view.grid_coords("major")).to.be.equal([
       [[2, 2],     [4, 4],     [6, 6],     [8, 8]    ],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -90,13 +90,13 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
-    expect(grid_view.grid_coords('major', false)).to.be.equal([
+    expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -110,13 +110,13 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const grid = new Grid({axis})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
-    expect(grid_view.grid_coords('major', false)).to.be.equal([
+    expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])
@@ -132,14 +132,14 @@ describe("Grid", () => {
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker: axis_ticker, formatter})
 
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
     const ticker = new BasicTicker()
     const grid = new Grid({axis, ticker})
-    plot.add_layout(grid, 'center')
+    plot.add_layout(grid, "center")
     const plot_view = (await build_view(plot)).build()
     const grid_view = plot_view.renderer_view(grid)!
 
-    expect(grid_view.grid_coords('major', false)).to.be.equal([
+    expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
       [[0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9], [0.1, 9.9]],
     ])

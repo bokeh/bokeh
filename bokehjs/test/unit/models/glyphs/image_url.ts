@@ -3,7 +3,7 @@ import {expect} from "assertions"
 import {create_glyph_view} from "./_util"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import {ScreenArray, Indices} from '@bokehjs/core/types'
+import {ScreenArray, Indices} from "@bokehjs/core/types"
 
 describe("ImageURL module", () => {
 

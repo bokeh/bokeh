@@ -9,7 +9,7 @@ import {every} from "./array"
 const toString = Object.prototype.toString
 
 export function isBoolean(obj: unknown): obj is boolean {
-  return obj === true || obj === false || toString.call(obj) === '[object Boolean]'
+  return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
 }
 
 export function isNumber(obj: unknown): obj is number {
@@ -56,7 +56,7 @@ export function isTypedArray(obj: unknown): obj is TypedArray {
 
 export function isObject(obj: unknown): obj is object {
   const tp = typeof obj
-  return tp === 'function' || tp === 'object' && !!obj
+  return tp === "function" || tp === "object" && !!obj
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {

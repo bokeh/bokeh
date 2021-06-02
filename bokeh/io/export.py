@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 import io
 import os
 import warnings
-from os.path import abspath
+from os.path import abspath, splitext
 from tempfile import mkstemp
 from typing import (
     TYPE_CHECKING,
@@ -39,7 +39,11 @@ from typing import (
 # External imports
 from PIL import Image
 
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
+
 # Bokeh imports
+from ..core.types import PathLike
 from ..document import Document
 from ..embed import file_html
 from ..models.layouts import LayoutDOM
@@ -59,15 +63,12 @@ __all__ = (
     'get_svgs',
 )
 
-if TYPE_CHECKING:
-    from selenium.webdriver.remote.webdriver import WebDriver
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> str:
+def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] = None, width: Optional[int] = None,
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -77,7 +78,7 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
             object or Document to export.
 
-        filename (str, optional) : filename to save document under (default: None)
+        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
         width (int) : the desired width of the exported layout obj only if
@@ -104,7 +105,6 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-
     image = get_screenshot_as_png(obj, width=width, height=height, driver=webdriver, timeout=timeout)
 
     if filename is None:
@@ -113,12 +113,13 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
     if image.width == 0 or image.height == 0:
         raise ValueError("unable to save an empty image")
 
+    filename = os.fspath(filename) # XXX: Image.save() doesn't fully support PathLike
     image.save(filename)
 
     return abspath(filename)
 
-def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
+def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] = None, width: Optional[int] = None,
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -127,7 +128,7 @@ def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
     Args:
         obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
 
-        filename (str, optional) : filename to save document under (default: None)
+        filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, infer from the filename.
 
         width (int) : the desired width of the exported layout obj only if
@@ -154,7 +155,7 @@ def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = Non
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: "Optional[WebDriver]" = None, timeout: int = 5) -> List[str]:
+        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -199,7 +200,7 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
@@ -241,7 +242,7 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: "Optional[
                  .crop((0, 0, width*dpr, height*dpr))
                  .resize((width, height)))
 
-def get_svg(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_svg(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
     from .webdriver import webdriver_control
 
@@ -257,7 +258,7 @@ def get_svg(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = 
 
     return svgs
 
-def get_svgs(obj: Union[LayoutDOM, Document], *, driver: "Optional[WebDriver]" = None, timeout: int = 5,
+def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
         resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
     from .webdriver import webdriver_control
 
@@ -321,14 +322,14 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
 
     return html
 
-def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
+def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     '''
 
     '''
     from selenium.common.exceptions import TimeoutException
     from selenium.webdriver.support.ui import WebDriverWait
 
-    def is_bokeh_loaded(driver: "WebDriver") -> bool:
+    def is_bokeh_loaded(driver: WebDriver) -> bool:
         return cast(bool, driver.execute_script('''
             return typeof Bokeh !== "undefined" && Bokeh.documents != null && Bokeh.documents.length != 0
         '''))
@@ -341,7 +342,7 @@ def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
 
     driver.execute_script(_WAIT_SCRIPT)
 
-    def is_bokeh_render_complete(driver: "WebDriver") -> bool:
+    def is_bokeh_render_complete(driver: WebDriver) -> bool:
         return cast(bool, driver.execute_script('return window._bokeh_render_complete;'))
 
     try:
@@ -357,25 +358,28 @@ def wait_until_render_complete(driver: "WebDriver", timeout: int) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _write_collection(items: List[str], filename: Union[str, None], ext: str) -> List[str]:
+def _write_collection(items: List[str], filename: Optional[PathLike], ext: str) -> List[str]:
     if filename is None:
         filename = default_filename(ext)
+    filename = os.fspath(filename)
 
-    filenames = []
+    filenames: List[str] = []
+
+    def _indexed(name: str, i: int) -> str:
+        basename, ext = splitext(name)
+        return f"{basename}_{i}{ext}"
 
     for i, item in enumerate(items):
-        if i > 0:
-            idx = filename.find(f".{ext}")
-            filename = filename[:idx] + f"_{i}" + filename[idx:]
+        fname = filename if i == 0 else _indexed(filename, i)
 
-        with open(filename, mode="w", encoding="utf-8") as f:
+        with open(fname, mode="w", encoding="utf-8") as f:
             f.write(item)
 
-        filenames.append(filename)
+        filenames.append(fname)
 
     return filenames
 
-def _log_console(driver: "WebDriver") -> None:
+def _log_console(driver: WebDriver) -> None:
     levels = {'WARNING', 'ERROR', 'SEVERE'}
     try:
         logs = driver.get_log('browser')
@@ -387,7 +391,7 @@ def _log_console(driver: "WebDriver") -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: "WebDriver") -> Tuple[int, int, int]:
+def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int, int]:
     calculate_viewport_size = """\
         const root = document.getElementsByClassName("bk-root")[0]
         const {width, height} = root.children[0].getBoundingClientRect()

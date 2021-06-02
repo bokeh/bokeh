@@ -1,8 +1,8 @@
 import {Data, GroupTotals} from "@bokeh/slickgrid"
 const {Avg, Min, Max, Sum} = Data.Aggregators
 
-import * as p from 'core/properties'
-import {Model} from 'model'
+import * as p from "core/properties"
+import {Model} from "model"
 
 export namespace RowAggregator {
   export type Attrs = p.AttrsOf<Props>
@@ -36,7 +36,7 @@ export abstract class RowAggregator extends Model {
 
 const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
-  override readonly key = 'avg'
+  override readonly key = "avg"
 
   init = avg.init
   accumulate = avg.accumulate
@@ -45,7 +45,7 @@ export class AvgAggregator extends RowAggregator {
 
 const min = new Min()
 export class MinAggregator extends RowAggregator {
-  override readonly key = 'min'
+  override readonly key = "min"
 
   init = min.init
   accumulate = min.accumulate
@@ -54,7 +54,7 @@ export class MinAggregator extends RowAggregator {
 
 const max = new Max()
 export class MaxAggregator extends RowAggregator {
-  override readonly key = 'max'
+  override readonly key = "max"
 
   init = max.init
   accumulate = max.accumulate
@@ -63,7 +63,7 @@ export class MaxAggregator extends RowAggregator {
 
 const sum = new Sum()
 export class SumAggregator extends RowAggregator {
-  override readonly key = 'sum'
+  override readonly key = "sum"
 
   init = sum.init
   accumulate = sum.accumulate

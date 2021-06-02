@@ -25,7 +25,7 @@ describe("Toolbar", () => {
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {
-      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: 'auto'})
+      new Toolbar({tools: [hover_1, hover_2, hover_3], active_inspect: "auto"})
       expect(hover_1.active).to.be.true
       expect(hover_2.active).to.be.true
       expect(hover_3.active).to.be.true

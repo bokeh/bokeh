@@ -1,7 +1,7 @@
 import {Plot} from "./plot"
 import * as p from "core/properties"
 import {Model} from "../../model"
-import {Range1d} from '../ranges/range1d'
+import {Range1d} from "../ranges/range1d"
 
 import {GMapPlotView} from "./gmap_plot_canvas"
 export {GMapPlotView}

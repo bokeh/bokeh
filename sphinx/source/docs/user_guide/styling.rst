@@ -110,7 +110,7 @@ Using palettes
 Palettes are sequences of RGB(A) hex strings that define a colormap. The
 sequences you use for defining colormaps can be either lists or tuples. Once you
 have created a colormap, you can use it with the ``color`` attribute of many
-plot objects from ``bokeh.plotting``.
+plot objects from |bokeh.plotting|.
 
 Bokeh includes several pre-defined palettes, such as the standard Brewer
 palettes. To use one of those pre-defined palettes, import it from the
@@ -171,7 +171,7 @@ Customizing visual properties
 -----------------------------
 
 To style the visual attributes of Bokeh plots, you need to know what the
-available properties are. The full :ref:`refguide` contains all properties of
+available properties are. The full |reference guide| contains all properties of
 every object individually. However, there are three groups of properties that
 many objects have in common. They are:
 
@@ -236,10 +236,8 @@ properties to control the appearance of lines, fills, or text, for example.
 
 Use one of these options to define colors in Bokeh:
 
-- Any of the
-  `named CSS colors <http://www.w3schools.com/colors/colors_names.asp>`_, such
-  as ``'green'`` or ``'indigo'``. You can also use the additional name
-  ``'transparent'`` (equal to ``'#00000000'``).
+- Any of the |named CSS colors|, such as ``'green'`` or ``'indigo'``. You can
+  also use the additional name ``'transparent'`` (equal to ``'#00000000'``).
 - An RGB(A) hex value, such as ``'#FF0000'`` (without alpha information) or
   ``'#44444444'`` (with alpha information).
 - A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``
@@ -254,7 +252,7 @@ Use one of these options to define colors in Bokeh:
   byte order pattern, such as ``0xffff00ff`` or ``0xff0000ff``.
 
 To define a series of colors, use an array of color data such as a list or the
-column of a :ref:`ColumnDataSource <userguide_data_cds>`. This also includes
+column of a |ColumnDataSource|. This also includes
 `NumPy arrays <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
 
 For example:
@@ -304,7 +302,6 @@ data-space units:
 Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
 through 10, for example. A glyph that is one fifth as wide and tall as the graph
 would have a size of 80 screen units or 2 data-space units.
-
 
 Objects in Bokeh that support both screen units and data-space units usually
 have a dedicated property to choose which unit to use. This unit-setting
@@ -369,7 +366,7 @@ Dimensions
 ~~~~~~~~~~
 
 To change the width and height of a |Plot|, use its ``width`` and
-``height`` attributes. Those two attributes use screen units. They
+``height`` attributes. Those two attributes use |screen units|. They
 control the size of the entire canvas area, including any axes or titles (but
 not the toolbar).
 
@@ -410,7 +407,7 @@ Title
 To style the title of your plot, use the |Title| annotation, which is available
 as the ``.title`` property of the |Plot|.
 
-You can use most of the standard `Text Properties`_. However, ``text_align`` and
+You can use most of the standard |text properties|. However, ``text_align`` and
 ``text_baseline`` do not apply. To position the title relative to the entire
 plot, use the properties :class:`~bokeh.models.annotations.Title.align` and
 :class:`~bokeh.models.annotations.Title.offset` instead.
@@ -439,7 +436,7 @@ Border
 
 To adjust the border fill style, use the ``border_fill_color`` and
 ``border_fill_alpha`` properties of the |Plot| object. You can also set the
-minimum border on each side (in screen units) with these properties:
+minimum border on each side (in |screen units|) with these properties:
 
 * ``min_border_left``
 * ``min_border_right``
@@ -457,9 +454,8 @@ to all sides as a convenience. The ``min_border`` default value is 40px.
 Outline
 ~~~~~~~
 
-Bokeh :class:`~bokeh.models.plots.Plot` objects have various
-`line properties <Line properties>`_. To change the appearance of outlines, use
-those line properties that are prefixed with ``outline_``.
+Bokeh |Plot| objects have various |line properties|. To change the appearance of
+outlines, use those line properties that are prefixed with ``outline_``.
 
 For example, to set the color of the outline, use ``outline_line_color``:
 
@@ -523,7 +519,7 @@ prefixed by ``"selection_"`` or ``"nonselection_"``:
 .. bokeh-plot:: docs/user_guide/examples/styling_glyph_selections_plotting_params.py
     :source-position: above
 
-If you use the :ref:`bokeh.models` interface, use the
+If you use the |bokeh.models| interface, use the
 :func:`~bokeh.models.plots.Plot.add_glyph` function:
 
 .. code-block:: python
@@ -644,8 +640,8 @@ To add or change the text of an axis' overall label, use the ``axis_label``
 property. To add line breaks to the text in an axis label, include ``\n`` in
 your string.
 
-To control the visual appearance of the label text, use
-`Text Properties`_ prefixed with ``axis_label_``. For instance, to set the text
+To control the visual appearance of the label text, use any of the standard
+|text properties| prefixed with ``axis_label_``. For instance, to set the text
 color of the label, set ``axis_label_text_color``.
 
 To change the distance between the axis label and the major tick labels, set the
@@ -704,7 +700,7 @@ Tick lines
 ~~~~~~~~~~
 
 To control the visual appearance of the major and minor ticks, set the
-appropriate `Line Properties`_, prefixed with ``major_tick_`` and
+appropriate |line properties|, prefixed with ``major_tick_`` and
 ``minor_tick_``, respectively.
 
 For instance, to set the color of the major ticks, use
@@ -713,7 +709,7 @@ For instance, to set the color of the major ticks, use
 
 Additionally, to control how far in and out of the plotting area the ticks
 extend, use the properties ``major_tick_in``/``major_tick_out`` and
-``minor_tick_in``/``minor_tick_out``. These values are in screen units.
+``minor_tick_in``/``minor_tick_out``. These values are in |screen units|.
 Therefore, you can use negative values.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_tick_lines.py
@@ -756,7 +752,7 @@ to control the text formatting of axis ticks.
     :source-position: above
 
 Many additional formats are available. See the full |NumeralTickFormatter|
-documentation in the :ref:`refguide`.
+documentation in the |reference guide|.
 
 ``PrintfTickFormatter``
 '''''''''''''''''''''''
@@ -769,7 +765,7 @@ format strings.
     :source-position: above
 
 For full details about formats, see the full |PrintfTickFormatter|
-documentation in the :ref:`refguide`.
+documentation in the |reference guide|.
 
 ``FuncTickFormatter``
 '''''''''''''''''''''
@@ -800,7 +796,7 @@ that gives the angle (in radians) to rotate from the horizontal:
     There are more properties that you can use to configure Bokeh axes. For a
     complete list of all the various attributes that you can set on different
     types of Bokeh axes, see the :ref:`bokeh.models.axes` section of the
-    :ref:`refguide`.
+    |reference guide|.
 
 .. _userguide_styling_grids:
 
@@ -839,7 +835,7 @@ Lines
 ~~~~~
 
 To configure the visual appearance of grid lines, use a collection of
-`Line Properties`_, prefixed with ``grid_``.
+|line properties|, prefixed with ``grid_``.
 
 For instance, to set the color of grid lines, use ``grid_line_color``. To hide
 grid lines, set their line color to ``None``:
@@ -851,7 +847,7 @@ Minor lines
 ~~~~~~~~~~~
 
 To configure the visual appearance of minor grid lines, use a collection of
-`Line Properties`_, prefixed with ``minor_grid_``.
+|line properties|, prefixed with ``minor_grid_``.
 
 For instance, to set the color of grid lines, use ``minor_grid_line_color``. By
 default, minor grid lines are hidden (which means that their line color is set
@@ -867,7 +863,7 @@ Bands
 
 Use "bands" to display filled, shaded bands between adjacent grid lines. To
 control the visual appearance of these bands, use a collection of
-`Fill Properties`_ and `Hatch Properties`_ that are prefixed with ``band_``.
+|fill properties| and |hatch properties| that are prefixed with ``band_``.
 
 For instance, to set the color of grid bands, use ``band_fill_color``. To hide
 grid bands, set their fill color to ``None`` (this is the default).
@@ -899,7 +895,7 @@ To set explicit bounds that limit where grids are drawn, use a 2-tuple of
     There are other properties that Bokeh grids support configuring. For a
     complete listing of all the various attributes that can be set on Bokeh
     plot grids, consult the :ref:`bokeh.models.grids` section of the
-    :ref:`refguide`.
+    |reference guide|.
 
 .. _userguide_styling_legends:
 
@@ -934,7 +930,7 @@ Inside the plot area
 ''''''''''''''''''''
 
 For legends in the central layout area, such as those created
-automatically by ``bokeh.plotting``, set ``location`` to one of the following
+automatically by |bokeh.plotting|, set ``location`` to one of the following
 values:
 
 ``"top_left"``
@@ -982,8 +978,8 @@ To add or change a legend's title, use its ``title`` property:
 
     plot.legend.title = "Division"
 
-To control the visual appearance of the legend title, use a collection of
-`Text Properties`_, prefixed with ``title_``. For instance, to set the font
+To control the visual appearance of the legend title, use any of the standard
+|text properties| prefixed with ``title_``. For instance, to set the font
 style of the legend, use ``title_text_font_style``.
 
 To set the distance between the title and the rest of the legend (in pixels),
@@ -1009,8 +1005,8 @@ The default orientation is ``"vertical"``.
 Label text
 ~~~~~~~~~~
 
-To control the visual appearance of the legend labels, use a collection of
-`Text Properties`_, prefixed with ``label_``. For instance, to set the font
+To control the visual appearance of the legend labels, use any of the standard
+|text properties| prefixed with ``label_``. For instance, to set the font
 style of the labels, use ``label_text_font_style``.
 
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_label_text.py
@@ -1020,7 +1016,7 @@ Border
 ~~~~~~
 
 To control the visual appearance of the legend border, use a collection of
-`Line Properties`_, prefixed with ``border_``. For instance, to set the color
+|line properties|, prefixed with ``border_``. For instance, to set the color
 of the border, use ``border_line_color``. To make the border invisible, set
 the border line color to ``None``.
 
@@ -1031,7 +1027,7 @@ Background
 ~~~~~~~~~~
 
 To control the visual appearance of the legend background, use a collection
-of `Fill Properties`_, prefixed with ``background_``. For instance, to set the
+of |fill properties|, prefixed with ``background_``. For instance, to set the
 color of the background, use ``background_fill_color``. To make the background
 transparent, set the ``background_fill_alpha`` to ``0``.
 
@@ -1110,10 +1106,8 @@ the render level ``"image"`` to the ``level`` argument when calling your
 You can see a complete example with output in the section
 :ref:`userguide_plotting_images_colormapped`.
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-.. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
 
 .. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
 

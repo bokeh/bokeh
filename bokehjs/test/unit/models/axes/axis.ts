@@ -127,7 +127,7 @@ describe("AxisView", () => {
       y_range: new Range1d({start: 0, end: 1}),
       toolbar: new Toolbar(),
     })
-    plot.add_layout(axis, 'below')
+    plot.add_layout(axis, "below")
 
     const plot_view = (await build_view(plot)).build()
     const axis_view = plot_view.renderer_view(axis)!

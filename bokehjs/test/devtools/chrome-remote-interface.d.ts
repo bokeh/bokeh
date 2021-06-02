@@ -26,10 +26,10 @@ declare module "chrome-remote-interface" {
 
   type VersionInfo = {
     Browser: string
-    'Protocol-Version': string
-    'User-Agent': string
-    'V8-Version': string
-    'WebKit-Version': string
+    "Protocol-Version": string
+    "User-Agent": string
+    "V8-Version": string
+    "WebKit-Version": string
     webSocketDebuggerUrl: string
   }
 
