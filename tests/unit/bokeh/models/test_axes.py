@@ -15,7 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh.models import FixedTicker
+from bokeh.models import FixedTicker, MathText
 
 # Module under test
 import bokeh.models.axes as bma # isort:skip
@@ -37,6 +37,11 @@ def test_ticker_accepts_number_sequences() -> None:
     a.ticker = [-10, 0, 10, 20.7]
     assert isinstance(a.ticker, FixedTicker)
     assert a.ticker.ticks == [-10, 0, 10, 20.7]
+
+def test_axis_label_accepts_math_text() -> None:
+    a = bma.Axis(axis_label=MathText(r"\sin(x)"))
+    assert isinstance(a.axis_label, MathText)
+    assert a.axis_label.text == r"\sin(x)"
 
 #-----------------------------------------------------------------------------
 # Dev API
