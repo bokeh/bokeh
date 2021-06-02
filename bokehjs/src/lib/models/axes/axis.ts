@@ -44,11 +44,16 @@ export class AxisView extends GuideRendererView {
 
   axis_label_math_text_view: MathTextView
 
+  /**
+   * Lazy initialize is called when views are instantiated,
+   * working like an async constructor
+   */
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
     const {axis_label} = this.model
 
+    // Build math_text_view if axis_label is a MathText instance
     if (axis_label != null && axis_label instanceof MathText)
       this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
   }
@@ -154,11 +159,11 @@ export class AxisView extends GuideRendererView {
     if (!text)
       return 0
 
-    const padding = 3
-
     const axis_label = text instanceof MathText
       ? this.axis_label_math_text_view
       : new TextBox({text})
+
+    const padding = 3
 
     axis_label.angle = this.panel.get_label_angle_heuristic("parallel")
     axis_label.visuals = this.visuals.axis_label_text
@@ -211,11 +216,16 @@ export class AxisView extends GuideRendererView {
     axis_label.position = position
 
     if (axis_label instanceof MathTextView) {
+      // If the image is not loaded
       if (!axis_label.svg_image) {
+        // request a new render
         this.request_render()
+        // initiate loading if none has started yet
         return axis_label.load_image()
       }
 
+      // Once there image is finished loading draw it to Canvas
+      // and notify finished
       axis_label.draw_image(ctx)
       this.notify_finished()
     } else {

@@ -16,10 +16,8 @@ type Position = {
   y_anchor?: number | "top"  | "center" | "baseline" | "bottom"
 }
 
-
 /**
- * Helper class to rendering MathText into canvas
- * @class
+ * Helper class to rendering MathText into Canvas
  */
 export class MathTextView extends View {
   override model: MathText
@@ -32,7 +30,7 @@ export class MathTextView extends View {
   width: number
   color: string
   svg_image: CanvasImage
-
+  image_is_loading = false
 
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
@@ -57,7 +55,10 @@ export class MathTextView extends View {
     this.color = color2css(color, alpha)
   }
 
-
+  /**
+   * Calculates position of element after considering
+   * anchor and dimensions
+   */
   protected _computed_position(): {x: number, y: number} {
     const {width, height} = this
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
@@ -164,7 +165,7 @@ export class MathTextView extends View {
       document.head.appendChild(script)
     }
 
-    if (typeof MathJax === "undefined") return
+    if (typeof MathJax === "undefined" || this.image_is_loading) return
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
 
@@ -183,6 +184,8 @@ export class MathTextView extends View {
     this.height = height
 
     mathjax_element.remove()
+
+    this.image_is_loading = true
 
     new ImageLoader(url, {
       loaded: (image) => {
