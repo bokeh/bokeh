@@ -218,13 +218,13 @@ export class AxisView extends GuideRendererView {
     if (axis_label instanceof MathTextView) {
       // If the image is not loaded
       if (!axis_label.svg_image) {
-        // request a new render
+        // Request a new render
         this.request_render()
-        // initiate loading if none has started yet
+        // Initiate loading if none has started yet
         return axis_label.load_image()
       }
 
-      // Once there image is finished loading draw it to Canvas
+      // Once the image is finished loading draw it to Canvas
       // and notify finished
       axis_label.draw_image(ctx)
       this.notify_finished()
