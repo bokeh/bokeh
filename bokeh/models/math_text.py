@@ -37,14 +37,14 @@ __all__ = (
 
 class MathText(Model):
     """
-    Class for indicating that a string value should be interpreted as
-    mathematics notation.
+    Render mathematical content using using [LaTeX](https://en.wikipedia.org/wiki/LaTeX) notation
 
-    Note: it uses MathJax as the rendering engine and it implements only
-    the math-mode macros of TeX and LaTeX, not the text-mode macros.
+    .. note::
+        Bokeh uses [MathJax](https://www.mathjax.org) to render text containing mathematical notation.
 
-    You can see more of the supported input and differences between "real"
-    TeX/LaTeX here: https://docs.mathjax.org/en/latest/input/tex/differences.html
+        MathJax only supports math-mode macros (no text-mode macros). You
+        can see more about differences between standard TeX/LaTeX and MathJax
+        here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
     text = Nullable(String, help="""
