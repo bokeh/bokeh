@@ -166,7 +166,7 @@ First, start the devtools server with the following command:
     listening on 127.0.0.1:5777
 
 Next, open the displayed server URL in a web browser and navigate to
-``/integration/report``, ``/unit/report``, or ``/defaults/report``.
+``/integration/report``.
 
 You can also use the devtools server to initiate test runs. You have two options:
 
