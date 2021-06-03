@@ -587,7 +587,6 @@ export namespace Axis {
     ticker: p.Property<Ticker>
     formatter: p.Property<TickFormatter>
     axis_label: p.Property<string | MathText | null>
-    math_text_view: p.Property<MathTextView>
     axis_label_standoff: p.Property<number>
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<TickLabelOrientation | number>
