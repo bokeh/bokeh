@@ -16,7 +16,7 @@ import {sum} from "core/util/array"
 import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
-import {MathText, MathTextView} from "core/math_text"
+import {MathText, MathTextView} from "models/math_text"
 import {build_view} from "core/build_views"
 
 const {abs} = Math
