@@ -74,7 +74,7 @@ Some guidelines to adhere to when working on BokehJS:
 Requirements
 ~~~~~~~~~~~~
 
-* node 14.*
+* node 14+
 * npm 7.4+ (most recent version)
 * chrome/chromium browser 90+ or equivalent
 
@@ -165,13 +165,13 @@ First, start the devtools server with the following command:
     $ node test/devtools server
     listening on 127.0.0.1:5777
 
-Next, open the displayed server URL in a webbrowser and navigate to
+Next, open the displayed server URL in a web browser and navigate to
 ``/integration/report``, ``/unit/report``, or ``/defaults/report``.
 
 You can also use the devtools server to initiate test runs. You have two options:
 
 Run tests from a JavaScript console
-  Open one of these three endpoints in your webbrowser:
+  Open one of these three endpoints in your web browser:
 
   * ``/unit``
   * ``/defaults``
@@ -232,11 +232,12 @@ Follow these steps to write new visual tests or update existing tests:
 
 1. Create or update visual testing scripts:
     To write a visual test for BokehJS' testing suite, start by importing the
-    ``display()`` and ``fig()`` functions from the testing framework's ``_util`` module:
+    ``display()`` and ``fig()`` functions from the testing framework's ``_util`` module
+    (located in :bokeh-tree:`bokehjs/test/integration/`):
 
     .. code-block:: TypeScript
 
-        import {display, fig} from "../_util"
+        import {display, fig} from "./_util"
 
     When writing tests, replace BokehJS' standard ``show()`` function with the
     ``display()`` function in ``_util``. ``display()`` accepts the same arguments as
@@ -248,8 +249,8 @@ Follow these steps to write new visual tests or update existing tests:
     possible, you should only use ``width`` and ``height``.
 
     Keep the width and height of your testing plot as small as possible while still
-    being able to see details the details you want to test with the naked eye. Try to
-    keep the number of elements on your plot to a minimum.
+    being able to see the details you want to test with the naked eye. Try to keep the
+    number of elements on your plot to a minimum.
 
     Follow this general pattern for visual tests:
 
@@ -263,6 +264,7 @@ Follow these steps to write new visual tests or update existing tests:
 
           await display(p)
         })
+      })
 
     Always run ``node make lint`` before committing TypeScript files.
 
