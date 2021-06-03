@@ -52,9 +52,10 @@ class MathText(Model):
     """)
 
     def __init__(self, *args, **kwargs):
+        if args:
+          kwargs['text'] = args[0]
+
         super().__init__(**kwargs)
-        if len(args) == 1:
-            self.text = args[0]
 
 #-----------------------------------------------------------------------------
 # Dev API
