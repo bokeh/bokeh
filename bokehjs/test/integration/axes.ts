@@ -2,7 +2,7 @@ import {display} from "./_util"
 
 import {
   LinearAxis, LogAxis, CategoricalAxis, LinearScale, LogScale, CategoricalScale, Range1d, FactorRange,
-  Plot, AllLabels, NoOverlap,
+  Plot, AllLabels, NoOverlap, MathText,
 } from "@bokehjs/models"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 import {Side} from "@bokehjs/core/enums"
@@ -27,9 +27,13 @@ import {radians} from "@bokehjs/core/util/math"
         title: null,
         toolbar_location: null,
       })
+
+      console.log({attrs})
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
+
       if (options?.num_ticks != null)
         axis.ticker.desired_num_ticks = options.num_ticks
+
       p.add_layout(axis, side)
       await display(p)
     }
@@ -144,6 +148,10 @@ import {radians} from "@bokehjs/core/util/math"
 
     it("should support multiple line axis_label with axis_label_text_align=right", async () => {
       await plot({axis_label: multiline_axis_label, axis_label_text_align: "right"}, {minor_size: 100})
+    })
+
+    it("should support math text in axis_label", async () => {
+      await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
     })
 
     it("should support major_label_policy=AllLables with major_label_orientation=parallel", async () => {
