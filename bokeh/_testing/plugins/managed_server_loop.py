@@ -22,12 +22,22 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from contextlib import contextmanager
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ContextManager,
+    Iterator,
+)
 
 # External imports
 import pytest
+from typing_extensions import Protocol
 
 # Bokeh imports
 from bokeh.server.server import Server
+
+if TYPE_CHECKING:
+    from bokeh.application import Application
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,10 +53,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+class MSL(Protocol):
+    def __call__(self, application: Application, port: int | None = None, **server_kwargs: Any) -> ContextManager[Server]: ...
+
 @pytest.fixture
-def ManagedServerLoop(unused_tcp_port):
+def ManagedServerLoop(unused_tcp_port: int) -> MSL:
     @contextmanager
-    def msl(application, port=None, **server_kwargs):
+    def msl(application: Application, port: int | None = None, **server_kwargs: Any) -> Iterator[Server]:
         if port is None:
             port = unused_tcp_port
         server = Server(application, port=port, **server_kwargs)
@@ -57,7 +70,6 @@ def ManagedServerLoop(unused_tcp_port):
             server.unlisten()
             server.stop()
     return msl
-
 
 #-----------------------------------------------------------------------------
 # Dev API
