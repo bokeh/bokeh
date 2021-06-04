@@ -75,7 +75,12 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def row(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs) -> Row:
+@overload
+def row(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+@overload
+def row(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+
+def row(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
     """ Create a row of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -102,12 +107,16 @@ def row(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: 
         >>> row(plot1, plot2)
         >>> row(children=[widgets, plot], sizing_mode='stretch_both')
     """
-    _children = _parse_children_arg(*args, children=children)
+    _children = _parse_children_arg(*children, children=kwargs.pop("children", None))
     _handle_child_sizing(_children, sizing_mode, widget="row")
     return Row(children=_children, sizing_mode=sizing_mode, **kwargs)
 
+@overload
+def column(children: List[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
+@overload
+def column(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 
-def column(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs) -> Column:
+def column(*children: LayoutDOM | List[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a column of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -134,12 +143,12 @@ def column(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mod
         >>> column(plot1, plot2)
         >>> column(children=[widgets, plot], sizing_mode='stretch_both')
     """
-    _children = _parse_children_arg(*args, children=children)
+    _children = _parse_children_arg(*children, children=kwargs.pop("children", None))
     _handle_child_sizing(_children, sizing_mode, widget="column")
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: SizingModeType | None = None, **kwargs) -> WidgetBox:
+def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> WidgetBox:
     """ Create a column of bokeh widgets with predefined styling.
 
     Args:
@@ -165,7 +174,7 @@ def widgetbox(*args: Widget, children: List[Widget] | None = None, sizing_mode: 
     return WidgetBox(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs) -> Column:
+def layout(*args: LayoutDOM, children: List[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
@@ -625,7 +634,7 @@ def _parse_children_arg(*args: L | List[L] | GridSpec, children: List[L] | None 
     if not children:
         if len(args) == 1:
             [arg] = args
-            if isinstance(arg, GridSpec):
+            if isinstance(arg, (GridSpec, list)):
                 return arg
 
         return list(args)
