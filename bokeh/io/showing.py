@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING, Any
 
+# External imports
+from typing_extensions import TypeGuard
+
 # Bokeh imports
 from ..models.layouts import LayoutDOM
 from ..util.browser import NEW_PARAM, get_browser_controller
@@ -50,7 +53,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kw):
+        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -136,22 +139,19 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
     '''
     state = curstate()
 
-    # TODO: from typing_extensions import TypeGuard
-    def is_application(obj: Any) -> bool: # TypeGuard[Application]:
+    if isinstance(obj, LayoutDOM):
+        return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+
+    def is_application(obj: Any) -> TypeGuard[Application]:
         return getattr(obj, '_is_a_bokeh_application_class', False)
 
-    if not (isinstance(obj, LayoutDOM) or is_application(obj) or callable(obj)):
-        raise ValueError(_BAD_SHOW_MSG)
-
-    # TODO (bev) check callable signature more thoroughly
-
-    # This ugliness is to prevent importing bokeh.application (which would bring
-    # in Tornado) just in order to show a non-server object
-    if is_application(obj) or callable(obj):
+    if is_application(obj) or callable(obj): # TODO (bev) check callable signature more thoroughly
+        # This ugliness is to prevent importing bokeh.application (which would bring
+        # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
-    return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
+    raise ValueError(_BAD_SHOW_MSG)
 
 #-----------------------------------------------------------------------------
 # Dev API
