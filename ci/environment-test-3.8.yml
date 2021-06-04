@@ -12,7 +12,7 @@ dependencies:
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado >=5
-  - typing_extensions >=3.7.4
+  - typing_extensions >=3.10.0
 
   # tests
   - beautifulsoup4
