@@ -36,7 +36,6 @@ import time
 from typing import (
     Any,
     Dict,
-    Optional,
     Tuple,
     Union,
 )
@@ -196,8 +195,8 @@ def check_token_signature(token: str,
     return True
 
 def check_session_id_signature(session_id: str,
-                               secret_key: Optional[bytes] = settings.secret_key_bytes(),
-                               signed: Optional[bool] = settings.sign_sessions()) -> bool:
+                               secret_key: bytes | None = settings.secret_key_bytes(),
+                               signed: bool | None = settings.sign_sessions()) -> bool:
     """Check the signature of a session ID, returning True if it's valid.
 
     The server uses this function to check whether a session ID was generated
@@ -245,7 +244,7 @@ def _get_sysrandom() -> Tuple[Any, bool]:
         using_sysrandom = False
         return random, using_sysrandom
 
-def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
+def _ensure_bytes(secret_key: Union[str, bytes, None]) -> bytes | None:
     if secret_key is None:
         return None
     elif isinstance(secret_key, bytes):
@@ -254,7 +253,7 @@ def _ensure_bytes(secret_key: Union[str, bytes, None]) -> Optional[bytes]:
         return codecs.encode(secret_key, 'utf-8')
 
 # this is broken out for unit testability
-def _reseed_if_needed(using_sysrandom: bool, secret_key: Optional[bytes]) -> None:
+def _reseed_if_needed(using_sysrandom: bool, secret_key: bytes | None) -> None:
     secret_key = _ensure_bytes(secret_key)
     if not using_sysrandom:
         # This is ugly, and a hack, but it makes things better than
@@ -271,14 +270,14 @@ def _base64_encode(decoded: Union[bytes, str]) -> str:
     # base64 encode both takes and returns bytes, we want to work with strings.
     # If 'decoded' isn't bytes already, assume it's utf-8
     decoded_as_bytes = _ensure_bytes(decoded)
-    # TODO: urlsafe_b64encode only accepts bytes input, not Optional[bytes].
-    # Perhaps we can change _ensure_bytes change return type from Optional[bytes] to bytes
+    # TODO: urlsafe_b64encode only accepts bytes input, not bytes | None.
+    # Perhaps we can change _ensure_bytes change return type from bytes | None to bytes
     encoded = codecs.decode(base64.urlsafe_b64encode(decoded_as_bytes), 'ascii')  # type: ignore
     # remove padding '=' chars that cause trouble
     return str(encoded.rstrip('='))
 
 
-def _base64_decode(encoded: Union[bytes, str], encoding: Optional[str] = None) -> Union[bytes, str]:
+def _base64_decode(encoded: Union[bytes, str], encoding: str | None = None) -> Union[bytes, str]:
     # base64 lib both takes and returns bytes, we want to work with strings
     encoded_as_bytes = codecs.encode(encoded, 'ascii') if isinstance(encoded, str) else encoded
     # put the padding back
@@ -301,7 +300,7 @@ def _signature(base_id: str, secret_key: bytes | None) -> str:
 def _get_random_string(
         length: int = 44,
         allowed_chars: str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
-        secret_key: Optional[bytes] = settings.secret_key_bytes()) -> str:
+        secret_key: bytes | None = settings.secret_key_bytes()) -> str:
     """
     Return a securely generated random string.
     With the a-z, A-Z, 0-9 character set:

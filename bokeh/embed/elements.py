@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from html import escape
-from typing import List, Optional
+from typing import List
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -135,7 +135,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     return html
 
 def script_for_render_items(docs_json_or_id, render_items: List[RenderItem],
-                            app_path: Optional[str] = None, absolute_url: Optional[str] = None) -> str:
+                            app_path: str | None = None, absolute_url: str | None = None) -> str:
     ''' Render an script for Bokeh render items.
     Args:
         docs_json_or_id:

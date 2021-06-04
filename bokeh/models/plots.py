@@ -26,7 +26,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     List as TList,
-    Optional,
     overload,
 )
 
@@ -543,15 +542,15 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width: Optional[int] = Override(default=600)
+    width: int | None = Override(default=600)
 
-    height: Optional[int] = Override(default=600)
+    height: int | None = Override(default=600)
 
-    plot_width: Optional[int] = Alias("width", help="""
+    plot_width: int | None = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
     """)
 
-    plot_height: Optional[int] = Alias("height", help="""
+    plot_height: int | None = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
     """)
 
