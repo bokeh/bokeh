@@ -35,7 +35,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.yield_fixture(scope="session")
+@pytest.fixture(scope="session")
 def log_file(request):
     with open(request.config.option.log_file, 'w') as f:
         # Clean-out any existing log-file

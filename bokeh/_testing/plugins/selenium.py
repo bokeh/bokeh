@@ -49,7 +49,7 @@ def pytest_report_collectionfinish(config, startdir, items):
     asserts = "ON" if driver == "chrome" else "OFF"
     return ["", "Bokeh selenium tests using %r driver (no-console-error assertions: %s)" % (driver, asserts)]
 
-@pytest.yield_fixture(scope="session")
+@pytest.fixture(scope="session")
 def driver(pytestconfig):
     ''' Select and configure a Selenium webdriver for integration tests.
 
