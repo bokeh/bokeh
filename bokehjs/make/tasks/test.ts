@@ -4,6 +4,7 @@ import {argv} from "yargs"
 import {join, delimiter, basename, dirname} from "path"
 import os from "os"
 import assert from "assert"
+import chalk from "chalk"
 
 import which from "which"
 
@@ -213,17 +214,27 @@ function opt(name: string, value: unknown): string {
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
   const legacy = argv.legacy === true ? "?legacy" : ""
-
   const args = [
-    "--no-warnings",
-    "./test/devtools",
     `http://localhost:${server_port}/${name}${legacy}`,
-    `--port=${devtools_port}`,
     opt("k", argv.k),
     opt("grep", argv.grep),
     opt("ref", argv.ref),
     opt("baselines-root", baselines_root),
     `--screenshot=${argv.screenshot ?? "test"}`,
+  ]
+  return _devtools(devtools_port, args)
+}
+
+function devtools_info(devtools_port: number): Promise<void> {
+  return _devtools(devtools_port, ["--info"])
+}
+
+function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
+  const args = [
+    "--no-warnings",
+    "./test/devtools",
+    `--port=${devtools_port}`,
+    ...user_args,
   ]
 
   if (argv.debug) {
@@ -257,12 +268,15 @@ async function keep_alive(): Promise<void> {
 
 task("test:run:headless", async () => {
   const proc = await headless(9222)
+  await devtools_info(9222)
   terminate(proc)
   await keep_alive()
 })
 
 task("test:spawn:headless", async () => {
-  await headless(9222)
+  const proc = await headless(9222)
+  await devtools_info(9222)
+  console.log(`Exec '${chalk.gray("kill")} ${chalk.magenta(`${proc.pid}`)}' to terminate the browser process`)
 })
 
 const start_headless = task("test:start:headless", async () => {
