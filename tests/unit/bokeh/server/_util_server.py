@@ -5,21 +5,21 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Standard library imports
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import logging
+from __future__ import annotations # isort:skip
 
-# External imports
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest
-from tornado.websocket import websocket_connect
-
+import logging # isort:skip
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+
+# External imports
+from tornado.httpclient import AsyncHTTPClient, HTTPRequest
+from tornado.websocket import websocket_connect
 
 #-----------------------------------------------------------------------------
 # Globals and constants
