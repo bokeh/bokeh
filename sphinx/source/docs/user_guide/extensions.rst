@@ -15,10 +15,14 @@ that let you:
 * Create highly specialized models for domain-specific use cases
 
 You can make and use custom extensions with standard releases and don't need to
-set up a development environment or build anything from source. This is the
-easiest way to get involved in Bokeh development. You can try new features and
-improved functionality without having to wait for the core team to implement
-them.
+set up a development environment or build anything from source. With custom
+extensions, you can also try new features and improved functionality without
+having to wait for the core team to implement them into Bokeh itself.
+
+.. note::
+    Extending Bokeh is a highly advanced feature. Several aspects of creating
+    and using extensions are still under development and should be considered
+    experimental.
 
 .. _userguide_extensions_structure:
 
