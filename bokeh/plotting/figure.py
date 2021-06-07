@@ -58,7 +58,7 @@ from ..transform import linear_cmap
 from ..util.options import Options
 from ._graph import get_graph_kwargs
 from ._plot import get_range, get_scale, process_axis_and_grid
-from ._stack import double_stack, is_stacker, single_stack
+from ._stack import double_stack, is_stacker, single_stack, stackers_to_list
 from ._tools import process_active_tools, process_tools_arg
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
 
@@ -366,7 +366,12 @@ class Figure(Plot, GlyphAPI):
                 p.harea(x1=stack('2016'), x2=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
 
         '''
+        source = kw.get('source', None)
+        if source is not None and not isinstance(source, ColumnDataSource):
+            kw['source'] = ColumnDataSource(source)
+
         result = []
+        stackers = stackers_to_list(stackers)
         for kw in double_stack(stackers, "x1", "x2", **kw):
             result.append(self.harea(**kw))
         return result
@@ -461,12 +466,14 @@ class Figure(Plot, GlyphAPI):
         result = []
 
         if is_stacker(y):
+            y = stackers_to_list(y)
             kw['x'] = x
             for kw in single_stack(y, "y", **kw):
                 result.append(self.line(**kw))
             return result
 
-        if is_stacker(y):
+        if is_stacker(x):
+            x = stackers_to_list(x)
             kw['y'] = y
             for kw in single_stack(x, "x", **kw):
                 result.append(self.line(**kw))
@@ -550,7 +557,12 @@ class Figure(Plot, GlyphAPI):
                 p.varea(y1=stack('2016'), y2=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
 
         '''
+        source = kw.get('source', None)
+        if source is not None and not isinstance(source, ColumnDataSource):
+            kw['source'] = ColumnDataSource(source)
+
         result = []
+        stackers = stackers_to_list(stackers)
         for kw in double_stack(stackers, "y1", "y2", **kw):
             result.append(self.varea(**kw))
         return result

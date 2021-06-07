@@ -19,15 +19,17 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..transform import stack
-
+from ..util.dependencies import import_optional
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+pd = import_optional('pandas')
 
 __all__ = (
     'double_stack',
     'is_stacker',
     'single_stack',
+    'stackers_to_list',
 )
 
 #-----------------------------------------------------------------------------
@@ -39,6 +41,18 @@ __all__ = (
 #-----------------------------------------------------------------------------
 def is_stacker(stacker):
     return isinstance(stacker, (list, tuple))
+
+def stackers_to_list(value):
+    if pd:
+        if isinstance(value, pd.DataFrame):
+            value = value.columns.to_list()
+        elif isinstance(value, pd.Series):
+            value = [value.name]
+        elif isinstance(value, pd.Index):
+            value = value.to_list()
+    if isinstance(value, str):
+        value = [value]
+    return value
 
 def single_stack(stackers, spec, **kw):
     if spec in kw:
