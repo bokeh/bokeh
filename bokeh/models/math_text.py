@@ -51,9 +51,9 @@ class MathText(Model):
     The text value to render.
     """)
 
-    def __init__(self, *args, **kwargs):
-        if args:
-          kwargs['text'] = args[0]
+    def __init__(self, text: str, **kwargs) -> None:
+        if text:
+          kwargs['text'] = text
 
         super().__init__(**kwargs)
 
