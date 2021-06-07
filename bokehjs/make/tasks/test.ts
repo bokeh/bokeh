@@ -114,7 +114,7 @@ function sys_path(): string {
 function chrome(): string {
   const names = ["chrome", "google-chrome", "Google Chrome"]
   if (os.type() == "Linux")
-    names.unshift("chromium-browser", "chromium")
+    names.push("chromium-browser", "chromium")
   const path = sys_path()
 
   for (const name of names) {
