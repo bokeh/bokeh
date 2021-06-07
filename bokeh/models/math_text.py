@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import Nullable, String
+from ..core.properties import NonNullable, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ __all__ = (
 
 class MathText(Model):
     """
-    Render mathematical content using using [LaTeX](https://en.wikipedia.org/wiki/LaTeX) notation
+    Render mathematical content using using [LaTeX](https://en.wikipedia.org/wiki/LaTeX) notation.
 
     .. note::
         Bokeh uses [MathJax](https://www.mathjax.org) to render text containing mathematical notation.
@@ -47,7 +47,7 @@ class MathText(Model):
         here: https://docs.mathjax.org/en/latest/input/tex/differences.html
     """
 
-    text = Nullable(String, help="""
+    text = NonNullable(String, help="""
     The text value to render.
     """)
 
