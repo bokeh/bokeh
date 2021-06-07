@@ -21,11 +21,23 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Iterator,
+    List,
+    NoReturn,
+    Sequence,
+)
 from warnings import warn
 
 # External imports
 import pytest
-from selenium import webdriver
+
+if TYPE_CHECKING:
+    import py
+    from _pytest import config, nodes
+    from selenium.webdriver.remote.webdriver import WebDriver
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,38 +53,45 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def pytest_report_collectionfinish(config, startdir, items):
+def pytest_report_collectionfinish(config: config.Config, startdir: py.path.local, items: Sequence[nodes.Item]) -> List[str]:
     '''
 
     '''
-    driver  = config.getoption('driver', 'chrome').lower()
-    asserts = "ON" if driver == "chrome" else "OFF"
-    return ["", "Bokeh selenium tests using %r driver (no-console-error assertions: %s)" % (driver, asserts)]
+    driver_name: str = config.getoption('driver', 'chrome').lower()
+    asserts = "ON" if driver_name == "chrome" else "OFF"
+    return ["", f"Bokeh selenium tests using {driver_name!r} driver (no-console-error assertions: {asserts})"]
 
 @pytest.fixture(scope="session")
-def driver(pytestconfig):
+def driver(pytestconfig: config.Config) -> Iterator[WebDriver]:
     ''' Select and configure a Selenium webdriver for integration tests.
 
     '''
-    driver_name  = pytestconfig.getoption('driver', 'chrome').lower()
+    driver_name: str = pytestconfig.getoption('driver', 'chrome').lower()
 
+    driver: WebDriver
     if driver_name == "chrome":
         from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--window-size=1920x1080")
-        driver = webdriver.Chrome(options=options)
+        driver = Chrome(options=options)
 
     elif driver_name == "firefox":
         from selenium.webdriver.firefox.options import Options
+        from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--window-size=1920x1080")
-        driver = webdriver.Firefox(options=options)
+        driver = Firefox(options=options)
 
     elif driver_name == "safari":
-        driver = webdriver.Safari()
+        from selenium.webdriver.safari.webdriver import WebDriver as Safari
+        driver = Safari()
+
+    else:
+        raise ValueError("expected 'chrome', 'firefox' or 'safari'")
 
     driver.implicitly_wait(10)
 
@@ -81,7 +100,7 @@ def driver(pytestconfig):
     driver.quit()
 
 @pytest.fixture(scope="session")
-def has_no_console_errors(pytestconfig):
+def has_no_console_errors(pytestconfig: config.Config) -> Callable[[WebDriver], bool | NoReturn]:
     ''' Provide a function to assert no browser console errors are present.
 
     Unfortunately logs are only accessibly with Chrome web driver, see e.g.
@@ -91,25 +110,25 @@ def has_no_console_errors(pytestconfig):
     For non-Chrome webdrivers this check always returns True.
 
     '''
-    driver_name  = pytestconfig.getoption('driver').lower()
+    driver_name: str = pytestconfig.getoption('driver').lower()
 
     if driver_name == "chrome":
 
-        def func(driver):
+        def func(driver: WebDriver) -> bool | NoReturn:
             logs = driver.get_log('browser')
             severe_errors = [x for x in logs if x.get('level') == 'SEVERE']
             non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
 
             if len(non_network_errors) == 0:
                 if len(severe_errors) != 0:
-                    warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
+                    warn(f"There were severe network errors (this may or may not have affected your test): {severe_errors}")
                 return True
 
-            pytest.fail('Console errors: %s' % non_network_errors)
-
+            # XXX: no return should be needed with NoReturn type (type-checker bug?)
+            return pytest.fail(f"Console errors: {non_network_errors}")
 
     else:
-        def func(driver):
+        def func(driver: WebDriver) -> bool | NoReturn:
             return True
 
     return func

@@ -38,7 +38,7 @@ import signal
 import socket
 import sys
 from types import FrameType
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Dict, List
 
 # External imports
 from tornado import version as tornado_version
@@ -60,6 +60,8 @@ from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
 
 if TYPE_CHECKING:
+    from ..application.application import Application
+    from ..application.handlers.function import ModifyDoc
     from ..core.types import ID
     from ..util.browser import BrowserTarget
     from .session import ServerSession
@@ -345,7 +347,8 @@ class Server(BaseServer):
 
     '''
 
-    def __init__(self, applications, io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs) -> None:
+    def __init__(self, applications: Dict[str, Application | ModifyDoc] | Application | ModifyDoc,
+            io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs) -> None:
         ''' Create a ``Server`` instance.
 
         Args:

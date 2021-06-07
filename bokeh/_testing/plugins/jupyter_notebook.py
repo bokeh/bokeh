@@ -31,6 +31,7 @@ from os.path import (
     join,
     pardir,
 )
+from typing import IO, Any, Callable
 
 # External imports
 import pytest
@@ -57,7 +58,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
-def jupyter_notebook(request, log_file):
+def jupyter_notebook(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
     """
     Starts a jupyter notebook server at the beginning of a session, and
     closes at the end of a session.
@@ -98,7 +99,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
         f.write(body)
 
     # Add in the clean-up code
-    def clean_up_customjs():
+    def clean_up_customjs() -> None:
         text = old_customjs if old_customjs is not None else ""
         with open(customjs, "w") as f:
             f.write(text)
@@ -133,7 +134,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
 
         request.addfinalizer(stop_jupyter_notebook)
 
-        def wait_until(func, timeout=5.0, interval=0.01):
+        def wait_until(func: Callable[[], Any], timeout: float = 5.0, interval: float = 0.01) -> bool:
             start = time.time()
 
             while True:
@@ -143,7 +144,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
                     return False
                 time.sleep(interval)
 
-        def wait_for_jupyter_notebook():
+        def wait_for_jupyter_notebook() -> bool:
             def helper():
                 if proc.returncode is not None:
                     return True

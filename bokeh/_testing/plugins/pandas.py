@@ -20,8 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any, cast
+
 # External imports
 import pytest
+
+if TYPE_CHECKING:
+    import pandas
 
 # Bokeh imports
 from bokeh.util.dependencies import import_optional
@@ -39,7 +45,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def pd():
+def pd() -> pandas:
     ''' A PyTest fixture that will automatically skip a test if Pandas is
     not installed.
 
@@ -47,7 +53,7 @@ def pd():
     pandas = import_optional('pandas')
     if pandas is None:
         pytest.skip('pandas is not installed')
-    return pandas
+    return cast(Any, pandas)
 
 #-----------------------------------------------------------------------------
 # Dev API

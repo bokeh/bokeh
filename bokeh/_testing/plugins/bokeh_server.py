@@ -25,6 +25,7 @@ import os
 import subprocess
 import sys
 import time
+from typing import IO, Any, Callable
 
 # External imports
 import pytest
@@ -51,12 +52,12 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture(scope='session')
-def bokeh_server(request, log_file):
-    bokeh_port = request.config.option.bokeh_port
+def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
+    bokeh_port: int = request.config.option.bokeh_port
 
     cmd = ["python", "-m", "bokeh", "serve"]
-    argv = ["--port=%s" % bokeh_port]
-    bokeh_server_url = 'http://localhost:%s' % bokeh_port
+    argv = [f"--port={bokeh_port}"]
+    bokeh_server_url = f"http://localhost:{bokeh_port}"
 
     env = os.environ.copy()
     env['BOKEH_MINIFIED'] = 'false'
@@ -64,16 +65,16 @@ def bokeh_server(request, log_file):
     try:
         proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
-        write("Failed to run: %s" % " ".join(cmd + argv))
+        write(f"Failed to run: {' '.join(cmd + argv)}")
         sys.exit(1)
     else:
         # Add in the clean-up code
-        def stop_bokeh_server():
+        def stop_bokeh_server() -> None:
             write("Shutting down bokeh-server ...")
             proc.kill()
         request.addfinalizer(stop_bokeh_server)
 
-        def wait_until(func, timeout=5.0, interval=0.01):
+        def wait_until(func: Callable[[], Any], timeout: float = 5.0, interval: float = 0.01) -> bool:
             start = time.time()
 
             while True:
@@ -83,8 +84,8 @@ def bokeh_server(request, log_file):
                     return False
                 time.sleep(interval)
 
-        def wait_for_bokeh_server():
-            def helper():
+        def wait_for_bokeh_server() -> bool:
+            def helper() -> Any:
                 if proc.returncode is not None:
                     return True
                 try:
@@ -95,11 +96,11 @@ def bokeh_server(request, log_file):
             return wait_until(helper)
 
         if not wait_for_bokeh_server():
-            write("Timeout when running: %s" % " ".join(cmd + argv))
+            write(f"Timeout when running: {' '.join(cmd + argv)}")
             sys.exit(1)
 
         if proc.returncode is not None:
-            write("bokeh server exited with code " + str(proc.returncode))
+            write(f"bokeh server exited with code {proc.returncode}")
             sys.exit(1)
 
         return bokeh_server_url

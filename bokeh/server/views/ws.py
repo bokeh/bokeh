@@ -45,6 +45,7 @@ from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
+from ...util.dataclasses import dataclass
 from ..protocol_handler import ProtocolHandler
 from .auth_mixin import AuthMixin
 
@@ -347,11 +348,12 @@ class WSHandler(AuthMixin, WebSocketHandler):
 # This is an undocumented API purely for harvesting low level messages
 # for testing. When needed it will be set by the testing machinery, and
 # should not be used for any other purpose.
-class _MessageTestPort(Protocol):
+@dataclass
+class MessageTestPort:
     sent: List[Message[Any]]
     received: List[Message[Any]]
 
-_message_test_port: _MessageTestPort | None = None
+_message_test_port: MessageTestPort | None = None
 
 #-----------------------------------------------------------------------------
 # Code

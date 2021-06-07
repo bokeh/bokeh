@@ -1,0 +1,2 @@
+class WebElement:
+    pass

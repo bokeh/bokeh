@@ -25,6 +25,7 @@ import socket
 import time
 from contextlib import closing
 from threading import Thread
+from typing import TYPE_CHECKING, Callable, Tuple
 
 # External imports
 import pytest
@@ -34,11 +35,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
+
 # Bokeh imports
 import bokeh.server.views.ws as ws
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
 from bokeh.io import save
 from bokeh.server.server import Server
+
+if TYPE_CHECKING:
+    from bokeh._testing.plugins.file_server import SimpleWebServer
+    from bokeh.application.handlers.function import ModifyDoc
+    from bokeh.models.layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,7 +74,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def output_file_url(request, file_server):
+def output_file_url(request: pytest.FixtureRequest, file_server: SimpleWebServer):
     from bokeh.io import output_file
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
@@ -82,7 +91,7 @@ def output_file_url(request, file_server):
     return file_server.where_is(url)
 
 @pytest.fixture
-def test_file_path_and_url(request, file_server):
+def test_file_path_and_url(request: pytest.FixtureRequest, file_server: SimpleWebServer):
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
@@ -110,23 +119,17 @@ def find_free_port():
         return s.getsockname()[1]
 
 @pytest.fixture
-def bokeh_app_info(request, driver):
+def bokeh_app_info(request: pytest.FixtureRequest, driver: WebDriver) -> Callable[[ModifyDoc], Tuple[str, ws.MessageTestPort]]:
     ''' Start a Bokeh server app and return information needed to test it.
 
-    Returns a tuple (url, message_test_port), where the latter is defined as
-
-        namedtuple('MessageTestPort', ['sent', 'received'])
-
-    and will contain all messages that the Bokeh Server sends/receives while
-    running during the test.
+    Returns a tuple (url, message_test_port), where the latter is an instance of
+    ``MessageTestPort`` dataclass, and will contain all messages that the Bokeh
+    Server sends/receives while running during the test.
 
     '''
 
-    def func(modify_doc):
-
-        from collections import namedtuple
-        MessageTestPort = namedtuple('MessageTestPort', ['sent', 'received'])
-        ws._message_test_port = MessageTestPort([], [])
+    def func(modify_doc: ModifyDoc) -> Tuple[str, ws.MessageTestPort]:
+        ws._message_test_port = ws.MessageTestPort(sent=[], received=[])
         port = find_free_port()
         def worker():
             io_loop = IOLoop()
@@ -141,7 +144,7 @@ def bokeh_app_info(request, driver):
         t.start()
 
         def cleanup():
-            driver.get("http://localhost:%d/exit" % port)
+            driver.get(f"http://localhost:{port}/exit")
 
             # XXX (bev) this line is a workaround for https://github.com/bokeh/bokeh/issues/7970
             # and should be removed when that issue is resolved
@@ -152,7 +155,7 @@ def bokeh_app_info(request, driver):
 
         request.addfinalizer(cleanup)
 
-        return "http://localhost:%d/" % port, ws._message_test_port
+        return f"http://localhost:{port}/", ws._message_test_port
 
     return func
 
@@ -165,7 +168,7 @@ class _BokehPageMixin:
         return self._driver.execute_script(RESULTS)
 
     @property
-    def driver(self):
+    def driver(self) -> WebDriver:
         return self._driver
 
     def init_results(self):
@@ -202,12 +205,12 @@ class _BokehPageMixin:
         actions.send_keys(*keys)
         actions.perform()
 
-    def has_no_console_errors(self):
+    def has_no_console_errors(self) -> bool:
         return self._has_no_console_errors(self._driver)
 
 class _BokehModelPage(_BokehPageMixin):
 
-    def __init__(self, model, driver, output_file_url, has_no_console_errors) -> None:
+    def __init__(self, model: LayoutDOM, driver: WebDriver, output_file_url: str, has_no_console_errors: Callable[[WebDriver], bool]) -> None:
         self._driver = driver
         self._model = model
         self._has_no_console_errors = has_no_console_errors
@@ -220,25 +223,27 @@ class _BokehModelPage(_BokehPageMixin):
 
 
 class _CanvasMixin:
-    def click_canvas_at_position(self, x, y):
+    driver: WebDriver
+
+    def click_canvas_at_position(self, x: float, y: float):
         self.click_element_at_position(self.canvas, x, y)
 
-    def double_click_canvas_at_position(self, x, y):
+    def double_click_canvas_at_position(self, x: float, y: float):
         self.double_click_element_at_position(self.canvas, x, y)
 
     def click_custom_action(self):
         button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
         button.click()
 
-    def drag_canvas_at_position(self, x, y, dx, dy, mod=None):
+    def drag_canvas_at_position(self, x: float, y: float, dx: float, dy: float, mod=None):
         self.drag_element_at_position(self.canvas, x, y, dx, dy, mod)
 
-    def get_toolbar_button(self, name):
+    def get_toolbar_button(self, name: str):
         return self.driver.find_element_by_class_name('bk-tool-icon-' + name)
 
 @pytest.fixture()
-def bokeh_model_page(driver, output_file_url, has_no_console_errors):
-    def func(model):
+def bokeh_model_page(driver: WebDriver, output_file_url: str, has_no_console_errors: bool):
+    def func(model: LayoutDOM) -> _BokehModelPage:
         return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
     return func
 
@@ -252,14 +257,14 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
         wait_for_canvas_resize(self.canvas, self._driver)
 
 @pytest.fixture()
-def single_plot_page(driver, output_file_url, has_no_console_errors):
+def single_plot_page(driver: WebDriver, output_file_url, has_no_console_errors):
     def func(model):
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
     return func
 
 class _BokehServerPage(_BokehPageMixin, _CanvasMixin):
 
-    def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors) -> None:
+    def __init__(self, modify_doc, driver: WebDriver, bokeh_app_info, has_no_console_errors) -> None:
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
 
@@ -273,7 +278,7 @@ class _BokehServerPage(_BokehPageMixin, _CanvasMixin):
         wait_for_canvas_resize(self.canvas, self._driver)
 
 @pytest.fixture()
-def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
+def bokeh_server_page(driver: WebDriver, bokeh_app_info, has_no_console_errors):
     def func(modify_doc):
         return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
     return func
