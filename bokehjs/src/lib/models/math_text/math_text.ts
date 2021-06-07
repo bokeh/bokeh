@@ -176,7 +176,7 @@ export class MathTextView extends View {
     svg_element.setAttribute("stroke", this.color)
 
     const outer_HTML = svg_element.outerHTML
-    const blob = new Blob([outer_HTML], {type: "image/svg+xml;charset=utf-8"})
+    const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
 
     const {width, height} = svg_element.getBoundingClientRect()
@@ -190,6 +190,7 @@ export class MathTextView extends View {
     new ImageLoader(url, {
       loaded: (image) => {
         this.svg_image = image
+        URL.revokeObjectURL(url)
       },
     })
   }
