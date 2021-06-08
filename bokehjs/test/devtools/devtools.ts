@@ -568,7 +568,7 @@ async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
   const ok0 = await check_version(browser)
-  const ok1 = await run_tests()
+  const ok1 = !argv.info ? await run_tests() : true
   process.exit(ok0 && ok1 ? 0 : 1)
 }
 
