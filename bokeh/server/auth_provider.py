@@ -173,7 +173,7 @@ class AuthProvider:
         if self.logout_handler and not issubclass(self.logout_handler, RequestHandler):
             raise ValueError("LogoutHandler must be a Tornado RequestHandler")
         if self.logout_url and not probably_relative_url(self.logout_url):
-            raise ValueError("LogoutHandler can only be used with a relative login_url")
+            raise ValueError("LogoutHandler can only be used with a relative logout_url")
 
 class AuthModule(AuthProvider):
     ''' An AuthProvider configured from a Python module.
