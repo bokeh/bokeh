@@ -147,7 +147,7 @@ class AuthProvider:
 
     @property
     def logout_url(self):
-        ''' A URL to redirect unathenticated users to for logout.
+        ''' A URL to redirect authenticated users to for logout.
 
         This proprty may return None.
 
