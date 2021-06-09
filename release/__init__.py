@@ -4,3 +4,4 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+from __future__ import annotations

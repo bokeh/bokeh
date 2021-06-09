@@ -6,6 +6,8 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import annotations # isort:skip
+
 # Standard library imports
 from pathlib import Path
 from subprocess import run

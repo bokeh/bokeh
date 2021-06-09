@@ -7,6 +7,7 @@
 """
 
 """
+from __future__ import annotations
 
 # Bokeh imports
 from .action import FAILED, PASSED, ActionReturn
