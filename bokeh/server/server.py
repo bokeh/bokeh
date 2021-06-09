@@ -38,7 +38,7 @@ import signal
 import socket
 import sys
 from types import FrameType
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List, Mapping
 
 # External imports
 from tornado import version as tornado_version
@@ -347,7 +347,7 @@ class Server(BaseServer):
 
     '''
 
-    def __init__(self, applications: Dict[str, Application | ModifyDoc] | Application | ModifyDoc,
+    def __init__(self, applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
             io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs) -> None:
         ''' Create a ``Server`` instance.
 

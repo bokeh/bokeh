@@ -25,8 +25,8 @@ import os
 from pprint import pformat
 from typing import (
     TYPE_CHECKING,
-    Dict,
     List,
+    Mapping,
     Sequence,
     Set,
 )
@@ -227,7 +227,7 @@ class BokehTornado(TornadoApplication):
     '''
 
     _loop: IOLoop
-    _applications: Dict[str, ApplicationContext]
+    _applications: Mapping[str, ApplicationContext]
     _prefix: str
     _websocket_origins: Set[str]
     auth_provider: AuthProvider
@@ -235,7 +235,7 @@ class BokehTornado(TornadoApplication):
     _clients: Set[ServerConnection]
 
     def __init__(self,
-                 applications: Dict[str, Application | ModifyDoc] | Application | ModifyDoc,
+                 applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
                  prefix: str | None = None,
                  extra_websocket_origins: Sequence[str] | None = None,
                  extra_patterns: URLRoutes | None = None,

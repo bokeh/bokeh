@@ -771,14 +771,14 @@ class Serve(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        files = []
+        files: List[str] = []
         for f in args.files:
             if args.glob:
                 files.extend(glob(f))
             else:
                 files.append(f)
 
-        argvs = { f : args.args for f in files}
+        argvs = {f: args.args for f in files}
         applications = build_single_handler_applications(files, argvs)
 
         if len(applications) == 0:
