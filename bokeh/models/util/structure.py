@@ -23,9 +23,16 @@ Based on a private class, _BokehStructureGraph.
 """
 
 #-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-
 
 # Standard library imports
 from itertools import permutations
