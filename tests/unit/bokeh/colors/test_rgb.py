@@ -30,7 +30,6 @@ import bokeh.colors.rgb as bcr # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-
 class Test_RGB:
     def test_init(self) -> None:
         c = bcr.RGB(10, 20, 30)
