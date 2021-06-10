@@ -92,8 +92,8 @@ Then, activate the environment:
     
 .. note::
     
-    Before creating a conda environment, initialize Anaconda with this command
-    ``conda init`` only once.
+    Before creating a conda environment for the first time, you may need to 
+    initialize Anaconda with the ``conda init`` command (only once).
 
 .. _dev_guide_installing_node_packages:
 
