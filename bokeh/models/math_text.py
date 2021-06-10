@@ -37,10 +37,12 @@ __all__ = (
 
 class MathText(Model):
     """
-    Render mathematical content using using [LaTeX](https://en.wikipedia.org/wiki/LaTeX) notation.
+    Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
+    notation.
 
     .. note::
-        Bokeh uses [MathJax](https://www.mathjax.org) to render text containing mathematical notation.
+        Bokeh uses `MathJax <https://www.mathjax.org>`_ to render text
+        containing mathematical notation.
 
         MathJax only supports math-mode macros (no text-mode macros). You
         can see more about differences between standard TeX/LaTeX and MathJax
@@ -48,7 +50,7 @@ class MathText(Model):
     """
 
     text = NonNullable(String, help="""
-    The text value to render.
+    The text value to render as mathematical notation.
     """)
 
     def __init__(self, text: str, **kwargs) -> None:
