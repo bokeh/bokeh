@@ -127,8 +127,8 @@ Test suites
 ~~~~~~~~~~~
 
 BokehJS comes with its own suites of tests and testing framework. All tests for BokehJS
-use ``describe()`` and ``it()`` functions. Unit tests are written using Chai "expect"
-style. [TBD: How are style/setup different for visual integration tests?]
+use ``describe()`` and ``it()`` functions. If your test includes a threshold parameter,
+you can also use ``it.allowing(threshold)``.
 
 To launch BokehJS tests, run ``node make test`` from within the
 :bokeh-tree:`bokehjs/test` directory.
@@ -212,8 +212,8 @@ Each test in ``test:integration`` consists of two types of baseline comparisons:
 
 Textual baseline comparison
   For each test, the testing framework compares the pixel location of certain elements
-  in the visual output to pixel locations in a baseline file. The pixel locations are a
-  set of bounding boxes. They are stored as plain text in each test's ``.blf`` files.
+  in the visual output to pixel locations in the baseline data. This baseline data is
+  stored as plain text in each test's respective ``.blf`` file.
 
 Visual baseline comparison
   For each test, the testing suite does a pixel-by-pixel comparison of a screenshot
@@ -258,7 +258,7 @@ Follow these steps to write new visual tests or update existing tests:
 
       describe("Your Object", () => {
         it("should show certain behavior", async () => {
-          const p = fig([width, height])
+          const p = fig([width, height], {figure_attrs})
 
           ...
 
