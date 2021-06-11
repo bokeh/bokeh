@@ -26,6 +26,7 @@ from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from typing import (
     Any,
+    ClassVar,
     Sequence,
     Tuple,
     Type,
@@ -71,7 +72,7 @@ class Argument:
     help: NotRequired[str] = Unspecified
     metavar: NotRequired[str] = Unspecified
 
-Arg = Tuple[Union[str, Tuple[str, str]], Argument]
+Arg = Tuple[Union[str, Tuple[str, ...]], Argument]
 Args = Tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):
@@ -124,9 +125,9 @@ class Subcommand(metaclass=ABCMeta):
 
     '''
 
-    name: str
-    help: str
-    args: Args = ()
+    name: ClassVar[str]
+    help: ClassVar[str]
+    args: ClassVar[Args] = ()
 
     def __init__(self, parser: ArgumentParser) -> None:
         ''' Initialize the subcommand with its parser
@@ -141,12 +142,16 @@ class Subcommand(metaclass=ABCMeta):
 
         '''
         self.parser = parser
-        args = getattr(self, 'args', ())
-        for arg in args:
+        for arg in self.args:
             flags, spec = arg
             if not isinstance(flags, tuple):
                 flags = (flags,)
-            self.parser.add_argument(*flags, **dict(entries(spec)))
+            if not isinstance(spec, dict):
+                kwargs = dict(entries(spec))
+            else:
+                # NOTE: allow dict for run time backwards compatibility, but don't include in types
+                kwargs = spec
+            self.parser.add_argument(*flags, **kwargs)
 
     @abstractmethod
     def invoke(self, args: Namespace) -> Union[bool, None]:
