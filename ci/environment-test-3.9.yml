@@ -53,6 +53,8 @@ dependencies:
     - pydata_sphinx_theme
     - sphinxext-opengraph
     - sphinx-reredirects
+    - types-boto
+    - types-pyyaml
 
   # examples
   - flask >=1.0
