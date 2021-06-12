@@ -40,7 +40,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def verify_all(module: str | ModuleType, ALL: Sequence[str]):
+def verify_all(module: str | ModuleType, ALL: Sequence[str]) -> type:
     '''
 
     '''
