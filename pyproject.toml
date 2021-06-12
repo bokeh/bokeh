@@ -76,5 +76,7 @@ module = [
     "bokeh.util.token",
     "bokeh.util.webdriver",
     "tests.codebase.*",
+    "tests.test_bokehjs",
+    "tests.test_examples",
 ]
 ignore_errors = false
