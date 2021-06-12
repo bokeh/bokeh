@@ -103,10 +103,10 @@ class CompilationError(RuntimeError):
 bokehjs_dir = settings.bokehjsdir()
 nodejs_min_version = (14, 0, 0)
 
-def nodejs_version():
+def nodejs_version() -> str | None:
     return _version(_run_nodejs)
 
-def npmjs_version():
+def npmjs_version() -> str | None:
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
@@ -448,7 +448,7 @@ def _run_nodejs(argv, input=None):
 def _run_npmjs(argv, input=None):
     return _run(_npmjs_path(), argv, input)
 
-def _version(run_app):
+def _version(run_app) -> str | None:
     try:
         version = run_app(["--version"])
     except RuntimeError:
