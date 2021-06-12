@@ -72,6 +72,5 @@ module = [
     "bokeh.plotting._tools",
     "bokeh.core.validation.*",
     "bokeh.client.states",
-    "release",
 ]
 ignore_errors = false
