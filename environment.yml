@@ -63,6 +63,7 @@ dependencies:
   - pip
   - pip:
     - types-boto
+    - types-colorama
     - types-pillow
     - types-pyyaml
 

@@ -8,7 +8,7 @@ show_error_context = true
 show_column_numbers = true
 
 namespace_packages = true
-ignore_missing_imports = true
+ignore_missing_imports = false
 
 disallow_any_unimported = true
 disallow_any_expr = false

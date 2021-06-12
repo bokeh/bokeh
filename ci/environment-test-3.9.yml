@@ -55,6 +55,7 @@ dependencies:
     - sphinxext-opengraph
     - sphinx-reredirects
     - types-boto
+    - types-colorama
     - types-pillow
     - types-pyyaml
 
