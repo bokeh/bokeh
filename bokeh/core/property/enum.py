@@ -57,7 +57,7 @@ class Enum(String):
         default = default if default is not Intrinsic else enum._default
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         allowed_values = ", ".join(repr(x) for x in self.allowed_values)
         return f"{class_name}({allowed_values})"

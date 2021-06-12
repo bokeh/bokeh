@@ -41,8 +41,18 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import sys
+from types import ModuleType
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Dict,
+    List,
+)
 
 # Bokeh imports
+from ...core.types import PathLike
+from ...document import Document
 from ...io.doc import curdoc, set_curdoc
 from .code_runner import CodeRunner
 from .handler import Handler
@@ -74,7 +84,13 @@ class CodeHandler(Handler):
     # to be no-ops, with a warning.
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
-    def __init__(self, *args, **kwargs):
+    _loggers: Dict[str, Callable[..., None]]
+
+    _logger_text: ClassVar[str]
+
+    _origin: ClassVar[str]
+
+    def __init__(self, *, source: str, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None):
         '''
 
         Args:
@@ -86,18 +102,7 @@ class CodeHandler(Handler):
                 available as ``sys.argv`` when the code executes
 
         '''
-        super().__init__(*args, **kwargs)
-
-        if 'source' not in kwargs:
-            raise ValueError('Must pass source to CodeHandler')
-        source = kwargs['source']
-
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to CodeHandler')
-        filename = kwargs['filename']
-
-        argv = kwargs.get('argv', [])
-        package = kwargs.get('package', False)
+        super().__init__()
 
         self._runner = CodeRunner(source, filename, argv, package=package)
 
@@ -108,28 +113,28 @@ class CodeHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._runner.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._runner.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._runner.failed
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the code has already been executed.
@@ -139,7 +144,7 @@ class CodeHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         '''
 
         '''
@@ -187,24 +192,24 @@ class CodeHandler(Handler):
     # Private methods ---------------------------------------------------------
 
     # subclasses must define self._logger_text
-    def _make_io_logger(self, name):
-        def logger(*args, **kwargs):
-            log.info(self._logger_text , self._runner.path, name)
+    def _make_io_logger(self, name: str) -> Callable[..., None]:
+        def logger(*args: Any, **kwargs: Any):
+            log.info(self._logger_text, self._runner.path, name)
         return logger
 
     # monkeypatching is a little ugly, but in this case there's no reason any legitimate
     # code should be calling these functions, and we're only making a best effort to
     # warn people so no big deal if we fail.
-    def _monkeypatch_io(self):
+    def _monkeypatch_io(self) -> Dict[str, Any]:
         import bokeh.io as io
-        old = {}
+        old: Dict[str, Any] = {}
         for f in CodeHandler._io_functions:
             old[f] = getattr(io, f)
             setattr(io, f, self._loggers[f])
 
         return old
 
-    def _unmonkeypatch_io(self, old):
+    def _unmonkeypatch_io(self, old: Dict[str, Any]) -> None:
         import bokeh.io as io
         for f in old:
             setattr(io, f, old[f])

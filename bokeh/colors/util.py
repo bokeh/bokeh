@@ -20,6 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    ClassVar,
+    Iterator,
+    List,
+    Tuple,
+)
+
 # Bokeh imports
 from .rgb import RGB
 
@@ -47,26 +55,28 @@ class _ColorGroupMeta(type):
     When Python2 support is dropped, this will no longer be necessary.
 
     '''
-    def __len__(self):
+    _colors: Tuple[str, ...]
+
+    def __len__(self) -> int:
         return len(self._colors)
 
-    def __getitem__(self, v):
+    def __getitem__(self, v: str | int) -> NamedColor:
         from . import named
         if isinstance(v, str):
             if v in self._colors:
                 return getattr(named, v.lower())
-            raise KeyError("Color group %r has no color %r" % (self.__class__.__name__, v))
+            raise KeyError(f"Color group {self.__class__.__name__!r} has no color {v!r}" )
         if isinstance(v, int):
             if v >= 0 and v < len(self):
                 return getattr(named, self._colors[v].lower())
-            raise IndexError("Index out of range for color group %r" % self.__class__.__name__)
-        raise ValueError("Unknown index %r for color group %r" % (v, self.__class__.__name__))
+            raise IndexError(f"Index out of range for color group {self.__class__.__name__!r}")
+        raise ValueError(f"Unknown index {v!r} for color group {self.__class__.__name__!r}")
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[NamedColor]:
         from . import named
         return (getattr(named, x.lower()) for x in self._colors)
 
-    def __getattr__(self, v):
+    def __getattr__(self, v: str) -> NamedColor:
         from . import named
         if v != "_colors" and v in self._colors:
             return getattr(named, v.lower())
@@ -89,10 +99,10 @@ class NamedColor(RGB):
 
     '''
 
-    __all__ = []
-    colors = []
+    __all__: ClassVar[List[str]] = []
+    colors: ClassVar[List[NamedColor]] = []
 
-    def __init__(self, name, r, g, b):
+    def __init__(self, name: str, r: int, g: int, b: int):
         '''
 
         Args:
@@ -116,7 +126,7 @@ class NamedColor(RGB):
         self.name = name
         super().__init__(r, g, b)
 
-    def to_css(self):
+    def to_css(self) -> str:
         '''
 
         '''

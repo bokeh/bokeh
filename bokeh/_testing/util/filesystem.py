@@ -21,11 +21,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import codecs
 import os
 import shutil
 import sys
 import tempfile
+from contextlib import contextmanager
+from typing import (
+    IO,
+    Awaitable,
+    Callable,
+    Dict,
+    Iterator,
+)
+
+# Bokeh imports
+from bokeh.core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +56,8 @@ class TmpDir:
     '''
 
     '''
-    def __init__(self, prefix):
+
+    def __init__(self, prefix: str):
         self._dir = tempfile.mkdtemp(prefix=prefix, dir=_LOCAL_TMP)
 
     def __exit__(self, type, value, traceback):
@@ -55,35 +66,35 @@ class TmpDir:
         except Exception as e:
             # prefer original exception to rmtree exception
             if value is None:
-                print("Exception cleaning up TmpDir %s: %s" % (self._dir, str(e)), file=sys.stderr)
+                print(f"Exception cleaning up TmpDir {self._dir}: {e}", file=sys.stderr)
                 raise e
             else:
-                print("Failed to clean up TmpDir %s: %s" % (self._dir, str(e)), file=sys.stderr)
+                print(f"Failed to clean up TmpDir {self._dir}: {e}", file=sys.stderr)
                 raise value
 
-    def __enter__(self):
+    def __enter__(self) -> str:
         return self._dir
 
-def with_directory_contents(contents, func):
+def with_directory_contents(contents: Dict[PathLike, str], func: Callable[[str], None]) -> None:
     '''
 
     '''
-    with (TmpDir(prefix="test-")) as dirname:
+    with TmpDir(prefix="test-") as dirname:
         for filename, file_content in contents.items():
             path = os.path.join(dirname, filename)
             if file_content is None:
                 os.makedirs(path, exist_ok=True)
             else:
                 os.makedirs(os.path.dirname(path), exist_ok=True)
-                with codecs.open(path, 'w', 'utf-8') as f:
+                with open(path, "w", encoding="utf-8") as f:
                     f.write(file_content)
-        return func(os.path.realpath(dirname))
+        func(os.path.realpath(dirname))
 
-def with_file_contents(contents, func, dir=None, suffix=''):
+def with_file_contents(contents: str, func: Callable[[str], None], dir: PathLike | None = None, suffix: str = '') -> None:
     '''
 
     '''
-    def with_file_object(f):
+    def with_file_object(f: IO[bytes]) -> None:
         f.write(contents.encode("UTF-8"))
         f.flush()
         # Windows will get mad if we try to rename it without closing,
@@ -93,11 +104,11 @@ def with_file_contents(contents, func, dir=None, suffix=''):
 
     with_temporary_file(with_file_object, dir=dir, suffix=suffix)
 
-async def with_file_contents_async(contents, func, dir=None, suffix=''):
+async def with_file_contents_async(contents: str, func: Callable[[str], Awaitable[None]], dir: PathLike | None = None, suffix: str = '') -> None:
     '''
 
     '''
-    async def with_file_object(f):
+    async def with_file_object(f: IO[bytes]) -> None:
         f.write(contents.encode("UTF-8"))
         f.flush()
         # Windows will get mad if we try to rename it without closing,
@@ -107,7 +118,7 @@ async def with_file_contents_async(contents, func, dir=None, suffix=''):
 
     await with_temporary_file_async(with_file_object, dir=dir, suffix=suffix)
 
-def with_temporary_file(func, dir=None, suffix=''):
+def with_temporary_file(func: Callable[[IO[bytes]], None], dir: PathLike | None = None, suffix: str = '') -> None:
     '''
 
     '''
@@ -125,7 +136,7 @@ def with_temporary_file(func, dir=None, suffix=''):
         f.close()
         os.remove(f.name)
 
-async def with_temporary_file_async(func, dir=None, suffix=''):
+async def with_temporary_file_async(func: Callable[[IO[bytes]], Awaitable[None]], dir: PathLike | None = None, suffix: str = '') -> None:
     '''
 
     '''
@@ -143,20 +154,12 @@ async def with_temporary_file_async(func, dir=None, suffix=''):
         f.close()
         os.remove(f.name)
 
-class WorkingDir:
-    '''
-
-    '''
-    def __init__(self, pwd):
-        self._new = pwd
-        self._old = os.getcwd()
-
-    def __exit__(self, type, value, traceback):
-        os.chdir(self._old)
-
-    def __enter__(self):
-        os.chdir(self._new)
-        return self._new
+@contextmanager
+def WorkingDir(new: PathLike) -> Iterator[PathLike]:
+    old = os.getcwd()
+    os.chdir(new)
+    yield new
+    os.chdir(old)
 
 #-----------------------------------------------------------------------------
 # Dev API

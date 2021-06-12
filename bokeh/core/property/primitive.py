@@ -22,9 +22,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
+from typing import Optional
 
 # Bokeh imports
-from .bases import PrimitiveProperty
+from .bases import Init, PrimitiveProperty
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,7 +53,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Null(PrimitiveProperty):
+class Null(PrimitiveProperty[None]):
     """ Accept only ``None`` value.
 
         Use this in conjunction with ``Either(Null, Type)`` or as ``Nullable(Type)``.
@@ -60,10 +61,11 @@ class Null(PrimitiveProperty):
 
     _underlying_type = (type(None),)
 
-    def __init__(self, default=None, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[None] = None, *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class Bool(PrimitiveProperty):
+class Bool(PrimitiveProperty[bool]):
     """ Accept boolean values.
 
     Args:
@@ -103,10 +105,11 @@ class Bool(PrimitiveProperty):
 
     _underlying_type = bokeh_bool_types
 
-    def __init__(self, default=False, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[bool] = False, *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class Complex(PrimitiveProperty):
+class Complex(PrimitiveProperty[complex]):
     """ Accept complex floating point values.
 
     Args:
@@ -130,10 +133,11 @@ class Complex(PrimitiveProperty):
 
     _underlying_type = (numbers.Complex,)
 
-    def __init__(self, default=0j, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[complex] = 0j, *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class Int(PrimitiveProperty):
+class Int(PrimitiveProperty[int]):
     """ Accept signed integer values.
 
     Args:
@@ -173,10 +177,11 @@ class Int(PrimitiveProperty):
 
     _underlying_type = bokeh_integer_types
 
-    def __init__(self, default=0, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[int] = 0, *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class Float(PrimitiveProperty):
+class Float(PrimitiveProperty[float]):
     """ Accept floating point values.
 
     Args:
@@ -217,10 +222,11 @@ class Float(PrimitiveProperty):
 
     _underlying_type = (numbers.Real,)
 
-    def __init__(self, default=0.0, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[float] = 0.0, *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
-class String(PrimitiveProperty):
+class String(PrimitiveProperty[str]):
     """ Accept string values.
 
     Args:
@@ -260,7 +266,8 @@ class String(PrimitiveProperty):
 
     _underlying_type = (str,)
 
-    def __init__(self, default="", *, help=None, serialized=None, readonly=False):
+    def __init__(self, default: Init[str] = "", *, help: Optional[str] = None,
+            serialized: Optional[bool] = None, readonly: bool = False):
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 #-----------------------------------------------------------------------------

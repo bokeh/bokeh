@@ -23,12 +23,16 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+from typing import TYPE_CHECKING, List, Set
 from urllib.parse import urljoin
 
 # External imports
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
+
+if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from ..application import Application
@@ -44,6 +48,10 @@ from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 from .views.ws import WSHandler
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from .session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -227,7 +235,7 @@ class BokehTornado(TornadoApplication):
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  websocket_compression_level=None,
                  websocket_compression_mem_level=None,
-                 index=None,
+                 index: str | None = None,
                  auth_provider=NullAuth(),
                  xsrf_cookies=False,
                  include_headers=None,
@@ -414,10 +422,10 @@ class BokehTornado(TornadoApplication):
             log.debug("  " + line)
 
         super().__init__(all_patterns,
-                                           websocket_max_message_size=websocket_max_message_size_bytes,
-                                           **kwargs)
+            websocket_max_message_size=websocket_max_message_size_bytes,
+            **kwargs)
 
-    def initialize(self, io_loop):
+    def initialize(self, io_loop: IOLoop) -> None:
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
 
         '''
@@ -446,8 +454,6 @@ class BokehTornado(TornadoApplication):
         else:
             self._ping_job = None
 
-
-
     @property
     def applications(self):
         ''' The configured applications
@@ -456,7 +462,7 @@ class BokehTornado(TornadoApplication):
         return self._applications
 
     @property
-    def app_paths(self):
+    def app_paths(self) -> Set[str]:
         ''' A list of all application paths for all Bokeh applications
         configured on this Bokeh server instance.
 
@@ -464,14 +470,14 @@ class BokehTornado(TornadoApplication):
         return set(self._applications)
 
     @property
-    def index(self):
+    def index(self) -> str | None:
         ''' Path to a Jinja2 template to serve as the index "/"
 
         '''
         return self._index
 
     @property
-    def io_loop(self):
+    def io_loop(self) -> IOLoop:
         ''' The Tornado IOLoop that this  Bokeh Server Tornado Application
         is running on.
 
@@ -479,7 +485,7 @@ class BokehTornado(TornadoApplication):
         return self._loop
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         ''' A URL prefix for this Bokeh Server Tornado Application to use
         for all paths
 
@@ -487,7 +493,7 @@ class BokehTornado(TornadoApplication):
         return self._prefix
 
     @property
-    def websocket_origins(self):
+    def websocket_origins(self) -> List[str]:
         ''' A list of websocket origins permitted to connect to this server.
 
         '''
@@ -558,7 +564,7 @@ class BokehTornado(TornadoApplication):
         '''
         return self._session_token_expiration
 
-    def resources(self, absolute_url=None):
+    def resources(self, absolute_url: str | None = None) -> Resources:
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where
         Bokeh application sessions should load BokehJS resources from.
 
@@ -574,7 +580,7 @@ class BokehTornado(TornadoApplication):
             return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
         return Resources(mode=mode)
 
-    def start(self):
+    def start(self) -> None:
         ''' Start the Bokeh Server application.
 
         Starting the Bokeh Server Tornado application will run periodic
@@ -592,7 +598,7 @@ class BokehTornado(TornadoApplication):
         for context in self._applications.values():
             self._loop.spawn_callback(context.run_load_hook)
 
-    def stop(self, wait=True):
+    def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server application.
 
         Args:
@@ -621,11 +627,11 @@ class BokehTornado(TornadoApplication):
         self._clients.add(connection)
         return connection
 
-    def client_lost(self, connection):
+    def client_lost(self, connection) -> None:
         self._clients.discard(connection)
         connection.detach_session()
 
-    def get_session(self, app_path, session_id):
+    def get_session(self, app_path: str, session_id: ID) -> ServerSession:
         ''' Get an active a session by name application path and session ID.
 
         Args:
@@ -644,7 +650,7 @@ class BokehTornado(TornadoApplication):
             raise ValueError("Application %s does not exist on this server" % app_path)
         return self._applications[app_path].get_session(session_id)
 
-    def get_sessions(self, app_path):
+    def get_sessions(self, app_path: str) -> List[ServerSession]:
         ''' Gets all currently active sessions for an application.
 
         Args:
@@ -662,13 +668,13 @@ class BokehTornado(TornadoApplication):
 
     # Periodic Callbacks ------------------------------------------------------
 
-    async def _cleanup_sessions(self):
+    async def _cleanup_sessions(self) -> None:
         log.trace("Running session cleanup job")
         for app in self._applications.values():
             await app._cleanup_sessions(self._unused_session_lifetime_milliseconds)
         return None
 
-    def _log_stats(self):
+    def _log_stats(self) -> None:
         log.trace("Running stats log job")
 
         if log.getEffectiveLevel() > logging.DEBUG:
@@ -685,7 +691,7 @@ class BokehTornado(TornadoApplication):
             log.debug("[pid %d]   %s has %d sessions with %d unused",
                       os.getpid(), app_path, len(sessions), unused_count)
 
-    def _log_mem(self):
+    def _log_mem(self) -> None:
         import psutil
 
         process = psutil.Process(os.getpid())
@@ -704,7 +710,7 @@ class BokehTornado(TornadoApplication):
             objs = [x for x in gc.get_objects() if isinstance(x, typ)]
             log.debug("  uncollected %s: %d", name, len(objs))
 
-    def _keep_alive(self):
+    def _keep_alive(self) -> None:
         log.trace("Running keep alive job")
         for c in self._clients:
             c.send_ping()

@@ -143,6 +143,7 @@ from typing_extensions import Literal
 from .util.paths import bokehjsdir
 
 if TYPE_CHECKING:
+    from .core.types import PathLike
     from .resources import ResourcesMode
 
 #-----------------------------------------------------------------------------
@@ -634,7 +635,7 @@ class Settings:
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
-    rootdir: PrioritizedSetting[Optional[str]] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
+    rootdir: PrioritizedSetting[Optional[PathLike]] = PrioritizedSetting("rootdir", "BOKEH_ROOTDIR", default=None, help="""
     Root directory to use with ``relative`` resources
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.

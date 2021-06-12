@@ -30,8 +30,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from types import ModuleType
+from typing import List
 
 # Bokeh imports
+from ...core.types import PathLike
 from ...util.dependencies import import_required
 from .code import CodeHandler
 
@@ -63,7 +66,7 @@ class NotebookHandler(CodeHandler):
 
     _origin = "Notebook"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None):
         '''
 
         Keywords:
@@ -73,10 +76,6 @@ class NotebookHandler(CodeHandler):
         nbformat = import_required('nbformat', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
         nbconvert = import_required('nbconvert', 'The Bokeh notebook application handler requires Jupyter Notebook to be installed.')
 
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to NotebookHandler')
-
-
         class StripMagicsProcessor(nbconvert.preprocessors.Preprocessor):
             """
             Preprocessor to convert notebooks to Python source while stripping
@@ -85,11 +84,11 @@ class NotebookHandler(CodeHandler):
 
             _magic_pattern = re.compile(r'^\s*(?P<magic>%%\w\w+)($|(\s+))')
 
-            def strip_magics(self, source):
+            def strip_magics(self, source: str) -> str:
                 """
                 Given the source of a cell, filter out all cell and line magics.
                 """
-                filtered=[]
+                filtered: List[str] = []
                 for line in source.splitlines():
                     match = self._magic_pattern.match(line)
                     if match is None:
@@ -110,8 +109,7 @@ class NotebookHandler(CodeHandler):
                 self._cell_counter = 0
                 return self.preprocess(nb,resources)
 
-        preprocessors=[StripMagicsProcessor()]
-        filename = kwargs['filename']
+        preprocessors = [StripMagicsProcessor()]
 
         with open(filename, encoding="utf-8") as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
@@ -124,9 +122,7 @@ class NotebookHandler(CodeHandler):
             source = source.replace('get_ipython().run_line_magic', '')
             source = source.replace('get_ipython().magic', '')
 
-            kwargs['source'] = source
-
-        super().__init__(*args, **kwargs)
+        super().__init__(source=source, filename=filename, argv=argv, package=package)
 
 #-----------------------------------------------------------------------------
 # Private API

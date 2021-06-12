@@ -20,12 +20,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from ..models.layouts import LayoutDOM
-from ..util.browser import NEW_PARAM, get_browser_controller
+from ..util.browser import NEW_PARAM, BrowserTarget, get_browser_controller
 from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
+
+if TYPE_CHECKING:
+    from ..application.application import Application
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,7 +45,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
+def show(obj: LayoutDOM | Application, browser: str | None = None, new: BrowserTarget = "tab",
+        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kw):
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -154,14 +161,14 @@ _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be 
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj, state, new, controller):
+def _show_file_with_state(obj, state, new: BrowserTarget, controller):
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj, state, browser, new, notebook_handle=False):
+def _show_with_state(obj, state, browser, new: BrowserTarget, notebook_handle=False):
     '''
 
     '''

@@ -75,7 +75,7 @@ class Example:
         self.pixels = 0
         self._has_ref = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         flags = [
             "file"     if self.is_file     else "",
             "server"   if self.is_server   else "",

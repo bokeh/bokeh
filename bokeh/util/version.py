@@ -58,7 +58,7 @@ __all__ = (
 def base_version() -> str:
     return _base_version_helper(__version__)
 
-def is_full_release(version: str = None) -> bool:
+def is_full_release(version: str | None = None) -> bool:
     import re
     version = version or __version__
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
@@ -83,5 +83,5 @@ def _base_version_helper(version: str) -> str:
 # Code
 #-----------------------------------------------------------------------------
 
-__version__ = get_versions()['version']
+__version__: str = get_versions()['version']
 del get_versions

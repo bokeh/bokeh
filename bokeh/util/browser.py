@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import webbrowser
 from os.path import abspath
-from typing import Optional, cast
+from typing import Dict, cast
 
 # External imports
 from typing_extensions import Literal, Protocol
@@ -35,7 +35,10 @@ from ..settings import settings
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-NEW_PARAM = {'tab': 2, 'window': 1}
+BrowserTarget = Literal["same", "window", "tab"]
+TargetCode = Literal[0, 1, 2]
+
+NEW_PARAM: Dict[BrowserTarget, TargetCode] = {"same": 0, "window": 1, "tab": 2}
 
 __all__ = (
     'DummyWebBrowser',
@@ -51,18 +54,18 @@ class BrowserLike(Protocol):
     ''' Interface for browser-like objects.
 
     '''
-    def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
+    def open(self, url: str, new: TargetCode = ..., autoraise: bool = ...) -> bool:
         ...
 
 class DummyWebBrowser:
     ''' A "no-op" web-browser controller.
 
     '''
-    def open(self, url: str, new: int = 0, autoraise: bool = True) -> bool:
+    def open(self, url: str, new: TargetCode = 0, autoraise: bool = True) -> bool:
         ''' Receive standard arguments and take no action. '''
         return True
 
-def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
+def get_browser_controller(browser: str | None = None) -> BrowserLike:
     ''' Return a browser controller.
 
     Args:
@@ -89,7 +92,7 @@ def get_browser_controller(browser: Optional[str] = None) -> BrowserLike:
 
     return controller
 
-def view(location: str, browser: Optional[str] = None, new: Literal["same", "window", "tab"] = "same", autoraise: bool = True) -> None:
+def view(location: str, browser: str | None = None, new: BrowserTarget = "same", autoraise: bool = True) -> None:
     ''' Open a browser to view the specified location.
 
     Args:
@@ -113,9 +116,9 @@ def view(location: str, browser: Optional[str] = None, new: Literal["same", "win
 
     '''
     try:
-        new_id = {"same": 0, "window": 1, "tab": 2}[new]
+        new_id = NEW_PARAM[new]
     except KeyError:
-        raise RuntimeError("invalid 'new' value passed to view: %r, valid values are: 'same', 'window', or 'tab'" % new)
+        raise RuntimeError(f"invalid 'new' value passed to view: {new!r}, valid values are: 'same', 'window', or 'tab'")
 
     if location.startswith("http"):
         url = location

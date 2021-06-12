@@ -28,6 +28,8 @@ import bokeh.command.subcommands.sampledata as scsample # isort:skip
 
 did_call_download = False
 
+Capture = pytest.CaptureFixture[str]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ def test_args() -> None:
     assert scsample.Sampledata.args == (
     )
 
-def test_run(capsys) -> None:
+def test_run(capsys: Capture) -> None:
     main(["bokeh", "sampledata"])
     assert did_call_download == True
 

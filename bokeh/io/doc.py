@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Bokeh imports
+from ..document import Document
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -33,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def curdoc():
+def curdoc() -> Document:
     ''' Return the document for the current default state.
 
     Returns:
@@ -47,7 +50,7 @@ def curdoc():
 # Dev API
 #-----------------------------------------------------------------------------
 
-def set_curdoc(doc):
+def set_curdoc(doc: Document) -> None:
     '''Configure the current document (returned by curdoc()).
 
     Args:

@@ -27,7 +27,7 @@ import bokeh.protocol.message as message # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_create_header(monkeypatch) -> None:
+def test_create_header(monkeypatch: pytest.MonkeyPatch) -> None:
     message.Message.msgtype = "msgtype"
     monkeypatch.setattr("bokeh.util.serialization.make_id", lambda: "msgid")
     header = message.Message.create_header(request_id="bar")

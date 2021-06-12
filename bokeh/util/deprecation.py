@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings  # lgtm [py/import-and-import-from]
-from typing import (
-    Optional,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import Optional, Tuple, overload
 
 # Bokeh imports
 from .warnings import BokehDeprecationWarning
@@ -48,14 +43,14 @@ def warn(message: str, stacklevel: int = 2) -> None:
     warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
 @overload
-def deprecated(since_or_msg: Version, old: str, new: str, extra: str) -> None:
+def deprecated(since_or_msg: Version, old: str, new: str, extra: Optional[str] = None) -> None:
     ...
 
 @overload
 def deprecated(since_or_msg: str) -> None:
     ...
 
-def deprecated(since_or_msg: Union[Version, str],
+def deprecated(since_or_msg: Version | str,
         old: Optional[str] = None, new: Optional[str] = None, extra: Optional[str] = None) -> None:
     """ Issue a nicely formatted deprecation warning. """
 
@@ -71,13 +66,11 @@ def deprecated(since_or_msg: Union[Version, str],
         message = f"{old} was deprecated in Bokeh {since} and will be removed, use {new} instead."
         if extra is not None:
             message += " " + extra.strip()
-    elif isinstance(since_or_msg, str):
+    else:
         if not (old is None and new is None and extra is None):
             raise ValueError("deprecated(message) signature doesn't allow extra arguments")
 
         message = since_or_msg
-    else:
-        raise ValueError("expected a version tuple or string message")
 
     warn(message)
 

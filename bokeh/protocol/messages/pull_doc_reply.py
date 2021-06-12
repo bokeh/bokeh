@@ -17,9 +17,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
+# External imports
+from typing_extensions import TypedDict
+
 # Bokeh imports
+from ...core.types import ID
 from ..exceptions import ProtocolError
 from ..message import Message
+
+if TYPE_CHECKING:
+    from ...document.document import DocJson, Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -37,7 +47,10 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class pull_doc_reply(Message):
+class PullDoc(TypedDict):
+    doc: DocJson
+
+class pull_doc_reply(Message[PullDoc]):
     ''' Define the ``PULL-DOC-REPLY`` message for replying to Document pull
     requests from clients
 
@@ -51,13 +64,10 @@ class pull_doc_reply(Message):
 
     '''
 
-    msgtype  = 'PULL-DOC-REPLY'
-
-    def __init__(self, header, metadata, content):
-        super().__init__(header, metadata, content)
+    msgtype = 'PULL-DOC-REPLY'
 
     @classmethod
-    def create(cls, request_id, document, **metadata):
+    def create(cls, request_id: ID, document: Document, **metadata: Any) -> pull_doc_reply:
         ''' Create an ``PULL-DOC-REPLY`` message
 
         Args:
@@ -72,14 +82,12 @@ class pull_doc_reply(Message):
 
         '''
         header = cls.create_header(request_id=request_id)
-
-        content = { 'doc' : document.to_json() }
+        content = PullDoc(doc=document.to_json())
 
         msg = cls(header, metadata, content)
-
         return msg
 
-    def push_to_document(self, doc):
+    def push_to_document(self, doc: Document) -> None:
         if 'doc' not in self.content:
             raise ProtocolError("No doc in PULL-DOC-REPLY")
         doc.replace_with_json(self.content['doc'])

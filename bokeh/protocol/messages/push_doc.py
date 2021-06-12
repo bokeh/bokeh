@@ -17,9 +17,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
+# External imports
+from typing_extensions import TypedDict
+
 # Bokeh imports
 from ..exceptions import ProtocolError
 from ..message import Message
+
+if TYPE_CHECKING:
+    from ...document.document import DocJson, Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -37,7 +46,10 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class push_doc(Message):
+class PushDoc(TypedDict):
+    doc: DocJson
+
+class push_doc(Message[PushDoc]):
     ''' Define the ``PUSH-DOC`` message for pushing Documents from clients to a
     Bokeh server.
 
@@ -51,25 +63,20 @@ class push_doc(Message):
 
     '''
 
-    msgtype  = 'PUSH-DOC'
-
-    def __init__(self, header, metadata, content):
-        super().__init__(header, metadata, content)
+    msgtype = 'PUSH-DOC'
 
     @classmethod
-    def create(cls, document, **metadata):
+    def create(cls, document: Document, **metadata: Any) -> push_doc:
         '''
 
         '''
         header = cls.create_header()
-
-        content = { 'doc' : document.to_json() }
+        content = PushDoc(doc=document.to_json())
 
         msg = cls(header, metadata, content)
-
         return msg
 
-    def push_to_document(self, doc):
+    def push_to_document(self, doc: Document):
         '''
 
         Raises:

@@ -21,8 +21,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    List,
+    Union,
+)
+
 # Bokeh imports
 from .exceptions import ValidationError
+
+if TYPE_CHECKING:
+    from . import Protocol
+    from .message import BufferHeader, Message
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,6 +52,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+Fragment = Union[str, bytes]
 
 class Receiver:
     ''' Receive wire message fragments and assemble complete Bokeh server
@@ -85,7 +100,12 @@ class Receiver:
 
     '''
 
-    def __init__(self, protocol):
+    _current_consumer: Callable[[Fragment], None]
+    _fragments: List[Fragment]
+    _message: Message[Any] | None
+    _buf_header: BufferHeader | None
+
+    def __init__(self, protocol: Protocol):
         ''' Configure a Receiver with a specific Bokeh protocol.
 
         Args:
@@ -98,7 +118,7 @@ class Receiver:
         self._message = None
         self._buf_header = None
 
-    async def consume(self, fragment):
+    async def consume(self, fragment: Fragment) -> Message[Any]:
         ''' Consume individual protocol message fragments.
 
         Args:
@@ -111,19 +131,19 @@ class Receiver:
         self._current_consumer(fragment)
         return self._message
 
-    def _HEADER(self, fragment):
+    def _HEADER(self, fragment: Fragment) -> None:
         self._assume_text(fragment)
         self._message = None
         self._partial = None
         self._fragments = [fragment]
         self._current_consumer = self._METADATA
 
-    def _METADATA(self, fragment):
+    def _METADATA(self, fragment: Fragment) -> None:
         self._assume_text(fragment)
         self._fragments.append(fragment)
         self._current_consumer = self._CONTENT
 
-    def _CONTENT(self, fragment):
+    def _CONTENT(self, fragment: Fragment) -> None:
         self._assume_text(fragment)
         self._fragments.append(fragment)
 
@@ -133,31 +153,31 @@ class Receiver:
 
         self._check_complete()
 
-    def _BUFFER_HEADER(self, fragment):
+    def _BUFFER_HEADER(self, fragment: Fragment) -> None:
         self._assume_text(fragment)
         self._buf_header = fragment
         self._current_consumer = self._BUFFER_PAYLOAD
 
-    def _BUFFER_PAYLOAD(self, fragment):
+    def _BUFFER_PAYLOAD(self, fragment: Fragment) -> None:
         self._assume_binary(fragment)
         self._partial.assemble_buffer(self._buf_header, fragment)
 
         self._check_complete()
 
-    def _check_complete(self):
+    def _check_complete(self) -> None:
         if self._partial.complete:
             self._message = self._partial
             self._current_consumer = self._HEADER
         else:
             self._current_consumer = self._BUFFER_HEADER
 
-    def _assume_text(self, fragment):
+    def _assume_text(self, fragment: Fragment) -> None:
         if not isinstance(fragment, str):
-            raise ValidationError("expected text fragment but received binary fragment for %s" % (self._current_consumer.__name__))
+            raise ValidationError(f"expected text fragment but received binary fragment for {self._current_consumer.__name__}")
 
-    def _assume_binary(self, fragment):
+    def _assume_binary(self, fragment: Fragment) -> None:
         if not isinstance(fragment, bytes):
-            raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
+            raise ValidationError(f"expected binary fragment but received text fragment for {self._current_consumer.__name__}")
 
 #-----------------------------------------------------------------------------
 # Private API

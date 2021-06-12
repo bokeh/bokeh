@@ -18,13 +18,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os import PathLike
+import os
 from os.path import join
 from subprocess import Popen
-from typing import AnyStr, List, Optional
+from typing import List
 
 # Bokeh imports
 from . import __version__
+from .core.types import PathLike
 from .settings import settings
 from .util.compiler import _nodejs_path
 
@@ -38,8 +39,8 @@ __all__ = ["init", "build"]
 # General API
 #-----------------------------------------------------------------------------
 
-def init(base_dir: "PathLike[AnyStr]", *, interactive: bool = False,
-         bokehjs_version: Optional[str] = None, debug: bool = False) -> bool:
+def init(base_dir: PathLike, *, interactive: bool = False,
+         bokehjs_version: str | None = None, debug: bool = False) -> bool:
     """
     Initialize a directory as a new bokeh extension.
 
@@ -56,7 +57,7 @@ def init(base_dir: "PathLike[AnyStr]", *, interactive: bool = False,
         bool
 
     """
-    args = []
+    args: List[str] = []
     if interactive:
         args.append("--interactive")
     if bokehjs_version:
@@ -65,7 +66,7 @@ def init(base_dir: "PathLike[AnyStr]", *, interactive: bool = False,
     return proc.returncode == 0
 
 
-def build(base_dir: "PathLike[AnyStr]", *, rebuild: bool = False, debug: bool = False) -> bool:
+def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> bool:
     """
     Build a bokeh extension in the given directory.
 
@@ -80,7 +81,7 @@ def build(base_dir: "PathLike[AnyStr]", *, rebuild: bool = False, debug: bool = 
         bool
 
     """
-    args = []
+    args: List[str] = []
     if rebuild:
         args.append("--rebuild")
     proc = _run_command("build", base_dir, args, debug)
@@ -94,7 +95,7 @@ def build(base_dir: "PathLike[AnyStr]", *, rebuild: bool = False, debug: bool = 
 # Private API
 #-----------------------------------------------------------------------------
 
-def _run_command(command: str, base_dir: "PathLike[AnyStr]", args: List[str], debug: bool = False) -> "Popen[bytes]":
+def _run_command(command: str, base_dir: PathLike, args: List[str], debug: bool = False) -> Popen[bytes]:
     bokehjs_dir = settings.bokehjsdir()
 
     if debug:
@@ -106,7 +107,7 @@ def _run_command(command: str, base_dir: "PathLike[AnyStr]", args: List[str], de
         "--no-deprecation",
         compiler_script,
         command,
-        "--base-dir", base_dir,
+        "--base-dir", os.fspath(base_dir),
         "--bokehjs-dir", bokehjs_dir,
         "--bokeh-version", __version__,
     ]

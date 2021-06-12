@@ -17,8 +17,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ..message import Message
+from ..message import Empty, Message
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ack(Message):
+class ack(Message[Empty]):
     ''' Define the ``ACK`` message for acknowledging successful client
     connection to a Bokeh server.
 
@@ -44,10 +47,10 @@ class ack(Message):
 
     '''
 
-    msgtype  = 'ACK'
+    msgtype = 'ACK'
 
     @classmethod
-    def create(cls, **metadata):
+    def create(cls, **metadata: Any) -> ack:
         ''' Create an ``ACK`` message
 
         Any keyword arguments will be put into the message ``metadata``
@@ -55,7 +58,7 @@ class ack(Message):
 
         '''
         header = cls.create_header()
-        content = {}
+        content = Empty()
         return cls(header, metadata, content)
 
 #-----------------------------------------------------------------------------

@@ -56,12 +56,12 @@ class Test_is_full_release:
     def test_actual(self) -> None:
         assert buv.is_full_release() == bool(VERSION_PAT.match(buv.__version__))
 
-    def test_mock_full(self, monkeypatch) -> None:
+    def test_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, '__version__', "1.5.0")
         assert buv.is_full_release()
 
     @pytest.mark.parametrize('v', ("1.2.3dev2", "1.4.5rc3", "junk"))
-    def test_mock_not_full(self, monkeypatch, v) -> None:
+    def test_mock_not_full(self, monkeypatch: pytest.MonkeyPatch, v: str) -> None:
         monkeypatch.setattr(buv, '__version__', v)
         assert not buv.is_full_release()
 

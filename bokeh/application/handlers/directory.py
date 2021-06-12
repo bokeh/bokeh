@@ -55,17 +55,31 @@ from os.path import (
     exists,
     join,
 )
+from types import ModuleType
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+)
 
 # External imports
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
+from tornado.httputil import HTTPServerRequest
 
 # Bokeh imports
+from ...core.types import PathLike
+from ...document import Document
+from ..application import ServerContext, SessionContext
 from .code_runner import CodeRunner
 from .handler import Handler
 from .notebook import NotebookHandler
 from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
 from .server_request_handler import ServerRequestHandler
+
+if TYPE_CHECKING:
+    from ...themes import Theme
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -90,24 +104,32 @@ class DirectoryHandler(Handler):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    _package_runner: CodeRunner | None
+    _package: ModuleType | None
+
+    _lifecycle_handler: Handler
+    _request_handler: Handler
+
+    _theme: Theme | None
+    _static: str | None
+    _template: Template | None
+
+    def __init__(self, *, filename: PathLike, argv: List[str] = []):
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
 
             argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
         '''
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
-        if 'filename' not in kwargs:
-            raise ValueError('Must pass a filename to DirectoryHandler')
-        src_path = kwargs['filename']
-        argv = kwargs.get('argv', [])
+        src_path = filename
 
         init_py = join(src_path, '__init__.py')
         if exists(init_py):
             self._package_runner = CodeRunner(open(init_py).read(), init_py, argv)
-            self._package =  self._package_runner.new_module()
+            self._package = self._package_runner.new_module()
+            assert self._package is not None
             sys.modules[self._package.__name__] = self._package
         else:
             self._package_runner = None
@@ -116,14 +138,14 @@ class DirectoryHandler(Handler):
         main_py = join(src_path, 'main.py')
         main_ipy = join(src_path, 'main.ipynb')
         if exists(main_py) and exists(main_ipy):
-            log.warning("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
+            log.warning(f"Found both 'main.py' and 'main.ipynb' in {src_path}, using 'main.py'")
             main = main_py
         elif exists(main_py):
             main = main_py
         elif exists(main_ipy):
             main = main_ipy
         else:
-            raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
+            raise ValueError(f"No 'main.py' or 'main.ipynb' in {src_path}")
         self._path = src_path
         self._main = main
 
@@ -141,17 +163,13 @@ class DirectoryHandler(Handler):
             hooks = app_hooks
 
         if hooks is not None:
-            self._lifecycle = hooks
-            self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv, package=self._package)
+            self._lifecycle_handler = ServerLifecycleHandler(filename=hooks, argv=argv, package=self._package)
         else:
-            self._lifecycle = None
             self._lifecycle_handler = Handler() # no-op handler
 
         if exists(app_hooks):
-            self._request_handler = hooks
-            self._request_handler = ServerRequestHandler(filename=self._request_handler, argv=argv, package=self._package)
+            self._request_handler = ServerRequestHandler(filename=hooks, argv=argv, package=self._package)
         else:
-            self._request_handler = None
             self._request_handler = Handler() # no-op handler
 
         self._theme = None
@@ -187,14 +205,14 @@ class DirectoryHandler(Handler):
         return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the configured code (script, notebook, etc.) has already
@@ -205,7 +223,7 @@ class DirectoryHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         ''' Execute the configured ``main.py`` or ``main.ipynb`` to modify the
         document.
 
@@ -227,7 +245,7 @@ class DirectoryHandler(Handler):
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: ServerContext):
         ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server is first started.
 
@@ -240,7 +258,7 @@ class DirectoryHandler(Handler):
             self._package_runner.run(self._package)
         return self._lifecycle_handler.on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context: ServerContext):
         ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -256,7 +274,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context):
+    def on_session_created(self, session_context: SessionContext):
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
         it is defined) when a new session is created.
 
@@ -266,7 +284,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context):
+    def on_session_destroyed(self, session_context: SessionContext):
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
         it is defined) when a session is destroyed.
 
@@ -276,7 +294,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
 
-    def process_request(self, request):
+    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

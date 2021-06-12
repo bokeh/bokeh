@@ -36,6 +36,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from itertools import permutations
+from typing import TYPE_CHECKING, Dict, Set
+
+## External dependencies
+if TYPE_CHECKING:
+    import pandas as pd
+else:
+    from ...util.dependencies import import_optional
+    pd = import_optional("pandas")
 
 # Bokeh imports
 from bokeh.layouts import column
@@ -60,6 +68,10 @@ from bokeh.models import (
     TapTool,
 )
 
+if TYPE_CHECKING:
+    from ...core.types import ID
+    from ...model import Model
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -71,7 +83,7 @@ __all__ = ('generate_structure_plot',)
 # -----------------------------------------------------------------------------
 
 
-def generate_structure_plot(f):
+def generate_structure_plot(f: Model) -> Model:
     """  Given a bokeh model f, return a model that displays the graph of its submodels.
 
     Clicking on the nodes of the graph reveals the attributes of that submodel.
@@ -102,7 +114,7 @@ class _BokehStructureGraph:
 
     """
 
-    def __init__(self, model):
+    def __init__(self, model: Model):
 
         self._model = model
         self._graph = self._make_graph(model)
@@ -110,13 +122,11 @@ class _BokehStructureGraph:
         self._prop_df = self._make_prop_dict()
         self._graph_plot = self._make_graph_plot()
         self._data_table = self._make_data_table()
-        self._graph_plot.title.text = "Structure of model type {} with id {}".format(
-            self._model.__class__.__name__, self._model.id
-        )
+        self._graph_plot.title.text = f"Structure of model type {self._model.__class__.__name__} with id {self._model.id}"
         self._structure_graph = self._combined()
 
     @property
-    def model(self):
+    def model(self) -> Model:
         """ The bokeh model consisting of the structure graph and the datatable
         for the attributes.
 
@@ -141,7 +151,7 @@ class _BokehStructureGraph:
         """
         return self._prop_df
 
-    def _make_graph(self, M):
+    def _make_graph(self, M: Model):
         """ Builds a networkx DiGraph() G from the model M.
 
 
@@ -158,26 +168,26 @@ class _BokehStructureGraph:
         """
         import networkx as nx
 
-        def test_condition(s, y, H):
-            answer1 = False
-            answer2 = False
-            answer3 = False
+        def test_condition(s: Model, y: str, H: Model) -> bool:
+            answer1: bool = False
+            answer2: bool = False
+            answer3: bool = False
             try:
-                answer1 = (s in getattr(H, y))
+                answer1 = s in getattr(H, y)
             except TypeError:
                 pass
             try:
-                answer2 = (s == getattr(H, y))
+                answer2 = s == getattr(H, y)
             except TypeError:
                 pass
             try:
-                answer3 = (s in getattr(H, y).values())
+                answer3 = s in getattr(H, y).values()
             except (AttributeError, ValueError):
                 pass
-            return (answer1 | answer2 | answer3)
+            return answer1 | answer2 | answer3
 
         K = nx.DiGraph()
-        T = {}
+        T: Dict[ID, Set[ID]] = {}
         for m in M.references():
             T[m.id] = {y.id for y in m.references()}
 
@@ -200,7 +210,7 @@ class _BokehStructureGraph:
         K.remove_edges_from(dead_edges)
         return K
 
-    def _obj_props_to_df2(self, obj):
+    def _obj_props_to_df2(self, obj: Model):
         """ Returns a pandas dataframe of the properties of a bokeh model
 
         Each row contains  an attribute, its type (a bokeh property), and its docstring.
@@ -217,7 +227,7 @@ class _BokehStructureGraph:
         }
         return df
 
-    def _make_graph_plot(self):
+    def _make_graph_plot(self) -> Plot:
         """ Builds the graph portion of the final model.
 
         """
@@ -294,7 +304,7 @@ class _BokehStructureGraph:
         self._edge_source = edge_source
         return p2
 
-    def _make_prop_dict(self):
+    def _make_prop_dict(self) -> pd.DataFrame:
         """ Returns a dataframe containing all the properties of all the submodels of the model being
         analyzed. Used as datasource to show attributes.
 
@@ -302,7 +312,7 @@ class _BokehStructureGraph:
         import pandas as pd
         df = pd.DataFrame()
         for x in self._graph.nodes(data=True):
-            M = self._model.select_one({"id": x[0]})
+            M = self._model.select_one(dict(id=x[0]))
             Z = pd.DataFrame(self._obj_props_to_df2(M))
             Z["id"] = x[0]
             Z["model"] = str(M)
@@ -311,7 +321,7 @@ class _BokehStructureGraph:
             df = df.append(Z)
         return df
 
-    def _make_data_table(self):
+    def _make_data_table(self) -> DataTable:
         """ Builds the datatable portion of the final plot.
 
         """
@@ -338,7 +348,7 @@ class _BokehStructureGraph:
         self._prop_source = prop_source
         return data_table2
 
-    def _combined(self):
+    def _combined(self) -> Model:
         """ Connects the graph and the datatable with a simple CustomJS callback.
 
         Clicking on a node/submodel narrows the view in the datatable to the
@@ -346,10 +356,12 @@ class _BokehStructureGraph:
 
         """
 
-        js_code = """const index = node_source.selected.indices[0];
-            f['group']=node_source.data['index'][index];
-            table['visible']=true;
-            prop_source.change.emit();"""
+        js_code = """\
+            const index = node_source.selected.indices[0];
+            f['group'] = node_source.data['index'][index];
+            table['visible'] = true;
+            prop_source.change.emit();
+        """
 
         js = CustomJS(
             args=dict(

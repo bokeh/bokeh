@@ -37,6 +37,8 @@ import atexit
 import signal
 import socket
 import sys
+from types import FrameType
+from typing import TYPE_CHECKING, List
 
 # External imports
 from tornado import version as tornado_version
@@ -45,10 +47,10 @@ from tornado.ioloop import IOLoop
 
 # Bokeh imports
 from .. import __version__
+from ..core import properties as p
 from ..core.properties import (
     Bool,
     Int,
-    List,
     Nullable,
     String,
 )
@@ -56,6 +58,11 @@ from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..util.browser import BrowserTarget
+    from .session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -90,7 +97,7 @@ class BaseServer:
 
     '''
 
-    def __init__(self, io_loop, tornado_app, http_server):
+    def __init__(self, io_loop: IOLoop, tornado_app: BokehTornado, http_server: HTTPServer):
         ''' Create a ``BaseServer`` instance.
 
         Args:
@@ -118,13 +125,13 @@ class BaseServer:
         self._tornado.initialize(io_loop)
 
     @property
-    def io_loop(self):
+    def io_loop(self) -> IOLoop:
         ''' The Tornado ``IOLoop`` that this Bokeh Server is running on.
 
         '''
         return self._loop
 
-    def start(self):
+    def start(self) -> None:
         ''' Install the Bokeh Server and its background tasks on a Tornado
         ``IOLoop``.
 
@@ -141,7 +148,7 @@ class BaseServer:
         self._started = True
         self._tornado.start()
 
-    def stop(self, wait=True):
+    def stop(self, wait: bool = True) -> None:
         ''' Stop the Bokeh Server.
 
         This stops and removes all Bokeh Server ``IOLoop`` callbacks, as well
@@ -160,7 +167,7 @@ class BaseServer:
         self._tornado.stop(wait)
         self._http.stop()
 
-    def unlisten(self):
+    def unlisten(self) -> None:
         ''' Stop listening on ports. The server will no longer be usable after
         calling this function.
 
@@ -171,7 +178,7 @@ class BaseServer:
         yield self._http.close_all_connections()
         self._http.stop()
 
-    def run_until_shutdown(self):
+    def run_until_shutdown(self) -> None:
         ''' Run the Bokeh Server until shutdown is requested by the user,
         either via a Keyboard interrupt (Ctrl-C) or SIGTERM.
 
@@ -193,7 +200,7 @@ class BaseServer:
             print("\nInterrupted, shutting down")
         self.stop()
 
-    def get_session(self, app_path, session_id):
+    def get_session(self, app_path: str, session_id: ID) -> ServerSession:
         ''' Get an active a session by name application path and session ID.
 
         Args:
@@ -210,7 +217,7 @@ class BaseServer:
         '''
         return self._tornado.get_session(app_path, session_id)
 
-    def get_sessions(self, app_path=None):
+    def get_sessions(self, app_path: str | None = None) -> List[ServerSession]:
         ''' Gets all currently active sessions for applications.
 
         Args:
@@ -225,12 +232,12 @@ class BaseServer:
         '''
         if app_path is not None:
             return self._tornado.get_sessions(app_path)
-        all_sessions = []
+        all_sessions: List[ServerSession] = []
         for path in self._tornado.app_paths:
             all_sessions += self._tornado.get_sessions(path)
         return all_sessions
 
-    def show(self, app_path, browser=None, new='tab'):
+    def show(self, app_path: str, browser: str | None = None, new: BrowserTarget = "tab") -> None:
         ''' Opens an app in a browser window or tab.
 
         This method is useful for testing or running Bokeh server applications
@@ -268,7 +275,7 @@ class BaseServer:
         view(url, browser=browser, new=new)
 
     _atexit_ran = False
-    def _atexit(self):
+    def _atexit(self) -> None:
         if self._atexit_ran:
             return
         self._atexit_ran = True
@@ -277,13 +284,13 @@ class BaseServer:
         if not self._stopped:
             self.stop(wait=False)
 
-    def _sigterm(self, signum, frame):
-        print("Received signal %d, shutting down" % (signum,))
+    def _sigterm(self, signum: signal.Signals, frame: FrameType) -> None:
+        print(f"Received signal {signum}, shutting down")
         # Tell self._loop.start() to return.
         self._loop.add_callback_from_signal(self._loop.stop)
 
     @property
-    def port(self):
+    def port(self) -> int:
         ''' The configured port number that the server listens on for HTTP requests
         '''
         sock = next(
@@ -293,7 +300,7 @@ class BaseServer:
         return sock.getsockname()[1]
 
     @property
-    def address(self):
+    def address(self) -> str:
         ''' The configured address that the server listens on for HTTP requests
         '''
         sock = next(
@@ -303,12 +310,12 @@ class BaseServer:
         return sock.getsockname()[0]
 
     @property
-    def prefix(self):
+    def prefix(self) -> str:
         ''' The configured URL prefix to use for all Bokeh server paths. '''
         return self._tornado.prefix
 
     @property
-    def index(self):
+    def index(self) -> str | None:
         ''' A path to a Jinja2 template to use for index at "/" '''
         return self._tornado.index
 
@@ -338,7 +345,7 @@ class Server(BaseServer):
 
     '''
 
-    def __init__(self, applications, io_loop=None, http_server_kwargs=None, **kwargs):
+    def __init__(self, applications, io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs):
         ''' Create a ``Server`` instance.
 
         Args:
@@ -438,7 +445,7 @@ class Server(BaseServer):
         super().__init__(io_loop, tornado_app, http_server)
 
     @property
-    def port(self):
+    def port(self) -> int:
         ''' The configured port number that the server listens on for HTTP
         requests.
 
@@ -490,7 +497,7 @@ class _ServerOpts(Options):
     A path to a Jinja2 template to use for the index "/"
     """)
 
-    allow_websocket_origin = Nullable(List(String), help="""
+    allow_websocket_origin = Nullable(p.List(String), help="""
     A list of hosts that can connect to the websocket.
 
     This is typically required when embedding a Bokeh server app in an external

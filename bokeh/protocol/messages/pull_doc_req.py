@@ -17,8 +17,11 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ..message import Message
+from ..message import Empty, Message
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +39,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class pull_doc_req(Message):
+class pull_doc_req(Message[Empty]):
     ''' Define the ``PULL-DOC-REQ`` message for requesting a Bokeh server reply
     with a new Bokeh Document.
 
@@ -44,10 +47,10 @@ class pull_doc_req(Message):
 
     '''
 
-    msgtype   = 'PULL-DOC-REQ'
+    msgtype = 'PULL-DOC-REQ'
 
     @classmethod
-    def create(cls, **metadata):
+    def create(cls, **metadata: Any) -> pull_doc_req:
         ''' Create an ``PULL-DOC-REQ`` message
 
         Any keyword arguments will be put into the message ``metadata``
@@ -55,7 +58,7 @@ class pull_doc_req(Message):
 
         '''
         header = cls.create_header()
-        return cls(header, metadata, {})
+        return cls(header, metadata, Empty())
 
 #-----------------------------------------------------------------------------
 # Private API

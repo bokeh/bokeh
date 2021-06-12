@@ -17,8 +17,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from ..message import Message
+from ...core.types import ID
+from ..message import Empty, Message
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +40,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ok(Message):
+class ok(Message[Empty]):
     ''' Define the ``OK`` message for acknowledging successful handling of a
     previous message.
 
@@ -44,10 +48,10 @@ class ok(Message):
 
     '''
 
-    msgtype  = 'OK'
+    msgtype = 'OK'
 
     @classmethod
-    def create(cls, request_id, **metadata):
+    def create(cls, request_id: ID, **metadata: Any) -> ok:
         ''' Create an ``OK`` message
 
         Args:
@@ -59,7 +63,7 @@ class ok(Message):
 
         '''
         header = cls.create_header(request_id=request_id)
-        return cls(header, metadata, {})
+        return cls(header, metadata, Empty())
 
 #-----------------------------------------------------------------------------
 # Private API

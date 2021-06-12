@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..application import SessionContext
 from .lifecycle import LifecycleHandler
 
 #-----------------------------------------------------------------------------
@@ -43,8 +44,8 @@ class DocumentLifecycleHandler(LifecycleHandler):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
         self._on_session_destroyed = _on_session_destroyed
 
 #-----------------------------------------------------------------------------
@@ -55,7 +56,7 @@ class DocumentLifecycleHandler(LifecycleHandler):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _on_session_destroyed(session_context):
+def _on_session_destroyed(session_context: SessionContext) -> None:
     '''
     Calls any on_session_destroyed callbacks defined on the Document
     '''
@@ -65,9 +66,8 @@ def _on_session_destroyed(session_context):
         try:
             callback(session_context)
         except Exception as e:
-            log.warning('DocumentLifeCycleHandler on_session_destroyed '
-                        'callback %s failed with following error: %s'
-                        % (callback, e))
+            log.warning("DocumentLifeCycleHandler on_session_destroyed "
+                        f"callback {callback} failed with following error: {e}")
     if callbacks:
         # If any session callbacks were defined garbage collect after deleting all references
         del callback

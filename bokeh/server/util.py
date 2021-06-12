@@ -21,6 +21,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Sequence,
+    Tuple,
+)
+
+if TYPE_CHECKING:
+    from socket import socket
+
 # External imports
 from tornado import netutil
 
@@ -39,7 +50,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def bind_sockets(address, port):
+def bind_sockets(address: str, port: int) -> Tuple[List[socket], int]:
     ''' Bind a socket to a port on an address.
 
     Args:
@@ -68,7 +79,7 @@ def bind_sockets(address, port):
         assert actual_port == port
     return ss, actual_port
 
-def check_allowlist(host, allowlist):
+def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
     ''' Check a given request host against a allowlist.
 
     Args:
@@ -94,7 +105,7 @@ def check_allowlist(host, allowlist):
 
     return any(match_host(host, pattern) for pattern in allowlist)
 
-def create_hosts_allowlist(host_list, port):
+def create_hosts_allowlist(host_list: Sequence[str], port: int) -> List[str]:
     '''
 
     This allowlist can be used to restrict websocket or other connections to
@@ -128,7 +139,7 @@ def create_hosts_allowlist(host_list, port):
     if not host_list:
         return ['localhost:' + str(port)]
 
-    hosts = []
+    hosts: List[str] = []
     for host in host_list:
         if '*' in host:
             log.warning(
@@ -157,7 +168,7 @@ def create_hosts_allowlist(host_list, port):
             raise ValueError("Invalid host value: %s" % host)
     return hosts
 
-def match_host(host, pattern):
+def match_host(host: str, pattern: str) -> bool:
     ''' Match a host string against a pattern
 
     Args:
@@ -222,13 +233,13 @@ def match_host(host, pattern):
     if pattern_port is not None and host_port != pattern_port:
         return False
 
-    host = host.split('.')
-    pattern = pattern.split('.')
+    host_parts = host.split('.')
+    pattern_parts = pattern.split('.')
 
-    if len(pattern) > len(host):
+    if len(pattern_parts) > len(host_parts):
         return False
 
-    for h, p in zip(host, pattern):
+    for h, p in zip(host_parts, pattern_parts):
         if h == p or p == '*':
             continue
         else:

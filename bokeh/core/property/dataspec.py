@@ -20,6 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
+# External imports
+from typing_extensions import TypedDict
+
 # Bokeh imports
 from ... import colors
 from ...util.deprecation import deprecated
@@ -47,6 +53,11 @@ from .visual import (
     HatchPatternType,
     MarkerType,
 )
+
+if TYPE_CHECKING:
+    from ...core.types import Unknown
+    from ...models.expressions import Expression
+    from ...models.transforms import Transform
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -403,7 +414,7 @@ class UnitsSpec(NumberSpec):
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         units_default = self._units_type._default
         return f"{self.__class__.__name__}(units_default={units_default!r})"
 
@@ -617,7 +628,19 @@ class ColorSpec(DataSpec):
 
 # DataSpec helpers ------------------------------------------------------------
 
-def expr(expression, transform=None):
+class Expr(TypedDict, total=False):
+    expr: Expression
+    transform: Transform | None
+
+class Field(TypedDict, total=False):
+    field: str
+    transform: Transform | None
+
+class Value(TypedDict, total=False):
+    value: Unknown
+    transform: Transform | None
+
+def expr(expression: Expression, transform: Transform | None = None) -> Expr:
     """ Convenience function to explicitly return an "expr" specification for
     a Bokeh |DataSpec| property.
 
@@ -636,11 +659,10 @@ def expr(expression, transform=None):
 
     """
     if transform:
-        return dict(expr=expression, transform=transform)
-    return dict(expr=expression)
+        return Expr(expr=expression, transform=transform)
+    return Expr(expr=expression)
 
-
-def field(name, transform=None):
+def field(name: str, transform: Transform | None = None) -> Field:
     """ Convenience function to explicitly return a "field" specification for
     a Bokeh |DataSpec| property.
 
@@ -659,10 +681,10 @@ def field(name, transform=None):
 
     """
     if transform:
-        return dict(field=name, transform=transform)
-    return dict(field=name)
+        return Field(field=name, transform=transform)
+    return Field(field=name)
 
-def value(val, transform=None):
+def value(val: Unknown, transform: Transform | None = None) -> Value:
     """ Convenience function to explicitly return a "value" specification for
     a Bokeh |DataSpec| property.
 
@@ -690,8 +712,8 @@ def value(val, transform=None):
 
     """
     if transform:
-        return dict(value=val, transform=transform)
-    return dict(value=val)
+        return Value(value=val, transform=transform)
+    return Value(value=val)
 
 #-----------------------------------------------------------------------------
 # Dev API

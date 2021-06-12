@@ -1,5 +1,6 @@
 queries:
   - exclude: js/syntax-error
+  - exclude: py/import-and-import-from
 extraction:
   javascript:
     index:

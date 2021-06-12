@@ -25,13 +25,7 @@ import errno
 import os
 import sys
 import warnings
-from typing import (
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-)
+from typing import Dict, Iterator, List
 
 # Bokeh imports
 from bokeh.application import Application
@@ -57,7 +51,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def die(message: str, status: Optional[int] = 1) -> None:
+def die(message: str, status: int = 1) -> None:
     ''' Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
@@ -82,7 +76,7 @@ call "bokeh serve" on the directory instead. For example:
 If this is not the case, renaming main.py will suppress this warning.
 """
 
-def build_single_handler_application(path: str, argv: Optional[Sequence[str]] = None) -> Application:
+def build_single_handler_application(path: str, argv: List[str] | None = None) -> Application:
     ''' Return a Bokeh application built using a single handler for a script,
     notebook, or directory.
 
@@ -147,7 +141,7 @@ def build_single_handler_application(path: str, argv: Optional[Sequence[str]] = 
 
     return application
 
-def build_single_handler_applications(paths: List[str], argvs: Optional[Dict[str, List[str]]] = None) -> Dict[str, Application]:
+def build_single_handler_applications(paths: List[str], argvs: Dict[str, List[str]] | None = None) -> Dict[str, Application]:
     ''' Return a dictionary mapping routes to Bokeh applications built using
     single handlers, for specified files or directories.
 
@@ -187,7 +181,7 @@ def build_single_handler_applications(paths: List[str], argvs: Optional[Dict[str
 
 
 @contextlib.contextmanager
-def report_server_init_errors(address: Optional[str] = None, port: Optional[int] = None, **kwargs: str) -> Iterator[None]:
+def report_server_init_errors(address: str | None = None, port: int | None = None, **kwargs: str) -> Iterator[None]:
     ''' A context manager to help print more informative error messages when a
     ``Server`` cannot be started due to a network problem.
 
