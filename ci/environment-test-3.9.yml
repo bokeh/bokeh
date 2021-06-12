@@ -58,6 +58,7 @@ dependencies:
     - types-colorama
     - types-pillow
     - types-pyyaml
+    - flake8-pyi
 
   # examples
   - flask >=1.0
