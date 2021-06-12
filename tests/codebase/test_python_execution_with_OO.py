@@ -21,6 +21,7 @@ import pytest ; pytest
 import os
 from subprocess import PIPE, Popen
 from sys import executable as python
+from typing import List, Set
 
 from . import TOP_PATH
 
@@ -28,7 +29,7 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
-skiplist = {}
+skiplist: Set[str] = set()
 
 def test_python_execution_with_OO() -> None:
     ''' Running python with -OO will discard docstrings (__doc__ is None)
@@ -41,7 +42,7 @@ def test_python_execution_with_OO() -> None:
     '''
     os.chdir(TOP_PATH)
 
-    imports = []
+    imports: List[str] = []
     for path, _, files in os.walk("bokeh"):
         if "tests" in path:
             continue
