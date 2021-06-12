@@ -32,7 +32,7 @@ def test_flake8() -> None:
 
     '''
     chdir(TOP_PATH)
-    proc = run(["flake8", *ls_files("*.py")], capture_output=True)
+    proc = run(["flake8", *ls_files("*.py", "*.pyi")], capture_output=True)
     assert proc.returncode == 0, f"Flake8 issues:\n{proc.stdout.decode('utf-8')}"
 
 #-----------------------------------------------------------------------------
