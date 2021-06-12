@@ -43,7 +43,10 @@ warn_unused_configs = true
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
-module = "bokeh.*"
+module = [
+    "bokeh.*",
+    "tests.*",
+]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
@@ -72,5 +75,6 @@ module = [
     "bokeh.util.sampledata",
     "bokeh.util.token",
     "bokeh.util.webdriver",
+    "tests.codebase.test_code_quality",
 ]
 ignore_errors = false

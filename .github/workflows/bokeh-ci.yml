@@ -92,6 +92,7 @@ jobs:
         run: |
           mypy bokeh
           mypy release
+          mypy tests
 
   examples:
     needs: build
