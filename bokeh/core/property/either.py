@@ -66,7 +66,7 @@ class Either(ParameterizedProperty):
 
     """
 
-    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help=None, serialized=None, readonly=False):
+    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help=None, serialized=None, readonly=False) -> None:
         type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = default if default is not Intrinsic else type_params[0]._raw_default()
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)

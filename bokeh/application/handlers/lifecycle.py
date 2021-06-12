@@ -53,7 +53,7 @@ class LifecycleHandler(Handler):
     _on_session_created: Callable[[SessionContext], None]
     _on_session_destroyed: Callable[[SessionContext], None]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._on_server_loaded = _do_nothing
         self._on_server_unloaded = _do_nothing

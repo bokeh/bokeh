@@ -50,7 +50,7 @@ class SomeModelInTestApplication(Model):
 class RequestHandler(Handler):
     _failed = False
     _static = None
-    def __init__(self, data):
+    def __init__(self, data) -> None:
         self._data = data
 
     def process_request(self, request):

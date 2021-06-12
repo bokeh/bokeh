@@ -42,7 +42,7 @@ class ServerConnection:
 
     '''
 
-    def __init__(self, protocol, socket, application_context, session):
+    def __init__(self, protocol, socket, application_context, session) -> None:
         self._protocol = protocol
         self._socket = socket
         self._application_context = application_context

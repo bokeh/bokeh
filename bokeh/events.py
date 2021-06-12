@@ -217,7 +217,7 @@ class ModelEvent(Event):
 
     _model_id: ID | None
 
-    def __init__(self, model: Model | None):
+    def __init__(self, model: Model | None) -> None:
         ''' Create a new base event.
 
         Args:
@@ -236,7 +236,7 @@ class ButtonClick(ModelEvent):
     '''
     event_name = 'button_click'
 
-    def __init__(self, model: AbstractButton | None):
+    def __init__(self, model: AbstractButton | None) -> None:
         from .models.widgets import AbstractButton
         if model is not None and not isinstance(model, AbstractButton):
             clsname = self.__class__.__name__
@@ -249,7 +249,7 @@ class MenuItemClick(ModelEvent):
     '''
     event_name = 'menu_item_click'
 
-    def __init__(self, model: Model, item: str | None = None):
+    def __init__(self, model: Model, item: str | None = None) -> None:
         self.item = item
         super().__init__(model=model)
 
@@ -257,7 +257,7 @@ class PlotEvent(ModelEvent):
     ''' The base class for all events applicable to Plot models.
 
     '''
-    def __init__(self, model: Plot | None):
+    def __init__(self, model: Plot | None) -> None:
         from .models import Plot
         if model is not None and not isinstance(model, Plot):
             raise ValueError(f"{self.__class__.__name__} event only applies to Plot models")
@@ -328,7 +328,7 @@ class SelectionGeometry(PlotEvent):
     '''
     event_name = "selectiongeometry"
 
-    def __init__(self, model: Plot | None, geometry: GeometryData | None = None, final: bool = True):
+    def __init__(self, model: Plot | None, geometry: GeometryData | None = None, final: bool = True) -> None:
         self.geometry = geometry
         self.final = final
         super().__init__(model=model)
@@ -339,7 +339,7 @@ class Reset(PlotEvent):
     '''
     event_name = "reset"
 
-    def __init__(self, model: Plot | None):
+    def __init__(self, model: Plot | None) -> None:
         super().__init__(model=model)
 
 class PointEvent(PlotEvent):

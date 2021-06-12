@@ -72,7 +72,7 @@ class Alias(Property): # lgtm [py/missing-call-to-init]
     serialized = False
     _default = None
 
-    def __init__(self, aliased_name: str, *, help: Optional[str] = None):
+    def __init__(self, aliased_name: str, *, help: Optional[str] = None) -> None:
         self.aliased_name = aliased_name
         self.help = help
 

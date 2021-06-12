@@ -97,7 +97,7 @@ class BaseServer:
 
     '''
 
-    def __init__(self, io_loop: IOLoop, tornado_app: BokehTornado, http_server: HTTPServer):
+    def __init__(self, io_loop: IOLoop, tornado_app: BokehTornado, http_server: HTTPServer) -> None:
         ''' Create a ``BaseServer`` instance.
 
         Args:
@@ -345,7 +345,7 @@ class Server(BaseServer):
 
     '''
 
-    def __init__(self, applications, io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs):
+    def __init__(self, applications, io_loop: IOLoop | None = None, http_server_kwargs=None, **kwargs) -> None:
         ''' Create a ``Server`` instance.
 
         Args:

@@ -114,7 +114,7 @@ class _BokehStructureGraph:
 
     """
 
-    def __init__(self, model: Model):
+    def __init__(self, model: Model) -> None:
 
         self._model = model
         self._graph = self._make_graph(model)

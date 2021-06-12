@@ -196,7 +196,7 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         if "view" not in kwargs and "data_source" in kwargs:
             self.view = CDSView(source=self.data_source)

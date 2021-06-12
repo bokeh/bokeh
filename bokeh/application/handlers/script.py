@@ -80,7 +80,7 @@ class ScriptHandler(CodeHandler):
 
     _origin = "Script"
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None):
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keywords:

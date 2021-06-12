@@ -519,7 +519,7 @@ def grid(children: List[LayoutDOM] | List[List[LayoutDOM]] | Row | Column = [], 
 class GridSpec:
     """ Simplifies grid layout specification. """
 
-    def __init__(self, nrows, ncols):
+    def __init__(self, nrows, ncols) -> None:
         self.nrows = nrows
         self.ncols = ncols
         self._arrangement = {}

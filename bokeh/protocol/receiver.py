@@ -105,7 +105,7 @@ class Receiver:
     _message: Message[Any] | None
     _buf_header: BufferHeader | None
 
-    def __init__(self, protocol: Protocol):
+    def __init__(self, protocol: Protocol) -> None:
         ''' Configure a Receiver with a specific Bokeh protocol.
 
         Args:

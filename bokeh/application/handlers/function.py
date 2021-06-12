@@ -89,7 +89,7 @@ class FunctionHandler(Handler):
     _trap_exceptions: bool
     _safe_to_fork: bool
 
-    def __init__(self, func: Callable[[Document], None], *, trap_exceptions: bool = False):
+    def __init__(self, func: Callable[[Document], None], *, trap_exceptions: bool = False) -> None:
         '''
 
         Args:

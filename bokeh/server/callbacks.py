@@ -62,7 +62,7 @@ class SessionCallback(metaclass=ABCMeta):
 
     _id: ID
 
-    def __init__(self, document: Document, callback: Callback, id: ID | None = None):
+    def __init__(self, document: Document, callback: Callback, id: ID | None = None) -> None:
         '''
 
          Args:
@@ -103,7 +103,7 @@ class NextTickCallback(SessionCallback):
     ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
-    def __init__(self, document: Document, callback: Callback, id: ID | None = None):
+    def __init__(self, document: Document, callback: Callback, id: ID | None = None) -> None:
         '''
 
          Args:
@@ -125,7 +125,7 @@ class PeriodicCallback(SessionCallback):
     specified periodic time interval.
 
     '''
-    def __init__(self, document: Document, callback: Callback, period: int, id: ID | None = None):
+    def __init__(self, document: Document, callback: Callback, period: int, id: ID | None = None) -> None:
         '''
 
         Args:
@@ -158,7 +158,7 @@ class TimeoutCallback(SessionCallback):
     time interval passes.
 
     '''
-    def __init__(self, document: Document, callback: Callback, timeout: int, id: ID | None = None):
+    def __init__(self, document: Document, callback: Callback, timeout: int, id: ID | None = None) -> None:
         '''
 
         Args:
@@ -193,7 +193,7 @@ class DocumentCallbackGroup:
     '''
 
     '''
-    def __init__(self, io_loop: IOLoop | None = None):
+    def __init__(self, io_loop: IOLoop | None = None) -> None:
         '''
 
         '''

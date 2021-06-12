@@ -88,7 +88,7 @@ class DashPattern(Either):
         "dashdot": [6,4,2,4],
     }
 
-    def __init__(self, default=[], help=None):
+    def __init__(self, default=[], help=None) -> None:
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super().__init__(*types, default=default, help=help)
 
@@ -129,7 +129,7 @@ class HatchPatternType(Either):
 
     """
 
-    def __init__(self, default=[], help=None):
+    def __init__(self, default=[], help=None) -> None:
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
         super().__init__(*types, default=default, help=help)
 
@@ -199,7 +199,7 @@ class MinMaxBounds(Either):
     want to constrain one end of the plot, you can set min or max to
     ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` """
 
-    def __init__(self, accept_datetime=False, default='auto', help=None):
+    def __init__(self, accept_datetime=False, default='auto', help=None) -> None:
         types = (
             Auto,
 
@@ -244,7 +244,7 @@ class MarkerType(Enum):
     """
 
     """
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         super().__init__(enums.MarkerType, **kw)
 
 #-----------------------------------------------------------------------------

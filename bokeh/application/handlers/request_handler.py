@@ -55,7 +55,7 @@ class RequestHandler(Handler):
 
     _process_request: Callable[[HTTPServerRequest], Dict[str, Any]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._process_request = _return_empty
 

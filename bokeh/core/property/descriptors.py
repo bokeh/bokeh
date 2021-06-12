@@ -142,7 +142,7 @@ class AliasPropertyDescriptor(Generic[T]):
 
     serialized: bool = False
 
-    def __init__(self, name: str, aliased_name: str, property: Property[T]):
+    def __init__(self, name: str, aliased_name: str, property: Property[T]) -> None:
         self.name = name
         self.aliased_name = aliased_name
         self.property = property
@@ -174,7 +174,7 @@ class PropertyDescriptor(Generic[T]):
     #property: Property[T]
     __doc__: str | None
 
-    def __init__(self, name: str, property: Property[T]):
+    def __init__(self, name: str, property: Property[T]) -> None:
         """ Create a PropertyDescriptor for basic Bokeh properties.
 
         Args:
@@ -767,7 +767,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
     """
 
-    def __init__(self, name, property, units_property):
+    def __init__(self, name, property, units_property) -> None:
         """
 
         Args:

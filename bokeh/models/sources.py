@@ -207,11 +207,11 @@ class ColumnDataSource(ColumnarDataSource):
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
 
     @overload
-    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny): ...
+    def __init__(self, data: DataDict | pd.DataFrame | pd.core.groupby.GroupBy, **kwargs: TAny) -> None: ...
     @overload
-    def __init__(self, **kwargs: TAny): ...
+    def __init__(self, **kwargs: TAny) -> None: ...
 
-    def __init__(self, *args: TAny, **kwargs: TAny):
+    def __init__(self, *args: TAny, **kwargs: TAny) -> None:
         ''' If called with a single argument that is a dict or
         ``pandas.DataFrame``, treat that implicitly as the "data" attribute.
 

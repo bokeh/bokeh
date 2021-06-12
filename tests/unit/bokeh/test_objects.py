@@ -414,7 +414,7 @@ class TestContainerMutation:
 
 class HasListProp(Model):
     foo = List(String)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class TestListMutation(TestContainerMutation):
@@ -548,12 +548,12 @@ class TestListMutation(TestContainerMutation):
 
 class HasStringDictProp(Model):
     foo = Dict(String, Any)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class HasIntDictProp(Model):
     foo = Dict(Int, Any)
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class TestDictMutation(TestContainerMutation):

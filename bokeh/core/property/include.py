@@ -46,7 +46,7 @@ class Include(PropertyDescriptorFactory):
 
     """
 
-    def __init__(self, delegate, help="", prefix=None):
+    def __init__(self, delegate, help="", prefix=None) -> None:
         if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
             raise ValueError(f"expected a subclass of HasProps, got {delegate!r}")
 

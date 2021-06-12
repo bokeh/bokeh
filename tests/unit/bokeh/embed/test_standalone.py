@@ -274,7 +274,7 @@ class Test_file_html:
     def test_return_type(self, test_plot) -> None:
 
         class fake_template:
-            def __init__(self, tester, user_template_variables=None):
+            def __init__(self, tester, user_template_variables=None) -> None:
                 self.tester = tester
                 self.template_variables = {
                     "title",

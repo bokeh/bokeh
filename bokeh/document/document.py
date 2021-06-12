@@ -1282,7 +1282,7 @@ class StaticSerializer:
     _refs: Dict[object, Any] = {} # obj -> ref (dict, preferably dataclass)
     _defs: List[Any] = [] # (ref & def)[] (dict, preferably dataclass)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._refs = {} # obj -> ref (dict, preferably dataclass)
         self._defs = [] # (ref & def)[] (dict, preferably dataclass)
 

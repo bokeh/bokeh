@@ -54,7 +54,7 @@ class SessionHandler(AuthMixin, RequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
+    def __init__(self, tornado_app, *args, **kw) -> None:
         self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application

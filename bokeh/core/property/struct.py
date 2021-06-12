@@ -41,7 +41,7 @@ class Struct(ParameterizedProperty):
 
 
     """
-    def __init__(self, **fields):
+    def __init__(self, **fields) -> None:
         default = fields.pop("default", None)
         help = fields.pop("help", None)
 

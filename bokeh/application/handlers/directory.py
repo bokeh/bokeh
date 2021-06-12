@@ -114,7 +114,7 @@ class DirectoryHandler(Handler):
     _static: str | None
     _template: Template | None
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = []):
+    def __init__(self, *, filename: PathLike, argv: List[str] = []) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"

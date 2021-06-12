@@ -102,7 +102,7 @@ class CommsHandle:
     _cellno: int | None
     _doc: Document
 
-    def __init__(self, comms: Comm, cell_doc: Document):
+    def __init__(self, comms: Comm, cell_doc: Document) -> None:
         self._cellno = None
         try:
             from IPython import get_ipython

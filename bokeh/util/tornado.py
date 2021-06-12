@@ -84,7 +84,7 @@ class _AsyncPeriodic:
     _started: bool
     _stopped: bool
 
-    def __init__(self, func: Callback, period: int, io_loop: IOLoop):
+    def __init__(self, func: Callback, period: int, io_loop: IOLoop) -> None:
         self._func = func
         self._loop = io_loop
         self._period = period
@@ -143,7 +143,7 @@ class _CallbackGroup:
 
     _loop: IOLoop
 
-    def __init__(self, io_loop: IOLoop | None = None):
+    def __init__(self, io_loop: IOLoop | None = None) -> None:
         if io_loop is None:
             raise ValueError("must provide an io loop")
         self._loop = io_loop

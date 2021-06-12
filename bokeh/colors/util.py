@@ -102,7 +102,7 @@ class NamedColor(RGB):
     __all__: ClassVar[List[str]] = []
     colors: ClassVar[List[NamedColor]] = []
 
-    def __init__(self, name: str, r: int, g: int, b: int):
+    def __init__(self, name: str, r: int, g: int, b: int) -> None:
         '''
 
         Args:

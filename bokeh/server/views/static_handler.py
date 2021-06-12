@@ -47,7 +47,7 @@ class StaticHandler(StaticFileHandler):
     JavaScript and CSS resources.
 
     '''
-    def __init__(self, tornado_app, *args, **kw):
+    def __init__(self, tornado_app, *args, **kw) -> None:
         kw['path'] = settings.bokehjsdir()
 
         # Note: tornado_app is stored as self.application

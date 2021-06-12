@@ -225,7 +225,7 @@ class RenderItem:
 
 
 class RenderRoot:
-    def __init__(self, elementid: ID, id: ID, name: str | None = None, tags: List[Any] | None = None):
+    def __init__(self, elementid: ID, id: ID, name: str | None = None, tags: List[Any] | None = None) -> None:
         self.elementid = elementid
         self.id = id
         self.name = name or ""
@@ -239,7 +239,7 @@ class RenderRoot:
 
 
 class RenderRoots:
-    def __init__(self, roots: Dict[Model, ID]):
+    def __init__(self, roots: Dict[Model, ID]) -> None:
         self._roots = roots
 
     def __iter__(self) -> Iterator[RenderRoot]:

@@ -326,7 +326,7 @@ class MercatorAxis(LinearAxis):
             (default: 'lat')
 
     '''
-    def __init__(self, dimension='lat', **kw):
+    def __init__(self, dimension='lat', **kw) -> None:
         super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually

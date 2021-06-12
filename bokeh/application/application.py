@@ -89,7 +89,7 @@ class Application:
     _handlers: List[Handler]
     _metadata: Dict[str, Any] | None
 
-    def __init__(self, *handlers: Handler, metadata: Dict[str, Any] | None = None):
+    def __init__(self, *handlers: Handler, metadata: Dict[str, Any] | None = None) -> None:
         ''' Application factory.
 
         Args:
@@ -401,7 +401,7 @@ class SessionContext(metaclass=ABCMeta):
     _server_context: ServerContext
     _id: ID
 
-    def __init__(self, server_context: ServerContext, session_id: ID):
+    def __init__(self, server_context: ServerContext, session_id: ID) -> None:
         '''
 
         '''

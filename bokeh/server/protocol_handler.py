@@ -57,7 +57,7 @@ class ProtocolHandler:
 
     '''
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._handlers = dict()
 
         self._handlers['PULL-DOC-REQ'] = ServerSession.pull

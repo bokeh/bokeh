@@ -221,7 +221,7 @@ class Interpolator(Transform):
     """)
 
     # Define an initialization routine to do some cross checking of input values
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 

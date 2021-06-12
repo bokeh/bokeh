@@ -32,7 +32,7 @@ import bokeh.client.states as bcs # isort:skip
 class MockConnection:
     state: Any
 
-    def __init__(self, to_pop: Message[Any] | None = None):
+    def __init__(self, to_pop: Message[Any] | None = None) -> None:
         self.state = None
         self._to_pop = to_pop
 
