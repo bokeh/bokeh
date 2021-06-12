@@ -22,6 +22,21 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import wraps
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    TypeVar,
+    cast,
+)
+
+# External imports
+from typing_extensions import Literal, Protocol
+
+## Bokeh imports
+if TYPE_CHECKING:
+    from ..server.callbacks import SessionCallback
+    from .document import Callback, Document, NextTickCallback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +51,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def without_document_lock(func):
+F = TypeVar("F", bound=Callable[..., Any])
+
+class NoLockCallback(Protocol[F]): # type: ignore # F_co, needs F & {nolock: true}
+    __call__: F
+    nolock: Literal[True]
+
+def without_document_lock(func: F) -> NoLockCallback[F]:
     ''' Wrap a callback function to execute without first obtaining the
     document lock.
 
@@ -63,15 +84,18 @@ def without_document_lock(func):
 
     '''
     @wraps(func)
-    def wrapper(*args, **kw):
+    def _wrapper(*args: Any, **kw: Any):
         return func(*args, **kw)
+    wrapper = cast(NoLockCallback[F], _wrapper)
     wrapper.nolock = True
     return wrapper
 
 
-UNSAFE_DOC_ATTR_USAGE_MSG = ("Only 'add_next_tick_callback' may be used safely without taking the document lock; "
-                             "to make other changes to the document, add a next tick callback and make your changes "
-                             "from that callback.")
+UNSAFE_DOC_ATTR_USAGE_MSG = (
+    "Only 'add_next_tick_callback' may be used safely without taking the document lock; "
+    "to make other changes to the document, add a next tick callback and make your changes "
+    "from that callback."
+)
 
 
 class UnlockedDocumentProxy:
@@ -81,19 +105,19 @@ class UnlockedDocumentProxy:
 
     '''
 
-    def __init__(self, doc):
+    def __init__(self, doc: Document):
         '''
 
         '''
         self._doc = doc
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         '''
 
         '''
         raise AttributeError(UNSAFE_DOC_ATTR_USAGE_MSG)
 
-    def add_next_tick_callback(self, callback):
+    def add_next_tick_callback(self, callback: Callback) -> NextTickCallback:
         ''' Add a "next tick" callback.
 
         Args:
@@ -102,14 +126,14 @@ class UnlockedDocumentProxy:
         '''
         return self._doc.add_next_tick_callback(callback)
 
-    def remove_next_tick_callback(self, callback):
+    def remove_next_tick_callback(self, callback: SessionCallback) -> None:
         ''' Remove a "next tick" callback.
 
         Args:
             callback (callable) :
 
         '''
-        return self._doc.remove_next_tick_callback(callback)
+        self._doc.remove_next_tick_callback(callback)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -24,10 +24,10 @@ import warnings
 from dataclasses import dataclass
 from typing import (
     Any,
+    Callable,
     Dict,
     Iterator,
     List,
-    Optional,
     Sequence,
     Tuple,
     Union,
@@ -133,8 +133,8 @@ def process_active_tools(toolbar: Toolbar, tool_map: Dict[str, Tool],
     else:
         raise ValueError(f"Got unknown {active_multi!r} for 'active_multi', which was not a string supplied in 'tools' argument")
 
-def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
-        tooltips: Optional[Union[str, Tuple[str, str]]] = None) -> Tuple[List[Tool], Dict[str, Tool]]:
+def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
+        tooltips: str | Tuple[str, str] | None = None) -> Tuple[List[Tool], Dict[str, Tool]]:
     """ Adds tools to the plot object
 
     Args:
@@ -153,15 +153,15 @@ def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
 
     repeated_tools = [ str(obj) for obj in _collect_repeated_tools(tool_objs) ]
     if repeated_tools:
-        warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+        warnings.warn(f"{','.join(repeated_tools)} are being repeated")
 
     if tooltips is not None:
         for tool_obj in tool_objs:
             if isinstance(tool_obj, HoverTool):
-                tool_obj.tooltips = tooltips
+                tool_obj.tooltips = tooltips # type: ignore
                 break
         else:
-            tool_objs.append(HoverTool(tooltips=tooltips)) # type: ignore
+            tool_objs.append(HoverTool(tooltips=tooltips))
 
     return tool_objs, tool_map
 
@@ -169,9 +169,9 @@ def process_tools_arg(plot: Plot, tools: Union[str, Sequence[Union[Tool, str]]],
 # Private API
 #-----------------------------------------------------------------------------
 
-def _resolve_tools(tools: Union[str, Sequence[Union[Tool, str]]]) -> Tuple[List[Tool], Dict[str, Tool]]:
-    tool_objs = []
-    tool_map = {}
+def _resolve_tools(tools: str | Sequence[Tool | str]) -> Tuple[List[Tool], Dict[str, Tool]]:
+    tool_objs: List[Tool] = []
+    tool_map: Dict[str, Tool] = {}
 
     if not isinstance(tools, str):
         temp_tool_str = ""
@@ -201,7 +201,7 @@ def _collect_repeated_tools(tool_objs: List[Tool]) -> Iterator[Tool]:
         obj: Tool
         properties: Dict[str, Any]
 
-    key = lambda obj: obj.__class__.__name__
+    key: Callable[[Tool], str] = lambda obj: obj.__class__.__name__
 
     for _, group in itertools.groupby(sorted(tool_objs, key=key), key=key):
         rest = [ Item(obj, obj.properties_with_values()) for obj in group ]

@@ -24,15 +24,15 @@ log = logging.getLogger(__name__)
 import io
 import os
 import warnings
+from contextlib import contextmanager
 from os.path import abspath, splitext
 from tempfile import mkstemp
 from typing import (
     TYPE_CHECKING,
     Any,
+    Iterator,
     List,
-    Optional,
     Tuple,
-    Union,
     cast,
 )
 
@@ -46,9 +46,12 @@ if TYPE_CHECKING:
 from ..core.types import PathLike
 from ..document import Document
 from ..embed import file_html
-from ..models.layouts import LayoutDOM
 from ..resources import INLINE, Resources
 from .util import default_filename
+
+if TYPE_CHECKING:
+    from ..models.layouts import LayoutDOM
+    from ..models.plots import Plot
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,8 +70,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> str:
+def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -118,8 +121,8 @@ def export_png(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] 
 
     return abspath(filename)
 
-def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
+def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -154,8 +157,8 @@ def export_svg(obj: Union[LayoutDOM, Document], *, filename: Optional[PathLike] 
     svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout)
     return _write_collection(svgs, filename, "svg")
 
-def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = None, width: Optional[int] = None,
-        height: Optional[int] = None, webdriver: Optional[WebDriver] = None, timeout: int = 5) -> List[str]:
+def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width: int | None = None,
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -200,8 +203,8 @@ def export_svgs(obj: Union[LayoutDOM, Document], *, filename: Optional[str] = No
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
-        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> Image:
+def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> Image.Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
@@ -242,8 +245,8 @@ def get_screenshot_as_png(obj: Union[LayoutDOM, Document], *, driver: Optional[W
                  .crop((0, 0, width*dpr, height*dpr))
                  .resize((width, height)))
 
-def get_svg(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
-        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
+def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
@@ -258,8 +261,8 @@ def get_svg(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = No
 
     return svgs
 
-def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = None, timeout: int = 5,
-        resources: Resources = INLINE, width: Optional[int] = None, height: Optional[int] = None) -> List[str]:
+def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
@@ -274,28 +277,11 @@ def get_svgs(obj: Union[LayoutDOM, Document], *, driver: Optional[WebDriver] = N
 
     return svgs
 
-def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = INLINE,
-        width: Optional[int] = None, height: Optional[int] = None) -> str:
+def get_layout_html(obj: LayoutDOM | Document, *, resources: Resources = INLINE,
+        width: int | None = None, height: int | None = None) -> str:
     '''
 
     '''
-    resize = False
-    if width is not None or height is not None:
-        # Defer this import, it is expensive
-        from ..models.plots import Plot
-        if not isinstance(obj, Plot):
-            warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
-        else:
-            resize = True
-
-            old_width = obj.width
-            old_height = obj.height
-
-            if width is not None:
-                obj.width = width
-            if height is not None:
-                obj.height = height
-
     template = r"""\
     {% block preamble %}
     <style>
@@ -312,22 +298,26 @@ def get_layout_html(obj: Union[LayoutDOM, Document], *, resources: Resources = I
     {% endblock %}
     """
 
-    try:
-        html = file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
-    finally:
-        if resize:
-            assert isinstance(obj, Plot)
-            obj.width = old_width
-            obj.height = old_height
+    def html() -> str:
+        return file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
 
-    return html
+    if width is not None or height is not None:
+        # Defer this import, it is expensive
+        from ..models.plots import Plot
+        if not isinstance(obj, Plot):
+            warnings.warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
+        else:
+            with _resized(obj, width, height):
+                return html()
+
+    return html()
 
 def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
     '''
 
     '''
     from selenium.common.exceptions import TimeoutException
-    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support.wait import WebDriverWait
 
     def is_bokeh_loaded(driver: WebDriver) -> bool:
         return cast(bool, driver.execute_script('''
@@ -358,7 +348,22 @@ def wait_until_render_complete(driver: WebDriver, timeout: int) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _write_collection(items: List[str], filename: Optional[PathLike], ext: str) -> List[str]:
+@contextmanager
+def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]:
+    old_width = obj.width
+    old_height = obj.height
+
+    if width is not None:
+        obj.width = width
+    if height is not None:
+        obj.height = height
+
+    yield
+
+    obj.width = old_width
+    obj.height = old_height
+
+def _write_collection(items: List[str], filename: PathLike | None, ext: str) -> List[str]:
     if filename is None:
         filename = default_filename(ext)
     filename = os.fspath(filename)

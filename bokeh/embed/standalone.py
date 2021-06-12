@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from typing import (
     Any,
     Dict,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -128,7 +129,7 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
 
     return js, tag
 
-def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool = True,
+def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: bool = True,
                wrap_plot_info: bool = True, theme: ThemeLike = None) -> Tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
@@ -212,10 +213,14 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
 
     '''
     # 1) Convert single items and dicts into list
+    # XXX: was_single_object = isinstance(models, Model) #or isinstance(models, Document)
+    was_single_object = False
 
-    was_single_object = isinstance(models, Model) or isinstance(models, Document)
+    if isinstance(models, Model):
+        was_single_object = True
+        models = [models]
 
-    models = _check_models_or_docs(models)
+    models = _check_models_or_docs(models) # type: ignore # XXX: this API needs to be refined
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
@@ -223,11 +228,8 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     if isinstance(models, dict):
         model_keys = models.keys()
         dict_type = models.__class__
-        values = []
         # don't just use .values() to ensure we are in the same order as key list
-        for k in model_keys:
-            values.append(models[k])
-        models = values
+        models = [ models[k] for k in model_keys ]
 
     # 2) Append models to one document. Either pre-existing or new and render
     with OutputDocumentFor(models, apply_theme=theme):
@@ -241,10 +243,11 @@ def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool 
     def div_for_root(root: RenderRoot) -> str:
         return ROOT_DIV.render(root=root, macros=MACROS)
 
+    results: List[str] | List[RenderRoot]
     if wrap_plot_info:
         results = list(div_for_root(root) for root in render_item.roots)
     else:
-        results = render_item.roots
+        results = list(render_item.roots)
 
     # 3) convert back to the input shape
     result: Any
@@ -386,13 +389,13 @@ def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = Non
         doc.title = ""
         docs_json = standalone_docs_json([model])
 
-    doc = list(docs_json.values())[0]
-    root_id = doc['roots']['root_ids'][0]
+    doc_json = list(docs_json.values())[0]
+    root_id = doc_json['roots']['root_ids'][0]
 
     return {
         'target_id' : target,
         'root_id'   : root_id,
-        'doc'       : doc,
+        'doc'       : doc_json,
     }
 
 

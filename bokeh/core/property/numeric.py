@@ -109,7 +109,7 @@ class Interval(ParameterizedProperty):
         self.end = end
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         return f"{class_name}({self.interval_type}, {self.start!r}, {self.end!r})"
 

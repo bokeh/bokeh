@@ -25,6 +25,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Generic, TypeVar
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -37,7 +40,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Override:
+T = TypeVar("T")
+
+class Override(Generic[T]):
     """ Override attributes of Bokeh property in derived Models.
 
     When subclassing a Bokeh Model, it may be desirable to change some of the
@@ -87,14 +92,12 @@ class Override:
 
     """
 
-    def __init__(self, **kwargs):
-        if len(kwargs) == 0:
-            raise ValueError("Override() doesn't override anything, needs keyword args")
-        self.default_overridden = 'default' in kwargs
-        if self.default_overridden:
-            self.default = kwargs.pop('default')
-        if len(kwargs) > 0:
-            raise ValueError(f"Unknown keyword args to Override: {kwargs!r}")
+    default_overridden: bool
+    default: T
+
+    def __init__(self, *, default: T):
+        self.default_overridden = True
+        self.default = default
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -67,7 +67,7 @@ class Seq(ContainerProperty):
         self.item_type = self._validate_type_param(item_type)
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.item_type})"
 
     @property
@@ -166,7 +166,7 @@ class Dict(ContainerProperty):
         self.values_type = self._validate_type_param(values_type)
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.keys_type}, {self.values_type})"
 
     @property
@@ -274,7 +274,7 @@ class Tuple(ContainerProperty):
         self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
-    def __str__(self):
+    def __str__(self) -> str:
         item_types = ", ".join(str(x) for x in self.type_params)
         return f"{self.__class__.__name__}({item_types})"
 
@@ -320,7 +320,7 @@ class RelativeDelta(Dict):
         values = Int
         super().__init__(keys, values, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
 class RestrictedDict(Dict):

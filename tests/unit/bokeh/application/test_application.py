@@ -134,7 +134,7 @@ class Test_Application:
         a.create_document()
         assert a.metadata == "foo"
 
-    def test_failed_handler(self, caplog) -> None:
+    def test_failed_handler(self, caplog: pytest.LogCaptureFixture) -> None:
         a = baa.Application()
         handler = CodeHandler(filename="junk", source="bad(")
         a.add(handler)
@@ -196,7 +196,7 @@ class Test_Application:
         assert check_integrity.called
 
     @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch) -> None:
+    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         a = baa.Application()
         d = Document()

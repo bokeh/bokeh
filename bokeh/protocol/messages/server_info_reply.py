@@ -17,10 +17,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
+# External imports
+from typing_extensions import TypedDict
+
 # Bokeh imports
 from bokeh import __version__
 
 # Bokeh imports
+from ...core.types import ID
 from ..message import Message
 
 #-----------------------------------------------------------------------------
@@ -39,7 +46,14 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class server_info_reply(Message):
+class VersionInfo(TypedDict):
+    bokeh: str
+    server: str
+
+class ServerInfo(TypedDict):
+    version_info: VersionInfo
+
+class server_info_reply(Message[ServerInfo]):
     ''' Define the ``SERVER-INFO-REPLY`` message for replying to Server info
     requests from clients.
 
@@ -56,10 +70,10 @@ class server_info_reply(Message):
 
     '''
 
-    msgtype  = 'SERVER-INFO-REPLY'
+    msgtype = 'SERVER-INFO-REPLY'
 
     @classmethod
-    def create(cls, request_id, **metadata):
+    def create(cls, request_id: ID, **metadata: Any) -> server_info_reply:
         ''' Create an ``SERVER-INFO-REPLY`` message
 
         Args:
@@ -71,19 +85,17 @@ class server_info_reply(Message):
 
         '''
         header = cls.create_header(request_id=request_id)
-        content = {
-            'version_info': _VERSION_INFO,
-        }
+        content = ServerInfo(version_info=_VERSION_INFO)
         return cls(header, metadata, content)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-_VERSION_INFO = {
-    'bokeh'  : __version__,
-    'server' : __version__,
-}
+_VERSION_INFO = VersionInfo(
+    bokeh  = __version__,
+    server = __version__,
+)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -21,9 +21,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Awaitable, Callable
+
 # External imports
 from tornado import locks
-from tornado.websocket import WebSocketError
+from tornado.websocket import WebSocketClientConnection, WebSocketError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,9 +47,7 @@ __all__ = (
 class WebSocketClientConnectionWrapper:
     ''' Used for compatibility across Tornado versions and to add write_lock'''
 
-    def __init__(self, socket):
-        if socket is None:
-            raise ValueError("socket must not be None")
+    def __init__(self, socket: WebSocketClientConnection):
         self._socket = socket
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
@@ -54,7 +55,7 @@ class WebSocketClientConnectionWrapper:
 
     # Internal methods --------------------------------------------------------
 
-    async def write_message(self, message, binary=False, locked=True):
+    async def write_message(self, message: str | bytes, binary: bool = False, locked: bool = True):
         ''' Write a message to the websocket after obtaining the appropriate
         Bokeh Document lock.
 
@@ -80,11 +81,11 @@ class WebSocketClientConnectionWrapper:
         else:
             write_message_unlocked()
 
-    def close(self, code=None, reason=None):
+    def close(self, code: int | None = None, reason: str | None = None):
         ''' Close the websocket. '''
         return self._socket.close(code, reason)
 
-    def read_message(self, callback=None):
+    def read_message(self, callback: Callable[..., Any] | None = None) -> Awaitable[None | str | bytes]:
         ''' Read a message from websocket and execute a callback.
 
         '''

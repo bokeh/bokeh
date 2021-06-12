@@ -26,11 +26,13 @@ from bokeh.command.bootstrap import main # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+Capture = pytest.CaptureFixture[str]
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _assert_version_output(capsys):
+def _assert_version_output(capsys: Capture):
     out, err = capsys.readouterr()
     err_expected = ""
     out_expected = ("%s\n" % __version__)
@@ -45,24 +47,24 @@ def _assert_version_output(capsys):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def test_no_subcommand(capsys) -> None:
+def test_no_subcommand(capsys: Capture) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh"])
     out, err = capsys.readouterr()
     assert err == "ERROR: Must specify subcommand, one of: build, info, init, json, sampledata, secret, serve or static\n"
     assert out == ""
 
-def test_version(capsys) -> None:
+def test_version(capsys: Capture) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh", "--version"])
     _assert_version_output(capsys)
 
-def test_version_short(capsys) -> None:
+def test_version_short(capsys: Capture) -> None:
     with pytest.raises(SystemExit):
         main(["bokeh", "-v"])
     _assert_version_output(capsys)
 
-def test_error(capsys) -> None:
+def test_error(capsys: Capture) -> None:
     from bokeh.command.subcommands.info import Info
     old_invoke = Info.invoke
     def err(x, y): raise RuntimeError("foo")

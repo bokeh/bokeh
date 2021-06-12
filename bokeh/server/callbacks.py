@@ -21,9 +21,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from abc import ABCMeta, abstractmethod
+from typing import TYPE_CHECKING, Callable, Sequence
+
+## External imports
+if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
+
 # Bokeh imports
+from ..core.types import ID
 from ..util.serialization import make_id
 from ..util.tornado import _CallbackGroup
+
+if TYPE_CHECKING:
+    from ..document import Document
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,12 +52,17 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class SessionCallback:
+Callback = Callable[[], None]
+
+class SessionCallback(metaclass=ABCMeta):
     ''' A base class for callback objects associated with Bokeh Documents
     and Sessions.
 
     '''
-    def __init__(self, document, callback, id=None):
+
+    _id: ID
+
+    def __init__(self, document: Document, callback: Callback, id: ID | None = None):
         '''
 
          Args:
@@ -61,22 +78,22 @@ class SessionCallback:
         self._callback = callback
 
     @property
-    def id(self):
+    def id(self) -> ID:
         ''' A unique ID for this callback
 
         '''
         return self._id
 
     @property
-    def callback(self):
+    def callback(self) -> Callback:
         ''' The callable that this callback wraps.
 
         '''
         return self._callback
 
-    def _copy_with_changed_callback(self, new_callback):
+    @abstractmethod
+    def _copy_with_changed_callback(self, new_callback: Callback) -> SessionCallback:
         ''' Dev API used to wrap the callback with decorators. '''
-        raise NotImplementedError("_copy_with_changed_callback")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -86,7 +103,7 @@ class NextTickCallback(SessionCallback):
     ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
-    def __init__(self, document, callback, id=None):
+    def __init__(self, document: Document, callback: Callback, id: ID | None = None):
         '''
 
          Args:
@@ -99,7 +116,7 @@ class NextTickCallback(SessionCallback):
         '''
         super().__init__(document, callback, id)
 
-    def _copy_with_changed_callback(self, new_callback):
+    def _copy_with_changed_callback(self, new_callback: Callback) -> NextTickCallback:
         ''' Dev API used to wrap the callback with decorators. '''
         return NextTickCallback(self._document, new_callback, self._id)
 
@@ -108,7 +125,7 @@ class PeriodicCallback(SessionCallback):
     specified periodic time interval.
 
     '''
-    def __init__(self, document, callback, period, id=None):
+    def __init__(self, document: Document, callback: Callback, period: int, id: ID | None = None):
         '''
 
         Args:
@@ -125,14 +142,14 @@ class PeriodicCallback(SessionCallback):
         self._period = period
 
     @property
-    def period(self):
+    def period(self) -> int:
         ''' The period time (in milliseconds) that this callback should
         repeat execution at.
 
         '''
         return self._period
 
-    def _copy_with_changed_callback(self, new_callback):
+    def _copy_with_changed_callback(self, new_callback: Callback) -> PeriodicCallback:
         ''' Dev API used to wrap the callback with decorators. '''
         return PeriodicCallback(self._document, new_callback, self._period, self._id)
 
@@ -141,7 +158,7 @@ class TimeoutCallback(SessionCallback):
     time interval passes.
 
     '''
-    def __init__(self, document, callback, timeout, id=None):
+    def __init__(self, document: Document, callback: Callback, timeout: int, id: ID | None = None):
         '''
 
         Args:
@@ -158,44 +175,44 @@ class TimeoutCallback(SessionCallback):
         self._timeout = timeout
 
     @property
-    def timeout(self):
+    def timeout(self) -> int:
         ''' The timeout (in milliseconds) that the callback should run after.
 
         '''
         return self._timeout
 
-    def _copy_with_changed_callback(self, new_callback):
+    def _copy_with_changed_callback(self, new_callback: Callback) -> TimeoutCallback:
         ''' Dev API used to wrap the callback with decorators. '''
         return TimeoutCallback(self._document, new_callback, self._timeout, self._id)
 
 #-----------------------------------------------------------------------------
-# Private API
+# Dev API
 #-----------------------------------------------------------------------------
 
-class _DocumentCallbackGroup:
+class DocumentCallbackGroup:
     '''
 
     '''
-    def __init__(self, io_loop=None):
+    def __init__(self, io_loop: IOLoop | None = None):
         '''
 
         '''
         self._group = _CallbackGroup(io_loop)
 
-    def remove_all_callbacks(self):
+    def remove_all_callbacks(self) -> None:
         '''
 
         '''
         self._group.remove_all_callbacks()
 
-    def add_session_callbacks(self, callbacks):
+    def add_session_callbacks(self, callbacks: Sequence[SessionCallback]) -> None:
         '''
 
         '''
         for cb in callbacks:
             self.add_session_callback(cb)
 
-    def add_session_callback(self, callback_obj):
+    def add_session_callback(self, callback_obj: SessionCallback) -> None:
         '''
 
         '''
@@ -206,9 +223,9 @@ class _DocumentCallbackGroup:
         elif isinstance(callback_obj, NextTickCallback):
             self._group.add_next_tick_callback(callback_obj.callback, callback_obj.id)
         else:
-            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback_obj.callback)
+            raise ValueError(f"Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: {callback_obj.callback}")
 
-    def remove_session_callback(self, callback_obj):
+    def remove_session_callback(self, callback_obj: SessionCallback) -> None:
         '''
 
         '''
@@ -226,6 +243,10 @@ class _DocumentCallbackGroup:
                 self._group.remove_next_tick_callback(callback_obj.id)
         except ValueError:
             pass
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code

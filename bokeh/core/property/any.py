@@ -91,7 +91,7 @@ class AnyRef(Any):
     """ Accept all values and force reference discovery. """
 
     @property
-    def has_ref(self):
+    def has_ref(self) -> bool:
         return True
 
 #-----------------------------------------------------------------------------

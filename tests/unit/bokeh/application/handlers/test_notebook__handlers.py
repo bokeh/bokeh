@@ -95,10 +95,6 @@ class Test_NotebookHandler:
         assert result['handler']._runner.source == expected_source
         assert not doc.roots
 
-    def test_missing_filename_raises(self) -> None:
-        with pytest.raises(ValueError):
-            bahn.NotebookHandler()
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

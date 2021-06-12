@@ -21,6 +21,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Callable, Dict
+
+# External imports
+from tornado.httputil import HTTPServerRequest
+
 # Bokeh imports
 from .handler import Handler
 
@@ -47,14 +53,15 @@ class RequestHandler(Handler):
 
     '''
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    _process_request: Callable[[HTTPServerRequest], Dict[str, Any]]
+
+    def __init__(self):
+        super().__init__()
         self._process_request = _return_empty
-        self.safe_to_fork = True
 
     # Public methods ----------------------------------------------------------
 
-    def process_request(self, request):
+    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -67,11 +74,15 @@ class RequestHandler(Handler):
         '''
         return self._process_request(request)
 
+    @property
+    def safe_to_fork(self) -> bool:
+        return True
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _return_empty(request):
+def _return_empty(request: HTTPServerRequest) -> Dict[str, Any]:
     return {}
 
 #-----------------------------------------------------------------------------

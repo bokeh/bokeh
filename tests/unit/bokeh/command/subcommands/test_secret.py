@@ -26,6 +26,8 @@ import bokeh.command.subcommands.secret as scsecret # isort:skip
 # Setup
 #-----------------------------------------------------------------------------
 
+Capture = pytest.CaptureFixture[str]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -49,10 +51,9 @@ def test_help() -> None:
     assert scsecret.Secret.help == "Create a Bokeh secret key for use with Bokeh server"
 
 def test_args() -> None:
-    assert scsecret.Secret.args == (
-    )
+    assert scsecret.Secret.args == ()
 
-def test_run(capsys) -> None:
+def test_run(capsys: Capture) -> None:
     main(["bokeh", "secret"])
     out, err = capsys.readouterr()
     assert err == ""

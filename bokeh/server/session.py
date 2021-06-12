@@ -23,13 +23,22 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import inspect
 import time
+from typing import TYPE_CHECKING, Set
 
 # External imports
 from tornado import locks
 
+if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
+
 # Bokeh imports
 from ..util.token import generate_jwt_token
-from .callbacks import _DocumentCallbackGroup
+from .callbacks import DocumentCallbackGroup
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..document.document import Document
+    from .connection import ServerConnection
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,7 +97,7 @@ def _needs_document_lock(func):
 # General API
 #-----------------------------------------------------------------------------
 
-def current_time():
+def current_time() -> float:
     '''Return the time in milliseconds since the epoch as a floating
        point number.
     '''
@@ -101,7 +110,9 @@ class ServerSession:
 
     '''
 
-    def __init__(self, session_id, document, io_loop=None, token=None):
+    _subscribed_connections: Set[ServerConnection]
+
+    def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None):
         if session_id is None:
             raise ValueError("Sessions must have an id")
         if document is None:
@@ -115,7 +126,7 @@ class ServerSession:
         self._lock = locks.Lock()
         self._current_patch_connection = None
         self._document.on_change_dispatch_to(self)
-        self._callbacks = _DocumentCallbackGroup(io_loop)
+        self._callbacks = DocumentCallbackGroup(io_loop)
         self._pending_writes = None
         self._destroyed = False
         self._expiration_requested = False
@@ -125,37 +136,37 @@ class ServerSession:
         self._callbacks.add_session_callbacks(wrapped_callbacks)
 
     @property
-    def document(self):
+    def document(self) -> Document:
         return self._document
 
     @property
-    def id(self):
+    def id(self) -> ID:
         return self._id
 
     @property
-    def token(self):
+    def token(self) -> str:
         ''' A JWT token to authenticate the session. '''
         if self._token:
             return self._token
         return generate_jwt_token(self.id)
 
     @property
-    def destroyed(self):
+    def destroyed(self) -> bool:
         return self._destroyed
 
     @property
-    def expiration_requested(self):
+    def expiration_requested(self) -> bool:
         return self._expiration_requested
 
     @property
-    def expiration_blocked(self):
+    def expiration_blocked(self) -> bool:
         return self._expiration_blocked_count > 0
 
     @property
-    def expiration_blocked_count(self):
+    def expiration_blocked_count(self) -> int:
         return self._expiration_blocked_count
 
-    def destroy(self):
+    def destroy(self) -> None:
         self._destroyed = True
 
         self._document.destroy(self)
@@ -164,29 +175,29 @@ class ServerSession:
         self._callbacks.remove_all_callbacks()
         del self._callbacks
 
-    def request_expiration(self):
+    def request_expiration(self) -> None:
         """ Used in test suite for now. Forces immediate expiration if no connections."""
         self._expiration_requested = True
 
-    def block_expiration(self):
+    def block_expiration(self) -> None:
         self._expiration_blocked_count += 1
 
-    def unblock_expiration(self):
+    def unblock_expiration(self) -> None:
         if self._expiration_blocked_count <= 0:
             raise RuntimeError("mismatched block_expiration / unblock_expiration")
         self._expiration_blocked_count -= 1
 
-    def subscribe(self, connection):
+    def subscribe(self, connection: ServerConnection) -> None:
         """This should only be called by ``ServerConnection.subscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.add(connection)
 
-    def unsubscribe(self, connection):
+    def unsubscribe(self, connection: ServerConnection) -> None:
         """This should only be called by ``ServerConnection.unsubscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.discard(connection)
         self._last_unsubscribe_time = current_time()
 
     @property
-    def connection_count(self):
+    def connection_count(self) -> int:
         return len(self._subscribed_connections)
 
     @property

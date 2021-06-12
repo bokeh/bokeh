@@ -92,7 +92,7 @@ class DashPattern(Either):
         types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def transform(self, value):
@@ -133,7 +133,7 @@ class HatchPatternType(Either):
         types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
 class Image(Property):

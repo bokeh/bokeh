@@ -53,7 +53,7 @@ class Test_RGB:
         assert repr(c) == c.to_css()
 
     def test_copy(self) -> None:
-        c = bcr.RGB(10, 0.2, 0.3)
+        c = bcr.RGB(10, 20, 30)
         c2 = c.copy()
         assert c2 is not c
         assert c2.a == c.a

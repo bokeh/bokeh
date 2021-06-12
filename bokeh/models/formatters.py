@@ -63,12 +63,12 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _DATETIME_TICK_FORMATTER_HELP(field):
-    return """
-    Formats for displaying datetime values in the %s range.
+def _DATETIME_TICK_FORMATTER_HELP(field: str) -> str:
+    return f"""
+    Formats for displaying datetime values in the {field} range.
 
     See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
-    """ % field
+    """
 
 #-----------------------------------------------------------------------------
 # General API
