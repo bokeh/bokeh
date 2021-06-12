@@ -154,7 +154,7 @@ class PropertyValueContainer:
     """
     _owners: Set[Tuple[HasProps, PropertyDescriptor[Any]]]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._owners = set()
         super().__init__(*args, **kwargs)
 
@@ -213,7 +213,7 @@ class PropertyValueList(PropertyValueContainer, list):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         return super().__init__(*args, **kwargs)
 
     def _saved_copy(self):
@@ -305,7 +305,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
         x.update
 
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         return super().__init__(*args, **kwargs)
 
     def _saved_copy(self):

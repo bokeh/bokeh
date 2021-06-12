@@ -59,7 +59,7 @@ class OtherModel(Model):
 
 # Taken from test_callback_manager.py
 class _GoodPropertyCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -80,7 +80,7 @@ class _GoodPropertyCallback:
 
 
 class _GoodEventCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None

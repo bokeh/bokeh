@@ -105,7 +105,7 @@ class UnlockedDocumentProxy:
 
     '''
 
-    def __init__(self, doc: Document):
+    def __init__(self, doc: Document) -> None:
         '''
 
         '''

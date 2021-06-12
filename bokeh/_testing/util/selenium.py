@@ -100,7 +100,7 @@ def alt_click(driver, element):
 
 
 class ButtonWrapper:
-    def __init__(self, label, callback):
+    def __init__(self, label, callback) -> None:
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
         self.obj.js_on_event('button_click', callback)
@@ -113,7 +113,7 @@ class element_to_start_resizing:
     ''' An expectation for checking if an element has started resizing
     '''
 
-    def __init__(self, element):
+    def __init__(self, element) -> None:
         self.element = element
         self.previous_width = self.element.size['width']
 
@@ -130,7 +130,7 @@ class element_to_finish_resizing:
 
     '''
 
-    def __init__(self, element):
+    def __init__(self, element) -> None:
         self.element = element
         self.previous_width = self.element.size['width']
 

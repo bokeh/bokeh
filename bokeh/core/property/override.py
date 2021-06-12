@@ -95,7 +95,7 @@ class Override(Generic[T]):
     default_overridden: bool
     default: T
 
-    def __init__(self, *, default: T):
+    def __init__(self, *, default: T) -> None:
         self.default_overridden = True
         self.default = default
 

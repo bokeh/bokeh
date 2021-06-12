@@ -634,7 +634,7 @@ class SessionCoordinates:
     _url: str
     _session_id: ID | None
 
-    def __init__(self, *, url: str = DEFAULT_SERVER_HTTP_URL, session_id: ID | None = None):
+    def __init__(self, *, url: str = DEFAULT_SERVER_HTTP_URL, session_id: ID | None = None) -> None:
         self._url = url
 
         if self._url == "default":

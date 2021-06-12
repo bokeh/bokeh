@@ -97,7 +97,7 @@ class DISCONNECTED(State):
 
     '''
 
-    def __init__(self, reason: ErrorReason = ErrorReason.NO_ERROR, error_code: int | None = None, error_detail: str = ""):
+    def __init__(self, reason: ErrorReason = ErrorReason.NO_ERROR, error_code: int | None = None, error_detail: str = "") -> None:
         ''' Constructs a DISCONNECT-State with given reason (``ErrorReason``
         enum), error id and additional information provided as string.
 
@@ -139,7 +139,7 @@ class WAITING_FOR_REPLY(State):
 
     _reply: Message[Any] | None
 
-    def __init__(self, reqid: ID):
+    def __init__(self, reqid: ID) -> None:
         self._reqid = reqid
         self._reply = None
 

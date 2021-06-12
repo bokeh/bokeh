@@ -70,7 +70,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class BokehServerContext(ServerContext):
-    def __init__(self, application_context: ApplicationContext):
+    def __init__(self, application_context: ApplicationContext) -> None:
         self.application_context = application_context
         self._callbacks = _CallbackGroup(self.application_context.io_loop)
 
@@ -103,7 +103,7 @@ class BokehServerContext(ServerContext):
         self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
-    def __init__(self, session_id: ID, server_context: ServerContext, document: Document, logout_url: str | None = None):
+    def __init__(self, session_id: ID, server_context: ServerContext, document: Document, logout_url: str | None = None) -> None:
         self._document = document
         self._session = None
         self._logout_url = logout_url
@@ -328,7 +328,7 @@ class ApplicationContext:
 #-----------------------------------------------------------------------------
 
 class _RequestProxy:
-    def __init__(self, request, cookies=None, headers=None):
+    def __init__(self, request, cookies=None, headers=None) -> None:
         self._request = request
 
         arguments = dict(request.arguments)

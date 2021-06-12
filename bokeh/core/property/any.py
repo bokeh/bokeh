@@ -84,7 +84,7 @@ class Any(Property):
 
     """
 
-    def __init__(self, default=None, help=None, serialized=None, readonly=False):
+    def __init__(self, default=None, help=None, serialized=None, readonly=False) -> None:
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
 
 class AnyRef(Any):

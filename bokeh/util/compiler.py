@@ -86,7 +86,7 @@ class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
-    def __init__(self, error):
+    def __init__(self, error) -> None:
         super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
@@ -142,7 +142,7 @@ class Inline(Implementation):
             A file path to a file containing the source text (default: None)
 
     '''
-    def __init__(self, code, file=None):
+    def __init__(self, code, file=None) -> None:
         self.code = code
         self.file = file
 
@@ -192,7 +192,7 @@ class FromFile(Implementation):
             The path to the file containing the extension source code
 
     '''
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         with open(path, encoding="utf-8") as f:
             self.code = f.read()
         self.file = path
@@ -213,7 +213,7 @@ class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
-    def __init__(self, cls: Type[Model]):
+    def __init__(self, cls: Type[Model]) -> None:
         self.cls = cls
 
     @property

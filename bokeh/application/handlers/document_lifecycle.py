@@ -44,7 +44,7 @@ class DocumentLifecycleHandler(LifecycleHandler):
 
     '''
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._on_session_destroyed = _on_session_destroyed
 

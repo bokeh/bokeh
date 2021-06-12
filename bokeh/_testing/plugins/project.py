@@ -207,7 +207,7 @@ class _BokehPageMixin:
 
 class _BokehModelPage(_BokehPageMixin):
 
-    def __init__(self, model, driver, output_file_url, has_no_console_errors):
+    def __init__(self, model, driver, output_file_url, has_no_console_errors) -> None:
         self._driver = driver
         self._model = model
         self._has_no_console_errors = has_no_console_errors
@@ -245,7 +245,7 @@ def bokeh_model_page(driver, output_file_url, has_no_console_errors):
 class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
 
     # model may be a layout, but should only contain a single plot
-    def __init__(self, model, driver, output_file_url, has_no_console_errors):
+    def __init__(self, model, driver, output_file_url, has_no_console_errors) -> None:
         super().__init__(model, driver, output_file_url, has_no_console_errors)
 
         self.canvas = self._driver.find_element_by_tag_name('canvas')
@@ -259,7 +259,7 @@ def single_plot_page(driver, output_file_url, has_no_console_errors):
 
 class _BokehServerPage(_BokehPageMixin, _CanvasMixin):
 
-    def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors):
+    def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors) -> None:
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
 

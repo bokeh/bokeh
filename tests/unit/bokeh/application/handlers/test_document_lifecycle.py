@@ -30,7 +30,7 @@ import bokeh.application.handlers.document_lifecycle as bahd # isort:skip
 #-----------------------------------------------------------------------------
 
 class MockSessionContext:
-    def __init__(self, doc: Document):
+    def __init__(self, doc: Document) -> None:
         self._document = doc
         self.status = None
         self.counter = 0

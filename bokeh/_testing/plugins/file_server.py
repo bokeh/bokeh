@@ -75,7 +75,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
 
 class SimpleWebServer:
     """A very basic web server."""
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT):
+    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT) -> None:
         self.stop_serving = False
         while True:
             try:

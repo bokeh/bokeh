@@ -132,7 +132,7 @@ class _WebdriverState:
     current: WebDriver | None
     _drivers: Set[WebDriver]
 
-    def __init__(self, *, kind: DriverKind | None = None, reuse: bool = True):
+    def __init__(self, *, kind: DriverKind | None = None, reuse: bool = True) -> None:
         self.kind = kind
         self.reuse = reuse
         self.current = None

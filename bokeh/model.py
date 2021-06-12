@@ -271,7 +271,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         obj._temp_document = None
         return obj
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any) -> None:
 
         # "id" is popped from **kw in __new__, so in an ideal world I don't
         # think it should be here too. But Python does this, so it is:
@@ -282,7 +282,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         #         obj.bar = kw.pop("bar", 111)
         #         print("__new__  :", id(kw), kw)
         #         return obj
-        #     def __init__(self, **kw):
+        #     def __init__(self, **kw) -> None:
         #         print("__init__ :", id(kw), kw)
         #
         # >>> f = Foo(bar=10)
