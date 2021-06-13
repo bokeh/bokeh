@@ -54,8 +54,10 @@ export class AxisView extends GuideRendererView {
     const {axis_label} = this.model
 
     // Build math_text_view if axis_label is a MathText instance
-    if (axis_label != null && axis_label instanceof MathText)
+    if (axis_label != null && axis_label instanceof MathText) {
       this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
+      this.axis_label_math_text_view.load_image()
+    }
   }
 
   update_layout(): void {
@@ -219,13 +221,12 @@ export class AxisView extends GuideRendererView {
       // If the image is not loaded
       if (!axis_label.svg_image) {
         // Request a new render
-        this.request_render()
+        this.request_paint()
         // Initiate loading if none has started yet
         return axis_label.load_image()
       }
 
       // Once the image is finished loading draw it to Canvas
-      // and notify finished
       axis_label.draw_image(ctx)
       this.notify_finished()
     } else {
