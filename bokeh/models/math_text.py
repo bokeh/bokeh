@@ -55,7 +55,7 @@ class MathText(Model):
 
     def __init__(self, text: str, **kwargs) -> None:
         if text:
-          kwargs['text'] = text
+            kwargs['text'] = text
 
         super().__init__(**kwargs)
 
