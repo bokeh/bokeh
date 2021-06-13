@@ -101,7 +101,7 @@ def silence(warning: Warning, silence: bool = True) -> Set[Warning]:
         set()
 
     '''
-    if not isinstance(warning, Warning): # type: ignore
+    if not isinstance(warning, Warning):
         raise ValueError(f"Input to silence should be a warning object - not of type {type(warning)}")
     if silence:
         __silencers__.add(warning)

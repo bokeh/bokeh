@@ -22,15 +22,11 @@ based off information in some database:
 
         """
 
-        def modify_document(self, doc):
-
+        def modify_document(self, doc: Document) -> None:
             # do some data base lookup here to generate 'plot'
 
             # add the plot to the document (i.e modify the document)
             doc.add_root(plot)
-
-            # and return it
-            return doc
 
 '''
 

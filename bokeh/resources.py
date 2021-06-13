@@ -714,7 +714,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True, legacy: boo
             ),
         ))
 
-    if is_full_release(version): # TODO: TypeGuard
+    if is_full_release(version): # TODO: TypeGuard?
         assert version is not None
         sri_hashes = get_sri_hashes_for_version(version)
         result.hashes = lambda components, kind: {

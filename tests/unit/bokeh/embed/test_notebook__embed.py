@@ -43,7 +43,7 @@ def test_plot() -> None:
 class Test_notebook_content(object):
 
     @patch('bokeh.embed.notebook.standalone_docs_json_and_render_items')
-    def test_notebook_content(self, mock_sdjari, test_plot) -> None:
+    def test_notebook_content(self, mock_sdjari: MagicMock, test_plot: MagicMock) -> None:
         (docs_json, render_items) = ("DOC_JSON", [RenderItem(docid="foo", elementid="bar")])
         mock_sdjari.return_value = (docs_json, render_items)
 
@@ -57,7 +57,7 @@ class Test_notebook_content(object):
         assert div == expected_div
 
     @patch('bokeh.embed.notebook.standalone_docs_json_and_render_items')
-    def test_notebook_content_with_notebook_comms_target(self, mock_sdjari, test_plot) -> None:
+    def test_notebook_content_with_notebook_comms_target(self, mock_sdjari: MagicMock, test_plot: MagicMock) -> None:
         (docs_json, render_items) = ("DOC_JSON", [RenderItem(docid="foo", elementid="bar")])
         mock_sdjari.return_value = (docs_json, render_items)
         comms_target = "NOTEBOOK_COMMS_TARGET"

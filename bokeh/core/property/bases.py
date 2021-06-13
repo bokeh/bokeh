@@ -36,7 +36,6 @@ from typing import (
     ClassVar,
     Dict,
     List,
-    Optional,
     Tuple,
     Type,
     TypeVar,
@@ -125,8 +124,8 @@ class Property(PropertyDescriptorFactory[T]):
     alternatives: List[Tuple[Property[Any], Callable[[Property[Any]], T]]]
     assertions: List[Tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
-    def __init__(self, default: Init[T] = Intrinsic, help: Optional[str] = None,
-            serialized: Optional[bool] = None, readonly: bool = False):
+    def __init__(self, default: Init[T] = Intrinsic, help: str | None = None,
+            serialized: bool | None = None, readonly: bool = False):
         default = default if default is not Intrinsic else Undefined
 
         if serialized is None:
@@ -462,7 +461,7 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
     def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = Intrinsic,
-            help: Optional[str] = None, serialized: Optional[bool] = None, readonly: bool = False):
+            help: str | None = None, serialized: bool | None = None, readonly: bool = False):
         self.type_param = self._validate_type_param(type_param)
         default = default if default is not Intrinsic else self.type_param._raw_default()
         super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)

@@ -30,7 +30,6 @@ from os.path import (
     splitext,
 )
 from tempfile import NamedTemporaryFile
-from typing import Optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -84,7 +83,7 @@ def default_filename(ext: str) -> str:
     name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
-def detect_current_filename() -> Optional[str]:
+def detect_current_filename() -> str | None:
     ''' Attempt to return the filename of the currently running Python process
 
     Returns None if the filename cannot be detected.
@@ -125,7 +124,7 @@ def _shares_exec_prefix(basedir: str) -> bool:
 
     '''
     # XXX: exec_prefix has type str so why the check?
-    prefix: Optional[str] = sys.exec_prefix
+    prefix: str | None = sys.exec_prefix
     return prefix is not None and basedir.startswith(prefix)
 
 #-----------------------------------------------------------------------------

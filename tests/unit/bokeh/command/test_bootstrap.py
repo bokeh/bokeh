@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh import __version__
+from bokeh._testing.util.types import Capture
 
 # Module under test
 from bokeh.command.bootstrap import main # isort:skip
@@ -25,8 +26,6 @@ from bokeh.command.bootstrap import main # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-Capture = pytest.CaptureFixture[str]
 
 #-----------------------------------------------------------------------------
 # Private API

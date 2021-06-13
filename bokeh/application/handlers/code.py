@@ -12,16 +12,13 @@ applications that run off scripts and notebooks.
 
 .. code-block:: python
 
-    def make_doc(doc):
-
+    def make_doc(doc: Document):
         # do work to modify the document, add plots, widgets, etc.
-
         return doc
 
     app = Application(FunctionHandler(make_doc))
 
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
-
     server.start()
 
 '''
@@ -169,7 +166,7 @@ class CodeHandler(Handler):
         old_io = self._monkeypatch_io()
 
         try:
-            def post_check():
+            def post_check() -> None:
                 newdoc = curdoc()
                 # script is supposed to edit the doc not replace it
                 if newdoc is not doc:
@@ -179,7 +176,7 @@ class CodeHandler(Handler):
             self._unmonkeypatch_io(old_io)
             set_curdoc(old_doc)
 
-    def url_path(self):
+    def url_path(self) -> str | None:
         ''' The last path component for the basename of the configured filename.
 
         '''
@@ -193,7 +190,7 @@ class CodeHandler(Handler):
 
     # subclasses must define self._logger_text
     def _make_io_logger(self, name: str) -> Callable[..., None]:
-        def logger(*args: Any, **kwargs: Any):
+        def logger(*args: Any, **kwargs: Any) -> None:
             log.info(self._logger_text, self._runner.path, name)
         return logger
 

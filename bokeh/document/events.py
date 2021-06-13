@@ -98,8 +98,6 @@ if TYPE_CHECKING:
 
     Invoker = Callable[..., Any] # TODO
 
-    Receiver = Any
-
 class DocumentChangedMixin:
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...
 class DocumentPatchedMixin:
@@ -163,7 +161,7 @@ class DocumentChangedEvent:
         '''
         return False
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_changed`` if it exists.
@@ -178,7 +176,7 @@ class DocumentPatchedEvent(DocumentChangedEvent):
 
     '''
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_patched`` if it exists.
@@ -221,7 +219,7 @@ class MessageSentEvent(DocumentPatchedEvent):
         self.msg_type = msg_type
         self.msg_data = msg_data
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         super().dispatch(receiver)
         if hasattr(receiver, "_document_message_sent"):
             cast(DocumentMessageSentMixin, receiver)._document_message_sent(self)
@@ -333,7 +331,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
         return False
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._document_model_changed`` if it exists.
@@ -436,7 +434,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         self.column_source = column_source
         self.cols = cols
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._column_data_changed`` if it exists.
@@ -538,7 +536,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         self.data = data
         self.rollover = rollover
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._columns_streamed`` if it exists.
@@ -620,7 +618,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         self.column_source = column_source
         self.patches = patches
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._columns_patched`` if it exists.
@@ -898,7 +896,7 @@ class SessionCallbackAdded(DocumentChangedEvent):
         super().__init__(document)
         self.callback = callback
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._session_callback_added`` if
@@ -930,7 +928,7 @@ class SessionCallbackRemoved(DocumentChangedEvent):
         super().__init__(document)
         self.callback = callback
 
-    def dispatch(self, receiver: Receiver) -> None:
+    def dispatch(self, receiver: Any) -> None:
         ''' Dispatch handling of this event to a receiver.
 
         This method will invoke ``receiver._session_callback_removed`` if

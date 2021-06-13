@@ -20,7 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -126,7 +126,7 @@ class TestDocumentHold:
         assert d._hold == None
 
     @patch("bokeh.document.document.Document._trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger) -> None:
+    def test_unhold_triggers_events(self, mock_trigger: MagicMock) -> None:
         d = document.Document()
         d.hold('collect')
         d._held_events = [1,2,3]

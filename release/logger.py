@@ -11,7 +11,7 @@ from __future__ import annotations
 
 # Standard library imports
 import re
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 __all__ = ("LOG", "Log", "Scrubber")
 
@@ -70,7 +70,7 @@ class Log:
     def clear(self) -> None:
         self._record = []
 
-    def dump(self, *, start: int = 0, end: Optional[int] = None, filter_ansi: bool = True) -> str:
+    def dump(self, *, start: int = 0, end: int | None = None, filter_ansi: bool = True) -> str:
         """"""
         lines = self._record[start:end]
 

@@ -27,7 +27,6 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    Optional,
     Type,
     Union,
 )
@@ -52,7 +51,7 @@ __all__ = (
     'OR',
 )
 
-ContextType = Optional[Dict[str, Any]]
+ContextType = Union[Dict[str, Any], None]
 
 SelectorType = Dict[Union[str, Type["_Operator"]], Any]
 
