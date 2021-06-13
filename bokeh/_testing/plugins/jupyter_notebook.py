@@ -118,17 +118,17 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     notebook_dir = join(dirname(__file__), pardir, pardir)
 
     cmd = ["jupyter", "notebook"]
-    argv = ["--no-browser", "--port=%s" % notebook_port, "--notebook-dir=%s" % notebook_dir]
-    jupter_notebook_url = "http://localhost:%d" % notebook_port
+    argv = ["--no-browser", f"--port={notebook_port}", f"--notebook-dir={notebook_dir}"]
+    jupter_notebook_url = f"http://localhost:{notebook_port}"
 
     try:
         proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
-        write("Failed to run: %s" % " ".join(cmd + argv))
+        write(f"Failed to run: {' '.join(cmd + argv)}")
         sys.exit(1)
     else:
         # Add in the clean-up code
-        def stop_jupyter_notebook():
+        def stop_jupyter_notebook() -> None:
             write("Shutting down jupyter-notebook ...")
             proc.kill()
 
@@ -145,10 +145,10 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
                 time.sleep(interval)
 
         def wait_for_jupyter_notebook() -> bool:
-            def helper():
+            def helper() -> Any:
                 if proc.returncode is not None:
                     return True
-                try:
+                try: # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
                     return requests.get(jupter_notebook_url)
                 except ConnectionError:
                     return False
@@ -156,14 +156,14 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             return wait_until(helper)
 
         if not wait_for_jupyter_notebook():
-            write("Timeout when running: %s" % " ".join(cmd + argv))
+            write(f"Timeout when running: {' '.join(cmd + argv)}")
             sys.exit(1)
 
         if proc.returncode is not None:
-            write("Jupyter notebook exited with code " + str(proc.returncode))
+            write(f"Jupyter notebook exited with code {proc.returncode}")
             sys.exit(1)
 
-        return jupter_notebook_url
+        return jupter_notebook_url # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
 
 #-----------------------------------------------------------------------------
 # Dev API

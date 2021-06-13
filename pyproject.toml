@@ -51,6 +51,7 @@ ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
+    "bokeh._testing.*",
     "bokeh.client.states",
     "bokeh.command.*",
     "bokeh.core.query",
@@ -78,6 +79,5 @@ module = [
     "tests.codebase.*",
     "tests.test_bokehjs",
     "tests.test_examples",
-    "bokeh._testing.util.*",
 ]
 ignore_errors = false

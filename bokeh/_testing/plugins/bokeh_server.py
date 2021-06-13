@@ -88,7 +88,7 @@ def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
             def helper() -> Any:
                 if proc.returncode is not None:
                     return True
-                try:
+                try: # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
                     return requests.get(bokeh_server_url)
                 except ConnectionError:
                     return False
@@ -103,7 +103,7 @@ def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
             write(f"bokeh server exited with code {proc.returncode}")
             sys.exit(1)
 
-        return bokeh_server_url
+        return bokeh_server_url # type: ignore[unreachable] # XXX: typeshed bug, proc.returncode: int
 
 #-----------------------------------------------------------------------------
 # Dev API

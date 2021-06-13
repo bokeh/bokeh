@@ -66,6 +66,7 @@ dependencies:
     - types-colorama
     - types-pillow
     - types-pyyaml
+    - types-requests
     - flake8-pyi
 
   # examples

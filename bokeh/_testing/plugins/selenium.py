@@ -68,35 +68,39 @@ def driver(pytestconfig: config.Config) -> Iterator[WebDriver]:
     '''
     driver_name: str = pytestconfig.getoption('driver', 'chrome').lower()
 
-    driver: WebDriver
-    if driver_name == "chrome":
+    def chrome() -> WebDriver:
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--window-size=1920x1080")
-        driver = Chrome(options=options)
+        return Chrome(options=options)
 
-    elif driver_name == "firefox":
+    def firefox() -> WebDriver:
         from selenium.webdriver.firefox.options import Options
         from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--window-size=1920x1080")
-        driver = Firefox(options=options)
+        return Firefox(options=options)
 
-    elif driver_name == "safari":
+    def safari() -> WebDriver:
         from selenium.webdriver.safari.webdriver import WebDriver as Safari
-        driver = Safari()
+        return Safari()
 
+    driver: WebDriver
+    if driver_name == "chrome":
+        driver = chrome()
+    elif driver_name == "firefox":
+        driver = firefox()
+    elif driver_name == "safari":
+        driver = safari()
     else:
         raise ValueError("expected 'chrome', 'firefox' or 'safari'")
 
     driver.implicitly_wait(10)
-
     yield driver
-
     driver.quit()
 
 @pytest.fixture(scope="session")
