@@ -92,28 +92,6 @@ export class MathTextView extends View {
   }
 
   /**
-   * Takes a Canvas' Context2d and if the image has already
-   * been loaded draws the image in it.
-  */
-  draw_image(ctx: Context2d): void {
-    if (this.svg_image) {
-      ctx.save()
-      const {sx, sy} = this.position
-
-      if (this.angle) {
-        ctx.translate(sx, sy)
-        ctx.rotate(this.angle)
-        ctx.translate(-sx, -sy)
-      }
-
-      const {x, y} = this._computed_position()
-
-      ctx.drawImage(this.svg_image, x, y, this.width, this.height)
-      ctx.restore()
-    }
-  }
-
-  /**
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
@@ -193,6 +171,30 @@ export class MathTextView extends View {
         URL.revokeObjectURL(url)
       },
     })
+  }
+
+  /**
+   * Takes a Canvas' Context2d and if the image has already
+   * been loaded draws the image in it.
+  */
+  draw_image(ctx: Context2d): void {
+    if (this.svg_image) {
+      ctx.save()
+      const {sx, sy} = this.position
+
+      if (this.angle) {
+        ctx.translate(sx, sy)
+        ctx.rotate(this.angle)
+        ctx.translate(-sx, -sy)
+      }
+
+      const {x, y} = this._computed_position()
+
+      ctx.drawImage(this.svg_image, x, y)
+      ctx.restore()
+
+      this._has_finished = true
+    }
   }
 }
 
