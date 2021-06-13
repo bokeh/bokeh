@@ -45,6 +45,7 @@ from ..models import (
     Scale,
     Title,
     Tool,
+    MathText
 )
 from ..models.dom import Template
 from ..models.tools import (
@@ -699,11 +700,11 @@ class BaseFigureOptions(Options):
     Where the y-axis should be located.
     """)
 
-    x_axis_label = Nullable(String, default="", help="""
+    x_axis_label = Either(Null, String, Instance(MathText), default="", help="""
     A label for the x-axis.
     """)
 
-    y_axis_label = Nullable(String, default="", help="""
+    y_axis_label = Either(Null, String, Instance(MathText), default="", help="""
     A label for the y-axis.
     """)
 
