@@ -20,8 +20,7 @@ import pytest ; pytest
 from itertools import chain
 
 # Bokeh imports
-from bokeh.core.enums import LineCap, LineJoin
-from bokeh.core.enums import NamedColor as Color
+from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
 from bokeh.core.property.dataspec import field, value
 
 # Module under test

@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -40,7 +40,7 @@ ALL =  (
 Test___all__ = verify_all(bm, ALL)
 
 @patch('bokeh.command.bootstrap.main')
-def test_main(mock_main) -> None:
+def test_main(mock_main: MagicMock) -> None:
     import sys
     old_argv = sys.argv
     sys.argv = ["foo", "bar"]

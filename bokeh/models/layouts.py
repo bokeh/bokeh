@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Optional
-
 # Bokeh imports
 from ..core.enums import (
     Align,
@@ -98,13 +95,13 @@ class LayoutDOM(Model):
     Whether the component will be visible and a part of a layout.
     """)
 
-    width: Optional[int] = Nullable(NonNegativeInt, help="""
+    width: int | None = Nullable(NonNegativeInt, help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height: Optional[int] = Nullable(NonNegativeInt, help="""
+    height: int | None = Nullable(NonNegativeInt, help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.

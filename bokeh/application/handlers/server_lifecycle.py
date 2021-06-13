@@ -76,7 +76,7 @@ class ServerLifecycleHandler(LifecycleHandler):
             # unlike ScriptHandler, we only load the module one time
             self._module = self._runner.new_module()
 
-            def extract_callbacks():
+            def extract_callbacks() -> None:
                 contents = self._module.__dict__
                 if 'on_server_loaded' in contents:
                     self._on_server_loaded = contents['on_server_loaded']

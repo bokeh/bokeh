@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Any, Dict
 from urllib.parse import quote_plus
 
 # External imports
@@ -319,13 +319,13 @@ class ClientSession:
         from ..server.callbacks import DocumentCallbackGroup
         self._callbacks = DocumentCallbackGroup(self._connection.io_loop)
 
-    def __enter__(self):
+    def __enter__(self) -> ClientSession:
         '''
 
         '''
         return self
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         '''
 
         '''
@@ -339,7 +339,7 @@ class ClientSession:
         return self._connection.connected
 
     @property
-    def error_reason(self):
+    def error_reason(self) -> ErrorReason | None:
         return self._connection.error_reason
 
     @property

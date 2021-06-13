@@ -21,7 +21,14 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing import TYPE_CHECKING, Dict
 from urllib.parse import quote_plus, urlparse
+
+# External imports
+from typing_extensions import Literal
+
+if TYPE_CHECKING:
+    from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
@@ -31,6 +38,12 @@ from ..util.string import format_docstring
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
 from .util import RenderItem
+
+if TYPE_CHECKING:
+    from ..core.types import ID, Unknown
+    from ..model import Model
+    from ..resources import Resources
+    from ..server.session import ServerSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +59,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def server_document(url="default", relative_urls=False, resources="default", arguments=None, headers=None):
+def server_document(url: str = "default", relative_urls: bool = False, resources: Literal["default"] | None = "default",
+        arguments: Dict[str, str] | None = None, headers: Dict[str, str] | None = None) -> str:
     ''' Return a script tag that embeds content from a Bokeh server.
 
     Bokeh apps embedded using these methods will NOT set the browser window title.
@@ -114,7 +128,8 @@ def server_document(url="default", relative_urls=False, resources="default", arg
 
     return tag
 
-def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", headers={}):
+def server_session(model: Model | None = None, session_id: ID | None = None, url: str = "default",
+        relative_urls: bool = False, resources: Literal["default"] | None = "default", headers: Dict[str, str] = {}) -> str:
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -209,7 +224,8 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
 # Dev API
 #-----------------------------------------------------------------------------
 
-def server_html_page_for_session(session, resources, title, template=FILE, template_variables=None):
+def server_html_page_for_session(session: ServerSession, resources: Resources, title: str,
+        template: Template = FILE, template_variables: Dict[str, Unknown] | None = None):
     '''
 
     Args:
@@ -245,7 +261,7 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
 # Private API
 #-----------------------------------------------------------------------------
 
-def _clean_url(url):
+def _clean_url(url: str) -> str:
     ''' Produce a canonical Bokeh server URL.
 
     Args:
@@ -265,7 +281,7 @@ def _clean_url(url):
 
     return url.rstrip("/")
 
-def _get_app_path(url):
+def _get_app_path(url: str) -> str:
     ''' Extract the app path from a Bokeh server URL
 
     Args:
@@ -280,7 +296,7 @@ def _get_app_path(url):
         app_path = "/" + app_path
     return app_path
 
-def _process_arguments(arguments):
+def _process_arguments(arguments: Dict[str, str] | None) -> str:
     ''' Return user-supplied HTML arguments to add to a Bokeh server URL.
 
     Args:
@@ -291,14 +307,15 @@ def _process_arguments(arguments):
         str
 
     '''
-    if arguments is None: return ""
+    if arguments is None:
+        return ""
     result = ""
     for key, value in arguments.items():
         if not key.startswith("bokeh-"):
             result += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
     return result
 
-def _process_app_path(app_path):
+def _process_app_path(app_path: str) -> str:
     ''' Return an app path HTML argument to add to a Bokeh server URL.
 
     Args:
@@ -310,7 +327,7 @@ def _process_app_path(app_path):
     if app_path == "/": return ""
     return "&bokeh-app-path=" + app_path
 
-def _process_relative_urls(relative_urls, url):
+def _process_relative_urls(relative_urls: bool, url: str) -> str:
     ''' Return an absolute URL HTML argument to add to a Bokeh server URL, if
     requested.
 
@@ -328,7 +345,7 @@ def _process_relative_urls(relative_urls, url):
     if relative_urls: return ""
     return "&bokeh-absolute-url=" + url
 
-def _process_resources(resources):
+def _process_resources(resources: Literal["default"] | None) -> str:
     ''' Return an argument to suppress normal Bokeh server resources, if requested.
 
     Args:
@@ -345,7 +362,7 @@ def _process_resources(resources):
         return "&resources=none"
     return ""
 
-def _src_path(url, elementid):
+def _src_path(url: str, elementid: ID) -> str:
     ''' Return a base autoload URL for a given element ID
 
     Args:

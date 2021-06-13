@@ -22,11 +22,19 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Awaitable, Callable
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+)
 
 # External imports
 from tornado import locks
 from tornado.websocket import WebSocketClientConnection, WebSocketError
+
+if TYPE_CHECKING:
+    from tornado.concurrent import Future
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -55,12 +63,12 @@ class WebSocketClientConnectionWrapper:
 
     # Internal methods --------------------------------------------------------
 
-    async def write_message(self, message: str | bytes, binary: bool = False, locked: bool = True):
+    async def write_message(self, message: str | bytes, binary: bool = False, locked: bool = True) -> None:
         ''' Write a message to the websocket after obtaining the appropriate
         Bokeh Document lock.
 
         '''
-        def write_message_unlocked():
+        def write_message_unlocked() -> Future[None]:
             if self._socket.protocol is None:
                 # Tornado is maybe supposed to do this, but in fact it
                 # tries to do _socket.protocol.write_message when protocol
@@ -81,7 +89,7 @@ class WebSocketClientConnectionWrapper:
         else:
             write_message_unlocked()
 
-    def close(self, code: int | None = None, reason: str | None = None):
+    def close(self, code: int | None = None, reason: str | None = None) -> None:
         ''' Close the websocket. '''
         return self._socket.close(code, reason)
 

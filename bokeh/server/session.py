@@ -23,7 +23,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import inspect
 import time
-from typing import TYPE_CHECKING, Set
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    List,
+    Set,
+    TypeVar,
+)
 
 # External imports
 from tornado import locks
@@ -38,6 +46,9 @@ from .callbacks import DocumentCallbackGroup
 if TYPE_CHECKING:
     from ..core.types import ID
     from ..document.document import Document
+    from ..document.events import DocumentPatchedEvent
+    from ..protocol import messages as msg
+    from .callbacks import Callback, SessionCallback
     from .connection import ServerConnection
 
 #-----------------------------------------------------------------------------
@@ -53,13 +64,16 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _needs_document_lock(func):
+T = TypeVar("T")
+F = TypeVar("F", bound=Callable[..., Any])
+
+def _needs_document_lock(func: F) -> F:
     '''Decorator that adds the necessary locking and post-processing
        to manipulate the session's document. Expects to decorate a
        method on ServerSession and transforms it into a coroutine
        if it wasn't already.
     '''
-    async def _needs_document_lock_wrapper(self, *args, **kwargs):
+    async def _needs_document_lock_wrapper(self: ServerSession, *args, **kwargs):
         # while we wait for and hold the lock, prevent the session
         # from being discarded. This avoids potential weirdness
         # with the session vanishing in the middle of some async
@@ -111,6 +125,8 @@ class ServerSession:
     '''
 
     _subscribed_connections: Set[ServerConnection]
+    _current_patch_connection: ServerConnection | None
+    _pending_writes: List[Awaitable[None]] | None
 
     def __init__(self, session_id: ID, document: Document, io_loop: IOLoop | None = None, token: str | None = None) -> None:
         if session_id is None:
@@ -201,32 +217,32 @@ class ServerSession:
         return len(self._subscribed_connections)
 
     @property
-    def milliseconds_since_last_unsubscribe(self):
+    def milliseconds_since_last_unsubscribe(self) -> float:
         return current_time() - self._last_unsubscribe_time
 
     @_needs_document_lock
-    def with_document_locked(self, func, *args, **kwargs):
+    def with_document_locked(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         ''' Asynchronously locks the document and runs the function with it locked.'''
         return func(*args, **kwargs)
 
-    def _wrap_document_callback(self, callback):
+    def _wrap_document_callback(self, callback: Callback) -> Callback:
         if getattr(callback, "nolock", False):
             return callback
-        def wrapped_callback(*args, **kwargs):
+        def wrapped_callback(*args: Any, **kwargs: Any):
             return self.with_document_locked(callback, *args, **kwargs)
         return wrapped_callback
 
-    def _wrap_session_callback(self, callback):
+    def _wrap_session_callback(self, callback: SessionCallback) -> SessionCallback:
         wrapped = self._wrap_document_callback(callback.callback)
         return callback._copy_with_changed_callback(wrapped)
 
-    def _wrap_session_callbacks(self, callbacks):
-        wrapped = []
+    def _wrap_session_callbacks(self, callbacks: List[SessionCallback]) -> List[SessionCallback]:
+        wrapped: List[SessionCallback] = []
         for cb in callbacks:
             wrapped.append(self._wrap_session_callback(cb))
         return wrapped
 
-    def _document_patched(self, event):
+    def _document_patched(self, event: DocumentPatchedEvent) -> None:
         may_suppress = event.setter is self
 
         if self._pending_writes is None:
@@ -242,11 +258,11 @@ class ServerSession:
                 self._pending_writes.append(connection.send_patch_document(event))
 
     @_needs_document_lock
-    def _handle_pull(self, message, connection):
-        log.debug("Sending pull-doc-reply from session %r", self.id)
+    def _handle_pull(self, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
+        log.debug(f"Sending pull-doc-reply from session {self.id!r}")
         return connection.protocol.create('PULL-DOC-REPLY', message.header['msgid'], self.document)
 
-    def _session_callback_added(self, event):
+    def _session_callback_added(self, event: SessionCallback):
         wrapped = self._wrap_session_callback(event.callback)
         self._callbacks.add_session_callback(wrapped)
 
@@ -254,23 +270,23 @@ class ServerSession:
         self._callbacks.remove_session_callback(event.callback)
 
     @classmethod
-    def pull(cls, message, connection):
+    def pull(cls, message: msg.pull_doc_req, connection: ServerConnection) -> msg.pull_doc_reply:
         ''' Handle a PULL-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_pull(message, connection)
 
     @_needs_document_lock
-    def _handle_push(self, message, connection):
-        log.debug("pushing doc to session %r", self.id)
+    def _handle_push(self, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
+        log.debug(f"pushing doc to session {self.id!r}")
         message.push_to_document(self.document)
         return connection.ok(message)
 
     @classmethod
-    def push(cls, message, connection):
+    def push(cls, message: msg.push_doc, connection: ServerConnection) -> msg.ok:
         ''' Handle a PUSH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_push(message, connection)
 
     @_needs_document_lock
-    def _handle_patch(self, message, connection):
+    def _handle_patch(self, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
         self._current_patch_connection = connection
         try:
             message.apply_to_document(self.document, self)
@@ -280,7 +296,7 @@ class ServerSession:
         return connection.ok(message)
 
     @classmethod
-    def patch(cls, message, connection):
+    def patch(cls, message: msg.patch_doc, connection: ServerConnection) -> msg.ok:
         ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_patch(message, connection)
 

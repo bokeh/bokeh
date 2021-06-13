@@ -20,7 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh import __version__
@@ -586,7 +586,7 @@ class Test_standalone_docs_json_and_render_items:
 
 class Test_standalone_docs_json:
     @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
-    def test_delgation(self, mock_sdjari) -> None:
+    def test_delgation(self, mock_sdjari: MagicMock) -> None:
         p1 = SomeModel()
         p2 = SomeModel()
         d = Document()

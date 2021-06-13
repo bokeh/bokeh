@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from types import ModuleType
+
 # External imports
 import pytest
 
@@ -39,7 +42,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @pytest.fixture
-def ipython():
+def ipython() -> ModuleType | None: # XXX: should be IPython | None, but not supported
     ''' A PyTest fixture that will automatically skip a test if IPython is
     not installed.
 

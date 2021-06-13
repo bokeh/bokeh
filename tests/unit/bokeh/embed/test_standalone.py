@@ -22,7 +22,7 @@ from collections import OrderedDict
 # External imports
 import bs4
 from jinja2 import Template
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 import bokeh.resources as resources
@@ -202,7 +202,7 @@ class Test_components:
         assert all(isinstance(x, str) for x in divs.keys())
 
     @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
-    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id) -> None:
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id: MagicMock) -> None:
         doc = Document()
         plot1 = figure()
         plot1.circle([], [])
@@ -304,7 +304,7 @@ class Test_file_html:
         assert isinstance(r, str)
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_js_only_resources(self, mock_warn, test_plot) -> None:
+    def test_file_html_handles_js_only_resources(self, mock_warn: MagicMock, test_plot: MagicMock) -> None:
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
@@ -312,7 +312,7 @@ class Test_file_html:
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn, test_plot) -> None:
+    def test_file_html_provides_warning_if_no_css(self, mock_warn: MagicMock, test_plot: MagicMock) -> None:
         js_resources = JSResources()
         bes.file_html(test_plot, (js_resources, None), "title")
         mock_warn.assert_called_once_with(
@@ -320,7 +320,7 @@ class Test_file_html:
         )
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_css_only_resources(self, mock_warn, test_plot) -> None:
+    def test_file_html_handles_css_only_resources(self, mock_warn: MagicMock, test_plot: MagicMock) -> None:
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
         output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
@@ -328,7 +328,7 @@ class Test_file_html:
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn, test_plot) -> None:
+    def test_file_html_provides_warning_if_no_js(self, mock_warn: MagicMock, test_plot: MagicMock) -> None:
         css_resources = CSSResources()
         bes.file_html(test_plot, (None, css_resources), "title")
         mock_warn.assert_called_once_with(
@@ -380,7 +380,7 @@ class Test_json_item:
         assert out['doc']['roots']['root_ids'][0] == out['root_id']
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
-    def test_apply_theme(self, mock_OFD, test_plot) -> None:
+    def test_apply_theme(self, mock_OFD: MagicMock, test_plot: MagicMock) -> None:
         # the subsequent call inside ODF will fail since the model was never
         # added to a document. Ignoring that since we just want to make sure
         # ODF is called with the expected theme arg.

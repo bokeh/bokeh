@@ -42,6 +42,9 @@ def test_isort_sphinx() -> None:
 def test_isort_tests() -> None:
     isort("tests")
 
+def test_isort_typings() -> None:
+    isort("typings")
+
 #-----------------------------------------------------------------------------
 # Support
 #-----------------------------------------------------------------------------

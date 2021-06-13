@@ -29,7 +29,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Optional,
     Type,
     TypeVar,
 )
@@ -69,7 +68,7 @@ class Instance(Property[T]):
     _instance_type: Type[T] | str
 
     def __init__(self, instance_type: Type[T] | str, default: Init[T] = Undefined,
-            help: Optional[str] = None, readonly: bool = False, serialized: Optional[bool] = None):
+            help: str | None = None, readonly: bool = False, serialized: bool | None = None):
         if not isinstance(instance_type, (type, str)):
             raise ValueError(f"expected a type or string, got {instance_type}")
 

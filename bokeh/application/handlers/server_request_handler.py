@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from types import ModuleType
-from typing import Sequence
+from typing import List
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -57,7 +57,7 @@ class ServerRequestHandler(RequestHandler):
 
     _module: ModuleType
 
-    def __init__(self, *, filename: PathLike, argv: Sequence[str] = [], package: ModuleType | None = None) -> None:
+    def __init__(self, *, filename: PathLike, argv: List[str] = [], package: ModuleType | None = None) -> None:
         '''
 
         Keyword Args:
@@ -78,7 +78,7 @@ class ServerRequestHandler(RequestHandler):
             # unlike ScriptHandler, we only load the module one time
             self._module = self._runner.new_module()
 
-            def extract_callbacks():
+            def extract_callbacks() -> None:
                 contents = self._module.__dict__
                 if 'process_request' in contents:
                     self._process_request = contents['process_request']
@@ -90,14 +90,14 @@ class ServerRequestHandler(RequestHandler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self) -> str:
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._runner.error
 
     @property
-    def error_detail(self) -> str:
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''

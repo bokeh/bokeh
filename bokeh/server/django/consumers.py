@@ -22,12 +22,7 @@ import asyncio
 import calendar
 import datetime as dt
 import json
-from typing import (
-    Any,
-    Dict,
-    Optional,
-    Set,
-)
+from typing import Any, Dict, Set
 from urllib.parse import parse_qs, urljoin, urlparse
 
 # External imports
@@ -90,10 +85,10 @@ class ConsumerHelper(AsyncConsumer):
         parsed_url = urlparse("/?" + self.scope["query_string"].decode())
         return {name: value for name, [value] in parse_qs(parsed_url.query).items()}
 
-    def get_argument(self, name: str, default: Optional[str] = None) -> Optional[str]:
+    def get_argument(self, name: str, default: str | None = None) -> str | None:
         return self.arguments.get(name, default)
 
-    def resources(self, absolute_url: Optional[str] = None) -> Resources:
+    def resources(self, absolute_url: str | None = None) -> Resources:
         mode = settings.resources(default="server")
         if mode == "server":
             root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
@@ -140,7 +135,7 @@ class AutoloadJsConsumer(SessionConsumer):
         app_path = self.get_argument("bokeh-app-path", default="/")
         absolute_url = self.get_argument("bokeh-absolute-url", default=None)
 
-        server_url: Optional[str]
+        server_url: str | None
         if absolute_url:
             server_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(absolute_url))
         else:

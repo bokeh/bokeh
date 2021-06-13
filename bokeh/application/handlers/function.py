@@ -62,6 +62,8 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+ModifyDoc = Callable[[Document], None]
+
 class FunctionHandler(Handler):
     ''' A Handler that accepts a plain python function to use for modifying
     Bokeh Documents.
@@ -71,8 +73,8 @@ class FunctionHandler(Handler):
 
     .. code-block:: python
 
-        def add_empty_plot(doc):
-            p = figure(x_range=(0,10), y_range=(0, 10))
+        def add_empty_plot(doc: Document):
+            p = figure(x_range=(0, 10), y_range=(0, 10))
             doc.add_root(p)
             return doc
 
@@ -85,11 +87,11 @@ class FunctionHandler(Handler):
 
     '''
 
-    _func: Callable[[Document], None]
+    _func: ModifyDoc
     _trap_exceptions: bool
     _safe_to_fork: bool
 
-    def __init__(self, func: Callable[[Document], None], *, trap_exceptions: bool = False) -> None:
+    def __init__(self, func: ModifyDoc, *, trap_exceptions: bool = False) -> None:
         '''
 
         Args:

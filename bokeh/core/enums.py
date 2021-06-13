@@ -190,7 +190,7 @@ class Enumeration:
 
     __repr__ = __str__
 
-def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False):
+def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) -> Enumeration:
     ''' Create an |Enumeration| object from a sequence of values.
 
     Call ``enumeration`` with a sequence of (unique) strings to create an

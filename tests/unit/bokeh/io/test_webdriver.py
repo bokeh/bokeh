@@ -100,7 +100,7 @@ class Test_webdriver_control:
 
     @pytest.mark.selenium
     @pytest.mark.parametrize('kind', ['firefox', 'chromium'])
-    def test_create(self, kind) -> None:
+    def test_create(self, kind: biw.DriverKind) -> None:
         biw.webdriver_control.kind = kind
         assert biw.webdriver_control.kind == kind
         d = biw.webdriver_control.create()

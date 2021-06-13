@@ -25,7 +25,12 @@ import sys
 import threading
 from collections import defaultdict
 from traceback import format_exception
-from typing import Callable, Dict, Set
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Set,
+)
 
 # External imports
 from tornado import gen
@@ -232,11 +237,11 @@ class _CallbackGroup:
     def add_timeout_callback(self, callback: Callback, timeout_milliseconds: int, callback_id: ID | None = None) -> ID:
         """ Adds a callback to be run once after timeout_milliseconds.
         Returns an ID that can be used with remove_timeout_callback."""
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             self.remove_timeout_callback(callback_id)
             return callback(*args, **kwargs)
 
-        handle = None
+        handle: object | None = None
 
         def remover():
             if handle is not None:
@@ -253,7 +258,6 @@ class _CallbackGroup:
     def add_periodic_callback(self, callback: Callback, period_milliseconds: int, callback_id: ID | None = None):
         """ Adds a callback to be run every period_milliseconds until it is removed.
         Returns an ID that can be used with remove_periodic_callback."""
-
         cb = _AsyncPeriodic(callback, period_milliseconds, io_loop=self._loop)
         callback_id = self._assign_remover(callback, callback_id, self._periodic_callback_removers, cb.stop)
         cb.start()

@@ -1,6 +1,4 @@
-from calendar import Calendar
-from calendar import day_abbr as day_abbrs
-from calendar import month_name as month_names
+from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.document import Document
 from bokeh.embed import file_html

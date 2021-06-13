@@ -26,12 +26,15 @@ import shutil
 import sys
 import tempfile
 from contextlib import contextmanager
+from types import TracebackType
 from typing import (
     IO,
     Awaitable,
     Callable,
+    ContextManager,
     Dict,
     Iterator,
+    Type,
 )
 
 # Bokeh imports
@@ -52,7 +55,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class TmpDir:
+class TmpDir(ContextManager[str]):
     '''
 
     '''
@@ -60,7 +63,7 @@ class TmpDir:
     def __init__(self, prefix: str) -> None:
         self._dir = tempfile.mkdtemp(prefix=prefix, dir=_LOCAL_TMP)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type: Type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
         try:
             shutil.rmtree(path=self._dir)
         except Exception as e:
@@ -75,7 +78,7 @@ class TmpDir:
     def __enter__(self) -> str:
         return self._dir
 
-def with_directory_contents(contents: Dict[PathLike, str], func: Callable[[str], None]) -> None:
+def with_directory_contents(contents: Dict[PathLike, str | None], func: Callable[[str], None]) -> None:
     '''
 
     '''

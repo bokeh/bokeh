@@ -64,8 +64,7 @@ from ..core.types import ID, Unknown
 from ..core.validation import check_integrity, process_validation_issues
 from ..events import _CONCRETE_EVENT_CLASSES, DocumentEvent, Event
 from ..model import Model
-from ..themes import Theme, built_in_themes
-from ..themes import default as default_theme
+from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
 from ..util.version import __version__
@@ -147,11 +146,11 @@ class Document:
     _all_models: Dict[ID, Model]
     _all_models_by_name: MultiValuedDict[str, Model]
     _all_former_model_ids: Set[ID] = set()
-    _callbacks: Dict[DocumentChangeCallback, DocumentChangeCallback]
+    _callbacks: Dict[Any, DocumentChangeCallback]
     _event_callbacks: Dict[str, List[EventCallback]]
     _message_callbacks: Dict[str, List[MessageCallback]]
     _session_destroyed_callbacks: Set[SessionDestroyedCallback]
-    _session_callbacks: Set[Any] # TODO
+    _session_callbacks: Set[SessionCallback]
     _session_context: SessionContext | None
     _modules: List[ModuleType]
     _template_variables: Dict[str, Unknown]
@@ -201,7 +200,7 @@ class Document:
         return list(self._roots)
 
     @property
-    def session_callbacks(self):
+    def session_callbacks(self) -> List[SessionCallback]:
         ''' A list of all the session callbacks on this document.
 
         '''
@@ -233,7 +232,7 @@ class Document:
         return self._template
 
     @template.setter
-    def template(self, template: Template | str) -> None:
+    def template(self, template: Template) -> None:
         if not isinstance(template, (Template, str)):
             raise ValueError("document template must be Jinja2 template or a string")
         self._template = template
@@ -534,7 +533,7 @@ class Document:
         finally:
             self._pop_all_models_freeze()
 
-    def destroy(self, session: DocumentChangeCallback) -> None:
+    def destroy(self, session: Any) -> None:
         self.remove_on_change(session)
 
         # probably better to implement a destroy protocol on models to
@@ -774,7 +773,7 @@ class Document:
             _check_callback(callback, ('event',))
             self._callbacks[callback] = callback
 
-    def on_change_dispatch_to(self, receiver) -> None:
+    def on_change_dispatch_to(self, receiver: Any) -> None:
         if not receiver in self._callbacks:
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
 
@@ -802,7 +801,7 @@ class Document:
         '''
         self._remove_session_callback(callback_obj, self.add_next_tick_callback)
 
-    def remove_on_change(self, *callbacks: DocumentChangeCallback) -> None:
+    def remove_on_change(self, *callbacks: Any) -> None:
         ''' Remove a callback added earlier with ``on_change``.
 
         Raises:
@@ -1124,13 +1123,13 @@ class Document:
         event = ModelChangedEvent(self, model, attr, old, new, serializable_new, hint, setter, callback_invoker)
         self._trigger_on_change(event)
 
-    def _push_all_models_freeze(self):
+    def _push_all_models_freeze(self) -> None:
         '''
 
         '''
         self._all_models_freeze_count += 1
 
-    def _pop_all_models_freeze(self):
+    def _pop_all_models_freeze(self) -> None:
         '''
 
         '''
@@ -1138,19 +1137,19 @@ class Document:
         if self._all_models_freeze_count == 0:
             self._recompute_all_models()
 
-    def _recompute_all_models(self):
+    def _recompute_all_models(self) -> None:
         '''
 
         '''
-        new_all_models_set = set()
+        new_all_models_set: Set[Model] = set()
         for r in self.roots:
-            new_all_models_set = new_all_models_set.union(r.references())
+            new_all_models_set |= r.references()
         old_all_models_set = set(self._all_models.values())
         to_detach = old_all_models_set - new_all_models_set
         to_attach = new_all_models_set - old_all_models_set
 
-        recomputed = {}
-        recomputed_by_name = MultiValuedDict()
+        recomputed: Dict[ID, Model] = {}
+        recomputed_by_name: MultiValuedDict[str, Model] = MultiValuedDict()
         for m in new_all_models_set:
             recomputed[m.id] = m
             if m.name is not None:
@@ -1289,7 +1288,7 @@ class StaticSerializer:
     def serialize(self, obj: object) -> Any:
         pass # TODO: serialize built-ins, {to_serializable}, etc.
 
-    def get_ref(self, obj: object):
+    def get_ref(self, obj: object) -> Any:
         return self._refs.get(obj, None)
 
     def add_ref(self, obj: object, obj_ref: Any, obj_def: Any) -> None:
@@ -1298,9 +1297,8 @@ class StaticSerializer:
             self._defs.append(obj_def)
 
     @property
-    def definitions(self):
+    def definitions(self) -> List[Any]:
         return list(self._defs)
-
 
 #-----------------------------------------------------------------------------
 # Private API

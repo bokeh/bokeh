@@ -76,7 +76,7 @@ class push_doc(Message[PushDoc]):
         msg = cls(header, metadata, content)
         return msg
 
-    def push_to_document(self, doc: Document):
+    def push_to_document(self, doc: Document) -> None:
         '''
 
         Raises:

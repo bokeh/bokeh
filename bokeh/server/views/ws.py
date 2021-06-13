@@ -22,8 +22,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import calendar
-import codecs
 import datetime as dt
+from typing import (
+    Any,
+    Dict,
+    List,
+    Union,
+    cast,
+)
 from urllib.parse import urlparse
 
 # External imports
@@ -39,6 +45,7 @@ from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ...protocol.message import Message
 from ...protocol.receiver import Receiver
+from ...util.dataclasses import dataclass
 from ..protocol_handler import ProtocolHandler
 from .auth_mixin import AuthMixin
 
@@ -83,7 +90,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
     def initialize(self, application_context, bokeh_websocket_path):
         pass
 
-    def check_origin(self, origin):
+    def check_origin(self, origin: str) -> bool:
         ''' Implement a check_origin policy for Tornado to call.
 
         The supplied origin will be compared to the Bokeh server allowlist. If the
@@ -115,7 +122,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             return False
 
     @web.authenticated
-    def open(self):
+    def open(self) -> None:
         ''' Initialize a connection to a client.
 
         Returns:
@@ -155,7 +162,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             # immediately, most likely.
             log.debug("Failed to fully open connection %r", e)
 
-    def select_subprotocol(self, subprotocols):
+    def select_subprotocol(self, subprotocols: List[str]) -> str | None:
         log.debug('Subprotocol header received')
         log.trace('Supplied subprotocol headers: %r', subprotocols)
         if not len(subprotocols) == 2:
@@ -163,7 +170,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
         self._token = subprotocols[1]
         return subprotocols[0]
 
-    def get_compression_options(self):
+    def get_compression_options(self) -> Dict[str, Any] | None:
         if self._compression_level is None:
             return None
         options = {'compression_level': self._compression_level}
@@ -171,7 +178,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             options['mem_level'] = self._mem_level
         return options
 
-    async def _async_open(self, token):
+    async def _async_open(self, token: str) -> None:
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
@@ -215,7 +222,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
 
         return None
 
-    async def on_message(self, fragment):
+    async def on_message(self, fragment: str | bytes) -> None:
         ''' Process an individual wire protocol fragment.
 
         The websocket RFC specifies opcodes for distinguishing text frames
@@ -239,6 +246,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             # expected error types... here we have something weird.
             log.error("Unhandled exception receiving a message: %r: %r", e, fragment, exc_info=True)
             self._internal_error("server failed to parse a message")
+            message = None
 
         try:
             if message:
@@ -253,17 +261,17 @@ class WSHandler(AuthMixin, WebSocketHandler):
 
         return None
 
-    def on_pong(self, data):
+    def on_pong(self, data: bytes) -> None:
         # if we get an invalid integer or utf-8 back, either we
         # sent a buggy ping or the client is evil/broken.
         try:
-            self.latest_pong = int(codecs.decode(data, 'utf-8'))
+            self.latest_pong = int(data.decode("utf-8"))
         except UnicodeDecodeError:
             log.trace("received invalid unicode in pong %r", data, exc_info=True)
         except ValueError:
             log.trace("received invalid integer in pong %r", data, exc_info=True)
 
-    async def send_message(self, message):
+    async def send_message(self, message: Message[Any]) -> None:
         ''' Send a Bokeh Server protocol message to the connected client.
 
         Args:
@@ -279,7 +287,8 @@ class WSHandler(AuthMixin, WebSocketHandler):
             log.warning("Failed sending message as connection was closed")
         return None
 
-    async def write_message(self, message, binary=False, locked=True):
+    async def write_message(self, message: Union[bytes, str, Dict[str, Any]],
+            binary: bool = False, locked: bool = True) -> None:
         ''' Override parent write_message with a version that acquires a
         write lock before writing.
 
@@ -290,7 +299,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
         else:
             await super().write_message(message, binary)
 
-    def on_close(self):
+    def on_close(self) -> None:
         ''' Clean up when the connection is closed.
 
         '''
@@ -298,7 +307,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
         if self.connection is not None:
             self.application.client_lost(self.connection)
 
-    async def _receive(self, fragment):
+    async def _receive(self, fragment: str | bytes) -> Message[Any] | None:
         # Receive fragments until a complete message is assembled
         try:
             message = await self.receiver.consume(fragment)
@@ -307,7 +316,7 @@ class WSHandler(AuthMixin, WebSocketHandler):
             self._protocol_error(str(e))
             return None
 
-    async def _handle(self, message):
+    async def _handle(self, message: Message[Any]) -> Any | None:
         # Handle the message, possibly resulting in work to do
         try:
             work = await self.handler.handle(message, self.connection)
@@ -316,19 +325,19 @@ class WSHandler(AuthMixin, WebSocketHandler):
             self._internal_error(str(e))
             return None
 
-    async def _schedule(self, work):
+    async def _schedule(self, work: Any) -> None:
         if isinstance(work, Message):
-            await self.send_message(work)
+            await self.send_message(cast(Message[Any], work))
         else:
-            self._internal_error("expected a Message not " + repr(work))
+            self._internal_error(f"expected a Message not {work!r}")
 
         return None
 
-    def _internal_error(self, message):
+    def _internal_error(self, message: str) -> None:
         log.error("Bokeh Server internal error: %s, closing connection", message)
         self.close(10000, message)
 
-    def _protocol_error(self, message):
+    def _protocol_error(self, message: str) -> None:
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
 
@@ -339,7 +348,12 @@ class WSHandler(AuthMixin, WebSocketHandler):
 # This is an undocumented API purely for harvesting low level messages
 # for testing. When needed it will be set by the testing machinery, and
 # should not be used for any other purpose.
-_message_test_port = None
+@dataclass
+class MessageTestPort:
+    sent: List[Message[Any]]
+    received: List[Message[Any]]
+
+_message_test_port: MessageTestPort | None = None
 
 #-----------------------------------------------------------------------------
 # Code

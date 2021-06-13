@@ -25,7 +25,6 @@ from typing import (
     Any,
     Dict,
     List,
-    Optional,
     Sequence,
     Tuple,
     Type,
@@ -261,8 +260,8 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
     return script, result
 
 def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Optional[Union[Resources, Tuple[JSResources, CSSResources]]],
-              title: Optional[str] = None,
+              resources: Union[Resources, Tuple[JSResources, CSSResources]] | None,
+              title: str | None = None,
               template: Union[Template, str] = FILE,
               template_variables: Dict[str, Any] = {},
               theme: ThemeLike = None,
@@ -327,7 +326,7 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
+def json_item(model: Model, target: str | None = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -433,7 +432,7 @@ def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> Mode
 
     return models
 
-def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional[str]) -> str:
+def _title_from_models(models: Sequence[Union[Model, Document]], title: str | None) -> str:
     # use override title
     if title is not None:
         return title

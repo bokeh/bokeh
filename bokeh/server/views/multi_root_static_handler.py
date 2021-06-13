@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from typing import Dict, Optional
+from typing import Dict
 
 # External imports
 from tornado.web import HTTPError, StaticFileHandler
@@ -62,7 +62,7 @@ class MultiRootStaticHandler(StaticFileHandler):
         else:
             raise HTTPError(404)
 
-    def validate_absolute_path(self, root: str, absolute_path: str) -> Optional[str]:
+    def validate_absolute_path(self, root: str, absolute_path: str) -> str | None:
         for name, artifacts_dir in root.items():
             if absolute_path.startswith(artifacts_dir):
                 return super().validate_absolute_path(artifacts_dir, absolute_path)

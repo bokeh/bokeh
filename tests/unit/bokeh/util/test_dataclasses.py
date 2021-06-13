@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import List, Optional, Union
+from typing import List, Union
 
 # Module under test
 import bokeh.util.dataclasses as dc # isort:skip
@@ -35,7 +35,7 @@ def test_entries() -> None:
     class X:
         f0: int
         f1: List[str]
-        f2: Optional[X] = None
+        f2: X | None = None
         f3: dc.NotRequired[Union[bool, None]] = dc.Unspecified
 
     x0 = X(0, [1, 2, 3])

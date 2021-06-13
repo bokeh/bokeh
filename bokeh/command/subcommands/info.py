@@ -55,7 +55,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 from argparse import Namespace
-from typing import Any, Optional
 
 # Bokeh imports
 from bokeh import __version__
@@ -78,7 +77,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def if_installed(version_or_none: Optional[str]) -> str:
+def if_installed(version_or_none: str | None) -> str:
     ''' helper method to optionally return module version number or not installed
 
     :param version_or_none:
@@ -86,12 +85,9 @@ def if_installed(version_or_none: Optional[str]) -> str:
     '''
     return version_or_none or "(not installed)"
 
-def _version(modname: str, attr: str) -> Optional[Any]:
-    mod = import_optional(modname)
-    if mod:
-        return getattr(mod, attr)
-    else:  # explicit None return for mypy typing
-        return None
+def _version(module_name: str, attr: str) -> str | None:
+    module = import_optional(module_name)
+    return getattr(module, attr) if module else None
 
 #-----------------------------------------------------------------------------
 # General API

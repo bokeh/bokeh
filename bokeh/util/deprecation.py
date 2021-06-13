@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings  # lgtm [py/import-and-import-from]
-from typing import Optional, Tuple, overload
+from typing import Tuple, overload
 
 # Bokeh imports
 from .warnings import BokehDeprecationWarning
@@ -43,7 +43,7 @@ def warn(message: str, stacklevel: int = 2) -> None:
     warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
 @overload
-def deprecated(since_or_msg: Version, old: str, new: str, extra: Optional[str] = None) -> None:
+def deprecated(since_or_msg: Version, old: str, new: str, extra: str | None = None) -> None:
     ...
 
 @overload
@@ -51,7 +51,7 @@ def deprecated(since_or_msg: str) -> None:
     ...
 
 def deprecated(since_or_msg: Version | str,
-        old: Optional[str] = None, new: Optional[str] = None, extra: Optional[str] = None) -> None:
+        old: str | None = None, new: str | None = None, extra: str | None = None) -> None:
     """ Issue a nicely formatted deprecation warning. """
 
     if isinstance(since_or_msg, tuple):

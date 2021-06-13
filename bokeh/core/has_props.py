@@ -37,7 +37,6 @@ from typing import (
     Iterable,
     List,
     NoReturn,
-    Optional,
     Set,
     Tuple,
     Type,
@@ -52,7 +51,7 @@ from typing_extensions import Literal, TypedDict
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
-    def lru_cache(arg: Optional[int]) -> Callable[[F], F]: ...
+    def lru_cache(arg: int | None) -> Callable[[F], F]: ...
 else:
     from functools import lru_cache
 
@@ -451,7 +450,7 @@ class HasProps(metaclass=MetaHasProps):
     def lookup(cls, name: str, *, raises: Literal[False] = False) -> PropertyDescriptor[Any] | None: ...
 
     @classmethod
-    def lookup(cls, name: str, *, raises: bool = True) -> Optional[PropertyDescriptor[Any]]:
+    def lookup(cls, name: str, *, raises: bool = True) -> PropertyDescriptor[Any] | None:
         ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
         given the property name.
 

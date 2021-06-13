@@ -91,7 +91,7 @@ class ClientConnection:
     _until_predicate: Callable[[], bool] | None
 
     def __init__(self, session: ClientSession, websocket_url: str, io_loop: IOLoop | None = None,
-            arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024):
+            arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
         ''' Opens a websocket connection to the server.
 
         '''
@@ -366,7 +366,7 @@ class ClientConnection:
                 log.error("%r", e, exc_info=True)
                 self.close(why="error parsing message from server")
 
-    def _send_message_wait_for_reply(self, message: Message[Any]):
+    def _send_message_wait_for_reply(self, message: Message[Any]) -> Message[Any] | None:
         waiter = WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
 

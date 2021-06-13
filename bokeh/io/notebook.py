@@ -27,6 +27,8 @@ from typing import (
     Any,
     Callable,
     Dict,
+    List,
+    cast,
     overload,
 )
 from uuid import uuid4
@@ -46,7 +48,7 @@ from .state import curstate
 if TYPE_CHECKING:
     from ..application.application import Application
     from ..document.document import Document
-    from ..document.events import ModelChangedEvent
+    from ..document.events import DocumentPatchedEvent, ModelChangedEvent
     from ..embed.bundle import Bundle
     from ..model import Model
     from ..resources import Resources
@@ -107,7 +109,9 @@ class CommsHandle:
         try:
             from IPython import get_ipython
             ip = get_ipython()
+            assert ip is not None
             hm = ip.history_manager
+            assert hm is not None
             p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
             self._cellno = p_prompt
         except Exception as e:
@@ -148,7 +152,7 @@ class Load(Protocol):
     def __call__(self, resources: Resources, verbose: bool, hide_banner: bool, load_timeout: int) -> None: ...
 
 class ShowDoc(Protocol):
-    def __call__(self, obj: Model, state: State, notebook_handle: CommsHandle) -> None: ...
+    def __call__(self, obj: Model, state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
 
 class ShowApp(Protocol):
     def __call__(self, app: Application, state: State, notebook_url: str, **kw: Any) -> None: ...
@@ -316,7 +320,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         return
 
     handle.doc._held_events = []
-    msg = Protocol().create("PATCH-DOC", events)
+    msg = Protocol().create("PATCH-DOC", cast(List["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)
@@ -455,9 +459,9 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
             bokeh_version = __version__,
             warnings      = warnings,
         )
-
     else:
         element_id = None
+        html = None
 
     _NOTEBOOK_LOADED = resources
 
@@ -466,22 +470,23 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
     nb_js = _loading_js(bundle, element_id, load_timeout, register_mime=True)
     jl_js = _loading_js(bundle, element_id, load_timeout, register_mime=False)
 
-    if not hide_banner:
+    if html is not None:
         publish_display_data({'text/html': html})
     publish_display_data({
         JS_MIME_TYPE   : nb_js,
         LOAD_MIME_TYPE : jl_js,
     })
 
-def publish_display_data(*args: Any, **kw: Any):
+def publish_display_data(data: Dict[str, Any], metadata: Dict[Any, Any] | None = None,
+        source: str | None = None, *, transient: Dict[str, Any] | None = None, **kwargs: Any) -> None:
     '''
 
     '''
     # This import MUST be deferred or it will introduce a hard dependency on IPython
     from IPython.display import publish_display_data
-    return publish_display_data(*args, **kw)
+    publish_display_data(data, metadata, source, transient=transient, **kwargs)
 
-def show_app(app: Application, state: State, notebook_url: str | Callable[[int | None], str], port: int = 0, **kw):
+def show_app(app: Application, state: State, notebook_url: str | Callable[[int | None], str], port: int = 0, **kw: Any) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:

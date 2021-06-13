@@ -21,7 +21,10 @@ import os
 import tempfile
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
+
+# Bokeh imports
+from bokeh._testing.util.types import Capture
 
 # Module under test
 import bokeh.command.util as util # isort:skip
@@ -29,8 +32,6 @@ import bokeh.command.util as util # isort:skip
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-Capture = pytest.CaptureFixture[str]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -69,7 +70,7 @@ If this is not the case, renaming main.py will suppress this warning.
 """
 
 @patch('warnings.warn')
-def test_build_single_handler_application_main_py(mock_warn) -> None:
+def test_build_single_handler_application_main_py(mock_warn: MagicMock) -> None:
     f = tempfile.NamedTemporaryFile(suffix="main.py", delete=False)
     f.close() #close file to open it later on windows
     util.build_single_handler_application(f.name)

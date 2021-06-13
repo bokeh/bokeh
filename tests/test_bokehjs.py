@@ -32,7 +32,7 @@ class TestBokehJS:
     def test_bokehjs(self) -> None:
         os.chdir('bokehjs')
         proc = subprocess.Popen(["node", "make", "test"], stdout=subprocess.PIPE)
-        out, errs = proc.communicate()
+        out, _ = proc.communicate()
         msg = out.decode('utf-8', errors='ignore')
         os.chdir('..')
         print(msg)

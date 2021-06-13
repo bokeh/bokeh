@@ -17,9 +17,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Optional
-
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
@@ -210,8 +207,8 @@ class Figure(Plot, GlyphAPI):
 
     def subplot(self,
             *,
-            x_source: Optional[Range] = None, y_source: Optional[Range] = None,
-            x_scale: Optional[Scale] = None, y_scale: Optional[Scale] = None,
+            x_source: Range | None = None, y_source: Range | None = None,
+            x_scale: Scale | None = None, y_scale: Scale | None = None,
             x_target: Range, y_target: Range,
         ) -> GlyphAPI:
         """ Create a new sub-coordinate system and expose a plotting API. """

@@ -37,7 +37,6 @@ from typing import (
     Dict,
     Iterator,
     List,
-    Optional,
     Sequence,
     Set,
     Tuple,
@@ -262,7 +261,7 @@ _default_cdn_host = "https://unpkg.com"
 class ExtensionEmbed:
     artifact_path: str
     server_url: str
-    cdn_url: Optional[str] = None
+    cdn_url: str | None = None
 
 class Pkg(TypedDict, total=False):
     name: str
@@ -309,7 +308,7 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
 
         artifact_path: str
         server_url: str
-        cdn_url: Optional[str] = None
+        cdn_url: str | None = None
 
         if pkg is not None:
             pkg_name: str | None = pkg.get("name", None)

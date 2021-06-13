@@ -20,7 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-import mock
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler
@@ -187,16 +187,16 @@ class Test_Application:
             a.add(handler2)
         assert "More than one static path" in str(e.value)
 
-    @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_validates_document_by_default(self, check_integrity) -> None:
+    @patch('bokeh.document.document.check_integrity')
+    def test_application_validates_document_by_default(self, check_integrity: MagicMock) -> None:
         a = baa.Application()
         d = Document()
         d.add_root(figure())
         a.initialize_document(d)
         assert check_integrity.called
 
-    @mock.patch('bokeh.document.document.check_integrity')
-    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity, monkeypatch: pytest.MonkeyPatch) -> None:
+    @patch('bokeh.document.document.check_integrity')
+    def test_application_doesnt_validate_document_due_to_env_var(self, check_integrity: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
         a = baa.Application()
         d = Document()

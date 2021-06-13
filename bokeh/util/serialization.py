@@ -48,7 +48,7 @@ from typing import (
 
 # External imports
 import numpy as np
-from typing_extensions import Literal, TypedDict
+from typing_extensions import Literal, TypedDict, TypeGuard
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -145,7 +145,7 @@ class Base64BufferJson(TypedDict):
 if TYPE_CHECKING:
     Buffers = List[BufferRef]
 
-def is_datetime_type(obj: Any) -> bool: # TODO: TypeGuard
+def is_datetime_type(obj: Any) -> TypeGuard[dt.time | dt.datetime | np.datetime64]:
     ''' Whether an object is any date, time, or datetime type recognized by
     Bokeh.
 
@@ -158,7 +158,7 @@ def is_datetime_type(obj: Any) -> bool: # TODO: TypeGuard
     '''
     return isinstance(obj, _dt_tuple)
 
-def is_timedelta_type(obj: Any) -> bool: # TODO: TypeGuard
+def is_timedelta_type(obj: Any) -> TypeGuard[dt.timedelta | np.timedelta64]:
     ''' Whether an object is any timedelta type recognized by Bokeh.
 
     Arg:
@@ -392,7 +392,7 @@ def transform_array_to_list(array: np.ndarray) -> Sequence[Any]:
         return transformed.tolist()
     return array.tolist()
 
-def transform_series(series: pd.Series, force_list: bool = False, buffers: Buffers | None = None):
+def transform_series(series: pd.Series | pd.Index, force_list: bool = False, buffers: Buffers | None = None):
     ''' Transforms a Pandas series into serialized form
 
     Args:

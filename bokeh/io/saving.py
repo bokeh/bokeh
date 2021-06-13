@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath
-from typing import Optional, Tuple
+from typing import Tuple
 from warnings import warn
 
 # External imports
@@ -52,8 +52,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: LayoutDOM, filename: Optional[PathLike] = None, resources: Optional[ResourcesLike] = None,
-        title: Optional[str] = None, template: Optional[Template] = None, state: Optional[State] = None) -> str:
+def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesLike | None = None,
+        title: str | None = None, template: Template | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -106,8 +106,8 @@ def save(obj: LayoutDOM, filename: Optional[PathLike] = None, resources: Optiona
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_save_args(state: State, filename: Optional[PathLike], resources: Optional[ResourcesLike],
-        title: Optional[str]) -> Tuple[PathLike, Resources, str]:
+def _get_save_args(state: State, filename: PathLike | None, resources: ResourcesLike | None,
+        title: str | None) -> Tuple[PathLike, Resources, str]:
     '''
 
     '''
@@ -119,7 +119,7 @@ def _get_save_args(state: State, filename: Optional[PathLike], resources: Option
 
     return filename, resources, title
 
-def _get_save_filename(state: State, filename: Optional[PathLike]) -> Tuple[PathLike, bool]:
+def _get_save_filename(state: State, filename: PathLike | None) -> Tuple[PathLike, bool]:
     if filename is not None:
         return filename, False
 
@@ -128,7 +128,7 @@ def _get_save_filename(state: State, filename: Optional[PathLike]) -> Tuple[Path
 
     return default_filename("html"), True
 
-def _get_save_resources(state: State, resources: Optional[ResourcesLike], suppress_warning: bool) -> Resources:
+def _get_save_resources(state: State, resources: ResourcesLike | None, suppress_warning: bool) -> Resources:
     if resources is not None:
         if isinstance(resources, Resources):
             return resources
@@ -143,7 +143,7 @@ def _get_save_resources(state: State, resources: Optional[ResourcesLike], suppre
 
     return Resources(mode=settings.resources())
 
-def _get_save_title(state: State, title: Optional[str], suppress_warning: bool) -> str:
+def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> str:
     if title is not None:
         return title
 
@@ -155,8 +155,8 @@ def _get_save_title(state: State, title: Optional[str], suppress_warning: bool) 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: LayoutDOM, filename: PathLike, resources: Optional[Resources],
-        title: Optional[str], template: Optional[Template], theme: Optional[Theme] = None) -> None:
+def _save_helper(obj: LayoutDOM, filename: PathLike, resources: Resources | None,
+        title: str | None, template: Template | None, theme: Theme | None = None) -> None:
     '''
 
     '''

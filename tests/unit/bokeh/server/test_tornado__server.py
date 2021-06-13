@@ -27,8 +27,10 @@ from subprocess import run
 from _util_server import http_get, url
 
 # Bokeh imports
+from bokeh._testing.plugins.managed_server_loop import MSL
 from bokeh.application import Application
 from bokeh.client import pull_session
+from bokeh.core.types import ID
 from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
 from bokeh.server.views.ws import WSHandler
@@ -51,7 +53,7 @@ def test_windows_event_loop_fixup():
     proc = run([sys.executable, "-c", "import asyncio, sys; import bokeh.server.tornado; sys.exit(int(isinstance(asyncio.get_event_loop_policy(), asyncio.WindowsProactorEventLoopPolicy)))"'']) # noqa
     assert proc.returncode == 0, "bokeh.server did not fixup windows event loop"
 
-def test_default_resources(ManagedServerLoop) -> None:
+def test_default_resources(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         r = server._tornado.resources()
@@ -89,7 +91,7 @@ def test_default_resources(ManagedServerLoop) -> None:
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
-def test_env_resources(ManagedServerLoop) -> None:
+def test_env_resources(ManagedServerLoop: MSL) -> None:
     os.environ['BOKEH_RESOURCES'] = 'cdn'
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -97,7 +99,7 @@ def test_env_resources(ManagedServerLoop) -> None:
         assert r.mode == "cdn"
     del os.environ['BOKEH_RESOURCES']
 
-def test_dev_resources(ManagedServerLoop) -> None:
+def test_dev_resources(ManagedServerLoop: MSL) -> None:
     os.environ['BOKEH_DEV'] = 'yes'
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -106,7 +108,7 @@ def test_dev_resources(ManagedServerLoop) -> None:
         assert r.dev
     del os.environ['BOKEH_DEV']
 
-def test_index(ManagedServerLoop) -> None:
+def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.index is None
@@ -114,7 +116,7 @@ def test_index(ManagedServerLoop) -> None:
     with ManagedServerLoop(application, index='foo') as server:
         assert server._tornado.index == "foo"
 
-def test_prefix(ManagedServerLoop) -> None:
+def test_prefix(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.prefix == ""
@@ -186,14 +188,14 @@ def test_default_app_paths() -> None:
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios
-def test_log_stats(ManagedServerLoop) -> None:
+def test_log_stats(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         server._tornado._log_stats()
-        session1 = pull_session(session_id='session1',
+        session1 = pull_session(session_id=ID("session1"),
                                 url=url(server),
                                 io_loop=server.io_loop)
-        session2 = pull_session(session_id='session2',
+        session2 = pull_session(session_id=ID("session2"),
                                 url=url(server),
                                 io_loop=server.io_loop)
         server._tornado._log_stats()
@@ -201,7 +203,7 @@ def test_log_stats(ManagedServerLoop) -> None:
         session2.close()
         server._tornado._log_stats()
 
-async def test_metadata(ManagedServerLoop) -> None:
+async def test_metadata(ManagedServerLoop: MSL) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
         meta_url = url(server) + 'metadata'

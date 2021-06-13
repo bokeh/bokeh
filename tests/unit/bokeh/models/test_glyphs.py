@@ -31,9 +31,10 @@ from bokeh.core.enums import (
     LineJoin,
     Location,
     MapType,
+    NamedColor as Color,
+    TextAlign,
+    TextBaseline,
 )
-from bokeh.core.enums import NamedColor as Color
-from bokeh.core.enums import TextAlign, TextBaseline
 from bokeh.core.property.dataspec import field
 from bokeh.models.glyphs import (
     Asterisk,
