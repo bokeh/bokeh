@@ -53,7 +53,7 @@ class MathText(Model):
     The text value to render as mathematical notation.
     """)
 
-    def __init__(self, text: str, **kwargs) -> None:
+    def __init__(self, text: str = '', **kwargs) -> None:
         if text:
             kwargs['text'] = text
 
