@@ -40,12 +40,12 @@ from ..models import (
     ColumnDataSource,
     CoordinateMapping,
     GraphRenderer,
+    MathText,
     Plot,
     Range,
     Scale,
     Title,
     Tool,
-    MathText
 )
 from ..models.dom import Template
 from ..models.tools import (
