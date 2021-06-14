@@ -1,22 +1,28 @@
-from numpy import arange, pi, sin
+from bokeh.io.export import export_svg
+from bokeh.io import output_file, show
+from bokeh.palettes import Spectral5
+from bokeh.plotting import figure
+from bokeh.sampledata.autompg import autompg_clean as df
+from bokeh.transform import factor_cmap
 
-from bokeh.models import Circle, ColumnDataSource, LinearAxis, Plot
-from bokeh.io import export_svg
+df.cyl = df.cyl.astype(str)
+df.yr = df.yr.astype(str)
 
-x = arange(-2*pi, 2*pi, 0.1)
-y = sin(x)
+group = df.groupby(['cyl', 'mfr'])
 
-source = ColumnDataSource(
-    data=dict(x=x, y=y)
-)
+index_cmap = factor_cmap('cyl_mfr', palette=Spectral5, factors=sorted(df.cyl.unique()), end=1)
 
-plot = Plot(min_border=80)
-circle = Circle(x="x", y="y", fill_color="red", size=5)
-x_axis_label = r"x\cdot\pi"
-y_axis_label = r"\sin(x)"
+p = figure(plot_width=800, plot_height=300, title="Mean MPG by # Cylinders and Manufacturer",
+           x_range=group, toolbar_location=None, tooltips=[("MPG", "@mpg_mean"), ("Cyl, Mfr", "@cyl_mfr")])
 
-plot.add_glyph(source, circle)
-plot.add_layout(LinearAxis(axis_label=x_axis_label), 'below')
-plot.add_layout(LinearAxis(axis_label=y_axis_label), 'left')
+p.vbar(x='cyl_mfr', top='mpg_mean', width=1, source=group,
+       line_color="white", fill_color=index_cmap, )
 
-export_svg(plot, filename="plot.svg")
+p.y_range.start = 0
+p.x_range.range_padding = 0.05
+p.xgrid.grid_line_color = None
+p.xaxis.axis_label = "Manufacturer grouped by # Cylinders"
+p.xaxis.major_label_orientation = 1.2
+p.outline_line_color = None
+
+export_svg(p, filename="plot.svg")
