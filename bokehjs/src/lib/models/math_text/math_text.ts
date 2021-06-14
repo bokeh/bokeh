@@ -8,6 +8,7 @@ import {Model} from "../../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
+import { RendererView } from "models/renderers/renderer"
 
 type Position = {
   sx: number
@@ -21,6 +22,7 @@ type Position = {
  */
 export class MathTextView extends View {
   override model: MathText
+  override parent: RendererView
 
   angle?: number
   font_size_scale: number = 1.0
@@ -29,8 +31,15 @@ export class MathTextView extends View {
   position: Position = {sx: 0, sy: 0}
   width: number
   color: string
-  svg_image: CanvasImage
-  image_is_loading = false
+  has_image_loaded = false
+
+  // Align does nothing, needed to maintain compatibility with TextBox,
+  // to align you need to use TeX Macros.
+  // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
+  align: "left" | "center" | "right" | "justify" = "left"
+
+  private image_is_loading = false
+  private svg_image: CanvasImage
 
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
@@ -95,7 +104,7 @@ export class MathTextView extends View {
    * Uses the width, height and given angle to calculate the size
   */
   size(): Size {
-    const {width, height} = this.getDimensions()
+    const {width, height} = this.get_dimensions()
     const {angle} = this
 
     if (!angle)
@@ -114,7 +123,7 @@ export class MathTextView extends View {
   /**
    * Get width and height from SVGElement
    */
-  private getDimensions(): Size {
+  private get_dimensions(): Size {
     if (typeof MathJax === "undefined") return {width: 0, height: 0}
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
@@ -143,7 +152,9 @@ export class MathTextView extends View {
       document.head.appendChild(script)
     }
 
-    if (typeof MathJax === "undefined" || this.image_is_loading) return
+    if (typeof MathJax === "undefined") return this.parent.request_paint()
+
+    if (this.image_is_loading) return
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
 
@@ -168,7 +179,10 @@ export class MathTextView extends View {
     new ImageLoader(url, {
       loaded: (image) => {
         this.svg_image = image
+        this.has_image_loaded = true
         URL.revokeObjectURL(url)
+
+        this.parent.request_paint()
       },
     })
   }
@@ -177,24 +191,27 @@ export class MathTextView extends View {
    * Takes a Canvas' Context2d and if the image has already
    * been loaded draws the image in it.
   */
-  draw_image(ctx: Context2d): void {
-    if (this.svg_image) {
-      ctx.save()
-      const {sx, sy} = this.position
-
-      if (this.angle) {
-        ctx.translate(sx, sy)
-        ctx.rotate(this.angle)
-        ctx.translate(-sx, -sy)
-      }
-
-      const {x, y} = this._computed_position()
-
-      ctx.drawImage(this.svg_image, x, y)
-      ctx.restore()
-
-      this._has_finished = true
+  paint(ctx: Context2d): void {
+    if (!this.has_image_loaded) {
+      return this.load_image()
     }
+
+    ctx.save()
+    const {sx, sy} = this.position
+
+    if (this.angle) {
+      ctx.translate(sx, sy)
+      ctx.rotate(this.angle)
+      ctx.translate(-sx, -sy)
+    }
+
+    const {x, y} = this._computed_position()
+
+    ctx.drawImage(this.svg_image, x, y)
+    ctx.restore()
+
+    this._has_finished = true
+    this.notify_finished()
   }
 }
 

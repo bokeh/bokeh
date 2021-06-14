@@ -216,23 +216,8 @@ export class AxisView extends GuideRendererView {
     axis_label.angle = angle
     axis_label.visuals = this.visuals.axis_label_text
     axis_label.position = position
-
-    if (axis_label instanceof MathTextView) {
-      // If the image is not loaded
-      if (!axis_label.svg_image) {
-        // Request a new render
-        this.request_paint()
-        // Initiate loading if none has started yet
-        return axis_label.load_image()
-      }
-
-      // Once the image is finished loading draw it to Canvas
-      axis_label.draw_image(ctx)
-      this.notify_finished()
-    } else {
-      axis_label.align = align
-      axis_label.paint(ctx)
-    }
+    axis_label.align = align
+    axis_label.paint(ctx)
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
