@@ -29,6 +29,7 @@ dependencies:
   - colorcet
   - firefox
   - geckodriver
+  - icalendar
   - networkx
   - pandas
   - pydot
