@@ -38,7 +38,7 @@ dependencies:
   - psutil
   - pydot
   - pygments
-  - pytest
+  - pytest 6.2*
   - pytest-asyncio
   - pytest-cov >=1.8.1
   - pytest-html
