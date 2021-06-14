@@ -1,7 +1,7 @@
 import {BaseGLGlyph, Transform} from "./base"
+import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {RectGlyphProps, RectHatchGlyphProps} from "./types"
-import {color_to_uint8_array, prop_as_array, hatch_pattern_prop_as_array, line_join_prop_as_array} from "./webgl_utils"
 import {RectView} from "../rect"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -12,23 +12,28 @@ const missing_point = -10000
 export class RectGL extends BaseGLGlyph {
   protected _antialias: number
 
-  protected _centers: Float32Array
-  protected _widths: Float32Array
-  protected _heights: Float32Array
-  protected _angles: number[] | Float32Array
-  protected _linewidths: number[] | Float32Array
-  protected _line_rgba: Uint8Array
-  protected _fill_rgba: Uint8Array
-  protected _line_joins: number[] | Float32Array
-  protected _show: Uint8Array
+  // data properties, either all or none are set.
+  protected _centers: Float32Buffer
+  protected _widths: Float32Buffer
+  protected _heights: Float32Buffer
+  protected _angles: Float32Buffer
+
+  // visual properties, either all or none are set.
+  protected _linewidths: Float32Buffer
+  protected _line_rgba: NormalizedUint8Buffer
+  protected _fill_rgba: NormalizedUint8Buffer
+  protected _line_joins: Uint8Buffer
+
+  // indices properties.
+  protected _show: Uint8Buffer
   protected _show_all: boolean
 
-  // Only needed if have hatch pattern.
+  // Only needed if have hatch pattern, either all or none of the buffers are set.
   protected _have_hatch: boolean
-  protected _hatch_patterns?: number[] | Float32Array
-  protected _hatch_scales?: number[] | Float32Array
-  protected _hatch_weights?: number[] | Float32Array
-  protected _hatch_rgba?: Uint8Array
+  protected _hatch_patterns?: Uint8Buffer
+  protected _hatch_scales?: Float32Buffer
+  protected _hatch_weights?: Float32Buffer
+  protected _hatch_rgba?: NormalizedUint8Buffer
 
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: RectView) {
     super(regl_wrapper, glyph)
@@ -51,25 +56,28 @@ export class RectGL extends BaseGLGlyph {
     }
 
     const nmarkers = mainGlGlyph._centers.length / 2
-    if (this._show == null)
-      this._show = new Uint8Array(nmarkers)
 
+    if (this._show == null)
+      this._show = new Uint8Buffer(this.regl_wrapper)
+
+    const show_array = this._show.get_sized_array(nmarkers)
     if (indices.length < nmarkers) {
       this._show_all = false
 
       // Reset all show values to zero.
       for (let i = 0; i < nmarkers; i++)
-        this._show[i] = 0
+        show_array[i] = 0
 
       // Set show values of markers to render to 255.
       for (let j = 0; j < indices.length; j++) {
-        this._show[indices[j]] = 255
+        show_array[indices[j]] = 255
       }
     } else if (!this._show_all) {
       this._show_all = true
       for (let i = 0; i < nmarkers; i++)
-        this._show[i] = 255
+        show_array[i] = 255
     }
+    this._show.update()
 
     if (this._have_hatch) {
       const props: RectHatchGlyphProps = {
@@ -119,43 +127,64 @@ export class RectGL extends BaseGLGlyph {
   protected _set_data(): void {
     const nmarkers = this.glyph.sx.length
 
-    if (this._centers == null || this._centers.length != nmarkers*2)
-      this._centers = new Float32Array(nmarkers*2)
-
-    for (let i = 0; i < nmarkers; i++) {
-      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
-        this._centers[2*i  ] = this.glyph.sx[i]
-        this._centers[2*i+1] = this.glyph.sy[i]
-      } else {
-        this._centers[2*i  ] = missing_point
-        this._centers[2*i+1] = missing_point
-      }
+    if (this._centers == null) {
+      // Either all or none are set.
+      this._centers = new Float32Buffer(this.regl_wrapper)
+      this._widths = new Float32Buffer(this.regl_wrapper)
+      this._heights = new Float32Buffer(this.regl_wrapper)
+      this._angles = new Float32Buffer(this.regl_wrapper)
     }
 
-    this._widths = this.glyph.sw
-    this._heights = this.glyph.sh
-    this._angles = prop_as_array(this.glyph.angle)
+    const centers_array = this._centers.get_sized_array(nmarkers*2)
+    for (let i = 0; i < nmarkers; i++) {
+      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
+        centers_array[2*i  ] = this.glyph.sx[i]
+        centers_array[2*i+1] = this.glyph.sy[i]
+      } else {
+        centers_array[2*i  ] = missing_point
+        centers_array[2*i+1] = missing_point
+      }
+    }
+    this._centers.update()
+
+    this._widths.set_from_array(this.glyph.sw)
+    this._heights.set_from_array(this.glyph.sh)
+    this._angles.set_from_prop(this.glyph.angle)
   }
 
   protected _set_visuals(): void {
     const fill = this.glyph.visuals.fill
     const line = this.glyph.visuals.line
 
-    this._linewidths = prop_as_array(line.line_width)
-    this._line_joins = line_join_prop_as_array(line.line_join)
+    if (this._linewidths == null) {
+      // Either all or none are set.
+      this._linewidths = new Float32Buffer(this.regl_wrapper)
+      this._line_joins = new Uint8Buffer(this.regl_wrapper)
+      this._line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+      this._fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+    }
 
-    // These create new Uint8Arrays each call.  Should reuse instead.
-    this._line_rgba = color_to_uint8_array(line.line_color, line.line_alpha)
-    this._fill_rgba = color_to_uint8_array(fill.fill_color, fill.fill_alpha)
+    this._linewidths.set_from_prop(line.line_width)
+    this._line_joins.set_from_line_join(line.line_join)
+    this._line_rgba.set_from_color(line.line_color, line.line_alpha)
+    this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
 
     this._have_hatch = this.glyph.visuals.hatch.doit
     if (this._have_hatch) {
       const hatch = this.glyph.visuals.hatch
 
-      this._hatch_patterns = hatch_pattern_prop_as_array(hatch.hatch_pattern)
-      this._hatch_scales = prop_as_array(hatch.hatch_scale)
-      this._hatch_weights = prop_as_array(hatch.hatch_weight)
-      this._hatch_rgba = color_to_uint8_array(hatch.hatch_color, hatch.hatch_alpha)
+      if (this._hatch_patterns == null) {
+        // Either all or none are set.
+        this._hatch_patterns = new Uint8Buffer(this.regl_wrapper)
+        this._hatch_scales = new Float32Buffer(this.regl_wrapper)
+        this._hatch_weights = new Float32Buffer(this.regl_wrapper)
+        this._hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+      }
+
+      this._hatch_patterns!.set_from_hatch_pattern(hatch.hatch_pattern)
+      this._hatch_scales!.set_from_prop(hatch.hatch_scale)
+      this._hatch_weights!.set_from_prop(hatch.hatch_weight)
+      this._hatch_rgba!.set_from_color(hatch.hatch_color, hatch.hatch_alpha)
     }
   }
 }

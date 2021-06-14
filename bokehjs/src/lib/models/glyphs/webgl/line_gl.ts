@@ -5,7 +5,8 @@ import {color2rgba} from "core/util/color"
 import {resolve_line_dash} from "core/visuals/line"
 import {Texture2D} from "regl"
 import {cap_lookup, join_lookup} from "./webgl_utils"
-import {FloatBuffer, LineGlyphProps, LineDashGlyphProps} from "./types"
+import {Float32Buffer} from "./buffer"
+import {LineGlyphProps, LineDashGlyphProps} from "./types"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
 // have reduced floating point precision.  So here using a large-ish negative
@@ -15,7 +16,7 @@ const missing_point_threshold = -9000.0
 
 export class LineGL extends BaseGLGlyph {
   protected _nsegments: number
-  protected _points: FloatBuffer
+  protected _points: Float32Buffer
 
   protected _antialias: number
   protected _color: number[]
@@ -25,7 +26,7 @@ export class LineGL extends BaseGLGlyph {
   protected _is_closed: boolean
 
   // Only needed if line has dashes.
-  protected _length_so_far?: FloatBuffer
+  protected _length_so_far?: Float32Buffer
   protected _dash_tex?: Texture2D
   protected _dash_tex_info?: number[]
   protected _dash_scale?: number
@@ -66,11 +67,11 @@ export class LineGL extends BaseGLGlyph {
         linewidth: this._linewidth,
         antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: mainGlGlyph._points.buffer,
+        points: mainGlGlyph._points,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
-        length_so_far: mainGlGlyph._length_so_far!.buffer,
+        length_so_far: mainGlGlyph._length_so_far!,
         dash_tex: this._dash_tex!,
         dash_tex_info: this._dash_tex_info!,
         dash_scale: this._dash_scale!,
@@ -87,7 +88,7 @@ export class LineGL extends BaseGLGlyph {
         linewidth: this._linewidth,
         antialias: this._antialias,
         miter_limit: this._miter_limit,
-        points: mainGlGlyph._points.buffer,
+        points: mainGlGlyph._points,
         nsegments: mainGlGlyph._nsegments,
         line_join,
         line_cap,
@@ -111,7 +112,9 @@ export class LineGL extends BaseGLGlyph {
                          isFinite(this.glyph.sy[0]))
     }
 
-    const points_array = this.get_buffer_array(this._points, (npoints+2)*2)
+    if (this._points == null)
+      this._points = new Float32Buffer(this.regl_wrapper)
+    const points_array = this._points.get_sized_array((npoints+2)*2)
 
     for (let i = 1; i < npoints+1; i++) {
       if (isFinite(this.glyph.sx[i-1]) && isFinite(this.glyph.sy[i-1])) {
@@ -135,10 +138,12 @@ export class LineGL extends BaseGLGlyph {
       points_array[2*npoints+3] = missing_point
     }
 
-    this._points = this.update_buffer(this._points, points_array)
+    this._points.update()
 
     if (this._is_dashed()) {
-      const lengths_array = this.get_buffer_array(this._length_so_far!, this._nsegments)
+      if (this._length_so_far == null)
+        this._length_so_far = new Float32Buffer(this.regl_wrapper)
+      const lengths_array = this._length_so_far!.get_sized_array(this._nsegments)
 
       let length = 0.0
       for (let i = 0; i < this._nsegments; i++) {
@@ -149,7 +154,7 @@ export class LineGL extends BaseGLGlyph {
                               (points_array[2*i+5] - points_array[2*i+3])**2)
       }
 
-      this._length_so_far = this.update_buffer(this._length_so_far!, lengths_array)
+      this._length_so_far!.update()
     }
   }
 

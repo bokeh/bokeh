@@ -1,10 +1,10 @@
 import {BaseGLGlyph, Transform} from "./base"
+import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {MarkerGlyphProps} from "./types"
 import type {GlyphView} from "../glyph"
 import type {ScatterView} from "../scatter"
 import type {CircleView} from "../circle"
-import {color_to_uint8_array, prop_as_array} from "./webgl_utils"
 import {MarkerType} from "core/enums"
 
 // Avoiding use of nan or inf to represent missing data in webgl as shaders may
@@ -26,13 +26,18 @@ export class MarkerGL extends BaseGLGlyph {
   protected _marker_type: MarkerType
   protected _antialias: number
 
-  protected _centers: Float32Array
-  protected _sizes: number[] | Float32Array
-  protected _angles: number[] | Float32Array
-  protected _linewidths: number[] | Float32Array
-  protected _line_rgba: Uint8Array
-  protected _fill_rgba: Uint8Array
-  protected _show: Uint8Array
+  // data properties, either all or none are set.
+  protected _centers: Float32Buffer
+  protected _sizes: Float32Buffer
+  protected _angles: Float32Buffer
+
+  // visual properties, either all or none are set.
+  protected _linewidths: Float32Buffer
+  protected _line_rgba: NormalizedUint8Buffer
+  protected _fill_rgba: NormalizedUint8Buffer
+
+  // indices properties.
+  protected _show: Uint8Buffer
   protected _show_all: boolean
 
   static is_supported(marker_type: MarkerType): boolean {
@@ -98,25 +103,28 @@ export class MarkerGL extends BaseGLGlyph {
     }
 
     const nmarkers = mainGlGlyph._centers.length / 2
-    if (this._show == null)
-      this._show = new Uint8Array(nmarkers)
 
+    if (this._show == null)
+      this._show = new Uint8Buffer(this.regl_wrapper)
+
+    const show_array = this._show.get_sized_array(nmarkers)
     if (indices.length < nmarkers) {
       this._show_all = false
 
       // Reset all show values to zero.
       for (let i = 0; i < nmarkers; i++)
-        this._show[i] = 0
+        show_array[i] = 0
 
       // Set show values of markers to render to 255.
       for (let j = 0; j < indices.length; j++) {
-        this._show[indices[j]] = 255
+        show_array[indices[j]] = 255
       }
     } else if (!this._show_all) {
       this._show_all = true
       for (let i = 0; i < nmarkers; i++)
-        this._show[i] = 255
+        show_array[i] = 255
     }
+    this._show.update()
 
     const props: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
@@ -139,37 +147,50 @@ export class MarkerGL extends BaseGLGlyph {
   protected _set_data(): void {
     const nmarkers = this.glyph.sx.length
 
-    if (this._centers == null || this._centers.length != nmarkers*2)
-      this._centers = new Float32Array(nmarkers*2)
-
-    for (let i = 0; i < nmarkers; i++) {
-      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
-        this._centers[2*i  ] = this.glyph.sx[i]
-        this._centers[2*i+1] = this.glyph.sy[i]
-      } else {
-        this._centers[2*i  ] = missing_point
-        this._centers[2*i+1] = missing_point
-      }
+    if (this._centers == null) {
+      // Either all or none are set.
+      this._centers = new Float32Buffer(this.regl_wrapper)
+      this._sizes = new Float32Buffer(this.regl_wrapper)
+      this._angles = new Float32Buffer(this.regl_wrapper)
     }
 
-    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
-      this._sizes = new Float32Array(nmarkers)
-      for (let i = 0; i < nmarkers; i++)
-        this._sizes[i] = this.glyph.sradius[i]*2
-    } else
-      this._sizes = prop_as_array(this.glyph.size)
+    const centers_array = this._centers.get_sized_array(nmarkers*2)
+    for (let i = 0; i < nmarkers; i++) {
+      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
+        centers_array[2*i  ] = this.glyph.sx[i]
+        centers_array[2*i+1] = this.glyph.sy[i]
+      } else {
+        centers_array[2*i  ] = missing_point
+        centers_array[2*i+1] = missing_point
+      }
+    }
+    this._centers.update()
 
-    this._angles = prop_as_array(this.glyph.angle)
+    if (is_CircleView(this.glyph) && this.glyph.radius != null) {
+      const sizes_array = this._sizes.get_sized_array(nmarkers)
+      for (let i = 0; i < nmarkers; i++)
+        sizes_array[i] = this.glyph.sradius[i]*2
+      this._sizes.update()
+    } else {
+      this._sizes.set_from_prop(this.glyph.size)
+    }
+
+    this._angles.set_from_prop(this.glyph.angle)
   }
 
   protected _set_visuals(): void {
     const fill = this.glyph.visuals.fill
     const line = this.glyph.visuals.line
 
-    this._linewidths = prop_as_array(line.line_width)
+    if (this._linewidths == null) {
+      // Either all or none are set.
+      this._linewidths = new Float32Buffer(this.regl_wrapper)
+      this._line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+      this._fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+    }
 
-    // These create new Uint8Arrays each call.  Should reuse instead.
-    this._line_rgba = color_to_uint8_array(line.line_color, line.line_alpha)
-    this._fill_rgba = color_to_uint8_array(fill.fill_color, fill.fill_alpha)
+    this._linewidths.set_from_prop(line.line_width)
+    this._line_rgba.set_from_color(line.line_color, line.line_alpha)
+    this._fill_rgba.set_from_color(fill.fill_color, fill.fill_alpha)
   }
 }
