@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -34,6 +35,7 @@ from typing import (
 
 # External imports
 from jinja2 import Template
+from typing_extensions import TypedDict
 
 # Bokeh imports
 from .. import __version__
@@ -58,6 +60,10 @@ from .util import (
     standalone_docs_json_and_render_items,
 )
 from .wrappers import wrap_in_onload
+
+if TYPE_CHECKING:
+    from ..core.types import ID
+    from ..document.document import DocJson
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -327,7 +333,13 @@ def file_html(models: Union[Model, Document, Sequence[Model]],
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model: Model, target: str | None = None, theme: ThemeLike = None) -> Any: # TODO: TypedDict?
+class StandaloneEmbedJson(TypedDict):
+    target_id: ID | None
+    root_id: ID
+    doc: DocJson
+    version: str
+
+def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -> StandaloneEmbedJson:
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -392,13 +404,12 @@ def json_item(model: Model, target: str | None = None, theme: ThemeLike = None) 
     doc_json = list(docs_json.values())[0]
     root_id = doc_json['roots']['root_ids'][0]
 
-    return {
-        'target_id' : target,
-        'root_id'   : root_id,
-        'doc'       : doc_json,
-        'version'   : __version__,
-    }
-
+    return StandaloneEmbedJson(
+        target_id = target,
+        root_id   = root_id,
+        doc       = doc_json,
+        version   = __version__,
+    )
 
 #-----------------------------------------------------------------------------
 # Dev API
