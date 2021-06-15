@@ -176,14 +176,14 @@ export class MathTextView extends View {
 
     const heightEx = parseFloat(
       svg_element
-        .getAttribute('height')
-        ?.replace(/([A-z])/g, '') ?? '0'
+        .getAttribute("height")
+        ?.replace(/([A-z])/g, "") ?? "0"
     )
 
     const widthEx = parseFloat(
       svg_element
-        .getAttribute('width')
-        ?.replace(/([A-z])/g, '') ?? '0'
+        .getAttribute("width")
+        ?.replace(/([A-z])/g, "") ?? "0"
     )
 
     this.width = font_metrics(this.font).x_height * widthEx
