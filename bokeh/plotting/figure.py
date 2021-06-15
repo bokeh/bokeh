@@ -17,6 +17,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any as TAny
+
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
@@ -654,7 +657,7 @@ class Figure(Plot, GlyphAPI):
         self.renderers.append(graph_renderer)
         return graph_renderer
 
-def figure(**kwargs):
+def figure(**kwargs: TAny) -> Figure:
     return Figure(**kwargs)
 figure.__doc__ = Figure.__doc__
 
