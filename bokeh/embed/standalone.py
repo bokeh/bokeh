@@ -31,11 +31,12 @@ from typing import (
     Type,
     Union,
     cast,
+    overload,
 )
 
 # External imports
 from jinja2 import Template
-from typing_extensions import TypedDict
+from typing_extensions import Literal, TypedDict
 
 # Bokeh imports
 from .. import __version__
@@ -134,6 +135,27 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
     )
 
     return js, tag
+
+@overload
+def components(models: Model, wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, str]: ...
+@overload
+def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, RenderRoot]: ...
+
+@overload
+def components(models: Sequence[Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Sequence[str]]: ...
+@overload
+def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, Sequence[RenderRoot]]: ...
+
+@overload
+def components(models: Dict[str, Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Dict[str, str]]: ...
+@overload
+def components(models: Dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> Tuple[str, Dict[str, RenderRoot]]: ...
 
 def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: bool = True,
                wrap_plot_info: bool = True, theme: ThemeLike = None) -> Tuple[str, Any]:
