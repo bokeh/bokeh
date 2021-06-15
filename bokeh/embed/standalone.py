@@ -266,10 +266,10 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
 
     return script, result
 
-def file_html(models: Union[Model, Document, Sequence[Model]],
-              resources: Union[Resources, Tuple[JSResources, CSSResources]] | None,
+def file_html(models: Model | Document | Sequence[Model],
+              resources: Resources | Tuple[JSResources | None, CSSResources | None] | None,
               title: str | None = None,
-              template: Union[Template, str] = FILE,
+              template: Template | str = FILE,
               template_variables: Dict[str, Any] = {},
               theme: ThemeLike = None,
               suppress_callback_warning: bool = False,
