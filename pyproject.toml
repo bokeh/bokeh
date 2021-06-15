@@ -79,5 +79,6 @@ module = [
     "tests.codebase.*",
     "tests.test_bokehjs",
     "tests.test_examples",
+    "tests.unit.bokeh.embed.test_standalone",
 ]
 ignore_errors = false

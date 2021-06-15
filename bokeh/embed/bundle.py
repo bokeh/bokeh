@@ -151,7 +151,7 @@ class Bundle:
             self.css_raw.append(artifact.content)
 
 def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
-        resources: BaseResources | Tuple[BaseResources, BaseResources] | None) -> Bundle:
+        resources: BaseResources | Tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
@@ -180,7 +180,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         if css_resources and not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
     else:
-        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
+        raise ValueError(f"expected Resources or a pair of optional Resources, got {resources!r}")
 
     from copy import deepcopy
 
