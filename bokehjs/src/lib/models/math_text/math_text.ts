@@ -8,9 +8,9 @@ import {Model} from "../../model"
 import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
-import { RendererView } from "models/renderers/renderer"
-import { text_width } from "core/graphics"
-import { font_metrics } from "core/util/text"
+import {RendererView} from "models/renderers/renderer"
+import {text_width} from "core/graphics"
+import {font_metrics} from "core/util/text"
 
 type Position = {
   sx: number
@@ -125,7 +125,7 @@ export class MathTextView extends View {
   private get_text_dimensions(): Size {
     return {
       width: text_width(this.model.text, this.font),
-      height: font_metrics(this.font).height
+      height: font_metrics(this.font).height,
     }
   }
 
@@ -147,7 +147,6 @@ export class MathTextView extends View {
       script.id = "bokeh_mathjax_script"
       script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
       script.onload = () => {
-        console.log(`hey I'm mathjax and I've just finished loading`)
         this.parent.request_paint()
       }
       document.head.appendChild(script)
@@ -163,7 +162,7 @@ export class MathTextView extends View {
    * Starts Mathjax script loading if its not present in the global context.
    */
   load_image(): void {
-    if(!this.get_math_jax()) return this.load_math_jax_script()
+    if (!this.get_math_jax()) return this.load_math_jax_script()
 
     if (this.image_is_loading) return
 
@@ -229,7 +228,7 @@ export class MathTextView extends View {
     }
     ctx.restore()
 
-    if(this.get_math_jax() && !this.has_image_loaded)
+    if (this.get_math_jax() && !this.has_image_loaded)
       return this.load_image()
   }
 }
