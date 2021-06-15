@@ -9,6 +9,8 @@ import {color2css} from "core/util/color"
 import {Size} from "core/types"
 import {View} from "core/view"
 import { RendererView } from "models/renderers/renderer"
+import { text_width } from "core/graphics"
+import { font_metrics } from "core/util/text"
 
 type Position = {
   sx: number
@@ -69,7 +71,7 @@ export class MathTextView extends View {
    * anchor and dimensions
    */
   protected _computed_position(): {x: number, y: number} {
-    const {width, height} = this
+    const {width, height} = this.get_dimensions()
     const {sx, sy, x_anchor="left", y_anchor="center"} = this.position
 
     const x = sx - (() => {
@@ -120,24 +122,40 @@ export class MathTextView extends View {
     }
   }
 
+  private get_text_dimensions(): Size {
+    return {
+      width: text_width(this.model.text, this.font),
+      height: font_metrics(this.font).height
+    }
+  }
+
   /**
    * Get width and height from SVGElement
    */
   private get_dimensions(): Size {
-    if (typeof MathJax === "undefined") return {width: 0, height: 0}
+    if (!this.has_image_loaded) return this.get_text_dimensions()
 
-    const mathjax_element = MathJax.tex2svg(this.model.text)
-
-    document.body.appendChild(mathjax_element)
-
-    const svg_element = mathjax_element.children[0] as SVGElement
-    svg_element.setAttribute("font", this.font)
-
-    const {width, height} = svg_element.getBoundingClientRect()
-
-    mathjax_element.remove()
+    const {width, height} = this
 
     return {width, height}
+  }
+
+  load_math_jax_script(): void {
+    // Check for a script with the id set below
+    if (!document.getElementById("bokeh_mathjax_script")) {
+      const script = document.createElement("script")
+      script.id = "bokeh_mathjax_script"
+      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+      script.onload = () => {
+        console.log(`hey I'm mathjax and I've just finished loading`)
+        this.parent.request_paint()
+      }
+      document.head.appendChild(script)
+    }
+  }
+
+  get_math_jax(): typeof MathJax | null {
+    return typeof MathJax === "undefined" ? null : MathJax
   }
 
   /**
@@ -145,14 +163,7 @@ export class MathTextView extends View {
    * Starts Mathjax script loading if its not present in the global context.
    */
   load_image(): void {
-    if (!document.getElementById("bokeh_mathjax_script") && typeof MathJax === "undefined") {
-      const script = document.createElement("script")
-      script.id = "bokeh_mathjax_script"
-      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-      document.head.appendChild(script)
-    }
-
-    if (typeof MathJax === "undefined") return this.parent.request_paint()
+    if(!this.get_math_jax()) return this.load_math_jax_script()
 
     if (this.image_is_loading) return
 
@@ -180,6 +191,7 @@ export class MathTextView extends View {
       loaded: (image) => {
         this.svg_image = image
         this.has_image_loaded = true
+
         URL.revokeObjectURL(url)
 
         this.parent.request_paint()
@@ -189,13 +201,9 @@ export class MathTextView extends View {
 
   /**
    * Takes a Canvas' Context2d and if the image has already
-   * been loaded draws the image in it.
+   * been loaded draws the image in it otherwise draws the model's text.
   */
   paint(ctx: Context2d): void {
-    if (!this.has_image_loaded) {
-      return this.load_image()
-    }
-
     ctx.save()
     const {sx, sy} = this.position
 
@@ -207,11 +215,22 @@ export class MathTextView extends View {
 
     const {x, y} = this._computed_position()
 
-    ctx.drawImage(this.svg_image, x, y)
+    if (this.has_image_loaded) {
+      ctx.drawImage(this.svg_image, x, y)
+
+      this._has_finished = true
+      this.notify_finished()
+    } else {
+      ctx.fillStyle = this.color
+      ctx.font = this.font
+      ctx.textAlign = "left"
+      ctx.textBaseline = "alphabetic"
+      ctx.fillText(this.model.text, x, y + font_metrics(this.font).ascent)
+    }
     ctx.restore()
 
-    this._has_finished = true
-    this.notify_finished()
+    if(this.get_math_jax() && !this.has_image_loaded)
+      return this.load_image()
   }
 }
 
