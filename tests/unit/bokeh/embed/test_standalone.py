@@ -356,28 +356,45 @@ class Test_file_html:
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
 
+JSON_ITEMS_KEYS = {"target_id", "root_id", "doc", "version"}
 
 class Test_json_item:
     def test_with_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
+        assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['target_id'] == "foo"
 
     def test_without_target_id(self, test_plot) -> None:
         out = bes.json_item(test_plot)
+        assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['target_id'] == None
 
     def test_doc_json(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
+        assert set(out.keys()) == JSON_ITEMS_KEYS
         expected = list(standalone_docs_json([test_plot]).values())[0]
         assert out['doc'] == expected
 
     def test_doc_title(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
+        assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['title'] == ""
 
     def test_root_id(self, test_plot) -> None:
         out = bes.json_item(test_plot, target="foo")
+        assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['roots']['root_ids'][0] == out['root_id']
+
+    def test_version(self, monkeypatch: pytest.MonkeyPatch, test_plot) -> None:
+        from bokeh import __version__
+
+        out = bes.json_item(test_plot, target="foo")
+        assert set(out.keys()) == JSON_ITEMS_KEYS
+        assert out['doc']['version'] == __version__
+
+        out = bes.json_item(test_plot)
+        assert set(out.keys()) == JSON_ITEMS_KEYS
+        assert out['doc']['version'] == __version__
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
     def test_apply_theme(self, mock_OFD: MagicMock, test_plot: MagicMock) -> None:

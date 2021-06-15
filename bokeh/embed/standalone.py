@@ -36,6 +36,7 @@ from typing import (
 from jinja2 import Template
 
 # Bokeh imports
+from .. import __version__
 from ..core.templates import (
     AUTOLOAD_JS,
     AUTOLOAD_TAG,
@@ -395,6 +396,7 @@ def json_item(model: Model, target: str | None = None, theme: ThemeLike = None) 
         'target_id' : target,
         'root_id'   : root_id,
         'doc'       : doc_json,
+        'version'   : __version__,
     }
 
 
