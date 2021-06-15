@@ -27,19 +27,18 @@ export class MathTextView extends View {
   override parent: RendererView
 
   angle?: number
-  font_size_scale: number = 1.0
-  font: string
-  height: number
   position: Position = {sx: 0, sy: 0}
-  width: number
-  color: string
   has_image_loaded = false
-
   // Align does nothing, needed to maintain compatibility with TextBox,
   // to align you need to use TeX Macros.
   // http://docs.mathjax.org/en/latest/input/tex/macros/index.html?highlight=align
   align: "left" | "center" | "right" | "justify" = "left"
 
+  private font_size_scale: number = 1.0
+  private font: string
+  private height: number
+  private width: number
+  private color: string
   private image_is_loading = false
   private svg_image: CanvasImage
 
@@ -140,7 +139,7 @@ export class MathTextView extends View {
     return {width, height}
   }
 
-  load_math_jax_script(): void {
+  private load_math_jax_script(): void {
     // Check for a script with the id set below
     if (!document.getElementById("bokeh_mathjax_script")) {
       const script = document.createElement("script")
@@ -153,7 +152,7 @@ export class MathTextView extends View {
     }
   }
 
-  get_math_jax(): typeof MathJax | null {
+  private get_math_jax(): typeof MathJax | null {
     return typeof MathJax === "undefined" ? null : MathJax
   }
 
@@ -167,9 +166,6 @@ export class MathTextView extends View {
     if (this.image_is_loading) return
 
     const mathjax_element = MathJax.tex2svg(this.model.text)
-
-    document.body.appendChild(mathjax_element)
-
     const svg_element = mathjax_element.children[0] as SVGElement
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
@@ -178,11 +174,20 @@ export class MathTextView extends View {
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
 
-    const {width, height} = svg_element.getBoundingClientRect()
-    this.width = width
-    this.height = height
+    const heightEx = parseFloat(
+      svg_element
+        .getAttribute('height')
+        ?.replace(/([A-z])/g, '') ?? '0'
+    )
 
-    mathjax_element.remove()
+    const widthEx = parseFloat(
+      svg_element
+        .getAttribute('width')
+        ?.replace(/([A-z])/g, '') ?? '0'
+    )
+
+    this.width = font_metrics(this.font).x_height * widthEx
+    this.height = font_metrics(this.font).x_height * heightEx
 
     this.image_is_loading = true
 
@@ -215,7 +220,7 @@ export class MathTextView extends View {
     const {x, y} = this._computed_position()
 
     if (this.has_image_loaded) {
-      ctx.drawImage(this.svg_image, x, y)
+      ctx.drawImage(this.svg_image, x, y, this.width, this.height)
 
       this._has_finished = true
       this.notify_finished()
