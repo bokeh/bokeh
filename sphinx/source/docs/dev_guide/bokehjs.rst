@@ -127,8 +127,7 @@ Test suites
 ~~~~~~~~~~~
 
 BokehJS comes with its own suites of tests and testing framework. All tests for BokehJS
-use ``describe()`` and ``it()`` functions. If your test includes a threshold parameter,
-you can also use ``it.allowing(threshold)``.
+use ``describe()`` and ``it()`` functions.
 
 To launch BokehJS tests, run ``node make test`` from within the
 :bokeh-tree:`bokehjs/test` directory.
@@ -146,8 +145,8 @@ suites with ``node make test:suite_name``. Available tests suites are:
 
 You can combine the last two test suites by running ``node make test:lib``.
 
-Unit and integration tests are run in a web browser (see requirements). The test suite
-automatically starts the web browser with the right settings to ensure consistent test
+Unit and integration tests are run in a web browser (see requirements). The test framework
+automatically starts a web browser with the right settings to ensure consistent test
 results.
 
 .. _devguide_bokehjs_development_devtoolsserver:
@@ -216,7 +215,7 @@ Textual baseline comparison
   stored as plain text in each test's respective ``.blf`` file.
 
 Visual baseline comparison
-  For each test, the testing suite does a pixel-by-pixel comparison of a screenshot
+  For each test, the testing framework does a pixel-by-pixel comparison of a screenshot
   and a baseline image. These baseline images are stored as ``.png`` files. In contrast
   to textual baseline comparisons, visual baseline comparisons are platform-dependent.
   Even minor differences in font rendering, for example, will make the pixel-by-pixel
@@ -231,7 +230,7 @@ environments. The baseline files for each environment are located in the
 Follow these steps to write new visual tests or update existing tests:
 
 1. Create or update visual testing scripts:
-    To write a visual test for BokehJS' testing suite, start by importing the
+    To write a visual test for BokehJS' testing framework, start by importing the
     ``display()`` and ``fig()`` functions from the testing framework's ``_util`` module
     (located in :bokeh-tree:`bokehjs/test/integration/`):
 
@@ -266,6 +265,16 @@ Follow these steps to write new visual tests or update existing tests:
         })
       })
 
+    To change the sensitivity of a visual test, you have the option to set a
+    threshold value. The threshold value represents the amounts of pixels by which
+    a test image can differ from the baseline image before a test fails. To set a
+    threshold value, use ``it.allowing(threshold)``. For example:
+
+    .. code-block:: TypeScript
+
+      describe("Your Object", () => {
+        it.allowing(16)("should show certain behavior", async () => {
+
     Always run ``node make lint`` before committing TypeScript files.
 
 2. Run tests locally:
@@ -273,7 +282,7 @@ Follow these steps to write new visual tests or update existing tests:
     tests, use ``node make test:integration``.
 
     If you want to only run a specific test, use the ``-k`` argument and supply a search
-    string. The search string is case-sensitive. The BokehJS testing suite tries to
+    string. The search string is case-sensitive. The BokehJS testing framework tries to
     match your search string to the strings defined in the code's ``describe()`` and
     ``it()`` functions. For example:
 
@@ -312,7 +321,7 @@ Follow these steps to write new visual tests or update existing tests:
     4. Unzip the downloaded artifact file into the root folder of your local Bokeh
        repository.
     5. Use the :ref:`devtools server <devguide_bokehjs_development_devtoolsserver>` to
-       review the baseline files the CI has created for each platform: first go to
+       review the baseline files the CI has created for each platform: first, go to
        ``/integration/report?platform=linux``, then to
        ``/integration/report?platform=macos``, and finally to
        ``/integration/report?platform=windows``.
@@ -321,7 +330,7 @@ Follow these steps to write new visual tests or update existing tests:
        :bokeh-tree:`bokehjs/test/baselines/linux`,
        :bokeh-tree:`bokehjs/test/baselines/macos`, and
        :bokeh-tree:`bokehjs/test/baselines/windows`.
-    7. Push your changes to GitHub again and verify that tests pass this time.
+    7. Push your changes to GitHub again and verify that the tests pass this time.
 
     .. note::
       Make sure to only push baseline files to the CI that were created by the CI
@@ -330,7 +339,7 @@ Follow these steps to write new visual tests or update existing tests:
 
       After downloading and unpacking the baseline files from the CI, check your local
       :bokeh-tree:`bokehjs/test/baselines` directory for any modified files that are not
-      part of your changes. Make sure to only commit baseline files that are necessary
+      part of your changes. Make sure only to commit baseline files that are necessary
       for your pull request. Reset the ``baselines`` directory after every failed test
       run (``git checkout`` and/or ``git clean``).
 
