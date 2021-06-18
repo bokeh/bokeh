@@ -1,10 +1,16 @@
 import {build_view} from "@bokehjs/core/build_views"
-import {MathText, MathTextView} from "@bokehjs/models"
+import {MathText, MathTextView, Plot} from "@bokehjs/models"
+import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
 import {expect} from "assertions"
 
+async function plot(): Promise<PlotView> {
+  return await build_view(new Plot())
+}
+
 class SomeRendererView extends RendererView {
   override model: SomeRenderer
+  override parent: PlotView
 
   protected _render(): void {}
 }
@@ -14,13 +20,15 @@ class SomeRenderer extends Renderer {
   override default_view = SomeRendererView
 }
 
+async function renderer(): Promise<SomeRendererView> {
+  const plot_view = await plot()
+  plot_view._update_layout()
+  const r = new SomeRenderer()
+  return await build_view(r, {parent: plot_view})
+}
+
 describe("AxisLabelView", () => {
   const model = new MathText({text: "\\sin(x)"})
-
-  async function plot(): Promise<SomeRendererView> {
-    const r = new SomeRenderer()
-    return await build_view(r)
-  }
 
   async function load_math_jax_script(): Promise<void> {
     return new Promise(async (resolve, _) => {
@@ -53,7 +61,7 @@ describe("AxisLabelView", () => {
 
   it("should calculate size of image when its loaded", async () => {
     await load_math_jax_script()
-    const view = await build_view(model, {parent: await plot()})
+    const view = await build_view(model, {parent: await renderer()})
 
     expect(view.size()).to.be.equal({width: 30.247294921875, height: 11.72970703125})
   })
