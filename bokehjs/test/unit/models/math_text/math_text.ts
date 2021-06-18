@@ -1,9 +1,7 @@
-/// <reference path="../../../../src/lib/external/mathjax.d.ts" />
-
-import { build_view } from "@bokehjs/core/build_views"
-import { MathText, MathTextView } from "@bokehjs/models"
-import { Renderer, RendererView } from "@bokehjs/models/renderers/renderer"
-import { expect } from "assertions"
+import {build_view} from "@bokehjs/core/build_views"
+import {MathText, MathTextView} from "@bokehjs/models"
+import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
+import {expect} from "assertions"
 
 class SomeRendererView extends RendererView {
   override model: SomeRenderer
@@ -17,7 +15,7 @@ class SomeRenderer extends Renderer {
 }
 
 describe("AxisLabelView", () => {
-  const model = new MathText({ text: "\\sin(x)"})
+  const model = new MathText({text: "\\sin(x)"})
 
   async function plot(): Promise<SomeRendererView> {
     const r = new SomeRenderer()

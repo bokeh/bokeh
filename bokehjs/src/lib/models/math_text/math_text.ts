@@ -153,7 +153,7 @@ export class MathTextView extends View {
       script.src = settings.dev ? "/third-party/tex-svg.js" : "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
 
       script.onload = () => {
-        if(!settings.dev)
+        if (!settings.dev)
           this.parent.request_paint()
       }
 
