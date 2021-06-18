@@ -11,7 +11,6 @@ import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
 import {text_width} from "core/graphics"
 import {font_metrics} from "core/util/text"
-import {settings} from "core/settings"
 
 type Position = {
   sx: number
@@ -150,13 +149,8 @@ export class MathTextView extends View {
     if (!document.getElementById("bokeh_mathjax_script")) {
       const script = document.createElement("script")
       script.id = "bokeh_mathjax_script"
-      script.src = settings.dev ? "/third-party/tex-svg.js" : "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-
-      script.onload = () => {
-        if (!settings.dev)
-          this.parent.request_paint()
-      }
-
+      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+      script.onload = () => this.parent.request_paint()
       document.head.appendChild(script)
     }
   }
@@ -200,8 +194,7 @@ export class MathTextView extends View {
 
         URL.revokeObjectURL(url)
 
-        if (!settings.dev)
-          this.parent.request_paint()
+        this.parent.request_paint()
       },
     })
 
