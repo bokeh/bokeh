@@ -54,10 +54,8 @@ export class AxisView extends GuideRendererView {
     const {axis_label} = this.model
 
     // Build math_text_view if axis_label is a MathText instance
-    if (axis_label != null && axis_label instanceof MathText) {
+    if (axis_label != null && axis_label instanceof MathText)
       this.axis_label_math_text_view = await build_view(axis_label, {parent: this})
-      this.axis_label_math_text_view.load_image()
-    }
   }
 
   update_layout(): void {

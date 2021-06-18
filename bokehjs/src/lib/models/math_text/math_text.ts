@@ -11,6 +11,7 @@ import {View} from "core/view"
 import {RendererView} from "models/renderers/renderer"
 import {text_width} from "core/graphics"
 import {font_metrics} from "core/util/text"
+import {settings} from "core/settings"
 
 type Position = {
   sx: number
@@ -39,8 +40,16 @@ export class MathTextView extends View {
   private height: number
   private width: number
   private color: string
-  private image_is_loading = false
   private svg_image: CanvasImage
+
+  override async lazy_initialize() {
+    await super.lazy_initialize()
+
+    if (!this.get_math_jax())
+      this.load_math_jax_script()
+    else
+      await this.load_image()
+  }
 
   set visuals(v: visuals.Text) {
     const color = v.text_color.get_value()
@@ -128,9 +137,6 @@ export class MathTextView extends View {
     }
   }
 
-  /**
-   * Get width and height from SVGElement
-   */
   private get_dimensions(): Size {
     if (!this.has_image_loaded) return this.get_text_dimensions()
 
@@ -144,10 +150,13 @@ export class MathTextView extends View {
     if (!document.getElementById("bokeh_mathjax_script")) {
       const script = document.createElement("script")
       script.id = "bokeh_mathjax_script"
-      script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+      script.src = settings.dev ? "/third-party/tex-svg.js" : "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+
       script.onload = () => {
-        this.parent.request_paint()
+        if(!settings.dev)
+          this.parent.request_paint()
       }
+
       document.head.appendChild(script)
     }
   }
@@ -157,14 +166,9 @@ export class MathTextView extends View {
   }
 
   /**
-   * Calls ImageLoader after rendering the text into a SVG with MathJax.
-   * Starts Mathjax script loading if its not present in the global context.
+   * Render text into a SVG with MathJax and load it into memory.
    */
-  load_image(): void {
-    if (!this.get_math_jax()) return this.load_math_jax_script()
-
-    if (this.image_is_loading) return
-
+  private load_image(): Promise<HTMLImageElement> {
     const mathjax_element = MathJax.tex2svg(this.model.text)
     const svg_element = mathjax_element.children[0] as SVGElement
     svg_element.setAttribute("font", this.font)
@@ -189,18 +193,19 @@ export class MathTextView extends View {
     this.width = font_metrics(this.font).x_height * widthEx
     this.height = font_metrics(this.font).x_height * heightEx
 
-    this.image_is_loading = true
-
-    new ImageLoader(url, {
+    const image_loader = new ImageLoader(url, {
       loaded: (image) => {
         this.svg_image = image
         this.has_image_loaded = true
 
         URL.revokeObjectURL(url)
 
-        this.parent.request_paint()
+        if (!settings.dev)
+          this.parent.request_paint()
       },
     })
+
+    return image_loader.promise
   }
 
   /**
@@ -222,7 +227,6 @@ export class MathTextView extends View {
     if (this.has_image_loaded) {
       ctx.drawImage(this.svg_image, x, y, this.width, this.height)
 
-      this._has_finished = true
       this.notify_finished()
     } else {
       ctx.fillStyle = this.color
@@ -234,7 +238,7 @@ export class MathTextView extends View {
     ctx.restore()
 
     if (this.get_math_jax() && !this.has_image_loaded)
-      return this.load_image()
+      this.load_image()
   }
 }
 
