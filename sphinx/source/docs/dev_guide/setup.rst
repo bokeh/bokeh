@@ -82,7 +82,7 @@ At the top level of the repository, issue the following command in a terminal:
 
 .. code-block:: sh
 
-    conda env create environment.yml
+    conda env create -f environment.yml
 
 Then, activate the environment:
 
