@@ -36,9 +36,7 @@ describe("AxisLabelView", () => {
         const script = document.createElement("script")
         script.id = "bokeh_mathjax_script"
         script.src = "/third-party/tex-svg.js"
-        script.onload = async () => {
-          resolve()
-        }
+        script.onload = () => resolve()
         document.head.appendChild(script)
       }
     })
