@@ -40,7 +40,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
         continue
 
       ctx.beginPath()
-      ctx.ellipse(sx_i, sy_i, sw_i/2.0, sh_i/2.0, angle_i, 0, 2 * Math.PI)
+      ctx.ellipse(sx_i, sy_i, sw_i/2, sh_i/2, angle_i, 0, 2*Math.PI)
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
@@ -98,18 +98,18 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
-    const len = index + 1
+    const n = index + 1
 
-    const sx: number[] = new Array(len)
+    const sx: number[] = new Array(n)
     sx[index] = (x0 + x1)/2
-    const sy: number[] = new Array(len)
+    const sy: number[] = new Array(n)
     sy[index] = (y0 + y1)/2
 
     const scale = this.sw[index] / this.sh[index]
     const d = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.8
 
-    const sw: number[] = new Array(len)
-    const sh: number[] = new Array(len)
+    const sw: number[] = new Array(n)
+    const sh: number[] = new Array(n)
     if (scale > 1) {
       sw[index] = d
       sh[index] = d/scale
@@ -118,7 +118,9 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       sh[index] = d
     }
 
-    this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
+    const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
+
+    this._render(ctx, [index], {sx, sy, sw, sh, angle} as any) // XXX
   }
 }
 

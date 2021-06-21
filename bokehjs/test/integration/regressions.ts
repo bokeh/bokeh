@@ -955,4 +955,14 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #11367", () => {
+    it("doesn't allow to render legend for ellipse glyph", async () => {
+      const p = fig([200, 100], {x_axis_type: null, y_axis_type: null})
+      p.circle({x: [0, 1], y: [0, 1], radius: 0.1, legend: "circles"})
+      p.ellipse({x: [0, 1], y: [1, 0], width: 0.2, height: 0.1, legend: "ellipses"})
+      p.legend.location = "center"
+      await display(p)
+    })
+  })
 })
