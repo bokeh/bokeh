@@ -23,7 +23,7 @@ export class ScatterView extends MarkerView {
     if (webgl != null) {
       const {regl_wrapper} = webgl
       if (regl_wrapper.has_webgl) {
-        const marker_types = new Set(this.marker)
+        const marker_types = new Set(this.base != null ? this.base.marker : this.marker)
         if (marker_types.size == 1) {
           const [marker_type] = [...marker_types]
 
@@ -40,8 +40,7 @@ export class ScatterView extends MarkerView {
     delete this.glglyph
   }
 
-  protected override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
+  protected override _set_visuals(): void {
     this._init_webgl()
   }
 
