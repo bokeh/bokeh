@@ -8,7 +8,6 @@ import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
-import {RectGL} from "./webgl/rect"
 
 export type RectData = CenterRotatableData & {
   sx0: ScreenArray
@@ -23,15 +22,16 @@ export class RectView extends CenterRotatableView {
   override visuals: Rect.Visuals
 
   /** @internal */
-  override glglyph?: RectGL
+  override glglyph?: import("./webgl/rect").RectGL
 
-  override initialize(): void {
-    super.initialize()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
       const {regl_wrapper} = webgl
       if (regl_wrapper.has_webgl) {
+        const {RectGL} = await import("./webgl/rect")
         this.glglyph = new RectGL(regl_wrapper, this)
       }
     }

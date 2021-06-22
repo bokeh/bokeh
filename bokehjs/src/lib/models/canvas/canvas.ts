@@ -9,7 +9,7 @@ import {UIEventBus} from "core/ui_events"
 import {BBox} from "core/util/bbox"
 import {Context2d, CanvasLayer} from "core/util/canvas"
 import {PlotView} from "../plots/plot"
-import {get_regl, ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 
 export type FrameBox = [number, number, number, number]
 
@@ -29,7 +29,18 @@ export type WebGLState = {
   readonly regl_wrapper: ReglWrapper
 }
 
-const global_webgl: WebGLState | undefined = (() => {
+async function load_webgl(): Promise<typeof import("../glyphs/webgl") | null> {
+  try {
+    return await import("../glyphs/webgl")
+  } catch (e) {
+    if (e.code === "MODULE_NOT_FOUND") // XXX: this exposes the underyling module system
+      return null
+    else
+      throw e
+  }
+}
+
+async function init_webgl(): Promise<WebGLState | null> {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const canvas = document.createElement("canvas")
@@ -38,16 +49,31 @@ const global_webgl: WebGLState | undefined = (() => {
   // If WebGL is available, we store a reference to the ReGL wrapper on
   // the ctx object, because that's what gets passed everywhere.
   if (gl != null) {
-    const regl_wrapper = get_regl(gl)
-    if (regl_wrapper.has_webgl) {
-      return {canvas, regl_wrapper}
+    const webgl = await load_webgl()
+    if (webgl != null) {
+      const regl_wrapper = webgl.get_regl(gl)
+      if (regl_wrapper.has_webgl) {
+        return {canvas, regl_wrapper}
+      } else {
+        logger.trace("WebGL is supported, but not the required extensions")
+      }
     } else {
-      logger.trace("WebGL is supported, but not the required extensions")
-      return undefined
+      logger.trace("WebGL is supported, but bokehjs(.min).js bundle is not available")
     }
   } else {
     logger.trace("WebGL is not supported")
-    return undefined
+  }
+
+  return null
+}
+
+const global_webgl: () => Promise<WebGLState | null> = (() => {
+  let _global_webgl: WebGLState | null | undefined
+  return async () => {
+    if (_global_webgl !== undefined)
+      return _global_webgl
+    else
+      return _global_webgl = await init_webgl()
   }
 })()
 
@@ -65,7 +91,7 @@ export class CanvasView extends DOMView {
 
   bbox: BBox = new BBox()
 
-  webgl?: WebGLState
+  webgl: WebGLState | null
 
   underlays_el: HTMLElement
   primary: CanvasLayer
@@ -77,10 +103,6 @@ export class CanvasView extends DOMView {
 
   override initialize(): void {
     super.initialize()
-
-    if (this.model.output_backend == "webgl") {
-      this.webgl = global_webgl
-    }
 
     this.underlays_el = div({style})
     this.primary = this.create_layer()
@@ -100,6 +122,14 @@ export class CanvasView extends DOMView {
     append(this.el, ...elements)
 
     this.ui_event_bus = new UIEventBus(this)
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    if (this.model.output_backend == "webgl") {
+      this.webgl = await global_webgl()
+    }
   }
 
   override remove(): void {

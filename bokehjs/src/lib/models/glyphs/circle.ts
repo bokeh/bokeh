@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {MarkerGL} from "./webgl/markers"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
@@ -32,15 +31,16 @@ export class CircleView extends XYGlyphView {
   override visuals: Circle.Visuals
 
   /** @internal */
-  override glglyph?: MarkerGL
+  override glglyph?: import("./webgl/markers").MarkerGL
 
-  override initialize(): void {
-    super.initialize()
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
 
     const {webgl} = this.renderer.plot_view.canvas_view
     if (webgl != null) {
       const {regl_wrapper} = webgl
       if (regl_wrapper.has_webgl) {
+        const {MarkerGL} = await import("./webgl/markers")
         this.glglyph = new MarkerGL(regl_wrapper, this, "circle")
       }
     }

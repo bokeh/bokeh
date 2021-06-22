@@ -1,6 +1,5 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
-import {MarkerGL} from "./webgl/markers"
 import {MarkerType} from "core/enums"
 import {Rect} from "core/types"
 import * as p from "core/properties"
@@ -16,7 +15,15 @@ export class ScatterView extends MarkerView {
   override model: Scatter
 
   /** @internal */
-  override glglyph?: MarkerGL
+  override glglyph?: import("./webgl/markers").MarkerGL
+  private glcls?: typeof import("./webgl/markers").MarkerGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {MarkerGL} = await import("./webgl/markers")
+    this.glcls = MarkerGL
+  }
 
   protected _init_webgl(): void {
     const {webgl} = this.renderer.plot_view.canvas_view
@@ -27,7 +34,8 @@ export class ScatterView extends MarkerView {
         if (marker_types.size == 1) {
           const [marker_type] = [...marker_types]
 
-          if (MarkerGL.is_supported(marker_type)) {
+          const MarkerGL = this.glcls
+          if (MarkerGL?.is_supported(marker_type)) {
             const {glglyph} = this
             if (glglyph == null || glglyph.marker_type != marker_type) {
               this.glglyph = new MarkerGL(regl_wrapper, this, marker_type)
