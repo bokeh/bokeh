@@ -101,7 +101,7 @@ export async function compile_and_resolve_deps(input: {code: string, lang: strin
       throw new Error(`unsupported input type: ${lang}`)
   }
 
-  const source = ts.createSourceFile(file, output, ts.ScriptTarget.ES5, true, ts.ScriptKind.JS)
+  const source = ts.createSourceFile(file, output, ts.ScriptTarget.ES2015, true, ts.ScriptKind.JS)
   const deps = transforms.collect_deps(source)
 
   return {code: output, deps}
