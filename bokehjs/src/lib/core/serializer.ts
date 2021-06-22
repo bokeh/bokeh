@@ -23,7 +23,7 @@ export interface Serializable {
 }
 
 function is_Serializable<T>(obj: T): obj is T & Serializable {
-  return isObject(obj) && (obj as any)[serialize] !== undefined
+  return isObject(obj) && serialize in obj
 }
 
 export type SerializableOf<T extends SerializableType> =

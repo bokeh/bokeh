@@ -9,7 +9,7 @@ export interface Printable {
 }
 
 function is_Printable<T>(obj: T): obj is T & Printable {
-  return isObject(obj) && (obj as any)[pretty] !== undefined
+  return isObject(obj) && pretty in obj
 }
 
 export type PrinterOptions = {

@@ -22,7 +22,6 @@
   },
   "files": [
     "build/js/bokeh*.min.js",
-    "build/js/legacy/bokeh*.min.js",
     "build/js/lib/**/*.js",
     "build/js/types/**/*.d.ts"
   ],
@@ -78,12 +77,6 @@
     "@bokeh/numbro": "^1.6.2",
     "@bokeh/slickgrid": "~2.4.2702",
     "choices.js": "^9.0.1",
-    "es5-ext": "^0.10.53",
-    "es6-map": "^0.1.5",
-    "es6-promise": "4.2.8",
-    "es6-set": "^0.1.5",
-    "es6-symbol": "^3.1.3",
-    "es6-weak-map": "^2.0.2",
     "flatbush": "^3.2.1",
     "flatpickr": "4.6.6",
     "hammerjs": "^2.0.4",
