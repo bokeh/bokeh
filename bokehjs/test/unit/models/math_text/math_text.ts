@@ -27,7 +27,7 @@ async function renderer(): Promise<SomeRendererView> {
   return await build_view(r, {parent: plot_view})
 }
 
-describe("AxisLabelView", () => {
+describe("MathTextView", () => {
   const model = new MathText({text: "\\sin(x)"})
 
   async function load_math_jax_script(): Promise<void> {
@@ -54,13 +54,13 @@ describe("AxisLabelView", () => {
     remove_mathjax_script()
     const view = new MathTextView({model, parent: null})
 
-    expect(view.size()).to.be.equal({width: 27.2216796875, height: 11})
+    expect(view.size()).to.be.similar({width: 27.2216796875, height: 11})
   })
 
   it("should calculate size of image when its loaded", async () => {
     await load_math_jax_script()
     const view = await build_view(model, {parent: await renderer()})
 
-    expect(view.size()).to.be.equal({width: 30.247294921875, height: 11.72970703125})
+    expect(view.size()).to.be.similar({width: 30.247294921875, height: 11.72970703125})
   })
 })
