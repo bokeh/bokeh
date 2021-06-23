@@ -40,14 +40,13 @@ export class MathTextView extends View {
   private width: number
   private color: string
   private svg_image: CanvasImage
+  private svg_element: SVGElement
 
   override async lazy_initialize() {
     await super.lazy_initialize()
 
     if (!this.get_math_jax())
       this.load_math_jax_script()
-    else
-      await this.load_image()
   }
 
   set visuals(v: visuals.Text) {
@@ -69,6 +68,7 @@ export class MathTextView extends View {
     }
 
     const font = `${style} ${size} ${face}`
+    console.log({ font })
     this.font = font
     this.color = color2css(color, alpha)
   }
@@ -136,12 +136,30 @@ export class MathTextView extends View {
     }
   }
 
+  private get_image_dimensions(): Size {
+    const heightEx = parseFloat(
+      this.svg_element
+        .getAttribute("height")
+        ?.replace(/([A-z])/g, "") ?? "0"
+    )
+
+    const widthEx = parseFloat(
+      this.svg_element
+        .getAttribute("width")
+        ?.replace(/([A-z])/g, "") ?? "0"
+    )
+
+
+    return {
+      width: font_metrics(this.font).x_height * widthEx,
+      height: font_metrics(this.font).x_height * heightEx,
+    }
+  }
+
   private get_dimensions(): Size {
-    if (!this.has_image_loaded) return this.get_text_dimensions()
-
-    const {width, height} = this
-
-    return {width, height}
+    return this.has_image_loaded
+      ? this.get_image_dimensions()
+      : this.get_text_dimensions()
   }
 
   private load_math_jax_script(): void {
@@ -168,24 +186,11 @@ export class MathTextView extends View {
     svg_element.setAttribute("font", this.font)
     svg_element.setAttribute("stroke", this.color)
 
+    this.svg_element = svg_element
+
     const outer_HTML = svg_element.outerHTML
     const blob = new Blob([outer_HTML], {type: "image/svg+xml"})
     const url = URL.createObjectURL(blob)
-
-    const heightEx = parseFloat(
-      svg_element
-        .getAttribute("height")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
-
-    const widthEx = parseFloat(
-      svg_element
-        .getAttribute("width")
-        ?.replace(/([A-z])/g, "") ?? "0"
-    )
-
-    this.width = font_metrics(this.font).x_height * widthEx
-    this.height = font_metrics(this.font).x_height * heightEx
 
     const image_loader = new ImageLoader(url, {
       loaded: (image) => {
