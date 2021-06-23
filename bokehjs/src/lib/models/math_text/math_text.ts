@@ -68,7 +68,6 @@ export class MathTextView extends View {
     }
 
     const font = `${style} ${size} ${face}`
-    console.log({ font })
     this.font = font
     this.color = color2css(color, alpha)
   }
