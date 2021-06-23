@@ -54,13 +54,25 @@ describe("MathTextView", () => {
     remove_mathjax_script()
     const view = new MathTextView({model, parent: null})
 
-    expect(view.size()).to.be.similar({width: 27.2216796875, height: 11})
+    //@ts-ignore
+    view.font = "13px Bokeh italic"
+    //@ts-ignore
+    view.color = "black"
+
+    expect(view.size()).to.be.similar({width: 33.94091796875, height: 15})
   })
 
   it("should calculate size of image when its loaded", async () => {
     await load_math_jax_script()
     const view = await build_view(model, {parent: await renderer()})
 
-    expect(view.size()).to.be.similar({width: 30.247294921875, height: 11.72970703125})
+    //@ts-ignore
+    view.font = "13px Bokeh italic"
+    //@ts-ignore
+    view.color = "black"
+    //@ts-ignore
+    await view.load_image()
+
+    expect(view.size()).to.be.similar({width: 33.915705078125, height: 13.15229296875})
   })
 })
