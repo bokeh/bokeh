@@ -965,4 +965,15 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #11378", () => {
+    it("doesn't allow to correctly compute bounds when using MultiLine Glyph with a log axis", async () => {
+      const xs = [[0, 1], [0, 1], [0, 1]]
+      const ys = [[2, 1], [100, 200], [10, 20]]
+
+      const p = fig([200, 200], {y_axis_type: "log"})
+      p.multi_line({xs, ys})
+      await display(p)
+    })
+  })
 })
