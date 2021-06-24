@@ -60,7 +60,6 @@ class _FlatBush extends FlatBush {
   }
 }
 
-
 export class SpatialIndex {
   private readonly index: _FlatBush | null = null
 
@@ -124,10 +123,10 @@ export class SpatialIndex {
 
     for (const i of this.indices(rect)) {
       const boxes = (this.index as any)._boxes as Float64Array
-      const x1 = boxes[4*i + 0]
-      const y1 = boxes[4*i + 1]
-      const x0 = boxes[4*i + 2]
-      const y0 = boxes[4*i + 3]
+      const x0 = boxes[4*i + 0]
+      const y0 = boxes[4*i + 1]
+      const x1 = boxes[4*i + 2]
+      const y1 = boxes[4*i + 3]
       if (x0 < bounds.x0)
         bounds.x0 = x0
       if (x1 > bounds.x1)
