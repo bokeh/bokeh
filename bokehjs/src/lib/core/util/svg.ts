@@ -987,7 +987,7 @@ export class SVGRenderingContext2D /*implements CanvasRenderingContext2D*/ {
   }
 
   /**
-    * Creates a text element
+    * Creates a text element, in position x,y
     */
   fillText(text: string, x: number, y: number): void {
     if (text == null || !isFinite(x + y))
