@@ -64,12 +64,12 @@ describe("SVGRenderingContext2d", () => {
       for (let i = 0; i <= 3; i++) {
         for (let j = 0; j <= 2; j++) {
           _ctx.beginPath()
-          let x             = 25 + j * 50                 // x coordinate
-          let y             = 25 + i * 50                 // y coordinate
-          let radius        = 20                          // Arc radius
-          let startAngle    = 0                           // Starting point on circle
-          let endAngle      = Math.PI + (Math.PI * j) / 2 // End point on circle
-          let counterclockwise = i % 2 == 1               // Draw counterclockwise
+          const x             = 25 + j * 50                 // x coordinate
+          const y             = 25 + i * 50                 // y coordinate
+          const radius        = 20                          // Arc radius
+          const startAngle    = 0                           // Starting point on circle
+          const endAngle      = Math.PI + (Math.PI * j) / 2 // End point on circle
+          const counterclockwise = i % 2 == 1               // Draw counterclockwise
 
           _ctx.arc(x, y, radius, startAngle, endAngle, counterclockwise)
 
@@ -96,7 +96,7 @@ describe("SVGRenderingContext2d", () => {
 
     const test = (_ctx: SVGRenderingContext2D | CanvasRenderingContext2D) => {
       _ctx.fillStyle="red"
-      _ctx.fillRect(10,10,10,10)
+      _ctx.fillRect(10, 10, 10, 10)
     }
 
     test(ctx)
