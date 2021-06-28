@@ -561,6 +561,25 @@ export class AxisView extends GuideRendererView {
       bbox: this.layout.bbox.box,
     }
   }
+
+  override remove(): void {
+    if (this.axis_label_math_text_view)
+      this.axis_label_math_text_view.remove()
+
+    super.remove()
+  }
+
+  override has_finished(): boolean {
+    if (!super.has_finished())
+      return false
+
+    if (this.axis_label_math_text_view) {
+      if (!this.axis_label_math_text_view.has_finished())
+        return false
+    }
+
+    return true
+  }
 }
 
 export namespace Axis {
