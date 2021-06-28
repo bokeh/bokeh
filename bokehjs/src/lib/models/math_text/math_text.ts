@@ -36,8 +36,6 @@ export class MathTextView extends View {
 
   private font_size_scale: number = 1.0
   private font: string
-  private height: number
-  private width: number
   private color: string
   private svg_image: CanvasImage
   private svg_element: SVGElement
@@ -47,6 +45,8 @@ export class MathTextView extends View {
 
     if (!this.get_math_jax())
       this.load_math_jax_script()
+    else
+      await this.load_image()
   }
 
   set visuals(v: visuals.Text) {
@@ -148,7 +148,6 @@ export class MathTextView extends View {
         ?.replace(/([A-z])/g, "") ?? "0"
     )
 
-
     return {
       width: font_metrics(this.font).x_height * widthEx,
       height: font_metrics(this.font).x_height * heightEx,
@@ -167,7 +166,12 @@ export class MathTextView extends View {
       const script = document.createElement("script")
       script.id = "bokeh_mathjax_script"
       script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-      script.onload = () => this.parent.request_paint()
+
+      script.onload = async () => {
+        await this.load_image()
+        this.parent.request_paint()
+      }
+
       document.head.appendChild(script)
     }
   }
@@ -222,9 +226,8 @@ export class MathTextView extends View {
     const {x, y} = this._computed_position()
 
     if (this.has_image_loaded) {
-      ctx.drawImage(this.svg_image, x, y, this.width, this.height)
-
-      this.notify_finished()
+      const {width, height} = this.get_image_dimensions()
+      ctx.drawImage(this.svg_image, x, y, width, height)
     } else {
       ctx.fillStyle = this.color
       ctx.font = this.font
@@ -236,6 +239,11 @@ export class MathTextView extends View {
 
     if (this.get_math_jax() && !this.has_image_loaded)
       this.load_image()
+
+    if (!this.get_math_jax() || this.has_image_loaded) {
+      this._has_finished = true
+      this.notify_finished()
+    }
   }
 }
 
