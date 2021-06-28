@@ -127,7 +127,7 @@ import {radians} from "@bokehjs/core/util/math"
       await plot({minor_tick_out: 10})
     })
 
-    async function load_math_jax_script(): Promise<void> {
+    function load_math_jax_script(): Promise<void> {
       return new Promise(async (resolve, _) => {
         if (!document.getElementById("bokeh_mathjax_script")) {
           const script = document.createElement("script")
@@ -141,9 +141,18 @@ import {radians} from "@bokehjs/core/util/math"
       })
     }
 
+    function remove_mathjax_script(): void {
+      const mathjax_script = document.getElementById("bokeh_mathjax_script")
+      if (mathjax_script) mathjax_script.remove()
+
+      // @ts-ignore
+      if (typeof MathJax !== "undefined") MathJax = undefined
+    }
+
     it("should support LaTeX notation on axis_label with MathText", async () => {
       await load_math_jax_script()
       await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      remove_mathjax_script()
     })
 
     it("should support LaTeX notation on axis_label with MathText and fallback to text if MathJax has errors", async () => {
@@ -151,6 +160,7 @@ import {radians} from "@bokehjs/core/util/math"
       // @ts-ignore
       MathJax = undefined
       await plot({axis_label: new MathText({text: "\\sin(x)"})}, {minor_size: 100})
+      remove_mathjax_script()
     })
 
     it("should support single line axis_label", async () => {
