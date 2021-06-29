@@ -10,6 +10,10 @@ export abstract class WidgetView extends HTMLBoxView {
     return "horizontal"
   }
 
+  protected get default_size(): number | undefined {
+    return this.model.default_size
+  }
+
   protected override _width_policy(): SizingPolicy {
     return this.orientation == "horizontal" ? super._width_policy() : "fixed"
   }
@@ -22,10 +26,10 @@ export abstract class WidgetView extends HTMLBoxView {
     const sizing = super.box_sizing()
     if (this.orientation == "horizontal") {
       if (sizing.width == null)
-        sizing.width = this.model.default_size
+        sizing.width = this.default_size
     } else {
       if (sizing.height == null)
-        sizing.height = this.model.default_size
+        sizing.height = this.default_size
     }
     return sizing
   }
