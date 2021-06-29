@@ -118,7 +118,7 @@ class Test_bundle_custom_extensions:
         plot.add_layout(LatexLabel())
         bundle = beb.bundle_for_objs_and_resources([plot], "cdn")
         assert len(bundle.js_files) == 2
-        assert bundle.js_files[1] == "https://unpkg.com/latex_label@^0.0.1/dist/latex_label.js"
+        assert bundle.js_files[1] == "https://unpkg.com/latex_label@0.0.1/dist/latex_label.js"
 
     def test_with_Server_resources(self) -> None:
         from latex_label import LatexLabel

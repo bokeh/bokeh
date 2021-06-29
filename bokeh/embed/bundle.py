@@ -276,7 +276,7 @@ def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
-                cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
+                cdn_url = f"{_default_cdn_host}/{pkg_name}@{pkg_version}/{pkg_main}"
             else:
                 pkg_main = join(dist_dir, f"{name}.js")
             artifact_path = join(base_dir, normpath(pkg_main))
