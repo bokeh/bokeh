@@ -61,6 +61,7 @@
     "eslint": "^7.27.0",
     "express": "^4.17.1",
     "less": "^4.1.1",
+    "mathjax-full": "^3.2.0",
     "nunjucks": "^3.2.3",
     "path-browserify": "^1.0.0",
     "pngjs": "^6.0.0",
