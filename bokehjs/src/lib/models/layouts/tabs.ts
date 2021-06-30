@@ -1,6 +1,7 @@
 import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
 import {div, position, size, scroll_size, show, hide, display, undisplay, children} from "core/dom"
 import {sum, remove_at} from "core/util/array"
+import {clamp} from "core/util/math"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -20,6 +21,8 @@ export class TabsView extends LayoutDOMView {
   protected wrapper_el: HTMLElement
   protected scroll_el: HTMLElement
   protected headers_el: HTMLElement
+  protected left_el: HTMLElement
+  protected right_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -98,6 +101,7 @@ export class TabsView extends LayoutDOMView {
       if (headers_el_size.width > width) {
         this.wrapper_el.style.maxWidth = `${width - scroll_el_size.width}px`
         display(this.scroll_el)
+        this.do_scroll(this.model.active)
       } else {
         this.wrapper_el.style.maxWidth = ""
         undisplay(this.scroll_el)
@@ -107,6 +111,7 @@ export class TabsView extends LayoutDOMView {
       if (headers_el_size.height > height) {
         this.wrapper_el.style.maxHeight = `${height - scroll_el_size.height}px`
         display(this.scroll_el)
+        this.do_scroll(this.model.active)
       } else {
         this.wrapper_el.style.maxHeight = ""
         undisplay(this.scroll_el)
@@ -126,9 +131,6 @@ export class TabsView extends LayoutDOMView {
     super.render()
 
     const {active} = this.model
-
-    const loc = this.model.tabs_location
-    const vertical = loc == "above" || loc == "below"
 
     const headers = this.model.tabs.map((tab, i) => {
       const el = div({class: [tabs.tab, i == active ? tabs.active : null]}, tab.title)
@@ -154,50 +156,56 @@ export class TabsView extends LayoutDOMView {
     this.headers_el = div({class: [tabs.headers]}, headers)
     this.wrapper_el = div({class: tabs.headers_wrapper}, this.headers_el)
 
-    const left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [menus.caret, tabs.left]}))
-    const right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [menus.caret, tabs.right]}))
+    this.left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [menus.caret, tabs.left]}))
+    this.right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [menus.caret, tabs.right]}))
 
-    let scroll_index = 0
-    const do_scroll = (dir: "left" | "right") => {
-      return () => {
-        const ntabs = this.model.tabs.length
+    this.left_el.addEventListener("click", () => this.do_scroll("left"))
+    this.right_el.addEventListener("click", () => this.do_scroll("right"))
 
-        if (dir == "left")
-          scroll_index = Math.max(scroll_index - 1, 0)
-        else
-          scroll_index = Math.min(scroll_index + 1, ntabs - 1)
+    this.scroll_el = div({class: buttons.btn_group}, this.left_el, this.right_el)
 
-        if (scroll_index == 0)
-          left_el.setAttribute("disabled", "")
-        else
-          left_el.removeAttribute("disabled")
-
-        if (scroll_index == ntabs - 1)
-          right_el.setAttribute("disabled", "")
-        else
-          right_el.removeAttribute("disabled")
-
-        const sizes = children(this.headers_el)
-          .slice(0, scroll_index)
-          .map((el) => el.getBoundingClientRect())
-
-        if (vertical) {
-          const left = -sum(sizes.map((size) => size.width))
-          this.headers_el.style.left = `${left}px`
-        } else {
-          const top = -sum(sizes.map((size) => size.height))
-          this.headers_el.style.top = `${top}px`
-        }
-      }
-    }
-
-    left_el.addEventListener("click", do_scroll("left"))
-    right_el.addEventListener("click", do_scroll("right"))
-
-    this.scroll_el = div({class: buttons.btn_group}, left_el, right_el)
-
+    const loc = this.model.tabs_location
     this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
     this.el.appendChild(this.header_el)
+  }
+
+  private _scroll_index = 0
+  protected do_scroll(target: "left" | "right" | number): void {
+    const ntabs = this.model.tabs.length
+
+    if (target == "left")
+      this._scroll_index -= 1
+    else if (target == "right")
+      this._scroll_index += 1
+    else
+      this._scroll_index = target
+
+    this._scroll_index = clamp(this._scroll_index, 0, ntabs - 1)
+
+    if (this._scroll_index == 0)
+      this.left_el.setAttribute("disabled", "")
+    else
+      this.left_el.removeAttribute("disabled")
+
+    if (this._scroll_index == ntabs - 1)
+      this.right_el.setAttribute("disabled", "")
+    else
+      this.right_el.removeAttribute("disabled")
+
+    const sizes = children(this.headers_el)
+      .slice(0, this._scroll_index)
+      .map((el) => el.getBoundingClientRect())
+
+    const loc = this.model.tabs_location
+    const vertical = loc == "above" || loc == "below"
+
+    if (vertical) {
+      const left = -sum(sizes.map((size) => size.width))
+      this.headers_el.style.left = `${left}px`
+    } else {
+      const top = -sum(sizes.map((size) => size.height))
+      this.headers_el.style.top = `${top}px`
+    }
   }
 
   change_active(i: number): void {
