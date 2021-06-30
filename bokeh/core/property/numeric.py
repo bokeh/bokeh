@@ -100,7 +100,7 @@ class Interval(ParameterizedProperty):
             >>> m.prop = "foo" # ValueError !!
 
     """
-    def __init__(self, interval_type, start, end, default=Undefined, help=None):
+    def __init__(self, interval_type, start, end, default=Undefined, help=None) -> None:
         self.interval_type = self._validate_type_param(interval_type)
         # Make up a property name for validation purposes
         self.interval_type.validate(start)
@@ -109,7 +109,7 @@ class Interval(ParameterizedProperty):
         self.end = end
         super().__init__(default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         return f"{class_name}({self.interval_type}, {self.start!r}, {self.end!r})"
 
@@ -144,7 +144,7 @@ class Byte(Interval):
             >>> m.prop = 10.3 # ValueError !!
 
     """
-    def __init__(self, default=0, help=None):
+    def __init__(self, default=0, help=None) -> None:
         super().__init__(Int, 0, 255, default=default, help=help)
 
 class Size(Float):

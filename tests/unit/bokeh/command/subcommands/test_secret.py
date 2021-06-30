@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.util.types import Capture
 from bokeh.command.bootstrap import main
 
 # Module under test
@@ -47,10 +50,9 @@ def test_help() -> None:
     assert scsecret.Secret.help == "Create a Bokeh secret key for use with Bokeh server"
 
 def test_args() -> None:
-    assert scsecret.Secret.args == (
-    )
+    assert scsecret.Secret.args == ()
 
-def test_run(capsys) -> None:
+def test_run(capsys: Capture) -> None:
     main(["bokeh", "secret"])
     out, err = capsys.readouterr()
     assert err == ""

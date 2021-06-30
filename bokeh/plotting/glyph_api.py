@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -15,9 +17,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any
+
 # Bokeh imports
 from ..models import glyphs
 from ._decorators import glyph_method, marker_method
+
+if TYPE_CHECKING:
+    from ..models.canvas import CoordinateMapping
+    from ..models.plots import Plot
+    from ..models.renderers import GlyphRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,14 +49,14 @@ class GlyphAPI:
     """ """
 
     @property
-    def plot(self):
+    def plot(self) -> Plot | None:
         return self._parent
 
     @property
-    def coordinates(self):
+    def coordinates(self) -> CoordinateMapping | None:
         return self._coordinates
 
-    def __init__(self, parent=None, coordinates=None) -> None:
+    def __init__(self, parent: Plot | None = None, coordinates: CoordinateMapping | None = None) -> None:
         self._parent = parent
         self._coordinates = coordinates
 
@@ -73,11 +83,11 @@ Examples:
 """
 
     @glyph_method(glyphs.Arc)
-    def arc(self, **kwargs):
+    def arc(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @marker_method()
-    def asterisk(self, **kwargs):
+    def asterisk(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -94,11 +104,11 @@ Examples:
 """
 
     @glyph_method(glyphs.Bezier)
-    def bezier(self, **kwargs):
+    def bezier(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @glyph_method(glyphs.Circle)
-    def circle(self, **kwargs):
+    def circle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
@@ -119,7 +129,7 @@ Examples:
 """
 
     @marker_method()
-    def circle_cross(self, **kwargs):
+    def circle_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -137,7 +147,7 @@ Examples:
 """
 
     @marker_method()
-    def circle_dot(self, **kwargs):
+    def circle_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -155,7 +165,7 @@ Examples:
 """
 
     @marker_method()
-    def circle_x(self, **kwargs):
+    def circle_x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -173,7 +183,7 @@ Examples:
 """
 
     @marker_method()
-    def circle_y(self, **kwargs):
+    def circle_y(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -191,7 +201,7 @@ Examples:
 """
 
     @marker_method()
-    def cross(self, **kwargs):
+    def cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -209,7 +219,7 @@ Examples:
 """
 
     @marker_method()
-    def dash(self, **kwargs):
+    def dash(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -227,7 +237,7 @@ Examples:
 """
 
     @marker_method()
-    def diamond(self, **kwargs):
+    def diamond(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -245,7 +255,7 @@ Examples:
 """
 
     @marker_method()
-    def diamond_cross(self, **kwargs):
+    def diamond_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -263,7 +273,7 @@ Examples:
 """
 
     @marker_method()
-    def diamond_dot(self, **kwargs):
+    def diamond_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -281,7 +291,7 @@ Examples:
 """
 
     @marker_method()
-    def dot(self, **kwargs):
+    def dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -298,7 +308,7 @@ Examples:
 """
 
     @glyph_method(glyphs.HArea)
-    def harea(self, **kwargs):
+    def harea(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -316,7 +326,7 @@ Examples:
 """
 
     @glyph_method(glyphs.HBar)
-    def hbar(self, **kwargs):
+    def hbar(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -333,7 +343,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Ellipse)
-    def ellipse(self, **kwargs):
+    def ellipse(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -351,7 +361,7 @@ Examples:
 """
 
     @marker_method()
-    def hex(self, **kwargs):
+    def hex(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -368,7 +378,7 @@ Examples:
 """
 
     @marker_method()
-    def hex_dot(self, **kwargs):
+    def hex_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -386,7 +396,7 @@ Examples:
 """
 
     @glyph_method(glyphs.HexTile)
-    def hex_tile(self, **kwargs):
+    def hex_tile(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -403,7 +413,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Image)
-    def image(self, **kwargs):
+    def image(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
@@ -413,7 +423,7 @@ Examples:
 """
 
     @glyph_method(glyphs.ImageRGBA)
-    def image_rgba(self, **kwargs):
+    def image_rgba(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
@@ -422,11 +432,11 @@ Examples:
 """
 
     @glyph_method(glyphs.ImageURL)
-    def image_url(self, **kwargs):
+    def image_url(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @marker_method()
-    def inverted_triangle(self, **kwargs):
+    def inverted_triangle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -443,7 +453,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Line)
-    def line(self, **kwargs):
+    def line(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -460,7 +470,7 @@ Examples:
 """
 
     @glyph_method(glyphs.MultiLine)
-    def multi_line(self, **kwargs):
+    def multi_line(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
@@ -482,7 +492,7 @@ Examples:
 """
 
     @glyph_method(glyphs.MultiPolygons)
-    def multi_polygons(self, **kwargs):
+    def multi_polygons(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is a
@@ -504,7 +514,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Oval)
-    def oval(self, **kwargs):
+    def oval(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -522,7 +532,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Patch)
-    def patch(self, **kwargs):
+    def patch(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -539,7 +549,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Patches)
-    def patches(self, **kwargs):
+    def patches(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
@@ -561,7 +571,7 @@ Examples:
 """
 
     @marker_method()
-    def plus(self, **kwargs):
+    def plus(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -578,7 +588,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Quad)
-    def quad(self, **kwargs):
+    def quad(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -596,11 +606,11 @@ Examples:
 """
 
     @glyph_method(glyphs.Quadratic)
-    def quadratic(self, **kwargs):
+    def quadratic(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @glyph_method(glyphs.Ray)
-    def ray(self, **kwargs):
+    def ray(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -618,7 +628,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Rect)
-    def rect(self, **kwargs):
+    def rect(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -636,7 +646,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Step)
-    def step(self, **kwargs):
+    def step(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -653,7 +663,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Segment)
-    def segment(self, **kwargs):
+    def segment(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -672,7 +682,7 @@ Examples:
 """
 
     @marker_method()
-    def square(self, **kwargs):
+    def square(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -689,7 +699,7 @@ Examples:
 """
 
     @marker_method()
-    def square_cross(self, **kwargs):
+    def square_cross(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -707,7 +717,7 @@ Examples:
 """
 
     @marker_method()
-    def square_dot(self, **kwargs):
+    def square_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -725,7 +735,7 @@ Examples:
 """
 
     @marker_method()
-    def square_pin(self, **kwargs):
+    def square_pin(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -743,7 +753,7 @@ Examples:
 """
 
     @marker_method()
-    def square_x(self, **kwargs):
+    def square_x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -761,7 +771,7 @@ Examples:
 """
 
     @marker_method()
-    def star(self, **kwargs):
+    def star(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -779,7 +789,7 @@ Examples:
 """
 
     @marker_method()
-    def star_dot(self, **kwargs):
+    def star_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -797,7 +807,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Text)
-    def text(self, **kwargs):
+    def text(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 .. note::
     The location and angle of the text relative to the ``x``, ``y`` coordinates
@@ -806,7 +816,7 @@ Examples:
 """
 
     @marker_method()
-    def triangle(self, **kwargs):
+    def triangle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -824,7 +834,7 @@ Examples:
 """
 
     @marker_method()
-    def triangle_dot(self, **kwargs):
+    def triangle_dot(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -842,7 +852,7 @@ Examples:
 """
 
     @marker_method()
-    def triangle_pin(self, **kwargs):
+    def triangle_pin(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -860,7 +870,7 @@ Examples:
 """
 
     @glyph_method(glyphs.VArea)
-    def varea(self, **kwargs):
+    def varea(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -878,7 +888,7 @@ Examples:
 """
 
     @glyph_method(glyphs.VBar)
-    def vbar(self, **kwargs):
+    def vbar(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -895,7 +905,7 @@ Examples:
 """
 
     @glyph_method(glyphs.Wedge)
-    def wedge(self, **kwargs):
+    def wedge(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -913,7 +923,7 @@ Examples:
 """
 
     @marker_method()
-    def x(self, **kwargs):
+    def x(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -930,7 +940,7 @@ Examples:
 """
 
     @marker_method()
-    def y(self, **kwargs):
+    def y(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -949,10 +959,10 @@ Examples:
     # -------------------------------------------------------------------------
 
     @glyph_method(glyphs.Scatter)
-    def _scatter(self, **kwargs):
+    def _scatter(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         pass
 
-    def scatter(self, *args, **kwargs):
+    def scatter(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         ''' Creates a scatter plot of the given x and y items.
 
         Args:

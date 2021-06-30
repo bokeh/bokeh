@@ -1,11 +1,5 @@
-import {AttributeConfig, BoundingBox, Buffer, Texture2D, Vec2, Vec4} from "regl"
-
-// Arrays are sent to GPU using ReGL Buffer objects.  CPU-side arrays used to
-// update the Buffers are also kept for reuse to avoid unnecessary reallocation.
-export type FloatBuffer = {
-  buffer: Buffer
-  array: Float32Array
-}
+import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
+import {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
 type CommonProps = {
@@ -17,22 +11,22 @@ type CommonProps = {
 }
 
 type LineProps = {
-  linewidth: number[] | Float32Array
-  line_color: Uint8Array
-  line_join: number[] | Float32Array
+  linewidth: Float32Buffer
+  line_color: NormalizedUint8Buffer
+  line_join: Uint8Buffer
 }
 
 type LinePropsNoJoin = { // Only needed until Markers support line joins.
-  linewidth: number[] | Float32Array
-  line_color: Uint8Array
+  linewidth: Float32Buffer
+  line_color: NormalizedUint8Buffer
 }
 
 type FillProps = {
-  fill_color: Uint8Array
+  fill_color: NormalizedUint8Buffer
 }
 
 type DashProps = {
-  length_so_far: Buffer
+  length_so_far: Float32Buffer
   dash_tex: Texture2D
   dash_tex_info: number[]
   dash_scale: number
@@ -40,17 +34,17 @@ type DashProps = {
 }
 
 type HatchProps = {
-  hatch_pattern: number[] | Float32Array
-  hatch_scale: number[] | Float32Array
-  hatch_weight: number[] | Float32Array
-  hatch_color: Uint8Array
+  hatch_pattern: Uint8Buffer
+  hatch_scale: Float32Buffer
+  hatch_weight: Float32Buffer
+  hatch_color: NormalizedUint8Buffer
 }
 
 export type LineGlyphProps = CommonProps & {
   line_color: number[]
   linewidth: number
   miter_limit: number
-  points: Buffer
+  points: Float32Buffer
   nsegments: number
   line_cap: number
   line_join: number
@@ -59,20 +53,20 @@ export type LineGlyphProps = CommonProps & {
 export type LineDashGlyphProps = LineGlyphProps & DashProps
 
 export type MarkerGlyphProps = CommonProps & LinePropsNoJoin & FillProps & {
-  center: Float32Array
+  center: Float32Buffer
   nmarkers: number
-  size: number[] | Float32Array
-  angle: number[] | Float32Array
-  show: Uint8Array
+  size: Float32Buffer
+  angle: Float32Buffer
+  show: Uint8Buffer
 }
 
 export type RectGlyphProps = CommonProps & LineProps & FillProps & {
-  center: Float32Array
+  center: Float32Buffer
   nmarkers: number
-  width: Float32Array
-  height: Float32Array
-  angle: number[] | Float32Array
-  show: Uint8Array
+  width: Float32Buffer
+  height: Float32Buffer
+  angle: Float32Buffer
+  show: Uint8Buffer
 }
 
 export type RectHatchGlyphProps = RectGlyphProps & HatchProps

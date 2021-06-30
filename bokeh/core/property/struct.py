@@ -41,7 +41,7 @@ class Struct(ParameterizedProperty):
 
 
     """
-    def __init__(self, **fields):
+    def __init__(self, **fields) -> None:
         default = fields.pop("default", None)
         help = fields.pop("help", None)
 
@@ -69,7 +69,7 @@ class Struct(ParameterizedProperty):
         msg = "" if not detail else f"expected an element of {self}, got {value!r}"
         raise ValueError(msg)
 
-    def __str__(self):
+    def __str__(self) -> str:
         class_name = self.__class__.__name__
         fields = ", ".join(f"{name}={typ}" for name, typ in self._fields.items())
         return f"{class_name}({fields})"

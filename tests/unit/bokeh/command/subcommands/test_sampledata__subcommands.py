@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -15,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh._testing.util.types import Capture
 from bokeh.command.bootstrap import main
 
 # Module under test
@@ -52,7 +55,7 @@ def test_args() -> None:
     assert scsample.Sampledata.args == (
     )
 
-def test_run(capsys) -> None:
+def test_run(capsys: Capture) -> None:
     main(["bokeh", "sampledata"])
     assert did_call_download == True
 

@@ -24,12 +24,22 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+)
+
 # External imports
 from tornado.httpclient import HTTPClientError, HTTPRequest
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketError, websocket_connect
 
 # Bokeh imports
+from ..core.types import ID
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
@@ -42,8 +52,16 @@ from .states import (
     NOT_YET_CONNECTED,
     WAITING_FOR_REPLY,
     ErrorReason,
+    State,
 )
 from .websocket import WebSocketClientConnectionWrapper
+
+if TYPE_CHECKING:
+    from ..document import Document
+    from ..document.events import DocumentChangedEvent
+    from ..protocol.message import Message
+    from ..protocol.messages.server_info_reply import ServerInfo
+    from .session import ClientSession
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -68,7 +86,12 @@ class ClientConnection:
 
     '''
 
-    def __init__(self, session, websocket_url, io_loop=None, arguments=None, max_message_size=20*1024*1024):
+    _state: State
+    _loop: IOLoop
+    _until_predicate: Callable[[], bool] | None
+
+    def __init__(self, session: ClientSession, websocket_url: str, io_loop: IOLoop | None = None,
+            arguments: Dict[str, str] | None = None, max_message_size: int = 20*1024*1024) -> None:
         ''' Opens a websocket connection to the server.
 
         '''
@@ -80,18 +103,16 @@ class ClientConnection:
         self._receiver = Receiver(self._protocol)
         self._socket = None
         self._state = NOT_YET_CONNECTED()
-        if io_loop is None:
-            # We can't use IOLoop.current because then we break
-            # when running inside a notebook since ipython also uses it
-            io_loop = IOLoop()
-        self._loop = io_loop
+        # We can't use IOLoop.current because then we break
+        # when running inside a notebook since ipython also uses it
+        self._loop = io_loop if io_loop is not None else IOLoop()
         self._until_predicate = None
         self._server_info = None
 
     # Properties --------------------------------------------------------------
 
     @property
-    def connected(self):
+    def connected(self) -> bool:
         ''' Whether we've connected the Websocket and have exchanged initial
         handshake messages.
 
@@ -99,25 +120,24 @@ class ClientConnection:
         return isinstance(self._state, CONNECTED_AFTER_ACK)
 
     @property
-    def io_loop(self):
+    def io_loop(self) -> IOLoop:
         ''' The Tornado ``IOLoop`` this connection is using. '''
         return self._loop
 
-
     @property
-    def url(self):
+    def url(self) -> str:
         ''' The URL of the websocket this Connection is to. '''
         return self._url
 
     @property
-    def error_reason(self):
+    def error_reason(self) -> ErrorReason | None:
         ''' The reason of the connection loss encoded as a ``DISCONNECTED.ErrorReason`` enum value '''
         if not isinstance(self._state, DISCONNECTED):
             return None
         return self._state.error_reason
 
     @property
-    def error_code(self):
+    def error_code(self) -> int | None:
         ''' If there was an error that caused a disconnect, this property holds
         the error code. None otherwise.
 
@@ -127,7 +147,7 @@ class ClientConnection:
         return self._state.error_code
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str:
         ''' If there was an error that caused a disconnect, this property holds
         the error detail. Empty string otherwise.
 
@@ -138,21 +158,21 @@ class ClientConnection:
 
     # Internal methods --------------------------------------------------------
 
-    def connect(self):
-        def connected_or_closed():
+    def connect(self) -> None:
+        def connected_or_closed() -> bool:
             # we should be looking at the same state here as the 'connected' property above, so connected
             # means both connected and that we did our initial message exchange
             return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
         self._loop_until(connected_or_closed)
 
-    def close(self, why="closed"):
+    def close(self, why: str = "closed") -> None:
         ''' Close the Websocket connection.
 
         '''
         if self._socket is not None:
             self._socket.close(1000, why)
 
-    def force_roundtrip(self):
+    def force_roundtrip(self) -> None:
         ''' Force a round-trip request/reply to the server, sometimes needed to
         avoid race conditions. Mostly useful for testing.
 
@@ -165,7 +185,7 @@ class ClientConnection:
         '''
         self._send_request_server_info()
 
-    def loop_until_closed(self):
+    def loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
 
@@ -180,11 +200,11 @@ class ClientConnection:
             self._tell_session_about_disconnect()
             self._state = DISCONNECTED()
         else:
-            def closed():
+            def closed() -> bool:
                 return isinstance(self._state, DISCONNECTED)
             self._loop_until(closed)
 
-    def pull_doc(self, document):
+    def pull_doc(self, document: Document) -> None:
         ''' Pull a document from the server, overwriting the passed-in document
 
         Args:
@@ -204,7 +224,7 @@ class ClientConnection:
         else:
             reply.push_to_document(document)
 
-    def push_doc(self, document):
+    def push_doc(self, document: Document) -> Message[Any]:
         ''' Push a document to the server, overwriting any existing server-side doc.
 
         Args:
@@ -224,7 +244,7 @@ class ClientConnection:
         else:
             return reply
 
-    def request_server_info(self):
+    def request_server_info(self) -> ServerInfo:
         ''' Ask for information about the server.
 
         Returns:
@@ -235,7 +255,7 @@ class ClientConnection:
             self._server_info = self._send_request_server_info()
         return self._server_info
 
-    async def send_message(self, message):
+    async def send_message(self, message: Message[Any]) -> None:
         if self._socket is None:
             log.info("We're disconnected, so not sending message %r", message)
         else:
@@ -268,7 +288,7 @@ class ClientConnection:
 
     # Private methods ---------------------------------------------------------
 
-    async def _connect_async(self):
+    async def _connect_async(self) -> None:
         formatted_url = format_url_query_arguments(self._url, self._arguments)
         request = HTTPRequest(formatted_url)
         try:
@@ -285,7 +305,7 @@ class ClientConnection:
         else:
             await self._transition(CONNECTED_BEFORE_ACK())
 
-    async def _handle_messages(self):
+    async def _handle_messages(self) -> None:
         message = await self._pop_message()
         if message is None:
             await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
@@ -298,7 +318,7 @@ class ClientConnection:
             # we don't know about whatever message we got, ignore it.
             await self._next()
 
-    def _loop_until(self, predicate):
+    def _loop_until(self, predicate: Callable[[], bool]) -> None:
         self._until_predicate = predicate
         try:
             # this runs self._next ONE time, but
@@ -309,7 +329,7 @@ class ClientConnection:
         except KeyboardInterrupt:
             self.close("user interruption")
 
-    async def _next(self):
+    async def _next(self) -> None:
         if self._until_predicate is not None and self._until_predicate():
             log.debug("Stopping client loop in state %s due to True from %s",
                       self._state.__class__.__name__, self._until_predicate.__name__)
@@ -320,7 +340,7 @@ class ClientConnection:
             log.debug("Running state " + self._state.__class__.__name__)
             await self._state.run(self)
 
-    async def _pop_message(self):
+    async def _pop_message(self) -> Message[Any] | None:
         while True:
             if self._socket is None:
                 return None
@@ -346,27 +366,27 @@ class ClientConnection:
                 log.error("%r", e, exc_info=True)
                 self.close(why="error parsing message from server")
 
-    def _send_message_wait_for_reply(self, message):
+    def _send_message_wait_for_reply(self, message: Message[Any]) -> Message[Any] | None:
         waiter = WAITING_FOR_REPLY(message.header['msgid'])
         self._state = waiter
 
-        send_result = []
-        async def handle_message(message, send_result):
+        send_result: List[None] = []
+        async def handle_message(message: Message[Any], send_result: List[None]) -> None:
             result = await self.send_message(message)
             send_result.append(result)
         self._loop.spawn_callback(handle_message, message, send_result)
 
-        def have_send_result_or_disconnected():
+        def have_send_result_or_disconnected() -> bool:
             return len(send_result) > 0 or self._state != waiter
         self._loop_until(have_send_result_or_disconnected)
 
-        def have_reply_or_disconnected():
+        def have_reply_or_disconnected() -> bool:
             return self._state != waiter or waiter.reply is not None
         self._loop_until(have_reply_or_disconnected)
 
         return waiter.reply
 
-    def _send_patch_document(self, session_id, event):
+    def _send_patch_document(self, session_id: ID, event: DocumentChangedEvent) -> None:
         # XXX This will cause the client to always send all columns when a CDS
         # is mutated in place. Additionally we set use_buffers=False below as
         # well, to suppress using the binary array transport. Real Bokeh server
@@ -378,35 +398,35 @@ class ClientConnection:
         msg = self._protocol.create('PATCH-DOC', [event], use_buffers=False)
         self._loop.spawn_callback(self.send_message, msg)
 
-    def _send_request_server_info(self):
+    def _send_request_server_info(self) -> ServerInfo:
         msg = self._protocol.create('SERVER-INFO-REQ')
         reply = self._send_message_wait_for_reply(msg)
         if reply is None:
             raise RuntimeError("Did not get a reply to server info request before disconnect")
         return reply.content
 
-    def _tell_session_about_disconnect(self):
+    def _tell_session_about_disconnect(self) -> None:
         if self._session:
             self._session._notify_disconnected()
 
-    async def _transition(self, new_state):
-        log.debug("transitioning to state " + new_state.__class__.__name__)
+    async def _transition(self, new_state: State) -> None:
+        log.debug(f"transitioning to state {new_state.__class__.__name__}")
         self._state = new_state
         await self._next()
 
-    async def _transition_to_disconnected(self, dis_state):
+    async def _transition_to_disconnected(self, dis_state: DISCONNECTED) -> None:
         self._tell_session_about_disconnect()
         await self._transition(dis_state)
 
-    async def _wait_for_ack(self):
+    async def _wait_for_ack(self) -> None:
         message = await self._pop_message()
         if message and message.msgtype == 'ACK':
-            log.debug("Received %r", message)
+            log.debug(f"Received {message!r}")
             await self._transition(CONNECTED_AFTER_ACK())
         elif message is None:
             await self._transition_to_disconnected(DISCONNECTED(ErrorReason.HTTP_ERROR, 500, "Internal server error."))
         else:
-            raise ProtocolError("Received %r instead of ACK" % message)
+            raise ProtocolError(f"Received {message!r} instead of ACK")
 
 #-----------------------------------------------------------------------------
 # Private API

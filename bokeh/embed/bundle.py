@@ -31,8 +31,21 @@ from os.path import (
     join,
     normpath,
 )
-from typing import Dict, List, Optional
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+)
 from warnings import warn
+
+# External imports
+from typing_extensions import TypedDict
 
 # Bokeh imports
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
@@ -41,6 +54,9 @@ from ..model import Model
 from ..resources import BaseResources, Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
+
+if TYPE_CHECKING:
+    from ..resources import Hashes
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -59,66 +75,72 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+class Artifact:
+    pass
 
-class ScriptRef:
-    def __init__(self, url, type="text/javascript"):
+class ScriptRef(Artifact):
+    def __init__(self, url: str, type: str = "text/javascript") -> None:
         self.url = url
         self.type = type
 
 
-class Script:
-    def __init__(self, content, type="text/javascript"):
+class Script(Artifact):
+    def __init__(self, content: str, type: str = "text/javascript") -> None:
         self.content = content
         self.type = type
 
 
-class StyleRef:
-    def __init__(self, url):
+class StyleRef(Artifact):
+    def __init__(self, url: str) -> None:
         self.url = url
 
 
-class Style:
-    def __init__(self, content):
+class Style(Artifact):
+    def __init__(self, content: str) -> None:
         self.content = content
 
 
 class Bundle:
-    @classmethod
-    def of(cls, js_files, js_raw, css_files, css_raw, hashes):
-        return cls(js_files=js_files, js_raw=js_raw, css_files=css_files, css_raw=css_raw, hashes=hashes)
 
-    def __init__(self, **kwargs):
-        self.js_files = kwargs.get("js_files", [])
-        self.js_raw = kwargs.get("js_raw", [])
-        self.css_files = kwargs.get("css_files", [])
-        self.css_raw = kwargs.get("css_raw", [])
-        self.hashes = kwargs.get("hashes", {})
+    js_files: List[str]
+    js_raw: List[str]
+    css_files: List[str]
+    css_raw: List[str]
+    hashes: Hashes
 
-    def __iter__(self):
+    def __init__(self, js_files: List[str] = [], js_raw: List[str] = [],
+            css_files: List[str] = [], css_raw: List[str] = [], hashes: Hashes = {}):
+        self.js_files = js_files[:]
+        self.js_raw = js_raw[:]
+        self.css_files = css_files[:]
+        self.css_raw = css_raw[:]
+        self.hashes = {**hashes}
+
+    def __iter__(self) -> Iterator[str]:
         yield self._render_js()
         yield self._render_css()
 
-    def _render_js(self):
+    def _render_js(self) -> str:
         return JS_RESOURCES.render(js_files=self.js_files, js_raw=self.js_raw, hashes=self.hashes)
 
-    def _render_css(self):
+    def _render_css(self) -> str:
         return CSS_RESOURCES.render(css_files=self.css_files, css_raw=self.css_raw)
 
-    def scripts(self, tag=True):
+    def scripts(self, tag: bool = True) -> str:
         if tag:
             return JS_RESOURCES.render(js_raw=self.js_raw, js_files=[])
         else:
             return "\n".join(self.js_raw)
 
     @property
-    def js_urls(self):
+    def js_urls(self) -> List[str]:
         return self.js_files
 
     @property
-    def css_urls(self):
+    def css_urls(self) -> List[str]:
         return self.css_files
 
-    def add(self, artifact):
+    def add(self, artifact: Artifact) -> None:
         if isinstance(artifact, ScriptRef):
             self.js_files.append(artifact.url)
         elif isinstance(artifact, Script):
@@ -128,7 +150,8 @@ class Bundle:
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
-def bundle_for_objs_and_resources(objs, resources):
+def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
+        resources: BaseResources | Tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
@@ -157,7 +180,7 @@ def bundle_for_objs_and_resources(objs, resources):
         if css_resources and not js_resources:
             warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
     else:
-        raise ValueError("expected Resources or a pair of optional Resources, got %r" % resources)
+        raise ValueError(f"expected Resources or a pair of optional Resources, got {resources!r}")
 
     from copy import deepcopy
 
@@ -165,10 +188,10 @@ def bundle_for_objs_and_resources(objs, resources):
     use_widgets = _use_widgets(objs) if objs else True
     use_tables  = _use_tables(objs)  if objs else True
 
-    js_files = []
-    js_raw = []
-    css_files = []
-    css_raw = []
+    js_files: List[str] = []
+    js_raw: List[str] = []
+    css_files: List[str] = []
+    css_raw: List[str] = []
 
     if js_resources:
         js_resources = deepcopy(js_resources)
@@ -206,14 +229,14 @@ def bundle_for_objs_and_resources(objs, resources):
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle.of(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
+    return Bundle(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _query_extensions(objs, query):
-    names = set()
+def _query_extensions(objs: Sequence[Model | Document], query: Callable[[Type[Model]], bool]) -> bool:
+    names: Set[str] = set()
 
     for obj in _all_objs(objs):
         if hasattr(obj, "__implementation__"):
@@ -238,13 +261,19 @@ _default_cdn_host = "https://unpkg.com"
 class ExtensionEmbed:
     artifact_path: str
     server_url: str
-    cdn_url: Optional[str] = None
+    cdn_url: str | None = None
+
+class Pkg(TypedDict, total=False):
+    name: str
+    version: str
+    module: str
+    main: str
 
 extension_dirs: Dict[str, str] = {} # name -> path
 
-def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
-    names = set()
-    bundles = []
+def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -> List[ExtensionEmbed]:
+    names: Set[str] = set()
+    bundles: List[ExtensionEmbed] = []
 
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
@@ -269,8 +298,7 @@ def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
         server_prefix = f"{resources.root_url}static/extensions"
         package_path = join(base_dir, "package.json")
 
-        pkg: Optional[str] = None
-
+        pkg: Pkg | None = None
         if exists(package_path):
             with open(package_path) as io:
                 try:
@@ -280,14 +308,16 @@ def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
 
         artifact_path: str
         server_url: str
-        cdn_url: Optional[str] = None
+        cdn_url: str | None = None
 
         if pkg is not None:
-            pkg_name = pkg["name"]
+            pkg_name: str | None = pkg.get("name", None)
+            if pkg_name is None:
+                raise ValueError("invalid package.json; missing package name")
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
-                cdn_url = f"{_default_cdn_host}/{pkg_name}@^{pkg_version}/{pkg_main}"
+                cdn_url = f"{_default_cdn_host}/{pkg_name}@{pkg_version}/{pkg_main}"
             else:
                 pkg_main = join(dist_dir, f"{name}.js")
             artifact_path = join(base_dir, normpath(pkg_main))
@@ -311,8 +341,8 @@ def _bundle_extensions(objs, resources: Resources) -> List[ExtensionEmbed]:
 
     return bundles
 
-def _all_objs(objs):
-    all_objs = set()
+def _all_objs(objs: Sequence[Model | Document]) -> Set[Model]:
+    all_objs: Set[Model] = set()
 
     for obj in objs:
         if isinstance(obj, Document):
@@ -323,7 +353,7 @@ def _all_objs(objs):
 
     return all_objs
 
-def _any(objs, query):
+def _any(objs: Sequence[Model | Document], query: Callable[[Model], bool]) -> bool:
     ''' Whether any of a collection of objects satisfies a given query predicate
 
     Args:
@@ -344,7 +374,7 @@ def _any(objs, query):
                 return True
     return False
 
-def _use_tables(objs):
+def _use_tables(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
@@ -357,7 +387,7 @@ def _use_tables(objs):
     from ..models.widgets import TableWidget
     return _any(objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(objs)
 
-def _use_widgets(objs):
+def _use_widgets(objs: Sequence[Model | Document]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
@@ -370,11 +400,11 @@ def _use_widgets(objs):
     from ..models.widgets import Widget
     return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
 
-def _ext_use_tables(objs):
+def _ext_use_tables(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import TableWidget
     return _query_extensions(objs, lambda cls: issubclass(cls, TableWidget))
 
-def _ext_use_widgets(objs):
+def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
 

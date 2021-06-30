@@ -56,14 +56,32 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Dict,
+    Generic,
+    List,
+    Tuple,
+    TypeVar,
+)
+
 # External imports
 from tornado.escape import json_decode, json_encode
+from typing_extensions import TypedDict
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial
 
 # Bokeh imports
+from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
+
+if TYPE_CHECKING:
+    from ..client.websocket import WebSocketClientConnectionWrapper
+    from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -81,14 +99,47 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Message:
+class _Header(TypedDict):
+    msgid: ID
+    msgtype: str
+
+class Header(_Header, total=False):
+    reqid: ID
+    num_buffers: int
+
+class BufferHeader(TypedDict):
+    id: ID
+
+Content = TypeVar("Content")
+
+Metadata = Dict[str, Any]
+
+BufferRef = Tuple[BufferHeader, bytes]
+
+class Empty(TypedDict):
+    pass
+
+class Message(Generic[Content]):
     ''' The Message base class encapsulates creating, assembling, and
     validating the integrity of Bokeh Server messages. Additionally, it
     provide hooks
 
     '''
 
-    def __init__(self, header, metadata, content):
+    msgtype: ClassVar[str]
+
+    _header: Header
+    _header_json: str | None
+
+    _content: Content
+    _content_json: str | None
+
+    _metadata: Metadata
+    _metadata_json: str | None
+
+    _buffers: List[BufferRef]
+
+    def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
         ''' Initialize a new message from header, metadata, and content
         dictionaries.
 
@@ -111,11 +162,11 @@ class Message:
         self.content = content
         self._buffers = []
 
-    def __repr__(self):
-        return "Message %r content: %r" % (self.msgtype, self.content)
+    def __repr__(self) -> str:
+        return f"Message {self.msgtype!r} content: {self.content!r}"
 
     @classmethod
-    def assemble(cls, header_json, metadata_json, content_json):
+    def assemble(cls, header_json: Fragment, metadata_json: Fragment, content_json: Fragment) -> Message[Content]:
         ''' Creates a new message, assembled from JSON fragments.
 
         Args:
@@ -156,7 +207,7 @@ class Message:
 
         return msg
 
-    def add_buffer(self, buf_header, buf_payload):
+    def add_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
         ''' Associate a buffer header and payload with this message.
 
         Args:
@@ -179,7 +230,7 @@ class Message:
 
         self._buffers.append((buf_header, buf_payload))
 
-    def assemble_buffer(self, buf_header, buf_payload):
+    def assemble_buffer(self, buf_header: BufferHeader, buf_payload: bytes) -> None:
         ''' Add a buffer header and payload that we read from the socket.
 
         This differs from add_buffer() because we're validating vs.
@@ -195,11 +246,12 @@ class Message:
         Raises:
             ProtocolError
         '''
-        if self.header.get('num_buffers', 0) <= len(self._buffers):
-            raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
+        num_buffers = self.header.get("num_buffers", 0)
+        if num_buffers <= len(self._buffers):
+            raise ProtocolError(f"too many buffers received expecting {num_buffers}")
         self._buffers.append((buf_header, buf_payload))
 
-    async def write_buffers(self, conn, locked=True):
+    async def write_buffers(self, conn: WebSocketClientConnectionWrapper, locked: bool = True) -> int:
         ''' Write any buffer headers and payloads to the given connection.
 
         Args:
@@ -223,7 +275,7 @@ class Message:
         return sent
 
     @classmethod
-    def create_header(cls, request_id=None):
+    def create_header(cls, request_id: ID | None = None) -> Header:
         ''' Return a message header fragment dict.
 
         Args:
@@ -234,15 +286,15 @@ class Message:
             dict : a message header
 
         '''
-        header = {
-            'msgid'   : bkserial.make_id(),
-            'msgtype' : cls.msgtype
-        }
+        header = Header(
+            msgid   = bkserial.make_id(),
+            msgtype = cls.msgtype,
+        )
         if request_id is not None:
             header['reqid'] = request_id
         return header
 
-    async def send(self, conn):
+    async def send(self, conn: WebSocketClientConnectionWrapper) -> int:
         ''' Send the message on the given connection.
 
         Args:
@@ -278,7 +330,7 @@ class Message:
             return sent
 
     @property
-    def complete(self):
+    def complete(self) -> bool:
         ''' Returns whether all required parts of a message are present.
 
         Returns:
@@ -286,23 +338,23 @@ class Message:
 
         '''
         return self.header is not None and \
-            self.metadata is not None and \
-            self.content is not None and \
-            self.header.get('num_buffers', 0) == len(self._buffers)
+               self.metadata is not None and \
+               self.content is not None and \
+               self.header.get('num_buffers', 0) == len(self._buffers)
 
     # header fragment properties
 
     @property
-    def header(self):
+    def header(self) -> Header:
         return self._header
 
     @header.setter
-    def header(self, value):
+    def header(self, value: Header) -> None:
         self._header = value
         self._header_json = None
 
     @property
-    def header_json(self):
+    def header_json(self) -> str:
         if not self._header_json:
             self._header_json = json_encode(self.header)
         return self._header_json
@@ -310,16 +362,16 @@ class Message:
     # content fragment properties
 
     @property
-    def content(self):
+    def content(self) -> Content:
         return self._content
 
     @content.setter
-    def content(self, value):
+    def content(self, value: Content) -> None:
         self._content = value
         self._content_json = None
 
     @property
-    def content_json(self):
+    def content_json(self) -> str:
         if not self._content_json:
             self._content_json = json_encode(self.content)
         return self._content_json
@@ -327,16 +379,16 @@ class Message:
     # metadata fragment properties
 
     @property
-    def metadata(self):
+    def metadata(self) -> Metadata:
         return self._metadata
 
     @metadata.setter
-    def metadata(self, value):
+    def metadata(self, value: Metadata) -> None:
         self._metadata = value
         self._metadata_json = None
 
     @property
-    def metadata_json(self):
+    def metadata_json(self) -> str:
         if not self._metadata_json:
             self._metadata_json = json_encode(self.metadata)
         return self._metadata_json
@@ -344,7 +396,7 @@ class Message:
     # buffer properties
 
     @property
-    def buffers(self):
+    def buffers(self) -> List[BufferRef]:
         return self._buffers
 
 #-----------------------------------------------------------------------------

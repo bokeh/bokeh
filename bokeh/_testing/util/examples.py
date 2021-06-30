@@ -34,9 +34,11 @@ from os.path import (
     relpath,
     splitext,
 )
+from typing import List, Union
 
 # External imports
 import yaml
+from typing_extensions import Literal
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,6 +52,8 @@ __all__ = (
 )
 
 JOB_ID = os.environ.get("GITHUB_ACTION", "local")
+
+PathLike = Union[str, bytes, "os.PathLike[str]", "os.PathLike[bytes]"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -66,7 +70,7 @@ class Flags:
 
 
 class Example:
-    def __init__(self, path, flags, examples_dir, extensions = []):
+    def __init__(self, path: str, flags: int, examples_dir: str, extensions: List[str] = []) -> None:
         self.path = normpath(path)
         self.flags = flags
         self.examples_dir = examples_dir
@@ -75,14 +79,14 @@ class Example:
         self.pixels = 0
         self._has_ref = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         flags = [
             "file"     if self.is_file     else "",
             "server"   if self.is_server   else "",
             "notebook" if self.is_notebook else "",
             "slow"     if self.is_slow     else "",
             "skip"     if self.is_skip     else "",
-            "xfail"    if self.xfail       else "",
+            "xfail"    if self.is_xfail    else "",
             "no_js"    if self.no_js       else "",
         ]
 
@@ -91,58 +95,61 @@ class Example:
     __repr__ = __str__
 
     @property
-    def name(self):
+    def name(self) -> str:
         return basename(self.path_no_ext)
 
     @property
-    def base_dir(self):
+    def base_dir(self) -> str:
         return dirname(self.path)
 
     @property
-    def relpath(self):
+    def relpath(self) -> str:
         return relpath(self.path, self.examples_dir)
 
     @property
-    def path_no_ext(self):
+    def path_no_ext(self) -> str:
         return splitext(self.path)[0]
 
     @property
-    def img_path(self):
+    def img_path(self) -> str:
         return self.path_no_ext + ".png"
 
     @property
-    def is_file(self):
-        return self.flags & Flags.file
+    def is_file(self) -> bool:
+        return bool(self.flags & Flags.file)
 
     @property
-    def is_server(self):
-        return self.flags & Flags.server
+    def is_server(self) -> bool:
+        return bool(self.flags & Flags.server)
 
     @property
-    def is_notebook(self):
-        return self.flags & Flags.notebook
+    def is_notebook(self) -> bool:
+        return bool(self.flags & Flags.notebook)
 
     @property
-    def is_slow(self):
-        return self.flags & Flags.slow
+    def is_slow(self) -> bool:
+        return bool(self.flags & Flags.slow)
 
     @property
-    def is_skip(self):
-        return self.flags & Flags.skip
+    def is_skip(self) -> bool:
+        return bool(self.flags & Flags.skip)
 
     @property
-    def is_xfail(self):
-        return self.flags & Flags.xfail
+    def is_xfail(self) -> bool:
+        return bool(self.flags & Flags.xfail)
 
     @property
-    def no_js(self):
-        return self.flags & Flags.no_js
+    def no_js(self) -> bool:
+        return bool(self.flags & Flags.no_js)
 
-    def store_img(self, img_data):
+    def store_img(self, img_data: str) -> None:
         _store_binary(self.img_path, b64decode(img_data))
 
+All = Literal["all"]
 
-def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None):
+def add_examples(list_of_examples: List[Example], path: str, examples_dir: str, example_type: int | None = None,
+        slow: List[str] | All | None = None, skip: List[str] | All | None = None,
+        xfail: List[str] | All | None = None, no_js: List[str] | All | None = None) -> None:
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
@@ -156,7 +163,7 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
 
     for name in sorted(os.listdir(example_path)):
         flags = 0
-        extensions = []
+        extensions: List[str] = []
         orig_name = name
 
         if name.startswith(('_', '.')):
@@ -201,9 +208,9 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir, extensions))
 
 
-def collect_examples(config_path):
+def collect_examples(config_path: str) -> List[Example]:
     examples_dir = join(dirname(config_path), pardir)
-    list_of_examples = []
+    list_of_examples: List[Example] = []
 
     with open(config_path, "r") as f:
         examples = yaml.safe_load(f.read())
@@ -233,7 +240,7 @@ def collect_examples(config_path):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _store_binary(path, data):
+def _store_binary(path: PathLike, data: bytes) -> None:
     directory = dirname(path)
     if not exists(directory):
         os.makedirs(directory)

@@ -3,8 +3,8 @@ from math import pi
 from bokeh.core.properties import expr
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import Arc, Circle, ColumnDataSource, Plot, Range1d, Ray, Text
-from bokeh.models.expressions import PolarTransform
+from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
+                          PolarTransform, Range1d, Ray, Text)
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 

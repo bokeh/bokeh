@@ -20,6 +20,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    Dict,
+    Generic,
+    List,
+    Set,
+    TypeVar,
+    cast,
+)
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -32,20 +42,25 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class MultiValuedDict:
+K = TypeVar("K")
+V = TypeVar("V")
+
+class MultiValuedDict(Generic[K, V]):
     ''' Store a mapping from keys to multiple values with minimal overhead.
 
-    Avoids storing empty collecctions.
+    Avoids storing empty collections.
 
     '''
 
-    def __init__(self):
+    _dict: Dict[K, V | Set[V]]
+
+    def __init__(self) -> None:
         '''
 
         '''
-        self._dict = dict()
+        self._dict = {}
 
-    def add_value(self, key, value):
+    def add_value(self, key: K, value: V) -> None:
         '''
 
         '''
@@ -62,11 +77,11 @@ class MultiValuedDict:
         if existing is None:
             self._dict[key] = value
         elif isinstance(existing, set):
-            existing.add(value)
+            cast(Set[V], existing).add(value) # XXX: V does not exclude `Set[_]`
         else:
             self._dict[key] = {existing, value}
 
-    def get_all(self, k):
+    def get_all(self, k: K) -> List[V]:
         '''
 
         '''
@@ -74,24 +89,25 @@ class MultiValuedDict:
         if existing is None:
             return []
         elif isinstance(existing, set):
-            return list(existing)
+            return list(cast(Set[V], existing))
         else:
             return [existing]
 
-    def get_one(self, k, duplicate_error):
+    def get_one(self, k: K, duplicate_error: str) -> V | None:
         '''
 
         '''
         existing = self._dict.get(k)
         if isinstance(existing, set):
+            existing = cast(Set[V], existing)
             if len(existing) == 1:
                 return next(iter(existing))
             else:
-                raise ValueError(duplicate_error + (": %r" % (existing)))
+                raise ValueError(f"{duplicate_error}: {existing!r}")
         else:
             return existing
 
-    def remove_value(self, key, value):
+    def remove_value(self, key: K, value: V) -> None:
         '''
 
         '''
@@ -100,13 +116,12 @@ class MultiValuedDict:
 
         existing = self._dict.get(key)
         if isinstance(existing, set):
+            existing = cast(Set[V], existing)
             existing.discard(value)
             if len(existing) == 0:
                 del self._dict[key]
         elif existing == value:
             del self._dict[key]
-        else:
-            pass
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -412,7 +414,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
 
 # http://eyalarubas.com/python-subproc-nonblock.html
 class NBSR:
-    def __init__(self, stream):
+    def __init__(self, stream) -> None:
         '''
         stream: the stream to read from.
                 Usually a process' stdout or stderr.

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
+import typing as tp
 from datetime import date, datetime
 
 # Bokeh imports
@@ -67,7 +68,7 @@ __all__ = (
 class AbstractSlider(Widget):
     """ """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
@@ -76,6 +77,10 @@ class AbstractSlider(Widget):
             kwargs["value_throttled"] = kwargs["value"]
 
         super().__init__(**kwargs)
+
+    orientation = Enum("horizontal", "vertical", help="""
+    Orient the slider either horizontally (default) or vertically.
+    """)
 
     title = Nullable(String, default="", help="""
     Slider's label.
@@ -161,7 +166,7 @@ class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
 
     @property
-    def value_as_datetime(self):
+    def value_as_datetime(self) -> datetime | None:
         ''' Convenience property to retrieve the value as a datetime object.
 
         Added in version 2.0
@@ -175,7 +180,7 @@ class DateSlider(AbstractSlider):
         return self.value
 
     @property
-    def value_as_date(self):
+    def value_as_date(self) -> date | None:
         ''' Convenience property to retrieve the value as a date object.
 
         Added in version 2.0
@@ -215,7 +220,7 @@ class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
 
     @property
-    def value_as_datetime(self):
+    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
 
@@ -235,7 +240,7 @@ class DateRangeSlider(AbstractSlider):
         return d1, d2
 
     @property
-    def value_as_date(self):
+    def value_as_date(self) -> tp.Tuple[date, date] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         date objects.
 

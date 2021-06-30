@@ -35,7 +35,7 @@ from os.path import (
     join,
 )
 from shutil import which
-from typing import List, Optional
+from typing import List, Set
 
 # External imports
 from selenium import webdriver
@@ -94,7 +94,7 @@ def create_firefox_webdriver() -> WebDriver:
         service_log_path=devnull,
     )
 
-def create_chromium_webdriver(extra_options: Optional[List[str]] = None) -> WebDriver:
+def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriver:
     options = webdriver.chrome.options.Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
@@ -112,13 +112,13 @@ def create_chromium_webdriver(extra_options: Optional[List[str]] = None) -> WebD
 def _is_executable(path: str) -> bool:
     return isfile(path) and os.access(path, os.X_OK)
 
-def _try_create_firefox_webdriver() -> Optional[WebDriver]:
+def _try_create_firefox_webdriver() -> WebDriver | None:
     try:
         return create_firefox_webdriver()
     except Exception:
         return None
 
-def _try_create_chromium_webdriver() -> Optional[WebDriver]:
+def _try_create_chromium_webdriver() -> WebDriver | None:
     try:
         return create_chromium_webdriver()
     except Exception:
@@ -127,12 +127,12 @@ def _try_create_chromium_webdriver() -> Optional[WebDriver]:
 class _WebdriverState:
 
     reuse: bool
-    kind: Optional[DriverKind]
+    kind: DriverKind | None
 
-    current: Optional[WebDriver]
-    _drivers: List[WebDriver]
+    current: WebDriver | None
+    _drivers: Set[WebDriver]
 
-    def __init__(self, *, kind: Optional[DriverKind] = None, reuse: bool = True):
+    def __init__(self, *, kind: DriverKind | None = None, reuse: bool = True) -> None:
         self.kind = kind
         self.reuse = reuse
         self.current = None
@@ -153,12 +153,12 @@ class _WebdriverState:
             self.current = self.create()
         return self.current
 
-    def create(self, kind: Optional[DriverKind] = None) -> WebDriver:
+    def create(self, kind: DriverKind | None = None) -> WebDriver:
         driver = self._create(kind)
         self._drivers.add(driver)
         return driver
 
-    def _create(self, kind: Optional[DriverKind]) -> WebDriver:
+    def _create(self, kind: DriverKind | None) -> WebDriver:
         driver_kind = kind or self.kind
 
         if driver_kind is None:

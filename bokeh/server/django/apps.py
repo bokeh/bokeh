@@ -8,6 +8,10 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -15,7 +19,7 @@
 
 # Standard library imports
 from importlib import import_module
-from typing import List, Optional
+from typing import List
 
 # External imports
 from django.apps import AppConfig
@@ -40,7 +44,7 @@ class DjangoBokehConfig(AppConfig):
 
     name = label = 'bokeh.server.django'
 
-    _routes: Optional[RoutingConfiguration] = None
+    _routes: RoutingConfiguration | None = None
 
     @property
     def bokeh_apps(self) -> List[Routing]:

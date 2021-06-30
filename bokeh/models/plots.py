@@ -22,10 +22,24 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
-from typing import Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    List as TList,
+    overload,
+)
+
+# External imports
+from typing_extensions import Literal
 
 # Bokeh imports
-from ..core.enums import Location, OutputBackend, ResetPolicy
+from ..core.enums import (
+    Location,
+    OutputBackend,
+    Place,
+    PlaceType,
+    ResetPolicy,
+)
 from ..core.properties import (
     Alias,
     Bool,
@@ -78,8 +92,11 @@ from .scales import (
     LogScale,
     Scale,
 )
-from .sources import ColumnDataSource, DataSource
+from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tools import HoverTool, Tool, Toolbar
+
+if TYPE_CHECKING:
+    from .tiles import TileSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -88,8 +105,6 @@ from .tools import HoverTool, Tool, Toolbar
 __all__ = (
     'Plot',
 )
-
-_VALID_PLACES = ('left', 'right', 'above', 'below', 'center')
 
 #-----------------------------------------------------------------------------
 # General API
@@ -228,7 +243,7 @@ class Plot(LayoutDOM):
         hovers = [obj for obj in self.tools if isinstance(obj, HoverTool)]
         return _list_attr_splat(hovers)
 
-    def _grid(self, dimension):
+    def _grid(self, dimension: Literal[0, 1]):
         grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
         return _list_attr_splat(grid)
 
@@ -254,14 +269,14 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self):
+    def tools(self) -> TList[Tool]:
         return self.toolbar.tools
 
     @tools.setter
-    def tools(self, tools):
+    def tools(self, tools: TList[Tool]):
         self.toolbar.tools = tools
 
-    def add_layout(self, obj, place='center'):
+    def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
         ''' Adds an object to the plot in a specified place.
 
         Args:
@@ -273,14 +288,14 @@ class Plot(LayoutDOM):
             None
 
         '''
-        if place not in _VALID_PLACES:
+        if place not in Place:
             raise ValueError(
-                "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(_VALID_PLACES))
+                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}"
             )
 
         getattr(self, place).append(obj)
 
-    def add_tools(self, *tools):
+    def add_tools(self, *tools: Tool) -> None:
         ''' Adds tools to the plot.
 
         Args:
@@ -296,7 +311,12 @@ class Plot(LayoutDOM):
 
             self.toolbar.tools.append(tool)
 
-    def add_glyph(self, source_or_glyph, glyph=None, **kw):
+    @overload
+    def add_glyph(self, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+    @overload
+    def add_glyph(self, source: ColumnarDataSource, glyph: Glyph, **kwargs: Any) -> GlyphRenderer: ...
+
+    def add_glyph(self, source_or_glyph: Glyph | ColumnarDataSource, glyph: Glyph | None = None, **kwargs: Any) -> GlyphRenderer:
         ''' Adds a glyph to the plot with associated data sources and ranges.
 
         This function will take care of creating and configuring a Glyph object,
@@ -315,7 +335,7 @@ class Plot(LayoutDOM):
             GlyphRenderer
 
         '''
-        if glyph is not None:
+        if isinstance(source_or_glyph, ColumnarDataSource):
             source = source_or_glyph
         else:
             source, glyph = ColumnDataSource(), source_or_glyph
@@ -326,11 +346,11 @@ class Plot(LayoutDOM):
         if not isinstance(glyph, Glyph):
             raise ValueError("'glyph' argument to add_glyph() must be Glyph subclass")
 
-        g = GlyphRenderer(data_source=source, glyph=glyph, **kw)
+        g = GlyphRenderer(data_source=source, glyph=glyph, **kwargs)
         self.renderers.append(g)
         return g
 
-    def add_tile(self, tile_source, **kw):
+    def add_tile(self, tile_source: TileSource, **kwargs: Any) -> TileRenderer:
         ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
@@ -343,29 +363,29 @@ class Plot(LayoutDOM):
             TileRenderer : TileRenderer
 
         '''
-        tile_renderer = TileRenderer(tile_source=tile_source, **kw)
+        tile_renderer = TileRenderer(tile_source=tile_source, **kwargs)
         self.renderers.append(tile_renderer)
         return tile_renderer
 
     @error(REQUIRED_RANGE)
-    def _check_required_range(self):
-        missing = []
+    def _check_required_range(self) -> str | None:
+        missing: TList[str] = []
         if not self.x_range: missing.append('x_range')
         if not self.y_range: missing.append('y_range')
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
     @error(REQUIRED_SCALE)
-    def _check_required_scale(self):
-        missing = []
+    def _check_required_scale(self) -> str | None:
+        missing: TList[str] = []
         if not self.x_scale: missing.append('x_scale')
         if not self.y_scale: missing.append('y_scale')
         if missing:
             return ", ".join(missing) + " [%s]" % self
 
     @error(INCOMPATIBLE_SCALE_AND_RANGE)
-    def _check_compatible_scale_and_ranges(self):
-        incompatible = []
+    def _check_compatible_scale_and_ranges(self) -> str | None:
+        incompatible: TList[str] = []
         x_ranges = list(self.extra_x_ranges.values())
         if self.x_range: x_ranges.append(self.x_range)
         y_ranges = list(self.extra_y_ranges.values())
@@ -395,18 +415,18 @@ class Plot(LayoutDOM):
             return ", ".join(incompatible) + " [%s]" % self
 
     @warning(MISSING_RENDERERS)
-    def _check_missing_renderers(self):
+    def _check_missing_renderers(self) -> str | None:
         if len(self.renderers) == 0 and len([x for x in self.center if isinstance(x, Annotation)]) == 0:
             return str(self)
 
     @error(BAD_EXTRA_RANGE_NAME)
-    def _check_bad_extra_range_name(self):
-        msg   = ""
+    def _check_bad_extra_range_name(self) -> str | None:
+        msg: str = ""
         valid = {
             f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
             for axis in ("x_range", "y_range")
         }
-        for place in _VALID_PLACES + ('renderers',):
+        for place in list(Place) + ['renderers']:
             for ref in getattr(self, place):
                 bad = ', '.join(
                     f"{axis}='{getattr(ref, axis)}'"
@@ -427,7 +447,7 @@ class Plot(LayoutDOM):
     """)
 
     @classmethod
-    def _scale(cls, scale):
+    def _scale(cls, scale: Literal["auto", "linear", "log", "categorical"]) -> Scale:
         if scale in ["auto", "linear"]:
             return LinearScale()
         elif scale == "log":
@@ -435,7 +455,7 @@ class Plot(LayoutDOM):
         if scale == "categorical":
             return CategoricalScale()
         else:
-            raise ValueError("Unknown mapper_type: %s" % scale)
+            raise ValueError(f"Unknown mapper_type: {scale}")
 
     x_scale = Instance(Scale, default=lambda: LinearScale(), help="""
     What kind of scale to use to convert x-coordinates in data space
@@ -522,15 +542,15 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    width: Optional[int] = Override(default=600)
+    width: int | None = Override(default=600)
 
-    height: Optional[int] = Override(default=600)
+    height: int | None = Override(default=600)
 
-    plot_width: Optional[int] = Alias("width", help="""
+    plot_width: int | None = Alias("width", help="""
     The outer width of a plot, including any axes, titles, border padding, etc.
     """)
 
-    plot_height: Optional[int] = Alias("height", help="""
+    plot_height: int | None = Alias("height", help="""
     The outer height of a plot, including any axes, titles, border padding, etc.
     """)
 

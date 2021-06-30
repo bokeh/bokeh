@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,6 +21,7 @@ import warnings
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
+from bokeh._testing.util.types import Capture
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
 
 # Module under test
@@ -78,7 +81,7 @@ def test___version___type() -> None:
 def test___version___defined() -> None:
     assert b.__version__ != 'unknown'
 
-def test_license(capsys) -> None:
+def test_license(capsys: Capture) -> None:
     b.license()
     out, err = capsys.readouterr()
     assert out == _LICENSE

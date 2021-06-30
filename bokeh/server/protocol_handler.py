@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any, Callable, Dict
+
 # Bokeh imports
 from ..protocol.exceptions import ProtocolError
 from .session import ServerSession
@@ -57,8 +60,10 @@ class ProtocolHandler:
 
     '''
 
-    def __init__(self):
-        self._handlers = dict()
+    _handlers: Dict[str, Callable[..., Any]]
+
+    def __init__(self) -> None:
+        self._handlers = {}
 
         self._handlers['PULL-DOC-REQ'] = ServerSession.pull
         self._handlers['PUSH-DOC'] = ServerSession.push

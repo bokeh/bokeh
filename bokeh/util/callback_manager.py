@@ -23,10 +23,23 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import signature
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    List,
+    Type,
+)
 
 # Bokeh imports
+from ..core.types import Unknown
 from ..events import Event
 from ..util.functions import get_param_info
+
+if TYPE_CHECKING:
+    from ..core.has_props import Setter
+    from ..document import Document
+    from ..document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,16 +54,23 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+EventCallback = Callable[[Event], None]
+PropertyCallback = Callable[[str, Unknown, Unknown], None]
+
 class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
     triggering event callbacks on the Python side.
 
     '''
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self._event_callbacks = dict()
 
-    def on_event(self, event, *callbacks):
+    _event_callbacks: Dict[str, List[EventCallback]]
+    _document: Document | None
+
+    def __init__(self, *args, **kw) -> None:
+        super().__init__(*args, **kw)
+        self._event_callbacks = {}
+
+    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
         ''' Run callbacks when the specified event occurs on this Model
 
         Not all Events are supported for all Models.
@@ -72,8 +92,8 @@ class EventCallbackManager:
         if event not in self.subscribed_events:
             self.subscribed_events.append(event)
 
-    def _trigger_event(self, event):
-        def invoke():
+    def _trigger_event(self, event: Event) -> None:
+        def invoke() -> None:
             for callback in self._event_callbacks.get(event.event_name,[]):
                 if event._model_id is not None and self.id == event._model_id:
                     if _nargs(callback) == 0:
@@ -94,7 +114,7 @@ class EventCallbackManager:
         else:
             invoke()
 
-    def _update_event_callbacks(self):
+    def _update_event_callbacks(self) -> None:
         if self.document is None:
             return
 
@@ -108,11 +128,14 @@ class PropertyCallbackManager:
 
     '''
 
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self._callbacks = dict()
+    _callbacks: Dict[str, List[PropertyCallback]]
+    _document: Document | None
 
-    def on_change(self, attr, *callbacks):
+    def __init__(self, *args, **kw) -> None:
+        super().__init__(*args, **kw)
+        self._callbacks = {}
+
+    def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
         ''' Add a callback on this object to trigger when ``attr`` changes.
 
         Args:
@@ -128,15 +151,13 @@ class PropertyCallbackManager:
 
         _callbacks = self._callbacks.setdefault(attr, [])
         for callback in callbacks:
-
             if callback in _callbacks:
                 continue
 
             _check_callback(callback, ('attr', 'old', 'new'))
-
             _callbacks.append(callback)
 
-    def remove_on_change(self, attr, *callbacks):
+    def remove_on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
         ''' Remove a callback from this object '''
         if len(callbacks) == 0:
             raise ValueError("remove_on_change takes an attribute name and one or more callbacks, got only one parameter")
@@ -144,7 +165,8 @@ class PropertyCallbackManager:
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr, old, new, hint=None, setter=None):
+    def trigger(self, attr: str, old: Unknown, new: Unknown,
+            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
 
         Args:

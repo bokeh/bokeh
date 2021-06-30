@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -18,7 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-from mock import patch
+from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -92,7 +94,7 @@ class TestDocumentHold:
             d.hold("junk")
 
     @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
-    def test_rehold(self, first, second, caplog) -> None:
+    def test_rehold(self, first, second, caplog: pytest.LogCaptureFixture) -> None:
         d = document.Document()
         with caplog.at_level(logging.WARN):
             d.hold(first)
@@ -124,7 +126,7 @@ class TestDocumentHold:
         assert d._hold == None
 
     @patch("bokeh.document.document.Document._trigger_on_change")
-    def test_unhold_triggers_events(self, mock_trigger) -> None:
+    def test_unhold_triggers_events(self, mock_trigger: MagicMock) -> None:
         d = document.Document()
         d.hold('collect')
         d._held_events = [1,2,3]
@@ -150,9 +152,9 @@ class Test_Document_delete_modules:
         assert 'junkjunkjunk' in sys.modules
         d.delete_modules()
         assert 'junkjunkjunk' not in sys.modules
-        assert d._modules is None
+        assert d._modules == []
 
-    def test_extra_referrer_error(self, caplog) -> None:
+    def test_extra_referrer_error(self, caplog: pytest.LogCaptureFixture) -> None:
         d = document.Document()
         assert not d.roots
         class FakeMod:
@@ -177,7 +179,7 @@ class Test_Document_delete_modules:
             assert len(caplog.records) == 1
 
         assert 'junkjunkjunk' not in sys.modules
-        assert d._modules is None
+        assert d._modules == []
 
 
 class TestDocument:

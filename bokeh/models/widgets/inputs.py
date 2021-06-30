@@ -218,7 +218,7 @@ class Spinner(NumericInput):
 
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if "value" in kwargs and "value_throttled" not in kwargs:
             kwargs["value_throttled"] = kwargs["value"]
 

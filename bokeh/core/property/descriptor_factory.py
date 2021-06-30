@@ -56,6 +56,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    TYPE_CHECKING,
+    Generic,
+    List,
+    TypeVar,
+)
+
+if TYPE_CHECKING:
+    from .descriptors import PropertyDescriptor
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -72,7 +83,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class PropertyDescriptorFactory:
+T = TypeVar("T")
+
+class PropertyDescriptorFactory(Generic[T]):
     """ Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"
@@ -106,7 +119,7 @@ class PropertyDescriptorFactory:
 
     """
 
-    def make_descriptors(self, name):
+    def make_descriptors(self, name: str) -> List[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install on a
         class, in order to delegate attribute access to this property.
 

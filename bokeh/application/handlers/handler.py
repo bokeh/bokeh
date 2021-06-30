@@ -22,15 +22,11 @@ based off information in some database:
 
         """
 
-        def modify_document(self, doc):
-
+        def modify_document(self, doc: Document) -> None:
             # do some data base lookup here to generate 'plot'
 
             # add the plot to the document (i.e modify the document)
             doc.add_root(plot)
-
-            # and return it
-            return doc
 
 '''
 
@@ -50,6 +46,17 @@ log = logging.getLogger(__name__)
 import os
 import sys
 import traceback
+from typing import TYPE_CHECKING, Any, Dict
+
+# External imports
+from tornado.httputil import HTTPServerRequest
+
+# Bokeh imports
+from ...document import Document
+from ..application import ServerContext, SessionContext
+
+if TYPE_CHECKING:
+    from .code_runner import CodeRunner
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -75,7 +82,12 @@ class Handler:
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    _failed: bool
+    _error: str | None
+    _error_detail: str | None
+    _static: str | None
+
+    def __init__(self) -> None:
         self._failed = False
         self._error = None
         self._error_detail = None
@@ -84,29 +96,33 @@ class Handler:
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> str | None:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> str | None:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._failed
 
+    @property
+    def safe_to_fork(self) -> bool:
+        return True
+
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Document) -> None:
         ''' Modify an application document in a specified manner.
 
         When a Bokeh server session is initiated, the Bokeh server asks the
@@ -127,7 +143,7 @@ class Handler:
         '''
         raise NotImplementedError("implement modify_document()")
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: ServerContext) -> None:
         ''' Execute code when the server is first started.
 
         Subclasses may implement this method to provide for any one-time
@@ -140,7 +156,7 @@ class Handler:
         '''
         pass
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context: ServerContext) -> None:
         ''' Execute code when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
 
@@ -157,7 +173,7 @@ class Handler:
         '''
         pass
 
-    async def on_session_created(self, session_context):
+    async def on_session_created(self, session_context: SessionContext) -> None:
         ''' Execute code when a new session is created.
 
         Subclasses may implement this method to provide for any per-session
@@ -170,7 +186,7 @@ class Handler:
         '''
         pass
 
-    async def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context: SessionContext) -> None:
         ''' Execute code when a session is destroyed.
 
         Subclasses may implement this method to provide for any per-session
@@ -182,7 +198,7 @@ class Handler:
         '''
         pass
 
-    def process_request(self, request):
+    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -195,7 +211,7 @@ class Handler:
         '''
         return {}
 
-    def static_path(self):
+    def static_path(self) -> str | None:
         ''' Return a path to app-specific static resources, if applicable.
 
         '''
@@ -204,7 +220,7 @@ class Handler:
         else:
             return self._static
 
-    def url_path(self):
+    def url_path(self) -> str | None:
         ''' Returns a default URL path, if applicable.
 
         Handlers subclasses may optionally implement this method, to inform
@@ -217,17 +233,18 @@ class Handler:
         return None
 
 
-def handle_exception(handler, e):
+def handle_exception(handler: Handler | CodeRunner, e: Exception) -> None:
     ''' Record an exception and details on a Handler.
 
     '''
     handler._failed = True
     handler._error_detail = traceback.format_exc()
 
-    _exc_type, _exc_value, exc_traceback = sys.exc_info()
+    _, _, exc_traceback = sys.exc_info()
     filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
-    handler._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
+    basename = os.path.basename(filename)
+    handler._error = f"{e}\nFile {basename!r}, line {line_number}, in {func}:\n{txt}"
 
 #-----------------------------------------------------------------------------
 # Private API

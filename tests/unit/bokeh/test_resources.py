@@ -8,6 +8,8 @@
 # -----------------------------------------------------------------------------
 # Boilerplate
 # -----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest  # noqa isort:skip
 
 # -----------------------------------------------------------------------------
@@ -20,6 +22,7 @@ import re
 import subprocess
 import sys
 from os.path import basename
+from typing import List
 
 # External imports
 import bs4
@@ -29,7 +32,8 @@ from packaging.version import Version as V
 import bokeh.util.version as buv
 from bokeh import __version__
 from bokeh.models import Model
-from bokeh.resources import _get_cdn_urls
+from bokeh.resources import RuntimeMessage, _get_cdn_urls
+from bokeh.settings import LogLevel
 
 # Module under test
 import bokeh.resources as resources  # isort:skip
@@ -42,7 +46,7 @@ import bokeh.resources as resources  # isort:skip
 if os.environ.get("BOKEH_RESOURCES"):
     raise RuntimeError("Cannot run the unit tests with BOKEH_RESOURCES set")
 
-LOG_LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"]
+LOG_LEVELS: List[LogLevel] = ["trace", "debug", "info", "warn", "error", "fatal"]
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
@@ -88,7 +92,7 @@ class TestSRIHashes:
 
     def test_get_sri_hashes_for_version(self) -> None:
         all_hashes = resources.get_all_sri_hashes()
-        for key, value in all_hashes.items():
+        for key in all_hashes:
             h = resources.get_sri_hashes_for_version(key)
             assert h == all_hashes[key]
 
@@ -113,7 +117,7 @@ class TestJSResources:
         assert hasattr(r, "css_raw") is False
         assert r.messages == []
 
-    def test_js_resources_hashes_mock_full(self, monkeypatch) -> None:
+    def test_js_resources_hashes_mock_full(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0")
         monkeypatch.setattr(resources, "__version__", "1.4.0")
         r = resources.JSResources()
@@ -123,7 +127,7 @@ class TestJSResources:
         assert set(r.hashes.values()) == min_hashes
 
     @pytest.mark.parametrize('v', ["1.4.0dev6", "1.4.0rc1", "1.4.0dev6-50-foo"])
-    def test_js_resources_hashes_mock_non_full(self, v, monkeypatch) -> None:
+    def test_js_resources_hashes_mock_non_full(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         r = resources.JSResources()
@@ -179,10 +183,10 @@ class TestResources:
     def test_get_cdn_urls(self) -> None:
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
-        url = result["urls"](["bokeh"], "js")[0]
+        url = result.urls(["bokeh"], "js")[0]
         assert "bokeh/dev" in url
 
-    def test_cdn(self, monkeypatch) -> None:
+    def test_cdn(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(resources, "__version__", "1.0")
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.mode == "cdn"
@@ -195,10 +199,10 @@ class TestResources:
         resources.__version__ = "1.0-1-abc"
         r = resources.Resources(mode="cdn", version="1.0")
         assert r.messages == [
-            {
-                "text": "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
-                "type": "warn",
-            }
+            RuntimeMessage(
+                text="Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+                type="warn",
+            )
         ]
 
     def test_server_default(self) -> None:
@@ -243,7 +247,7 @@ class TestResources:
         ]
 
     def test_server_with_versioner(self) -> None:
-        def versioner(path):
+        def versioner(path: str) -> str:
             return path + "?v=VERSIONED"
 
         r = resources.Resources(mode="server", root_url="http://foo/", path_versioner=versioner)
@@ -322,7 +326,7 @@ class TestResources:
                 resources.Resources(mode, root_url="foo")
 
     @pytest.mark.parametrize('env', ["BOKEH_CDN_VERSION", "BOKEH_ROOTDIR"])
-    def test_builtin_importable_with_env(self, monkeypatch, env) -> None:
+    def test_builtin_importable_with_env(self, monkeypatch: pytest.MonkeyPatch, env) -> None:
         cmd = [sys.executable, "-c", "import bokeh.resources"]
         monkeypatch.setenv(env, "foo")
         try:
@@ -330,7 +334,7 @@ class TestResources:
         except subprocess.CalledProcessError:
             pytest.fail(f"resources import failed with {env} set")
 
-    def test_render_js_cdn_release(self, monkeypatch) -> None:
+    def test_render_js_cdn_release(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         out = resources.CDN.render_js()
@@ -343,7 +347,7 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["1.8.0rc1", "1.8.0dev6"])
-    def test_render_js_cdn_dev_release(self, v, monkeypatch) -> None:
+    def test_render_js_cdn_dev_release(self, v: str, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.CDN.render_js()
@@ -353,7 +357,7 @@ class TestResources:
             assert "crossorigin" not in script.attrs
             assert "integrity" not in script.attrs
 
-    def test_render_js_cdn_dev_local(self, monkeypatch) -> None:
+    def test_render_js_cdn_dev_local(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
         out = resources.CDN.render_js()
@@ -366,7 +370,7 @@ class TestResources:
             assert "integrity" not in script.attrs
 
     @pytest.mark.parametrize('v', ["2.0.0", "2.0.0-foo", "1.8.0rc1", "1.8.0dev6"])
-    def test_render_js_inline(self, v, monkeypatch) -> None:
+    def test_render_js_inline(self, v, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(buv, "__version__", v)
         monkeypatch.setattr(resources, "__version__", v)
         out = resources.INLINE.render_js()

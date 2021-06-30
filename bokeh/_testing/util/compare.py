@@ -20,8 +20,17 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import (
+    Any,
+    Dict,
+    Sequence,
+    Union,
+)
+
 # External imports
 import numpy as np
+import numpy.typing as npt
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -35,7 +44,16 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def cds_data_almost_equal(data1, data2, rtol=1e-09, atol=0.0):
+Num = Union[int, float]
+Data = Dict[str,
+    Union[
+        Sequence[Num],
+        Sequence[Sequence[Num]],
+        npt.NDArray[Any],         # XXX: figure out how to type this properly (numpy >= 1.21)
+    ],
+]
+
+def cds_data_almost_equal(data1: Data, data2: Data, rtol: float = 1e-09, atol: float = 0.0) -> bool:
     '''Compares data dictionaries containing floats, lists and arrays
     Also supports nested lists and arrays
     '''

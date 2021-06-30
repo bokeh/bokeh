@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
 from typing import Tuple
@@ -15,6 +16,7 @@ from .build import (
     build_docs,
     build_npm_packages,
     build_sdist_packages,
+    build_wheel_packages,
     dev_install,
     install_bokehjs,
     npm_install,
@@ -108,6 +110,7 @@ BUILD_STEPS: StepListType = (
     build_npm_packages,
     build_conda_packages,
     build_sdist_packages,
+    build_wheel_packages,
     build_docs,
     pack_deployment_tarball,
     upload_deployment_tarball,

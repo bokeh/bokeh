@@ -77,7 +77,7 @@ class Datetime(Property):
 
     """
 
-    def __init__(self, default=Undefined, help=None):
+    def __init__(self, default=Undefined, help=None) -> None:
         super().__init__(default=default, help=help)
 
     def transform(self, value):
@@ -131,7 +131,7 @@ class TimeDelta(Property):
 
     """
 
-    def __init__(self, default=datetime.timedelta(), help=None):
+    def __init__(self, default=datetime.timedelta(), help=None) -> None:
         super().__init__(default=default, help=help)
 
     def transform(self, value):

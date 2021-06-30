@@ -7,15 +7,16 @@
 """
 
 """
+from __future__ import annotations
 
 # Standard library imports
-from typing import Callable, Optional, Sequence
+from typing import Callable, Sequence, Union
 
 # Bokeh imports
 from .enums import ActionResult
 from .ui import failed, passed, skipped
 
-UIResultFuncType = Callable[[str, Optional[Sequence[str]]], str]
+UIResultFuncType = Callable[[str, Union[Sequence[str], None]], str]
 
 
 class ActionReturn:
@@ -24,7 +25,7 @@ class ActionReturn:
     kind: ActionResult
     ui: UIResultFuncType
 
-    def __init__(self, message: str, details: Optional[Sequence[str]] = None) -> None:
+    def __init__(self, message: str, details: Sequence[str] | None = None) -> None:
         self.message = message
         self.details = details
 

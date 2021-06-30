@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Optional
-
 # Bokeh imports
 from ..core.enums import (
     Align,
@@ -98,13 +95,13 @@ class LayoutDOM(Model):
     Whether the component will be visible and a part of a layout.
     """)
 
-    width: Optional[int] = Nullable(NonNegativeInt, help="""
+    width: int | None = Nullable(NonNegativeInt, help="""
     The width of the component (in pixels).
 
     This can be either fixed or preferred width, depending on width sizing policy.
     """)
 
-    height: Optional[int] = Nullable(NonNegativeInt, help="""
+    height: int | None = Nullable(NonNegativeInt, help="""
     The height of the component (in pixels).
 
     This can be either fixed or preferred height, depending on height sizing policy.
@@ -379,7 +376,7 @@ class Box(LayoutDOM):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
 
         if len(args) > 0 and "children" in kwargs:
             raise ValueError("'children' keyword cannot be used with positional arguments")
@@ -509,7 +506,7 @@ class WidgetBox(Column):
     WidgetBox is DEPRECATED and will beremoved in Bokeh 3.0, use 'Column' instead.
 
     '''
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw) -> None:
         super().__init__(*args, **kw)
         from ..util.deprecation import deprecated
         deprecated("'WidgetBox' is deprecated and will be removed in Bokeh 3.0, use 'bokeh.models.Column' instead")

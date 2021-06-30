@@ -8,6 +8,8 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
+from __future__ import annotations # isort:skip
+
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -29,7 +31,7 @@ import bokeh.util.callback_manager as cbm # isort:skip
 
 
 class _GoodPropertyCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None
@@ -67,7 +69,7 @@ def _just_fine_property(w, x, y, z='default'):
 
 
 class _GoodEventCallback:
-    def __init__(self):
+    def __init__(self) -> None:
         self.last_name = None
         self.last_old = None
         self.last_new = None

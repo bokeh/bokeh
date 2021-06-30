@@ -5,7 +5,7 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, Button, CheckboxButtonGroup,
                           CheckboxGroup, ColorPicker, Column, ColumnDataSource,
                           DataTable, DatePicker, DateRangeSlider, DateSlider, Div,
-                          Dropdown, IntEditor, MultiSelect, NumberEditor,
+                          Dropdown, IntEditor, MultiChoice, MultiSelect, NumberEditor,
                           NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
                           RadioGroup, RangeSlider, Row, Select, SelectEditor, Slider,
                           Spinner, StringEditor, StringFormatter, TableColumn, Tabs,
@@ -33,6 +33,9 @@ radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
+checkbox_button_group_vertical = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1], orientation="vertical")
+radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0, orientation="vertical")
+
 text_input = TextInput(placeholder="Enter value ...")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
@@ -43,6 +46,8 @@ text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value=
 select = Select(options=["Option 1", "Option 2", "Option 3"])
 
 multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
+
+multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)])
 
 slider = Slider(value=10, start=0, end=100, step=0.5)
 
@@ -114,10 +119,11 @@ widgets = Column(children=[
             click_button, disabled_button, toggle, dropdown, dropdown_split,
             checkbox_group, radio_group,
             checkbox_button_group, radio_button_group,
+            Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
             text_input, autocomplete_input, text_area,
-            select, multi_select,
+            select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
             paragraph, div, pre_text,

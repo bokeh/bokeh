@@ -45,14 +45,14 @@ L3Factor = Tuple(String, String, String)
 class Factor(NonNullable):
     """ Represents a single categorical factor. """
 
-    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False) -> None:
         type_param = Either(L1Factor, L2Factor, L3Factor)
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 
 class FactorSeq(NonNullable):
     """ Represents a collection of categorical factors. """
 
-    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False):
+    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False) -> None:
         type_param = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
         super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
 

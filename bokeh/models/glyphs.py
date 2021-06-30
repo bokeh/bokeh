@@ -564,7 +564,7 @@ class Image(XYGlyph):
 
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         if 'palette' in kwargs and 'color_mapper' in kwargs:
             raise ValueError("only one of 'palette' and 'color_mapper' may be specified")
         elif 'color_mapper' not in kwargs:
@@ -861,7 +861,7 @@ class Oval(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     '''
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         deprecated("'Oval' is deprecated and will be removed in Bokeh 3.0, use the Ellipse glyph instead")
         super().__init__(**kwargs)
 

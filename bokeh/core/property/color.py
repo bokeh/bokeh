@@ -116,7 +116,7 @@ class Color(Either):
 
     """
 
-    def __init__(self, default=Undefined, help=None):
+    def __init__(self, default=Undefined, help=None) -> None:
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
@@ -133,7 +133,7 @@ class Color(Either):
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(*types, default=default, help=help)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def transform(self, value):
@@ -171,7 +171,7 @@ class Alpha(Percent):
     transparent and 1 being opaque).
     """
 
-    def __init__(self, default=1.0, help=None):
+    def __init__(self, default=1.0, help=None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help)
 
