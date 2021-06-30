@@ -61,7 +61,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         """GET method handler."""
         path = self.path[1:].split("?")[0]
         try:
-            with open(os.path.join(HTML_ROOT, path), "rb") as f:  # lgtm [py/path-injection]
+            with open(os.path.join(HTML_ROOT, path), mode="rb") as f:  # lgtm [py/path-injection]
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
